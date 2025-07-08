@@ -1,0 +1,1909 @@
+<!-- START: Code to be placed in the <head> section of your HTML -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Tailwind CSS CDN (kept for potential future use or if user adds their own Tailwind config) -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script type="module">
+let dmaccDiv = document.getElementById('dmacc');
+        if (!dmaccDiv) {
+            dmaccDiv = document.createElement('div');
+            dmaccDiv.id = 'dmacc';
+            document.body.appendChild(dmaccDiv);
+        }
+
+
+    // Firebase Imports - MUST be at the top of a module script
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, query, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // Tailwind config (kept for potential future use, will have no effect without Tailwind CSS loaded)
+    tailwind.config = {
+        theme: {
+            extend: {
+                fontFamily: {
+                    sans: ['Inter', 'sans-serif'],
+                    'opendyslexic': ['OpenDyslexic', 'sans-serif'],
+                },
+                colors: {
+                    'aaw-neumo-bg': '#e0e0e0',
+                    'aaw-neumo-light': '#ffffff',
+                    'aaw-neumo-dark': '#bebebe',
+                    'aaw-high-contrast-text': '#333333',
+                    'aaw-high-contrast-bg': '#f0f0f0',
+                    'dm-green-bg': '#4CAF50',
+                    'dm-green-light': '#76D776',
+                    'dm-green-dark': '#388E3C',
+                }
+            }
+        }
+    }
+</script>
+<!-- Font Awesome CDN for icons (kept, but icons will only show if CSS is loaded) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<!-- Custom CSS for accessibility features -->
+<style>
+    /* General body styles for font and line height */
+    body {
+        font-family: 'Inter', sans-serif !important;
+        font-size: 16px !important;
+        line-height: 1.5em !important;
+        transition: font-size 0.2s ease, line-height 0.2s ease, font-family 0.2s ease, word-spacing 0.2s ease, letter-spacing 0.2s ease, filter 0.3s ease;
+    }
+
+    /* Ensure all elements inherit these, or explicitly set them */
+    * {
+        font-size: inherit !important;
+        line-height: inherit !important;
+        word-spacing: inherit !important;
+        letter-spacing: inherit !important;
+    }
+
+    /* Active tool icon color */
+    .aaw-tool-active-icon {
+        color: #0056b3 !important; /* Darker sky blue for active icons */
+    }
+
+    /* High Contrast Mode */
+    body.aaw-high-contrast-mode {
+        filter: invert(100%) hue-rotate(180deg) !important;
+        background-color: #000 !important; /* Ensure background is dark */
+        color: #fff !important; /* Ensure text is light */
+    }
+
+    body.aaw-high-contrast-mode img {
+        filter: invert(100%) hue-rotate(180deg) !important; /* Re-invert images */
+    }
+
+    /* NEW Invert Colors */
+    body.new-inverted-mode {
+        filter: invert(100%) !important;
+    }
+    body.new-inverted-mode img {
+        filter: invert(100%) !important; /* Re-invert images */
+    }
+
+    /* Desaturate Colors */
+    body.aaw-desaturated-mode {
+        filter: saturate(0%) !important;
+    }
+
+    /* Hide Images */
+    body.aaw-hide-images img {
+        display: none !important;
+    }
+
+    /* Stop Animations */
+    body.aaw-stop-animations * {
+        animation-play-state: paused !important;
+        transition-duration: 0s !important;
+    }
+
+    /* Highlight Hover/Focus */
+    body.aaw-highlight-hover-focus-active a:hover,
+    body.aaw-highlight-hover-focus-active a:focus-visible,
+    body.aaw-highlight-hover-focus-active button:hover,
+    body.aaw-highlight-hover-focus-active button:focus-visible,
+    body.aaw-highlight-hover-focus-active input:hover,
+    body.aaw-highlight-hover-focus-active input:focus-visible,
+    body.aaw-highlight-hover-focus-active select:hover,
+    body.aaw-highlight-hover-focus-active select:focus-visible,
+    body.aaw-highlight-hover-focus-active textarea:hover,
+    body.aaw-highlight-hover-focus-active textarea:focus-visible {
+        outline: 3px solid #FFD700 !important; /* Gold highlight */
+        box-shadow: 0 0 0 3px #FFD700 !important;
+    }
+
+    /* Text Spacing */
+    body.aaw-text-spacing-active {
+        word-spacing: 0.15em !important;
+        letter-spacing: 0.05em !important;
+    }
+
+    /* Dyslexia Friendly Mode */
+    body.aaw-dyslexia-friendly-mode {
+        font-family: 'OpenDyslexic', sans-serif !important;
+        line-height: 1.8em !important;
+        word-spacing: 0.1em !important;
+        letter-spacing: 0.05em !important;
+    }
+
+    /* Text Align */
+    body.aaw-text-align-right {
+        text-align: right !important;
+    }
+    body.aaw-text-align-center {
+        text-align: center !important;
+    }
+    body.aaw-text-align-left {
+        text-align: left !important;
+    }
+
+    /* Custom Cursor */
+    body.aaw-custom-cursor {
+        cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zM11 7h2v6h-2zM11 15h2v2h-2z"/></svg>') 16 16, auto !important;
+    }
+
+    /* Highlight Links */
+    body.aaw-highlight-links a {
+        outline: 2px solid #007bff !important;
+        background-color: rgba(0, 123, 255, 0.1) !important;
+        border-radius: 4px !important;
+    }
+
+    /* Fixed positioning for widget and header */
+    #aaw-accessibility-btn {
+        position: fixed;
+        bottom: 13px;
+        right: 13px;
+        z-index: 2147483647; /* Ensure it's on top */
+        isolation: isolate; /* Added for filter isolation */
+    }
+
+    #aaw-accessibility-popover {
+        position: fixed;
+        bottom: 120px;
+        right: 13px;
+        z-index: 2147483640;
+        isolation: isolate; /* Added for filter isolation */
+    }
+
+    /* Combined Header within the popover to ensure it stays at the top */
+    #aaw-popover-header {
+        position: sticky;
+        top: 0;
+        background-color: white; /* Match popover background */
+        z-index: 9999; /* Increased z-index to ensure it's on top */
+        padding: 15px;
+        margin: -15px -15px 15px -15px; /* Offset initial padding of popover, add bottom margin */
+        border-bottom: 1px solid #ccc;
+    }
+
+    /* Ensure box-sizing for grid items */
+    #aaw-accessibility-popover li,
+    #aaw-accessibility-popover button {
+        box-sizing: border-box;
+    }
+
+    /* Common style for close buttons */
+    .aaw-close-button {
+        background-color: #e0e0e0;
+        border: none;
+        border-radius: 50%;
+        width: 44px; /* Slightly larger */
+        height: 44px; /* Slightly larger */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        font-size: 22px; /* Slightly larger icon */
+        color: #333333;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        position: absolute; /* Ensure absolute positioning */
+        top: 10px; /* Adjust as needed for new size */
+        right: 10px; /* Adjust as needed for new size */
+        z-index: 10; /* Ensure it's above other content in the pop-up */
+    }
+
+    /* NEW: Override filters for the accessibility widget and popover */
+    body.aaw-inverted-mode #aaw-accessibility-btn,
+    body.aaw-inverted-mode #aaw-accessibility-popover,
+    body.aaw-desaturated-mode #aaw-accessibility-btn,
+    body.aaw-desaturated-mode #aaw-accessibility-popover,
+    body.aaw-high-contrast-mode #aaw-accessibility-btn,
+    body.aaw-high-contrast-mode #aaw-accessibility-popover,
+    body.new-inverted-mode #aaw-accessibility-btn, /* Added new class */
+    body.new-inverted-mode #aaw-accessibility-popover { /* Added new class */
+        filter: none !important;
+    }
+</style>
+<!-- END: Code to be placed in the <head> section of your HTML -->
+
+
+<!-- START: Code to be placed just before the closing </body> tag -->
+<!-- All custom CSS has been removed to prevent conflicts -->
+
+<!-- Accessibility Widget -->
+<div id="aaw-accessibility-btn" style="position: fixed; bottom: 13px; right: 13px; width: 80px; height: 80px; background-color: teal; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 2147483647;" tabindex="0" role="button" aria-label="أدوات الوصول الرقمي" aria-haspopup="menu" aria-expanded="false">
+    <img src="https://cdn.userway.org/widgetapp/images/wheel_left_wh.svg" alt="Universal Access Icon" style="width: 66px; height: 36px; display: block;">
+</div>
+
+<ul id="aaw-accessibility-popover" style="position: fixed; bottom: 120px; right: 13px; left: auto; background-color: white; border-radius: 20px; padding: 15px; z-index: 2147483640; width: 480px; max-height: calc(100vh - 180px); overflow-y: auto; opacity: 0; visibility: hidden; transform: translateY(20px); transition: opacity 0.3s ease-out, visibility 0.3s ease-out, transform 0.3s ease-out; list-style: none; margin: 0; text-align: right; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding-bottom: 0;">
+    <!-- Combined Header Section -->
+    <div id="aaw-popover-header" style="position: sticky; top: 0; background-color: white; z-index: 9999; padding: 15px; margin: -15px -15px 15px -15px; border-bottom: 1px solid #ccc; grid-column: 1 / -1;">
+        <!-- Row 1: Logo and Search -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <!-- Dhofar Municipality Logo -->
+            <img src="https://edm.gov.om/wp-content/uploads/2024/08/شعار-البلدية.jpg" alt="شعار بلدية ظفار" style="height: 60px; width: 60px; border-radius: 10px;" onerror="this.onerror=null;this.src='https://placehold.co/60x60/007bff/ffffff?text=Dhofar+Municipality';">
+
+            <!-- Search Input Container -->
+            <div style="position: relative; flex-grow: 1; margin-left: 10px;">
+                <input type="text" id="aaw-tool-search-input" placeholder="البحث عن أداة..." style="width: 100%; padding: 8px 12px 8px 40px; border: 1px solid #ccc; border-radius: 10px; font-size: 14px; text-align: right;">
+                <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #888;"></i>
+            </div>
+        </div>
+        <!-- Row 2: Category Filters -->
+        <div id="aaw-filter-buttons-row" style="display: flex; justify-content: space-between; gap: 5px; width: 100%;">
+            <button id="aaw-filter-all-btn" style="padding: 8px 12px; background-color: #e0e0e0; color: #333; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; flex-grow: 1;">
+                <i class="fas fa-bars" style="margin-left: 5px;"></i>الكل
+            </button>
+            <button id="aaw-filter-audio-btn" style="padding: 8px 12px; background-color: #e0e0e0; color: #333; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; flex-grow: 1;">
+                <i class="fas fa-volume-up" style="margin-left: 5px;"></i>سمعية
+            </button>
+            <button id="aaw-filter-visual-display-btn" style="padding: 8px 12px; background-color: #e0e0e0; color: #333; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; flex-grow: 1;">
+                <i class="fas fa-eye" style="margin-left: 5px;"></i>بصرية - عرض
+            </button>
+            <button id="aaw-filter-visual-text-btn" style="padding: 8px 12px; background-color: #007bff; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; flex-grow: 1;">
+                <i class="fas fa-a" style="margin-left: 5px;"></i>بصرية - نص
+            </button>
+        </div>
+    </div>
+
+    <!-- Audio Tools -->
+    <li>
+        <button id="aaw-text-to-speech-btn" style="width: 100%; padding: 12px 0; background-color: #e0e0e0; color: #333333; border: none; border-radius: 15px; cursor: pointer; text-align: center; font-size: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px;" role="menuitem" tabindex="0">
+            <i class="fas fa-volume-up" style="margin-bottom: 8px; font-size: 24px;"></i>
+            <span>قارئ النصوص</span>
+        </button>
+    </li>
+    <li>
+        <button id="aaw-prev-line-btn" style="width: 100%; padding: 12px 0; background-color: #e0e0e0; color: #333333; border: none; border-radius: 15px; cursor: pointer; text-align: center; font-size: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px;" role="menuitem" tabindex="-1">
+            <i class="fas fa-backward" style="margin-bottom: 8px; font-size: 24px;"></i>
+            <span>السطر السابق</span>
+        </button>
+    </li>
+    <li>
+        <button id="aaw-next-line-btn" style="width: 100%; padding: 12px 0; background-color: #e0e0e0; color: #333333; border: none; border-radius: 15px; cursor: pointer; text-align: center; font-size: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px;" role="menuitem" tabindex="-1">
+            <i class="fas fa-forward" style="margin-bottom: 8px; font-size: 24px;"></i>
+            <span>السطر التالي</span>
+        </button>
+    </li>
+    <li>
+        <button id="aaw-voice-search-btn" style="width: 100%; padding: 12px 0; background-color: #e0e0e0; color: #333333; border: none; border-radius: 15px; cursor: pointer; text-align: center; font-size: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px;" role="menuitem" tabindex="-1">
+            <i class="fas fa-microphone" style="margin-bottom: 8px; font-size: 24px;"></i>
+            <span>البحث الصوتي</span>
+        </button>
+    </li>
+
+    <!-- Visual - Text Tools -->
+    <li>
+        <button id="aaw-translation-btn" style="width: 100%; padding: 12px 0; background-color: #e0e0e0; color: #333333; border: none; border-radius: 15px; cursor: pointer; text-align: center; font-size: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px;" role="menuitem" tabindex="-1">
+            <i class="fas fa-language" style="margin-bottom: 8px; font-size: 24px;"></i>
+            <span>الترجمة</span>
+            <i id="aaw-translation-checkmark" class="fas fa-check-circle" style="color: green; margin-left: 5px; display: none;"></i>
+        </button>
+    </li>
+    <li>
+        <button id="aaw-keyboard-controls-btn" style="width: 100%; padding: 12px 0; background-color: #e0e0e0; color: #333333; border: none; border-radius: 15px; cursor: pointer; text-align: center; font-size: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px;" role="menuitem" tabindex="-1">
+            <i class="fas fa-keyboard" style="margin-bottom: 8px; font-size: 24px;"></i>
+            <span>التحكم بلوحة المفاتيح</span>
+        </button>
+    </li>
+    <li>
+        <button id="aaw-increase-font-btn" style="width: 100%; padding: 12px 0; background-color: #e0e0e0; color: #333333; border: none; border-radius: 15px; cursor: pointer; text-align: center; font-size: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px;" role="menuitem" tabindex="-1">
+            <i class="fas fa-font" style="margin-bottom: 8px; font-size: 24px;"></i>
+            <span>تكبير النص</span>
+        </button>
+    </li>
+    <li>
+        <button id="aaw-decrease-font-btn" style="width: 100%; padding: 12px 0; background-color: #e0e0e0; color: #333333; border: none; border-radius: 15px; cursor: pointer; text-align: center; font-size: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px;" role="menuitem" tabindex="-1">
+            <i class="fas fa-minus" style="margin-bottom: 8px; font-size: 24px;"></i>
+            <span>تصغير الخط</span>
+        </button>
+    </li>
+    <li>
+        <button id="aaw-increase-line-height-btn" style="width: 100%; padding: 12px 0; background-color: #e0e0e0; color: #333333; border: none; border-radius: 15px; cursor: pointer; text-align: center; font-size: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px;" role="menuitem" tabindex="-1">
+            <i class="fas fa-text-height" style="margin-bottom: 8px; font-size: 24px;"></i>
+            <span>ارتفاع خط (+)</span>
+        </button>
+    </li>
+    <li>
+        <button id="aaw-decrease-line-height-btn" style="width: 100%; padding: 12px 0; background-color: #e0e0e0; color: #333333; border: none; border-radius: 15px; cursor: pointer; text-align: center; font-size: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px;" role="menuitem" tabindex="-1">
+            <i class="fas fa-grip-lines" style="margin-bottom: 8px; font-size: 24px;"></i>
+            <span>ارتفاع خط (-)</span>
+        </button>
+    </li>
+    <li>
+        <button id="aaw-text-spacing-btn" style="width: 100%; padding: 12px 0; background-color: #e0e0e0; color: #333333; border: none; border-radius: 15px; cursor: pointer; text-align: center; font-size: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px;" role="menuitem" tabindex="-1">
+            <i class="fas fa-arrows-alt-h" style="margin-bottom: 8px; font-size: 24px;"></i>
+            <span>تباعد النص</span>
+        </button>
+    </li>
+    <li>
+        <button id="aaw-dyslexia-friendly-btn" style="width: 100%; padding: 12px 0; background-color: #e0e0e0; color: #333333; border: none; border-radius: 15px; cursor: pointer; text-align: center; font-size: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px;" role="menuitem" tabindex="-1">
+            <i class="fas fa-book-open" style="margin-bottom: 8px; font-size: 24px;"></i>
+            <span>مناسب لعسر القراءة</span>
+        </button>
+    </li>
+    <li>
+        <button id="aaw-text-align-btn" style="width: 100%; padding: 12px 0; background-color: #e0e0e0; color: #333333; border: none; border-radius: 15px; cursor: pointer; text-align: center; font-size: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px;" role="menuitem" tabindex="-1">
+            <i class="fas fa-align-right" style="margin-bottom: 8px; font-size: 24px;"></i>
+            <span>محاذاة النص</span>
+        </button>
+    </li>
+    <li>
+        <button id="aaw-reading-mask-btn" style="width: 100%; padding: 12px 0; background-color: #e0e0e0; color: #333333; border: none; border-radius: 15px; cursor: pointer; text-align: center; font-size: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px;" role="menuitem" tabindex="-1">
+            <i class="fas fa-mask" style="margin-bottom: 8px; font-size: 24px;"></i>
+            <span>قناع القراءة</span>
+        </button>
+    </li>
+
+    <!-- Visual - Display Tools -->
+    <li>
+        <button id="aaw-high-contrast-btn" style="width: 100%; padding: 12px 0; background-color: #e0e0e0; color: #333333; border: none; border-radius: 15px; cursor: pointer; text-align: center; font-size: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px;" role="menuitem" tabindex="-1">
+            <i class="fas fa-adjust" style="margin-bottom: 8px; font-size: 24px;"></i>
+            <span>التباين +</span>
+        </button>
+    </li>
+    <li>
+        <button id="aaw-new-invert-colors-btn" style="width: 100%; padding: 12px 0; background-color: #e0e0e0; color: #333333; border: none; border-radius: 15px; cursor: pointer; text-align: center; font-size: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px;" role="menuitem" tabindex="-1">
+            <i class="fas fa-brush" style="margin-bottom: 8px; font-size: 24px;"></i>
+            <span>عكس الألوان (جديد)</span>
+        </button>
+    </li>
+    <li>
+        <button id="aaw-saturation-btn" style="width: 100%; padding: 12px 0; background-color: #e0e0e0; color: #333333; border: none; border-radius: 15px; cursor: pointer; text-align: center; font-size: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px;" role="menuitem" tabindex="-1">
+            <i class="fas fa-tint" style="margin-bottom: 8px; font-size: 24px;"></i>
+            <span>التشبع</span>
+        </button>
+    </li>
+    <li>
+        <button id="aaw-hide-images-btn" style="width: 100%; padding: 12px 0; background-color: #e0e0e0; color: #333333; border: none; border-radius: 15px; cursor: pointer; text-align: center; font-size: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px;" role="menuitem" tabindex="-1">
+            <i class="fas fa-image" style="margin-bottom: 8px; font-size: 24px;"></i>
+            <span>إخفاء الصور</span>
+        </button>
+    </li>
+    <li>
+        <button id="aaw-tooltips-btn" style="width: 100%; padding: 12px 0; background-color: #e0e0e0; color: #333333; border: none; border-radius: 15px; cursor: pointer; text-align: center; font-size: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px;" role="menuitem" tabindex="-1">
+            <i class="fas fa-comment-dots" style="margin-bottom: 8px; font-size: 24px;"></i>
+            <span>التلميحات</span>
+        </button>
+    </li>
+    <li>
+        <button id="aaw-cursor-btn" style="width: 100%; padding: 12px 0; background-color: #e0e0e0; color: #333333; border: none; border-radius: 15px; cursor: pointer; text-align: center; font-size: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px;" role="menuitem" tabindex="-1">
+            <i class="fas fa-mouse-pointer" style="margin-bottom: 8px; font-size: 24px;"></i>
+            <span>المؤشر</span>
+        </button>
+    </li>
+    <li>
+        <button id="aaw-stop-animations-btn" style="width: 100%; padding: 12px 0; background-color: #e0e0e0; color: #333333; border: none; border-radius: 15px; cursor: pointer; text-align: center; font-size: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px;" role="menuitem" tabindex="-1">
+            <i class="fas fa-pause-circle" style="margin-bottom: 8px; font-size: 24px;"></i>
+            <span>وقف الرسوم المتحركة</span>
+        </button>
+    </li>
+    <li>
+        <button id="aaw-highlight-hover-focus-btn" style="width: 100%; padding: 12px 0; background-color: #e0e0e0; color: #333333; border: none; border-radius: 15px; cursor: pointer; text-align: center; font-size: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px;" role="menuitem" tabindex="-1">
+            <i class="fas fa-highlighter" style="margin-bottom: 8px; font-size: 24px;"></i>
+            <span>تمييز التمرير/التركيز</span>
+        </button>
+    </li>
+    <li>
+        <button id="aaw-highlight-links-btn" style="width: 100%; padding: 12px 0; background-color: #e0e0e0; color: #333333; border: none; border-radius: 15px; cursor: pointer; text-align: center; font-size: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px;" role="menuitem" tabindex="-1">
+            <i class="fas fa-link" style="margin-bottom: 8px; font-size: 24px;"></i>
+            <span>إبراز الروابط</span>
+        </button>
+    </li>
+    <li>
+        <button id="aaw-image-describer-btn" style="width: 100%; padding: 12px 0; background-color: #e0e0e0; color: #333333; border: none; border-radius: 15px; cursor: pointer; text-align: center; font-size: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px;" role="menuitem" tabindex="-1">
+            <i class="fas fa-image" style="margin-bottom: 8px; font-size: 24px;"></i>
+            <span>مُفسّر الصور (AI)</span>
+        </button>
+    </li>
+    <li>
+        <button id="aaw-wcag-mode-btn" style="width: 100%; padding: 12px 0; background-color: #e0e0e0; color: #333333; border: none; border-radius: 15px; cursor: pointer; text-align: center; font-size: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px;" role="menuitem" tabindex="-1">
+            <i class="fas fa-universal-access" style="margin-bottom: 8px; font-size: 24px;"></i>
+            <span>وضع WCAG</span>
+        </button>
+    </li>
+
+    <!-- General Tools - Note: These are now categorized under visual-text or visual-display -->
+    <li>
+        <button id="aaw-reset-all-btn" style="width: 100%; padding: 12px 0; background-color: #e0e0e0; color: #333333; border: none; border-radius: 15px; cursor: pointer; text-align: center; font-size: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px;" role="menuitem" tabindex="-1">
+            <i class="fas fa-sync-alt" style="margin-bottom: 8px; font-size: 24px;"></i>
+            <span>إعادة تعيين الكل</span>
+        </button>
+    </li>
+</ul>
+
+<!-- Message Box HTML -->
+<div id="aaw-message-box-container" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); display: flex; justify-content: center; align-items: center; z-index: 2147483645; opacity: 0; visibility: hidden; transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;">
+    <div id="aaw-message-box" style="background-color: #e0e0e0; border-radius: 20px; padding: 30px; text-align: center; max-width: 400px; width: 90%; color: #333333; position: relative;">
+        <h3 id="aaw-message-box-title" style="font-size: 20px; margin-bottom: 15px;">رسالة</h3>
+        <p id="aaw-message-box-content" style="font-size: 16px; margin-bottom: 20px;">هنا محتوى الرسالة.</p>
+        <button id="aaw-message-box-ok-button" style="background-color: #e0e0e0; border: none; border-radius: 15px; padding: 10px 20px; cursor: pointer; font-size: 16px; color: #333333;">حسناً</button>
+    </div>
+</div>
+
+<!-- Voice Search Pop-up -->
+<div id="aaw-voice-search-container" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); display: flex; justify-content: center; align-items: center; z-index: 2147483645; opacity: 0; visibility: hidden; transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;" role="dialog" aria-modal="true" aria-labelledby="aaw-voice-search-title">
+    <div style="background-color: #e0e0e0; border-radius: 20px; padding: 30px; text-align: center; max-width: 500px; width: 90%; color: #333333; position: relative;">
+        <button id="aaw-close-voice-search-btn" class="aaw-close-button">
+            <i class="fas fa-xmark"></i>
+        </button>
+        <h3 id="aaw-voice-search-title" style="font-size: 20px; margin-bottom: 15px;">البحث الصوتي</h3>
+        <p id="aaw-voice-search-status" style="margin-bottom: 10px;">انقر على زر الميكروفون للبدء.</p>
+        <p id="aaw-voice-search-result-text"></p>
+        <p id="aaw-voice-search-matches-count"></p>
+        <div style="margin-top: 20px; display: flex; justify-content: center; gap: 15px;">
+            <button id="aaw-start-voice-search-btn" style="background-color: #e0e0e0; border: none; border-radius: 15px; padding: 10px 20px; cursor: pointer; font-size: 16px; color: #333333; display: flex; align-items: center; gap: 5px;">
+                <i class="fas fa-microphone"></i>
+                <span>بدء/إيقاف</span>
+            </button>
+            <button id="aaw-prev-search-match-btn" style="background-color: #e0e0e0; border: none; border-radius: 15px; padding: 10px 20px; cursor: pointer; font-size: 16px; color: #333333; display: flex; align-items: center; gap: 5px;">
+                <i class="fas fa-arrow-up"></i>
+                <span>السابق</span>
+            </button>
+            <button id="aaw-next-search-match-btn" style="background-color: #e0e0e0; border: none; border-radius: 15px; cursor: pointer; font-size: 16px; color: #333333; display: flex; align-items: center; gap: 5px;">
+                <i class="fas fa-arrow-down"></i>
+                <span>التالي</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Translation Pop-up -->
+<div id="aaw-translation-container" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); display: flex; justify-content: center; align-items: center; z-index: 2147483645; opacity: 0; visibility: hidden; transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;" role="dialog" aria-modal="true" aria-labelledby="aaw-translation-title">
+    <div style="background-color: #e0e0e0; border-radius: 20px; padding: 30px; text-align: center; max-width: 800px; width: 90%; color: #333333; position: relative;">
+        <button id="aaw-close-page-translation-btn" class="aaw-close-button">
+            <i class="fas fa-xmark"></i>
+        </button>
+        <h3 id="aaw-translation-title" style="font-size: 20px; margin-bottom: 15px;">ترجمة الصفحة</h3>
+        <p>اختر لغة لترجمة محتوى الصفحة:</p>
+        <div style="display: grid; grid-template-columns: repeat(2, 1f); gap: 15px; margin-top: 20px; margin-bottom: 20px;">
+            <button id="aaw-translate-to-en-btn" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px; font-size: 16px; padding: 0; background-color: #e0e0e0; color: #333333; border: none; border-radius: 15px; cursor: pointer;" role="menuitem" tabindex="-1">
+                <img decoding="async" src="https://flagcdn.com/w20/gb.png" alt="علم بريطانيا" style="width: 40px; height: 30px; margin-bottom: 5px; border-radius: 5px;">
+                <span>الإنجليزية</span>
+            </button>
+            <button id="aaw-translate-to-ur-btn" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px; font-size: 16px; padding: 0; background-color: #e0e0e0; color: #333333; border: none; border-radius: 15px; cursor: pointer;" role="menuitem" tabindex="-1">
+                <img decoding="async" src="https://flagcdn.com/w20/pk.png" alt="علم باكستان" style="width: 40px; height: 30px; margin-bottom: 5px; border-radius: 5px;">
+                <span>الأوردو</span>
+            </button>
+            <button id="aaw-translate-to-hi-btn" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px; font-size: 16px; padding: 0; background-color: #e0e0e0; color: #333333; border: none; border-radius: 15px; cursor: pointer;" role="menuitem" tabindex="-1">
+                <img decoding="async" src="https://flagcdn.com/w20/in.png" alt="علم الهند" style="width: 40px; height: 30px; margin-bottom: 5px; border-radius: 5px;">
+                <span>الهندية</span>
+            </button>
+            <button id="aaw-translate-to-ar-btn" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px; font-size: 16px; padding: 0; background-color: #e0e0e0; color: #333333; border: none; border-radius: 15px; cursor: pointer;" role="menuitem" tabindex="-1">
+                <img decoding="async" src="https://flagcdn.com/w20/om.png" alt="علم عمان" style="width: 40px; height: 30px; margin-bottom: 5px; border-radius: 5px;">
+                <span>إعادة تعيين للعربية</span>
+            </button>
+        </div>
+        <p id="aaw-page-translation-loading-indicator" style="display: none; margin-top: 10px; font-style: italic;">جاري الترجمة...</p>
+        <div style="margin-top: 20px; display: flex; justify-content: center; gap: 15px;">
+            <!-- Removed the old close button here as it's now at the top right -->
+        </div>
+    </div>
+</div>
+
+<!-- Reading Mask Overlay -->
+<div id="aaw-reading-mask-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 998; opacity: 0; visibility: hidden; transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out; cursor: row-resize;">
+    <div id="aaw-reading-mask-line" style="position: absolute; left: 0; width: 100%; height: 40px; background-color: rgba(255, 255, 255, 0.2); border-top: 1px solid rgba(255, 255, 255, 0.5); border-bottom: 1px solid rgba(255, 255, 255, 0.5); pointer-events: none;"></div>
+</div>
+
+<script type="module">
+    // Firebase Imports - MUST be at the top of a module script
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, query, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // Global variables provided by the Canvas environment (mocked for standalone testing)
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+    // FIX: Correctly assign __initial_auth_token to initialAuthToken
+    const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+    // Message Box Functions (kept for error messages and critical info)
+    function showMessage(title, message) {
+        const msgBoxContainer = document.getElementById('aaw-message-box-container');
+        const msgBoxTitle = document.getElementById('aaw-message-box-title');
+        const msgBoxContent = document.getElementById('aaw-message-box-content');
+        const msgBoxOkButton = document.getElementById('aaw-message-box-ok-button');
+
+        msgBoxTitle.textContent = title;
+        msgBoxContent.textContent = message;
+        msgBoxContainer.style.opacity = '1';
+        msgBoxContainer.style.visibility = 'visible';
+
+        return new Promise(resolve => {
+            msgBoxOkButton.onclick = () => {
+                msgBoxContainer.style.opacity = '0';
+                msgBoxContainer.style.visibility = 'hidden';
+                resolve();
+            };
+        });
+    }
+
+    // State management for accessibility features
+    const accessibilityState = {
+        isPopoverOpen: false,
+        isHighContrast: false,
+        isNewInvertedMode: false, // New state for the new invert colors tool
+        isDesaturated: false,
+        isTextSpacing: false,
+        isDyslexiaFriendly: false,
+        isCustomCursor: false,
+        areImagesHidden: false,
+        areAnimationsStopped: false,
+        areTooltipsShown: false,
+        areLinksHighlighted: false,
+        isHighlightHoverFocus: false,
+        isReadingMaskActive: false,
+        isWCAGMode: false, // New state for WCAG mode
+        currentTextAlign: 'right', // Default for Arabic
+        currentFontSize: 16,
+        currentLineHeight: 1.5,
+        currentReadingMaskY: 0,
+        voiceSearchRecognition: null,
+        voiceSearchMatches: [],
+        currentVoiceSearchMatchIndex: -1,
+        isTranslating: false,
+        currentToolFilter: 'visual-text', // Changed default filter to 'visual-text'
+        currentToolSearchQuery: '',
+        originalTextMap: new Map(), // New: Map to store original text nodes and their values for translation reset
+    };
+
+    // DOM Elements
+    const accessibilityBtn = document.getElementById('aaw-accessibility-btn');
+    const accessibilityPopover = document.getElementById('aaw-accessibility-popover');
+
+    // Text & Reading Tools
+    const textToSpeechBtn = document.getElementById('aaw-text-to-speech-btn');
+    const prevLineBtn = document.getElementById('aaw-prev-line-btn');
+    const nextLineBtn = document.getElementById('aaw-next-line-btn');
+    const increaseFontBtn = document.getElementById('aaw-increase-font-btn');
+    const decreaseFontBtn = document.getElementById('aaw-decrease-font-btn');
+    const increaseLineHeightBtn = document.getElementById('aaw-increase-line-height-btn');
+    const decreaseLineHeightBtn = document.getElementById('aaw-decrease-line-height-btn');
+    const textSpacingBtn = document.getElementById('aaw-text-spacing-btn');
+    const dyslexiaFriendlyBtn = document.getElementById('aaw-dyslexia-friendly-btn');
+    const textAlignBtn = document.getElementById('aaw-text-align-btn');
+    const readingMaskBtn = document.getElementById('aaw-reading-mask-btn');
+    const readingMaskOverlay = document.getElementById('aaw-reading-mask-overlay');
+    const readingMaskLine = document.getElementById('aaw-reading-mask-line');
+
+    // Visual & Display Tools
+    const highContrastBtn = document.getElementById('aaw-high-contrast-btn');
+    const newInvertColorsBtn = document.getElementById('aaw-new-invert-colors-btn'); // New button element
+    const saturationBtn = document.getElementById('aaw-saturation-btn');
+    const hideImagesBtn = document.getElementById('aaw-hide-images-btn');
+    const tooltipsBtn = document.getElementById('aaw-tooltips-btn');
+    const cursorBtn = document.getElementById('aaw-cursor-btn');
+    const stopAnimationsBtn = document.getElementById('aaw-stop-animations-btn');
+    const highlightHoverFocusBtn = document.getElementById('aaw-highlight-hover-focus-btn');
+    const wcagModeBtn = document.getElementById('aaw-wcag-mode-btn'); // New WCAG button
+
+    // Interactive & Navigation Tools
+    const highlightLinksBtn = document.getElementById('aaw-highlight-links-btn');
+    const voiceSearchBtn = document.getElementById('aaw-voice-search-btn');
+    const translationBtn = document.getElementById('aaw-translation-btn');
+    const keyboardControlsBtn = document.getElementById('aaw-keyboard-controls-btn');
+    const imageDescriberBtn = document.getElementById('aaw-image-describer-btn');
+    const resetAllBtn = document.getElementById('aaw-reset-all-btn');
+
+    // Voice Search Pop-up Elements
+    const voiceSearchContainer = document.getElementById('aaw-voice-search-container');
+    const voiceSearchStatus = document.getElementById('aaw-voice-search-status');
+    const voiceSearchResultText = document.getElementById('aaw-voice-search-result-text');
+    const voiceSearchMatchesCount = document.getElementById('aaw-voice-search-matches-count');
+    const startVoiceSearchBtn = document.getElementById('aaw-start-voice-search-btn');
+    const prevSearchMatchBtn = document.getElementById('aaw-prev-search-match-btn');
+    const nextSearchMatchBtn = document.getElementById('aaw-next-search-match-btn');
+    const closeVoiceSearchBtn = document.getElementById('aaw-close-voice-search-btn');
+
+    // Translation Pop-up Elements
+    const translationContainer = document.getElementById('aaw-translation-container');
+    const translateToEnBtn = document.getElementById('aaw-translate-to-en-btn');
+    const translateToUrBtn = document.getElementById('aaw-translate-to-ur-btn');
+    const translateToHiBtn = document.getElementById('aaw-translate-to-hi-btn');
+    const translateToArBtn = document.getElementById('aaw-translate-to-ar-btn');
+    const pageTranslationLoadingIndicator = document.getElementById('aaw-page-translation-loading-indicator');
+    const closePageTranslationBtn = document.getElementById('aaw-close-page-translation-btn');
+    const translationCheckmark = document.getElementById('aaw-translation-checkmark'); // New: Checkmark element
+
+    // New Header Elements
+    const toolSearchInput = document.getElementById('aaw-tool-search-input');
+    const filterAllBtn = document.getElementById('aaw-filter-all-btn');
+    const filterAudioBtn = document.getElementById('aaw-filter-audio-btn');
+    const filterVisualTextBtn = document.getElementById('aaw-filter-visual-text-btn');
+    const filterVisualDisplayBtn = document.getElementById('aaw-filter-visual-display-btn');
+
+    // Tool Categories Mapping
+    const toolCategories = {
+        'aaw-text-to-speech-btn': 'audio',
+        'aaw-voice-search-btn': 'audio',
+        'aaw-prev-line-btn': 'audio',
+        'aaw-next-line-btn': 'audio',
+
+        // Visual - Text
+        'aaw-translation-btn': 'visual-text', // Moved to visual-text
+        'aaw-keyboard-controls-btn': 'visual-text', // Moved to visual-text
+        'aaw-increase-font-btn': 'visual-text',
+        'aaw-decrease-font-btn': 'visual-text',
+        'aaw-increase-line-height-btn': 'visual-text',
+        'aaw-decrease-line-height-btn': 'visual-text',
+        'aaw-text-spacing-btn': 'visual-text',
+        'aaw-dyslexia-friendly-btn': 'visual-text',
+        'aaw-text-align-btn': 'visual-text',
+        'aaw-reading-mask-btn': 'visual-text',
+
+        // Visual - Display
+        'aaw-high-contrast-btn': 'visual-display',
+        'aaw-new-invert-colors-btn': 'visual-display', // New tool category
+        'aaw-saturation-btn': 'visual-display',
+        'aaw-hide-images-btn': 'visual-display',
+        'aaw-tooltips-btn': 'visual-display',
+        'aaw-cursor-btn': 'visual-display',
+        'aaw-stop-animations-btn': 'visual-display',
+        'aaw-highlight-hover-focus-btn': 'visual-display',
+        'aaw-highlight-links-btn': 'visual-display',
+        'aaw-image-describer-btn': 'visual-display',
+        'aaw-wcag-mode-btn': 'visual-display', // New WCAG mode button
+
+        // General / All - Only reset all remains here, others moved
+        'aaw-reset-all-btn': 'all',
+    };
+
+    // Firebase (mocked for now, will be initialized if config is present)
+    let app, db, auth;
+    let userId;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Initialize Firebase if config is provided
+        if (firebaseConfig) {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    userId = user.uid;
+                    console.log("Firebase authenticated. User ID:", userId);
+                    // Load saved settings from Firestore
+                    await loadSettings();
+                } else {
+                    // Sign in anonymously if no user is authenticated
+                    try {
+                        if (initialAuthToken) {
+                            await signInWithCustomToken(auth, initialAuthToken);
+                        } else {
+                            await signInAnonymously(auth);
+                        }
+                        userId = auth.currentUser?.uid || crypto.randomUUID(); // Fallback for anonymous
+                        console.log("Firebase signed in anonymously. User ID:", userId);
+                        await loadSettings();
+                    } catch (error) {
+                        console.error("Firebase authentication failed:", error);
+                        showMessage("خطأ في المصادقة", "فشل تسجيل الدخول إلى الخدمة. قد لا يتم حفظ الإعدادات.");
+                    }
+                }
+            });
+        } else {
+            console.warn("Firebase config not provided. Settings will not be saved/loaded.");
+            // Generate a temporary user ID if Firebase is not used
+            userId = crypto.randomUUID();
+        }
+
+        // Initial application of settings (e.g., if loaded from Firestore)
+        applySettings();
+
+        // Populate originalTextMap only once on initial load if it's empty
+        // This ensures we capture the original state of the page.
+        if (accessibilityState.originalTextMap.size === 0) {
+            const initialTextNodes = getTextNodes(document.body);
+            initialTextNodes.forEach(node => {
+                if (node.nodeValue.trim().length > 0) {
+                    accessibilityState.originalTextMap.set(node, node.nodeValue);
+                }
+            });
+            console.log("Original text map populated on load. Number of nodes:", accessibilityState.originalTextMap.size);
+        }
+    });
+
+
+    // Utility function to save settings to Firestore
+    async function saveSettings() {
+        if (!db || !userId) {
+            console.warn("Firebase not initialized or user ID not available. Cannot save settings.");
+            return;
+        }
+        try {
+            const userSettingsRef = doc(db, `artifacts/${appId}/users/${userId}/accessibilitySettings`, 'currentSettings');
+            // Do not save originalTextMap to Firestore as it contains DOM node references
+            const stateToSave = { ...accessibilityState };
+            delete stateToSave.originalTextMap;
+            await setDoc(userSettingsRef, stateToSave, { merge: true });
+            console.log("Settings saved successfully!");
+        } catch (e) {
+            console.error("Error saving settings:", e);
+        }
+    }
+
+    // Utility function to load settings from Firestore
+    async function loadSettings() {
+        if (!db || !userId) {
+            console.warn("Firebase not initialized or user ID not available. Cannot load settings.");
+            return;
+        }
+        try {
+            const userSettingsRef = doc(db, `artifacts/${appId}/users/${userId}/accessibilitySettings`, 'currentSettings');
+            const docSnap = await getDoc(userSettingsRef);
+            if (docSnap.exists()) {
+                const loadedSettings = docSnap.data();
+                Object.assign(accessibilityState, loadedSettings);
+                // originalTextMap is not loaded, it's populated on translation activation
+                applySettings(); // Apply loaded settings to the page
+                console.log("Settings loaded successfully:", loadedSettings);
+            } else {
+                console.log("No saved settings found for this user.");
+            }
+        } catch (e) {
+            console.error("Error loading settings:", e);
+        }
+    }
+
+    // Apply all accessibility settings based on current state
+    function applySettings() {
+        // Popover state
+        if (accessibilityState.isPopoverOpen) {
+            accessibilityPopover.style.opacity = '1';
+            accessibilityPopover.style.visibility = 'visible';
+            accessibilityPopover.style.transform = 'translateY(0)';
+            accessibilityBtn.setAttribute('aria-expanded', 'true');
+        } else {
+            accessibilityPopover.style.opacity = '0';
+            accessibilityPopover.style.visibility = 'hidden';
+            accessibilityPopover.style.transform = 'translateY(20px)';
+            accessibilityBtn.setAttribute('aria-expanded', 'false');
+        }
+
+        // Apply filter and search
+        const allToolListItems = accessibilityPopover.querySelectorAll('li'); // Select the list items
+        allToolListItems.forEach(listItem => {
+            const button = listItem.querySelector('button[role="menuitem"]');
+            if (!button) {
+                // This is likely the header div, which should always be visible
+                return;
+            }
+
+            const toolId = button.id;
+            const category = toolCategories[toolId];
+            const buttonText = button.querySelector('span').textContent;
+
+            let shouldDisplay = false;
+            if (accessibilityState.currentToolSearchQuery !== '') {
+                // If there's a search query, only check if it matches the search term (global search)
+                shouldDisplay = buttonText.toLowerCase().includes(accessibilityState.currentToolSearchQuery.toLowerCase());
+            } else {
+                // If no search query, apply the category filter
+                let matchesCategoryFilter = true;
+                if (accessibilityState.currentToolFilter === 'audio') {
+                    matchesCategoryFilter = category === 'audio';
+                } else if (accessibilityState.currentToolFilter === 'visual-text') {
+                    matchesCategoryFilter = category === 'visual-text';
+                } else if (accessibilityState.currentToolFilter === 'visual-display') {
+                    matchesCategoryFilter = category === 'visual-display';
+                } else if (accessibilityState.currentToolFilter === 'all') {
+                    matchesCategoryFilter = true; // 'all' filter means all categories are visible
+                }
+                shouldDisplay = matchesCategoryFilter;
+            }
+
+            listItem.style.display = shouldDisplay ? 'block' : 'none';
+        });
+
+        // Update filter button styles
+        filterAllBtn.style.backgroundColor = accessibilityState.currentToolFilter === 'all' ? '#007bff' : '#e0e0e0';
+        filterAllBtn.style.color = accessibilityState.currentToolFilter === 'all' ? 'white' : '#333';
+
+        filterAudioBtn.style.backgroundColor = accessibilityState.currentToolFilter === 'audio' ? '#007bff' : '#e0e0e0';
+        filterAudioBtn.style.color = accessibilityState.currentToolFilter === 'audio' ? 'white' : '#333';
+
+        filterVisualTextBtn.style.backgroundColor = accessibilityState.currentToolFilter === 'visual-text' ? '#007bff' : '#e0e0e0';
+        filterVisualTextBtn.style.color = accessibilityState.currentToolFilter === 'visual-text' ? 'white' : '#333';
+
+        filterVisualDisplayBtn.style.backgroundColor = accessibilityState.currentToolFilter === 'visual-display' ? '#007bff' : '#e0e0e0';
+        filterVisualDisplayBtn.style.color = accessibilityState.currentToolFilter === 'visual-display' ? 'white' : '#333';
+
+
+        // Visual & Display
+        // Handle WCAG Mode first, as it's a composite setting
+        if (accessibilityState.isWCAGMode) {
+            // Force these settings when WCAG mode is active
+            document.body.classList.add('aaw-high-contrast-mode');
+            document.body.classList.remove('new-inverted-mode', 'aaw-desaturated-mode'); // Ensure conflicts are off
+            document.body.style.fontSize = `18px`; // Example WCAG font size
+            document.body.style.lineHeight = `1.8em`; // Example WCAG line height
+            document.body.classList.add('aaw-text-spacing-active');
+            document.body.classList.add('aaw-highlight-links');
+            document.body.classList.add('aaw-highlight-hover-focus-active');
+            document.body.classList.add('aaw-stop-animations');
+            document.body.classList.add('aaw-dyslexia-friendly-mode');
+            // Update state variables to reflect what WCAG mode *applies*
+            accessibilityState.isHighContrast = true;
+            accessibilityState.isNewInvertedMode = false;
+            accessibilityState.isDesaturated = false;
+            accessibilityState.currentFontSize = 18;
+            accessibilityState.currentLineHeight = 1.8;
+            accessibilityState.isTextSpacing = true;
+            accessibilityState.areLinksHighlighted = true;
+            accessibilityState.isHighlightHoverFocus = true;
+            accessibilityState.areAnimationsStopped = true;
+            accessibilityState.isDyslexiaFriendly = true;
+        } else {
+            // If WCAG mode is OFF, apply individual settings based on their state
+            document.body.classList.toggle('aaw-high-contrast-mode', accessibilityState.isHighContrast);
+            document.body.classList.toggle('new-inverted-mode', accessibilityState.isNewInvertedMode);
+            document.body.classList.toggle('aaw-desaturated-mode', accessibilityState.isDesaturated);
+            document.body.style.fontSize = `${accessibilityState.currentFontSize}px`;
+            document.body.style.lineHeight = `${accessibilityState.currentLineHeight}em`;
+            document.body.classList.toggle('aaw-text-spacing-active', accessibilityState.isTextSpacing);
+            document.body.classList.toggle('aaw-dyslexia-friendly-mode', accessibilityState.isDyslexiaFriendly);
+            document.body.classList.toggle('aaw-highlight-links', accessibilityState.areLinksHighlighted);
+            document.body.classList.toggle('aaw-highlight-hover-focus-active', accessibilityState.isHighlightHoverFocus);
+            document.body.classList.toggle('aaw-stop-animations', accessibilityState.areAnimationsStopped);
+        }
+
+        document.body.classList.toggle('aaw-hide-images', accessibilityState.areImagesHidden);
+        document.body.classList.toggle('aaw-show-tooltips', accessibilityState.areTooltipsShown);
+        document.body.classList.toggle('aaw-custom-cursor', accessibilityState.isCustomCursor);
+
+
+        // Remove all previous text alignment classes before adding the current one
+        document.body.classList.remove('aaw-text-align-left', 'aaw-text-align-center', 'aaw-text-align-right');
+        document.body.classList.add(`aaw-text-align-${accessibilityState.currentTextAlign}`);
+
+        readingMaskOverlay.style.opacity = accessibilityState.isReadingMaskActive ? '1' : '0';
+        readingMaskOverlay.style.visibility = accessibilityState.isReadingMaskActive ? 'visible' : 'hidden';
+        if (accessibilityState.isReadingMaskActive) {
+            readingMaskLine.style.top = `${accessibilityState.currentReadingMaskY}px`;
+        }
+
+
+        // Update active tool icon colors
+        const toolButtonStates = {
+            'aaw-high-contrast-btn': accessibilityState.isHighContrast,
+            'aaw-new-invert-colors-btn': accessibilityState.isNewInvertedMode,
+            'aaw-saturation-btn': accessibilityState.isDesaturated,
+            'aaw-hide-images-btn': accessibilityState.areImagesHidden,
+            'aaw-cursor-btn': accessibilityState.isCustomCursor,
+            'aaw-stop-animations-btn': accessibilityState.areAnimationsStopped,
+            'aaw-highlight-hover-focus-btn': accessibilityState.isHighlightHoverFocus,
+            'aaw-highlight-links-btn': accessibilityState.areLinksHighlighted,
+            'aaw-text-spacing-btn': accessibilityState.isTextSpacing,
+            'aaw-dyslexia-friendly-btn': accessibilityState.isDyslexiaFriendly,
+            'aaw-reading-mask-btn': accessibilityState.isReadingMaskActive,
+            'aaw-wcag-mode-btn': accessibilityState.isWCAGMode, // New button state
+        };
+
+        for (const buttonId in toolButtonStates) {
+            const button = document.getElementById(buttonId);
+            if (button) {
+                const icon = button.querySelector('i');
+                if (icon) {
+                    icon.classList.toggle('aaw-tool-active-icon', toolButtonStates[buttonId]);
+                }
+            }
+        }
+        // Special handling for text alignment as it's a cycle
+        const textAlignIcon = textAlignBtn.querySelector('i');
+        if (textAlignIcon) {
+            // Text align doesn't have a simple on/off state, its icon changes.
+            // We'll just ensure its icon is updated based on currentTextAlign
+            textAlignIcon.className = `fas fa-align-${accessibilityState.currentTextAlign}`;
+        }
+    }
+
+    // Toggle Popover
+    accessibilityBtn.addEventListener('click', (event) => {
+        console.log('Accessibility button clicked!'); // Added for debugging
+        event.stopPropagation(); // Prevent click from bubbling to document and closing popover
+        accessibilityState.isPopoverOpen = !accessibilityState.isPopoverOpen;
+        applySettings();
+        saveSettings();
+    });
+
+    // Close popover when clicking outside
+    document.addEventListener('click', (event) => {
+        if (!accessibilityPopover.contains(event.target) && !accessibilityBtn.contains(event.target) && accessibilityState.isPopoverOpen) {
+            accessibilityState.isPopoverOpen = false;
+            applySettings();
+            saveSettings();
+        }
+    });
+
+    // --- Text & Reading Tools ---
+
+    // Text to Speech
+    let currentUtterance = null;
+    let currentSpeechIndex = 0;
+    let currentTextNodes = [];
+
+    function getTextNodes(element) {
+        const textNodes = [];
+        const walk = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
+        let node;
+        while ((node = walk.nextNode())) {
+            const parent = node.parentNode;
+
+            // Exclude script, style, noscript tags
+            if (parent.tagName === 'SCRIPT' ||
+                parent.tagName === 'STYLE' ||
+                parent.tagName === 'NOSCRIPT'
+            ) {
+                continue; // Skip this node
+            }
+
+            // Exclude TEXTAREA elements and contenteditable elements from translation
+            if (parent.tagName === 'TEXTAREA' || parent.isContentEditable) {
+                continue; // Skip this node
+            }
+
+            // Do NOT exclude BUTTON or INPUT elements, as their text/placeholder should be translatable
+            // The previous code had: parent.tagName === 'BUTTON' || parent.tagName === 'INPUT'
+            // This has been removed to allow translation of button text and input placeholders.
+
+            if (node.nodeValue.trim().length > 0) {
+                textNodes.push(node);
+            }
+        }
+        return textNodes;
+    }
+
+    function highlightText(node, startIndex, endIndex) {
+        const range = document.createRange();
+        range.setStart(node, startIndex);
+        range.setEnd(node, endIndex);
+
+        const highlightSpan = document.createElement('span');
+        highlightSpan.style.backgroundColor = 'yellow'; // Highlight color
+        highlightSpan.style.fontWeight = 'bold'; // Make text bold
+        highlightSpan.className = 'aaw-text-highlight'; // Add a class for easier removal
+
+        try {
+            range.surroundContents(highlightSpan);
+        } catch (e) {
+            // Handle cases where surrounding fails (e.g., node already partially highlighted)
+            console.warn("Could not surround content for highlighting:", e);
+            // Fallback: just change background color of the parent if direct surrounding fails
+            node.parentNode.style.backgroundColor = 'yellow';
+            node.parentNode.classList.add('aaw-text-highlight-parent'); // Add class for parent highlight
+        }
+    }
+
+    function removeHighlights() {
+        // Select elements with the specific highlight classes
+        document.querySelectorAll('.aaw-text-highlight').forEach(span => {
+            const parent = span.parentNode;
+            while (span.firstChild) {
+                parent.insertBefore(span.firstChild, span);
+            }
+            parent.removeChild(span);
+        });
+        // Remove parent highlights
+        document.querySelectorAll('.aaw-text-highlight-parent').forEach(el => {
+            el.style.backgroundColor = '';
+            el.classList.remove('aaw-text-highlight-parent');
+        });
+    }
+
+    textToSpeechBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        if ('speechSynthesis' in window) {
+            if (speechSynthesis.speaking && currentUtterance) {
+                speechSynthesis.cancel();
+                removeHighlights();
+                currentUtterance = null;
+                currentSpeechIndex = 0;
+                textToSpeechBtn.querySelector('span').textContent = 'قارئ النصوص';
+            } else {
+                currentTextNodes = getTextNodes(document.body);
+                if (currentTextNodes.length > 0) {
+                    readCurrentLine();
+                    textToSpeechBtn.querySelector('span').textContent = 'إيقاف القراءة';
+                } else {
+                    showMessage('قارئ النصوص', 'لم يتم العثور على نص للقراءة في هذه الصفحة.');
+                }
+            }
+        } else {
+            showMessage('قارئ النصوص', 'متصفحك لا يدعم واجهة برمجة تطبيقات تحويل النص إلى كلام.');
+        }
+    });
+
+    function readCurrentLine() {
+        if (currentSpeechIndex < currentTextNodes.length) {
+            removeHighlights(); // Remove previous highlights
+            const node = currentTextNodes[currentSpeechIndex];
+            const text = node.nodeValue.trim();
+
+            currentUtterance = new SpeechSynthesisUtterance(text);
+            currentUtterance.lang = 'ar-SA'; // Set language to Arabic (Saudi Arabia)
+
+            currentUtterance.onstart = () => {
+                // Scroll to the element containing the text
+                node.parentNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // Highlight the entire text node as a block for simplicity
+                highlightText(node, 0, node.nodeValue.length);
+            };
+
+            currentUtterance.onend = () => {
+                removeHighlights();
+                currentSpeechIndex++;
+                // Automatically move to the next line if available
+                if (currentSpeechIndex < currentTextNodes.length) { // Check if there are more lines
+                    readCurrentLine();
+                } else {
+                    showMessage('قارئ النصوص', 'تم الانتهاء من قراءة جميع النصوص في الصفحة.');
+                    currentUtterance = null;
+                    currentSpeechIndex = 0;
+                    textToSpeechBtn.querySelector('span').textContent = 'قارئ النصوص';
+                }
+            };
+
+            currentUtterance.onerror = (event) => {
+                console.error('Speech synthesis error:', event);
+                showMessage('خطأ في القراءة', 'حدث خطأ أثناء قراءة النص.');
+                removeHighlights();
+                currentUtterance = null;
+                textToSpeechBtn.querySelector('span').textContent = 'قارئ النصوص';
+            };
+
+            speechSynthesis.speak(currentUtterance);
+        } else {
+            showMessage('قارئ النصوص', 'تم الانتهاء من قراءة جميع النصوص في الصفحة.');
+            removeHighlights();
+            currentUtterance = null;
+            currentSpeechIndex = 0;
+            textToSpeechBtn.querySelector('span').textContent = 'قارئ النصوص';
+        }
+    }
+
+    prevLineBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        if ('speechSynthesis' in window) {
+            speechSynthesis.cancel();
+            removeHighlights();
+            currentSpeechIndex = Math.max(0, currentSpeechIndex - 1);
+            readCurrentLine();
+        }
+    });
+
+    nextLineBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        if ('speechSynthesis' in window) {
+            speechSynthesis.cancel();
+            removeHighlights();
+            currentSpeechIndex = Math.min(currentTextNodes.length - 1, currentSpeechIndex + 1);
+            readCurrentLine();
+        }
+    });
+
+    // Font Size
+    increaseFontBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        if (accessibilityState.isWCAGMode) { accessibilityState.isWCAGMode = false; } // Turn off WCAG mode
+        accessibilityState.currentFontSize = Math.min(accessibilityState.currentFontSize + 2, 32); // Max font size 32px
+        applySettings();
+        saveSettings();
+    });
+
+    decreaseFontBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        if (accessibilityState.isWCAGMode) { accessibilityState.isWCAGMode = false; } // Turn off WCAG mode
+        accessibilityState.currentFontSize = Math.max(accessibilityState.currentFontSize - 2, 12); // Min font size 12px
+        applySettings();
+        saveSettings();
+    });
+
+    // Line Height
+    increaseLineHeightBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        if (accessibilityState.isWCAGMode) { accessibilityState.isWCAGMode = false; } // Turn off WCAG mode
+        accessibilityState.currentLineHeight = Math.min(accessibilityState.currentLineHeight + 0.2, 2.5); // Max line height 2.5em
+        applySettings();
+        saveSettings();
+    });
+
+    decreaseLineHeightBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        if (accessibilityState.isWCAGMode) { accessibilityState.isWCAGMode = false; } // Turn off WCAG mode
+        accessibilityState.currentLineHeight = Math.max(accessibilityState.currentLineHeight - 0.2, 1.0); // Min line height 1.0em
+        applySettings();
+        saveSettings();
+    });
+
+    // Text Spacing
+    textSpacingBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        if (accessibilityState.isWCAGMode) { accessibilityState.isWCAGMode = false; } // Turn off WCAG mode
+        accessibilityState.isTextSpacing = !accessibilityState.isTextSpacing;
+        // Direct style manipulation for text spacing
+        document.body.style.wordSpacing = accessibilityState.isTextSpacing ? '0.15em' : 'normal';
+        applySettings();
+        saveSettings();
+    });
+
+    // Dyslexia Friendly Mode
+    dyslexiaFriendlyBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        if (accessibilityState.isWCAGMode) { accessibilityState.isWCAGMode = false; } // Turn off WCAG mode
+        accessibilityState.isDyslexiaFriendly = !accessibilityState.isDyslexiaFriendly;
+        // Direct style manipulation for dyslexia-friendly mode
+        document.body.style.fontFamily = accessibilityState.isDyslexiaFriendly ? "'OpenDyslexic', 'Inter', sans-serif" : "'Inter', sans-serif";
+        document.body.style.lineHeight = accessibilityState.isDyslexiaFriendly ? '1.8em' : '1.5em';
+        document.body.style.wordSpacing = accessibilityState.isDyslexiaFriendly ? '0.1em' : 'normal';
+        document.body.style.letterSpacing = accessibilityState.isDyslexiaFriendly ? '0.05em' : 'normal';
+        applySettings();
+        saveSettings();
+    });
+
+    // Text Alignment
+    textAlignBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        if (accessibilityState.isWCAGMode) { accessibilityState.isWCAGMode = false; } // Turn off WCAG mode
+        const alignments = ['right', 'center', 'left'];
+        let currentIndex = alignments.indexOf(accessibilityState.currentTextAlign);
+        accessibilityState.currentTextAlign = alignments[(currentIndex + 1) % alignments.length];
+        textAlignBtn.querySelector('i').className = `fas fa-align-${accessibilityState.currentTextAlign}`; // Update icon
+        document.body.style.textAlign = accessibilityState.currentTextAlign; // Direct style manipulation
+        applySettings();
+        saveSettings();
+    });
+
+    // Reading Mask
+    readingMaskBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        if (accessibilityState.isWCAGMode) { accessibilityState.isWCAGMode = false; } // Turn off WCAG mode
+        accessibilityState.isReadingMaskActive = !accessibilityState.isReadingMaskActive;
+        applySettings();
+        saveSettings();
+    });
+
+    let isDraggingReadingMask = false;
+    readingMaskOverlay.addEventListener('mousedown', (e) => {
+        if (accessibilityState.isReadingMaskActive) {
+            isDraggingReadingMask = true;
+            readingMaskOverlay.style.cursor = 'grabbing';
+        }
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (isDraggingReadingMask && accessibilityState.isReadingMaskActive) {
+            accessibilityState.currentReadingMaskY = e.clientY - (readingMaskLine.offsetHeight / 2);
+            readingMaskLine.style.top = `${accessibilityState.currentReadingMaskY}px`;
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (isDraggingReadingMask) {
+            isDraggingReadingMask = false;
+            readingMaskOverlay.style.cursor = 'row-resize';
+            saveSettings();
+        }
+    });
+
+    // --- Visual & Display Tools ---
+
+    // High Contrast
+    highContrastBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        if (accessibilityState.isWCAGMode) { accessibilityState.isWCAGMode = false; } // Turn off WCAG mode
+        accessibilityState.isHighContrast = !accessibilityState.isHighContrast;
+        document.body.classList.toggle('aaw-high-contrast-mode', accessibilityState.isHighContrast);
+        // Ensure other filters are off if high contrast is on
+        if (accessibilityState.isHighContrast) {
+            accessibilityState.isNewInvertedMode = false; // Turn off new invert mode
+            accessibilityState.isDesaturated = false;
+        }
+        applySettings();
+        saveSettings();
+    });
+
+    // New Invert Colors
+    newInvertColorsBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        if (accessibilityState.isWCAGMode) { accessibilityState.isWCAGMode = false; } // Turn off WCAG mode
+        accessibilityState.isNewInvertedMode = !accessibilityState.isNewInvertedMode;
+        document.body.classList.toggle('new-inverted-mode', accessibilityState.isNewInvertedMode); // Toggle new class
+        // Ensure other filters are off if new invert mode is on
+        if (accessibilityState.isNewInvertedMode) {
+            accessibilityState.isHighContrast = false;
+            accessibilityState.isDesaturated = false;
+        }
+        applySettings();
+        saveSettings();
+    });
+
+    // Desaturate Colors
+    saturationBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        if (accessibilityState.isWCAGMode) { accessibilityState.isWCAGMode = false; } // Turn off WCAG mode
+        accessibilityState.isDesaturated = !accessibilityState.isDesaturated;
+        document.body.classList.toggle('aaw-desaturated-mode', accessibilityState.isDesaturated);
+        // Ensure other filters are off if desaturated is on
+        if (accessibilityState.isDesaturated) {
+            accessibilityState.isHighContrast = false;
+            accessibilityState.isNewInvertedMode = false; // Turn off new invert mode
+        }
+        applySettings();
+        saveSettings();
+    });
+
+    // Hide Images
+    hideImagesBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        if (accessibilityState.isWCAGMode) { accessibilityState.isWCAGMode = false; } // Turn off WCAG mode
+        accessibilityState.areImagesHidden = !accessibilityState.areImagesHidden;
+        document.body.classList.toggle('aaw-hide-images', accessibilityState.areImagesHidden);
+        applySettings();
+        saveSettings();
+    });
+
+    // Show Tooltips
+    tooltipsBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        if (accessibilityState.isWCAGMode) { accessibilityState.isWCAGMode = false; } // Turn off WCAG mode
+        accessibilityState.areTooltipsShown = !accessibilityState.areTooltipsShown;
+        // This feature relies on CSS pseudo-elements, which are hard to control with inline styles.
+        // For demonstration, we'll toggle a class, but it won't work without custom CSS.
+        // A more robust solution would involve dynamically creating tooltip elements with JS.
+        document.body.classList.toggle('aaw-show-tooltips', accessibilityState.areTooltipsShown);
+        showMessage('التلميحات', 'هذه الميزة تتطلب CSS إضافي لتعمل بشكل كامل. ستظهر التلميحات إذا كانت موجودة في HTML.');
+        applySettings();
+        saveSettings();
+    });
+
+    // Custom Cursor
+    cursorBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        if (accessibilityState.isWCAGMode) { accessibilityState.isWCAGMode = false; } // Turn off WCAG mode
+        accessibilityState.isCustomCursor = !accessibilityState.isCustomCursor;
+        document.body.classList.toggle('aaw-custom-cursor', accessibilityState.isCustomCursor);
+        applySettings();
+        saveSettings();
+    });
+
+    // Stop Animations
+    stopAnimationsBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        if (accessibilityState.isWCAGMode) { accessibilityState.isWCAGMode = false; } // Turn off WCAG mode
+        accessibilityState.areAnimationsStopped = !accessibilityState.areAnimationsStopped;
+        document.body.classList.toggle('aaw-stop-animations', accessibilityState.areAnimationsStopped);
+        applySettings();
+        saveSettings();
+    });
+
+    // Highlight Hover/Focus
+    highlightHoverFocusBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        if (accessibilityState.isWCAGMode) { accessibilityState.isWCAGMode = false; } // Turn off WCAG mode
+        accessibilityState.isHighlightHoverFocus = !accessibilityState.isHighlightHoverFocus;
+        document.body.classList.toggle('aaw-highlight-hover-focus-active', accessibilityState.isHighlightHoverFocus);
+        applySettings();
+        saveSettings();
+    });
+
+    // --- Interactive & Navigation Tools ---
+
+    // Highlight Links
+    highlightLinksBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        if (accessibilityState.isWCAGMode) { accessibilityState.isWCAGMode = false; } // Turn off WCAG mode
+        accessibilityState.areLinksHighlighted = !accessibilityState.areLinksHighlighted;
+        document.body.classList.toggle('aaw-highlight-links', accessibilityState.areLinksHighlighted);
+        applySettings();
+        saveSettings();
+    });
+
+    // WCAG Mode Button
+    wcagModeBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        accessibilityState.isWCAGMode = !accessibilityState.isWCAGMode;
+
+        if (accessibilityState.isWCAGMode) {
+            // Activate WCAG-compliant settings
+            accessibilityState.isHighContrast = true;
+            accessibilityState.currentFontSize = 18; // Example WCAG font size
+            accessibilityState.currentLineHeight = 1.8; // Example WCAG line height
+            accessibilityState.isTextSpacing = true;
+            accessibilityState.areLinksHighlighted = true;
+            accessibilityState.isHighlightHoverFocus = true;
+            accessibilityState.areAnimationsStopped = true;
+            accessibilityState.isDyslexiaFriendly = true;
+
+            // Deactivate conflicting modes
+            accessibilityState.isNewInvertedMode = false;
+            accessibilityState.isDesaturated = false;
+            accessibilityState.isCustomCursor = false;
+            accessibilityState.areImagesHidden = false;
+            accessibilityState.isReadingMaskActive = false;
+            accessibilityState.areTooltipsShown = false;
+            // Note: Translation and Voice Search are separate functionalities, not toggled by WCAG mode.
+        } else {
+            // Deactivate WCAG-compliant settings when turning off WCAG mode
+            // Reset to a neutral state or previous individual settings if desired.
+            // For simplicity, we'll reset them to false/default.
+            accessibilityState.isHighContrast = false;
+            accessibilityState.currentFontSize = 16;
+            accessibilityState.currentLineHeight = 1.5;
+            accessibilityState.isTextSpacing = false;
+            accessibilityState.areLinksHighlighted = false;
+            accessibilityState.isHighlightHoverFocus = false;
+            accessibilityState.areAnimationsStopped = false;
+            accessibilityState.isDyslexiaFriendly = false;
+        }
+        applySettings();
+        saveSettings();
+    });
+
+
+    // Voice Search
+    let recognition;
+    if ('webkitSpeechRecognition' in window) {
+        recognition = new webkitSpeechRecognition();
+        recognition.continuous = false;
+        recognition.lang = 'ar-SA'; // Set default language to Arabic (Saudi Arabia)
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.onstart = () => {
+            voiceSearchStatus.textContent = 'استمع...';
+            startVoiceSearchBtn.querySelector('span').textContent = 'إيقاف';
+            startVoiceSearchBtn.querySelector('i').className = 'fas fa-microphone-slash';
+        };
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            voiceSearchResultText.textContent = `لقد قلت: "${transcript}"`;
+            performVoiceSearch(transcript);
+        };
+
+        recognition.onerror = (event) => {
+            console.error('Speech recognition error:', event.error);
+            voiceSearchStatus.textContent = 'حدث خطأ في التعرف على الصوت. حاول مرة أخرى.';
+            startVoiceSearchBtn.querySelector('span').textContent = 'بدء/إيقاف';
+            startVoiceSearchBtn.querySelector('i').className = 'fas fa-microphone';
+            showMessage('البحث الصوتي', 'حدث خطأ في التعرف على الصوت. يرجى التأكد من أن الميكروفون يعمل بشكل صحيح.');
+        };
+
+        recognition.onend = () => {
+            voiceSearchStatus.textContent = 'انقر على زر الميكروفون للبدء.';
+            startVoiceSearchBtn.querySelector('span').textContent = 'بدء/إيقاف';
+            startVoiceSearchBtn.querySelector('i').className = 'fas fa-microphone';
+        };
+    } else {
+        voiceSearchBtn.disabled = true;
+        voiceSearchBtn.style.opacity = 0.5;
+        voiceSearchBtn.style.cursor = 'not-allowed';
+        voiceSearchBtn.title = 'متصفحك لا يدعم واجهة برمجة تطبيقات التعرف على الكلام.';
+    }
+
+    voiceSearchBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        voiceSearchContainer.style.opacity = '1';
+        voiceSearchContainer.style.visibility = 'visible';
+        voiceSearchStatus.textContent = 'انقر على زر الميكروفون للبدء.';
+        voiceSearchResultText.textContent = '';
+        voiceSearchMatchesCount.textContent = '';
+        accessibilityState.voiceSearchMatches = [];
+        accessibilityState.currentVoiceSearchMatchIndex = -1;
+        removeSearchHighlights();
+    });
+
+    startVoiceSearchBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        if (recognition) {
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel(); // Stop any ongoing text-to-speech
+            }
+            if (recognition.recognizing) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
+        }
+    });
+
+    closeVoiceSearchBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        if (recognition && recognition.recognizing) {
+            recognition.stop();
+        }
+        voiceSearchContainer.style.opacity = '0';
+        voiceSearchContainer.style.visibility = 'hidden';
+        removeSearchHighlights();
+    });
+
+    function performVoiceSearch(query) {
+        removeSearchHighlights(); // Remove any previous highlights from live DOM
+        accessibilityState.voiceSearchMatches = [];
+        accessibilityState.currentVoiceSearchMatchIndex = -1;
+
+        let count = 0;
+        const regex = new RegExp(query, 'gi');
+
+        // Iterate over all text nodes in the live document body
+        const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+        let node;
+        while ((node = walker.nextNode())) {
+            // Exclude nodes within script/style tags
+            if (node.nodeValue.trim().length > 0 &&
+                node.parentNode.tagName !== 'SCRIPT' &&
+                node.parentNode.tagName !== 'STYLE' &&
+                node.parentNode.tagName !== 'NOSCRIPT'
+            ) {
+                const text = node.nodeValue;
+                let match;
+                let lastIndex = 0;
+                const parent = node.parentNode;
+                const tempFragments = []; // Store fragments to replace the current text node
+
+                while ((match = regex.exec(text)) !== null) {
+                    // Add text before the match
+                    if (match.index > lastIndex) {
+                        tempFragments.push(document.createTextNode(text.substring(lastIndex, match.index)));
+                    }
+                    // Add the highlighted match
+                    const highlightSpan = document.createElement('span');
+                    highlightSpan.style.backgroundColor = 'yellow';
+                    highlightSpan.style.border = '2px solid red'; // Initial highlight for search
+                    highlightSpan.className = 'aaw-search-highlight'; // Class to easily select later
+                    highlightSpan.textContent = match[0];
+                    tempFragments.push(highlightSpan);
+                    accessibilityState.voiceSearchMatches.push(highlightSpan); // Store reference to the live span
+                    count++;
+                    lastIndex = regex.lastIndex;
+                }
+                // Add any remaining text after the last match
+                if (lastIndex < text.length) {
+                    tempFragments.push(document.createTextNode(text.substring(lastIndex)));
+                }
+
+                // If matches were found in this node, replace the original text node with the fragments
+                if (tempFragments.length > 0 && tempFragments.length !== 1 || (tempFragments.length === 1 && tempFragments[0].nodeType !== Node.TEXT_NODE)) { // Only replace if actual highlights were added
+                    tempFragments.forEach(fragment => parent.insertBefore(fragment, node));
+                    parent.removeChild(node);
+                }
+            }
+        }
+
+
+        voiceSearchMatchesCount.textContent = `تم العثور على ${count} تطابق.`;
+        if (count > 0) {
+            accessibilityState.currentVoiceSearchMatchIndex = 0;
+            scrollToMatch(0);
+        } else {
+            showMessage('البحث الصوتي', 'لم يتم العثور على تطابقات.');
+        }
+    }
+
+    function scrollToMatch(index) {
+        if (accessibilityState.voiceSearchMatches.length > 0 && index >= 0 && index < accessibilityState.voiceSearchMatches.length) {
+            // Remove previous active highlight
+            document.querySelectorAll('.aaw-search-highlight').forEach(match => {
+                match.style.border = '2px solid transparent'; // Reset border for all
+            });
+
+            const targetMatch = accessibilityState.voiceSearchMatches[index];
+            targetMatch.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            targetMatch.style.border = '2px solid blue'; // Highlight current match with a different color
+        }
+    }
+
+    function removeSearchHighlights() {
+        document.querySelectorAll('.aaw-search-highlight').forEach(span => {
+            const parent = span.parentNode;
+            while (span.firstChild) {
+                parent.insertBefore(span.firstChild, span);
+            }
+            parent.removeChild(span);
+        });
+    }
+
+    prevSearchMatchBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        if (accessibilityState.voiceSearchMatches.length > 0) {
+            accessibilityState.currentVoiceSearchMatchIndex = (accessibilityState.currentVoiceSearchMatchIndex - 1 + accessibilityState.voiceSearchMatches.length) % accessibilityState.voiceSearchMatches.length;
+            scrollToMatch(accessibilityState.currentVoiceSearchMatchIndex);
+        }
+    });
+
+    nextSearchMatchBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        if (accessibilityState.voiceSearchMatches.length > 0) {
+            accessibilityState.currentVoiceSearchMatchIndex = (accessibilityState.currentVoiceSearchMatchIndex + 1) % accessibilityState.voiceSearchMatches.length;
+            scrollToMatch(accessibilityState.currentVoiceSearchMatchIndex);
+        }
+    });
+
+
+    // Translation
+    translationBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        // originalTextMap is populated once on DOMContentLoaded, it is not cleared here.
+        // This ensures originalTextMap always holds the initial Arabic content.
+
+        translationContainer.style.opacity = '1';
+        translationContainer.style.visibility = 'visible';
+        pageTranslationLoadingIndicator.style.display = 'none';
+        translationCheckmark.style.display = 'none'; // Hide checkmark when opening translation
+        showMessage('الترجمة', 'اختر لغة لترجمة محتوى الصفحة. سيتم ترجمة النص مباشرة في الصفحة.');
+    });
+
+    closePageTranslationBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        translationContainer.style.opacity = '0';
+        translationContainer.style.visibility = 'hidden';
+        accessibilityState.isTranslating = false;
+        translationCheckmark.style.display = 'none'; // Hide checkmark when closing translation pop-up
+    });
+
+    async function translatePage(targetLang) {
+        pageTranslationLoadingIndicator.style.display = 'block';
+        accessibilityState.isTranslating = true;
+        translationCheckmark.style.display = 'none'; // Hide checkmark while translating
+
+        // Ensure the page is in its original Arabic state before translating to a new language
+        resetPageToOriginalArabic();
+
+        // Get the current translatable nodes from the DOM, but use their original values from originalTextMap
+        const translatableNodes = getTextNodes(document.body);
+        const textsToTranslate = translatableNodes.map(node => {
+            const originalText = accessibilityState.originalTextMap.get(node);
+            // If originalText is not found (e.g., for dynamically added content), use current nodeValue
+            return originalText ? originalText.trim() : node.nodeValue.trim();
+        });
+
+        console.log("Translation: Texts to send to API:", textsToTranslate);
+
+        if (textsToTranslate.length === 0 || textsToTranslate.every(text => text === '')) {
+            showMessage('خطأ في الترجمة', 'لم يتم العثور على نص لترجمته في الصفحة.');
+            pageTranslationLoadingIndicator.style.display = 'none';
+            accessibilityState.isTranslating = false;
+            return;
+        }
+
+        try {
+            const payload = {
+                contents: [
+                    {
+                        role: "user",
+                        parts: [{ text: `Translate the following array of Arabic texts to ${targetLang}. Provide the output as a JSON array of translated strings, matching the order of the input array. Only return the JSON array. Input: ${JSON.stringify(textsToTranslate)}` }]
+                    }
+                ],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "ARRAY",
+                        items: { "type": "STRING" }
+                    }
+                }
+            };
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+            console.log("Translation API raw result:", result);
+
+            if (result.candidates && result.candidates.length > 0 &&
+                result.candidates[0].content && result.candidates[0].content.parts &&
+                result.candidates[0].content.parts.length > 0) {
+                const jsonString = result.candidates[0].content.parts[0].text;
+                let translatedTexts;
+                try {
+                    translatedTexts = JSON.parse(jsonString);
+                } catch (parseError) {
+                    console.error("Failed to parse JSON from translation API:", parseError, "JSON String:", jsonString);
+                    showMessage('خطأ في الترجمة', 'فشل في تحليل استجابة الترجمة. يرجى المحاولة مرة أخرى.');
+                    return;
+                }
+
+
+                if (translatedTexts.length === translatableNodes.length) {
+                    translatableNodes.forEach((node, index) => {
+                        // Update the original page content (body)
+                        if (node && node.nodeValue !== undefined) { // Check if node is still valid
+                            node.nodeValue = translatedTexts[index];
+                        }
+                    });
+                    translationCheckmark.style.display = 'inline'; // Show checkmark on success
+                    showMessage('الترجمة', `تمت ترجمة الصفحة إلى ${targetLang}.`);
+                } else {
+                    showMessage('خطأ في الترجمة', 'فشل في مطابقة النصوص المترجمة مع النصوص الأصلية. يرجى المحاولة مرة أخرى.');
+                    console.error('Translation mismatch:', { originalCount: translatableNodes.length, translatedCount: translatedTexts.length, translatedTexts });
+                }
+            } else {
+                showMessage('خطأ في الترجمة', 'فشل في الحصول على ترجمة. يرجى المحاولة مرة أخرى.');
+                console.error('Translation API response error:', result);
+            }
+        } catch (error) {
+            console.error('Error during translation:', error);
+            showMessage('خطأ في الترجمة', 'حدث خطأ أثناء الترجمة. يرجى التحقق من اتصالك بالإنترنت أو محاولة لغة أخرى.');
+        } finally {
+            pageTranslationLoadingIndicator.style.display = 'none';
+            accessibilityState.isTranslating = false;
+        }
+    }
+
+    translateToEnBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        translatePage('English');
+    });
+    translateToUrBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        translatePage('Urdu');
+    });
+    translateToHiBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        translatePage('Hindi');
+    });
+
+    // Function to reset page content to original Arabic
+    function resetPageToOriginalArabic() {
+        if (accessibilityState.originalTextMap.size > 0) {
+            accessibilityState.originalTextMap.forEach((originalText, node) => {
+                if (node && node.nodeValue !== undefined) { // Ensure node is still valid
+                    node.nodeValue = originalText;
+                }
+            });
+            translationCheckmark.style.display = 'none'; // Hide checkmark
+            showMessage('إعادة تعيين الترجمة', 'تمت إعادة تعيين الصفحة إلى اللغة العربية الأصلية.');
+        } else {
+            showMessage('إعادة تعيين الترجمة', 'الصفحة بالفعل باللغة العربية الأصلية أو لم يتم ترجمتها.');
+        }
+    }
+
+    translateToArBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        resetPageToOriginalArabic();
+    });
+
+
+    // Keyboard Controls (basic example, can be expanded)
+    keyboardControlsBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        showMessage('التحكم بلوحة المفاتيح', 'يمكنك استخدام مفتاح Tab للتنقل بين العناصر التفاعلية ومفتاح Enter للتحديد. استخدم مفتاح Esc لإغلاق القوائم المنبثقة.');
+    });
+
+    // Image Describer (AI)
+    imageDescriberBtn.addEventListener('click', async (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        const images = document.querySelectorAll('img');
+        if (images.length === 0) {
+            showMessage('مُفسّر الصور', 'لا توجد صور في هذه الصفحة لتفسيرها.');
+            return;
+        }
+
+        showMessage('مُفسّر الصور', 'جاري تحليل الصور... قد يستغرق هذا بعض الوقت.');
+
+        for (const img of images) {
+            const imageUrl = img.src;
+            if (!imageUrl) continue;
+
+            try {
+                const response = await fetch(imageUrl);
+                const blob = await response.blob();
+                const reader = new FileReader();
+
+                reader.onloadend = async () => {
+                    const base64data = reader.result.split(',')[1];
+
+                    const payload = {
+                        contents: [
+                            {
+                                role: "user",
+                                parts: [
+                                    { text: "Describe this image in Arabic. Be concise and descriptive." },
+                                    {
+                                        inlineData: {
+                                            mimeType: blob.type,
+                                            data: base64data
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    };
+                    const apiKey = "";
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                    const aiResponse = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const aiResult = await aiResponse.json();
+                    if (aiResult.candidates && aiResult.candidates.length > 0 &&
+                        aiResult.candidates[0].content && aiResult.candidates[0].content.parts &&
+                        aiResult.candidates[0].content.parts.length > 0) {
+                        const description = aiResult.candidates[0].content.parts[0].text;
+
+                        let container = img.parentNode;
+                        if (!container || container.nodeName === 'BODY' || container.nodeName === 'HTML') {
+                            const wrapper = document.createElement('div');
+                            wrapper.style.position = 'relative';
+                            wrapper.style.display = 'inline-block';
+                            img.parentNode.insertBefore(wrapper, img);
+                            wrapper.appendChild(img);
+                            container = wrapper;
+                        } else {
+                            container.style.position = container.style.position === 'static' ? 'relative' : container.style.position;
+                        }
+
+                        let overlay = container.querySelector('[id^="aaw-image-describer-overlay"]');
+                        if (!overlay) {
+                            overlay = document.createElement('div');
+                            overlay.id = `aaw-image-describer-overlay-${Math.random().toString(36).substring(2, 9)}`;
+                            overlay.style.cssText = `
+                                position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+                                background-color: rgba(0, 0, 0, 0.7); color: white;
+                                display: flex; justify-content: center; align-items: center;
+                                text-align: center; padding: 10px; box-sizing: border-box;
+                                opacity: 0; transition: opacity 0.3s ease-in-out; pointer-events: none;
+                                font-size: 14px; line-height: 1.4;
+                            `;
+                            container.appendChild(overlay);
+                        }
+                        overlay.textContent = description;
+                        overlay.style.opacity = '1';
+                        overlay.style.pointerEvents = 'auto';
+
+                        container.addEventListener('mouseleave', () => {
+                            overlay.style.opacity = '0';
+                            overlay.style.pointerEvents = 'none';
+                        }, { once: true });
+                    } else {
+                        console.error('AI image description failed:', aiResult);
+                    }
+                };
+                reader.readAsDataURL(blob);
+
+            } catch (error) {
+                console.error('Error processing image for AI description:', error);
+            }
+        }
+        showMessage('مُفسّر الصور', 'تم تحليل جميع الصور. مرر الماوس فوق الصور لعرض الأوصاف.');
+    });
+
+
+    // Reset All Settings
+    resetAllBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        Object.assign(accessibilityState, {
+            isPopoverOpen: false,
+            isHighContrast: false,
+            isNewInvertedMode: false, // Reset new invert mode
+            isDesaturated: false,
+            isTextSpacing: false,
+            isDyslexiaFriendly: false,
+            isCustomCursor: false,
+            areImagesHidden: false,
+            areAnimationsStopped: false,
+            areTooltipsShown: false,
+            areLinksHighlighted: false,
+            isHighlightHoverFocus: false,
+            isReadingMaskActive: false,
+            isWCAGMode: false, // Reset WCAG mode
+            currentTextAlign: 'right',
+            currentFontSize: 16,
+            currentLineHeight: 1.5,
+            currentReadingMaskY: 0,
+            voiceSearchMatches: [],
+            currentVoiceSearchMatchIndex: -1,
+            isTranslating: false,
+            currentToolFilter: 'visual-text', // Reset filter to default
+            currentToolSearchQuery: '', // Reset search
+        });
+        applySettings();
+        saveSettings();
+        removeSearchHighlights();
+        removeHighlights();
+        if (speechSynthesis.speaking) {
+            speechSynthesis.cancel();
+        }
+        if (recognition && recognition.recognizing) {
+            recognition.stop();
+        }
+        // If there was an active translation, reset it
+        if (accessibilityState.originalTextMap.size > 0) {
+            resetPageToOriginalArabic();
+        }
+        showMessage('إعادة تعيين الإعدادات', 'تمت إعادة تعيين جميع إعدادات الوصول.');
+    });
+
+    // Keyboard navigation for the popover
+    document.addEventListener('keydown', (e) => {
+        if (accessibilityState.isPopoverOpen) {
+            const focusableElements = Array.from(accessibilityPopover.querySelectorAll('button[role="menuitem"]'));
+            const firstFocusable = focusableElements[0];
+            const lastFocusable = focusableElements[focusableElements.length - 1];
+
+            if (e.key === 'Escape') {
+                accessibilityState.isPopoverOpen = false;
+                applySettings();
+                saveSettings();
+                accessibilityBtn.focus();
+                e.preventDefault();
+            } else if (e.key === 'Tab') {
+                if (e.shiftKey) {
+                    if (document.activeElement === firstFocusable) {
+                        lastFocusable.focus();
+                        e.preventDefault();
+                    }
+                } else {
+                    if (document.activeElement === lastFocusable) {
+                        firstFocusable.focus();
+                        e.preventDefault();
+                    }
+                    else if (document.activeElement === toolSearchInput) {
+                        // If focus is on search input and Tab is pressed, move to the first filter button
+                        filterAllBtn.focus();
+                        e.preventDefault();
+                    }
+                }
+            }
+        }
+    });
+
+    // Event listeners for new header elements
+    filterAllBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        accessibilityState.currentToolFilter = 'all';
+        applySettings();
+        saveSettings();
+    });
+
+    filterAudioBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        accessibilityState.currentToolFilter = 'audio';
+        applySettings();
+        saveSettings();
+    });
+
+    filterVisualTextBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        accessibilityState.currentToolFilter = 'visual-text';
+        applySettings();
+        saveSettings();
+    });
+
+    filterVisualDisplayBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent popover from closing
+        accessibilityState.currentToolFilter = 'visual-display';
+        applySettings();
+        saveSettings();
+    });
+
+    toolSearchInput.addEventListener('input', (event) => {
+        event.stopPropagation(); // Prevent popover from closing (though input doesn't usually close it)
+        accessibilityState.currentToolSearchQuery = event.target.value.trim();
+        applySettings();
+        saveSettings();
+    });
+</script>
+<!-- END: Code to be placed just before the closing </body> tag -->
