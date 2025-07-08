@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنفوجرافيك أفقي متقدم: رحلة التحول الرقمي لبلدية ظفار</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f0f4f8; /* Lighter cool gray background */
+        }
+        .achievement-item {
+            display: flex;
+            align-items: center;
+        }
+        .stats-item {
+            display: flex;
+            align-items: center;
+            margin-top: 0.5rem;
+            font-size: 0.875rem; /* text-sm */
+        }
+        /* Custom scrollbar for better aesthetics on horizontal scroll */
+        .timeline-horizontal::-webkit-scrollbar {
+            height: 10px;
+        }
+        .timeline-horizontal::-webkit-scrollbar-track {
+            background: #d1d5db; /* gray-300 */
+            border-radius: 10px;
+        }
+        .timeline-horizontal::-webkit-scrollbar-thumb {
+            /* Updated gradient: rose-500 to indigo-700 */
+            background: linear-gradient(to right, #f43f5e, #4338ca); 
+            border-radius: 10px;
+        }
+        .timeline-horizontal::-webkit-scrollbar-thumb:hover {
+            /* Updated gradient: rose-600 to indigo-800 */
+            background: linear-gradient(to right, #e11d48, #3730a3); 
+        }
+
+        .nav-button {
+            /* Updated gradient: Rose-500, Purple-600, Indigo-700 */
+            background-image: linear-gradient(to bottom right, #f43f5e, #9333ea, #4338ca);
+            color: white;
+            width: 3rem; /* 48px */
+            height: 3rem; /* 48px */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            z-index: 20;
+        }
+        .nav-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+        }
+        .nav-button:disabled {
+            background-image: none;
+            background-color: #9ca3af; /* gray-400 */
+            cursor: not-allowed;
+            opacity: 0.6;
+            transform: scale(1);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+        .card-icon-bg {
+            /* Updated gradient: Rose-500, Purple-600, Indigo-700 */
+            background-image: linear-gradient(to bottom right, #f43f5e, #9333ea, #4338ca);
+        }
+        .year-badge-gradient {
+            /* Updated gradient: Rose-500, Purple-600, Indigo-700 */
+             background-image: linear-gradient(to right, #f43f5e, #9333ea, #4338ca);
+        }
+        .scroll-to-start-button {
+            /* Specific styling if needed, defaults to nav-button */
+        }
+    </style>
+</head>
+<body class="bg-slate-100">
+    <div class="container mx-auto px-2 sm:px-4 py-8">
+        <header class="text-center mb-10 sm:mb-12">
+            <h1 class="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-purple-600 to-indigo-700 pb-2">
+                رحلة التحول الرقمي لبلدية ظفار
+            </h1>
+            <p class="text-md sm:text-lg text-slate-600 mt-2">نظرة عامة أفقية على الإنجازات الرئيسية منذ عام 2020</p>
+        </header>
+
+        <div class="relative">
+            <button id="prevButton" class="nav-button absolute top-1/2 -translate-y-1/2 right-0 sm:right-1 md:right-2 transform focus:outline-none" title="السابق">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+            <button id="nextButton" class="nav-button absolute top-1/2 -translate-y-1/2 left-0 sm:left-1 md:left-2 transform focus:outline-none" title="التالي">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+             <button id="scrollToStartButton" class="nav-button scroll-to-start-button absolute top-full mt-4 right-1/2 translate-x-1/2 sm:right-4 sm:translate-x-0 sm:top-1/2 sm:-translate-y-1/2 sm:mt-0 sm:mr-16 md:mr-20" title="العودة للبداية">
+                <i class="fas fa-fast-backward"></i>
+            </button>
+
+
+            <div id="timelineContainer" class="timeline-horizontal flex flex-row items-stretch space-x-4 md:space-x-6 p-4 pb-8 sm:p-8 sm:pb-12 overflow-x-auto mx-10 sm:mx-12 md:mx-16 scroll-smooth">
+
+                <div class="bg-white rounded-xl shadow-2xl p-5 sm:p-6 w-72 sm:w-80 md:w-96 flex-shrink-0 flex flex-col transition-all duration-300 hover:shadow-3xl transform hover:-translate-y-1">
+                    <div class="flex items-center mb-3 sm:mb-4">
+                        <div class="p-2 sm:p-3 card-icon-bg text-white rounded-full shadow-md mr-0 ml-2 sm:ml-3">
+                            <i class="fas fa-cogs text-lg sm:text-xl md:text-2xl"></i>
+                        </div>
+                        <span class="year-badge-gradient text-white text-lg sm:text-xl font-bold px-3 sm:px-4 py-1 rounded-lg shadow">2020</span>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-indigo-800 mb-2">التأسيس والتغلب على التحديات</h3>
+                    <p class="text-slate-600 text-xs sm:text-sm mb-3 flex-grow">
+                        واجهت البلدية تحديات أولية مثل نقص قاعدة البيانات ومقاومة التغيير، خاصة مع ظروف جائحة كوفيد-19.
+                    </p>
+                    <ul class="space-y-1 sm:space-y-1 text-xs sm:text-sm">
+                        <li class="achievement-item"><i class="fas fa-users fa-fw text-rose-600 mr-0 ml-2"></i> تشكيل فرق عمل متخصصة.</li>
+                        <li class="achievement-item"><i class="fas fa-database fa-fw text-rose-600 mr-0 ml-2"></i> إنشاء قاعدة بيانات أساسية.</li>
+                        <li class="achievement-item"><i class="fas fa-globe fa-fw text-rose-600 mr-0 ml-2"></i> إطلاق بوابة الخدمات الإلكترونية (15 ديسمبر).</li>
+                        <li class="achievement-item"><i class="fas fa-file-signature fa-fw text-rose-600 mr-0 ml-2"></i> إطلاق خدمات (التراخيص، عقود الإيجار، الدفع الإلكتروني).</li>
+                        <li class="achievement-item"><i class="fab fa-whatsapp fa-fw text-rose-600 mr-0 ml-2"></i> توفير دعم فني عبر واتساب.</li>
+                    </ul>
+                </div>
+
+                <div class="hidden md:flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-long-arrow-alt-left text-indigo-700 text-2xl sm:text-3xl md:text-4xl opacity-50"></i>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-2xl p-5 sm:p-6 w-72 sm:w-80 md:w-96 flex-shrink-0 flex flex-col transition-all duration-300 hover:shadow-3xl transform hover:-translate-y-1">
+                    <div class="flex items-center mb-3 sm:mb-4">
+                        <div class="p-2 sm:p-3 card-icon-bg text-white rounded-full shadow-md mr-0 ml-2 sm:ml-3">
+                            <i class="fas fa-chart-line text-lg sm:text-xl md:text-2xl"></i>
+                        </div>
+                        <span class="year-badge-gradient text-white text-lg sm:text-xl font-bold px-3 sm:px-4 py-1 rounded-lg shadow">2021</span>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-indigo-800 mb-2">تطوير وتوسيع الخدمات</h3>
+                    <p class="text-slate-600 text-xs sm:text-sm mb-3 flex-grow">
+                        تركيز على تطوير البوابة، إنشاء مراكز خدمة خارجية، وإطلاق خدمات مبتكرة.
+                    </p>
+                    <ul class="space-y-1 sm:space-y-1.5 text-xs sm:text-sm">
+                        <li class="achievement-item"><i class="fas fa-laptop-code fa-fw text-rose-600 mr-0 ml-2"></i> تطوير البوابة الإلكترونية.</li>
+                        <li class="achievement-item"><i class="fas fa-building fa-fw text-rose-600 mr-0 ml-2"></i> إنشاء مراكز خدمة خارجية.</li>
+                        <li class="achievement-item"><i class="fas fa-robot fa-fw text-rose-600 mr-0 ml-2"></i> إطلاق برنامج المحادثة "سهالة" (1 أبريل).</li>
+                        <li class="achievement-item"><i class="fas fa-cloud fa-fw text-rose-600 mr-0 ml-2"></i> الانتقال للخدمات السحابية (1 أبريل).</li>
+                        <li class="achievement-item"><i class="fas fa-hard-hat fa-fw text-rose-600 mr-0 ml-2"></i> إطلاق خدمات تراخيص البناء والإشراف (15 أغسطس).</li>
+                    </ul>
+                    <div class="mt-auto pt-2 sm:pt-3">
+                        <div class="stats-item text-slate-700"><i class="fas fa-eye fa-fw text-purple-600 mr-0 ml-1.5"></i> 364,851 زيارة للبوابة.</div>
+                        <div class="stats-item text-slate-700"><i class="fas fa-cogs fa-fw text-purple-600 mr-0 ml-1.5"></i> 52,124 معاملة منجزة.</div>
+                    </div>
+                </div>
+                
+                <div class="hidden md:flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-long-arrow-alt-left text-indigo-700 text-2xl sm:text-3xl md:text-4xl opacity-50"></i>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-2xl p-5 sm:p-6 w-72 sm:w-80 md:w-96 flex-shrink-0 flex flex-col transition-all duration-300 hover:shadow-3xl transform hover:-translate-y-1">
+                    <div class="flex items-center mb-3 sm:mb-4">
+                        <div class="p-2 sm:p-3 card-icon-bg text-white rounded-full shadow-md mr-0 ml-2 sm:ml-3">
+                            <i class="fas fa-cloud-upload-alt text-lg sm:text-xl md:text-2xl"></i>
+                        </div>
+                        <span class="year-badge-gradient text-white text-lg sm:text-xl font-bold px-3 sm:px-4 py-1 rounded-lg shadow">2022</span>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-indigo-800 mb-2">التحول السحابي الكامل والرقمنة</h3>
+                    <p class="text-slate-600 text-xs sm:text-sm mb-3 flex-grow">
+                        استكمال التحول للخدمات السحابية، وتطويرات إضافية تشمل الرقمنة وإطلاق تطبيقات متخصصة.
+                    </p>
+                    <ul class="space-y-1 sm:space-y-1.5 text-xs sm:text-sm">
+                        <li class="achievement-item"><i class="fas fa-cloud-upload-alt fa-fw text-rose-600 mr-0 ml-2"></i> التحول الكامل للخدمات السحابية.</li>
+                        <li class="achievement-item"><i class="fas fa-qrcode fa-fw text-rose-600 mr-0 ml-2"></i> إضافة رموز QR للعقود الإلكترونية.</li>
+                        <li class="achievement-item"><i class="fas fa-file-archive fa-fw text-rose-600 mr-0 ml-2"></i> بدء مشروع تحويل الملفات الورقية إلى رقمية.</li>
+                        <li class="achievement-item"><i class="fas fa-mobile-alt fa-fw text-rose-600 mr-0 ml-2"></i> إطلاق تطبيق "خريف ظفار" (14 أغسطس).</li>
+                    </ul>
+                    <div class="mt-auto pt-2 sm:pt-3">
+                        <div class="stats-item text-slate-700"><i class="fas fa-eye fa-fw text-purple-600 mr-0 ml-1.5"></i> 1,165,138 زيارة للبوابة.</div>
+                        <div class="stats-item text-slate-700"><i class="fas fa-cogs fa-fw text-purple-600 mr-0 ml-1.5"></i> 42,763 معاملة منجزة.</div>
+                    </div>
+                </div>
+
+                <div class="hidden md:flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-long-arrow-alt-left text-indigo-700 text-2xl sm:text-3xl md:text-4xl opacity-50"></i>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-2xl p-5 sm:p-6 w-72 sm:w-80 md:w-96 flex-shrink-0 flex flex-col transition-all duration-300 hover:shadow-3xl transform hover:-translate-y-1">
+                    <div class="flex items-center mb-3 sm:mb-4">
+                        <div class="p-2 sm:p-3 card-icon-bg text-white rounded-full shadow-md mr-0 ml-2 sm:ml-3">
+                            <i class="fas fa-lightbulb text-lg sm:text-xl md:text-2xl"></i>
+                        </div>
+                        <span class="year-badge-gradient text-white text-lg sm:text-xl font-bold px-3 sm:px-4 py-1 rounded-lg shadow">2023</span>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-indigo-800 mb-2">تطبيقات مبتكرة وبيانات مفتوحة</h3>
+                    <p class="text-slate-600 text-xs sm:text-sm mb-3 flex-grow">
+                        إطلاق تطبيقات جديدة، إتاحة البيانات المفتوحة، وتوظيف الذكاء الاصطناعي.
+                    </p>
+                    <ul class="space-y-1 sm:space-y-1.5 text-xs sm:text-sm">
+                        <li class="achievement-item"><i class="fas fa-calendar-alt fa-fw text-rose-600 mr-0 ml-2"></i> تطوير تطبيق "خريف ظفار" إلى "مواسم ظفار" (1 يونيو).</li>
+                        <li class="achievement-item"><i class="fas fa-thumbs-up fa-fw text-rose-600 mr-0 ml-2"></i> إطلاق تطبيق "أبشر" (1 يونيو).</li>
+                        <li class="achievement-item"><i class="fas fa-database fa-fw text-rose-600 mr-0 ml-2"></i> إتاحة البيانات المفتوحة للخدمات البلدية.</li>
+                        <li class="achievement-item"><i class="fas fa-brain fa-fw text-rose-600 mr-0 ml-2"></i> تطوير نظام المعلومات الجغرافية (GIS) بالذكاء الاصطناعي.</li>
+                    </ul>
+                    <div class="mt-auto pt-2 sm:pt-3">
+                        <div class="stats-item text-slate-700"><i class="fas fa-eye fa-fw text-purple-600 mr-0 ml-1.5"></i> 1,456,112 زيارة للبوابة.</div>
+                        <div class="stats-item text-slate-700"><i class="fas fa-cogs fa-fw text-purple-600 mr-0 ml-1.5"></i> 45,417 معاملة منجزة.</div>
+                    </div>
+                </div>
+
+                <div class="hidden md:flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-long-arrow-alt-left text-indigo-700 text-2xl sm:text-3xl md:text-4xl opacity-50"></i>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-2xl p-5 sm:p-6 w-72 sm:w-80 md:w-96 flex-shrink-0 flex flex-col transition-all duration-300 hover:shadow-3xl transform hover:-translate-y-1">
+                    <div class="flex items-center mb-3 sm:mb-4">
+                        <div class="p-2 sm:p-3 card-icon-bg text-white rounded-full shadow-md mr-0 ml-2 sm:ml-3">
+                            <i class="fas fa-rocket text-lg sm:text-xl md:text-2xl"></i>
+                        </div>
+                        <span class="year-badge-gradient text-white text-lg sm:text-xl font-bold px-3 sm:px-4 py-1 rounded-lg shadow">2024</span>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-indigo-800 mb-2">خدمات استباقية وتقنيات متقدمة</h3>
+                    <p class="text-slate-600 text-xs sm:text-sm mb-3 flex-grow">
+                        التركيز على تقديم خدمات استباقية للمستخدمين وتوظيف أحدث التقنيات كالذكاء الاصطناعي والميتافيرس.
+                    </p>
+                    <ul class="space-y-1 sm:space-y-1.5 text-xs sm:text-sm">
+                        <li class="achievement-item"><i class="fas fa-magic fa-fw text-rose-600 mr-0 ml-2"></i> إطلاق خدمات استباقية.</li>
+                        <li class="achievement-item"><i class="fas fa-vr-cardboard fa-fw text-rose-600 mr-0 ml-2"></i> تدشين خدمة العملاء بتقنية الميتافيرس (27 مايو).</li>
+                        <li class="achievement-item"><i class="fas fa-city fa-fw text-rose-600 mr-0 ml-2"></i> إطلاق منصة صلالة الذكية (27 مايو).</li>
+                        <li class="achievement-item"><i class="fas fa-traffic-light fa-fw text-rose-600 mr-0 ml-2"></i> تطوير نظام مراقبة حركة المرور بالذكاء الاصطناعي.</li>
+                        <li class="achievement-item"><i class="fas fa-camera-retro fa-fw text-rose-600 mr-0 ml-2"></i> تركيب كاميرات ذكاء اصطناعي في المناطق الحيوية.</li>
+                        <li class="achievement-item"><i class="fas fa-comments fa-fw text-rose-600 mr-0 ml-2"></i> محادثة ذكية لمركز الاتصال الافتراضي.</li>
+                        <li class="achievement-item"><i class="fas fa-hand-pointer fa-fw text-rose-600 mr-0 ml-2"></i> تطبيق "ضع بصمتك".</li>
+                        <li class="achievement-item"><i class="fas fa-chart-pie fa-fw text-rose-600 mr-0 ml-2"></i> منصة بلدية ظفار للاستثمار.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <footer class="text-center mt-8 sm:mt-12 py-6 border-t border-slate-300">
+            <p class="text-slate-600 text-sm">&copy; 2024 بلدية ظفار - جميع الحقوق محفوظة (تصميم إنفوجرافيك توضيحي أفقي)</p>
+        </footer>
+    </div>
+
+    <script>
+        const timelineContainer = document.getElementById('timelineContainer');
+        const prevButton = document.getElementById('prevButton'); // Right button in RTL
+        const nextButton = document.getElementById('nextButton'); // Left button in RTL
+        const scrollToStartButton = document.getElementById('scrollToStartButton');
+        
+        const getCardElements = () => Array.from(timelineContainer.querySelectorAll('div.bg-white.rounded-xl.shadow-2xl[class*="w-"]'));
+
+        function updateButtonStates() {
+            if (!timelineContainer) return;
+            const cards = getCardElements();
+            if (cards.length === 0) {
+                prevButton.disabled = true;
+                nextButton.disabled = true;
+                scrollToStartButton.disabled = true;
+                return;
+            }
+
+            const scrollLeft = timelineContainer.scrollLeft;
+            const scrollWidth = timelineContainer.scrollWidth;
+            const clientWidth = timelineContainer.clientWidth;
+
+            // Disable prevButton and scrollToStartButton if at the very beginning (RTL: scrollLeft is 0)
+            /*prevButton.disabled = scrollLeft <= 1; 
+            scrollToStartButton.disabled = scrollLeft <= 1;*/
+
+            // Disable nextButton if at the very end (RTL: scrollLeft is at max)
+            // Add a small tolerance (e.g., 5px) for floating point inaccuracies and scrollbar width
+           /* nextButton.disabled = scrollLeft + clientWidth >= scrollWidth - 5;
+        }*/
+        // Function to find the index of the rightmost card that is at least partially visible
+        function getRightmostVisibleCardIndex() {
+            const cards = getCardElements();
+            if (cards.length === 0) return -1; 
+            const containerRightEdge = timelineContainer.getBoundingClientRect().right;
+            const containerLeftEdge = timelineContainer.getBoundingClientRect().left;
+
+            for (let i = 0; i < cards.length; i++) {
+                const cardRect = cards[i].getBoundingClientRect();
+                // A card is considered the "rightmost visible" if its left edge is to the left of the container's right edge,
+                // AND its right edge is to the right of the container's left edge.
+                // This means the card is at least partially within the viewport.
+                if (cardRect.left < containerRightEdge && cardRect.right > containerLeftEdge) {
+                    return i; // Return the index of the first such card from the right (start of array)
+                }
+            }
+            // Fallback if no card is deemed visible (e.g., if container is too small or an error)
+            return cards.length > 0 ? 0 : -1; 
+        }
+
+        nextButton.addEventListener('click', () => { 
+            const cards = getCardElements();
+            if (cards.length === 0) return;
+            
+            let currentVisibleIndex = getRightmostVisibleCardIndex();
+            if (currentVisibleIndex === -1) currentVisibleIndex = 0; // Should not happen if cards exist
+
+            // Target the card to the left of the current rightmost visible card
+            let targetIndex = currentVisibleIndex + 1; 
+            
+            if (targetIndex >= cards.length) {
+                targetIndex = cards.length - 1; 
+            }
+
+            if (cards[targetIndex]) {
+                // For RTL, 'inline: "start"' aligns the element's right edge with the container's right edge.
+                cards[targetIndex].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+            }
+            // Update button states after a short delay to allow scroll animation to potentially complete
+            setTimeout(updateButtonStates, 450); // Slightly increased delay
+        });
+
+        prevButton.addEventListener('click', () => { 
+            const cards = getCardElements();
+            if (cards.length === 0) return;
+
+            let currentVisibleIndex = getRightmostVisibleCardIndex();
+            if (currentVisibleIndex === -1) currentVisibleIndex = 0;
+
+            // Target the card to the right of the current rightmost visible card
+            let targetIndex = currentVisibleIndex - 1; 
+            
+            if (targetIndex < 0) {
+                targetIndex = 0; 
+            }
+
+            if (cards[targetIndex]) {
+                cards[targetIndex].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+            }
+             setTimeout(updateButtonStates, 450); // Slightly increased delay
+        });
+
+        scrollToStartButton.addEventListener('click', () => {
+            const cards = getCardElements();
+            if (cards.length > 0) {
+                // Explicitly scroll the first card (index 0) into view
+                cards[0].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+            }
+            setTimeout(updateButtonStates, 450); // Slightly increased delay
+        });
+
+        // Initial button states on load and on scroll
+        timelineContainer.addEventListener('scroll', updateButtonStates);
+        window.addEventListener('load', updateButtonStates);
+        window.addEventListener('resize', () => {
+            // When resizing, the visibility and scroll positions might change significantly.
+            // It's good to re-evaluate and potentially re-center or adjust scroll.
+            // For now, just update button states.
+            updateButtonStates();
+        });
+    </script>
+</body>
+</html>
+```
