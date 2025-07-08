@@ -7,6 +7,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        /* Import Tajawal font from Google Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+
         body {
             font-family: 'Tajawal', sans-serif;
             background-color: #f0f4f8; /* Lighter cool gray background */
@@ -31,12 +34,12 @@
         }
         .timeline-horizontal::-webkit-scrollbar-thumb {
             /* Updated gradient: rose-500 to indigo-700 */
-            background: linear-gradient(to right, #f43f5e, #4338ca); 
+            background: linear-gradient(to right, #f43f5e, #4338ca);
             border-radius: 10px;
         }
         .timeline-horizontal::-webkit-scrollbar-thumb:hover {
             /* Updated gradient: rose-600 to indigo-800 */
-            background: linear-gradient(to right, #e11d48, #3730a3); 
+            background: linear-gradient(to right, #e11d48, #3730a3);
         }
 
         .nav-button {
@@ -53,6 +56,10 @@
             transition: all 0.3s ease;
             cursor: pointer;
             z-index: 20;
+            /* Added min-width and padding for text buttons */
+            min-width: 4rem; /* Adjust as needed for text */
+            padding: 0 1rem;
+            border-radius: 9999px; /* Make them pill-shaped for text */
         }
         .nav-button:hover {
             transform: scale(1.1);
@@ -76,6 +83,17 @@
         }
         .scroll-to-start-button {
             /* Specific styling if needed, defaults to nav-button */
+            min-width: unset; /* Revert min-width for the flag button */
+            padding: unset; /* Revert padding for the flag button */
+            width: 3rem; /* Keep it round */
+            height: 3rem; /* Keep it round */
+            border-radius: 50%; /* Keep it round */
+        }
+        /* New style for the Future Vision card */
+        .future-vision-card {
+            background-color: #e0f2fe; /* Light blue background */
+            border: 2px solid #90cdf4; /* Light blue border */
+            color: #1e3a8a; /* Dark blue text */
         }
     </style>
 </head>
@@ -89,19 +107,25 @@
         </header>
 
         <div class="relative">
-            <button id="prevButton" class="nav-button absolute top-1/2 -translate-y-1/2 right-0 sm:right-1 md:right-2 transform focus:outline-none" title="السابق">
-                <i class="fas fa-chevron-right"></i>
+            <!-- Navigation Buttons - Reversed Directions -->
+            <!-- Next Button (visually on the right in RTL, scrolls content left to show later cards) -->
+            <button id="nextButton" class="nav-button absolute top-1/2 -translate-y-1/2 right-0 sm:right-1 md:right-2 transform focus:outline-none text-base font-bold" title="التالي">
+                التالي
             </button>
-            <button id="nextButton" class="nav-button absolute top-1/2 -translate-y-1/2 left-0 sm:left-1 md:left-2 transform focus:outline-none" title="التالي">
-                <i class="fas fa-chevron-left"></i>
+            <!-- Prev Button (visually on the left in RTL, scrolls content right to show earlier cards) -->
+            <button id="prevButton" class="nav-button absolute top-1/2 -translate-y-1/2 left-0 sm:left-1 md:left-2 transform focus:outline-none text-base font-bold" title="السابق">
+                السابق
             </button>
-             <button id="scrollToStartButton" class="nav-button scroll-to-start-button absolute top-full mt-4 right-1/2 translate-x-1/2 sm:right-4 sm:translate-x-0 sm:top-1/2 sm:-translate-y-1/2 sm:mt-0 sm:mr-16 md:mr-20" title="العودة للبداية">
-                <i class="fas fa-fast-backward"></i>
+            <!-- Scroll to Start Button (visually on the right, scrolls to the beginning of the timeline) -->
+            <button id="scrollToStartButton" class="nav-button scroll-to-start-button absolute top-full mt-4 right-1/2 translate-x-1/2 sm:right-4 sm:translate-x-0 sm:top-1/2 sm:-translate-y-1/2 sm:mt-0 sm:mr-16 md:mr-20" title="العودة للبداية">
+                <i class="fas fa-flag"></i> <!-- Changed icon to flag -->
             </button>
 
 
+            <!-- Timeline Container -->
             <div id="timelineContainer" class="timeline-horizontal flex flex-row items-stretch space-x-4 md:space-x-6 p-4 pb-8 sm:p-8 sm:pb-12 overflow-x-auto mx-10 sm:mx-12 md:mx-16 scroll-smooth">
 
+                <!-- 2020 Card -->
                 <div class="bg-white rounded-xl shadow-2xl p-5 sm:p-6 w-72 sm:w-80 md:w-96 flex-shrink-0 flex flex-col transition-all duration-300 hover:shadow-3xl transform hover:-translate-y-1">
                     <div class="flex items-center mb-3 sm:mb-4">
                         <div class="p-2 sm:p-3 card-icon-bg text-white rounded-full shadow-md mr-0 ml-2 sm:ml-3">
@@ -111,9 +135,12 @@
                     </div>
                     <h3 class="text-lg sm:text-xl font-bold text-indigo-800 mb-2">التأسيس والتغلب على التحديات</h3>
                     <p class="text-slate-600 text-xs sm:text-sm mb-3 flex-grow">
-                        واجهت البلدية تحديات أولية مثل نقص قاعدة البيانات ومقاومة التغيير، خاصة مع ظروف جائحة كوفيد-19.
+                        واجهت البلدية تحديات أولية في مسيرة التحول الرقمي:
                     </p>
                     <ul class="space-y-1 sm:space-y-1 text-xs sm:text-sm">
+                        <li class="achievement-item"><i class="fas fa-exclamation-triangle fa-fw text-rose-600 mr-0 ml-2"></i> نقص قاعدة البيانات.</li>
+                        <li class="achievement-item"><i class="fas fa-hand-paper fa-fw text-rose-600 mr-0 ml-2"></i> مقاومة التغيير.</li>
+                        <li class="achievement-item"><i class="fas fa-virus fa-fw text-rose-600 mr-0 ml-2"></i> ظروف جائحة كوفيد-19.</li>
                         <li class="achievement-item"><i class="fas fa-users fa-fw text-rose-600 mr-0 ml-2"></i> تشكيل فرق عمل متخصصة.</li>
                         <li class="achievement-item"><i class="fas fa-database fa-fw text-rose-600 mr-0 ml-2"></i> إنشاء قاعدة بيانات أساسية.</li>
                         <li class="achievement-item"><i class="fas fa-globe fa-fw text-rose-600 mr-0 ml-2"></i> إطلاق بوابة الخدمات الإلكترونية (15 ديسمبر).</li>
@@ -122,10 +149,12 @@
                     </ul>
                 </div>
 
+                <!-- Arrow Separator -->
                 <div class="hidden md:flex items-center justify-center flex-shrink-0">
                     <i class="fas fa-long-arrow-alt-left text-indigo-700 text-2xl sm:text-3xl md:text-4xl opacity-50"></i>
                 </div>
 
+                <!-- 2021 Card -->
                 <div class="bg-white rounded-xl shadow-2xl p-5 sm:p-6 w-72 sm:w-80 md:w-96 flex-shrink-0 flex flex-col transition-all duration-300 hover:shadow-3xl transform hover:-translate-y-1">
                     <div class="flex items-center mb-3 sm:mb-4">
                         <div class="p-2 sm:p-3 card-icon-bg text-white rounded-full shadow-md mr-0 ml-2 sm:ml-3">
@@ -142,18 +171,20 @@
                         <li class="achievement-item"><i class="fas fa-building fa-fw text-rose-600 mr-0 ml-2"></i> إنشاء مراكز خدمة خارجية.</li>
                         <li class="achievement-item"><i class="fas fa-robot fa-fw text-rose-600 mr-0 ml-2"></i> إطلاق برنامج المحادثة "سهالة" (1 أبريل).</li>
                         <li class="achievement-item"><i class="fas fa-cloud fa-fw text-rose-600 mr-0 ml-2"></i> الانتقال للخدمات السحابية (1 أبريل).</li>
-                        <li class="achievement-item"><i class="fas fa-hard-hat fa-fw text-rose-600 mr-0 ml-2"></i> إطلاق خدمات تراخيص البناء والإشراف (15 أغسطس).</li>
+                        <li class="achievement-item"><i class="fas fa-hard-hat fa-fw text-rose-600 mr-0 ml-2"></i> تصحيح تراخيص البناء ورقابة البناء (15 أغسطس).</li>
                     </ul>
                     <div class="mt-auto pt-2 sm:pt-3">
                         <div class="stats-item text-slate-700"><i class="fas fa-eye fa-fw text-purple-600 mr-0 ml-1.5"></i> 364,851 زيارة للبوابة.</div>
-                        <div class="stats-item text-slate-700"><i class="fas fa-cogs fa-fw text-purple-600 mr-0 ml-1.5"></i> 52,124 معاملة منجزة.</div>
+                        <div class="stats-item text-slate-700"><i class="fas fa-cogs fa-fw text-purple-600 mr-0 ml-1.5"></i> 52,124 عدد المعاملات في منافذ بلدية ظفار الرقمية.</div>
                     </div>
                 </div>
-                
+
+                <!-- Arrow Separator -->
                 <div class="hidden md:flex items-center justify-center flex-shrink-0">
                     <i class="fas fa-long-arrow-alt-left text-indigo-700 text-2xl sm:text-3xl md:text-4xl opacity-50"></i>
                 </div>
 
+                <!-- 2022 Card -->
                 <div class="bg-white rounded-xl shadow-2xl p-5 sm:p-6 w-72 sm:w-80 md:w-96 flex-shrink-0 flex flex-col transition-all duration-300 hover:shadow-3xl transform hover:-translate-y-1">
                     <div class="flex items-center mb-3 sm:mb-4">
                         <div class="p-2 sm:p-3 card-icon-bg text-white rounded-full shadow-md mr-0 ml-2 sm:ml-3">
@@ -173,14 +204,16 @@
                     </ul>
                     <div class="mt-auto pt-2 sm:pt-3">
                         <div class="stats-item text-slate-700"><i class="fas fa-eye fa-fw text-purple-600 mr-0 ml-1.5"></i> 1,165,138 زيارة للبوابة.</div>
-                        <div class="stats-item text-slate-700"><i class="fas fa-cogs fa-fw text-purple-600 mr-0 ml-1.5"></i> 42,763 معاملة منجزة.</div>
+                        <div class="stats-item text-slate-700"><i class="fas fa-cogs fa-fw text-purple-600 mr-0 ml-1.5"></i> 42,763 عدد المعاملات في منافذ بلدية ظفار الرقمية.</div>
                     </div>
                 </div>
 
+                <!-- Arrow Separator -->
                 <div class="hidden md:flex items-center justify-center flex-shrink-0">
                     <i class="fas fa-long-arrow-alt-left text-indigo-700 text-2xl sm:text-3xl md:text-4xl opacity-50"></i>
                 </div>
 
+                <!-- 2023 Card -->
                 <div class="bg-white rounded-xl shadow-2xl p-5 sm:p-6 w-72 sm:w-80 md:w-96 flex-shrink-0 flex flex-col transition-all duration-300 hover:shadow-3xl transform hover:-translate-y-1">
                     <div class="flex items-center mb-3 sm:mb-4">
                         <div class="p-2 sm:p-3 card-icon-bg text-white rounded-full shadow-md mr-0 ml-2 sm:ml-3">
@@ -197,17 +230,20 @@
                         <li class="achievement-item"><i class="fas fa-thumbs-up fa-fw text-rose-600 mr-0 ml-2"></i> إطلاق تطبيق "أبشر" (1 يونيو).</li>
                         <li class="achievement-item"><i class="fas fa-database fa-fw text-rose-600 mr-0 ml-2"></i> إتاحة البيانات المفتوحة للخدمات البلدية.</li>
                         <li class="achievement-item"><i class="fas fa-brain fa-fw text-rose-600 mr-0 ml-2"></i> تطوير نظام المعلومات الجغرافية (GIS) بالذكاء الاصطناعي.</li>
+                        <li class="achievement-item"><i class="fas fa-medal fa-fw text-rose-600 mr-0 ml-2"></i> أول مشاركة لمحافظة ظفار في كومكس.</li>
                     </ul>
                     <div class="mt-auto pt-2 sm:pt-3">
                         <div class="stats-item text-slate-700"><i class="fas fa-eye fa-fw text-purple-600 mr-0 ml-1.5"></i> 1,456,112 زيارة للبوابة.</div>
-                        <div class="stats-item text-slate-700"><i class="fas fa-cogs fa-fw text-purple-600 mr-0 ml-1.5"></i> 45,417 معاملة منجزة.</div>
+                        <div class="stats-item text-slate-700"><i class="fas fa-cogs fa-fw text-purple-600 mr-0 ml-1.5"></i> 45,417 عدد المعاملات في منافذ بلدية ظفار الرقمية.</div>
                     </div>
                 </div>
 
+                <!-- Arrow Separator -->
                 <div class="hidden md:flex items-center justify-center flex-shrink-0">
                     <i class="fas fa-long-arrow-alt-left text-indigo-700 text-2xl sm:text-3xl md:text-4xl opacity-50"></i>
                 </div>
-                
+
+                <!-- 2024 Card -->
                 <div class="bg-white rounded-xl shadow-2xl p-5 sm:p-6 w-72 sm:w-80 md:w-96 flex-shrink-0 flex flex-col transition-all duration-300 hover:shadow-3xl transform hover:-translate-y-1">
                     <div class="flex items-center mb-3 sm:mb-4">
                         <div class="p-2 sm:p-3 card-icon-bg text-white rounded-full shadow-md mr-0 ml-2 sm:ml-3">
@@ -215,21 +251,70 @@
                         </div>
                         <span class="year-badge-gradient text-white text-lg sm:text-xl font-bold px-3 sm:px-4 py-1 rounded-lg shadow">2024</span>
                     </div>
-                    <h3 class="text-lg sm:text-xl font-bold text-indigo-800 mb-2">خدمات استباقية وتقنيات متقدمة</h3>
+                    <h3 class="text-lg sm:text-xl font-bold text-indigo-800 mb-2">تقنيات متقدمة ومبادرات مجتمعية</h3>
                     <p class="text-slate-600 text-xs sm:text-sm mb-3 flex-grow">
-                        التركيز على تقديم خدمات استباقية للمستخدمين وتوظيف أحدث التقنيات كالذكاء الاصطناعي والميتافيرس.
+                        التركيز على توظيف أحدث التقنيات والمبادرات التي تعزز المشاركة المجتمعية.
                     </p>
                     <ul class="space-y-1 sm:space-y-1.5 text-xs sm:text-sm">
-                        <li class="achievement-item"><i class="fas fa-magic fa-fw text-rose-600 mr-0 ml-2"></i> إطلاق خدمات استباقية.</li>
                         <li class="achievement-item"><i class="fas fa-vr-cardboard fa-fw text-rose-600 mr-0 ml-2"></i> تدشين خدمة العملاء بتقنية الميتافيرس (27 مايو).</li>
                         <li class="achievement-item"><i class="fas fa-city fa-fw text-rose-600 mr-0 ml-2"></i> إطلاق منصة صلالة الذكية (27 مايو).</li>
-                        <li class="achievement-item"><i class="fas fa-traffic-light fa-fw text-rose-600 mr-0 ml-2"></i> تطوير نظام مراقبة حركة المرور بالذكاء الاصطناعي.</li>
                         <li class="achievement-item"><i class="fas fa-camera-retro fa-fw text-rose-600 mr-0 ml-2"></i> تركيب كاميرات ذكاء اصطناعي في المناطق الحيوية.</li>
-                        <li class="achievement-item"><i class="fas fa-comments fa-fw text-rose-600 mr-0 ml-2"></i> محادثة ذكية لمركز الاتصال الافتراضي.</li>
                         <li class="achievement-item"><i class="fas fa-hand-pointer fa-fw text-rose-600 mr-0 ml-2"></i> تطبيق "ضع بصمتك".</li>
                         <li class="achievement-item"><i class="fas fa-chart-pie fa-fw text-rose-600 mr-0 ml-2"></i> منصة بلدية ظفار للاستثمار.</li>
                     </ul>
                 </div>
+
+                <!-- Arrow Separator -->
+                <div class="hidden md:flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-long-arrow-alt-left text-indigo-700 text-2xl sm:text-3xl md:text-4xl opacity-50"></i>
+                </div>
+
+                <!-- 2025 Card (New) -->
+                <div class="bg-white rounded-xl shadow-2xl p-5 sm:p-6 w-72 sm:w-80 md:w-96 flex-shrink-0 flex flex-col transition-all duration-300 hover:shadow-3xl transform hover:-translate-y-1">
+                    <div class="flex items-center mb-3 sm:mb-4">
+                        <div class="p-2 sm:p-3 card-icon-bg text-white rounded-full shadow-md mr-0 ml-2 sm:ml-3">
+                            <i class="fas fa-forward text-lg sm:text-xl md:text-2xl"></i>
+                        </div>
+                        <span class="year-badge-gradient text-white text-lg sm:text-xl font-bold px-3 sm:px-4 py-1 rounded-lg shadow">2025</span>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-indigo-800 mb-2">خدمات استباقية وذكاء اصطناعي متقدم</h3>
+                    <p class="text-slate-600 text-xs sm:text-sm mb-3 flex-grow">
+                        التركيز على تقديم خدمات استباقية للمستخدمين وتوظيف أحدث تقنيات الذكاء الاصطناعي.
+                    </p>
+                    <ul class="space-y-1 sm:space-y-1.5 text-xs sm:text-sm">
+                        <li class="achievement-item"><i class="fas fa-magic fa-fw text-rose-600 mr-0 ml-2"></i> إطلاق خدمات استباقية.</li>
+                        <li class="achievement-item"><i class="fas fa-traffic-light fa-fw text-rose-600 mr-0 ml-2"></i> تطوير نظام مراقبة حركة المرور بالذكاء الاصطناعي.</li>
+                        <li class="achievement-item"><i class="fas fa-comments fa-fw text-rose-600 mr-0 ml-2"></i> محادثة ذكية لمركز الاتصال الافتراضي.</li>
+                        <li class="achievement-item"><i class="fas fa-robot fa-fw text-rose-600 mr-0 ml-2"></i> الدردشة الذكية بالذكاء الاصطناعي.</li>
+                    </ul>
+                </div>
+
+                <!-- Arrow Separator -->
+                <div class="hidden md:flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-long-arrow-alt-left text-indigo-700 text-2xl sm:text-3xl md:text-4xl opacity-50"></i>
+                </div>
+
+                <!-- Future Vision Card (New) -->
+                <div class="future-vision-card rounded-xl shadow-2xl p-5 sm:p-6 w-72 sm:w-80 md:w-96 flex-shrink-0 flex flex-col transition-all duration-300 hover:shadow-3xl transform hover:-translate-y-1">
+                    <div class="flex items-center mb-3 sm:mb-4">
+                        <div class="p-2 sm:p-3 card-icon-bg text-white rounded-full shadow-md mr-0 ml-2 sm:ml-3">
+                            <i class="fas fa-lightbulb text-lg sm:text-xl md:text-2xl"></i>
+                        </div>
+                        <span class="year-badge-gradient text-white text-lg sm:text-xl font-bold px-3 sm:px-4 py-1 rounded-lg shadow">الرؤية المستقبلية</span>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-indigo-800 mb-2">نحو ظفار رقمية، مستدامة، ومبتكرة</h3>
+                    <p class="text-slate-600 text-xs sm:text-sm mb-3 flex-grow">
+                        تتطلع بلدية ظفار إلى مستقبل رقمي متكامل، حيث تتجاوز الخدمات البلدية التوقعات لتصبح استباقية وذكية، مدعومة بأحدث تقنيات الذكاء الاصطناعي والميتافيرس. نهدف إلى بناء مدينة ذكية ومستدامة، تعزز جودة الحياة لسكان وزوار المحافظة، وتدعم الابتكار والمشاركة المجتمعية الفعالة، لتكون ظفار نموذجًا رائدًا في التحول الرقمي والخدمات الحكومية المتطورة.
+                    </p>
+                    <ul class="space-y-1 sm:space-y-1.5 text-xs sm:text-sm">
+                        <li class="achievement-item"><i class="fas fa-city fa-fw text-rose-600 mr-0 ml-2"></i> مدينة ذكية مستدامة.</li>
+                        <li class="achievement-item"><i class="fas fa-users-cog fa-fw text-rose-600 mr-0 ml-2"></i> خدمات استباقية ومخصصة.</li>
+                        <li class="achievement-item"><i class="fas fa-robot fa-fw text-rose-600 mr-0 ml-2"></i> توظيف متقدم للذكاء الاصطناعي.</li>
+                        <li class="achievement-item"><i class="fas fa-vr-cardboard fa-fw text-rose-600 mr-0 ml-2"></i> تجارب واقع افتراضي ومعزز.</li>
+                        <li class="achievement-item"><i class="fas fa-hands-helping fa-fw text-rose-600 mr-0 ml-2"></i> مشاركة مجتمعية معززة.</li>
+                    </ul>
+                </div>
+
             </div>
         </div>
 
@@ -240,12 +325,18 @@
 
     <script>
         const timelineContainer = document.getElementById('timelineContainer');
-        const prevButton = document.getElementById('prevButton'); // Right button in RTL
-        const nextButton = document.getElementById('nextButton'); // Left button in RTL
+        // Swapped IDs for next/prev to reflect the desired functionality based on visual position
+        const nextButton = document.getElementById('nextButton'); // Now on the right, scrolls content left (to next card)
+        const prevButton = document.getElementById('prevButton'); // Now on the left, scrolls content right (to previous card)
         const scrollToStartButton = document.getElementById('scrollToStartButton');
-        
-        const getCardElements = () => Array.from(timelineContainer.querySelectorAll('div.bg-white.rounded-xl.shadow-2xl[class*="w-"]'));
 
+        const getCardElements = () => Array.from(timelineContainer.querySelectorAll('div.bg-white.rounded-xl.shadow-2xl[class*="w-"], div.future-vision-card'));
+
+        /**
+         * Updates the disabled state of the navigation buttons based on the current scroll position.
+         * In RTL, scrollLeft is 0 when scrolled fully to the right (start of content).
+         * It increases positively as you scroll left. Max positive value is (scrollWidth - clientWidth).
+         */
         function updateButtonStates() {
             if (!timelineContainer) return;
             const cards = getCardElements();
@@ -260,95 +351,143 @@
             const scrollWidth = timelineContainer.scrollWidth;
             const clientWidth = timelineContainer.clientWidth;
 
-            // Disable prevButton and scrollToStartButton if at the very beginning (RTL: scrollLeft is 0)
-            /*prevButton.disabled = scrollLeft <= 1; 
-            scrollToStartButton.disabled = scrollLeft <= 1;*/
+            // Define a small threshold for "being at the edge"
+            // Increased threshold slightly for better robustness across browsers
+            const threshold = 5; // pixels
 
-            // Disable nextButton if at the very end (RTL: scrollLeft is at max)
-            // Add a small tolerance (e.g., 5px) for floating point inaccuracies and scrollbar width
-           /* nextButton.disabled = scrollLeft + clientWidth >= scrollWidth - 5;
-        }*/
-        // Function to find the index of the rightmost card that is at least partially visible
-        function getRightmostVisibleCardIndex() {
+            // For RTL, scrollLeft is 0 when at the very right (start of content)
+            // It increases as you scroll left.
+            const atStart = Math.abs(scrollLeft) < threshold;
+
+            // For RTL, when at the very left (end of content), scrollLeft is scrollWidth - clientWidth
+            const maxScrollLeft = scrollWidth - clientWidth;
+            const atEnd = Math.abs(scrollLeft - maxScrollLeft) < threshold;
+
+            // Debugging logs - You can remove these after verifying functionality
+            console.log('--- updateButtonStates ---');
+            console.log('scrollLeft:', scrollLeft);
+            console.log('scrollWidth:', scrollWidth);
+            console.log('clientWidth:', clientWidth);
+            console.log('maxScrollLeft:', maxScrollLeft);
+            console.log('atStart:', atStart);
+            console.log('atEnd:', atEnd);
+
+
+            prevButton.disabled = atStart;
+            nextButton.disabled = atEnd;
+            scrollToStartButton.disabled = atStart;
+        }
+
+        /**
+         * Finds the index of the rightmost card that is at least partially visible within the timeline container.
+         * In RTL, this is the card with the lowest index that is visible.
+         * @returns {number} The index of the rightmost visible card, or -1 if none are visible.
+         */
+        function getFirstVisibleCardIndex() {
             const cards = getCardElements();
-            if (cards.length === 0) return -1; 
-            const containerRightEdge = timelineContainer.getBoundingClientRect().right;
-            const containerLeftEdge = timelineContainer.getBoundingClientRect().left;
+            if (cards.length === 0) return -1;
+            const containerRect = timelineContainer.getBoundingClientRect();
 
             for (let i = 0; i < cards.length; i++) {
                 const cardRect = cards[i].getBoundingClientRect();
-                // A card is considered the "rightmost visible" if its left edge is to the left of the container's right edge,
-                // AND its right edge is to the right of the container's left edge.
-                // This means the card is at least partially within the viewport.
-                if (cardRect.left < containerRightEdge && cardRect.right > containerLeftEdge) {
-                    return i; // Return the index of the first such card from the right (start of array)
+                // A card is visible if its right edge is past the container's left edge
+                // AND its left edge is before the container's right edge.
+                if (cardRect.right > containerRect.left && cardRect.left < containerRect.right) {
+                    return i;
                 }
             }
-            // Fallback if no card is deemed visible (e.g., if container is too small or an error)
-            return cards.length > 0 ? 0 : -1; 
+            return -1; // No card visible
         }
 
-        nextButton.addEventListener('click', () => { 
+        /**
+         * Finds the index of the leftmost card that is at least partially visible within the timeline container.
+         * In RTL, this is the card with the highest index that is visible.
+         * @returns {number} The index of the leftmost visible card, or -1 if none are visible.
+         */
+        function getLeftmostVisibleCardIndex() {
+            const cards = getCardElements();
+            if (cards.length === 0) return -1;
+            const containerRect = timelineContainer.getBoundingClientRect();
+
+            // Iterate from the end of the cards array (leftmost cards in DOM order)
+            for (let i = cards.length - 1; i >= 0; i--) {
+                const cardRect = cards[i].getBoundingClientRect();
+                // If the card is visible (at least partially)
+                if (cardRect.right > containerRect.left && cardRect.left < containerRect.right) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+
+        // Event listener for Next button (now on the right, scrolls left to show later cards)
+        nextButton.addEventListener('click', () => {
             const cards = getCardElements();
             if (cards.length === 0) return;
-            
-            let currentVisibleIndex = getRightmostVisibleCardIndex();
-            if (currentVisibleIndex === -1) currentVisibleIndex = 0; // Should not happen if cards exist
 
-            // Target the card to the left of the current rightmost visible card
-            let targetIndex = currentVisibleIndex + 1; 
-            
+            // Get the index of the leftmost card currently visible
+            let currentLeftmostIndex = getLeftmostVisibleCardIndex();
+            // Fallback if no card is explicitly visible (e.g., container too small, or initial state)
+            if (currentLeftmostIndex === -1) currentLeftmostIndex = 0; // Default to first card if nothing visible
+
+            let targetIndex = currentLeftmostIndex + 1;
             if (targetIndex >= cards.length) {
-                targetIndex = cards.length - 1; 
+                targetIndex = cards.length - 1; // Stay at the last card if at the end
+            }
+
+            if (cards[targetIndex]) {
+                // For RTL, 'inline: "end"' aligns the element's left edge with the container's left edge.
+                // This brings the target card into view from the right as we scroll left.
+                cards[targetIndex].scrollIntoView({ behavior: 'smooth', inline: 'end', block: 'nearest' });
+            }
+            // Update button states after a short delay to allow scroll animation to complete
+            setTimeout(updateButtonStates, 450);
+        });
+
+        // Event listener for Prev button (now on the left, scrolls right to show earlier cards)
+        prevButton.addEventListener('click', () => {
+            const cards = getCardElements();
+            if (cards.length === 0) return;
+
+            // Get the index of the rightmost card currently visible
+            let currentRightmostIndex = getFirstVisibleCardIndex();
+            // Fallback if no card is explicitly visible
+            if (currentRightmostIndex === -1) currentRightmostIndex = 0;
+
+            let targetIndex = currentRightmostIndex - 1;
+            if (targetIndex < 0) {
+                targetIndex = 0; // Stay at the first card if at the beginning
             }
 
             if (cards[targetIndex]) {
                 // For RTL, 'inline: "start"' aligns the element's right edge with the container's right edge.
+                // This brings the target card into view from the left as we scroll right.
                 cards[targetIndex].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
             }
-            // Update button states after a short delay to allow scroll animation to potentially complete
-            setTimeout(updateButtonStates, 450); // Slightly increased delay
+            // Update button states after a short delay
+            setTimeout(updateButtonStates, 450);
         });
 
-        prevButton.addEventListener('click', () => { 
-            const cards = getCardElements();
-            if (cards.length === 0) return;
-
-            let currentVisibleIndex = getRightmostVisibleCardIndex();
-            if (currentVisibleIndex === -1) currentVisibleIndex = 0;
-
-            // Target the card to the right of the current rightmost visible card
-            let targetIndex = currentVisibleIndex - 1; 
-            
-            if (targetIndex < 0) {
-                targetIndex = 0; 
-            }
-
-            if (cards[targetIndex]) {
-                cards[targetIndex].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
-            }
-             setTimeout(updateButtonStates, 450); // Slightly increased delay
-        });
-
+        // Event listener for Scroll to Start button
         scrollToStartButton.addEventListener('click', () => {
             const cards = getCardElements();
             if (cards.length > 0) {
-                // Explicitly scroll the first card (index 0) into view
+                // Scroll the very first card (index 0) into view, aligning its right edge with container's right edge
                 cards[0].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
             }
-            setTimeout(updateButtonStates, 450); // Slightly increased delay
+            // Update button states after a short delay
+            setTimeout(updateButtonStates, 450);
         });
 
-        // Initial button states on load and on scroll
-        timelineContainer.addEventListener('scroll', updateButtonStates);
-        window.addEventListener('load', updateButtonStates);
-        window.addEventListener('resize', () => {
-            // When resizing, the visibility and scroll positions might change significantly.
-            // It's good to re-evaluate and potentially re-center or adjust scroll.
-            // For now, just update button states.
-            updateButtonStates();
+        // Initial button states on load, ensuring layout is settled
+        window.addEventListener('load', () => {
+            requestAnimationFrame(updateButtonStates);
         });
+        // Update button states whenever the container is scrolled
+        timelineContainer.addEventListener('scroll', updateButtonStates);
+        // Update button states on window resize, as visibility might change
+        window.addEventListener('resize', updateButtonStates);
     </script>
 </body>
 </html>
-```
