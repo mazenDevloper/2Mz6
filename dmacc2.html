@@ -4,12 +4,7 @@
 <!-- Tailwind CSS CDN (kept for potential future use or if user adds their own Tailwind config) -->
 <script src="https://cdn.tailwindcss.com"></script>
 <script type="module">
-let dmaccDiv = document.getElementById('dmacc');
-        if (!dmaccDiv) {
-            dmaccDiv = document.createElement('div');
-            dmaccDiv.id = 'dmacc';
-            document.body.appendChild(dmaccDiv);
-        }
+
 
 
     // Firebase Imports - MUST be at the top of a module script
@@ -505,6 +500,14 @@ let dmaccDiv = document.getElementById('dmacc');
     import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc, collection, query, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        let dmaccDiv = document.getElementById('dmacc');
+        if (!dmaccDiv) {
+            dmaccDiv = document.createElement('div');
+            dmaccDiv.id = 'dmacc';
+            document.body.appendChild(dmaccDiv);
+        }
+
+        
     // Global variables provided by the Canvas environment (mocked for standalone testing)
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
     const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
