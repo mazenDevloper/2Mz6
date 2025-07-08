@@ -499,14 +499,6 @@
 
 
 
-    //create div in body
-
-    let dmaccDiv = document.getElementById('dmacc');
-        if (!dmaccDiv) {
-            dmaccDiv = document.createElement('div');
-            dmaccDiv.id = 'dmacc';
-            document.body.appendChild(dmaccDiv);
-        }
     
     // Global variables provided by the Canvas environment (mocked for standalone testing)
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
