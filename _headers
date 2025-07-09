@@ -1,2 +1,4 @@
 /dmacc.html
   Access-Control-Allow-Origin: *
+/dmacc.js
+  Access-Control-Allow-Origin: *
