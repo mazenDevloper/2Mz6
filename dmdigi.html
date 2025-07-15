@@ -491,34 +491,34 @@
         }
 
         /**
-         * Updates the active state of the navigation dots based on the currently visible card in the main timeline.
+         * [FIXED] Updates the active state of the navigation dots based on which card is closest to the center.
+         * This is more reliable than checking visibility, especially on large screens.
          */
         function updateDotActiveState() {
             const cards = getCardElements();
             const dotWrappers = Array.from(timelineDotsContainer.querySelectorAll('.timeline-dot-wrapper'));
             if (cards.length === 0 || dotWrappers.length === 0) return;
 
-            const containerRect = timelineContainer.getBoundingClientRect();
-            let activeDotIndex = -1;
-            let maxVisibleArea = 0;
+            // Calculate the horizontal center of the timeline container
+            const containerCenter = timelineContainer.getBoundingClientRect().left + timelineContainer.getBoundingClientRect().width / 2;
+            let closestIndex = -1;
+            let minDistance = Infinity;
 
+            // Find the card whose center is closest to the container's center
             cards.forEach((card, index) => {
                 const cardRect = card.getBoundingClientRect();
+                const cardCenter = cardRect.left + cardRect.width / 2;
+                const distance = Math.abs(containerCenter - cardCenter);
 
-                // Calculate overlap with the container
-                const overlapLeft = Math.max(0, cardRect.left - containerRect.left);
-                const overlapRight = Math.max(0, containerRect.right - cardRect.right);
-                const visibleWidth = cardRect.width - overlapLeft - overlapRight;
-
-                // Consider a card "active" if it's mostly visible or centered
-                if (visibleWidth > maxVisibleArea) {
-                    maxVisibleArea = visibleWidth;
-                    activeDotIndex = index;
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestIndex = index;
                 }
             });
 
+            // Apply the 'active' class to the closest dot and remove it from others
             dotWrappers.forEach((wrapper, index) => {
-                if (index === activeDotIndex) {
+                if (index === closestIndex) {
                     wrapper.classList.add('active');
                 } else {
                     wrapper.classList.remove('active');
@@ -612,70 +612,22 @@
             synchronizeScroll(timelineDotsContainer, timelineContainer);
         });
 
-        // Event listener for Next button (التالي)
+        // Event listener for Next button (التالي) - REVERSED
         nextButton.addEventListener('click', () => {
-            const cards = getCardElements();
-            if (cards.length === 0) return;
-
-            let currentLeftmostIndex = -1;
-            const containerRect = timelineContainer.getBoundingClientRect();
-
-            // Find the leftmost card that is fully or mostly visible
-            for (let i = cards.length - 1; i >= 0; i--) {
-                const cardRect = cards[i].getBoundingClientRect();
-                if (cardRect.right > containerRect.left && cardRect.left < containerRect.right) {
-                    currentLeftmostIndex = i;
-                    break;
-                }
-            }
-
-            let targetIndex = currentLeftmostIndex + 1;
-            if (targetIndex >= cards.length) {
-                targetIndex = cards.length - 1; // Stay at the last card
-            }
-
-            if (cards[targetIndex]) {
-                isScrollingByScript = true;
-                cards[targetIndex].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-                setTimeout(() => {
-                    updateDotActiveState();
-                    updateButtonStates();
-                    isScrollingByScript = false;
-                }, 450);
-            }
+            const scrollAmount = timelineContainer.clientWidth / 2;
+            timelineContainer.scrollBy({
+                left: -scrollAmount, // Negative scrolls right (towards start in RTL)
+                behavior: 'smooth'
+            });
         });
 
-        // Event listener for Prev button (السابق)
+        // Event listener for Prev button (السابق) - REVERSED
         prevButton.addEventListener('click', () => {
-            const cards = getCardElements();
-            if (cards.length === 0) return;
-
-            let currentRightmostIndex = -1;
-            const containerRect = timelineContainer.getBoundingClientRect();
-
-            // Find the rightmost card that is fully or mostly visible
-            for (let i = 0; i < cards.length; i++) {
-                const cardRect = cards[i].getBoundingClientRect();
-                if (cardRect.left < containerRect.right && cardRect.right > containerRect.left) {
-                    currentRightmostIndex = i;
-                    break;
-                }
-            }
-
-            let targetIndex = currentRightmostIndex - 1;
-            if (targetIndex < 0) {
-                targetIndex = 0; // Stay at the first card
-            }
-
-            if (cards[targetIndex]) {
-                isScrollingByScript = true;
-                cards[targetIndex].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-                setTimeout(() => {
-                    updateDotActiveState();
-                    updateButtonStates();
-                    isScrollingByScript = false;
-                }, 450);
-            }
+            const scrollAmount = timelineContainer.clientWidth / 2;
+            timelineContainer.scrollBy({
+                left: scrollAmount, // Positive scrolls left (towards end in RTL)
+                behavior: 'smooth'
+            });
         });
 
         // Event listener for Scroll to Start button (العلم)
