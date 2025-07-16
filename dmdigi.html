@@ -46,10 +46,11 @@
             display: flex;
             justify-content: space-between; /* Distribute dots evenly */
             align-items: center;
-            margin-top: 2rem;
+            margin-top: 1rem; /* Reduced margin-top */
             position: relative;
             padding: 0.5rem 2rem; /* Vertical padding for easier dragging */
-            background-color: #e2e8f0; /* Light gray acting as the track */
+            /* Changed background to gradient white */
+            background-image: linear-gradient(to right, rgba(255,255,255,0.9), rgba(255,255,255,1));
             border-radius: 9999px; /* Pill shape */
             overflow-x: auto; /* Make it horizontally scrollable */
             -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
@@ -186,7 +187,7 @@
 </head>
 <body class="bg-slate-100">
     <div class="container mx-auto px-2 sm:px-4 py-8">
-        <header class="text-center mb-10 sm:mb-12">
+        <header class="text-center mb-0 sm:mb-0"> <!-- Removed bottom margin -->
             <h1 class="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-purple-600 to-indigo-700 pb-2">
                 رحلة التحول الرقمي لبلدية ظفار
             </h1>
