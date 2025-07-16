@@ -57,8 +57,8 @@
             scrollbar-width: none; /* Firefox */
             -ms-overflow-style: none;  /* IE and Edge */
 
-            /* Fixed width and centering as requested */
-            width: 360px; /* Set fixed width */
+            /* Updated width to 85% for all views */
+            width: 85%; /* Set fixed width */
             margin-left: auto; /* Center horizontally */
             margin-right: auto; /* Center horizontally */
         }
@@ -172,6 +172,16 @@
             height: 3rem;
             border-radius: 50%;
         }
+
+        /* Desktop specific styles */
+        @media (min-width: 1024px) {
+            .timeline-dot-label {
+                font-size: 1.8rem;
+            }
+            .timeline-dot-line {
+                display: none; /* Hide the line in desktop view */
+            }
+        }
     </style>
 </head>
 <body class="bg-slate-100">
@@ -180,8 +190,7 @@
             <h1 class="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-purple-600 to-indigo-700 pb-2">
                 رحلة التحول الرقمي لبلدية ظفار
             </h1>
-            <p class="text-md sm:text-lg text-slate-600 mt-2">نظرة عامة أفقية على الإنجازات الرئيسية منذ ديسمبر 2020</p>
-        </header>
+             </header>
 
             <!-- Navigation Dots/Path (now the interactive scrollbar) -->
         <div id="timelineDotsContainer" class="timeline-dots-container">
@@ -428,7 +437,7 @@
                     </ul>
                     <!-- Original Logo after Achievements for 2025 -->
                     <div class="mt-4 pt-2 flex justify-center">
-                        <img src="https://edm.gov.om/wp-content/uploads/2021/03/cropped-whitelabel.png" alt="شعار بلدية ظفار" class="h-12 object-contain">
+                        <img src="https://edm.gov.om/wp-content/uploads/2025/07/sahalah-icon.png" alt="شعار بلدية ظفار" class="h-12 object-contain">
                     </div>
                 </div>
 
