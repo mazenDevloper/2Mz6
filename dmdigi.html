@@ -753,6 +753,27 @@
             }
         });
 
+        // Add keyboard navigation
+        document.addEventListener('keydown', (event) => {
+            const scrollAmount = timelineContainer.clientWidth / 2; // Scroll half a card width
+
+            if (event.key === 'ArrowLeft') {
+                // Scroll right (towards older years in RTL)
+                timelineContainer.scrollBy({
+                    left: -scrollAmount,
+                    behavior: 'smooth'
+                });
+                event.preventDefault(); // Prevent default browser scroll
+            } else if (event.key === 'ArrowRight') {
+                // Scroll left (towards newer years in RTL)
+                timelineContainer.scrollBy({
+                    left: scrollAmount,
+                    behavior: 'smooth'
+                });
+                event.preventDefault(); // Prevent default browser scroll
+            }
+        });
+
 
         // Initial setup on load
         window.addEventListener('load', () => {
