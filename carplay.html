@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="ar" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>واجهة CarPlay - تصميم زجاجي تفاعلي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Default background gradient */
+            background: linear-gradient(-45deg, #23a6d5, #23d5ab, #ee7752, #e73c7e);
+            background-size: 400% 400%;
+            animation: gradient 20s ease infinite;
+            transition: background-image 0.5s ease; /* Smooth transition for background changes */
+            font-size: var(--base-font-size, 16px); /* Default font size */
+            min-height: 100vh; /* Ensure body takes full viewport height */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Define different background themes */
+        body.theme-gradient-1 {
+            background: linear-gradient(-45deg, #23a6d5, #23d5ab, #ee7752, #e73c7e);
+            background-size: 400% 400%;
+            animation: gradient 20s ease infinite;
+        }
+        body.theme-gradient-2 {
+            background: linear-gradient(-45deg, #4CAF50, #8BC34A, #FFEB3B, #FFC107);
+            background-size: 400% 400%;
+            animation: gradient 25s ease infinite reverse;
+        }
+        body.theme-dark-blue {
+            background-color: #1a202c; /* Dark blue-gray */
+            background-image: none;
+            animation: none;
+        }
+        body.theme-purple-haze {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-size: 100% 100%;
+            animation: none;
+        }
+
+        /* NEW GLASS SURFACE CSS - Enhanced for liquid 3D effect */
+        .glass-surface {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition: opacity 0.26s ease-out;
+            border-radius: 1.5rem; /* Ensure rounded corners */
+        }
+        .glass-surface__filter {
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            z-index: -1;
+        }
+        .glass-surface__content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            border-radius: inherit;
+            position: relative;
+            z-index: 1;
+        }
+        .glass-surface--svg {
+            background: light-dark(hsl(0 0% 100% / var(--glass-frost, 0)),
+                hsl(0 0% 0% / var(--glass-frost, 0)));
+            backdrop-filter: var(--filter-id, url(#glass-filter)) saturate(var(--glass-saturation, 1));
+            box-shadow:
+                0 0 2px 1px light-dark(color-mix(in oklch, black, transparent 85%),
+                color-mix(in oklch, white, transparent 65%)) inset,
+                0 0 10px 4px light-dark(color-mix(in oklch, black, transparent 90%),
+                color-mix(in oklch, white, transparent 85%)) inset,
+                0px 4px 16px rgba(17, 17, 26, 0.05),
+                0px 8px 24px rgba(17, 17, 26, 0.05),
+                0px 16px 56px rgba(17, 17, 26, 0.05),
+                /* Modified inset shadows for internal border effect */
+                inset 0 0 15px 5px rgba(0,0,0,0.2),
+                inset 0 0 20px 8px rgba(0,0,0,0.1);
+        }
+        .glass-surface--fallback {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(12px) saturate(1.8) brightness(1.1);
+            -webkit-backdrop-filter: blur(12px) saturate(1.8) brightness(1.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow:
+                0 8px 32px 0 rgba(31, 38, 135, 0.2),
+                0 2px 16px 0 rgba(31, 38, 135, 0.1),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.4),
+                inset 0 -1px 0 0 rgba(255, 255, 255, 0.2);
+        }
+        @media (prefers-color-scheme: dark) {
+            .glass-surface--fallback {
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(12px) saturate(1.8) brightness(1.2);
+                -webkit-backdrop-filter: blur(12px) saturate(1.8) brightness(1.2);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                box-shadow:
+                    inset 0 1px 0 0 rgba(255, 255, 255, 0.2),
+                    inset 0 -1px 0 0 rgba(255, 255, 255, 0.1);
+            }
+        }
+        @supports not (backdrop-filter: blur(10px)) {
+            .glass-surface--fallback {
+                background: rgba(255, 255, 255, 0.4);
+                box-shadow:
+                    inset 0 1px 0 0 rgba(255, 255, 255, 0.5),
+                    inset 0 -1px 0 0 rgba(255, 255, 255, 0.3);
+            }
+            .glass-surface--fallback::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: rgba(255, 255, 255, 0.15);
+                border-radius: inherit;
+                z-index: -1;
+            }
+        }
+        @supports not (backdrop-filter: blur(10px)) {
+            @media (prefers-color-scheme: dark) {
+                .glass-surface--fallback {
+                    background: rgba(0, 0, 0, 0.4);
+                }
+                .glass-surface--fallback::before {
+                    background: rgba(255, 255, 255, 0.05);
+                }
+            }
+        }
+        .glass-surface:focus-visible {
+            outline: 2px solid light-dark(#007AFF, #0A84FF);
+            outline-offset: 2px;
+        }
+        /* END NEW GLASS SURFACE CSS */
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .app-screen {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+            width: 100%;
+            height: 100%; /* Ensure app screens take full height */
+            flex-direction: column;
+            border-radius: 1.5rem; /* Ensure app screens have rounded corners */
+        }
+        .app-screen.active {
+            display: flex;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .full-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 1.5rem;
+        }
+
+        /* Removed .map-fullscreen-active as it's no longer needed for browser-level fullscreen */
+
+        /* New fixed full-screen button style */
+        #floating-fullscreen-button {
+            position: fixed;
+            bottom: 2rem; /* Adjust as needed */
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(147, 51, 234, 0.8); /* Purple glass */
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 9999px; /* Pill shape */
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            z-index: 100; /* Above everything else */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        #floating-fullscreen-button:hover {
+            transform: translateX(-50%) scale(1.05);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+
+        .app-icon.active {
+            background-color: rgba(147, 51, 234, 0.8);
+            transform: scale(1.1);
+        }
+
+        /* Gemini-like Chat Styling */
+        .chat-message {
+            max-width: 70%;
+            padding: 0.75rem 1rem;
+            border-radius: 1.5rem; /* More rounded */
+            margin-bottom: 0.75rem;
+            word-wrap: break-word;
+            font-size: 0.9rem; /* Slightly smaller font for chat */
+        }
+
+        .chat-message.user {
+            background-color: #4f46e5; /* Blue */
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 0.5rem; /* Pointy bottom right */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .chat-message.ai {
+            background-color: #2d3748; /* Darker gray */
+            color: white;
+            margin-right: auto;
+            border-bottom-left-radius: 0.5rem; /* Pointy bottom left */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        #ai-input {
+            border-radius: 2rem; /* Fully rounded pill shape */
+            padding: 0.75rem 1.25rem;
+            background-color: rgba(255, 255, 255, 0.15); /* Lighter glass */
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+        }
+        #ai-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        #ai-input:focus {
+            background-color: rgba(255, 255, 255, 0.2);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.4), 0 0 0 2px rgba(147, 51, 234, 0.5);
+        }
+
+        .youtube-channel-card {
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            aspect-ratio: 1 / 1; /* Make the card square */
+        }
+        .youtube-channel-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .youtube-channel-card img {
+            width: 85%; /* 85% of the card's width */
+            height: 85%; /* 85% of the card's height */
+            object-fit: cover;
+            border-radius: 1rem; /* Slightly rounded corners for the image */
+            margin-bottom: 0.75rem;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        .youtube-channel-card h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .metallic-logo-effect {
+            /* Increased width for 3x size */
+            width: 300px; /* Original was 100px */
+            height: auto;
+            margin-bottom: 1rem;
+            /* Dark gray metallic effect */
+            filter: grayscale(100%) brightness(30%); /* Dark gray */
+        }
+
+        /* Car Dashboard Specific Styles */
+        .car-dashboard-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 100%; /* Make it take full height of parent */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem; /* Add padding to the glass surface */
+        }
+
+        .gauge-container.absolute-pos { /* New class for absolute positioned gauges */
+            position: absolute;
+            width: 100px; /* Fixed size for absolute gauges */
+            height: 100px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            z-index: 10; /* Ensure they are above the camera view */
+        }
+
+        .gauge-label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 0.25rem;
+        }
+
+        .speed-display {
+            font-size: 2.5rem; /* Slightly smaller for better fit */
+            line-height: 1;
+        }
+
+        .rpm-display {
+            font-size: 1.2rem; /* Slightly smaller for better fit */
+            line-height: 1;
+        }
+
+        .gear-indicator {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #10b981;
+        }
+
+        /* Styles for 360 Camera View */
+        .car-cam-360-container {
+            width: 100%;
+            height: 200px; /* Fixed height for the camera view */
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.7);
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.7);
+            margin-bottom: 1rem;
+            overflow: hidden; /* Ensure content stays within bounds */
+        }
+        .car-cam-360-container::before {
+            content: 'كاميرا 360°';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.6);
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        /* Settings Range Input Styling */
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+
+        input[type="range"]:hover {
+            opacity: 1;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #9333ea; /* Purple thumb */
+            cursor: pointer;
+            box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.5);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #9333ea;
+            cursor: pointer;
+            box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.5);
+        }
+    </style>
+</head>
+<body class="animated-bg text-white overflow-hidden theme-gradient-1">
+    <!-- SVG Filter Definition for Liquid Glass Effect -->
+    <svg style="position: absolute; width: 0; height: 0; overflow: hidden;">
+        <defs>
+            <filter id="glass-filter" colorInterpolationFilters="sRGB" x="0%" y="0%" width="100%" height="100%">
+                <!-- feImage source for displacement map - this is a generic pattern -->
+                <feImage x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="map" 
+                    href="data:image/svg+xml,%3Csvg viewBox='0 0 400 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='red-grad' x1='100%25' y1='0%25' x2='0%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%230000'/%3E%3Cstop offset='100%25' stop-color='red'/%3E%3C/linearGradient%3E%3ClinearGradient id='blue-grad' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230000'/%3E%3Cstop offset='100%25' stop-color='blue'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='0' y='0' width='400' height='200' fill='black'/%3E%3Crect x='0' y='0' width='400' height='200' rx='20' fill='url(%23red-grad)'/%3E%3Crect x='0' y='0' width='400' height='200' rx='20' fill='url(%23blue-grad)' style='mix-blend-mode: difference'/%3E%3Crect x='1.4' y='1.4' width='397.2' height='197.2' rx='20' fill='hsl(0 0% 50% / 0.93)' style='filter:blur(11px)'/%3E%3C/svg%3E"/>
+                
+                <!-- Displacement maps for RGB channels - adjusted scale for more distortion -->
+                <feDisplacementMap in="SourceGraphic" in2="map" id="redchannel" scale="200" xChannelSelector="R" yChannelSelector="G" result="dispRed" />
+                <feColorMatrix in="dispRed" type="matrix" values="1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0" result="red" />
+                
+                <feDisplacementMap in="SourceGraphic" in2="map" id="greenchannel" scale="210" xChannelSelector="R" yChannelSelector="G" result="dispGreen" />
+                <feColorMatrix in="dispGreen" type="matrix" values="0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0" result="green" />
+                
+                <feDisplacementMap in="SourceGraphic" in2="map" id="bluechannel" scale="220" xChannelSelector="R" yChannelSelector="G" result="dispBlue" />
+                <feColorMatrix in="dispBlue" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0" result="blue" />
+                
+                <!-- Blending channels -->
+                <feBlend in="red" in2="green" mode="screen" result="rg" />
+                <feBlend in="rg" in2="blue" mode="screen" result="output" />
+                
+                <!-- Gaussian blur for liquid effect - increased stdDeviation -->
+                <feGaussianBlur in="output" stdDeviation="15" />
+            </filter>
+
+            <!-- Removed the specific filter for the dashboard demo element -->
+        </defs>
+    </svg>
+
+    <div class="w-full h-screen flex flex-col items-center justify-center p-4 sm:p-6">
+        
+        <div class="w-full max-w-7xl flex justify-between items-center text-white/80 text-sm px-4 py-2 absolute top-4 left-1/2 -translate-x-1/2 z-10">
+            <div class="flex items-center gap-2">
+                <i data-lucide="wifi"></i>
+                <span>5G</span>
+            </div>
+            <div id="current-time">9:35</div>
+        </div>
+
+        <div id="carplay-main-interface" class="w-full max-w-7xl flex shadow-2xl rounded-3xl overflow-hidden bg-black/20 border border-white/10 h-full max-h-full">
+            
+            <nav class="w-20 sm:w-24 bg-black/20 flex flex-col items-center justify-start pt-8 p-2 space-y-4 border-r border-white/10 flex-shrink-0">
+                <button data-app="Dashboard" class="app-icon active">
+                    <i data-lucide="layout-grid"></i>
+                </button>
+                <button data-app="Map" class="app-icon">
+                    <i data-lucide="map-pin"></i>
+                </button>
+                 <button data-app="Radio" class="app-icon">
+                    <i data-lucide="radio"></i>
+                </button>
+                <button data-app="YouTube" class="app-icon">
+                    <i class="fab fa-youtube"></i>
+                </button>
+                <button data-app="AIAssistant" class="app-icon"> 
+                    <i data-lucide="sparkles"></i> 
+                </button>
+                <button data-app="Weather" class="app-icon"> 
+                    <i data-lucide="cloud-sun"></i> 
+                </button>
+                <button data-app="CarDashboard" class="app-icon">
+                    <i data-lucide="gauge"></i> 
+                </button>
+                 <button data-app="Settings" class="app-icon">
+                    <i data-lucide="settings"></i>
+                </button>
+            </nav>
+
+         
+            <main class="flex-1 flex flex-col h-full">
+                
+          
+                <section id="screen-Dashboard" class="app-screen active p-4 md:p-6 flex-col gap-4 md:gap-6 h-full">
+                 
+                    <div class="flex-grow flex flex-row gap-4 md:gap-6 h-full">
+                        <div class="flex-grow h-full rounded-3xl relative overflow-hidden flex items-center justify-center glass-surface glass-surface--svg p-1">
+                            <!-- Set default src for dashboard map iframe - Removed mode=traffic -->
+                            <iframe id="dashboard-map-iframe" class="full-iframe" src="https://www.google.com/maps/embed/v1/view?key=AIzaSyCDWFDGIkq7Cu0dv8AL_q1YFEUIWlZdaP4&center=17.0151,54.0924&zoom=12" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                            <button id="get-my-location-button-dashboard" class="absolute bottom-4 right-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm">
+                                <i data-lucide="map-pin" class="w-4 h-4"></i> موقفي الحالي
+                            </button>
+                        </div>
+                    
+                        <div class="w-1/3 max-w-sm h-full flex flex-col gap-4 md:gap-6">
+                            <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center">
+                                <h2 class="text-xl font-bold mb-1">الطقس</h2>
+                                <div id="weather-widget-container" class="w-full h-full flex flex-col items-center justify-center">
+                                    <i data-lucide="cloud-sun" class="w-16 h-16 text-white mb-2"></i>
+                                    <p class="text-3xl font-extrabold mb-1" id="dashboard-weather-temp">28°C</p>
+                                    <p class="text-lg text-white/70 mb-2" id="dashboard-weather-desc">غائم جزئياً</p>
+                                    <p class="text-sm text-white/50">صلالة، عمان</p>
+                                    <p class="text-xs text-white/50 mt-2">(تتطلب البيانات الحية مفتاح API)</p>
+                                </div>
+                            </div>
+                            <div class="glass-surface glass-surface--svg p-4 flex items-center gap-4">
+                                <i data-lucide="corner-up-right" class="w-12 h-12 text-white"></i>
+                                <div>
+                                    <p class="text-2xl font-bold">0.9 mi</p>
+                                    <p class="text-white/70">جنوباً إلى كولومبوس</p>
+                                </div>
+                            </div>
+                            <div class="glass-surface glass-surface--svg p-4 flex flex-col items-center justify-center text-center">
+                                <img src="https://dmusera.netlify.app/Lexus-Logo.wine.svg" alt="شعار لكزس" class="metallic-logo-effect"/>
+                                <p class="text-white/70 text-sm">شعار لكزس بتأثير معدني.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </section>
+
+               
+                <section id="screen-Map" class="app-screen items-center justify-center h-full w-full p-4 md:p-6 relative">
+                    <!-- Set default src for main map iframe - Removed mode=traffic -->
+                    <iframe id="map-iframe-main" class="full-iframe" src="https://www.google.com/maps/embed/v1/view?key=AIzaSyCDWFDGIkq7Cu0dv8AL_q1YFEUIWlZdaP4&center=17.0151,54.0924&zoom=12" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </section>
+                
+                
+                <section id="screen-Radio" class="app-screen items-center justify-center h-full w-full p-4 md:p-6">
+                   <iframe class="full-iframe" title="Radio Garden" src="https://radio.garden/visit/salalah/A13sFegC"></iframe>
+                </section>
+
+              
+                <section id="screen-YouTube" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full">
+                    <h1 class="text-4xl font-bold mb-6">قوائم تشغيل يوتيوب</h1>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full h-full">
+                     
+                        <div class="glass-surface glass-surface--svg youtube-channel-card" data-playlist-id="UClncV9OLPto_MinRzGfjr2g">
+                            <img src="https://imgs.search.brave.com/BLtbXcoyaU4KgvAT2QQBfN5d967SbHLOJmYn94gNy8o/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pLnNj/ZG4uY28vaW1hZ2Uv/YWI2NzYxNmQwMDAw/YjI3M2I4OTk1NDFi/NDc3MTU3OGFlYjNl/OTQyMQ" alt="Yasser Al-Dosari Icon" />
+                            <h2>تلاوات ياسر الدوسري</h2>
+                        </div>
+
+                       
+                        <div class="glass-surface glass-surface--svg youtube-channel-card" data-playlist-id="PLEB74DF04C50052DD">
+                            <img src="https://imgs.search.brave.com/-WtPBvI7AmvUdQ2X1oZpk6wlNV-PlUSktoA9JVVQL3o/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9zdGF0/aWMuc3VyYXRtcDMu/Y29tL3BpY3MvcmVj/aXRlcnMvdGh1bWJz/LzM3XzE2MF8xNjAu/anBn" alt="Mohammed Ayoub Icon" />
+                            <h2>محمد ايوب</h2>
+                        </div>
+
+                       
+                        <div class="glass-surface glass-surface--svg youtube-channel-card" data-playlist-id="PL_MAZAMEER_ALQURAN_PLAYLIST_ID_3">
+                            <img src="https://www.shorouknews.com/uploadedimages/Other/original/%D9%85%D8%B2%D8%A7%D9%85%D9%8A%D8%B1%20%D8%A7%D9%84%D9%82%D8%B1%D8%A2%D9%86.jpg" alt="Quran Melodies Icon" />
+                            <h2>مزامير القران</h2>
+                        </div>
+                    </div>
+                </section>
+
+            
+                <section id="screen-YouTubePlayer" class="app-screen items-center justify-center h-full w-full p-4 md:p-6">
+                    <iframe
+                        id="youtube-player-iframe"
+                        class="full-iframe"
+                        src="" 
+                        title="YouTube video player"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen
+                    ></iframe>
+                </section>
+               
+                <section id="screen-AIAssistant" class="app-screen p-4 md:p-6 flex-col justify-between h-full">
+                    <h1 class="text-4xl font-bold mb-4 text-center">مساعد Gemini الذكي ✨</h1>
+                    <div id="chat-history" class="flex-grow overflow-y-auto p-4 rounded-xl glass-surface glass-surface--svg mb-4">
+                      
+                        <div class="chat-message ai">أهلاً بك! كيف يمكنني مساعدتك اليوم؟</div>
+                        <div id="listening-indicator" class="chat-message ai hidden">جاري الاستماع...</div>
+                    </div>
+                    <div class="flex gap-2">
+                        <input
+                            type="text"
+                            id="ai-input"
+                            placeholder="اسألني أي شيء..."
+                            class="flex-grow p-3 rounded-full bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            onkeypress="if(event.key === 'Enter') document.getElementById('ai-send-button').click();"
+                        />
+                        <button
+                            id="ai-mic-button" 
+                            class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center"
+                        >
+                            <i data-lucide="mic"></i>
+                        </button>
+                        <button
+                            id="ai-send-button"
+                            class="bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center"
+                        >
+                            <i data-lucide="send"></i>
+                        </button>
+                    </div>
+                </section>
+
+                <section id="screen-Weather" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full">
+                    <h1 class="text-4xl font-bold mb-6">الطقس <i data-lucide="cloud-sun"></i></h1>
+                    <div class="w-full max-w-md flex flex-col sm:flex-row-reverse gap-4">
+                        <!-- Right side: Main Temperature Card -->
+                        <div class="glass-surface glass-surface--svg p-6 rounded-3xl text-center flex flex-col items-center justify-center sm:w-1/2">
+                            <div class="text-3xl font-bold mb-2">صلالة</div>
+                            <i data-lucide="cloud-sun" class="w-24 h-24 text-yellow-400 mb-4"></i>
+                            <p class="text-6xl font-extrabold mb-2" id="weather-temp">28°C</p>
+                            <p class="text-xl text-white/70 mb-4" id="weather-desc">غائم جزئياً</p>
+                            <p class="text-sm text-white/50" id="weather-last-updated">آخر تحديث: 11:00 ص</p>
+                            <p class="text-xs text-white/50 mt-2">(تتطلب البيانات الحية مفتاح API)</p>
+                        </div>
+                        <!-- Left side: Humidity, Wind, Hourly -->
+                        <div class="flex flex-col gap-4 sm:w-1/2">
+                            <div class="glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center flex-grow">
+                                <i data-lucide="droplet" class="w-10 h-10 text-blue-300 mb-2"></i>
+                                <span class="text-2xl font-bold" id="weather-humidity">60%</span>
+                                <span class="text-sm text-white/50">الرطوبة</span>
+                            </div>
+                            <div class="glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center flex-grow">
+                                <i data-lucide="wind" class="w-10 h-10 text-gray-300 mb-2"></i>
+                                <span class="text-2xl font-bold" id="weather-wind">15 كم/س</span>
+                                <span class="text-sm text-white/50">الرياح</span>
+                            </div>
+                            <div class="glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center flex-grow">
+                                <p class="text-lg font-semibold text-white/80" id="weather-hourly">100% طقس في الساعة</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="screen-CarDashboard" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full">
+                    <h1 class="text-4xl font-bold mb-8 text-white">لوحة قيادة السيارة</h1>
+                    <div class="glass-surface glass-surface--svg rounded-3xl relative car-dashboard-container">
+                        <!-- 360 Camera View - Central and large -->
+                        <div class="car-cam-360-container w-full h-full flex items-center justify-center relative">
+                            <!-- Placeholder for 360 camera feed -->
+                        </div>
+
+                        <!-- Gauges - Absolutely positioned around the camera view -->
+                        <div class="gauge-container absolute-pos top-8 left-8 glass-surface glass-surface--svg">
+                            <span class="speed-display" id="car-speed">120</span>
+                            <span class="gauge-label">كم/س</span>
+                        </div>
+                        <div class="gauge-container absolute-pos top-8 right-8 glass-surface glass-surface--svg">
+                            <span class="rpm-display" id="car-rpm">2500</span>
+                            <span class="gauge-label">RPM</span>
+                        </div>
+                        <div class="gauge-container absolute-pos bottom-20 left-8 glass-surface glass-surface--svg">
+                            <i data-lucide="fuel" class="w-8 h-8 text-green-400"></i>
+                            <span class="gauge-label" id="car-fuel">75%</span>
+                        </div>
+                        <div class="gauge-container absolute-pos bottom-20 right-8 glass-surface glass-surface--svg">
+                            <i data-lucide="thermometer" class="w-8 h-8 text-red-400"></i>
+                            <span class="gauge-label" id="car-temp">90°C</span>
+                        </div>
+                        
+                        <!-- Gear Indicator at the bottom center -->
+                        <div class="glass-surface glass-surface--svg p-4 rounded-2xl flex items-center justify-center absolute bottom-4 w-32">
+                            <span class="gear-indicator" id="car-gear">P</span>
+                        </div>
+                    </div>
+                </section>
+
+                 <section id="screen-Settings" class="app-screen p-8 flex-col h-full">
+                     <h1 class="text-4xl font-bold mb-8">الإعدادات</h1>
+                     <div class="w-full max-w-md flex flex-col gap-6">
+                        <div class="glass-surface glass-surface--svg p-4 rounded-xl flex flex-col">
+                            <label for="setting-font-size" class="text-lg font-semibold mb-2">حجم الخط: <span id="display-font-size">16px</span></label>
+                            <input type="range" id="setting-font-size" min="12" max="20" value="16" step="1" class="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer">
+                        </div>
+                        <div class="glass-surface glass-surface--svg p-4 rounded-xl flex flex-col">
+                            <label for="setting-background" class="text-lg font-semibold mb-2">خلفية التطبيق:</label>
+                            <select id="setting-background" class="w-full p-2 rounded-md bg-white/10 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="theme-gradient-1">تدرج لوني 1 (افتراضي)</option>
+                                <option value="theme-gradient-2">تدرج لوني 2</option>
+                                <option value="theme-dark-blue">أزرق داكن</option>
+                                <option value="theme-purple-haze">ضباب بنفسجي</option>
+                            </select>
+                        </div>
+                        <div class="glass-surface glass-surface--svg p-4 rounded-xl flex flex-col">
+                            <label for="setting-car-speed" class="text-lg font-semibold mb-2">سرعة السيارة (كم/س): <span id="display-car-speed">120</span></label>
+                            <input type="range" id="setting-car-speed" min="0" max="200" value="120" class="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer">
+                        </div>
+                        <div class="glass-surface glass-surface--svg p-4 rounded-xl flex flex-col">
+                            <label for="setting-car-rpm" class="text-lg font-semibold mb-2">RPM المحرك: <span id="display-car-rpm">2500</span></label>
+                            <input type="range" id="setting-car-rpm" min="0" max="6000" step="100" value="2500" class="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer">
+                        </div>
+                        <div class="glass-surface glass-surface--svg p-4 rounded-xl flex flex-col">
+                            <label for="setting-car-fuel" class="text-lg font-semibold mb-2">مستوى الوقود (%): <span id="display-car-fuel">75</span></label>
+                            <input type="range" id="setting-car-fuel" min="0" max="100" value="75" class="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer">
+                        </div>
+                        <div class="glass-surface glass-surface--svg p-4 rounded-xl flex flex-col">
+                            <label for="setting-car-temp" class="text-lg font-semibold mb-2">درجة حرارة المحرك (°C): <span id="display-car-temp">90</span></label>
+                            <input type="range" id="setting-car-temp" min="50" max="120" value="90" class="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer">
+                        </div>
+                        <div class="glass-surface glass-surface--svg p-4 rounded-xl flex flex-col">
+                            <label for="setting-car-gear" class="text-lg font-semibold mb-2">الترس: <span id="display-car-gear">P</span></label>
+                            <select id="setting-car-gear" class="w-full p-2 rounded-md bg-white/10 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="P">P</option>
+                                <option value="R">R</option>
+                                <option value="N">N</option>
+                                <option value="D">D</option>
+                            </select>
+                        </div>
+                        <div class="glass-surface glass-surface--svg p-4 rounded-xl flex flex-col items-center justify-center text-center">
+                            <h3 class="text-xl font-bold mb-2">اتصال ODB II</h3>
+                            <p class="text-white/70 text-sm mb-4">
+                                للاتصال بنظام ODB II لسيارتك، ستحتاج عادةً إلى جهاز Bluetooth أو Wi-Fi متوافق وتطبيق خاص.
+                            </p>
+                            <p class="text-red-300 text-xs">
+                                ملاحظة: الاتصال المباشر بـ ODB II غير مدعوم في بيئة المتصفح هذه.
+                            </p>
+                            <button class="mt-4 bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-full transition-colors duration-200" onclick="console.log('ODB II Connect button clicked. Direct hardware connection not supported in this browser environment.'); alert('لا يمكن الاتصال بـ ODB II مباشرةً في بيئة المتصفح هذه لأسباب أمنية وتقنية.');">
+                                محاولة الاتصال بـ ODB II
+                            </button>
+                        </div>
+                     </div>
+                 </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Floating Full-Screen Button for Map -->
+    <button id="floating-fullscreen-button" class="glass-surface glass-surface--svg rounded-full">
+        <i data-lucide="maximize" class="w-6 h-6"></i>
+        <span>ملء الشاشة</span>
+    </button>
+
+    <script>
+        lucide.createIcons();
+
+        // Global App State
+        let appState = {
+            currentTime: '',
+            mapLocation: { lat: 17.0151, lon: 54.0924, zoom: 12 }, // Default Salalah coordinates
+            weather: {
+                temperature: '28°C',
+                description: 'غائم جزئياً',
+                humidity: '60%',
+                wind: '15 كم/س',
+                hourlyForecast: '100% طقس في الساعة',
+                lastUpdated: '11:00 ص'
+            },
+            car: {
+                speed: 120,
+                rpm: 2500,
+                fuel: 75,
+                temp: 90,
+                gear: 'P'
+            },
+            settings: {
+                fontSize: 16,
+                backgroundTheme: 'theme-gradient-1',
+                enableLiveWeather: false, 
+                carSpeedUnit: 'km/h'
+            }
+        };
+
+        const timeElement = document.getElementById('current-time');
+        function updateTime() {
+            const now = new Date();
+            timeElement.textContent = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: false });
+            appState.currentTime = timeElement.textContent; // Update state
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        const appButtons = document.querySelectorAll('button[data-app]');
+        const appScreens = document.querySelectorAll('.app-screen');
+        const sidebarIcons = document.querySelectorAll('.app-icon');
+        const youtubePlayerIframe = document.getElementById('youtube-player-iframe');
+        let currentPlayingPlaylistId = '';
+
+        function switchApp(appName) {
+            appScreens.forEach(screen => screen.classList.remove('active'));
+            
+            sidebarIcons.forEach(icon => {
+                if(icon.tagName === 'BUTTON'){
+                    icon.classList.remove('active', 'bg-purple-600/80', 'scale-110');
+                }
+            });
+
+            const targetScreen = document.getElementById(`screen-${appName}`);
+            if (targetScreen) targetScreen.classList.add('active');
+
+            const targetIcon = document.querySelector(`.app-icon[data-app="${appName}"]`);
+            if (targetIcon) targetIcon.classList.add('active', 'bg-purple-600/80', 'scale-110');
+
+            if (appName === 'YouTube') {
+                youtubePlayerIframe.src = ''; 
+            } else if (appName === 'YouTubePlayer' && currentPlayingPlaylistId) {
+                youtubePlayerIframe.src = `https://www.youtube.com/embed/videoseries?list=${currentPlayingPlaylistId}&autoplay=1`;
+            }
+            updateUI(); // Update UI when switching apps to reflect latest state
+        }
+
+        appButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const appName = button.dataset.app;
+                if (appName === 'YouTube' && document.getElementById('screen-YouTubePlayer').classList.contains('active')) {
+                    switchApp('YouTube');
+                } else {
+                    switchApp(appName);
+                }
+            });
+        });
+        
+        sidebarIcons.forEach(el => {
+            el.classList.add('w-16', 'h-16', 'rounded-2xl', 'flex', 'items-center', 'justify-center', 'transition-all', 'duration-300', 'ease-in-out', 'focus:outline-none', 'focus:ring-4', 'focus:ring-purple-500/50', 'hover:bg-white/20', 'text-white');
+            el.setAttribute('role', 'button');
+        });
+        
+        switchApp('Dashboard');
+
+        document.querySelectorAll('.youtube-channel-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const playlistId = card.dataset.playlistId;
+                if (playlistId) {
+                    currentPlayingPlaylistId = playlistId;
+                    switchApp('YouTubePlayer');
+                }
+            });
+        });
+
+        const chatHistoryDiv = document.getElementById('chat-history');
+        const aiInput = document.getElementById('ai-input');
+        const aiSendButton = document.getElementById('ai-send-button');
+        const aiMicButton = document.getElementById('ai-mic-button');
+        const listeningIndicator = document.getElementById('listening-indicator');
+
+        let recognition;
+        if ('webkitSpeechRecognition' in window) {
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'ar-SA';
+
+            recognition.onstart = function() {
+                aiMicButton.classList.add('bg-red-500');
+                listeningIndicator.classList.remove('hidden');
+                aiInput.placeholder = 'جاري الاستماع...';
+            };
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                aiInput.value = transcript;
+                sendAIAssistantMessage();
+            };
+
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error:', event.error);
+                listeningIndicator.classList.add('hidden');
+                aiMicButton.classList.remove('bg-red-500');
+                aiInput.placeholder = 'اسألني أي شيء...';
+                const errorMessageDiv = document.createElement('div');
+                errorMessageDiv.classList.add('chat-message', 'ai');
+                errorMessageDiv.textContent = 'عذرًا، لم أستطع فهمك. يرجى المحاولة مرة أخرى.';
+                chatHistoryDiv.appendChild(errorMessageDiv);
+                chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
+            };
+
+            recognition.onend = function() {
+                aiMicButton.classList.remove('bg-red-500');
+                listeningIndicator.classList.add('hidden');
+                aiInput.placeholder = 'اسألني أي شيء...';
+            };
+        } else {
+            aiMicButton.style.display = 'none';
+            console.warn('Web Speech API is not supported in this browser.');
+        }
+
+        aiMicButton.addEventListener('click', () => {
+            if (recognition) {
+                recognition.start();
+            }
+        });
+
+        let synth = window.speechSynthesis;
+        let arabicVoice = null;
+
+        function setArabicVoice() {
+            if (synth) {
+                const voices = synth.getVoices();
+                arabicVoice = voices.find(voice => voice.lang.startsWith('ar'));
+                if (!arabicVoice) {
+                    console.warn('Arabic voice not found, falling back to default.');
+                }
+            }
+        }
+        if (synth) {
+            synth.onvoiceschanged = setArabicVoice;
+            setArabicVoice();
+        }
+
+        async function sendAIAssistantMessage() {
+            const userMessageText = aiInput.value.trim();
+            if (userMessageText === '') return;
+
+            const userMessageDiv = document.createElement('div');
+            userMessageDiv.classList.add('chat-message', 'user');
+            userMessageDiv.textContent = userMessageText;
+            chatHistoryDiv.appendChild(userMessageDiv);
+            aiInput.value = '';
+
+            const typingIndicatorDiv = document.createElement('div');
+            typingIndicatorDiv.classList.add('chat-message', 'ai');
+            typingIndicatorDiv.textContent = 'جاري الكتابة...';
+            typingIndicatorDiv.id = 'typing-indicator';
+            chatHistoryDiv.appendChild(typingIndicatorDiv);
+            chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
+
+            try {
+                let chatHistory = [];
+                chatHistory.push({ role: "user", parts: [{ text: userMessageText }] });
+                const payload = { contents: chatHistory };
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (typingIndicatorDiv && typingIndicatorDiv.parentNode) {
+                    typingIndicatorDiv.parentNode.removeChild(typingIndicatorDiv);
+                }
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const aiResponseText = result.candidates[0].content.parts[0].text;
+                    const aiMessageDiv = document.createElement('div');
+                    aiMessageDiv.classList.add('chat-message', 'ai');
+                    aiMessageDiv.textContent = aiResponseText;
+                    chatHistoryDiv.appendChild(aiMessageDiv);
+
+                    if (synth && aiResponseText) {
+                        const utterance = new SpeechSynthesisUtterance(aiResponseText);
+                        if (arabicVoice) {
+                            utterance.voice = arabicVoice;
+                        } else {
+                            utterance.lang = 'ar-SA';
+                        }
+                        synth.speak(utterance);
+                    }
+
+                } else {
+                    const errorMessageDiv = document.createElement('div');
+                    errorMessageDiv.classList.add('chat-message', 'ai');
+                    errorMessageDiv.textContent = 'عذرًا، حدث خطأ أثناء معالجة طلبك.';
+                    chatHistoryDiv.appendChild(errorMessageDiv);
+                }
+            } catch (error) {
+                console.error('Error calling Gemini API:', error);
+                if (typingIndicatorDiv && typingIndicatorDiv.parentNode) {
+                    typingIndicatorDiv.parentNode.removeChild(typingIndicatorDiv);
+                }
+                const errorMessageDiv = document.createElement('div');
+                errorMessageDiv.classList.add('chat-message', 'ai');
+                errorMessageDiv.textContent = 'عذرًا، حدث خطأ في الاتصال بالذكاء الاصطناعي.';
+                chatHistoryDiv.appendChild(errorMessageDiv);
+            }
+            chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
+        }
+
+        aiSendButton.addEventListener('click', sendAIAssistantMessage);
+
+        const dashboardMapIframe = document.getElementById('dashboard-map-iframe');
+        const mapIframeMain = document.getElementById('map-iframe-main');
+        const getMyLocationButtonDashboard = document.getElementById('get-my-location-button-dashboard');
+        const floatingFullscreenButton = document.getElementById('floating-fullscreen-button');
+        const carplayMainInterface = document.getElementById('carplay-main-interface');
+
+        const GOOGLE_MAPS_API_KEY = 'AIzaSyCDWFDGIkq7Cu0dv8AL_q1YFEUIWlZdaP4'; 
+
+        // Function to update Google Maps source for both iframes (removed mode=traffic)
+        function updateMapSrc() {
+            const googleMapsSrc = `https://www.google.com/maps/embed/v1/view?key=${GOOGLE_MAPS_API_KEY}&center=${appState.mapLocation.lat},${appState.mapLocation.lon}&zoom=${appState.mapLocation.zoom}`;
+            
+            console.log("Updating map src to:", googleMapsSrc); // Debugging log
+
+            if (dashboardMapIframe) {
+                dashboardMapIframe.src = googleMapsSrc;
+            }
+            if (mapIframeMain) { 
+                mapIframeMain.src = googleMapsSrc;
+            }
+        }
+
+        // Function to get user's current location (and alert about Google Maps embed limitations)
+        function getMyLocation(buttonId) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const userLatitude = position.coords.latitude;
+                        const userLongitude = position.coords.longitude;
+                        console.log(`User location: ${userLatitude}, ${userLongitude}`);
+                        alert(`موقعك الحالي: Latitude ${userLatitude}, Longitude ${userLongitude}\n\nملاحظة: خرائط Google المضمنة قد لا تدعم تحديث الموقع ديناميكيًا أو عرض مسارك الخاص.`);
+                    },
+                    (error) => {
+                        console.error('Geolocation error:', error);
+                        alert('تعذر الحصول على موقعك الحالي. يرجى التأكد من منح الإذن للموقع.');
+                    },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                );
+            } else {
+                console.warn('Geolocation is not supported by this browser.');
+                alert('الموقع الجغرافي غير مدعوم في هذا المتصفح.');
+            }
+        }
+
+        getMyLocationButtonDashboard.addEventListener('click', () => getMyLocation('dashboard'));
+        
+        // Modified floatingFullscreenButton to toggle browser-level fullscreen
+        floatingFullscreenButton.addEventListener('click', () => {
+            if (document.fullscreenElement) {
+                // Exit fullscreen
+                document.exitFullscreen();
+            } else {
+                // Enter fullscreen
+                if (carplayMainInterface.requestFullscreen) {
+                    carplayMainInterface.requestFullscreen();
+                } else if (carplayMainInterface.mozRequestFullScreen) { /* Firefox */
+                    carplayMainInterface.mozRequestFullScreen();
+                } else if (carplayMainInterface.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+                    carplayMainInterface.webkitRequestFullscreen();
+                } else if (carplayMainInterface.msRequestFullscreen) { /* IE/Edge */
+                    carplayMainInterface.msRequestFullscreen();
+                }
+            }
+        });
+
+        // Listen for fullscreen change events to update button text/icon
+        document.addEventListener('fullscreenchange', () => {
+            if (document.fullscreenElement) {
+                floatingFullscreenButton.innerHTML = '<i data-lucide="minimize" class="w-6 h-6"></i><span>تصغير الشاشة</span>';
+            } else {
+                floatingFullscreenButton.innerHTML = '<i data-lucide="maximize" class="w-6 h-6"></i><span>ملء الشاشة</span>';
+            }
+            lucide.createIcons(); // Re-render Lucide icons
+        });
+        document.addEventListener('mozfullscreenchange', () => { /* Firefox */
+            if (document.mozFullScreenElement) {
+                floatingFullscreenButton.innerHTML = '<i data-lucide="minimize" class="w-6 h-6"></i><span>تصغير الشاشة</span>';
+            } else {
+                floatingFullscreenButton.innerHTML = '<i data-lucide="maximize" class="w-6 h-6"></i><span>ملء الشاشة</span>';
+            }
+            lucide.createIcons();
+        });
+        document.addEventListener('webkitfullscreenchange', () => { /* Chrome, Safari and Opera */
+            if (document.webkitFullscreenElement) {
+                floatingFullscreenButton.innerHTML = '<i data-lucide="minimize" class="w-6 h-6"></i><span>تصغير الشاشة</span>';
+            } else {
+                floatingFullscreenButton.innerHTML = '<i data-lucide="maximize" class="w-6 h-6"></i><span>ملء الشاشة</span>';
+            }
+            lucide.createIcons();
+        });
+        document.addEventListener('msfullscreenchange', () => { /* IE/Edge */
+            if (document.msFullscreenElement) {
+                floatingFullscreenButton.innerHTML = '<i data-lucide="minimize" class="w-6 h-6"></i><span>تصغير الشاشة</span>';
+            } else {
+                floatingFullscreenButton.innerHTML = '<i data-lucide="maximize" class="w-6 h-6"></i><span>ملء الشاشة</span>';
+            }
+            lucide.createIcons();
+        });
+
+
+        // Function to update UI based on appState
+        function updateUI() {
+            // Update Dashboard Weather Widget
+            document.getElementById('dashboard-weather-temp').textContent = appState.weather.temperature;
+            document.getElementById('dashboard-weather-desc').textContent = appState.weather.description;
+
+            // Update Weather Tab
+            document.getElementById('weather-temp').textContent = appState.weather.temperature;
+            document.getElementById('weather-desc').textContent = appState.weather.description;
+            document.getElementById('weather-humidity').textContent = appState.weather.humidity;
+            document.getElementById('weather-wind').textContent = appState.weather.wind;
+            document.getElementById('weather-hourly').textContent = appState.weather.hourlyForecast;
+            document.getElementById('weather-last-updated').textContent = appState.weather.lastUpdated;
+
+            // Update Car Dashboard
+            document.getElementById('car-speed').textContent = appState.car.speed;
+            document.getElementById('car-rpm').textContent = appState.car.rpm;
+            document.getElementById('car-fuel').textContent = appState.car.fuel + '%';
+            document.getElementById('car-temp').textContent = appState.car.temp + '°C';
+            document.getElementById('car-gear').textContent = appState.car.gear;
+
+            // Update Settings display values
+            document.getElementById('display-car-speed').textContent = appState.car.speed;
+            document.getElementById('display-car-rpm').textContent = appState.car.rpm;
+            document.getElementById('display-car-fuel').textContent = appState.car.fuel;
+            document.getElementById('display-car-temp').textContent = appState.car.temp;
+            document.getElementById('display-car-gear').textContent = appState.car.gear;
+
+            // Apply font size
+            document.documentElement.style.setProperty('--base-font-size', `${appState.settings.fontSize}px`);
+            document.getElementById('display-font-size').textContent = `${appState.settings.fontSize}px`;
+
+            // Apply background theme
+            document.body.className = `text-white overflow-hidden ${appState.settings.backgroundTheme}`;
+
+            // Update Map iframe source when UI updates, especially on app switch
+            updateMapSrc(); // Call the Google Maps specific update
+        }
+
+        // Event listeners for Settings controls
+        document.getElementById('setting-font-size').addEventListener('input', (e) => {
+            appState.settings.fontSize = parseInt(e.target.value);
+            updateUI();
+        });
+
+        document.getElementById('setting-background').addEventListener('change', (e) => {
+            appState.settings.backgroundTheme = e.target.value;
+            updateUI();
+        });
+
+        document.getElementById('setting-car-speed').addEventListener('input', (e) => {
+            appState.car.speed = parseInt(e.target.value);
+            updateUI();
+        });
+
+        document.getElementById('setting-car-rpm').addEventListener('input', (e) => {
+            appState.car.rpm = parseInt(e.target.value);
+            updateUI();
+        });
+
+        document.getElementById('setting-car-fuel').addEventListener('input', (e) => {
+            appState.car.fuel = parseInt(e.target.value);
+            updateUI();
+        });
+
+        document.getElementById('setting-car-temp').addEventListener('input', (e) => {
+            appState.car.temp = parseInt(e.target.value);
+            updateUI();
+        });
+
+        document.getElementById('setting-car-gear').addEventListener('change', (e) => {
+            appState.car.gear = e.target.value;
+            updateUI();
+        });
+
+        // Initial UI update after all elements are loaded
+        document.addEventListener('DOMContentLoaded', updateUI);
+
+    </script>
+</body>
+</html>
