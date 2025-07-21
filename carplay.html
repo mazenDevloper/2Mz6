@@ -176,12 +176,10 @@
             border-radius: 1.5rem;
         }
 
-        /* Removed .map-fullscreen-active as it's no longer needed for browser-level fullscreen */
-
         /* New fixed full-screen button style */
         #floating-fullscreen-button {
             position: fixed;
-            bottom: 2rem; /* Adjust as needed */
+            bottom: 1rem; /* Adjusted from 2rem */
             left: 50%;
             transform: translateX(-50%);
             background-color: rgba(147, 51, 234, 0.8); /* Purple glass */
@@ -203,6 +201,11 @@
         #floating-fullscreen-button:hover {
             transform: translateX(-50%) scale(1.05);
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Top bar positioning */
+        .top-bar {
+            top: 1rem; /* Adjusted from 4rem */
         }
 
         ::-webkit-scrollbar { width: 5px; }
@@ -440,7 +443,7 @@
 
     <div class="w-full h-screen flex flex-col items-center justify-center p-4 sm:p-6">
         
-        <div class="w-full max-w-7xl flex justify-between items-center text-white/80 text-sm px-4 py-2 absolute top-4 left-1/2 -translate-x-1/2 z-10">
+        <div class="w-full max-w-7xl flex justify-between items-center text-white/80 text-sm px-4 py-2 absolute top-4 left-1/2 -translate-x-1/2 z-10 top-bar">
             <div class="flex items-center gap-2">
                 <i data-lucide="wifi"></i>
                 <span>5G</span>
@@ -496,7 +499,7 @@
                             <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center">
                                 <h2 class="text-xl font-bold mb-1">الطقس</h2>
                                 <div id="weather-widget-container" class="w-full h-full flex flex-col items-center justify-center">
-                                    <i data-lucide="cloud-sun" class="w-16 h-16 text-white mb-2"></i>
+                                    <i data-lucide="cloud-sun" class="w-16 h-16 text-white mb-2" id="dashboard-weather-icon"></i>
                                     <p class="text-3xl font-extrabold mb-1" id="dashboard-weather-temp">28°C</p>
                                     <p class="text-lg text-white/70 mb-2" id="dashboard-weather-desc">غائم جزئياً</p>
                                     <p class="text-sm text-white/50">صلالة، عمان</p>
@@ -532,46 +535,47 @@
 
               
                 <section id="screen-YouTube" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full">
-                    <h1 class="text-4xl font-bold mb-6">قوائم تشغيل يوتيوب</h1>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full h-full">
-                     
+                    <div id="youtube-playlist-view" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full h-full">
+                        <h1 class="col-span-full text-4xl font-bold mb-6 text-center">قوائم تشغيل يوتيوب</h1>
                         <div class="glass-surface glass-surface--svg youtube-channel-card" data-playlist-id="UClncV9OLPto_MinRzGfjr2g">
                             <img src="https://imgs.search.brave.com/BLtbXcoyaU4KgvAT2QQBfN5d967SbHLOJmYn94gNy8o/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pLnNj/ZG4uY28vaW1hZ2Uv/YWI2NzYxNmQwMDAw/YjI3M2I4OTk1NDFi/NDc3MTU3OGFlYjNl/OTQyMQ" alt="Yasser Al-Dosari Icon" />
                             <h2>تلاوات ياسر الدوسري</h2>
                         </div>
 
                        
-                        <div class="glass-surface glass-surface--svg youtube-channel-card" data-playlist-id="PLEB74DF04C50052DD">
+                        <div class="glass-surface glass-surface--svg youtube-channel-card" data-playlist-id="UCFPqvE8BYiiUeN1AUXa3lbA">
                             <img src="https://imgs.search.brave.com/-WtPBvI7AmvUdQ2X1oZpk6wlNV-PlUSktoA9JVVQL3o/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9zdGF0/aWMuc3VyYXRtcDMu/Y29tL3BpY3MvcmVj/aXRlcnMvdGh1bWJz/LzM3XzE2MF8xNjAu/anBn" alt="Mohammed Ayoub Icon" />
                             <h2>محمد ايوب</h2>
                         </div>
 
                        
-                        <div class="glass-surface glass-surface--svg youtube-channel-card" data-playlist-id="PL_MAZAMEER_ALQURAN_PLAYLIST_ID_3">
+                        <div class="glass-surface glass-surface--svg youtube-channel-card" data-playlist-id="UCy0WYogELm9hEjulWPeYOJg">
                             <img src="https://www.shorouknews.com/uploadedimages/Other/original/%D9%85%D8%B2%D8%A7%D9%85%D9%8A%D8%B1%20%D8%A7%D9%84%D9%82%D8%B1%D8%A2%D9%86.jpg" alt="Quran Melodies Icon" />
                             <h2>مزامير القران</h2>
                         </div>
                     </div>
-                </section>
 
-            
-                <section id="screen-YouTubePlayer" class="app-screen items-center justify-center h-full w-full p-4 md:p-6">
-                    <iframe
-                        id="youtube-player-iframe"
-                        class="full-iframe"
-                        src="" 
-                        title="YouTube video player"
-                        frameborder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowfullscreen
-                    ></iframe>
+                    <div id="youtube-player-view" class="hidden flex-col items-center justify-center h-full w-full relative">
+                        <iframe
+                            id="youtube-player-iframe"
+                            class="full-iframe"
+                            src="" 
+                            title="YouTube video player"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen
+                        ></iframe>
+                        <button id="youtube-back-button" class="absolute bottom-4 left-4 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm">
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i> العودة
+                        </button>
+                    </div>
                 </section>
                
                 <section id="screen-AIAssistant" class="app-screen p-4 md:p-6 flex-col justify-between h-full">
                     <h1 class="text-4xl font-bold mb-4 text-center">مساعد Gemini الذكي ✨</h1>
                     <div id="chat-history" class="flex-grow overflow-y-auto p-4 rounded-xl glass-surface glass-surface--svg mb-4">
                       
-                        <div class="chat-message ai">أهلاً بك! كيف يمكنني مساعدتك اليوم؟</div>
+                        <div class="chat-message ai">أهلاً بك! كيف يمكنني مساعدتك اليوم؟ يمكنك سؤالي عن سرعة السيارة، مستوى الوقود، RPM، درجة الحرارة، أو الترس.</div>
                         <div id="listening-indicator" class="chat-message ai hidden">جاري الاستماع...</div>
                     </div>
                     <div class="flex gap-2">
@@ -603,7 +607,7 @@
                         <!-- Right side: Main Temperature Card -->
                         <div class="glass-surface glass-surface--svg p-6 rounded-3xl text-center flex flex-col items-center justify-center sm:w-1/2">
                             <div class="text-3xl font-bold mb-2">صلالة</div>
-                            <i data-lucide="cloud-sun" class="w-24 h-24 text-yellow-400 mb-4"></i>
+                            <i data-lucide="cloud-sun" class="w-24 h-24 text-yellow-400 mb-4" id="weather-icon"></i>
                             <p class="text-6xl font-extrabold mb-2" id="weather-temp">28°C</p>
                             <p class="text-xl text-white/70 mb-4" id="weather-desc">غائم جزئياً</p>
                             <p class="text-sm text-white/50" id="weather-last-updated">آخر تحديث: 11:00 ص</p>
@@ -730,6 +734,9 @@
     <script>
         lucide.createIcons();
 
+        // Moved GOOGLE_MAPS_API_KEY declaration to the top of the script
+        const GOOGLE_MAPS_API_KEY = 'AIzaSyCDWFDGIkq7Cu0dv8AL_q1YFEUIWlZdaP4'; 
+
         // Global App State
         let appState = {
             currentTime: '',
@@ -740,7 +747,8 @@
                 humidity: '60%',
                 wind: '15 كم/س',
                 hourlyForecast: '100% طقس في الساعة',
-                lastUpdated: '11:00 ص'
+                lastUpdated: '11:00 ص',
+                icon: 'cloud-sun' // Default icon
             },
             car: {
                 speed: 120,
@@ -769,7 +777,12 @@
         const appButtons = document.querySelectorAll('button[data-app]');
         const appScreens = document.querySelectorAll('.app-screen');
         const sidebarIcons = document.querySelectorAll('.app-icon');
+
+        // YouTube specific elements
+        const youtubePlaylistView = document.getElementById('youtube-playlist-view');
+        const youtubePlayerView = document.getElementById('youtube-player-view');
         const youtubePlayerIframe = document.getElementById('youtube-player-iframe');
+        const youtubeBackButton = document.getElementById('youtube-back-button');
         let currentPlayingPlaylistId = '';
 
         function switchApp(appName) {
@@ -787,10 +800,13 @@
             const targetIcon = document.querySelector(`.app-icon[data-app="${appName}"]`);
             if (targetIcon) targetIcon.classList.add('active', 'bg-purple-600/80', 'scale-110');
 
+            // Handle YouTube view switching
             if (appName === 'YouTube') {
-                youtubePlayerIframe.src = ''; 
-            } else if (appName === 'YouTubePlayer' && currentPlayingPlaylistId) {
-                youtubePlayerIframe.src = `https://www.youtube.com/embed/videoseries?list=${currentPlayingPlaylistId}&autoplay=1`;
+                youtubePlaylistView.classList.remove('hidden');
+                youtubePlaylistView.classList.add('flex', 'flex-col'); // Ensure flex display
+                youtubePlayerView.classList.add('hidden');
+                youtubePlayerView.classList.remove('flex', 'flex-col'); // Ensure flex display
+                youtubePlayerIframe.src = ''; // Clear iframe when going back to playlist view
             }
             updateUI(); // Update UI when switching apps to reflect latest state
         }
@@ -798,11 +814,7 @@
         appButtons.forEach(button => {
             button.addEventListener('click', () => {
                 const appName = button.dataset.app;
-                if (appName === 'YouTube' && document.getElementById('screen-YouTubePlayer').classList.contains('active')) {
-                    switchApp('YouTube');
-                } else {
-                    switchApp(appName);
-                }
+                switchApp(appName);
             });
         });
         
@@ -811,17 +823,30 @@
             el.setAttribute('role', 'button');
         });
         
-        switchApp('Dashboard');
-
+        // YouTube playlist card click handler
         document.querySelectorAll('.youtube-channel-card').forEach(card => {
             card.addEventListener('click', () => {
                 const playlistId = card.dataset.playlistId;
                 if (playlistId) {
                     currentPlayingPlaylistId = playlistId;
-                    switchApp('YouTubePlayer');
+                    youtubePlaylistView.classList.add('hidden');
+                    youtubePlaylistView.classList.remove('flex', 'flex-col');
+                    youtubePlayerView.classList.remove('hidden');
+                    youtubePlayerView.classList.add('flex', 'flex-col');
+                    youtubePlayerIframe.src = `https://www.youtube.com/embed/videoseries?list=${currentPlayingPlaylistId}&autoplay=1`;
                 }
             });
         });
+
+        // YouTube back button handler
+        youtubeBackButton.addEventListener('click', () => {
+            youtubePlayerView.classList.add('hidden');
+            youtubePlayerView.classList.remove('flex', 'flex-col');
+            youtubePlaylistView.classList.remove('hidden');
+            youtubePlaylistView.classList.add('flex', 'flex-col');
+            youtubePlayerIframe.src = ''; // Clear iframe
+        });
+
 
         const chatHistoryDiv = document.getElementById('chat-history');
         const aiInput = document.getElementById('ai-input');
@@ -910,72 +935,79 @@
             chatHistoryDiv.appendChild(typingIndicatorDiv);
             chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
 
-            try {
-                let chatHistory = [];
-                chatHistory.push({ role: "user", parts: [{ text: userMessageText }] });
-                const payload = { contents: chatHistory };
-                const apiKey = "";
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+            let aiResponseText = '';
 
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
+            // --- AI Customization for Car Screen (Simulated) ---
+            const lowerCaseMessage = userMessageText.toLowerCase();
+            if (lowerCaseMessage.includes('سرعة')) {
+                aiResponseText = `سرعة السيارة الحالية هي ${appState.car.speed} كم/س.`;
+            } else if (lowerCaseMessage.includes('وقود') || lowerCaseMessage.includes('بنزين')) {
+                aiResponseText = `مستوى الوقود الحالي هو ${appState.car.fuel}%.`;
+            } else if (lowerCaseMessage.includes('rpm') || lowerCaseMessage.includes('دوران المحرك')) {
+                aiResponseText = `عدد دورات المحرك (RPM) هو ${appState.car.rpm}.`;
+            } else if (lowerCaseMessage.includes('حرارة') || lowerCaseMessage.includes('درجة حرارة المحرك')) {
+                aiResponseText = `درجة حرارة المحرك هي ${appState.car.temp}°C.`;
+            } else if (lowerCaseMessage.includes('ترس') || lowerCaseMessage.includes('غيار')) {
+                aiResponseText = `الترس الحالي هو ${appState.car.gear}.`;
+            } else {
+                // Original Gemini API call for general questions
+                try {
+                    let chatHistory = [];
+                    chatHistory.push({ role: "user", parts: [{ text: userMessageText }] });
+                    const payload = { contents: chatHistory };
+                    const apiKey = "";
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
-                const result = await response.json();
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
 
-                if (typingIndicatorDiv && typingIndicatorDiv.parentNode) {
-                    typingIndicatorDiv.parentNode.removeChild(typingIndicatorDiv);
-                }
+                    const result = await response.json();
 
-                if (result.candidates && result.candidates.length > 0 &&
-                    result.candidates[0].content && result.candidates[0].content.parts &&
-                    result.candidates[0].content.parts.length > 0) {
-                    const aiResponseText = result.candidates[0].content.parts[0].text;
-                    const aiMessageDiv = document.createElement('div');
-                    aiMessageDiv.classList.add('chat-message', 'ai');
-                    aiMessageDiv.textContent = aiResponseText;
-                    chatHistoryDiv.appendChild(aiMessageDiv);
-
-                    if (synth && aiResponseText) {
-                        const utterance = new SpeechSynthesisUtterance(aiResponseText);
-                        if (arabicVoice) {
-                            utterance.voice = arabicVoice;
-                        } else {
-                            utterance.lang = 'ar-SA';
-                        }
-                        synth.speak(utterance);
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        aiResponseText = result.candidates[0].content.parts[0].text;
+                    } else {
+                        aiResponseText = 'عذرًا، حدث خطأ أثناء معالجة طلبك من Gemini.';
                     }
+                } catch (error) {
+                    console.error('Error calling Gemini API:', error);
+                    aiResponseText = 'عذرًا، حدث خطأ في الاتصال بالذكاء الاصطناعي.';
+                }
+            }
 
+            if (typingIndicatorDiv && typingIndicatorDiv.parentNode) {
+                typingIndicatorDiv.parentNode.removeChild(typingIndicatorDiv);
+            }
+
+            const aiMessageDiv = document.createElement('div');
+            aiMessageDiv.classList.add('chat-message', 'ai');
+            aiMessageDiv.textContent = aiResponseText;
+            chatHistoryDiv.appendChild(aiMessageDiv);
+
+            if (synth && aiResponseText) {
+                const utterance = new SpeechSynthesisUtterance(aiResponseText);
+                if (arabicVoice) {
+                    utterance.voice = arabicVoice;
                 } else {
-                    const errorMessageDiv = document.createElement('div');
-                    errorMessageDiv.classList.add('chat-message', 'ai');
-                    errorMessageDiv.textContent = 'عذرًا، حدث خطأ أثناء معالجة طلبك.';
-                    chatHistoryDiv.appendChild(errorMessageDiv);
+                    utterance.lang = 'ar-SA';
                 }
-            } catch (error) {
-                console.error('Error calling Gemini API:', error);
-                if (typingIndicatorDiv && typingIndicatorDiv.parentNode) {
-                    typingIndicatorDiv.parentNode.removeChild(typingIndicatorDiv);
-                }
-                const errorMessageDiv = document.createElement('div');
-                errorMessageDiv.classList.add('chat-message', 'ai');
-                errorMessageDiv.textContent = 'عذرًا، حدث خطأ في الاتصال بالذكاء الاصطناعي.';
-                chatHistoryDiv.appendChild(errorMessageDiv);
+                synth.speak(utterance);
             }
             chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
         }
 
         aiSendButton.addEventListener('click', sendAIAssistantMessage);
 
-        const dashboardMapIframe = document.getElementById('dashboard-map-iframe');
-        const mapIframeMain = document.getElementById('map-iframe-main');
-        const getMyLocationButtonDashboard = document.getElementById('get-my-location-button-dashboard');
-        const floatingFullscreenButton = document.getElementById('floating-fullscreen-button');
-        const carplayMainInterface = document.getElementById('carplay-main-interface');
-
-        const GOOGLE_MAPS_API_KEY = 'AIzaSyCDWFDGIkq7Cu0dv8AL_q1YFEUIWlZdaP4'; 
+        // Declare variables globally but assign them inside DOMContentLoaded
+        let dashboardMapIframe;
+        let mapIframeMain;
+        let getMyLocationButtonDashboard;
+        let floatingFullscreenButton;
+        let carplayMainInterface;
 
         // Function to update Google Maps source for both iframes (removed mode=traffic)
         function updateMapSrc() {
@@ -1012,28 +1044,7 @@
                 alert('الموقع الجغرافي غير مدعوم في هذا المتصفح.');
             }
         }
-
-        getMyLocationButtonDashboard.addEventListener('click', () => getMyLocation('dashboard'));
         
-        // Modified floatingFullscreenButton to toggle browser-level fullscreen
-        floatingFullscreenButton.addEventListener('click', () => {
-            if (document.fullscreenElement) {
-                // Exit fullscreen
-                document.exitFullscreen();
-            } else {
-                // Enter fullscreen
-                if (carplayMainInterface.requestFullscreen) {
-                    carplayMainInterface.requestFullscreen();
-                } else if (carplayMainInterface.mozRequestFullScreen) { /* Firefox */
-                    carplayMainInterface.mozRequestFullScreen();
-                } else if (carplayMainInterface.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
-                    carplayMainInterface.webkitRequestFullscreen();
-                } else if (carplayMainInterface.msRequestFullscreen) { /* IE/Edge */
-                    carplayMainInterface.msRequestFullscreen();
-                }
-            }
-        });
-
         // Listen for fullscreen change events to update button text/icon
         document.addEventListener('fullscreenchange', () => {
             if (document.fullscreenElement) {
@@ -1068,12 +1079,39 @@
             lucide.createIcons();
         });
 
+        // Function to simulate weather updates
+        function simulateWeatherUpdate() {
+            const temps = ['26°C', '27°C', '28°C', '29°C', '30°C'];
+            const descriptions = ['مشمس', 'غائم جزئياً', 'غائم', 'أمطار خفيفة'];
+            const humidity = ['55%', '60%', '65%', '70%'];
+            const winds = ['10 كم/س', '15 كم/س', '20 كم/س'];
+            const icons = ['sun', 'cloud-sun', 'cloud', 'cloud-rain'];
+
+            appState.weather.temperature = temps[Math.floor(Math.random() * temps.length)];
+            appState.weather.description = descriptions[Math.floor(Math.random() * descriptions.length)];
+            appState.weather.humidity = humidity[Math.floor(Math.random() * humidity.length)];
+            appState.weather.wind = winds[Math.floor(Math.random() * winds.length)];
+            appState.weather.icon = icons[Math.floor(Math.random() * icons.length)];
+            
+            const now = new Date();
+            appState.weather.lastUpdated = `آخر تحديث: ${now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: false })}`;
+
+            updateUI(); // Update UI after simulating weather
+        }
+        // Simulate weather update every 30 seconds
+        setInterval(simulateWeatherUpdate, 30000); 
 
         // Function to update UI based on appState
         function updateUI() {
             // Update Dashboard Weather Widget
             document.getElementById('dashboard-weather-temp').textContent = appState.weather.temperature;
             document.getElementById('dashboard-weather-desc').textContent = appState.weather.description;
+            const dashboardWeatherIconElement = document.getElementById('dashboard-weather-icon');
+            if (dashboardWeatherIconElement) {
+                dashboardWeatherIconElement.setAttribute('data-lucide', appState.weather.icon);
+                lucide.createIcons(); // Re-render Lucide icons
+            }
+
 
             // Update Weather Tab
             document.getElementById('weather-temp').textContent = appState.weather.temperature;
@@ -1082,6 +1120,11 @@
             document.getElementById('weather-wind').textContent = appState.weather.wind;
             document.getElementById('weather-hourly').textContent = appState.weather.hourlyForecast;
             document.getElementById('weather-last-updated').textContent = appState.weather.lastUpdated;
+            const weatherIconElement = document.getElementById('weather-icon');
+            if (weatherIconElement) {
+                weatherIconElement.setAttribute('data-lucide', appState.weather.icon);
+                lucide.createIcons(); // Re-render Lucide icons
+            }
 
             // Update Car Dashboard
             document.getElementById('car-speed').textContent = appState.car.speed;
@@ -1145,7 +1188,36 @@
         });
 
         // Initial UI update after all elements are loaded
-        document.addEventListener('DOMContentLoaded', updateUI);
+        document.addEventListener('DOMContentLoaded', () => {
+            // Assign element references here
+            dashboardMapIframe = document.getElementById('dashboard-map-iframe');
+            mapIframeMain = document.getElementById('map-iframe-main');
+            getMyLocationButtonDashboard = document.getElementById('get-my-location-button-dashboard');
+            floatingFullscreenButton = document.getElementById('floating-fullscreen-button');
+            carplayMainInterface = document.getElementById('carplay-main-interface');
+
+            // Attach event listeners that depend on these elements
+            getMyLocationButtonDashboard.addEventListener('click', () => getMyLocation('dashboard'));
+            floatingFullscreenButton.addEventListener('click', () => {
+                if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                } else {
+                    if (carplayMainInterface.requestFullscreen) {
+                        carplayMainInterface.requestFullscreen();
+                    } else if (carplayMainInterface.mozRequestFullScreen) { /* Firefox */
+                        carplayMainInterface.mozRequestFullScreen();
+                    } else if (carplayMainInterface.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+                        carplayMainInterface.webkitRequestFullscreen();
+                    } else if (carplayMainInterface.msRequestFullscreen) { /* IE/Edge */
+                        carplayMainInterface.msRequestFullscreen();
+                    }
+                }
+            });
+
+            updateUI();
+            simulateWeatherUpdate(); // Initial weather update on load
+            switchApp('Dashboard'); // Initial app switch moved here
+        });
 
     </script>
 </body>
