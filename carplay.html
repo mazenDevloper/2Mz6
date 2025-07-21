@@ -7,14 +7,19 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <!-- Leaflet CSS & JS for the Trip tab -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Chart.js for the Trip tab -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         body {
             font-family: 'Inter', sans-serif;
-            /* Default background gradient */
-            background: linear-gradient(-45deg, #23a6d5, #23d5ab, #ee7752, #e73c7e);
+            /* Default background gradient - UPDATED: black parts are wider, animation is 3x slower */
+            background: linear-gradient(-45deg, #000000 0%, #000000 60%, #00FFFF 65%, #000000 80%, #4B0082 85%, #8A2BE2 90%, #FF00FF 95%, #000000 100%);
             background-size: 400% 400%;
-            animation: gradient 20s ease infinite;
+            animation: gradient 30s ease infinite; /* Animation duration decreased to 30s (half of 60s) */
             transition: background-image 0.5s ease; /* Smooth transition for background changes */
             font-size: var(--base-font-size, 16px); /* Default font size */
             min-height: 100vh; /* Ensure body takes full viewport height */
@@ -26,9 +31,9 @@
 
         /* Define different background themes */
         body.theme-gradient-1 {
-            background: linear-gradient(-45deg, #23a6d5, #23d5ab, #ee7752, #e73c7e);
+            background: linear-gradient(-45deg, #000000 0%, #000000 60%, #00FFFF 65%, #000000 80%, #4B0082 85%, #8A2BE2 90%, #FF00FF 95%, #000000 100%); /* UPDATED */
             background-size: 400% 400%;
-            animation: gradient 20s ease infinite;
+            animation: gradient 30s ease infinite; /* Animation duration decreased to 30s (half of 60s) */
         }
         body.theme-gradient-2 {
             background: linear-gradient(-45deg, #4CAF50, #8BC34A, #FFEB3B, #FFC107);
@@ -130,16 +135,6 @@
                 z-index: -1;
             }
         }
-        @supports not (backdrop-filter: blur(10px)) {
-            @media (prefers-color-scheme: dark) {
-                .glass-surface--fallback {
-                    background: rgba(0, 0, 0, 0.4);
-                }
-                .glass-surface--fallback::before {
-                    background: rgba(255, 255, 255, 0.05);
-                }
-            }
-        }
         .glass-surface:focus-visible {
             outline: 2px solid light-dark(#007AFF, #0A84FF);
             outline-offset: 2px;
@@ -176,7 +171,7 @@
             border-radius: 1.5rem;
         }
 
-        /* New fixed full-screen button style */
+        /* Floating Full-Screen Button style */
         #floating-fullscreen-button {
             position: fixed;
             bottom: 1rem; /* Adjusted from 2rem */
@@ -206,6 +201,7 @@
         /* Top bar positioning */
         .top-bar {
             top: 1rem; /* Adjusted from 4rem */
+            transition: opacity 0.3s ease; /* Added transition for smooth hide/show */
         }
 
         /* Adjusted margins and height for carplay-main-interface */
@@ -213,6 +209,21 @@
             margin-top: 4rem; /* Increased top margin */
             margin-bottom: 4rem; /* Increased bottom margin */
             height: calc(100vh - 8rem); /* Calculate height to fit between margins */
+            transition: all 0.5s ease-in-out; /* Smooth transition for pseudo-fullscreen */
+            max-width: 1280px; /* Reverted to original max-w-7xl) */
+        }
+
+        /* New pseudo-fullscreen class for the CarPlay interface */
+        #carplay-main-interface.carplay-pseudo-fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            border-radius: 0;
+            z-index: 99; /* Ensure it's above other content but below the floating button */
+            max-width: 100vw; /* When fullscreen, it should take full width */
         }
 
         ::-webkit-scrollbar { width: 5px; }
@@ -265,13 +276,14 @@
             box-shadow: inset 0 1px 3px rgba(0,0,0,0.4), 0 0 0 2px rgba(147, 51, 234, 0.5);
         }
 
+        /* UPDATED: youtube-channel-card to be 50% smaller */
         .youtube-channel-card {
             cursor: pointer;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 1rem;
+            padding: 0.4rem; /* Reduced padding for smaller card */
             transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
             aspect-ratio: 1 / 1; /* Make the card square */
         }
@@ -280,15 +292,15 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
         .youtube-channel-card img {
-            width: 85%; /* 85% of the card's width */
-            height: 85%; /* 85% of the card's height */
+            width: 85%; /* Reverted to 85% */
+            height: 85%; /* Reverted to 85% */
             object-fit: cover;
             border-radius: 1rem; /* Slightly rounded corners for the image */
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.4rem; /* Reduced margin-bottom for smaller card */
             border: 2px solid rgba(255,255,255,0.3);
         }
         .youtube-channel-card h2 {
-            font-size: 1.25rem;
+            font-size: 0.8rem; /* Reduced font size for smaller card */
             font-weight: 600;
             color: white;
         }
@@ -368,18 +380,8 @@
             margin-bottom: 1rem;
             overflow: hidden; /* Ensure content stays within bounds */
         }
-        .car-cam-360-container::before {
-            content: 'كاميرا 360°';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 2rem;
-            font-weight: bold;
-            color: rgba(255, 255, 255, 0.6);
-            text-shadow: 0 0 10px rgba(0,0,0,0.5);
-        }
-
+    #digital-time {
+    font-size: 2.2rem!important;}
         /* Settings Range Input Styling */
         input[type="range"] {
             -webkit-appearance: none;
@@ -414,6 +416,140 @@
             background: #9333ea;
             cursor: pointer;
             box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.5);
+        }
+
+        /* Trip tab specific styles */
+        .trip-stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .trip-button {
+            background-image: linear-gradient(to right, #6366f1, #8b5cf6); /* Indigo to Purple */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .trip-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+        .trip-button.bg-red-500 {
+            background-image: linear-gradient(to right, #ef4444, #dc2626); /* Red */
+        }
+        .trip-button.bg-red-500:hover {
+            background-image: linear-gradient(to right, #dc2626, #b91c1c);
+        }
+        .trip-log-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Electronic Quran specific styles */
+        .quran-text {
+            font-family: 'Amiri Quran', serif; /* A common font for Quranic text */
+            font-size: 2rem; /* Larger font size for readability */
+            line-height: 2.5; /* Increased line height */
+            text-align: center;
+            direction: rtl; /* Ensure right-to-left text direction */
+            padding: 1rem;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 1rem;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            overflow-y: auto;
+            max-height: 80%; /* Limit height to allow scrolling */
+        }
+
+        /* Tajweed Colors (Example - these are simplified and not exhaustive) */
+        .tajweed-ghunnah { color: #ff0000; } /* Red for Ghunnah */
+        .tajweed-idgham { color: #00ff00; } /* Green for Idgham */
+        .tajweed-ikhfaa { color: #0000ff; } /* Blue for Ikhfaa */
+        .tajweed-qalqalah { color: #ffff00; } /* Yellow for Qalqalah */
+        .tajweed-madd { color: #ffa500; } /* Orange for Madd */
+
+        .quran-controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+        .quran-control-button {
+            background-image: linear-gradient(to right, #6366f1, #8b5cf6);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .quran-control-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Rolex Watch Styles - REMOVED */
+
+/* Changed from row-reverse to row for LTR */
+.flex-grow.flex.flex-col.lg\:flex-row.gap-4.md\:gap-6.h-full.dashboard-main-grid {
+    flex-direction: row;
+}
+
+/* Removed fixed width and !important object-fit: none to allow w-full to take effect */
+img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
+    height: 262px!important;
+}
+
+        /* Specific positions for hour markers - REMOVED */
+
+
+        /* Watch hands - REMOVED */
+
+
+        /* Center pin - REMOVED */
+
+        /* Custom CSS to override Tailwind for specific dashboard columns */
+        /* Column 1 (Car Info) */
+        .dashboard-col-23-percent {
+            width: 23%;
+        }
+
+        /* Column 3 (Weather + Clock) */
+        .dashboard-col-27-percent {
+            width: 27%;
+        }
+
+        /* Column 2 (Map) */
+        .dashboard-col-50-percent {
+            width: 50%;
+        }
+
+        /* Ensure the main dashboard grid uses row for LTR column order */
+        .dashboard-main-grid {
+            flex-direction: row;
+        }
+
+        /* Digital Clock Styles (Apple iOS 19 style) - Adjusted for 20% smaller */
+        #digital-time {
+            font-size: 3.2rem; /* Approx 20% smaller than 4rem (6xl) */
+            font-weight: 800; /* Extra bold */
+            color: white;
+            margin-bottom: 0.5rem; /* Reduced margin */
+        }
+        #digital-date {
+            font-size: 1rem; /* Approx 20% smaller than 1.25rem (xl) */
+            color: rgba(255, 255, 255, 0.7);
         }
     </style>
 </head>
@@ -458,20 +594,18 @@
             <div id="current-time">9:35</div>
         </div>
 
-        <div id="carplay-main-interface" class="w-full max-w-7xl flex shadow-2xl rounded-3xl overflow-hidden bg-black/20 border border-white/10">
+        <div id="carplay-main-interface" class="w-full max-w-7xl flex flex-row shadow-2xl rounded-3xl overflow-hidden bg-black/20 border border-white/10">
             
-            <nav class="w-20 sm:w-24 bg-black/20 flex flex-col items-center justify-start pt-8 p-2 space-y-4 border-r border-white/10 flex-shrink-0">
+            <!-- Navigation Dock (moved back to left, border-r) -->
+            <nav class="w-20 sm:w-24 bg-black/20 flex flex-col items-center justify-start pt-8 p-2 space-y-4 border-r border-white/10 flex-shrink-0 transition-opacity 0.3s ease;">
                 <button data-app="Dashboard" class="app-icon active">
                     <i data-lucide="layout-grid"></i>
                 </button>
-                <button data-app="Map" class="app-icon">
-                    <i data-lucide="map-pin"></i>
+                <button data-app="Media" class="app-icon">
+                    <i data-lucide="play-circle"></i>
                 </button>
                  <button data-app="Radio" class="app-icon">
                     <i data-lucide="radio"></i>
-                </button>
-                <button data-app="YouTube" class="app-icon">
-                    <i class="fab fa-youtube"></i>
                 </button>
                 <button data-app="AIAssistant" class="app-icon"> 
                     <i data-lucide="sparkles"></i> 
@@ -479,50 +613,60 @@
                 <button data-app="Weather" class="app-icon"> 
                     <i data-lucide="cloud-sun"></i> 
                 </button>
-                <button data-app="CarDashboard" class="app-icon">
-                    <i data-lucide="gauge"></i> 
+                <button data-app="Trip" class="app-icon"> 
+                    <i data-lucide="map-pin"></i>
                 </button>
-                 <button data-app="Settings" class="app-icon">
+                <button data-app="Quran" class="app-icon"> <!-- NEW QURAN TAB -->
+                    <i data-lucide="book-open"></i>
+                </button>
+                <button data-app="Settings" class="app-icon">
                     <i data-lucide="settings"></i>
                 </button>
             </nav>
 
-         
+            <!-- Main content area -->
             <main class="flex-1 flex flex-col h-full">
                 
-          
                 <section id="screen-Dashboard" class="app-screen active p-4 md:p-6 flex-col gap-4 md:gap-6 h-full">
                  
-                    <div class="flex-grow flex flex-row gap-4 md:gap-6 h-full">
-                        <div class="flex-grow h-full rounded-3xl relative overflow-hidden flex items-center justify-center glass-surface glass-surface--svg p-1">
-                            <!-- Set default src for dashboard map iframe - Removed mode=traffic -->
+                    <!-- Dashboard Grid - Reordered and custom width classes applied -->
+                    <div class="flex-grow flex flex-col lg:flex-row gap-4 md:gap-6 h-full dashboard-main-grid">
+                        <!-- Left Column (Col 1): Car Info Panel (23%) -->
+                        <div class="flex flex-col gap-4 md:gap-6 dashboard-col-23-percent">
+                            <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center">
+                                <h2 class="text-xl font-bold mb-2">معلومات السيارة</h2>
+                                <div class="w-full h-full bg-black/30 rounded-lg flex items-center justify-center overflow-hidden">
+                                    <img src="https://dmusera.netlify.app/3603.png" alt="عرض الكاميرا 360 درجة للسيارة" class="w-full h-full object-cover rounded-lg opacity-80" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Middle Column (Col 2): Main Map (50%) -->
+                        <div class="flex-grow h-full rounded-3xl relative overflow-hidden flex items-center justify-center glass-surface glass-surface--svg p-1 dashboard-col-50-percent">
                             <iframe id="dashboard-map-iframe" class="full-iframe" src="https://www.google.com/maps/embed/v1/view?key=AIzaSyCDWFDGIkq7Cu0dv8AL_q1YFEUIWlZdaP4&center=17.0151,54.0924&zoom=12" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                            <button id="get-my-location-button-dashboard" class="absolute bottom-4 right-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm">
-                                <i data-lucide="map-pin" class="w-4 h-4"></i> موقفي الحالي
+                            <button id="get-my-location-button-dashboard" class="absolute bottom-4 left-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm">
+                                <i data-lucide="map-pin" class="w-4 h-4"></i> موقعي الحالي
                             </button>
                         </div>
-                    
-                        <div class="w-1/3 max-w-sm h-full flex flex-col gap-4 md:gap-6">
+
+                        <!-- Right Column (Col 3): Weather + Digital Clock (27%) -->
+                        <div class="flex flex-col gap-4 md:gap-6 dashboard-col-27-percent">
+                            <!-- Weather Widget -->
                             <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center">
                                 <h2 class="text-xl font-bold mb-1">الطقس</h2>
                                 <div id="weather-widget-container" class="w-full h-full flex flex-col items-center justify-center">
                                     <i data-lucide="cloud-sun" class="w-16 h-16 text-white mb-2" id="dashboard-weather-icon"></i>
-                                    <p class="text-3xl font-extrabold mb-1" id="dashboard-weather-temp">28°C</p>
-                                    <p class="text-lg text-white/70 mb-2" id="dashboard-weather-desc">غائم جزئياً</p>
+                                    <p class="text-3xl font-extrabold mb-1" id="dashboard-weather-temp">--°C</p>
+                                    <p class="text-lg text-white/70 mb-2" id="dashboard-weather-desc">--</p>
                                     <p class="text-sm text-white/50">صلالة، عمان</p>
-                                    <p class="text-xs text-white/50 mt-2">(تتطلب البيانات الحية مفتاح API)</p>
                                 </div>
                             </div>
-                            <div class="glass-surface glass-surface--svg p-4 flex items-center gap-4">
-                                <i data-lucide="corner-up-right" class="w-12 h-12 text-white"></i>
-                                <div>
-                                    <p class="text-2xl font-bold">0.9 mi</p>
-                                    <p class="text-white/70">جنوباً إلى كولومبوس</p>
+                            <!-- Digital Clock Widget (Apple iOS 19 style) -->
+                            <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center">
+                                <div id="digital-clock-widget" class="w-full h-full flex flex-col items-center justify-center text-center">
+                                    <div id="digital-time">00:00:00</div>
+                                    <div id="digital-date">Saturday, July 20</div>
                                 </div>
-                            </div>
-                            <div class="glass-surface glass-surface--svg p-4 flex flex-col items-center justify-center text-center">
-                                <img src="https://dmusera.netlify.app/Lexus-Logo.wine.svg" alt="شعار لكزس" class="metallic-logo-effect"/>
-                                <p class="text-white/70 text-sm">شعار لكزس بتأثير معدني.</p>
                             </div>
                         </div>
                     </div>
@@ -530,34 +674,25 @@
                 </section>
 
                
-                <section id="screen-Map" class="app-screen items-center justify-center h-full w-full p-4 md:p-6 relative">
-                    <!-- Set default src for main map iframe - Removed mode=traffic -->
-                    <iframe id="map-iframe-main" class="full-iframe" src="https://www.google.com/maps/embed/v1/view?key=AIzaSyCDWFDGIkq7Cu0dv8AL_q1YFEUIWlZdaP4&center=17.0151,54.0924&zoom=12" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                </section>
-                
-                
-                <section id="screen-Radio" class="app-screen items-center justify-center h-full w-full p-4 md:p-6">
-                   <iframe class="full-iframe" title="Radio Garden" src="https://radio.garden/visit/salalah/A13sFegC"></iframe>
-                </section>
-
-              
-                <section id="screen-YouTube" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full">
-                    <div id="youtube-playlist-view" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full h-full">
+                <section id="screen-Media" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full">
+                    <h1 class="text-4xl font-bold mb-6 text-center">🎥 الوسائط المتعددة</h1>
+                    <!-- UPDATED: Grid columns to make cards 50% smaller -->
+                    <div id="youtube-playlist-view" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 w-full h-full">
                         <h1 class="col-span-full text-4xl font-bold mb-6 text-center">قوائم تشغيل يوتيوب</h1>
-                        <div class="glass-surface glass-surface--svg youtube-channel-card" data-playlist-id="PL3VVK-N0NdgwP0knrPau0W8riMyCmO1l5">
-                            <img src="https://imgs.search.brave.com/BLtbXcoyaU4KgvAT2QQBfN5d967SbHLOJmYn94gNy8o/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pLnNj/ZG4uY28vaW1hZ2Uv/YWI2NzYxNmQwMDAw/YjI3M2I4OTk1NDFi/NDc3MTU3OGFlYjNl/OTQyMQ" alt="" />
+                        <div class="glass-surface glass-surface--svg youtube-channel-card" data-playlist-id="PLKcMYf5ZQsR06u4g0zXXS-Cv9WR9F8tCG">
+                            <img src="https://imgs.search.brave.com/BLtbXcoyaU4KgvAT2QQBfN5d967SbHLOJmYn94gNy8o/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pLnNj/ZG4uY28vaW1hZ2Uv/YWI2NzYxNmQwMDAw/YjI3M2I4OTk1NDFi/NDc3MTU3OGFlYjNl/OTQyMQ" alt="صورة الشيخ ياسر الدوسري" />
                             <h2>تلاوات ياسر الدوسري</h2>
                         </div>
 
                        
                         <div class="glass-surface glass-surface--svg youtube-channel-card" data-playlist-id="PLInscG3tWdy5-ZfhrEnPdBSNYOYeKHHnm">
-                            <img src="https://imgs.search.brave.com/-WtPBvI7AmvUdQ2X1oZpk6wlNV-PlUSktoA9JVVQL3o/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9zdGF0/aWMuc3VyYXRtcDMu/Y29tL3BpY3MvcmVj/aXRlcnMvdGh1bWJz/LzM3XzE2MF8xNjAu/anBn" alt="Mohammed Ayoub Icon" />
+                            <img src="https://imgs.search.brave.com/-WtPBvI7AmvUdQ2X1oZpk6wlNV-PlUSktoA9JVVQL3o/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9zdGF0/aWMuc3VyYXRtcDMu/Y29tL3BpY3MvcmVj/aXRlcnMvdGh1bWJz/LzM3XzE2MF8xNjAu/anBn" alt="صورة الشيخ محمد أيوب" />
                             <h2>محمد ايوب</h2>
                         </div>
 
                        
                         <div class="glass-surface glass-surface--svg youtube-channel-card" data-playlist-id="PL_vt78Wjpa8SS8MqM9e0T4VeB1-zuWs1I">
-                            <img src="https://www.shorouknews.com/uploadedimages/Other/original/%D9%85%D8%B2%D8%A7%D9%85%D9%8A%D8%B1%20%D8%A7%D9%84%D9%82%D8%B1%D8%A2%D9%86.jpg" alt="Quran Melodies Icon" />
+                            <img src="https://www.shorouknews.com/uploadedimages/Other/original/%D9%85%D8%B2%D8%A7%D9%85%D9%8A%D8%B1%20%D8%A7%D9%84%D9%82%D8%B1%D8%A2%D9%86.jpg" alt="صورة مزامير القرآن" />
                             <h2>مزامير القران</h2>
                         </div>
                     </div>
@@ -573,10 +708,16 @@
                             allowfullscreen
                         ></iframe>
                         <button id="youtube-back-button" class="absolute bottom-4 left-4 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm">
-                            <i data-lucide="arrow-right" class="w-4 h-4"></i> العودة
+                            <i data-lucide="arrow-left" class="w-4 h-4"></i> العودة
                         </button>
                     </div>
                 </section>
+                
+                
+                <section id="screen-Radio" class="app-screen items-center justify-center h-full w-full p-4 md:p-6">
+                   <iframe class="full-iframe" title="Radio Garden" src="https://radio.garden/visit/salalah/A13sFegC"></iframe>
+                </section>
+
                
                 <section id="screen-AIAssistant" class="app-screen p-4 md:p-6 flex-col justify-between h-full">
                     <h1 class="text-4xl font-bold mb-4 text-center">مساعد Gemini الذكي ✨</h1>
@@ -610,65 +751,90 @@
 
                 <section id="screen-Weather" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full">
                     <h1 class="text-4xl font-bold mb-6">الطقس <i data-lucide="cloud-sun"></i></h1>
-                    <div class="w-full max-w-md flex flex-col sm:flex-row-reverse gap-4">
-                        <!-- Right side: Main Temperature Card -->
+                    <div class="w-full max-w-md flex flex-col sm:flex-row gap-4">
+                        <!-- Left side: Main Temperature Card -->
                         <div class="glass-surface glass-surface--svg p-6 rounded-3xl text-center flex flex-col items-center justify-center sm:w-1/2">
                             <div class="text-3xl font-bold mb-2">صلالة</div>
                             <i data-lucide="cloud-sun" class="w-24 h-24 text-yellow-400 mb-4" id="weather-icon"></i>
-                            <p class="text-6xl font-extrabold mb-2" id="weather-temp">28°C</p>
-                            <p class="text-xl text-white/70 mb-4" id="weather-desc">غائم جزئياً</p>
-                            <p class="text-sm text-white/50" id="weather-last-updated">آخر تحديث: 11:00 ص</p>
-                            <p class="text-xs text-white/50 mt-2">(تتطلب البيانات الحية مفتاح API)</p>
+                            <p class="text-6xl font-extrabold mb-2" id="weather-temp">--°C</p>
+                            <p class="text-xl text-white/70 mb-4" id="weather-desc">--</p>
+                            <p class="text-sm text-white/50" id="weather-last-updated">آخر تحديث: --</p>
+                            <!-- Removed "(تتطلب البيانات الحية مفتاح API)" -->
                         </div>
-                        <!-- Left side: Humidity, Wind, Hourly -->
+                        <!-- Right side: Humidity, Wind, Hourly -->
                         <div class="flex flex-col gap-4 sm:w-1/2">
                             <div class="glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center flex-grow">
                                 <i data-lucide="droplet" class="w-10 h-10 text-blue-300 mb-2"></i>
-                                <span class="text-2xl font-bold" id="weather-humidity">60%</span>
+                                <span class="text-2xl font-bold" id="weather-humidity">--%</span>
                                 <span class="text-sm text-white/50">الرطوبة</span>
                             </div>
                             <div class="glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center flex-grow">
                                 <i data-lucide="wind" class="w-10 h-10 text-gray-300 mb-2"></i>
-                                <span class="text-2xl font-bold" id="weather-wind">15 كم/س</span>
+                                <span class="text-2xl font-bold" id="weather-wind">-- كم/س</span>
                                 <span class="text-sm text-white/50">الرياح</span>
                             </div>
                             <div class="glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center flex-grow">
-                                <p class="text-lg font-semibold text-white/80" id="weather-hourly">100% طقس في الساعة</p>
+                                <p class="text-lg font-semibold text-white/80" id="weather-hourly">--</p>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                <section id="screen-CarDashboard" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full">
-                    <h1 class="text-4xl font-bold mb-8 text-white">لوحة قيادة السيارة</h1>
-                    <div class="glass-surface glass-surface--svg rounded-3xl relative car-dashboard-container">
-                        <!-- 360 Camera View - Central and large -->
-                        <div class="car-cam-360-container w-full h-full flex items-center justify-center relative">
-                            <!-- Placeholder for 360 camera feed -->
-                        </div>
+                <!-- New Trip App Screen -->
+                <section id="screen-Trip" class="app-screen p-4 md:p-6 flex-col h-full">
+                    <h1 class="text-4xl font-bold mb-4 text-center">🚗 رحلتي</h1>
 
-                        <!-- Gauges - Absolutely positioned around the camera view -->
-                        <div class="gauge-container absolute-pos top-8 left-8 glass-surface glass-surface--svg">
-                            <span class="speed-display" id="car-speed">120</span>
-                            <span class="gauge-label">كم/س</span>
+                    <!-- الخريطة -->
+                    <div id="trip-map" class="w-full h-64 rounded-lg shadow mb-4 glass-surface glass-surface--svg"></div>
+
+                    <!-- الإحصائيات -->
+                    <div class="grid grid-cols-2 gap-4 mb-4 text-center">
+                        <div class="trip-stat-card">
+                            <div class="text-sm text-white/70">المسافة المقطوعة</div>
+                            <div id="trip-distance" class="text-xl font-bold">0 كم</div>
                         </div>
-                        <div class="gauge-container absolute-pos top-8 right-8 glass-surface glass-surface--svg">
-                            <span class="rpm-display" id="car-rpm">2500</span>
-                            <span class="gauge-label">RPM</span>
+                        <div class="trip-stat-card">
+                            <div class="text-sm text-white/70">المدة</div>
+                            <div id="trip-duration" class="text-xl font-bold">0 دقيقة</div>
                         </div>
-                        <div class="gauge-container absolute-pos bottom-20 left-8 glass-surface glass-surface--svg">
-                            <i data-lucide="fuel" class="w-8 h-8 text-green-400"></i>
-                            <span class="gauge-label" id="car-fuel">75%</span>
+                    </div>
+
+                    <!-- زر بدء الرحلة -->
+                    <div class="flex justify-center gap-4 mb-4">
+                        <button onclick="startTrip()" class="trip-button">بدء الرحلة</button>
+                        <button onclick="endTrip()" class="trip-button bg-red-500">إنهاء الرحلة</button>
+                    </div>
+
+                    <!-- سجل الرحلات -->
+                    <h2 class="text-xl font-bold mt-6 mb-2">📋 سجل الرحلات</h2>
+                    <ul id="tripLog" class="list-disc pl-6 text-sm space-y-1 overflow-y-auto flex-grow rounded-lg p-2 glass-surface glass-surface--svg"></ul>
+                </section>
+
+                <!-- NEW Electronic Quran App Screen -->
+                <section id="screen-Quran" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full">
+                    <h1 class="text-4xl font-bold mb-6 text-center">📖 المصحف الإلكتروني</h1>
+                    <div class="w-full max-w-xl glass-surface glass-surface--svg p-4 rounded-xl flex flex-col items-center">
+                        <div class="quran-text mb-4 w-full">
+                            <p>بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</p>
+                            <p>الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ</p>
+                            <p>الرَّحْمَنِ الرَّحِيمِ</p>
+                            <p>مَالِكِ يَوْمِ الدِّينِ</p>
+                            <p>إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ</p>
+                            <p>اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ</p>
+                            <p>صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ</p>
                         </div>
-                        <div class="gauge-container absolute-pos bottom-20 right-8 glass-surface glass-surface--svg">
-                            <i data-lucide="thermometer" class="w-8 h-8 text-red-400"></i>
-                            <span class="gauge-label" id="car-temp">90°C</span>
+                        <div class="quran-controls">
+                            <audio id="quranAudio" src="https://www.islamweb.net/recitations/media/1335/001.mp3" preload="auto"></audio>
+                            <button id="playPauseQuran" class="quran-control-button">
+                                <i data-lucide="play" id="playPauseIcon"></i>
+                                <span>تشغيل</span>
+                            </button>
+                            <button class="quran-control-button">
+                                <i data-lucide="skip-forward"></i>
+                                <span>الآية التالية</span>
+                            </button>
                         </div>
-                        
-                        <!-- Gear Indicator at the bottom center -->
-                        <div class="glass-surface glass-surface--svg p-4 rounded-2xl flex items-center justify-center absolute bottom-4 w-32">
-                            <span class="gear-indicator" id="car-gear">P</span>
-                        </div>
+                        <p class="text-sm text-white/70 mt-4">مثال لسورة الفاتحة - ألوان التجويد محاكاة</p>
                     </div>
                 </section>
 
@@ -689,20 +855,20 @@
                             </select>
                         </div>
                         <div class="glass-surface glass-surface--svg p-4 rounded-xl flex flex-col">
-                            <label for="setting-car-speed" class="text-lg font-semibold mb-2">سرعة السيارة (كم/س): <span id="display-car-speed">120</span></label>
-                            <input type="range" id="setting-car-speed" min="0" max="200" value="120" class="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer">
+                            <label for="setting-car-speed" class="text-lg font-semibold mb-2">سرعة السيارة (كم/س): <span id="display-car-speed">--</span></label>
+                            <input type="range" id="setting-car-speed" min="0" max="200" value="0" class="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer">
                         </div>
                         <div class="glass-surface glass-surface--svg p-4 rounded-xl flex flex-col">
-                            <label for="setting-car-rpm" class="text-lg font-semibold mb-2">RPM المحرك: <span id="display-car-rpm">2500</span></label>
-                            <input type="range" id="setting-car-rpm" min="0" max="6000" step="100" value="2500" class="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer">
+                            <label for="setting-car-rpm" class="text-lg font-semibold mb-2">RPM المحرك: <span id="display-car-rpm">--</span></label>
+                            <input type="range" id="setting-car-rpm" min="0" max="6000" step="100" value="0" class="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer">
                         </div>
                         <div class="glass-surface glass-surface--svg p-4 rounded-xl flex flex-col">
-                            <label for="setting-car-fuel" class="text-lg font-semibold mb-2">مستوى الوقود (%): <span id="display-car-fuel">75</span></label>
-                            <input type="range" id="setting-car-fuel" min="0" max="100" value="75" class="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer">
+                            <label for="setting-car-fuel" class="text-lg font-semibold mb-2">مستوى الوقود (%): <span id="display-car-fuel">--</span></label>
+                            <input type="range" id="setting-car-fuel" min="0" max="100" value="0" class="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer">
                         </div>
                         <div class="glass-surface glass-surface--svg p-4 rounded-xl flex flex-col">
-                            <label for="setting-car-temp" class="text-lg font-semibold mb-2">درجة حرارة المحرك (°C): <span id="display-car-temp">90</span></label>
-                            <input type="range" id="setting-car-temp" min="50" max="120" value="90" class="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer">
+                            <label for="setting-car-temp" class="text-lg font-semibold mb-2">درجة حرارة المحرك (°C): <span id="display-car-temp">--</span></label>
+                            <input type="range" id="setting-car-temp" min="50" max="120" value="50" class="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer">
                         </div>
                         <div class="glass-surface glass-surface--svg p-4 rounded-xl flex flex-col">
                             <label for="setting-car-gear" class="text-lg font-semibold mb-2">الترس: <span id="display-car-gear">P</span></label>
@@ -721,7 +887,7 @@
                             <p class="text-red-300 text-xs">
                                 ملاحظة: الاتصال المباشر بـ ODB II غير مدعوم في بيئة المتصفح هذه.
                             </p>
-                            <button class="mt-4 bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-full transition-colors duration-200" onclick="console.log('ODB II Connect button clicked. Direct hardware connection not supported in this browser environment.'); alert('لا يمكن الاتصال بـ ODB II مباشرةً في بيئة المتصفح هذه لأسباب أمنية وتقنية.');">
+                            <button class="mt-4 bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-full transition-colors duration-200" onclick="console.log('ODB II Connect button clicked. Direct hardware connection not supported in this browser environment.'); showMessageBox('لا يمكن الاتصال بـ ODB II مباشرةً في بيئة المتصفح هذه لأسباب أمنية وتقنية.');">
                                 محاولة الاتصال بـ ODB II
                             </button>
                         </div>
@@ -732,7 +898,7 @@
         </div>
     </div>
 
-    <!-- Floating Full-Screen Button for Map -->
+    <!-- Floating Full-Screen Button -->
     <button id="floating-fullscreen-button" class="glass-surface glass-surface--svg rounded-full">
         <i data-lucide="maximize" class="w-6 h-6"></i>
         <span>ملء الشاشة</span>
@@ -749,19 +915,19 @@
             currentTime: '',
             mapLocation: { lat: 17.0151, lon: 54.0924, zoom: 12 }, // Default Salalah coordinates
             weather: {
-                temperature: '28°C',
-                description: 'غائم جزئياً',
-                humidity: '60%',
-                wind: '15 كم/س',
-                hourlyForecast: '100% طقس في الساعة',
-                lastUpdated: '11:00 ص',
+                temperature: null, // Changed to null
+                description: null, // Changed to null
+                humidity: null,    // Changed to null
+                wind: null,        // Changed to null
+                hourlyForecast: null, // Changed to null
+                lastUpdated: null, // Changed to null
                 icon: 'cloud-sun' // Default icon
             },
             car: {
-                speed: 120,
-                rpm: 2500,
-                fuel: 75,
-                temp: 90,
+                speed: null, // Changed to null
+                rpm: null,   // Changed to null
+                fuel: null,  // Changed to null
+                temp: null,  // Changed to null
                 gear: 'P'
             },
             settings: {
@@ -773,24 +939,24 @@
         };
 
         const timeElement = document.getElementById('current-time');
-        function updateTime() {
+        function updateTopBarTime() {
             const now = new Date();
             timeElement.textContent = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: false });
             appState.currentTime = timeElement.textContent; // Update state
         }
-        setInterval(updateTime, 1000);
-        updateTime();
+        setInterval(updateTopBarTime, 1000);
+        updateTopBarTime();
 
         const appButtons = document.querySelectorAll('button[data-app]');
         const appScreens = document.querySelectorAll('.app-screen');
         const sidebarIcons = document.querySelectorAll('.app-icon');
 
-        // YouTube specific elements
+        // YouTube specific elements (now in Media tab)
         const youtubePlaylistView = document.getElementById('youtube-playlist-view');
         const youtubePlayerView = document.getElementById('youtube-player-view');
         const youtubePlayerIframe = document.getElementById('youtube-player-iframe');
         const youtubeBackButton = document.getElementById('youtube-back-button');
-        let currentPlayingPlaylistId = '';
+        let currentPlayingPlaylistId = ''; // State to track if a video is playing
 
         function switchApp(appName) {
             appScreens.forEach(screen => screen.classList.remove('active'));
@@ -807,13 +973,34 @@
             const targetIcon = document.querySelector(`.app-icon[data-app="${appName}"]`);
             if (targetIcon) targetIcon.classList.add('active', 'bg-purple-600/80', 'scale-110');
 
-            // Handle YouTube view switching
-            if (appName === 'YouTube') {
-                youtubePlaylistView.classList.remove('hidden');
-                youtubePlaylistView.classList.add('flex', 'flex-col'); // Ensure flex display
-                youtubePlayerView.classList.add('hidden');
-                youtubePlayerView.classList.remove('flex', 'flex-col'); // Ensure flex display
-                youtubePlayerIframe.src = ''; // Clear iframe when going back to playlist view
+            // Handle Media (YouTube) view switching
+            if (appName === 'Media') {
+                if (currentPlayingPlaylistId) { // If a video was playing, stay in player view
+                    youtubePlaylistView.classList.add('hidden');
+                    youtubePlaylistView.classList.remove('flex', 'flex-col');
+                    youtubePlayerView.classList.remove('hidden');
+                    youtubePlayerView.classList.add('flex', 'flex-col');
+                    // Do NOT clear youtubePlayerIframe.src here, so video resumes
+                } else { // No video was playing, or it was explicitly closed, go to playlist view
+                    youtubePlaylistView.classList.remove('hidden');
+                    youtubePlaylistView.classList.add('flex', 'flex-col');
+                    youtubePlayerView.classList.add('hidden');
+                    youtubePlayerView.classList.remove('flex', 'flex-col');
+                    youtubePlayerIframe.src = ''; // Ensure iframe is clear if no video is to be resumed
+                }
+            } else if (appName === 'Trip') {
+                // Initialize Trip app components when it becomes active
+                initializeTripApp();
+            } else if (appName === 'Quran') {
+                // Initialize Quran app components when it becomes active
+                initializeQuranApp();
+            }
+            else {
+                // If switching away from Trip, clear any ongoing geolocation watch
+                if (watchId) {
+                    navigator.geolocation.clearWatch(watchId);
+                    watchId = null; // Reset watchId
+                }
             }
             updateUI(); // Update UI when switching apps to reflect latest state
         }
@@ -830,26 +1017,25 @@
             el.setAttribute('role', 'button');
         });
         
-        // YouTube playlist card click handler
+        // YouTube playlist card click handler (now in Media tab)
         document.querySelectorAll('.youtube-channel-card').forEach(card => {
             card.addEventListener('click', () => {
-                const id = card.dataset.playlistId; // Renamed from playlistId to id as it can be channel ID
+                const id = card.dataset.playlistId; 
                 if (id) {
-                    currentPlayingPlaylistId = id;
+                    currentPlayingPlaylistId = id; 
                     youtubePlaylistView.classList.add('hidden');
                     youtubePlaylistView.classList.remove('flex', 'flex-col');
                     youtubePlayerView.classList.remove('hidden');
                     youtubePlayerView.classList.add('flex', 'flex-col');
                     
                     let youtubeSrc = '';
-                    if (id.startsWith('UC')) { // Check if it's a channel ID
+                    if (id.startsWith('UC')) { 
                         youtubeSrc = `https://www.youtube.com/embed?listType=user_uploads&list=${id}&autoplay=1`;
-                    } else if (id.startsWith('PL')) { // Check if it's a playlist ID
+                    } else if (id.startsWith('PL')) { 
                         youtubeSrc = `https://www.youtube.com/embed/videoseries?list=${id}&autoplay=1`;
                     } else {
-                        // Fallback or error handling for invalid IDs
                         console.error('Invalid YouTube ID format:', id);
-                        alert('معرف يوتيوب غير صالح.');
+                        showMessageBox('معرف يوتيوب غير صالح.');
                         return;
                     }
                     youtubePlayerIframe.src = youtubeSrc;
@@ -857,13 +1043,14 @@
             });
         });
 
-        // YouTube back button handler
+        // YouTube back button handler (now in Media tab)
         youtubeBackButton.addEventListener('click', () => {
             youtubePlayerView.classList.add('hidden');
             youtubePlayerView.classList.remove('flex', 'flex-col');
             youtubePlaylistView.classList.remove('hidden');
             youtubePlaylistView.classList.add('flex', 'flex-col');
-            youtubePlayerIframe.src = ''; // Clear iframe
+            youtubePlayerIframe.src = ''; 
+            currentPlayingPlaylistId = ''; 
         });
 
 
@@ -959,15 +1146,15 @@
             // --- AI Customization for Car Screen (Simulated) ---
             const lowerCaseMessage = userMessageText.toLowerCase();
             if (lowerCaseMessage.includes('سرعة')) {
-                aiResponseText = `سرعة السيارة الحالية هي ${appState.car.speed} كم/س.`;
+                aiResponseText = `سرعة السيارة الحالية هي ${appState.car.speed !== null ? appState.car.speed : '--'} كم/س.`;
             } else if (lowerCaseMessage.includes('وقود') || lowerCaseMessage.includes('بنزين')) {
-                aiResponseText = `مستوى الوقود الحالي هو ${appState.car.fuel}%.`;
+                aiResponseText = `مستوى الوقود الحالي هو ${appState.car.fuel !== null ? appState.car.fuel : '--'}%.`;
             } else if (lowerCaseMessage.includes('rpm') || lowerCaseMessage.includes('دوران المحرك')) {
-                aiResponseText = `عدد دورات المحرك (RPM) هو ${appState.car.rpm}.`;
+                aiResponseText = `عدد دورات المحرك (RPM) هو ${appState.car.rpm !== null ? appState.car.rpm : '--'}.`;
             } else if (lowerCaseMessage.includes('حرارة') || lowerCaseMessage.includes('درجة حرارة المحرك')) {
-                aiResponseText = `درجة حرارة المحرك هي ${appState.car.temp}°C.`;
+                aiResponseText = `درجة حرارة المحرك هي ${appState.car.temp !== null ? appState.car.temp : '--'}°C.`;
             } else if (lowerCaseMessage.includes('ترس') || lowerCaseMessage.includes('غيار')) {
-                aiResponseText = `الترس الحالي هو ${appState.car.gear}.`;
+                aiResponseText = `الترس الحالي هو ${appState.car.gear !== null ? appState.car.gear : '--'}.`;
             } else {
                 // Original Gemini API call for general questions
                 try {
@@ -1023,23 +1210,21 @@
 
         // Declare variables globally but assign them inside DOMContentLoaded
         let dashboardMapIframe;
-        let mapIframeMain;
+        let mapIframeMain; // This will now be unused or repurposed if map is removed
         let getMyLocationButtonDashboard;
-        let floatingFullscreenButton;
+        let floatingFullscreenButton; 
         let carplayMainInterface;
 
-        // Function to update Google Maps source for both iframes (removed mode=traffic)
+        // Function to update Google Maps source for only dashboard iframe now
         function updateMapSrc() {
             const googleMapsSrc = `https://www.google.com/maps/embed/v1/view?key=${GOOGLE_MAPS_API_KEY}&center=${appState.mapLocation.lat},${appState.mapLocation.lon}&zoom=${appState.mapLocation.zoom}`;
             
-            console.log("Updating map src to:", googleMapsSrc); // Debugging log
+            console.log("Updating map src to:", googleMapsSrc); 
 
             if (dashboardMapIframe) {
                 dashboardMapIframe.src = googleMapsSrc;
             }
-            if (mapIframeMain) { 
-                mapIframeMain.src = googleMapsSrc;
-            }
+            // mapIframeMain is no longer used for a map
         }
 
         // Function to get user's current location (and alert about Google Maps embed limitations)
@@ -1049,67 +1234,141 @@
                     (position) => {
                         const userLatitude = position.coords.latitude;
                         const userLongitude = position.coords.longitude;
-                        console.log(`User location: ${userLatitude}, ${userLongitude}`);
-                        alert(`موقعك الحالي: Latitude ${userLatitude}, Longitude ${userLongitude}\n\nملاحظة: خرائط Google المضمنة قد لا تدعم تحديث الموقع ديناميكيًا أو عرض مسارك الخاص.`);
+                        showMessageBox(`موقعك الحالي: Latitude ${userLatitude}, Longitude ${userLongitude}\n\nملاحظة: خرائط Google المضمنة قد لا تدعم تحديث الموقع ديناميكيًا أو عرض مسارك الخاص.`);
                     },
                     (error) => {
                         console.error('Geolocation error:', error);
-                        alert('تعذر الحصول على موقعك الحالي. يرجى التأكد من منح الإذن للموقع.');
+                        let errorMessage = 'تعذر الحصول على موقعك الحالي.';
+                        switch (error.code) {
+                            case error.PERMISSION_DENIED:
+                                errorMessage += ' يرجى منح الإذن للموقع.';
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                errorMessage += ' معلومات الموقع غير متوفرة.';
+                                break;
+                            case error.TIMEOUT:
+                                errorMessage += ' انتهت مهلة طلب الموقع.';
+                                break;
+                                // Fallback for image alt attribute
+                                default:
+                                errorMessage += ' خطأ غير معروف.';
+                                break;
+                        }
+                        showMessageBox(errorMessage);
                     },
                     { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
                 );
             } else {
                 console.warn('Geolocation is not supported by this browser.');
-                alert('الموقع الجغرافي غير مدعوم في هذا المتصفح.');
+                showMessageBox('الموقع الجغرافي غير مدعوم في هذا المتصفح.');
             }
         }
+
+        // Custom message box function (replaces alert)
+        function showMessageBox(message) {
+            const messageBox = document.createElement('div');
+            messageBox.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+                z-index: 1000;
+                text-align: center;
+                max-width: 80%;
+                font-size: 1.1rem;
+            `;
+            messageBox.innerHTML = `
+                <p>${message}</p>
+                <button style="margin-top: 15px; padding: 8px 15px; background-color: #9333ea; border: none; border-radius: 5px; color: white; cursor: pointer;">
+                    إغلاق
+                </button>
+            `;
+            document.body.appendChild(messageBox);
+
+            messageBox.querySelector('button').addEventListener('click', () => {
+                document.body.removeChild(messageBox);
+            });
+        }
         
-        // Listen for fullscreen change events to update button text/icon
-        document.addEventListener('fullscreenchange', () => {
-            if (document.fullscreenElement) {
-                floatingFullscreenButton.innerHTML = '<i data-lucide="minimize" class="w-6 h-6"></i><span>تصغير الشاشة</span>';
-            } else {
-                floatingFullscreenButton.innerHTML = '<i data-lucide="maximize" class="w-6 h-6"></i><span>ملء الشاشة</span>';
+        // Function to handle pseudo-fullscreen toggle
+        function togglePseudoFullscreen() {
+            const mainInterface = document.getElementById('carplay-main-interface');
+            const topBar = document.querySelector('.top-bar');
+            const navBar = document.querySelector('nav'); 
+
+            let attemptedFullscreen = false;
+            try {
+                if (mainInterface.requestFullscreen) {
+                    mainInterface.requestFullscreen();
+                    attemptedFullscreen = true;
+                } else if (mainInterface.mozRequestFullScreen) { 
+                    mainInterface.mozRequestFullScreen();
+                    attemptedFullscreen = true;
+                } else if (mainInterface.webkitRequestFullscreen) { 
+                    mainInterface.webkitRequestFullscreen();
+                    attemptedFullscreen = true;
+                } else if (mainInterface.msRequestFullscreen) { 
+                    mainInterface.msRequestFullscreen();
+                    attemptedFullscreen = true;
+                }
+            } catch (error) {
+                console.error("Fullscreen API call failed:", error);
+                showMessageBox("لا يمكن تفعيل وضع ملء الشاشة على مستوى المتصفح بسبب قيود الأمان في هذه البيئة. سيتم تطبيق وضع ملء الشاشة الزائف بدلاً من ذلك.");
+                attemptedFullscreen = false; 
             }
-            lucide.createIcons(); // Re-render Lucide icons
-        });
-        document.addEventListener('mozfullscreenchange', () => { /* Firefox */
-            if (document.mozFullScreenElement) {
-                floatingFullscreenButton.innerHTML = '<i data-lucide="minimize" class="w-6 h-6"></i><span>تصغير الشاشة</span>';
+
+            if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+                const isFullscreen = mainInterface.classList.toggle('carplay-pseudo-fullscreen');
+
+                if (isFullscreen) {
+                    floatingFullscreenButton.innerHTML = '<i data-lucide="minimize" class="w-6 h-6"></i><span>تصغير الشاشة</span>';
+                    if (topBar) topBar.style.opacity = '0'; 
+                    // navBar opacity is no longer set to 0, so it remains visible
+                    document.body.style.overflow = 'hidden'; 
+                } else {
+                    floatingFullscreenButton.innerHTML = '<i data-lucide="maximize" class="w-6 h-6"></i><span>ملء الشاشة</span>';
+                    if (topBar) topBar.style.opacity = '1';
+                    // navBar opacity is no longer set to 0
+                    document.body.style.overflow = ''; 
+                }
             } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.mozCancelFullScreen) { 
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) { 
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) { 
+                    document.msExitFullscreen();
+                }
+                mainInterface.classList.remove('carplay-pseudo-fullscreen');
                 floatingFullscreenButton.innerHTML = '<i data-lucide="maximize" class="w-6 h-6"></i><span>ملء الشاشة</span>';
+                if (topBar) topBar.style.opacity = '1';
+                // navBar opacity is no longer set to 0
+                document.body.style.overflow = '';
             }
-            lucide.createIcons();
-        });
-        document.addEventListener('webkitfullscreenchange', () => { /* Chrome, Safari and Opera */
-            if (document.webkitFullscreenElement) {
-                floatingFullscreenButton.innerHTML = '<i data-lucide="minimize" class="w-6 h-6"></i><span>تصغير الشاشة</span>';
-            } else {
-                floatingFullscreenButton.innerHTML = '<i data-lucide="maximize" class="w-6 h-6"></i><span>ملء الشاشة</span>';
-            }
-            lucide.createIcons();
-        });
-        document.addEventListener('msfullscreenchange', () => { /* IE/Edge */
-            if (document.msFullscreenElement) {
-                floatingFullscreenButton.innerHTML = '<i data-lucide="minimize" class="w-6 h-6"></i><span>تصغير الشاشة</span>';
-            } else {
-                floatingFullscreenButton.innerHTML = '<i data-lucide="maximize" class="w-6 h-6"></i><span>ملء الشاشة</span>';
-            }
-            lucide.createIcons();
-        });
+            lucide.createIcons(); 
+        }
 
         // Function to simulate weather updates
         function simulateWeatherUpdate() {
-            const temps = ['26°C', '27°C', '28°C', '29°C', '30°C'];
+            const temps = ['26', '27', '28', '29', '30'];
             const descriptions = ['مشمس', 'غائم جزئياً', 'غائم', 'أمطار خفيفة'];
-            const humidity = ['55%', '60%', '65%', '70%'];
-            const winds = ['10 كم/س', '15 كم/س', '20 كم/س'];
+            const humidity = ['55', '60', '65', '70'];
+            const winds = ['10', '15', '20'];
+            const hourlyForecasts = ['100% طقس في الساعة', 'غائم جزئياً', 'فرصة أمطار'];
             const icons = ['sun', 'cloud-sun', 'cloud', 'cloud-rain'];
 
             appState.weather.temperature = temps[Math.floor(Math.random() * temps.length)];
             appState.weather.description = descriptions[Math.floor(Math.random() * descriptions.length)];
             appState.weather.humidity = humidity[Math.floor(Math.random() * humidity.length)];
             appState.weather.wind = winds[Math.floor(Math.random() * winds.length)];
+            appState.weather.hourlyForecast = hourlyForecasts[Math.floor(Math.random() * hourlyForecasts.length)];
             appState.weather.icon = icons[Math.floor(Math.random() * icons.length)];
             
             const now = new Date();
@@ -1123,41 +1382,34 @@
         // Function to update UI based on appState
         function updateUI() {
             // Update Dashboard Weather Widget
-            document.getElementById('dashboard-weather-temp').textContent = appState.weather.temperature;
-            document.getElementById('dashboard-weather-desc').textContent = appState.weather.description;
+            document.getElementById('dashboard-weather-temp').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature}°C` : '--°C';
+            document.getElementById('dashboard-weather-desc').textContent = appState.weather.description !== null ? appState.weather.description : '--';
             const dashboardWeatherIconElement = document.getElementById('dashboard-weather-icon');
             if (dashboardWeatherIconElement) {
                 dashboardWeatherIconElement.setAttribute('data-lucide', appState.weather.icon);
-                lucide.createIcons(); // Re-render Lucide icons
+                lucide.createIcons(); 
             }
 
 
             // Update Weather Tab
-            document.getElementById('weather-temp').textContent = appState.weather.temperature;
-            document.getElementById('weather-desc').textContent = appState.weather.description;
-            document.getElementById('weather-humidity').textContent = appState.weather.humidity;
-            document.getElementById('weather-wind').textContent = appState.weather.wind;
-            document.getElementById('weather-hourly').textContent = appState.weather.hourlyForecast;
-            document.getElementById('weather-last-updated').textContent = appState.weather.lastUpdated;
+            document.getElementById('weather-temp').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature}°C` : '--°C';
+            document.getElementById('weather-desc').textContent = appState.weather.description !== null ? appState.weather.description : '--';
+            document.getElementById('weather-humidity').textContent = appState.weather.humidity !== null ? `${appState.weather.humidity}%` : '--%';
+            document.getElementById('weather-wind').textContent = appState.weather.wind !== null ? `${appState.weather.wind} كم/س` : '-- كم/س';
+            document.getElementById('weather-hourly').textContent = appState.weather.hourlyForecast !== null ? appState.weather.hourlyForecast : '--';
+            document.getElementById('weather-last-updated').textContent = appState.weather.lastUpdated !== null ? appState.weather.lastUpdated : '--';
             const weatherIconElement = document.getElementById('weather-icon');
             if (weatherIconElement) {
                 weatherIconElement.setAttribute('data-lucide', appState.weather.icon);
-                lucide.createIcons(); // Re-render Lucide icons
+                lucide.createIcons(); 
             }
 
-            // Update Car Dashboard
-            document.getElementById('car-speed').textContent = appState.car.speed;
-            document.getElementById('car-rpm').textContent = appState.car.rpm;
-            document.getElementById('car-fuel').textContent = appState.car.fuel + '%';
-            document.getElementById('car-temp').textContent = appState.car.temp + '°C';
-            document.getElementById('car-gear').textContent = appState.car.gear;
-
             // Update Settings display values
-            document.getElementById('display-car-speed').textContent = appState.car.speed;
-            document.getElementById('display-car-rpm').textContent = appState.car.rpm;
-            document.getElementById('display-car-fuel').textContent = appState.car.fuel;
-            document.getElementById('display-car-temp').textContent = appState.car.temp;
-            document.getElementById('display-car-gear').textContent = appState.car.gear;
+            document.getElementById('display-car-speed').textContent = appState.car.speed !== null ? appState.car.speed : '--';
+            document.getElementById('display-car-rpm').textContent = appState.car.rpm !== null ? appState.car.rpm : '--';
+            document.getElementById('display-car-fuel').textContent = appState.car.fuel !== null ? appState.car.fuel : '--';
+            document.getElementById('display-car-temp').textContent = appState.car.temp !== null ? appState.car.temp : '--';
+            document.getElementById('display-car-gear').textContent = appState.car.gear !== null ? appState.car.gear : '--';
 
             // Apply font size
             document.documentElement.style.setProperty('--base-font-size', `${appState.settings.fontSize}px`);
@@ -1167,7 +1419,7 @@
             document.body.className = `text-white overflow-hidden ${appState.settings.backgroundTheme}`;
 
             // Update Map iframe source when UI updates, especially on app switch
-            updateMapSrc(); // Call the Google Maps specific update
+            updateMapSrc(); 
         }
 
         // Event listeners for Settings controls
@@ -1206,36 +1458,203 @@
             updateUI();
         });
 
+        // --- Trip App Specific JavaScript ---
+        let tripMap, tripPolyline, tripPath = [], tripStartTime;
+        let watchId = null; 
+
+        function initializeTripApp() {
+            if (!tripMap) {
+                tripMap = L.map('trip-map').setView([23.6, 58.5], 13); 
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap'
+                }).addTo(tripMap);
+                tripPolyline = L.polyline([], { color: '#8b5cf6', weight: 4 }).addTo(tripMap); 
+            }
+            if (tripMap) {
+                setTimeout(() => {
+                    tripMap.invalidateSize();
+                }, 100); 
+            }
+
+            renderTripLog(); 
+        }
+
+        function startTrip() {
+            if (watchId) {
+                return;
+            }
+
+            tripPath = [];
+            tripStartTime = new Date();
+            tripPolyline.setLatLngs([]); 
+            
+            document.getElementById('trip-distance').textContent = '0 كم';
+            document.getElementById('trip-duration').textContent = '0 دقيقة';
+
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(onPositionUpdate, (error) => {
+                    console.error('Geolocation error:', error);
+                    let errorMessage = 'تعذر الحصول على موقعك: ';
+                    switch (error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage += 'تم رفض إذن الموقع.';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage += 'الموقع غير متاح حاليًا.';
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage += 'انتهت مهلة الحصول على الموقع.';
+                            break;
+                        default:
+                            errorMessage += 'خطأ غير معروف.';
+                            break;
+                    }
+                    showMessageBox(errorMessage);
+                    endTrip(); 
+                }, {
+                    enableHighAccuracy: true,
+                    maximumAge: 0,
+                    timeout: 5000
+                });
+            } else {
+                showMessageBox('الموقع الجغرافي غير مدعوم في هذا المتصفح.');
+            }
+        }
+
+        function onPositionUpdate(pos) {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+
+            tripPath.push([lat, lng]);
+            
+            tripPolyline.setLatLngs(tripPath);
+            tripMap.setView([lat, lng], 15);
+            updateTripDistance();
+        }
+
+        function endTrip() {
+            if (watchId) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+                const durationMin = Math.round((new Date() - tripStartTime) / 60000);
+                const dist = calculateTripDistance(tripPath).toFixed(2);
+                document.getElementById('trip-duration').textContent = `${durationMin} دقيقة`;
+                document.getElementById('trip-distance').textContent = `${dist} كم`;
+
+                saveTripToLog(dist, durationMin);
+            } else {
+            }
+        }
+
+        function updateTripDistance() {
+            const dist = calculateTripDistance(tripPath).toFixed(2);
+            document.getElementById('trip-distance').textContent = `${dist} كم`;
+        }
+
+        function calculateTripDistance(path) {
+            let total = 0;
+            for (let i = 1; i < path.length; i++) {
+                total += tripMap.distance(path[i - 1], path[i]) / 1000;
+            }
+            return total;
+        }
+
+        function saveTripToLog(dist, duration) {
+            const log = JSON.parse(localStorage.getItem('tripLog') || '[]');
+            const trip = {
+                date: new Date().toLocaleString('en-US'),
+                distance: dist,
+                duration: duration
+            };
+            log.push(trip);
+            localStorage.setItem('tripLog', JSON.stringify(log));
+            renderTripLog();
+        }
+
+        function renderTripLog() {
+            const log = JSON.parse(localStorage.getItem('tripLog') || '[]');
+            const list = document.getElementById('tripLog');
+            list.innerHTML = '';
+            [...log].reverse().forEach(trip => {
+                const li = document.createElement('li');
+                li.classList.add('trip-log-item');
+                li.innerHTML = `
+                    <i class="fas fa-calendar-alt text-blue-300"></i> <span>${trip.date}</span>
+                    <i class="fas fa-road text-green-300"></i> <span>${trip.distance} كم</span>
+                    <i class="fas fa-clock text-purple-300"></i> <span>${trip.duration} دقيقة</span>
+                `;
+                list.appendChild(li);
+            });
+        }
+        // --- End Trip App Specific JavaScript ---
+
+        // --- Electronic Quran App Specific JavaScript ---
+        let quranAudio;
+        let playPauseButton;
+        let playPauseIcon;
+        let playPauseText;
+
+        function initializeQuranApp() {
+            quranAudio = document.getElementById('quranAudio');
+            playPauseButton = document.getElementById('playPauseQuran');
+            playPauseIcon = document.getElementById('playPauseIcon');
+            playPauseText = document.getElementById('playPauseText');
+
+            if (playPauseButton) {
+                playPauseButton.onclick = togglePlayPause;
+            }
+        }
+
+        function togglePlayPause() {
+            if (quranAudio.paused) {
+                quranAudio.play();
+                playPauseIcon.setAttribute('data-lucide', 'pause');
+                playPauseText.textContent = 'إيقاف مؤقت';
+            } else {
+                quranAudio.pause();
+                playPauseIcon.setAttribute('data-lucide', 'play');
+                playPauseText.textContent = 'تشغيل';
+            }
+            lucide.createIcons(); // Re-render icon
+        }
+        // --- End Electronic Quran App Specific JavaScript ---
+
+        // --- Digital Clock JavaScript (Apple iOS 19 style) ---
+        function updateDigitalClock() {
+            const now = new Date();
+            // Use 'en-US' locale for English numbers
+            const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+            const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+
+            const digitalTimeElement = document.getElementById('digital-time');
+            const digitalDateElement = document.getElementById('digital-date');
+
+            if (digitalTimeElement) {
+                digitalTimeElement.textContent = now.toLocaleTimeString('en-US', timeOptions);
+            }
+            if (digitalDateElement) {
+                digitalDateElement.textContent = now.toLocaleDateString('en-US', dateOptions);
+            }
+        }
+        // --- End Digital Clock JavaScript ---
+
+
         // Initial UI update after all elements are loaded
         document.addEventListener('DOMContentLoaded', () => {
-            // Assign element references here
             dashboardMapIframe = document.getElementById('dashboard-map-iframe');
-            mapIframeMain = document.getElementById('map-iframe-main');
+            // mapIframeMain is no longer needed as YouTube content replaces the map tab
             getMyLocationButtonDashboard = document.getElementById('get-my-location-button-dashboard');
-            floatingFullscreenButton = document.getElementById('floating-fullscreen-button');
+            floatingFullscreenButton = document.getElementById('floating-fullscreen-button'); 
             carplayMainInterface = document.getElementById('carplay-main-interface');
 
-            // Attach event listeners that depend on these elements
             getMyLocationButtonDashboard.addEventListener('click', () => getMyLocation('dashboard'));
-            floatingFullscreenButton.addEventListener('click', () => {
-                if (document.fullscreenElement) {
-                    document.exitFullscreen();
-                } else {
-                    if (carplayMainInterface.requestFullscreen) {
-                        carplayMainInterface.requestFullscreen();
-                    } else if (carplayMainInterface.mozRequestFullScreen) { /* Firefox */
-                        carplayMainInterface.mozRequestFullScreen();
-                    } else if (carplayMainInterface.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
-                        carplayMainInterface.webkitRequestFullscreen();
-                    } else if (carplayMainInterface.msRequestFullscreen) { /* IE/Edge */
-                        carplayMainInterface.msRequestFullscreen();
-                    }
-                }
-            });
+            floatingFullscreenButton.addEventListener('click', togglePseudoFullscreen); 
 
             updateUI();
-            simulateWeatherUpdate(); // Initial weather update on load
-            switchApp('Dashboard'); // Initial app switch moved here
+            simulateWeatherUpdate(); 
+            switchApp('Dashboard'); 
+            setInterval(updateDigitalClock, 1000); // Start digital clock animation
+            updateDigitalClock(); // Initial call to set time correctly
         });
 
     </script>
