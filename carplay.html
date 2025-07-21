@@ -208,6 +208,13 @@
             top: 1rem; /* Adjusted from 4rem */
         }
 
+        /* Adjusted margins and height for carplay-main-interface */
+        #carplay-main-interface {
+            margin-top: 4rem; /* Increased top margin */
+            margin-bottom: 4rem; /* Increased bottom margin */
+            height: calc(100vh - 8rem); /* Calculate height to fit between margins */
+        }
+
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
@@ -451,7 +458,7 @@
             <div id="current-time">9:35</div>
         </div>
 
-        <div id="carplay-main-interface" class="w-full max-w-7xl flex shadow-2xl rounded-3xl overflow-hidden bg-black/20 border border-white/10 h-full max-h-full">
+        <div id="carplay-main-interface" class="w-full max-w-7xl flex shadow-2xl rounded-3xl overflow-hidden bg-black/20 border border-white/10">
             
             <nav class="w-20 sm:w-24 bg-black/20 flex flex-col items-center justify-start pt-8 p-2 space-y-4 border-r border-white/10 flex-shrink-0">
                 <button data-app="Dashboard" class="app-icon active">
