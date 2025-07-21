@@ -544,8 +544,8 @@
                 <section id="screen-YouTube" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full">
                     <div id="youtube-playlist-view" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full h-full">
                         <h1 class="col-span-full text-4xl font-bold mb-6 text-center">قوائم تشغيل يوتيوب</h1>
-                        <div class="glass-surface glass-surface--svg youtube-channel-card" data-playlist-id="UClncV9OLPto_MinRzGfjr2g">
-                            <img src="https://imgs.search.brave.com/BLtbXcoyaU4KgvAT2QQBfN5d967SbHLOJmYn94gNy8o/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pLnNj/ZG4uY28vaW1hZ2Uv/YWI2NzYxNmQwMDAw/YjI3M2I4OTk1NDFi/NDc3MTU3OGFlYjNl/OTQyMQ" alt="Yasser Al-Dosari Icon" />
+                        <div class="glass-surface glass-surface--svg youtube-channel-card" data-playlist-id="PL3VVK-N0NdgwP0knrPau0W8riMyCmO1l5">
+                            <img src="https://imgs.search.brave.com/BLtbXcoyaU4KgvAT2QQBfN5d967SbHLOJmYn94gNy8o/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pLnNj/ZG4uY28vaW1hZ2Uv/YWI2NzYxNmQwMDAw/YjI3M2I4OTk1NDFi/NDc3MTU3OGFlYjNl/OTQyMQ" alt="" />
                             <h2>تلاوات ياسر الدوسري</h2>
                         </div>
 
@@ -833,14 +833,26 @@
         // YouTube playlist card click handler
         document.querySelectorAll('.youtube-channel-card').forEach(card => {
             card.addEventListener('click', () => {
-                const playlistId = card.dataset.playlistId;
-                if (playlistId) {
-                    currentPlayingPlaylistId = playlistId;
+                const id = card.dataset.playlistId; // Renamed from playlistId to id as it can be channel ID
+                if (id) {
+                    currentPlayingPlaylistId = id;
                     youtubePlaylistView.classList.add('hidden');
                     youtubePlaylistView.classList.remove('flex', 'flex-col');
                     youtubePlayerView.classList.remove('hidden');
                     youtubePlayerView.classList.add('flex', 'flex-col');
-                    youtubePlayerIframe.src = `https://www.youtube.com/embed/videoseries?list=${currentPlayingPlaylistId}&autoplay=1`;
+                    
+                    let youtubeSrc = '';
+                    if (id.startsWith('UC')) { // Check if it's a channel ID
+                        youtubeSrc = `https://www.youtube.com/embed?listType=user_uploads&list=${id}&autoplay=1`;
+                    } else if (id.startsWith('PL')) { // Check if it's a playlist ID
+                        youtubeSrc = `https://www.youtube.com/embed/videoseries?list=${id}&autoplay=1`;
+                    } else {
+                        // Fallback or error handling for invalid IDs
+                        console.error('Invalid YouTube ID format:', id);
+                        alert('معرف يوتيوب غير صالح.');
+                        return;
+                    }
+                    youtubePlayerIframe.src = youtubeSrc;
                 }
             });
         });
