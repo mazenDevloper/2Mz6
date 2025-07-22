@@ -209,7 +209,7 @@
             color: white;
             padding: 1rem 1.5rem;
             border-radius: 9999px; /* Pill shape */
-            display: flex;
+            display: flex; /* Always display */
             align-items: center;
             gap: 0.5rem;
             font-weight: bold;
@@ -221,10 +221,63 @@
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             /* Ensure it's hidden by default and shown only when needed by JS */
-            display: none; /* Changed from block to none for default visibility */
+            /* Removed display: none; from here */
         }
         #back-to-playlists-bottom-button:hover {
             transform: translateX(-50%) scale(1.05);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        /* NEW: Floating button for "Back to Video" - Adjusted position */
+        #floating-back-to-video-button {
+            position: fixed;
+            bottom: 1rem;
+            right: 8rem; /* Adjusted right position to make space for new button */
+            background-color: rgba(67, 56, 202, 0.8); /* Indigo glass */
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 9999px; /* Pill shape */
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            z-index: 100; /* Same as fullscreen button */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: none; /* Hidden by default */
+        }
+        #floating-back-to-video-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        /* NEW: Floating Media Button */
+        #floating-media-button {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem; /* Positioned on the right, next to back-to-video */
+            background-color: rgba(255, 0, 0, 0.8); /* YouTube Red */
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 9999px; /* Pill shape */
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        #floating-media-button:hover {
+            transform: scale(1.05);
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
         }
 
@@ -345,33 +398,41 @@
             color: white;
         }
 
-        /* New video card styling */
-        .youtube-video-card {
+        /* New video card styling (LIST VIEW) */
+        .youtube-video-card, .youtube-search-card {
             cursor: pointer;
             display: flex;
+            flex-direction: row; /* Ensure horizontal layout for list */
             align-items: center;
             padding: 0.75rem;
             border-radius: 0.75rem;
             background-color: rgba(255, 255, 255, 0.05);
             transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+            width: 100%; /* Take full width in list */
         }
-        .youtube-video-card:hover {
+        .youtube-video-card:hover, .youtube-search-card:hover {
             background-color: rgba(255, 255, 255, 0.1);
             transform: translateY(-2px);
         }
-        .youtube-video-card img {
-            width: 80px;
-            height: 45px; /* 16:9 aspect ratio */
+        .youtube-video-card img, .youtube-search-card img {
+            width: 120px; /* Larger thumbnail for list view */
+            height: 67.5px; /* 16:9 aspect ratio */
             object-fit: cover;
             border-radius: 0.5rem;
             margin-right: 0.75rem;
+            flex-shrink: 0; /* Prevent image from shrinking */
         }
-        .youtube-video-card h3 {
-            font-size: 0.9rem;
+        .youtube-video-card h3, .youtube-search-card h3 {
+            font-size: 1rem; /* Slightly larger font for list */
             font-weight: 500;
             color: white;
             line-height: 1.3;
             flex-grow: 1;
+            overflow: hidden; /* Hide overflow text */
+            text-overflow: ellipsis; /* Add ellipsis for long titles */
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* Limit to 2 lines */
+            -webkit-box-orient: vertical;
         }
 
 
@@ -628,13 +689,17 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
             font-size: 1.25rem; /* Adjusted for larger font */
             color: rgba(255, 255, 255, 0.7);
         }
-
+button#back-to-playlists-bottom-button-search {
+    position: fixed;
+    bottom: 1rem;
+}
         /* Trip Main Content Wrapper Styles - NEW */
         .trip-main-content-wrapper {
             flex-direction: row; /* Always row as per request */
             width: 88%; /* Requested width */
             margin-left: auto; /* Center the div */
             margin-right: auto; /* Center the div */
+            flex-wrap: wrap; /* Allow content to wrap on smaller screens */
         }
 
         /* Weather section content to take full width and height */
@@ -767,11 +832,29 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                 </section>
 
                
-                <section id="screen-Media" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full">
+                <section id="screen-Media" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full relative"> <!-- Added relative for absolute positioning of Quran section -->
                     <h1 class="text-4xl font-bold mb-6 text-center">🎥 الوسائط المتعددة</h1>
-                    <!-- UPDATED: Grid columns to make cards 50% smaller -->
-                    <div id="youtube-playlist-view" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 w-full h-full">
-                        <h1 class="col-span-full text-4xl font-bold mb-6 text-center">قوائم تشغيل يوتيوب</h1>
+                    
+                    <!-- YouTube Search Input -->
+                    <div class="w-full flex gap-2 mb-6">
+                        <input
+                            type="text"
+                            id="youtube-search-input"
+                            placeholder="ابحث في يوتيوب..."
+                            class="flex-grow p-3 rounded-full bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            onkeypress="if(event.key === 'Enter') document.getElementById('youtube-search-button').click();"
+                        />
+                        <button
+                            id="youtube-search-button"
+                            class="bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center"
+                        >
+                            <i data-lucide="search"></i>
+                        </button>
+                    </div>
+
+                    <!-- YouTube Playlist View -->
+                    <div id="youtube-playlist-view" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 w-full h-full flex-grow overflow-y-auto"> <!-- Added flex-grow and overflow-y-auto -->
+                        <h2 class="col-span-full text-3xl font-bold mb-4 text-center">قوائم تشغيل يوتيوب</h2>
                         <div class="glass-surface glass-surface--svg youtube-channel-card" data-playlist-id="PLKcMYf5ZQsR06u4g0zXXS-Cv9WR9F8tCG">
                             <img src="https://imgs.search.brave.com/BLtbXcoyaU4KgvAT2QQBfN5d967SbHLOJmYn94gNy8o/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pLnNj/ZG4uY28vaW1hZ2Uv/YWI2NzYxNmQwMDAw/YjI3M2I4OTk1NDFi/NDc3MTU3OGFlYjNl/OTQyMQ" alt="صورة الشيخ ياسر الدوسري" />
                             <h2>تلاوات ياسر الدوسري</h2>
@@ -791,12 +874,12 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                     </div>
 
                     <!-- New: YouTube Video List View -->
-                    <div id="youtube-video-list-view" class="hidden flex-col items-center justify-center h-full w-full relative p-4 overflow-y-auto gap-4">
+                    <div id="youtube-video-list-view" class="hidden flex-col items-center justify-center h-full w-full relative p-4 overflow-y-auto gap-4 flex-grow">
                         <button id="back-to-playlists-from-videos" class="absolute top-4 left-4 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm">
                             <i data-lucide="arrow-left" class="w-4 h-4"></i> العودة لقوائم التشغيل
                         </button>
                         <h2 class="text-3xl font-bold mb-4 text-center w-full">فيديوهات قائمة التشغيل</h2>
-                        <div id="video-list-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full">
+                        <div id="video-list-container" class="flex flex-col gap-4 w-full"> <!-- Changed to flex flex-col -->
                             <!-- Videos will be dynamically loaded here -->
                         </div>
                         <!-- NEW: Bottom "Back to Playlists" Button -->
@@ -805,7 +888,20 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                         </button>
                     </div>
 
-                    <div id="youtube-player-view" class="hidden flex-col items-center justify-center h-full w-full relative">
+                    <!-- New: YouTube Search Results View -->
+                    <div id="youtube-search-results-view" class="hidden flex-col items-center justify-center h-full w-full relative p-4 overflow-y-auto gap-4 flex-grow">
+                        <!-- Removed back-to-media-home-from-search button -->
+                        <h2 class="text-3xl font-bold mb-4 text-center w-full">نتائج البحث</h2>
+                        <div id="search-results-container" class="flex flex-col gap-4 w-full"> <!-- Changed to flex flex-col -->
+                            <!-- Search results will be dynamically loaded here -->
+                        </div>
+                        <!-- NEW: Bottom "Back to Playlists" Button for search results -->
+                        <button id="back-to-playlists-bottom-button-search" class="mt-4 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-full transition-colors duration-200 flex items-center justify-center gap-2 text-base">
+                            <i data-lucide="arrow-left" class="w-5 h-5"></i> العودة إلى قوائم التشغيل الرئيسية
+                        </button>
+                    </div>
+
+                    <div id="youtube-player-view" class="hidden flex-col items-center justify-center h-full w-full relative flex-grow">
                         <iframe
                             id="youtube-player-iframe"
                             class="full-iframe"
@@ -938,8 +1034,8 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                 </section>
 
                 <!-- NEW Electronic Quran App Screen - MODIFIED -->
-                <section id="screen-Quran" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full">
-                    <!-- Removed H1 tag as per request -->
+                <section id="screen-Quran" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full relative">
+                    <h1 class="text-4xl font-bold mb-4 text-center">القرآن الكريم <i data-lucide="book-open"></i></h1>
                     <div class="w-full h-full glass-surface glass-surface--svg p-4 rounded-xl flex flex-col items-center flex-grow">
                         <iframe
                             id="quran-iframe"
@@ -950,7 +1046,31 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                             allowfullscreen
                         ></iframe>
                     </div>
-                    <!-- Removed the note paragraph as per request -->
+                    <!-- NEW: Quran Quick Access Section (Moved here) -->
+                    <div id="quran-quick-access" class="mt-4 bg-black/30 p-4 rounded-xl flex flex-col gap-3 items-end z-20 glass-surface glass-surface--svg w-full max-w-md">
+                        <h3 class="text-lg font-bold text-white self-center">الوصول السريع للقرآن</h3>
+                        <div class="flex flex-col gap-2 w-full">
+                            <label for="quran-surah-select" class="text-sm text-white/70">اختر سورة:</label>
+                            <select id="quran-surah-select" class="w-full p-2 rounded-md bg-white/10 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <!-- Surahs will be populated by JS -->
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-2 w-full">
+                            <label for="quran-reader-select" class="text-sm text-white/70">اختر قارئ (تجريبي):</label>
+                            <select id="quran-reader-select" class="w-full p-2 rounded-md bg-white/10 text-white/70 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="default">لا يوجد قارئ محدد (quran.com)</option>
+                                <option value="mishary">مشاري العفاسي</option>
+                                <option value="abdulbasit">عبد الباسط عبد الصمد</option>
+                                <option value="sudais">عبد الرحمن السديس</option>
+                            </select>
+                            <p class="text-xs text-white/50">
+                                *اختيار القارئ قد لا يعمل بشكل مباشر مع quran.com بسبب قيود المطورين.
+                            </p>
+                        </div>
+                        <button id="quran-go-button" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm self-center">
+                            <i data-lucide="book-open" class="w-4 h-4"></i> الذهاب للسورة
+                        </button>
+                    </div>
                 </section>
 
                  <section id="screen-Settings" class="app-screen p-8 flex-col h-full">
@@ -987,7 +1107,7 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                         </div>
                         <div class="glass-surface glass-surface--svg p-4 rounded-xl flex flex-col">
                             <label for="setting-car-gear" class="text-lg font-semibold mb-2">الترس: <span id="display-car-gear">P</span></label>
-                            <select id="setting-car-gear" class="w-full p-2 rounded-md bg-white/10 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <select id="setting-car-gear" class="w-full p-2 rounded-md bg-white/10 text-white focus:outline-none focus:ring-2 focus:focus:ring-purple-500">
                                 <option value="P">P</option>
                                 <option value="R">R</option>
                                 <option value="N">N</option>
@@ -1017,6 +1137,18 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
     <button id="floating-fullscreen-button" class="glass-surface glass-surface--svg rounded-full">
         <i data-lucide="maximize" class="w-6 h-6"></i>
         <span>ملء الشاشة</span>
+    </button>
+
+    <!-- NEW: Floating Back to Video Button -->
+    <button id="floating-back-to-video-button" class="glass-surface glass-surface--svg rounded-full">
+        <i data-lucide="play-circle" class="w-6 h-6"></i>
+        <span>العودة للفيديو</span>
+    </button>
+
+    <!-- NEW: Floating Media Button -->
+    <button id="floating-media-button" class="glass-surface glass-surface--svg rounded-full">
+        <i data-lucide="youtube" class="w-6 h-6"></i>
+        
     </button>
 
     <script>
@@ -1074,16 +1206,36 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
         const sidebarIcons = document.querySelectorAll('.app-icon');
 
         // YouTube specific elements (now in Media tab)
+        const youtubeSearchInput = document.getElementById('youtube-search-input');
+        const youtubeSearchButton = document.getElementById('youtube-search-button');
         const youtubePlaylistView = document.getElementById('youtube-playlist-view');
         const youtubeVideoListView = document.getElementById('youtube-video-list-view'); 
         const videoListContainer = document.getElementById('video-list-container'); 
+        const youtubeSearchResultsView = document.getElementById('youtube-search-results-view'); // NEW search results view
+        const searchResultsContainer = document.getElementById('search-results-container'); // NEW search results container
         const youtubePlayerView = document.getElementById('youtube-player-view');
         const youtubePlayerIframe = document.getElementById('youtube-player-iframe');
         const backToPlaylistsFromVideosButton = document.getElementById('back-to-playlists-from-videos'); 
         const backToPlaylistsBottomButton = document.getElementById('back-to-playlists-bottom-button'); // NEW: Bottom button
+        const backToPlaylistsBottomButtonSearch = document.getElementById('back-to-playlists-bottom-button-search'); // NEW: Bottom button for search results
         const backToVideosButton = document.getElementById('back-to-videos'); 
+        // const backToMediaHomeFromSearchButton = document.getElementById('back-to-media-home-from-search'); // REMOVED back button for search results
+
+        // Quran Quick Access elements (MOVED TO QURAN TAB)
+        const quranQuickAccess = document.getElementById('quran-quick-access');
+        const quranSurahSelect = document.getElementById('quran-surah-select');
+        const quranReaderSelect = document.getElementById('quran-reader-select');
+        const quranGoButton = document.getElementById('quran-go-button'); // Renamed from goToQuranTabButton
+        const quranIframe = document.getElementById('quran-iframe');
+
+        // NEW: Floating Back to Video Button
+        const floatingBackToVideoButton = document.getElementById('floating-back-to-video-button');
+        // NEW: Floating Media Button
+        const floatingMediaButton = document.getElementById('floating-media-button');
+
+
         let currentPlayingPlaylistId = ''; // State to track if a playlist was selected
-        let activeMediaView = 'playlist'; // 'playlist', 'videoList', 'player'
+        let activeMediaView = 'playlist'; // 'playlist', 'videoList', 'player', 'searchResults'
         let currentPlayingVideoId = ''; // Store the ID of the currently playing video
 
         function switchApp(appName) {
@@ -1103,29 +1255,58 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
 
             // Handle Media (YouTube) view switching
             if (appName === 'Media') {
-                // Always reset to playlist view and stop any playing video when navigating to Media tab
-                youtubePlaylistView.classList.remove('hidden');
-                youtubePlaylistView.classList.add('flex', 'flex-col');
+                // Always show backToPlaylistsBottomButton when in Media tab
+                backToPlaylistsBottomButton.style.display = 'flex';
+                backToPlaylistsBottomButtonSearch.style.display = 'flex'; // Also show the search results specific button
+                floatingMediaButton.style.display = 'none'; // Hide media button when already in media tab
+
+                // Determine which view to show based on activeMediaView state
+                youtubePlaylistView.classList.add('hidden');
                 youtubeVideoListView.classList.add('hidden');
-                youtubeVideoListView.classList.remove('flex', 'flex-col');
+                youtubeSearchResultsView.classList.add('hidden'); 
                 youtubePlayerView.classList.add('hidden');
+
+                youtubePlaylistView.classList.remove('flex', 'flex-col');
+                youtubeVideoListView.classList.remove('flex', 'flex-col');
+                youtubeSearchResultsView.classList.remove('flex', 'flex-col'); 
                 youtubePlayerView.classList.remove('flex', 'flex-col');
-                youtubePlayerIframe.src = ''; // Stop video playback
-                currentPlayingPlaylistId = ''; // Clear selected playlist
-                currentPlayingVideoId = ''; // Clear playing video
-                activeMediaView = 'playlist'; // Ensure state is correct
-                backToPlaylistsBottomButton.style.display = 'none'; // Hide floating button
-            } else if (appName === 'Trip') { // Handle Trip app activation
-                initializeTripApp(); // Ensure map is initialized and sized when Trip tab is active
-            }
-            else {
-                // If switching away from Media tab, ensure the floating button is hidden
+
+                if (activeMediaView === 'player' && currentPlayingVideoId) {
+                    youtubePlayerView.classList.remove('hidden');
+                    youtubePlayerView.classList.add('flex', 'flex-col');
+                    // Hide the bottom buttons when player is active
+                    backToPlaylistsBottomButton.style.display = 'none'; 
+                    backToPlaylistsBottomButtonSearch.style.display = 'none';
+                } else if (activeMediaView === 'videoList' && currentPlayingPlaylistId) {
+                    youtubeVideoListView.classList.remove('hidden');
+                    youtubeVideoListView.classList.add('flex', 'flex-col');
+                    backToPlaylistsBottomButtonSearch.style.display = 'none'; // Only show playlist button
+                } else if (activeMediaView === 'searchResults') { 
+                    youtubeSearchResultsView.classList.remove('hidden');
+                    youtubeSearchResultsView.classList.add('flex', 'flex-col');
+                    backToPlaylistsBottomButton.style.display = 'none'; // Only show search button
+                }
+                else { // Default to playlist view
+                    youtubePlaylistView.classList.remove('hidden');
+                    youtubePlaylistView.classList.add('flex', 'flex-col');
+                    backToPlaylistsBottomButton.style.display = 'none'; // Hide general button on main playlist view
+                    backToPlaylistsBottomButtonSearch.style.display = 'none'; // Hide search button on main playlist view
+                }
+                // Do NOT clear youtubePlayerIframe.src here to allow continuous playback
+                quranQuickAccess.style.display = 'none'; // Hide Quran Quick Access from Media tab
+                updateFloatingBackToVideoButtonVisibility(); // Update visibility based on video state
+            } else {
+                // If switching away from Media tab, ensure the floating buttons are hidden
                 backToPlaylistsBottomButton.style.display = 'none';
+                backToPlaylistsBottomButtonSearch.style.display = 'none';
+                floatingMediaButton.style.display = 'flex'; // Show media button when not in media tab
                 // If switching away from Trip, clear any ongoing geolocation watch
                 if (watchId) {
                     navigator.geolocation.clearWatch(watchId);
                     watchId = null; // Reset watchId
                 }
+                quranQuickAccess.style.display = 'none'; // Hide Quran Quick Access
+                updateFloatingBackToVideoButtonVisibility(); // Update visibility based on video state
             }
             updateUI(); // Update UI when switching apps to reflect latest state
         }
@@ -1151,6 +1332,7 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                     fetchPlaylistVideos(playlistId);
                     activeMediaView = 'videoList'; // Update state
                     backToPlaylistsBottomButton.style.display = 'flex'; // Show floating button
+                    backToPlaylistsBottomButtonSearch.style.display = 'none'; // Hide search button
                 }
             });
         });
@@ -1191,20 +1373,26 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                     youtubeVideoListView.classList.add('flex', 'flex-col');
                     youtubePlayerView.classList.add('hidden'); // Ensure player is hidden
                     youtubePlayerView.classList.remove('flex', 'flex-col');
+                    youtubeSearchResultsView.classList.add('hidden'); // Hide search results
+                    youtubeSearchResultsView.classList.remove('flex', 'flex-col');
 
                     if (updateActiveView) {
                         activeMediaView = 'videoList'; // Update state only if explicitly requested
                     }
                     backToPlaylistsBottomButton.style.display = 'flex'; // Show floating button
+                    backToPlaylistsBottomButtonSearch.style.display = 'none'; // Hide search button
+                    updateFloatingBackToVideoButtonVisibility(); // Update visibility based on video state
                 } else {
                     showMessageBox('لم يتم العثور على فيديوهات في قائمة التشغيل هذه.');
                     console.warn('No videos found for playlist:', playlistId, data);
-                    backToPlaylistsBottomButton.style.display = 'none'; // Hide floating button on error/no videos
+                    // backToPlaylistsBottomButton.style.display = 'none'; // Keep button visible as per new requirement
+                    updateFloatingBackToVideoButtonVisibility(); // Update visibility based on video state
                 }
             } catch (error) {
                 console.error('Error fetching YouTube playlist videos:', error);
                 showMessageBox('حدث خطأ أثناء جلب فيديوهات قائمة التشغيل.');
-                backToPlaylistsBottomButton.style.display = 'none'; // Hide floating button on error
+                // backToPlaylistsBottomButton.style.display = 'none'; // Keep button visible as per new requirement
+                updateFloatingBackToVideoButtonVisibility(); // Update visibility based on video state
             }
         }
 
@@ -1217,38 +1405,126 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
             currentPlayingVideoId = videoId; // Store the currently playing video ID
             youtubeVideoListView.classList.add('hidden');
             youtubeVideoListView.classList.remove('flex', 'flex-col');
+            youtubeSearchResultsView.classList.add('hidden'); // Hide search results
+            youtubeSearchResultsView.classList.remove('flex', 'flex-col');
             youtubePlayerView.classList.remove('hidden');
             youtubePlayerView.classList.add('flex', 'flex-col');
             activeMediaView = 'player'; // Update state
             backToPlaylistsBottomButton.style.display = 'none'; // Hide floating button when player is active
+            backToPlaylistsBottomButtonSearch.style.display = 'none'; // Hide search button when player is active
+            updateFloatingBackToVideoButtonVisibility(); // Update visibility based on video state
         }
 
-        // YouTube back button handler (from player to video list)
+        // YouTube back button handler (from player to video list/search results)
         backToVideosButton.addEventListener('click', () => {
-            youtubePlayerIframe.src = ''; // Stop video playback
+            // Do NOT clear youtubePlayerIframe.src here to allow continuous playback
             youtubePlayerView.classList.add('hidden');
             youtubePlayerView.classList.remove('flex', 'flex-col');
-            youtubeVideoListView.classList.remove('hidden');
-            youtubeVideoListView.classList.add('flex', 'flex-col');
-            activeMediaView = 'videoList'; // Update state
-            backToPlaylistsBottomButton.style.display = 'flex'; // Show floating button
+            
+            if (activeMediaView === 'player' && currentPlayingPlaylistId) { // If playing from playlist
+                youtubeVideoListView.classList.remove('hidden');
+                youtubeVideoListView.classList.add('flex', 'flex-col');
+                activeMediaView = 'videoList';
+                backToPlaylistsBottomButton.style.display = 'flex';
+                backToPlaylistsBottomButtonSearch.style.display = 'none';
+            } else if (activeMediaView === 'player' && youtubeSearchInput.value.trim() !== '') { // If playing from search
+                youtubeSearchResultsView.classList.remove('hidden');
+                youtubeSearchResultsView.classList.add('flex', 'flex-col');
+                activeMediaView = 'searchResults';
+                backToPlaylistsBottomButton.style.display = 'none'; // Hide general button
+                backToPlaylistsBottomButtonSearch.style.display = 'flex'; // Show search results button
+            } else { // Fallback to playlist view if no specific source
+                youtubePlaylistView.classList.remove('hidden');
+                youtubePlaylistView.classList.add('flex', 'flex-col');
+                activeMediaView = 'playlist';
+                backToPlaylistsBottomButton.style.display = 'none';
+                backToPlaylistsBottomButtonSearch.style.display = 'none';
+            }
+            updateFloatingBackToVideoButtonVisibility(); // Update visibility based on video state
         });
 
-        // YouTube back button handler (from video list to playlists)
+        // YouTube back button handler (from video list or search results to playlists)
         function navigateBackToPlaylists() {
             youtubeVideoListView.classList.add('hidden');
             youtubeVideoListView.classList.remove('flex', 'flex-col');
+            youtubeSearchResultsView.classList.add('hidden'); // Hide search results
+            youtubeSearchResultsView.classList.remove('flex', 'flex-col');
+
             youtubePlaylistView.classList.remove('hidden');
             youtubePlaylistView.classList.add('flex', 'flex-col');
+            
             currentPlayingPlaylistId = ''; // Reset selected playlist
-            currentPlayingVideoId = ''; // Reset playing video
-            youtubePlayerIframe.src = ''; // Ensure player is stopped
+            // Do NOT clear currentPlayingVideoId or youtubePlayerIframe.src
             activeMediaView = 'playlist'; // Update state
-            backToPlaylistsBottomButton.style.display = 'none'; // Hide floating button
+            backToPlaylistsBottomButton.style.display = 'none'; // Hide general button
+            backToPlaylistsBottomButtonSearch.style.display = 'none'; // Hide search button
+            updateFloatingBackToVideoButtonVisibility(); // Update visibility based on video state
         }
 
         backToPlaylistsFromVideosButton.addEventListener('click', navigateBackToPlaylists);
         backToPlaylistsBottomButton.addEventListener('click', navigateBackToPlaylists); // Event listener for the new bottom button
+        backToPlaylistsBottomButtonSearch.addEventListener('click', navigateBackToPlaylists); // Event listener for the new search bottom button
+
+        // NEW: YouTube Search Functionality
+        youtubeSearchButton.addEventListener('click', () => {
+            const query = youtubeSearchInput.value.trim();
+            if (query) {
+                searchYouTubeVideos(query);
+            } else {
+                showMessageBox('الرجاء إدخال كلمة للبحث.');
+            }
+        });
+
+        async function searchYouTubeVideos(query) {
+            const apiUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&key=${YOUTUBE_API_KEY}&maxResults=20`;
+
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (data.items && data.items.length > 0) {
+                    searchResultsContainer.innerHTML = ''; // Clear previous search results
+                    data.items.forEach(item => {
+                        const videoId = item.id.videoId;
+                        const title = item.snippet.title;
+                        const thumbnailUrl = item.snippet.thumbnails.medium ? item.snippet.thumbnails.medium.url : 'https://placehold.co/120x90/000000/FFFFFF?text=No+Thumbnail';
+
+                        const videoCard = document.createElement('div');
+                        videoCard.classList.add('glass-surface', 'glass-surface--svg', 'youtube-search-card'); // Use new class
+                        videoCard.dataset.videoId = videoId;
+                        videoCard.innerHTML = `
+                            <img src="${thumbnailUrl}" alt="${title}" onerror="this.onerror=null;this.src='https://placehold.co/120x90/000000/FFFFFF?text=No+Thumbnail';" />
+                            <h3>${title}</h3>
+                        `;
+                        videoCard.addEventListener('click', () => playVideo(videoId));
+                        searchResultsContainer.appendChild(videoCard);
+                    });
+
+                    youtubePlaylistView.classList.add('hidden');
+                    youtubePlaylistView.classList.remove('flex', 'flex-col');
+                    youtubeVideoListView.classList.add('hidden');
+                    youtubeVideoListView.classList.remove('flex', 'flex-col');
+                    youtubePlayerView.classList.add('hidden');
+                    youtubePlayerView.classList.remove('flex', 'flex-col');
+                    youtubeSearchResultsView.classList.remove('hidden'); // Show search results view
+                    youtubeSearchResultsView.classList.add('flex', 'flex-col');
+                    activeMediaView = 'searchResults'; // Update state
+                    backToPlaylistsBottomButton.style.display = 'none'; // Hide general button
+                    backToPlaylistsBottomButtonSearch.style.display = 'flex'; // Show search results button
+                    updateFloatingBackToVideoButtonVisibility(); // Update visibility based on video state
+                } else {
+                    showMessageBox('لم يتم العثور على نتائج بحث لـ: ' + query);
+                    searchResultsContainer.innerHTML = '<p class="text-center text-white/70 col-span-full">لا توجد نتائج بحث.</p>';
+                    // backToPlaylistsBottomButton.style.display = 'none'; // Keep visible as per new requirement
+                    // backToPlaylistsBottomButtonSearch.style.display = 'none'; // Keep visible as per new requirement
+                }
+            } catch (error) {
+                console.error('Error searching YouTube videos:', error);
+                showMessageBox('حدث خطأ أثناء البحث في يوتيوب.');
+                // backToPlaylistsBottomButton.style.display = 'none'; // Keep visible as per new requirement
+                // backToPlaylistsBottomButtonSearch.style.display = 'none'; // Keep visible as per new requirement
+            }
+        }
 
 
         const chatHistoryDiv = document.getElementById('chat-history');
@@ -1311,14 +1587,16 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
             if (synth) {
                 const voices = synth.getVoices();
                 arabicVoice = voices.find(voice => voice.lang.startsWith('ar'));
-                if (!arabicVoice) {
-                    console.warn('Arabic voice not found, falling back to default.');
+                if (arabicVoice) {
+                    console.log('Arabic voice found:', arabicVoice.name);
+                } else {
+                    console.warn('Arabic voice not found. Speech synthesis for Arabic may use a default or not work as expected.');
                 }
             }
         }
         if (synth) {
             synth.onvoiceschanged = setArabicVoice;
-            setArabicVoice();
+            setArabicVoice(); // Call initially in case voices are already loaded
         }
 
         async function sendAIAssistantMessage() {
@@ -1358,9 +1636,15 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                     let chatHistory = [];
                     chatHistory.push({ role: "user", parts: [{ text: userMessageText }] });
                     const payload = { contents: chatHistory };
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${AI_ASSISTANT_API_KEY}`; 
+                    const apiKey = AI_ASSISTANT_API_KEY; // Use the provided API key
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`; 
 
-                    const response = await fetch(apiUrl);
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
                     const result = await response.json();
 
                     if (result.candidates && result.candidates.length > 0 &&
@@ -1368,11 +1652,12 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                         result.candidates[0].content.parts.length > 0) {
                         aiResponseText = result.candidates[0].content.parts[0].text;
                     } else {
-                        aiResponseText = 'عذرًا، حدث خطأ أثناء معالجة طلبك من Gemini.';
+                        aiResponseText = 'عذرًا، حدث خطأ أثناء معالجة طلبك من Gemini. (استجابة غير متوقعة)';
+                        console.error('Unexpected Gemini API response structure:', result);
                     }
                 } catch (error) {
                     console.error('Error calling Gemini API:', error);
-                    aiResponseText = 'عذرًا، حدث خطأ في الاتصال بالذكاء الاصطناعي.';
+                    aiResponseText = 'عذرًا، حدث خطأ في الاتصال بالذكاء الاصطناعي. يرجى التحقق من اتصالك بالإنترنت أو مفتاح API.';
                 }
             }
 
@@ -1389,9 +1674,8 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                 const utterance = new SpeechSynthesisUtterance(aiResponseText);
                 if (arabicVoice) {
                     utterance.voice = arabicVoice;
-                } else {
-                    utterance.lang = 'ar-SA';
                 }
+                utterance.lang = 'ar-SA'; // Always set the language, even if a specific voice is chosen.
                 synth.speak(utterance);
             }
             chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
@@ -1653,6 +1937,29 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                     attribution: '© OpenStreetMap'
                 }).addTo(tripMap);
                 tripPolyline = L.polyline([], { color: '#8b5cf6', weight: 4 }).addTo(tripMap); 
+
+                // Event listener for successful location
+                tripMap.on('locationfound', function(e) {
+                    const lat = e.latlng.lat;
+                    const lng = e.latlng.lng;
+                    tripMap.setView([lat, lng], e.zoom); // Set map view to found location and zoom
+                    
+                    // Update appState.mapLocation with the found coordinates
+                    appState.mapLocation.lat = lat;
+                    appState.mapLocation.lon = lng;
+                    appState.mapLocation.zoom = e.zoom;
+
+                    // Start the trip automatically after location is found
+                    if (!watchId) { // Only start if not already tracking
+                        startTrip();
+                    }
+                });
+
+                // Event listener for location error
+                tripMap.on('locationerror', function(e) {
+                    console.error('Leaflet Geolocation Error:', e.message);
+                    showMessageBox(`تعذر تحديد موقعك على الخريطة: ${e.message}.`);
+                });
             }
             // Invalidate size every time the tab is opened to ensure it renders correctly
             if (tripMap) {
@@ -1670,7 +1977,7 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
 
         function startTrip() {
             if (watchId) {
-                return;
+                return; // Trip already started
             }
 
             tripPath = [];
@@ -1795,13 +2102,47 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
         // --- End Trip App Specific JavaScript ---
 
         // --- Electronic Quran App Specific JavaScript ---
-        // Removed previous Quran audio and text logic as it's now an iframe
-        // The iframe will handle its own content and playback
-        // Keeping initializeQuranApp for potential future use if custom controls are needed for the iframe
-        function initializeQuranApp() {
-            // No direct audio or play/pause buttons for the embedded iframe
-            // If quran.com offers an API for control, it would be implemented here.
+        // Populating Surah dropdown
+        const surahNames = [
+            "الفاتحة", "البقرة", "آل عمران", "النساء", "المائدة", "الأنعام", "الأعراف", "الأنفال", "التوبة", "يونس",
+            "هود", "يوسف", "الرعد", "إبراهيم", "الحجر", "النحل", "الإسراء", "الكهف", "مريم", "طه",
+            "الأنبياء", "الحج", "المؤمنون", "النور", "الفرقان", "الشعراء", "النمل", "القصص", "العنكبوت", "الروم",
+            "لقمان", "السجدة", "الأحزاب", "سبأ", "فاطر", "يس", "الصافات", "ص", "الزمر", "غافر",
+            "فصلت", "الشورى", "الزخرف", "الدخان", "الجاثية", "الأحقاف", "محمد", "الفتح", "الحجرات", "ق",
+            "الذاريات", "الطور", "النجم", "القمر", "الرحمن", "الواقعة", "الحديد", "المجادلة", "الحشر", "الممتحنة",
+            "الصف", "الجمعة", "المنافقون", "التغابن", "الطلاق", "التحريم", "الملك", "القلم", "الحاقة", "المعارج",
+            "نوح", "الجن", "المزمل", "المدثر", "القيامة", "الإنسان", "المرسلات", "النبأ", "النازعات", "عبس",
+            "التكوير", "الانفطار", "المطففين", "الانشقاق", "البروج", "الطارق", "الأعلى", "الغاشية", "الفجر", "البلد",
+            "الشمس", "الليل", "الضحى", "الشرح", "التين", "العلق", "القدر", "البينة", "الزلزلة", "العاديات",
+            "القارعة", "التكاثر", "العصر", "الهمزة", "الفيل", "قريش", "الماعون", "الكوثر", "الكافرون", "النصر",
+            "المسد", "الإخلاص", "الفلق", "الناس"
+        ];
+
+        function populateSurahSelect() {
+            quranSurahSelect.innerHTML = '<option value="">اختر سورة...</option>';
+            surahNames.forEach((name, index) => {
+                const option = document.createElement('option');
+                option.value = index + 1; // Surah numbers start from 1
+                option.textContent = `${index + 1}. ${name}`;
+                quranSurahSelect.appendChild(option);
+            });
         }
+
+        // Event listener for "Go to Surah" button in Quran tab
+        quranGoButton.addEventListener('click', () => {
+            const selectedSurah = quranSurahSelect.value;
+            // const selectedReader = quranReaderSelect.value; // Not directly used for quran.com navigation
+
+            if (selectedSurah) {
+                // Attempt to navigate quran.com iframe to the selected surah
+                // quran.com supports direct links to surahs like https://quran.com/1
+                quranIframe.src = `https://quran.com/${selectedSurah}`;
+                showMessageBox(`جارٍ الانتقال إلى سورة ${surahNames[selectedSurah - 1]} في القرآن الكريم.`);
+            } else {
+                showMessageBox('الرجاء اختيار سورة أولاً.');
+            }
+        });
+
         // --- End Electronic Quran App Specific JavaScript ---
 
         // --- Digital Clock JavaScript (Apple iOS 19 style) ---
@@ -1823,6 +2164,45 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
         }
         // --- End Digital Clock JavaScript ---
 
+        // NEW: Function to update visibility of floatingBackToVideoButton
+        function updateFloatingBackToVideoButtonVisibility() {
+            // Get the currently active app screen
+            const activeScreen = document.querySelector('.app-screen.active');
+            const activeAppName = activeScreen ? activeScreen.id.replace('screen-', '') : '';
+
+            // Show button only if a video is playing AND the current view is NOT the player view within Media tab
+            if (currentPlayingVideoId && !(activeAppName === 'Media' && activeMediaView === 'player')) {
+                floatingBackToVideoButton.style.display = 'flex';
+            } else {
+                floatingBackToVideoButton.style.display = 'none';
+            }
+        }
+
+        // NEW: Event listener for floatingBackToVideoButton
+        floatingBackToVideoButton.addEventListener('click', () => {
+            if (currentPlayingVideoId) {
+                switchApp('Media'); // Switch to Media tab
+                // Ensure the player view is active and the video is loaded/playing
+                youtubePlaylistView.classList.add('hidden');
+                youtubeVideoListView.classList.add('hidden');
+                youtubeSearchResultsView.classList.add('hidden');
+                youtubePlayerView.classList.remove('hidden');
+                youtubePlayerView.classList.add('flex', 'flex-col');
+                // The iframe src should already be set if the video was playing
+                // If for some reason it's not, set it again:
+                if (!youtubePlayerIframe.src.includes(currentPlayingVideoId)) {
+                    youtubePlayerIframe.src = `https://www.youtube.com/embed/${currentPlayingVideoId}?autoplay=1`;
+                }
+                activeMediaView = 'player'; // Update state
+                floatingBackToVideoButton.style.display = 'none'; // Hide button once back in player
+            }
+        });
+
+        // NEW: Event listener for floatingMediaButton
+        floatingMediaButton.addEventListener('click', () => {
+            switchApp('Media'); // Simply switch to the Media tab
+        });
+
 
         // Initial UI update after all elements are loaded
         document.addEventListener('DOMContentLoaded', () => {
@@ -1841,7 +2221,11 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
             setInterval(fetchWeatherData, 300000); // Update weather every 5 minutes (300,000 ms)
             setInterval(updateDigitalClock, 1000); 
             updateDigitalClock(); 
+            
+            // Set initial app to Dashboard and update button visibility
             switchApp('Dashboard'); 
+            populateSurahSelect(); // Populate Surah dropdown on load
+            updateFloatingBackToVideoButtonVisibility(); // Initial check for floating back button
         });
 
     </script>
