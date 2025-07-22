@@ -380,7 +380,8 @@
             margin-bottom: 1rem;
             overflow: hidden; /* Ensure content stays within bounds */
         }
-    
+    #digital-time {
+    font-size: 2.2rem!important;}
         /* Settings Range Input Styling */
         input[type="range"] {
             -webkit-appearance: none;
@@ -498,6 +499,8 @@
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
         }
 
+        /* Rolex Watch Styles - REMOVED */
+
 /* Changed from row-reverse to row for LTR */
 .flex-grow.flex.flex-col.lg\:flex-row.gap-4.md\:gap-6.h-full.dashboard-main-grid {
     flex-direction: row;
@@ -507,6 +510,14 @@
 img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
     height: 262px!important;
 }
+
+        /* Specific positions for hour markers - REMOVED */
+
+
+        /* Watch hands - REMOVED */
+
+
+        /* Center pin - REMOVED */
 
         /* Custom CSS to override Tailwind for specific dashboard columns */
         /* Column 1 (Car Info) */
@@ -519,7 +530,7 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
             width: 27%;
         }
 
-        /* Column 2 (Map/YouTube Toggle) */
+        /* Column 2 (Map) */
         .dashboard-col-50-percent {
             width: 50%;
         }
@@ -537,40 +548,8 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
             margin-bottom: 0.5rem; /* Reduced margin */
         }
         #digital-date {
-            font-size: 0.9rem; /* Approx 20% smaller than 1.25rem (xl) and slightly smaller than previous */
+            font-size: 1rem; /* Approx 20% smaller than 1.25rem (xl) */
             color: rgba(255, 255, 255, 0.7);
-        }
-        #digital-time .seconds {
-            color: rgba(255, 255, 255, 0.5); /* 50% transparency for seconds */
-        }
-        #digital-time .minutes {
-            color: rgba(255, 255, 255, 0.7); /* 70% transparency for minutes */
-        }
-
-
-        /* Styles for the toggle switch */
-        .toggle-switch-container {
-            display: flex;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 9999px; /* Pill shape */
-            padding: 0.25rem;
-            margin-bottom: 1rem;
-            width: fit-content;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .toggle-switch-button {
-            padding: 0.5rem 1rem;
-            border-radius: 9999px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            color: rgba(255, 255, 255, 0.7);
-        }
-        .toggle-switch-button.active {
-            background-color: rgba(147, 51, 234, 0.8); /* Purple */
-            color: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
     </style>
 </head>
@@ -662,26 +641,12 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                             </div>
                         </div>
 
-                        <!-- Middle Column (Col 2): Map/YouTube Toggle (50%) -->
-                        <div class="flex-grow h-full rounded-3xl relative overflow-hidden flex flex-col items-center justify-center glass-surface glass-surface--svg p-1 dashboard-col-50-percent">
-                            <!-- Toggle Switch -->
-                            <div class="toggle-switch-container">
-                                <button id="dashboard-map-toggle-button" class="toggle-switch-button active">الخريطة</button>
-                                <button id="dashboard-youtube-toggle-button" class="toggle-switch-button">يوتيوب</button>
-                            </div>
-
-                            <!-- Map Container -->
-                            <div id="trip-map-dashboard-container" class="w-full h-full flex items-center justify-center relative">
-                                <div id="trip-map-dashboard" class="w-full h-full rounded-lg"></div>
-                                <button id="get-my-location-button-dashboard" class="absolute bottom-4 left-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm">
-                                    <i data-lucide="map-pin" class="w-4 h-4"></i> موقعي الحالي
-                                </button>
-                            </div>
-
-                            <!-- YouTube Player Container (initially hidden) -->
-                            <div id="youtube-player-dashboard-container" class="w-full h-full hidden relative rounded-lg overflow-hidden">
-                                <!-- The global YouTube iframe will be appended here dynamically -->
-                            </div>
+                        <!-- Middle Column (Col 2): Main Map (50%) -->
+                        <div class="flex-grow h-full rounded-3xl relative overflow-hidden flex items-center justify-center glass-surface glass-surface--svg p-1 dashboard-col-50-percent">
+                            <iframe id="dashboard-map-iframe" class="full-iframe" src="https://www.google.com/maps/embed/v1/view?key=AIzaSyCDWFDGIkq7Cu0dv8AL_q1YFEUIWlZdaP4&center=17.0151,54.0924&zoom=12" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                            <button id="get-my-location-button-dashboard" class="absolute bottom-4 left-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm">
+                                <i data-lucide="map-pin" class="w-4 h-4"></i> موقعي الحالي
+                            </button>
                         </div>
 
                         <!-- Right Column (Col 3): Weather + Digital Clock (27%) -->
@@ -699,9 +664,7 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                             <!-- Digital Clock Widget (Apple iOS 19 style) -->
                             <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center">
                                 <div id="digital-clock-widget" class="w-full h-full flex flex-col items-center justify-center text-center">
-                                    <div id="digital-time">
-                                        <span class="hours">00</span>:<span class="minutes">00</span>:<span class="seconds">00</span>
-                                    </div>
+                                    <div id="digital-time">00:00:00</div>
                                     <div id="digital-date">Saturday, July 20</div>
                                 </div>
                             </div>
@@ -714,30 +677,38 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                 <section id="screen-Media" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full">
                     <h1 class="text-4xl font-bold mb-6 text-center">🎥 الوسائط المتعددة</h1>
                     <!-- UPDATED: Grid columns to make cards 50% smaller -->
-                    <div id="youtube-playlist-view" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 w-full h-full flex flex-col">
+                    <div id="youtube-playlist-view" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 w-full h-full">
                         <h1 class="col-span-full text-4xl font-bold mb-6 text-center">قوائم تشغيل يوتيوب</h1>
                         <div class="glass-surface glass-surface--svg youtube-channel-card" data-playlist-id="PLKcMYf5ZQsR06u4g0zXXS-Cv9WR9F8tCG">
-                            <img src="https://imgs.search.brave.com/BLtbXcoyaU4KgvAT2QQBfN5d967SbHLOJmYn94gNy8o/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pLnNj/ZG4uY28vaW1hZ2Uv/YWI2NzYxNmQwMDAw/YjI3M2I4OTk1NDFi/NDc3MTU3OGFlYjNl/OTQyMQ" alt="صورة الشيخ ياسر الدوسري">
+                            <img src="https://imgs.search.brave.com/BLtbXcoyaU4KgvAT2QQBfN5d967SbHLOJmYn94gNy8o/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pLnNj/ZG4uY28vaW1hZ2Uv/YWI2NzYxNmQwMDAw/YjI3M2I4OTk1NDFi/NDc3MTU3OGFlYjNl/OTQyMQ" alt="صورة الشيخ ياسر الدوسري" />
                             <h2>تلاوات ياسر الدوسري</h2>
                         </div>
 
                        
                         <div class="glass-surface glass-surface--svg youtube-channel-card" data-playlist-id="PLInscG3tWdy5-ZfhrEnPdBSNYOYeKHHnm">
-                            <img src="https://imgs.search.brave.com/-WtPBvI7AmvUdQ2X1oZpk6wlNV-PlUSktoA9JVVQL3o/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9zdGF0/aWMuc3VyYXRtcDMu/Y29tL3BpY3MvcmVj/aXRlcnMvdGh1bWJz/LzM3XzE2MF8xNjAu/anBn" alt="صورة الشيخ محمد أيوب">
+                            <img src="https://imgs.search.brave.com/-WtPBvI7AmvUdQ2X1oZpk6wlNV-PlUSktoA9JVVQL3o/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9zdGF0/aWMuc3VyYXRtcDMu/Y29tL3BpY3MvcmVj/aXRlcnMvdGh1bWJz/LzM3XzE2MF8xNjAu/anBn" alt="صورة الشيخ محمد أيوب" />
                             <h2>محمد ايوب</h2>
                         </div>
 
                        
                         <div class="glass-surface glass-surface--svg youtube-channel-card" data-playlist-id="PL_vt78Wjpa8SS8MqM9e0T4VeB1-zuWs1I">
-                            <img src="https://www.shorouknews.com/uploadedimages/Other/original/%D9%85%D8%B2%D8%A7%D9%85%D9%8A%D8%B1%20%D8%A7%D9%84%D9%82%D8%B1%D8%A2%D9%86.jpg" alt="صورة مزامير القرآن">
+                            <img src="https://www.shorouknews.com/uploadedimages/Other/original/%D9%85%D8%B2%D8%A7%D9%85%D9%8A%D8%B1%20%D8%A7%D9%84%D9%82%D8%B1%D8%A2%D9%86.jpg" alt="صورة مزامير القرآن" />
                             <h2>مزامير القران</h2>
                         </div>
                     </div>
 
-                    <div id="youtube-player-media-container" class="hidden flex-col items-center justify-center h-full w-full relative">
-                        <!-- The global YouTube iframe will be appended here dynamically -->
+                    <div id="youtube-player-view" class="hidden flex-col items-center justify-center h-full w-full relative">
+                        <iframe
+                            id="youtube-player-iframe"
+                            class="full-iframe"
+                            src="" 
+                            title="YouTube video player"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen
+                        ></iframe>
                         <button id="youtube-back-button" class="absolute bottom-4 left-4 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="arrow-left" class="lucide lucide-arrow-left w-4 h-4"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg> العودة
+                            <i data-lucide="arrow-left" class="w-4 h-4"></i> العودة
                         </button>
                     </div>
                 </section>
@@ -925,23 +896,6 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
 
             </main>
         </div>
-
-        <!-- Global YouTube Player View (now a sibling to carplay-main-interface, positioned fixed or absolute by JS) -->
-        <!-- This container holds the actual iframe and back button, and its parent will be changed dynamically -->
-        <div id="global-youtube-player-view" class="hidden flex-col items-center justify-center absolute z-20 bg-black/80 rounded-3xl p-4">
-            <iframe
-                id="youtube-player-iframe"
-                class="full-iframe"
-                src="" 
-                title="YouTube video player"
-                frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen
-            ></iframe>
-            <button id="youtube-back-button" class="absolute bottom-4 left-4 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm">
-                <i data-lucide="arrow-left" class="w-4 h-4"></i> العودة
-            </button>
-        </div>
     </div>
 
     <!-- Floating Full-Screen Button -->
@@ -959,21 +913,21 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
         // Global App State
         let appState = {
             currentTime: '',
-            mapLocation: { lat: 17.0151, lon: 54.0924, zoom: 13 }, // Default Salalah coordinates, adjusted zoom
+            mapLocation: { lat: 17.0151, lon: 54.0924, zoom: 12 }, // Default Salalah coordinates
             weather: {
-                temperature: null, 
-                description: null, 
-                humidity: null,    
-                wind: null,        
-                hourlyForecast: null, 
-                lastUpdated: null, 
-                icon: 'cloud-sun' 
+                temperature: null, // Changed to null
+                description: null, // Changed to null
+                humidity: null,    // Changed to null
+                wind: null,        // Changed to null
+                hourlyForecast: null, // Changed to null
+                lastUpdated: null, // Changed to null
+                icon: 'cloud-sun' // Default icon
             },
             car: {
-                speed: null, 
-                rpm: null,   
-                fuel: null,  
-                temp: null,  
+                speed: null, // Changed to null
+                rpm: null,   // Changed to null
+                fuel: null,  // Changed to null
+                temp: null,  // Changed to null
                 gear: 'P'
             },
             settings: {
@@ -981,8 +935,7 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                 backgroundTheme: 'theme-gradient-1',
                 enableLiveWeather: false, 
                 carSpeedUnit: 'km/h'
-            },
-            dashboardView: 'map' // 'map' or 'youtube'
+            }
         };
 
         const timeElement = document.getElementById('current-time');
@@ -998,22 +951,12 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
         const appScreens = document.querySelectorAll('.app-screen');
         const sidebarIcons = document.querySelectorAll('.app-icon');
 
-        // YouTube specific elements (now globally accessible)
-        const youtubePlaylistView = document.getElementById('youtube-playlist-view'); // This is inside screen-Media
-        const globalYoutubePlayerView = document.getElementById('global-youtube-player-view'); // This is now global
-        const youtubePlayerIframe = document.getElementById('youtube-player-iframe'); // This is now global
-        const youtubeBackButton = document.getElementById('youtube-back-button'); // This is inside globalYoutubePlayerView
-        const youtubePlayerMediaContainer = document.getElementById('youtube-player-media-container'); // Container in Media tab
+        // YouTube specific elements (now in Media tab)
+        const youtubePlaylistView = document.getElementById('youtube-playlist-view');
+        const youtubePlayerView = document.getElementById('youtube-player-view');
+        const youtubePlayerIframe = document.getElementById('youtube-player-iframe');
+        const youtubeBackButton = document.getElementById('youtube-back-button');
         let currentPlayingPlaylistId = ''; // State to track if a video is playing
-
-        // Dashboard specific elements for toggle
-        const dashboardMapToggleBtn = document.getElementById('dashboard-map-toggle-button');
-        const dashboardYoutubeToggleBtn = document.getElementById('dashboard-youtube-toggle-button');
-        const tripMapDashboardContainer = document.getElementById('trip-map-dashboard-container');
-        const youtubePlayerDashboardContainer = document.getElementById('youtube-player-dashboard-container');
-
-        // Reference to the main CarPlay interface container
-        let carplayMainInterface;
 
         function switchApp(appName) {
             appScreens.forEach(screen => screen.classList.remove('active'));
@@ -1030,114 +973,36 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
             const targetIcon = document.querySelector(`.app-icon[data-app="${appName}"]`);
             if (targetIcon) targetIcon.classList.add('active', 'bg-purple-600/80', 'scale-110');
 
-            // Handle global YouTube player visibility and parenting
+            // Handle Media (YouTube) view switching
             if (appName === 'Media') {
-                if (currentPlayingPlaylistId) {
+                if (currentPlayingPlaylistId) { // If a video was playing, stay in player view
                     youtubePlaylistView.classList.add('hidden');
-                    youtubePlayerMediaContainer.classList.remove('hidden');
-                    youtubePlayerMediaContainer.classList.add('flex');
-                    
-                    // Move global player into Media container
-                    youtubePlayerMediaContainer.appendChild(globalYoutubePlayerView);
-                    globalYoutubePlayerView.classList.remove('hidden');
-                    globalYoutubePlayerView.classList.add('flex');
-                    // Reset its position/size for Media tab full-screen state within its container
-                    globalYoutubePlayerView.style.position = 'relative'; // Relative to its new parent
-                    globalYoutubePlayerView.style.top = '0';
-                    globalYoutubePlayerView.style.left = '0';
-                    globalYoutubePlayerView.style.width = '100%';
-                    globalYoutubePlayerView.style.height = '100%';
-                    globalYoutubePlayerView.style.borderRadius = '0';
-                    globalYoutubePlayerView.style.padding = '0';
-                    globalYoutubePlayerView.style.backgroundColor = 'transparent'; // No dark overlay here
-                    youtubeBackButton.style.display = 'flex'; // Show back button
-                    
-                    // Re-assign src to ensure it loads/plays if it was interrupted or not loaded yet
-                    if (youtubePlayerIframe.src === '' || !youtubePlayerIframe.src.includes(currentPlayingPlaylistId)) {
-                        let youtubeSrc = '';
-                        if (currentPlayingPlaylistId.startsWith('UC')) { 
-                            youtubeSrc = `https://www.youtube.com/embed?listType=user_uploads&list=${currentPlayingPlaylistId}&autoplay=1`;
-                        } else if (currentPlayingPlaylistId.startsWith('PL')) { 
-                            youtubeSrc = `https://www.youtube.com/embed/videoseries?list=${currentPlayingPlaylistId}&autoplay=1`;
-                        }
-                        youtubePlayerIframe.src = youtubeSrc;
-                    }
-                } else {
+                    youtubePlaylistView.classList.remove('flex', 'flex-col');
+                    youtubePlayerView.classList.remove('hidden');
+                    youtubePlayerView.classList.add('flex', 'flex-col');
+                    // Do NOT clear youtubePlayerIframe.src here, so video resumes
+                } else { // No video was playing, or it was explicitly closed, go to playlist view
                     youtubePlaylistView.classList.remove('hidden');
-                    youtubePlayerMediaContainer.classList.add('hidden');
-                    globalYoutubePlayerView.classList.add('hidden'); // Ensure global player is hidden
-                    globalYoutubePlayerView.classList.remove('flex');
+                    youtubePlaylistView.classList.add('flex', 'flex-col');
+                    youtubePlayerView.classList.add('hidden');
+                    youtubePlayerView.classList.remove('flex', 'flex-col');
+                    youtubePlayerIframe.src = ''; // Ensure iframe is clear if no video is to be resumed
                 }
-            } else if (appName === 'Dashboard') {
-                if (appState.dashboardView === 'map') {
-                    tripMapDashboardContainer.classList.remove('hidden');
-                    youtubePlayerDashboardContainer.classList.add('hidden');
-                    globalYoutubePlayerView.classList.add('hidden'); // Ensure global player is hidden
-                    globalYoutubePlayerView.classList.remove('flex');
-                } else { // 'youtube'
-                    tripMapDashboardContainer.classList.add('hidden');
-                    youtubePlayerDashboardContainer.classList.remove('hidden');
-                    
-                    // Move global player into Dashboard container
-                    youtubePlayerDashboardContainer.appendChild(globalYoutubePlayerView);
-                    globalYoutubePlayerView.classList.remove('hidden');
-                    globalYoutubePlayerView.classList.add('flex');
-                    youtubeBackButton.style.display = 'none'; // Hide back button in dashboard view
-
-                    // Adjust globalYoutubePlayerView's CSS to fit the dashboard's YouTube container
-                    globalYoutubePlayerView.style.position = 'relative'; // Relative to its new parent
-                    globalYoutubePlayerView.style.top = '0';
-                    globalYoutubePlayerView.style.left = '0';
-                    globalYoutubePlayerView.style.width = '100%';
-                    globalYoutubePlayerView.style.height = '100%';
-                    globalYoutubePlayerView.style.borderRadius = '0.75rem'; // Match dashboard card rounding
-                    globalYoutubePlayerView.style.padding = '0';
-                    globalYoutubePlayerView.style.backgroundColor = 'transparent'; // No dark overlay
-
-                    // Ensure src is set to currentPlayingPlaylistId if available and not already playing
-                    if (currentPlayingPlaylistId && (youtubePlayerIframe.src === '' || !youtubePlayerIframe.src.includes(currentPlayingPlaylistId))) {
-                        let youtubeSrc = '';
-                        if (currentPlayingPlaylistId.startsWith('UC')) { 
-                            youtubeSrc = `https://www.youtube.com/embed?listType=user_uploads&list=${currentPlayingPlaylistId}&autoplay=1`;
-                        } else if (currentPlayingPlaylistId.startsWith('PL')) { 
-                            youtubeSrc = `https://www.youtube.com/embed/videoseries?list=${currentPlayingPlaylistId}&autoplay=1`;
-                        }
-                        youtubePlayerIframe.src = youtubeSrc;
-                    }
-                }
-                if (tripMap && appState.dashboardView === 'map') {
-                    setTimeout(() => {
-                        tripMap.invalidateSize();
-                    }, 100);
-                }
-            } else { // Any other app, ensure global player is hidden and returned to body
-                globalYoutubePlayerView.classList.add('hidden');
-                globalYoutubePlayerView.classList.remove('flex');
-                // Temporarily append back to body (or a hidden div) to manage its state
-                document.body.appendChild(globalYoutubePlayerView); 
-                // Reset its position/size for default (Media tab) full-screen state
-                globalYoutubePlayerView.style.position = 'fixed';
-                globalYoutubePlayerView.style.top = '0';
-                globalYoutubePlayerView.style.left = '0';
-                globalYoutubePlayerView.style.width = '100vw';
-                globalYoutubePlayerView.style.height = '100vh';
-                globalYoutubePlayerView.style.borderRadius = '0';
-                globalYoutubePlayerView.style.padding = '0';
-                globalYoutubePlayerView.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-            }
-
-            if (appName === 'Trip') {
-                initializeTripAppMap('trip-map');
+            } else if (appName === 'Trip') {
+                // Initialize Trip app components when it becomes active
+                initializeTripApp();
             } else if (appName === 'Quran') {
+                // Initialize Quran app components when it becomes active
                 initializeQuranApp();
             }
-
-            // If switching away from Trip, clear any ongoing geolocation watch
-            if (appName !== 'Trip' && watchId) {
-                navigator.geolocation.clearWatch(watchId);
-                watchId = null; 
+            else {
+                // If switching away from Trip, clear any ongoing geolocation watch
+                if (watchId) {
+                    navigator.geolocation.clearWatch(watchId);
+                    watchId = null; // Reset watchId
+                }
             }
-            updateUI(); 
+            updateUI(); // Update UI when switching apps to reflect latest state
         }
 
         appButtons.forEach(button => {
@@ -1159,25 +1024,10 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                 if (id) {
                     currentPlayingPlaylistId = id; 
                     youtubePlaylistView.classList.add('hidden');
-                    youtubePlayerMediaContainer.classList.remove('hidden');
-                    youtubePlayerMediaContainer.classList.add('flex');
+                    youtubePlaylistView.classList.remove('flex', 'flex-col');
+                    youtubePlayerView.classList.remove('hidden');
+                    youtubePlayerView.classList.add('flex', 'flex-col');
                     
-                    // Move global player into Media container
-                    youtubePlayerMediaContainer.appendChild(globalYoutubePlayerView);
-                    globalYoutubePlayerView.classList.remove('hidden');
-                    globalYoutubePlayerView.classList.add('flex');
-                    youtubeBackButton.style.display = 'flex'; // Show back button
-                    
-                    // Reset its position/size for Media tab full-screen state within its container
-                    globalYoutubePlayerView.style.position = 'relative'; // Relative to its new parent
-                    globalYoutubePlayerView.style.top = '0';
-                    globalYoutubePlayerView.style.left = '0';
-                    globalYoutubePlayerView.style.width = '100%';
-                    globalYoutubePlayerView.style.height = '100%';
-                    globalYoutubePlayerView.style.borderRadius = '0';
-                    globalYoutubePlayerView.style.padding = '0';
-                    globalYoutubePlayerView.style.backgroundColor = 'transparent'; // No dark overlay here
-
                     let youtubeSrc = '';
                     if (id.startsWith('UC')) { 
                         youtubeSrc = `https://www.youtube.com/embed?listType=user_uploads&list=${id}&autoplay=1`;
@@ -1195,89 +1045,12 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
 
         // YouTube back button handler (now in Media tab)
         youtubeBackButton.addEventListener('click', () => {
-            globalYoutubePlayerView.classList.add('hidden');
-            globalYoutubePlayerView.classList.remove('flex');
-            youtubePlayerMediaContainer.classList.add('hidden');
+            youtubePlayerView.classList.add('hidden');
+            youtubePlayerView.classList.remove('flex', 'flex-col');
             youtubePlaylistView.classList.remove('hidden');
             youtubePlaylistView.classList.add('flex', 'flex-col');
-            // Do NOT clear youtubePlayerIframe.src here to allow playback to continue
-            // currentPlayingPlaylistId = ''; // Keep currentPlayingPlaylistId if we want to resume it
-            
-            // Return global player to body
-            document.body.appendChild(globalYoutubePlayerView); 
-            // Reset its position/size for default (Media tab) full-screen state
-            globalYoutubePlayerView.style.position = 'fixed';
-            globalYoutubePlayerView.style.top = '0';
-            globalYoutubePlayerView.style.left = '0';
-            globalYoutubePlayerView.style.width = '100vw';
-            globalYoutubePlayerView.style.height = '100vh';
-            globalYoutubePlayerView.style.borderRadius = '0';
-            globalYoutubePlayerView.style.padding = '0';
-            globalYoutubePlayerView.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-        });
-
-        // Dashboard Toggle Switch Logic
-        dashboardMapToggleBtn.addEventListener('click', () => {
-            appState.dashboardView = 'map';
-            dashboardMapToggleBtn.classList.add('active');
-            dashboardYoutubeToggleBtn.classList.remove('active');
-            tripMapDashboardContainer.classList.remove('hidden');
-            youtubePlayerDashboardContainer.classList.add('hidden');
-            globalYoutubePlayerView.classList.add('hidden'); // Ensure global player is hidden
-            globalYoutubePlayerView.classList.remove('flex');
-
-            // Return global player to body
-            document.body.appendChild(globalYoutubePlayerView); 
-            // Reset its position/size for default (Media tab) full-screen state
-            globalYoutubePlayerView.style.position = 'fixed';
-            globalYoutubePlayerView.style.top = '0';
-            globalYoutubePlayerView.style.left = '0';
-            globalYoutubePlayerView.style.width = '100vw';
-            globalYoutubePlayerView.style.height = '100vh';
-            globalYoutubePlayerView.style.borderRadius = '0';
-            globalYoutubePlayerView.style.padding = '0';
-            globalYoutubePlayerView.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-
-            if (tripMap) {
-                setTimeout(() => {
-                    tripMap.invalidateSize();
-                }, 100);
-            }
-        });
-
-        dashboardYoutubeToggleBtn.addEventListener('click', () => {
-            appState.dashboardView = 'youtube';
-            dashboardYoutubeToggleBtn.classList.add('active');
-            dashboardMapToggleBtn.classList.remove('active');
-            tripMapDashboardContainer.classList.add('hidden');
-            youtubePlayerDashboardContainer.classList.remove('hidden');
-            
-            // Move global player into Dashboard container
-            youtubePlayerDashboardContainer.appendChild(globalYoutubePlayerView);
-            globalYoutubePlayerView.classList.remove('hidden');
-            globalYoutubePlayerView.classList.add('flex');
-            youtubeBackButton.style.display = 'none'; // Hide back button in dashboard view
-
-            // Adjust globalYoutubePlayerView's CSS to fit the dashboard's YouTube container
-            globalYoutubePlayerView.style.position = 'relative'; // Relative to its new parent
-            globalYoutubePlayerView.style.top = '0';
-            globalYoutubePlayerView.style.left = '0';
-            globalYoutubePlayerView.style.width = '100%';
-            globalYoutubePlayerView.style.height = '100%';
-            globalYoutubePlayerView.style.borderRadius = '0.75rem'; // Match dashboard card rounding
-            globalYoutubePlayerView.style.padding = '0';
-            globalYoutubePlayerView.style.backgroundColor = 'transparent'; // No dark overlay
-
-            // Ensure src is set to currentPlayingPlaylistId if available and not already playing
-            if (currentPlayingPlaylistId && (youtubePlayerIframe.src === '' || !youtubePlayerIframe.src.includes(currentPlayingPlaylistId))) {
-                let youtubeSrc = '';
-                if (currentPlayingPlaylistId.startsWith('UC')) { 
-                    youtubeSrc = `https://www.youtube.com/embed?listType=user_uploads&list=${currentPlayingPlaylistId}&autoplay=1`;
-                } else if (currentPlayingPlaylistId.startsWith('PL')) { 
-                    youtubeSrc = `https://www.youtube.com/embed/videoseries?list=${currentPlayingPlaylistId}&autoplay=1`;
-                }
-                youtubePlayerIframe.src = youtubeSrc;
-            }
+            youtubePlayerIframe.src = ''; 
+            currentPlayingPlaylistId = ''; 
         });
 
 
@@ -1436,15 +1209,22 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
         aiSendButton.addEventListener('click', sendAIAssistantMessage);
 
         // Declare variables globally but assign them inside DOMContentLoaded
-        let tripMapDashboard; // Renamed from dashboardMapIframe
+        let dashboardMapIframe;
+        let mapIframeMain; // This will now be unused or repurposed if map is removed
         let getMyLocationButtonDashboard;
         let floatingFullscreenButton; 
-        // carplayMainInterface is now global
+        let carplayMainInterface;
 
         // Function to update Google Maps source for only dashboard iframe now
         function updateMapSrc() {
-            // No longer using Google Maps embed directly for trip map, Leaflet is used
-            // The Leaflet map will be updated by the onPositionUpdate function
+            const googleMapsSrc = `https://www.google.com/maps/embed/v1/view?key=${GOOGLE_MAPS_API_KEY}&center=${appState.mapLocation.lat},${appState.mapLocation.lon}&zoom=${appState.mapLocation.zoom}`;
+            
+            console.log("Updating map src to:", googleMapsSrc); 
+
+            if (dashboardMapIframe) {
+                dashboardMapIframe.src = googleMapsSrc;
+            }
+            // mapIframeMain is no longer used for a map
         }
 
         // Function to get user's current location (and alert about Google Maps embed limitations)
@@ -1454,29 +1234,24 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                     (position) => {
                         const userLatitude = position.coords.latitude;
                         const userLongitude = position.coords.longitude;
-                        showMessageBox(`Your current location: Latitude ${userLatitude}, Longitude ${userLongitude}`);
-                        // Update map view to user's location
-                        if (tripMap) {
-                            tripMap.setView([userLatitude, userLongitude], 15);
-                            L.marker([userLatitude, userLongitude]).addTo(tripMap)
-                                .bindPopup('Your current location').openPopup();
-                        }
+                        showMessageBox(`موقعك الحالي: Latitude ${userLatitude}, Longitude ${userLongitude}\n\nملاحظة: خرائط Google المضمنة قد لا تدعم تحديث الموقع ديناميكيًا أو عرض مسارك الخاص.`);
                     },
                     (error) => {
                         console.error('Geolocation error:', error);
-                        let errorMessage = 'Could not get your current location.';
+                        let errorMessage = 'تعذر الحصول على موقعك الحالي.';
                         switch (error.code) {
                             case error.PERMISSION_DENIED:
-                                errorMessage += ' Please grant location permission.';
+                                errorMessage += ' يرجى منح الإذن للموقع.';
                                 break;
                             case error.POSITION_UNAVAILABLE:
-                                errorMessage += ' Location information is unavailable.';
+                                errorMessage += ' معلومات الموقع غير متوفرة.';
                                 break;
                             case error.TIMEOUT:
-                                errorMessage += ' The request to get user location timed out.';
+                                errorMessage += ' انتهت مهلة طلب الموقع.';
                                 break;
-                            default:
-                                errorMessage += ' Unknown error.';
+                                // Fallback for image alt attribute
+                                default:
+                                errorMessage += ' خطأ غير معروف.';
                                 break;
                         }
                         showMessageBox(errorMessage);
@@ -1485,7 +1260,7 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                 );
             } else {
                 console.warn('Geolocation is not supported by this browser.');
-                showMessageBox('Geolocation is not supported in this browser.');
+                showMessageBox('الموقع الجغرافي غير مدعوم في هذا المتصفح.');
             }
         }
 
@@ -1510,7 +1285,7 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
             messageBox.innerHTML = `
                 <p>${message}</p>
                 <button style="margin-top: 15px; padding: 8px 15px; background-color: #9333ea; border: none; border-radius: 5px; color: white; cursor: pointer;">
-                    Close
+                    إغلاق
                 </button>
             `;
             document.body.appendChild(messageBox);
@@ -1543,7 +1318,7 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                 }
             } catch (error) {
                 console.error("Fullscreen API call failed:", error);
-                showMessageBox("Fullscreen mode cannot be activated at the browser level due to security restrictions in this environment. Pseudo-fullscreen mode will be applied instead.");
+                showMessageBox("لا يمكن تفعيل وضع ملء الشاشة على مستوى المتصفح بسبب قيود الأمان في هذه البيئة. سيتم تطبيق وضع ملء الشاشة الزائف بدلاً من ذلك.");
                 attemptedFullscreen = false; 
             }
 
@@ -1551,12 +1326,14 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                 const isFullscreen = mainInterface.classList.toggle('carplay-pseudo-fullscreen');
 
                 if (isFullscreen) {
-                    floatingFullscreenButton.innerHTML = '<i data-lucide="minimize" class="w-6 h-6"></i><span>Exit Fullscreen</span>';
+                    floatingFullscreenButton.innerHTML = '<i data-lucide="minimize" class="w-6 h-6"></i><span>تصغير الشاشة</span>';
                     if (topBar) topBar.style.opacity = '0'; 
+                    // navBar opacity is no longer set to 0, so it remains visible
                     document.body.style.overflow = 'hidden'; 
                 } else {
-                    floatingFullscreenButton.innerHTML = '<i data-lucide="maximize" class="w-6 h-6"></i><span>Fullscreen</span>';
+                    floatingFullscreenButton.innerHTML = '<i data-lucide="maximize" class="w-6 h-6"></i><span>ملء الشاشة</span>';
                     if (topBar) topBar.style.opacity = '1';
+                    // navBar opacity is no longer set to 0
                     document.body.style.overflow = ''; 
                 }
             } else {
@@ -1570,8 +1347,9 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                     document.msExitFullscreen();
                 }
                 mainInterface.classList.remove('carplay-pseudo-fullscreen');
-                floatingFullscreenButton.innerHTML = '<i data-lucide="maximize" class="w-6 h-6"></i><span>Fullscreen</span>';
+                floatingFullscreenButton.innerHTML = '<i data-lucide="maximize" class="w-6 h-6"></i><span>ملء الشاشة</span>';
                 if (topBar) topBar.style.opacity = '1';
+                // navBar opacity is no longer set to 0
                 document.body.style.overflow = '';
             }
             lucide.createIcons(); 
@@ -1580,10 +1358,10 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
         // Function to simulate weather updates
         function simulateWeatherUpdate() {
             const temps = ['26', '27', '28', '29', '30'];
-            const descriptions = ['Sunny', 'Partly Cloudy', 'Cloudy', 'Light Rain'];
+            const descriptions = ['مشمس', 'غائم جزئياً', 'غائم', 'أمطار خفيفة'];
             const humidity = ['55', '60', '65', '70'];
             const winds = ['10', '15', '20'];
-            const hourlyForecasts = ['100% hourly weather', 'Partly cloudy', 'Chance of rain'];
+            const hourlyForecasts = ['100% طقس في الساعة', 'غائم جزئياً', 'فرصة أمطار'];
             const icons = ['sun', 'cloud-sun', 'cloud', 'cloud-rain'];
 
             appState.weather.temperature = temps[Math.floor(Math.random() * temps.length)];
@@ -1594,7 +1372,7 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
             appState.weather.icon = icons[Math.floor(Math.random() * icons.length)];
             
             const now = new Date();
-            appState.weather.lastUpdated = `Last Updated: ${now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: false })}`;
+            appState.weather.lastUpdated = `آخر تحديث: ${now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: false })}`;
 
             updateUI(); // Update UI after simulating weather
         }
@@ -1612,11 +1390,12 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                 lucide.createIcons(); 
             }
 
+
             // Update Weather Tab
             document.getElementById('weather-temp').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature}°C` : '--°C';
             document.getElementById('weather-desc').textContent = appState.weather.description !== null ? appState.weather.description : '--';
             document.getElementById('weather-humidity').textContent = appState.weather.humidity !== null ? `${appState.weather.humidity}%` : '--%';
-            document.getElementById('weather-wind').textContent = appState.weather.wind !== null ? `${appState.weather.wind} km/h` : '-- km/h';
+            document.getElementById('weather-wind').textContent = appState.weather.wind !== null ? `${appState.weather.wind} كم/س` : '-- كم/س';
             document.getElementById('weather-hourly').textContent = appState.weather.hourlyForecast !== null ? appState.weather.hourlyForecast : '--';
             document.getElementById('weather-last-updated').textContent = appState.weather.lastUpdated !== null ? appState.weather.lastUpdated : '--';
             const weatherIconElement = document.getElementById('weather-icon');
@@ -1638,6 +1417,9 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
 
             // Apply background theme
             document.body.className = `text-white overflow-hidden ${appState.settings.backgroundTheme}`;
+
+            // Update Map iframe source when UI updates, especially on app switch
+            updateMapSrc(); 
         }
 
         // Event listeners for Settings controls
@@ -1680,12 +1462,9 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
         let tripMap, tripPolyline, tripPath = [], tripStartTime;
         let watchId = null; 
 
-        function initializeTripAppMap(mapElementId) {
-            if (!tripMap || tripMap._container.id !== mapElementId) { // Re-initialize if map doesn't exist or is for a different element
-                if (tripMap) { // Destroy existing map if it's for a different element
-                    tripMap.remove();
-                }
-                tripMap = L.map(mapElementId).setView([appState.mapLocation.lat, appState.mapLocation.lon], appState.mapLocation.zoom); 
+        function initializeTripApp() {
+            if (!tripMap) {
+                tripMap = L.map('trip-map').setView([23.6, 58.5], 13); 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     attribution: '© OpenStreetMap'
                 }).addTo(tripMap);
@@ -1696,39 +1475,38 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                     tripMap.invalidateSize();
                 }, 100); 
             }
+
+            renderTripLog(); 
         }
 
         function startTrip() {
             if (watchId) {
-                return; // Trip already started
+                return;
             }
-            showMessageBox('Trip started! Your location will be tracked.');
 
             tripPath = [];
             tripStartTime = new Date();
-            if (tripPolyline) { // Ensure polyline exists
-                tripPolyline.setLatLngs([]); 
-            }
+            tripPolyline.setLatLngs([]); 
             
-            document.getElementById('trip-distance').textContent = '0 km';
-            document.getElementById('trip-duration').textContent = '0 minutes';
+            document.getElementById('trip-distance').textContent = '0 كم';
+            document.getElementById('trip-duration').textContent = '0 دقيقة';
 
             if (navigator.geolocation) {
-                watchId = navigator.geolocation.watchPosition(onPositionUpdate, (error) => {
+                navigator.geolocation.watchPosition(onPositionUpdate, (error) => {
                     console.error('Geolocation error:', error);
-                    let errorMessage = 'Could not get your location: ';
+                    let errorMessage = 'تعذر الحصول على موقعك: ';
                     switch (error.code) {
                         case error.PERMISSION_DENIED:
-                            errorMessage += 'Location permission denied.';
+                            errorMessage += 'تم رفض إذن الموقع.';
                             break;
                         case error.POSITION_UNAVAILABLE:
-                            errorMessage += 'Location is currently unavailable.';
+                            errorMessage += 'الموقع غير متاح حاليًا.';
                             break;
                         case error.TIMEOUT:
-                            errorMessage += 'Getting location timed out.';
+                            errorMessage += 'انتهت مهلة الحصول على الموقع.';
                             break;
                         default:
-                            errorMessage += 'Unknown error.';
+                            errorMessage += 'خطأ غير معروف.';
                             break;
                     }
                     showMessageBox(errorMessage);
@@ -1739,7 +1517,7 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                     timeout: 5000
                 });
             } else {
-                showMessageBox('Geolocation is not supported in this browser.');
+                showMessageBox('الموقع الجغرافي غير مدعوم في هذا المتصفح.');
             }
         }
 
@@ -1749,12 +1527,8 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
 
             tripPath.push([lat, lng]);
             
-            if (tripPolyline) { // Ensure polyline exists
-                tripPolyline.setLatLngs(tripPath);
-            }
-            if (tripMap) { // Ensure map exists
-                tripMap.setView([lat, lng], 15);
-            }
+            tripPolyline.setLatLngs(tripPath);
+            tripMap.setView([lat, lng], 15);
             updateTripDistance();
         }
 
@@ -1764,19 +1538,17 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                 watchId = null;
                 const durationMin = Math.round((new Date() - tripStartTime) / 60000);
                 const dist = calculateTripDistance(tripPath).toFixed(2);
-                document.getElementById('trip-duration').textContent = `${durationMin} minutes`;
-                document.getElementById('trip-distance').textContent = `${dist} km`;
+                document.getElementById('trip-duration').textContent = `${durationMin} دقيقة`;
+                document.getElementById('trip-distance').textContent = `${dist} كم`;
 
                 saveTripToLog(dist, durationMin);
-                showMessageBox('Trip ended! Details saved to log.');
             } else {
-                showMessageBox('No active trip to end.');
             }
         }
 
         function updateTripDistance() {
             const dist = calculateTripDistance(tripPath).toFixed(2);
-            document.getElementById('trip-distance').textContent = `${dist} km`;
+            document.getElementById('trip-distance').textContent = `${dist} كم`;
         }
 
         function calculateTripDistance(path) {
@@ -1808,8 +1580,8 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                 li.classList.add('trip-log-item');
                 li.innerHTML = `
                     <i class="fas fa-calendar-alt text-blue-300"></i> <span>${trip.date}</span>
-                    <i class="fas fa-road text-green-300"></i> <span>${trip.distance} km</span>
-                    <i class="fas fa-clock text-purple-300"></i> <span>${trip.duration} minutes</span>
+                    <i class="fas fa-road text-green-300"></i> <span>${trip.distance} كم</span>
+                    <i class="fas fa-clock text-purple-300"></i> <span>${trip.duration} دقيقة</span>
                 `;
                 list.appendChild(li);
             });
@@ -1837,11 +1609,11 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
             if (quranAudio.paused) {
                 quranAudio.play();
                 playPauseIcon.setAttribute('data-lucide', 'pause');
-                playPauseText.textContent = 'Pause';
+                playPauseText.textContent = 'إيقاف مؤقت';
             } else {
                 quranAudio.pause();
                 playPauseIcon.setAttribute('data-lucide', 'play');
-                playPauseText.textContent = 'Play';
+                playPauseText.textContent = 'تشغيل';
             }
             lucide.createIcons(); // Re-render icon
         }
@@ -1850,20 +1622,18 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
         // --- Digital Clock JavaScript (Apple iOS 19 style) ---
         function updateDigitalClock() {
             const now = new Date();
-            const hours = now.getHours().toString().padStart(2, '0');
-            const minutes = now.getMinutes().toString().padStart(2, '0');
-            const seconds = now.getSeconds().toString().padStart(2, '0');
+            // Use 'en-US' locale for English numbers
+            const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+            const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
 
             const digitalTimeElement = document.getElementById('digital-time');
             const digitalDateElement = document.getElementById('digital-date');
 
             if (digitalTimeElement) {
-                digitalTimeElement.innerHTML = `
-                    <span class="hours">${hours}</span>:<span class="minutes">${minutes}</span>:<span class="seconds">${seconds}</span>
-                `;
+                digitalTimeElement.textContent = now.toLocaleTimeString('en-US', timeOptions);
             }
             if (digitalDateElement) {
-                digitalDateElement.textContent = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                digitalDateElement.textContent = now.toLocaleDateString('en-US', dateOptions);
             }
         }
         // --- End Digital Clock JavaScript ---
@@ -1871,30 +1641,20 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
 
         // Initial UI update after all elements are loaded
         document.addEventListener('DOMContentLoaded', () => {
-            // Get reference to the main CarPlay interface container
-            carplayMainInterface = document.getElementById('carplay-main-interface');
-
-            // Initialize the map for the dashboard first
-            initializeTripAppMap('trip-map-dashboard');
-
-            // Get references to elements
+            dashboardMapIframe = document.getElementById('dashboard-map-iframe');
+            // mapIframeMain is no longer needed as YouTube content replaces the map tab
             getMyLocationButtonDashboard = document.getElementById('get-my-location-button-dashboard');
             floatingFullscreenButton = document.getElementById('floating-fullscreen-button'); 
-            
-            // Initial move of global YouTube player to body
-            document.body.appendChild(globalYoutubePlayerView);
+            carplayMainInterface = document.getElementById('carplay-main-interface');
 
-            // Add event listeners
             getMyLocationButtonDashboard.addEventListener('click', () => getMyLocation('dashboard'));
             floatingFullscreenButton.addEventListener('click', togglePseudoFullscreen); 
 
-            // Initial UI updates and app switch
             updateUI();
             simulateWeatherUpdate(); 
             switchApp('Dashboard'); 
             setInterval(updateDigitalClock, 1000); // Start digital clock animation
             updateDigitalClock(); // Initial call to set time correctly
-            startTrip(); // Automatically start trip on load
         });
 
     </script>
