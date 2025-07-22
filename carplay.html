@@ -198,6 +198,36 @@
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
         }
 
+        /* New floating button for YouTube video list */
+        #back-to-playlists-bottom-button {
+            position: fixed; /* Changed to fixed */
+            bottom: 1rem; /* Position it at the bottom */
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(147, 51, 234, 0.8); /* Purple glass */
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 9999px; /* Pill shape */
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            z-index: 90; /* Slightly lower than main floating button */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            /* Ensure it's hidden by default and shown only when needed by JS */
+            display: none; /* Changed from block to none for default visibility */
+        }
+        #back-to-playlists-bottom-button:hover {
+            transform: translateX(-50%) scale(1.05);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+
+
         /* Top bar positioning */
         .top-bar {
             top: 1rem; /* Adjusted from 4rem */
@@ -225,6 +255,15 @@
             z-index: 99; /* Ensure it's above other content but below the floating button */
             max-width: 100vw; /* When fullscreen, it should take full width */
         }
+
+        /* CSS for shrinking content when in pseudo-fullscreen mode */
+        #carplay-main-interface.carplay-pseudo-fullscreen #digital-time {
+            font-size: 2.2rem !important; /* Smaller font for digital time */
+        }
+        #carplay-main-interface.carplay-pseudo-fullscreen #weather-temp-main {
+            font-size: 4rem !important; /* Smaller font for main weather temp */
+        }
+
 
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -304,6 +343,36 @@
             font-weight: 600;
             color: white;
         }
+
+        /* New video card styling */
+        .youtube-video-card {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+        }
+        .youtube-video-card:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        .youtube-video-card img {
+            width: 80px;
+            height: 45px; /* 16:9 aspect ratio */
+            object-fit: cover;
+            border-radius: 0.5rem;
+            margin-right: 0.75rem;
+        }
+        .youtube-video-card h3 {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: white;
+            line-height: 1.3;
+            flex-grow: 1;
+        }
+
 
         .metallic-logo-effect {
             /* Increased width for 3x size */
@@ -520,19 +589,19 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
         /* Center pin - REMOVED */
 
         /* Custom CSS to override Tailwind for specific dashboard columns */
-        /* Column 1 (Car Info) */
-        .dashboard-col-23-percent {
-            width: 23%;
+        /* Column 1 (Car Info) - now 360 view */
+        .dashboard-col-25-percent { /* New class for 25% width */
+            width: 25%;
         }
 
-        /* Column 3 (Weather + Clock) */
-        .dashboard-col-27-percent {
-            width: 27%;
-        }
-
-        /* Column 2 (Map) */
+        /* Column 2 (Map) - now 50% */
         .dashboard-col-50-percent {
             width: 50%;
+        }
+
+        /* Column 3 (Weather + Clock) - now 25% */
+        .dashboard-col-25-percent-right { /* New class for right 25% width */
+            width: 25%;
         }
 
         /* Ensure the main dashboard grid uses row for LTR column order */
@@ -631,17 +700,7 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                  
                     <!-- Dashboard Grid - Reordered and custom width classes applied -->
                     <div class="flex-grow flex flex-col lg:flex-row gap-4 md:gap-6 h-full dashboard-main-grid">
-                        <!-- Left Column (Col 1): Car Info Panel (23%) -->
-                        <div class="flex flex-col gap-4 md:gap-6 dashboard-col-23-percent">
-                            <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center">
-                                <h2 class="text-xl font-bold mb-2">معلومات السيارة</h2>
-                                <div class="w-full h-full bg-black/30 rounded-lg flex items-center justify-center overflow-hidden">
-                                    <img src="https://dmusera.netlify.app/3603.png" alt="عرض الكاميرا 360 درجة للسيارة" class="w-full h-full object-cover rounded-lg opacity-80" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Middle Column (Col 2): Main Map (50%) -->
+                        <!-- Left Column (Col 1): Main Map (50%) -->
                         <div class="flex-grow h-full rounded-3xl relative overflow-hidden flex items-center justify-center glass-surface glass-surface--svg p-1 dashboard-col-50-percent">
                             <iframe id="dashboard-map-iframe" class="full-iframe" src="https://www.google.com/maps/embed/v1/view?key=AIzaSyCDWFDGIkq7Cu0dv8AL_q1YFEUIWlZdaP4&center=17.0151,54.0924&zoom=12" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                             <button id="get-my-location-button-dashboard" class="absolute bottom-4 left-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm">
@@ -649,16 +708,25 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                             </button>
                         </div>
 
-                        <!-- Right Column (Col 3): Weather + Digital Clock (27%) -->
-                        <div class="flex flex-col gap-4 md:gap-6 dashboard-col-27-percent">
+                        <!-- Middle Column (Col 2): 360 Camera View (25%) -->
+                        <div class="flex flex-col gap-4 md:gap-6 dashboard-col-25-percent">
+                            <div class="glass-surface glass-surface--svg p-2 flex-grow flex flex-col items-center justify-center text-center">
+                                <div class="w-full h-40 bg-black/30 rounded-lg flex items-center justify-center overflow-hidden">
+                                    <img src="https://dmusera.netlify.app/3603.png" alt="عرض الكاميرا 360 درجة للسيارة" class="w-full h-full object-cover rounded-lg opacity-80" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column (Col 3): Weather + Digital Clock (25%) -->
+                        <div class="flex flex-col gap-4 md:gap-6 dashboard-col-25-percent-right">
                             <!-- Weather Widget -->
                             <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center">
                                 <h2 class="text-xl font-bold mb-1">الطقس</h2>
                                 <div id="weather-widget-container" class="w-full h-full flex flex-col items-center justify-center">
-                                    <i data-lucide="cloud-sun" class="w-16 h-16 text-white mb-2" id="dashboard-weather-icon"></i>
+                                    <img id="dashboard-weather-icon" src="" alt="Weather Icon" class="w-16 h-16 text-white mb-2" />
                                     <p class="text-3xl font-extrabold mb-1" id="dashboard-weather-temp">--°C</p>
                                     <p class="text-lg text-white/70 mb-2" id="dashboard-weather-desc">--</p>
-                                    <p class="text-sm text-white/50">صلالة، عمان</p>
+                                    <p class="text-sm text-white/50" id="dashboard-weather-location">صلالة، عمان</p>
                                 </div>
                             </div>
                             <!-- Digital Clock Widget (Apple iOS 19 style) -->
@@ -697,6 +765,21 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                         </div>
                     </div>
 
+                    <!-- New: YouTube Video List View -->
+                    <div id="youtube-video-list-view" class="hidden flex-col items-center justify-center h-full w-full relative p-4 overflow-y-auto gap-4">
+                        <button id="back-to-playlists-from-videos" class="absolute top-4 left-4 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm">
+                            <i data-lucide="arrow-left" class="w-4 h-4"></i> العودة لقوائم التشغيل
+                        </button>
+                        <h2 class="text-3xl font-bold mb-4 text-center w-full">فيديوهات قائمة التشغيل</h2>
+                        <div id="video-list-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full">
+                            <!-- Videos will be dynamically loaded here -->
+                        </div>
+                        <!-- NEW: Bottom "Back to Playlists" Button -->
+                        <button id="back-to-playlists-bottom-button" class="mt-4 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-full transition-colors duration-200 flex items-center justify-center gap-2 text-base">
+                            <i data-lucide="arrow-left" class="w-5 h-5"></i> العودة إلى قوائم التشغيل الرئيسية
+                        </button>
+                    </div>
+
                     <div id="youtube-player-view" class="hidden flex-col items-center justify-center h-full w-full relative">
                         <iframe
                             id="youtube-player-iframe"
@@ -707,8 +790,8 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowfullscreen
                         ></iframe>
-                        <button id="youtube-back-button" class="absolute bottom-4 left-4 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm">
-                            <i data-lucide="arrow-left" class="w-4 h-4"></i> العودة
+                        <button id="back-to-videos" class="absolute bottom-4 left-4 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm">
+                            <i data-lucide="arrow-left" class="w-4 h-4"></i> العودة للفيديوهات
                         </button>
                     </div>
                 </section>
@@ -751,30 +834,43 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
 
                 <section id="screen-Weather" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full">
                     <h1 class="text-4xl font-bold mb-6">الطقس <i data-lucide="cloud-sun"></i></h1>
-                    <div class="w-full max-w-md flex flex-col sm:flex-row gap-4">
-                        <!-- Left side: Main Temperature Card -->
-                        <div class="glass-surface glass-surface--svg p-6 rounded-3xl text-center flex flex-col items-center justify-center sm:w-1/2">
-                            <div class="text-3xl font-bold mb-2">صلالة</div>
-                            <i data-lucide="cloud-sun" class="w-24 h-24 text-yellow-400 mb-4" id="weather-icon"></i>
+                    <div class="w-full max-w-2xl flex flex-col gap-4"> <!-- Increased max-w for more content -->
+                        <!-- Main Weather Card (Top) -->
+                        <div class="glass-surface glass-surface--svg p-6 rounded-3xl text-center flex flex-col items-center justify-center flex-grow">
+                            <div class="text-3xl font-bold mb-2" id="weather-location">صلالة، عمان</div>
+                            <img id="weather-icon" src="" alt="Weather Icon" class="w-24 h-24 text-yellow-400 mb-4" />
                             <p class="text-6xl font-extrabold mb-2" id="weather-temp">--°C</p>
                             <p class="text-xl text-white/70 mb-4" id="weather-desc">--</p>
+                            <p class="text-sm text-white/50" id="weather-feels-like">الشعور كـ: --°C</p> <!-- New -->
                             <p class="text-sm text-white/50" id="weather-last-updated">آخر تحديث: --</p>
-                            <!-- Removed "(تتطلب البيانات الحية مفتاح API)" -->
                         </div>
-                        <!-- Right side: Humidity, Wind, Hourly -->
-                        <div class="flex flex-col gap-4 sm:w-1/2">
-                            <div class="glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center flex-grow">
+
+                        <!-- Additional Details (Bottom Grid) -->
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 w-full"> <!-- Adjusted grid for more items -->
+                            <div class="glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center">
                                 <i data-lucide="droplet" class="w-10 h-10 text-blue-300 mb-2"></i>
                                 <span class="text-2xl font-bold" id="weather-humidity">--%</span>
                                 <span class="text-sm text-white/50">الرطوبة</span>
                             </div>
-                            <div class="glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center flex-grow">
+                            <div class="glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center">
                                 <i data-lucide="wind" class="w-10 h-10 text-gray-300 mb-2"></i>
                                 <span class="text-2xl font-bold" id="weather-wind">-- كم/س</span>
                                 <span class="text-sm text-white/50">الرياح</span>
                             </div>
-                            <div class="glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center flex-grow">
-                                <p class="text-lg font-semibold text-white/80" id="weather-hourly">--</p>
+                            <div class="glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center">
+                                <i data-lucide="gauge" class="w-10 h-10 text-green-300 mb-2"></i> <!-- New icon for pressure -->
+                                <span class="text-2xl font-bold" id="weather-pressure">-- mb</span> <!-- New -->
+                                <span class="text-sm text-white/50">الضغط</span>
+                            </div>
+                            <div class="glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center">
+                                <i data-lucide="eye" class="w-10 h-10 text-purple-300 mb-2"></i> <!-- New icon for visibility -->
+                                <span class="text-2xl font-bold" id="weather-visibility">-- كم</span> <!-- New -->
+                                <span class="text-sm text-white/50">الرؤية</span>
+                            </div>
+                            <div class="glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center">
+                                <i data-lucide="sun" class="w-10 h-10 text-orange-300 mb-2"></i> <!-- New icon for UV index -->
+                                <span class="text-2xl font-bold" id="weather-uv">--</span> <!-- New -->
+                                <span class="text-sm text-white/50">مؤشر الأشعة فوق البنفسجية</span>
                             </div>
                         </div>
                     </div>
@@ -907,33 +1003,40 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
     <script>
         lucide.createIcons();
 
-        // Moved GOOGLE_MAPS_API_KEY declaration to the top of the script
+        // API Keys
+        const YOUTUBE_API_KEY = 'AIzaSyDj4w1H3Is_rmTLhl40zER7AgYhT_tKASo';
         const GOOGLE_MAPS_API_KEY = 'AIzaSyCDWFDGIkq7Cu0dv8AL_q1YFEUIWlZdaP4'; 
+        const AI_ASSISTANT_API_KEY = 'AIzaSyBMmtON9ww4dJxMHrl1wKyWTqI0ipJXJws'; 
+        const WEATHER_API_KEY = '7acefc26deee4904a2393917252207'; // WeatherAPI.com Key - UPDATED
 
         // Global App State
         let appState = {
             currentTime: '',
             mapLocation: { lat: 17.0151, lon: 54.0924, zoom: 12 }, // Default Salalah coordinates
             weather: {
-                temperature: null, // Changed to null
-                description: null, // Changed to null
-                humidity: null,    // Changed to null
-                wind: null,        // Changed to null
-                hourlyForecast: null, // Changed to null
-                lastUpdated: null, // Changed to null
-                icon: 'cloud-sun' // Default icon
+                temperature: null, 
+                feelsLike: null, // New: "Feels like" temperature
+                description: null, 
+                humidity: null,    
+                wind: null,        
+                pressure: null,    // New: Atmospheric pressure
+                visibility: null,  // New: Visibility in km
+                uvIndex: null,     // New: UV Index
+                lastUpdated: null, 
+                iconUrl: '', // Changed from 'icon' to 'iconUrl' to store the image URL directly
+                location: 'Salalah, Oman' // Default location for weather
             },
             car: {
-                speed: null, // Changed to null
-                rpm: null,   // Changed to null
-                fuel: null,  // Changed to null
-                temp: null,  // Changed to null
+                speed: null, 
+                rpm: null,   
+                fuel: null,  
+                temp: null,  
                 gear: 'P'
             },
             settings: {
                 fontSize: 16,
                 backgroundTheme: 'theme-gradient-1',
-                enableLiveWeather: false, 
+                enableLiveWeather: true, // Set to true to use live weather
                 carSpeedUnit: 'km/h'
             }
         };
@@ -953,10 +1056,16 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
 
         // YouTube specific elements (now in Media tab)
         const youtubePlaylistView = document.getElementById('youtube-playlist-view');
+        const youtubeVideoListView = document.getElementById('youtube-video-list-view'); 
+        const videoListContainer = document.getElementById('video-list-container'); 
         const youtubePlayerView = document.getElementById('youtube-player-view');
         const youtubePlayerIframe = document.getElementById('youtube-player-iframe');
-        const youtubeBackButton = document.getElementById('youtube-back-button');
-        let currentPlayingPlaylistId = ''; // State to track if a video is playing
+        const backToPlaylistsFromVideosButton = document.getElementById('back-to-playlists-from-videos'); 
+        const backToPlaylistsBottomButton = document.getElementById('back-to-playlists-bottom-button'); // NEW: Bottom button
+        const backToVideosButton = document.getElementById('back-to-videos'); 
+        let currentPlayingPlaylistId = ''; // State to track if a playlist was selected
+        let activeMediaView = 'playlist'; // 'playlist', 'videoList', 'player'
+        let currentPlayingVideoId = ''; // Store the ID of the currently playing video
 
         function switchApp(appName) {
             appScreens.forEach(screen => screen.classList.remove('active'));
@@ -975,27 +1084,40 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
 
             // Handle Media (YouTube) view switching
             if (appName === 'Media') {
-                if (currentPlayingPlaylistId) { // If a video was playing, stay in player view
-                    youtubePlaylistView.classList.add('hidden');
-                    youtubePlaylistView.classList.remove('flex', 'flex-col');
+                // Hide all media sub-views initially
+                youtubePlaylistView.classList.add('hidden');
+                youtubeVideoListView.classList.add('hidden');
+                youtubePlayerView.classList.add('hidden');
+
+                youtubePlaylistView.classList.remove('flex', 'flex-col');
+                youtubeVideoListView.classList.remove('flex', 'flex-col');
+                youtubePlayerView.classList.remove('flex', 'flex-col');
+
+                if (activeMediaView === 'player' && currentPlayingVideoId) {
                     youtubePlayerView.classList.remove('hidden');
                     youtubePlayerView.classList.add('flex', 'flex-col');
-                    // Do NOT clear youtubePlayerIframe.src here, so video resumes
-                } else { // No video was playing, or it was explicitly closed, go to playlist view
+                    youtubePlayerIframe.src = `https://www.youtube.com/embed/${currentPlayingVideoId}?autoplay=1`; // Resume playing
+                    backToPlaylistsBottomButton.style.display = 'none'; // Hide floating button when player is active
+                } else if (activeMediaView === 'videoList' && currentPlayingPlaylistId) {
+                    // Only show video list if a playlist was previously selected
+                    youtubeVideoListView.classList.remove('hidden');
+                    youtubeVideoListView.classList.add('flex', 'flex-col');
+                    // Re-fetch videos for the current playlist to ensure content is up-to-date
+                    fetchPlaylistVideos(currentPlayingPlaylistId, false); // Pass false to not update activeMediaView
+                    backToPlaylistsBottomButton.style.display = 'flex'; // Show floating button when video list is active
+                } else {
+                    // Default to playlist view
                     youtubePlaylistView.classList.remove('hidden');
                     youtubePlaylistView.classList.add('flex', 'flex-col');
-                    youtubePlayerView.classList.add('hidden');
-                    youtubePlayerView.classList.remove('flex', 'flex-col');
-                    youtubePlayerIframe.src = ''; // Ensure iframe is clear if no video is to be resumed
+                    currentPlayingPlaylistId = ''; // Clear if returning to main playlist view
+                    currentPlayingVideoId = ''; // Clear playing video
+                    youtubePlayerIframe.src = ''; // Ensure player is stopped
+                    activeMediaView = 'playlist'; // Ensure state is correct
+                    backToPlaylistsBottomButton.style.display = 'none'; // Hide floating button when playlist is active
                 }
-            } else if (appName === 'Trip') {
-                // Initialize Trip app components when it becomes active
-                initializeTripApp();
-            } else if (appName === 'Quran') {
-                // Initialize Quran app components when it becomes active
-                initializeQuranApp();
-            }
-            else {
+            } else {
+                // If switching away from Media tab, ensure the floating button is hidden
+                backToPlaylistsBottomButton.style.display = 'none';
                 // If switching away from Trip, clear any ongoing geolocation watch
                 if (watchId) {
                     navigator.geolocation.clearWatch(watchId);
@@ -1020,38 +1142,110 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
         // YouTube playlist card click handler (now in Media tab)
         document.querySelectorAll('.youtube-channel-card').forEach(card => {
             card.addEventListener('click', () => {
-                const id = card.dataset.playlistId; 
-                if (id) {
-                    currentPlayingPlaylistId = id; 
-                    youtubePlaylistView.classList.add('hidden');
-                    youtubePlaylistView.classList.remove('flex', 'flex-col');
-                    youtubePlayerView.classList.remove('hidden');
-                    youtubePlayerView.classList.add('flex', 'flex-col');
-                    
-                    let youtubeSrc = '';
-                    if (id.startsWith('UC')) { 
-                        youtubeSrc = `https://www.youtube.com/embed?listType=user_uploads&list=${id}&autoplay=1`;
-                    } else if (id.startsWith('PL')) { 
-                        youtubeSrc = `https://www.youtube.com/embed/videoseries?list=${id}&autoplay=1`;
-                    } else {
-                        console.error('Invalid YouTube ID format:', id);
-                        showMessageBox('معرف يوتيوب غير صالح.');
-                        return;
-                    }
-                    youtubePlayerIframe.src = youtubeSrc;
+                const playlistId = card.dataset.playlistId; 
+                if (playlistId) {
+                    currentPlayingPlaylistId = playlistId; // Store the selected playlist ID
+                    fetchPlaylistVideos(playlistId);
+                    activeMediaView = 'videoList'; // Update state
+                    backToPlaylistsBottomButton.style.display = 'flex'; // Show floating button
                 }
             });
         });
 
-        // YouTube back button handler (now in Media tab)
-        youtubeBackButton.addEventListener('click', () => {
+        /**
+         * Fetches videos for a given YouTube playlist and displays them.
+         * @param {string} playlistId - The ID of the YouTube playlist.
+         * @param {boolean} [updateActiveView=true] - Whether to update activeMediaView. Defaults to true.
+         */
+        async function fetchPlaylistVideos(playlistId, updateActiveView = true) {
+            const apiUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&key=${YOUTUBE_API_KEY}&maxResults=20`; // Fetch up to 20 videos
+
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (data.items && data.items.length > 0) {
+                    videoListContainer.innerHTML = ''; // Clear previous videos
+                    data.items.forEach(item => {
+                        const videoId = item.snippet.resourceId.videoId;
+                        const title = item.snippet.title;
+                        const thumbnailUrl = item.snippet.thumbnails.medium ? item.snippet.thumbnails.medium.url : 'https://placehold.co/120x90/000000/FFFFFF?text=No+Thumbnail';
+
+                        const videoCard = document.createElement('div');
+                        videoCard.classList.add('glass-surface', 'glass-surface--svg', 'youtube-video-card');
+                        videoCard.dataset.videoId = videoId;
+                        videoCard.innerHTML = `
+                            <img src="${thumbnailUrl}" alt="${title}" onerror="this.onerror=null;this.src='https://placehold.co/120x90/000000/FFFFFF?text=No+Thumbnail';" />
+                            <h3>${title}</h3>
+                        `;
+                        videoCard.addEventListener('click', () => playVideo(videoId));
+                        videoListContainer.appendChild(videoCard);
+                    });
+
+                    youtubePlaylistView.classList.add('hidden');
+                    youtubePlaylistView.classList.remove('flex', 'flex-col');
+                    youtubeVideoListView.classList.remove('hidden');
+                    youtubeVideoListView.classList.add('flex', 'flex-col');
+                    youtubePlayerView.classList.add('hidden'); // Ensure player is hidden
+                    youtubePlayerView.classList.remove('flex', 'flex-col');
+
+                    if (updateActiveView) {
+                        activeMediaView = 'videoList'; // Update state only if explicitly requested
+                    }
+                    backToPlaylistsBottomButton.style.display = 'flex'; // Show floating button
+                } else {
+                    showMessageBox('لم يتم العثور على فيديوهات في قائمة التشغيل هذه.');
+                    console.warn('No videos found for playlist:', playlistId, data);
+                    backToPlaylistsBottomButton.style.display = 'none'; // Hide floating button on error/no videos
+                }
+            } catch (error) {
+                console.error('Error fetching YouTube playlist videos:', error);
+                showMessageBox('حدث خطأ أثناء جلب فيديوهات قائمة التشغيل.');
+                backToPlaylistsBottomButton.style.display = 'none'; // Hide floating button on error
+            }
+        }
+
+        /**
+         * Plays a specific YouTube video in the iframe.
+         * @param {string} videoId - The ID of the YouTube video.
+         */
+        function playVideo(videoId) {
+            youtubePlayerIframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+            currentPlayingVideoId = videoId; // Store the currently playing video ID
+            youtubeVideoListView.classList.add('hidden');
+            youtubeVideoListView.classList.remove('flex', 'flex-col');
+            youtubePlayerView.classList.remove('hidden');
+            youtubePlayerView.classList.add('flex', 'flex-col');
+            activeMediaView = 'player'; // Update state
+            backToPlaylistsBottomButton.style.display = 'none'; // Hide floating button when player is active
+        }
+
+        // YouTube back button handler (from player to video list)
+        backToVideosButton.addEventListener('click', () => {
+            youtubePlayerIframe.src = ''; // Stop video playback
             youtubePlayerView.classList.add('hidden');
             youtubePlayerView.classList.remove('flex', 'flex-col');
+            youtubeVideoListView.classList.remove('hidden');
+            youtubeVideoListView.classList.add('flex', 'flex-col');
+            activeMediaView = 'videoList'; // Update state
+            backToPlaylistsBottomButton.style.display = 'flex'; // Show floating button
+        });
+
+        // YouTube back button handler (from video list to playlists)
+        function navigateBackToPlaylists() {
+            youtubeVideoListView.classList.add('hidden');
+            youtubeVideoListView.classList.remove('flex', 'flex-col');
             youtubePlaylistView.classList.remove('hidden');
             youtubePlaylistView.classList.add('flex', 'flex-col');
-            youtubePlayerIframe.src = ''; 
-            currentPlayingPlaylistId = ''; 
-        });
+            currentPlayingPlaylistId = ''; // Reset selected playlist
+            currentPlayingVideoId = ''; // Reset playing video
+            youtubePlayerIframe.src = ''; // Ensure player is stopped
+            activeMediaView = 'playlist'; // Update state
+            backToPlaylistsBottomButton.style.display = 'none'; // Hide floating button
+        }
+
+        backToPlaylistsFromVideosButton.addEventListener('click', navigateBackToPlaylists);
+        backToPlaylistsBottomButton.addEventListener('click', navigateBackToPlaylists); // Event listener for the new bottom button
 
 
         const chatHistoryDiv = document.getElementById('chat-history');
@@ -1161,15 +1355,9 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                     let chatHistory = [];
                     chatHistory.push({ role: "user", parts: [{ text: userMessageText }] });
                     const payload = { contents: chatHistory };
-                    const apiKey = "";
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${AI_ASSISTANT_API_KEY}`; 
 
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
+                    const response = await fetch(apiUrl);
                     const result = await response.json();
 
                     if (result.candidates && result.candidates.length > 0 &&
@@ -1210,7 +1398,6 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
 
         // Declare variables globally but assign them inside DOMContentLoaded
         let dashboardMapIframe;
-        let mapIframeMain; // This will now be unused or repurposed if map is removed
         let getMyLocationButtonDashboard;
         let floatingFullscreenButton; 
         let carplayMainInterface;
@@ -1224,7 +1411,6 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
             if (dashboardMapIframe) {
                 dashboardMapIframe.src = googleMapsSrc;
             }
-            // mapIframeMain is no longer used for a map
         }
 
         // Function to get user's current location (and alert about Google Maps embed limitations)
@@ -1249,7 +1435,6 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                             case error.TIMEOUT:
                                 errorMessage += ' انتهت مهلة طلب الموقع.';
                                 break;
-                                // Fallback for image alt attribute
                                 default:
                                 errorMessage += ' خطأ غير معروف.';
                                 break;
@@ -1301,83 +1486,72 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
             const topBar = document.querySelector('.top-bar');
             const navBar = document.querySelector('nav'); 
 
-            let attemptedFullscreen = false;
-            try {
-                if (mainInterface.requestFullscreen) {
-                    mainInterface.requestFullscreen();
-                    attemptedFullscreen = true;
-                } else if (mainInterface.mozRequestFullScreen) { 
-                    mainInterface.mozRequestFullScreen();
-                    attemptedFullscreen = true;
-                } else if (mainInterface.webkitRequestFullscreen) { 
-                    mainInterface.webkitRequestFullscreen();
-                    attemptedFullscreen = true;
-                } else if (mainInterface.msRequestFullscreen) { 
-                    mainInterface.msRequestFullscreen();
-                    attemptedFullscreen = true;
-                }
-            } catch (error) {
-                console.error("Fullscreen API call failed:", error);
-                showMessageBox("لا يمكن تفعيل وضع ملء الشاشة على مستوى المتصفح بسبب قيود الأمان في هذه البيئة. سيتم تطبيق وضع ملء الشاشة الزائف بدلاً من ذلك.");
-                attemptedFullscreen = false; 
-            }
+            // Toggle the pseudo-fullscreen class
+            const isFullscreen = mainInterface.classList.toggle('carplay-pseudo-fullscreen');
 
-            if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
-                const isFullscreen = mainInterface.classList.toggle('carplay-pseudo-fullscreen');
-
-                if (isFullscreen) {
-                    floatingFullscreenButton.innerHTML = '<i data-lucide="minimize" class="w-6 h-6"></i><span>تصغير الشاشة</span>';
-                    if (topBar) topBar.style.opacity = '0'; 
-                    // navBar opacity is no longer set to 0, so it remains visible
-                    document.body.style.overflow = 'hidden'; 
-                } else {
-                    floatingFullscreenButton.innerHTML = '<i data-lucide="maximize" class="w-6 h-6"></i><span>ملء الشاشة</span>';
-                    if (topBar) topBar.style.opacity = '1';
-                    // navBar opacity is no longer set to 0
-                    document.body.style.overflow = ''; 
-                }
+            if (isFullscreen) {
+                floatingFullscreenButton.innerHTML = '<i data-lucide="minimize" class="w-6 h-6"></i><span>تصغير الشاشة</span>';
+                if (topBar) topBar.style.opacity = '0'; 
+                document.body.style.overflow = 'hidden'; 
             } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.mozCancelFullScreen) { 
-                    document.mozCancelFullScreen();
-                } else if (document.webkitExitFullscreen) { 
-                    document.webkitExitFullscreen();
-                } else if (document.msExitFullscreen) { 
-                    document.msExitFullscreen();
-                }
-                mainInterface.classList.remove('carplay-pseudo-fullscreen');
                 floatingFullscreenButton.innerHTML = '<i data-lucide="maximize" class="w-6 h-6"></i><span>ملء الشاشة</span>';
                 if (topBar) topBar.style.opacity = '1';
-                // navBar opacity is no longer set to 0
-                document.body.style.overflow = '';
+                document.body.style.overflow = ''; 
             }
             lucide.createIcons(); 
         }
 
-        // Function to simulate weather updates
-        function simulateWeatherUpdate() {
-            const temps = ['26', '27', '28', '29', '30'];
-            const descriptions = ['مشمس', 'غائم جزئياً', 'غائم', 'أمطار خفيفة'];
-            const humidity = ['55', '60', '65', '70'];
-            const winds = ['10', '15', '20'];
-            const hourlyForecasts = ['100% طقس في الساعة', 'غائم جزئياً', 'فرصة أمطار'];
-            const icons = ['sun', 'cloud-sun', 'cloud', 'cloud-rain'];
+        // Function to fetch live weather data from WeatherAPI.com
+        async function fetchWeatherData() {
+            const location = appState.weather.location.split(',')[0].trim(); // Use city name for query
+            // Removed aqi=no to allow for potential future AQI integration if needed
+            const apiUrl = `https://api.weatherapi.com/v1/current.json?key=${WEATHER_API_KEY}&q=${location}&lang=ar`; 
 
-            appState.weather.temperature = temps[Math.floor(Math.random() * temps.length)];
-            appState.weather.description = descriptions[Math.floor(Math.random() * descriptions.length)];
-            appState.weather.humidity = humidity[Math.floor(Math.random() * humidity.length)];
-            appState.weather.wind = winds[Math.floor(Math.random() * winds.length)];
-            appState.weather.hourlyForecast = hourlyForecasts[Math.floor(Math.random() * hourlyForecasts.length)];
-            appState.weather.icon = icons[Math.floor(Math.random() * icons.length)];
-            
-            const now = new Date();
-            appState.weather.lastUpdated = `آخر تحديث: ${now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: false })}`;
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                console.log("Weather API Response:", data);
 
-            updateUI(); // Update UI after simulating weather
+                appState.weather.temperature = data.current.temp_c;
+                appState.weather.feelsLike = data.current.feelslike_c; // New
+                appState.weather.description = data.current.condition.text;
+                appState.weather.humidity = data.current.humidity;
+                appState.weather.wind = data.current.wind_kph;
+                appState.weather.pressure = data.current.pressure_mb; // New
+                appState.weather.visibility = data.current.vis_km; // New
+                appState.weather.uvIndex = data.current.uv; // New
+                appState.weather.iconUrl = `https:${data.current.condition.icon}`; // Store the image URL directly
+                
+                // For hourly forecast, WeatherAPI.com current.json doesn't provide it directly.
+                // You would need to use the 'forecast.json' endpoint for that.
+                appState.weather.hourlyForecast = 'توقعات كل ساعة غير متوفرة'; 
+
+                const now = new Date();
+                appState.weather.lastUpdated = `آخر تحديث: ${now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: false })}`;
+                appState.weather.location = `${data.location.name}, ${data.location.country}`;
+
+            } catch (error) {
+                console.error('Error fetching weather data:', error);
+                showMessageBox(`تعذر جلب بيانات الطقس: ${error.message}. يرجى التحقق من مفتاح API والموقع.`);
+                // Fallback to default or clear data on error
+                appState.weather.temperature = '--';
+                appState.weather.feelsLike = '--'; // New
+                appState.weather.description = '--';
+                appState.weather.humidity = '--';
+                appState.weather.wind = '--';
+                appState.weather.pressure = '--'; // New
+                appState.weather.visibility = '--'; // New
+                appState.weather.uvIndex = '--'; // New
+                appState.weather.iconUrl = ''; // Clear icon URL on error
+                appState.weather.hourlyForecast = '--';
+                appState.weather.lastUpdated = '--';
+            } finally {
+                updateUI(); // Always update UI, even on error
+            }
         }
-        // Simulate weather update every 30 seconds
-        setInterval(simulateWeatherUpdate, 30000); 
 
         // Function to update UI based on appState
         function updateUI() {
@@ -1386,22 +1560,27 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
             document.getElementById('dashboard-weather-desc').textContent = appState.weather.description !== null ? appState.weather.description : '--';
             const dashboardWeatherIconElement = document.getElementById('dashboard-weather-icon');
             if (dashboardWeatherIconElement) {
-                dashboardWeatherIconElement.setAttribute('data-lucide', appState.weather.icon);
-                lucide.createIcons(); 
+                dashboardWeatherIconElement.src = appState.weather.iconUrl || 'https://placehold.co/64x64/000000/FFFFFF?text=No+Icon'; // Fallback placeholder
+                dashboardWeatherIconElement.alt = appState.weather.description || 'Weather Icon';
             }
+            document.getElementById('dashboard-weather-location').textContent = appState.weather.location;
 
 
             // Update Weather Tab
+            document.getElementById('weather-location').textContent = appState.weather.location; 
             document.getElementById('weather-temp').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature}°C` : '--°C';
             document.getElementById('weather-desc').textContent = appState.weather.description !== null ? appState.weather.description : '--';
+            document.getElementById('weather-feels-like').textContent = appState.weather.feelsLike !== null ? `الشعور كـ: ${appState.weather.feelsLike}°C` : 'الشعور كـ: --°C'; // New
             document.getElementById('weather-humidity').textContent = appState.weather.humidity !== null ? `${appState.weather.humidity}%` : '--%';
             document.getElementById('weather-wind').textContent = appState.weather.wind !== null ? `${appState.weather.wind} كم/س` : '-- كم/س';
-            document.getElementById('weather-hourly').textContent = appState.weather.hourlyForecast !== null ? appState.weather.hourlyForecast : '--';
+            document.getElementById('weather-pressure').textContent = appState.weather.pressure !== null ? `${appState.weather.pressure} mb` : '-- mb'; // New
+            document.getElementById('weather-visibility').textContent = appState.weather.visibility !== null ? `${appState.weather.visibility} كم` : '-- كم'; // New
+            document.getElementById('weather-uv').textContent = appState.weather.uvIndex !== null ? `${appState.weather.uvIndex}` : '--'; // New
             document.getElementById('weather-last-updated').textContent = appState.weather.lastUpdated !== null ? appState.weather.lastUpdated : '--';
             const weatherIconElement = document.getElementById('weather-icon');
             if (weatherIconElement) {
-                weatherIconElement.setAttribute('data-lucide', appState.weather.icon);
-                lucide.createIcons(); 
+                weatherIconElement.src = appState.weather.iconUrl || 'https://placehold.co/96x96/000000/FFFFFF?text=No+Icon'; // Fallback placeholder
+                weatherIconElement.alt = appState.weather.description || 'Weather Icon';
             }
 
             // Update Settings display values
@@ -1492,7 +1671,7 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
             document.getElementById('trip-duration').textContent = '0 دقيقة';
 
             if (navigator.geolocation) {
-                navigator.geolocation.watchPosition(onPositionUpdate, (error) => {
+                watchId = navigator.geolocation.watchPosition(onPositionUpdate, (error) => {
                     console.error('Geolocation error:', error);
                     let errorMessage = 'تعذر الحصول على موقعك: ';
                     switch (error.code) {
@@ -1562,7 +1741,7 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
         function saveTripToLog(dist, duration) {
             const log = JSON.parse(localStorage.getItem('tripLog') || '[]');
             const trip = {
-                date: new Date().toLocaleString('en-US'),
+                date: new Date().toLocaleString('ar-SA'), // Use Arabic locale for date
                 distance: dist,
                 duration: duration
             };
@@ -1598,7 +1777,8 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
             quranAudio = document.getElementById('quranAudio');
             playPauseButton = document.getElementById('playPauseQuran');
             playPauseIcon = document.getElementById('playPauseIcon');
-            playPauseText = document.getElementById('playPauseText');
+            // playPauseText is not directly used in the HTML for the button span, it's just 'تشغيل'
+            // So, remove reference to playPauseText here.
 
             if (playPauseButton) {
                 playPauseButton.onclick = togglePlayPause;
@@ -1609,11 +1789,12 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
             if (quranAudio.paused) {
                 quranAudio.play();
                 playPauseIcon.setAttribute('data-lucide', 'pause');
-                playPauseText.textContent = 'إيقاف مؤقت';
+                // Update the span text directly if needed, but the current HTML uses a static span
+                playPauseButton.querySelector('span').textContent = 'إيقاف مؤقت';
             } else {
                 quranAudio.pause();
                 playPauseIcon.setAttribute('data-lucide', 'play');
-                playPauseText.textContent = 'تشغيل';
+                playPauseButton.querySelector('span').textContent = 'تشغيل';
             }
             lucide.createIcons(); // Re-render icon
         }
@@ -1642,7 +1823,6 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
         // Initial UI update after all elements are loaded
         document.addEventListener('DOMContentLoaded', () => {
             dashboardMapIframe = document.getElementById('dashboard-map-iframe');
-            // mapIframeMain is no longer needed as YouTube content replaces the map tab
             getMyLocationButtonDashboard = document.getElementById('get-my-location-button-dashboard');
             floatingFullscreenButton = document.getElementById('floating-fullscreen-button'); 
             carplayMainInterface = document.getElementById('carplay-main-interface');
@@ -1650,11 +1830,13 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
             getMyLocationButtonDashboard.addEventListener('click', () => getMyLocation('dashboard'));
             floatingFullscreenButton.addEventListener('click', togglePseudoFullscreen); 
 
+            // Initial calls
             updateUI();
-            simulateWeatherUpdate(); 
+            fetchWeatherData(); 
+            setInterval(fetchWeatherData, 300000); // Update weather every 5 minutes (300,000 ms)
+            setInterval(updateDigitalClock, 1000); 
+            updateDigitalClock(); 
             switchApp('Dashboard'); 
-            setInterval(updateDigitalClock, 1000); // Start digital clock animation
-            updateDigitalClock(); // Initial call to set time correctly
         });
 
     </script>
