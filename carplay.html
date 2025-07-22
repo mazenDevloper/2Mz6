@@ -171,12 +171,13 @@
             border-radius: 1.5rem;
         }
 
-        /* Floating Full-Screen Button style */
+        /* Floating Full-Screen Button style - MODIFIED */
         #floating-fullscreen-button {
             position: fixed;
-            bottom: 1rem; /* Adjusted from 2rem */
-            left: 50%;
-            transform: translateX(-50%);
+            bottom: 1rem;
+            left: 1rem; /* Positioned on the left */
+            transform: none; /* Removed translateX */
+            right: auto; /* Ensure it doesn't conflict with right positioning */
             background-color: rgba(147, 51, 234, 0.8); /* Purple glass */
             color: white;
             padding: 1rem 1.5rem;
@@ -194,7 +195,7 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
         #floating-fullscreen-button:hover {
-            transform: translateX(-50%) scale(1.05);
+            transform: scale(1.05); /* Only scale, no translate */
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
         }
 
@@ -434,10 +435,10 @@
             color: #10b981;
         }
 
-        /* Styles for 360 Camera View */
+        /* Styles for 360 Camera View - MODIFIED */
         .car-cam-360-container {
             width: 100%;
-            height: 200px; /* Fixed height for the camera view */
+            height: 100%; /* Changed to 100% height */
             background-color: rgba(0, 0, 0, 0.5);
             border-radius: 1.5rem;
             display: flex;
@@ -446,9 +447,16 @@
             font-size: 1.5rem;
             color: rgba(255, 255, 255, 0.7);
             box-shadow: inset 0 0 15px rgba(0,0,0,0.7);
-            margin-bottom: 1rem;
+            margin-bottom: 0; /* Removed margin-bottom */
             overflow: hidden; /* Ensure content stays within bounds */
         }
+        /* Ensure the image inside takes full height */
+        .car-cam-360-container img {
+            height: 100%; /* Ensure image takes full height of its container */
+            width: auto; /* Allow width to adjust based on aspect ratio */
+            object-fit: cover; /* Maintain aspect ratio and cover container */
+        }
+
     #digital-time {
     font-size: 2.2rem!important;}
         /* Settings Range Input Styling */
@@ -611,14 +619,33 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
 
         /* Digital Clock Styles (Apple iOS 19 style) - Adjusted for 20% smaller */
         #digital-time {
-            font-size: 3.2rem; /* Approx 20% smaller than 4rem (6xl) */
+            font-size: 2.8rem; /* Adjusted for smaller font */
             font-weight: 800; /* Extra bold */
             color: white;
             margin-bottom: 0.5rem; /* Reduced margin */
         }
         #digital-date {
-            font-size: 1rem; /* Approx 20% smaller than 1.25rem (xl) */
+            font-size: 1.25rem; /* Adjusted for larger font */
             color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Trip Main Content Wrapper Styles - NEW */
+        .trip-main-content-wrapper {
+            flex-direction: row; /* Always row as per request */
+            width: 88%; /* Requested width */
+            margin-left: auto; /* Center the div */
+            margin-right: auto; /* Center the div */
+        }
+
+        /* Weather section content to take full width and height */
+        #screen-Weather > div { /* Target the direct child div of the weather section */
+            width: 100%;
+            height: 100%;
+            max-width: none; /* Remove max-width constraint */
+        }
+        /* Ensure weather card itself can grow */
+        #screen-Weather .glass-surface {
+            flex-grow: 1; /* Allow the main weather card to grow */
         }
     </style>
 </head>
@@ -710,10 +737,8 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
 
                         <!-- Middle Column (Col 2): 360 Camera View (25%) -->
                         <div class="flex flex-col gap-4 md:gap-6 dashboard-col-25-percent">
-                            <div class="glass-surface glass-surface--svg p-2 flex-grow flex flex-col items-center justify-center text-center">
-                                <div class="w-full h-40 bg-black/30 rounded-lg flex items-center justify-center overflow-hidden">
-                                    <img src="https://dmusera.netlify.app/3603.png" alt="عرض الكاميرا 360 درجة للسيارة" class="w-full h-full object-cover rounded-lg opacity-80" />
-                                </div>
+                            <div class="glass-surface glass-surface--svg p-2 flex-grow flex flex-col items-center justify-center text-center car-cam-360-container">
+                                <img src="https://dmusera.netlify.app/3603.png" alt="عرض الكاميرا 360 درجة للسيارة" class="w-full h-full object-cover rounded-lg opacity-80" />
                             </div>
                         </div>
 
@@ -834,7 +859,7 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
 
                 <section id="screen-Weather" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full">
                     <h1 class="text-4xl font-bold mb-6">الطقس <i data-lucide="cloud-sun"></i></h1>
-                    <div class="w-full max-w-2xl flex flex-col gap-4"> <!-- Increased max-w for more content -->
+                    <div class="w-full h-full flex flex-col gap-4"> <!-- Removed max-w-2xl -->
                         <!-- Main Weather Card (Top) -->
                         <div class="glass-surface glass-surface--svg p-6 rounded-3xl text-center flex flex-col items-center justify-center flex-grow">
                             <div class="text-3xl font-bold mb-2" id="weather-location">صلالة، عمان</div>
@@ -876,62 +901,56 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                     </div>
                 </section>
 
-                <!-- New Trip App Screen -->
+                <!-- New Trip App Screen - MODIFIED -->
                 <section id="screen-Trip" class="app-screen p-4 md:p-6 flex-col h-full">
-                    <h1 class="text-4xl font-bold mb-4 text-center">🚗 رحلتي</h1>
-
-                    <!-- الخريطة -->
-                    <div id="trip-map" class="w-full h-64 rounded-lg shadow mb-4 glass-surface glass-surface--svg"></div>
-
-                    <!-- الإحصائيات -->
-                    <div class="grid grid-cols-2 gap-4 mb-4 text-center">
-                        <div class="trip-stat-card">
-                            <div class="text-sm text-white/70">المسافة المقطوعة</div>
-                            <div id="trip-distance" class="text-xl font-bold">0 كم</div>
+                    <h1 class="text-4xl font-bold mb-4 text-center w-full">🚗 رحلتي</h1>
+                    <div class="flex-grow flex gap-4 md:gap-6 h-full trip-main-content-wrapper">
+                        <!-- Left Column: Map (50%) -->
+                        <div class="flex-grow h-full rounded-3xl relative overflow-hidden flex items-center justify-center glass-surface glass-surface--svg p-1 w-full lg:w-1/2 min-h-[300px]">
+                            <div id="trip-map" class="w-full h-full rounded-lg shadow"></div>
                         </div>
-                        <div class="trip-stat-card">
-                            <div class="text-sm text-white/70">المدة</div>
-                            <div id="trip-duration" class="text-xl font-bold">0 دقيقة</div>
+
+                        <!-- Right Column: Stats, Buttons, Log (50%) -->
+                        <div class="flex flex-col gap-4 md:gap-6 w-full lg:w-1/2 h-full">
+                            <!-- الإحصائيات -->
+                            <div class="grid grid-cols-2 gap-4 text-center">
+                                <div class="trip-stat-card">
+                                    <div class="text-sm text-white/70">المسافة المقطوعة</div>
+                                    <div id="trip-distance" class="text-xl font-bold">0 كم</div>
+                                </div>
+                                <div class="trip-stat-card">
+                                    <div class="text-sm text-white/70">المدة</div>
+                                    <div id="trip-duration" class="text-xl font-bold">0 دقيقة</div>
+                                </div>
+                            </div>
+
+                            <!-- زر بدء الرحلة -->
+                            <div class="flex justify-center gap-4">
+                                <button onclick="startTrip()" class="trip-button">بدء الرحلة</button>
+                                <button onclick="endTrip()" class="trip-button bg-red-500">إنهاء الرحلة</button>
+                            </div>
+
+                            <!-- سجل الرحلات -->
+                            <h2 class="text-xl font-bold mt-2 mb-2">📋 سجل الرحلات</h2>
+                            <ul id="tripLog" class="list-disc pl-6 text-sm space-y-1 overflow-y-auto flex-grow rounded-lg p-2 glass-surface glass-surface--svg"></ul>
                         </div>
                     </div>
-
-                    <!-- زر بدء الرحلة -->
-                    <div class="flex justify-center gap-4 mb-4">
-                        <button onclick="startTrip()" class="trip-button">بدء الرحلة</button>
-                        <button onclick="endTrip()" class="trip-button bg-red-500">إنهاء الرحلة</button>
-                    </div>
-
-                    <!-- سجل الرحلات -->
-                    <h2 class="text-xl font-bold mt-6 mb-2">📋 سجل الرحلات</h2>
-                    <ul id="tripLog" class="list-disc pl-6 text-sm space-y-1 overflow-y-auto flex-grow rounded-lg p-2 glass-surface glass-surface--svg"></ul>
                 </section>
 
-                <!-- NEW Electronic Quran App Screen -->
+                <!-- NEW Electronic Quran App Screen - MODIFIED -->
                 <section id="screen-Quran" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full">
-                    <h1 class="text-4xl font-bold mb-6 text-center">📖 المصحف الإلكتروني</h1>
-                    <div class="w-full max-w-xl glass-surface glass-surface--svg p-4 rounded-xl flex flex-col items-center">
-                        <div class="quran-text mb-4 w-full">
-                            <p>بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</p>
-                            <p>الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ</p>
-                            <p>الرَّحْمَنِ الرَّحِيمِ</p>
-                            <p>مَالِكِ يَوْمِ الدِّينِ</p>
-                            <p>إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ</p>
-                            <p>اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ</p>
-                            <p>صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ</p>
-                        </div>
-                        <div class="quran-controls">
-                            <audio id="quranAudio" src="https://www.islamweb.net/recitations/media/1335/001.mp3" preload="auto"></audio>
-                            <button id="playPauseQuran" class="quran-control-button">
-                                <i data-lucide="play" id="playPauseIcon"></i>
-                                <span>تشغيل</span>
-                            </button>
-                            <button class="quran-control-button">
-                                <i data-lucide="skip-forward"></i>
-                                <span>الآية التالية</span>
-                            </button>
-                        </div>
-                        <p class="text-sm text-white/70 mt-4">مثال لسورة الفاتحة - ألوان التجويد محاكاة</p>
+                    <!-- Removed H1 tag as per request -->
+                    <div class="w-full h-full glass-surface glass-surface--svg p-4 rounded-xl flex flex-col items-center flex-grow">
+                        <iframe
+                            id="quran-iframe"
+                            class="full-iframe"
+                            src="https://quran.com/"
+                            title="القرآن الكريم"
+                            frameborder="0"
+                            allowfullscreen
+                        ></iframe>
                     </div>
+                    <!-- Removed the note paragraph as per request -->
                 </section>
 
                  <section id="screen-Settings" class="app-screen p-8 flex-col h-full">
@@ -1084,38 +1103,22 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
 
             // Handle Media (YouTube) view switching
             if (appName === 'Media') {
-                // Hide all media sub-views initially
-                youtubePlaylistView.classList.add('hidden');
+                // Always reset to playlist view and stop any playing video when navigating to Media tab
+                youtubePlaylistView.classList.remove('hidden');
+                youtubePlaylistView.classList.add('flex', 'flex-col');
                 youtubeVideoListView.classList.add('hidden');
-                youtubePlayerView.classList.add('hidden');
-
-                youtubePlaylistView.classList.remove('flex', 'flex-col');
                 youtubeVideoListView.classList.remove('flex', 'flex-col');
+                youtubePlayerView.classList.add('hidden');
                 youtubePlayerView.classList.remove('flex', 'flex-col');
-
-                if (activeMediaView === 'player' && currentPlayingVideoId) {
-                    youtubePlayerView.classList.remove('hidden');
-                    youtubePlayerView.classList.add('flex', 'flex-col');
-                    youtubePlayerIframe.src = `https://www.youtube.com/embed/${currentPlayingVideoId}?autoplay=1`; // Resume playing
-                    backToPlaylistsBottomButton.style.display = 'none'; // Hide floating button when player is active
-                } else if (activeMediaView === 'videoList' && currentPlayingPlaylistId) {
-                    // Only show video list if a playlist was previously selected
-                    youtubeVideoListView.classList.remove('hidden');
-                    youtubeVideoListView.classList.add('flex', 'flex-col');
-                    // Re-fetch videos for the current playlist to ensure content is up-to-date
-                    fetchPlaylistVideos(currentPlayingPlaylistId, false); // Pass false to not update activeMediaView
-                    backToPlaylistsBottomButton.style.display = 'flex'; // Show floating button when video list is active
-                } else {
-                    // Default to playlist view
-                    youtubePlaylistView.classList.remove('hidden');
-                    youtubePlaylistView.classList.add('flex', 'flex-col');
-                    currentPlayingPlaylistId = ''; // Clear if returning to main playlist view
-                    currentPlayingVideoId = ''; // Clear playing video
-                    youtubePlayerIframe.src = ''; // Ensure player is stopped
-                    activeMediaView = 'playlist'; // Ensure state is correct
-                    backToPlaylistsBottomButton.style.display = 'none'; // Hide floating button when playlist is active
-                }
-            } else {
+                youtubePlayerIframe.src = ''; // Stop video playback
+                currentPlayingPlaylistId = ''; // Clear selected playlist
+                currentPlayingVideoId = ''; // Clear playing video
+                activeMediaView = 'playlist'; // Ensure state is correct
+                backToPlaylistsBottomButton.style.display = 'none'; // Hide floating button
+            } else if (appName === 'Trip') { // Handle Trip app activation
+                initializeTripApp(); // Ensure map is initialized and sized when Trip tab is active
+            }
+            else {
                 // If switching away from Media tab, ensure the floating button is hidden
                 backToPlaylistsBottomButton.style.display = 'none';
                 // If switching away from Trip, clear any ongoing geolocation watch
@@ -1401,6 +1404,7 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
         let getMyLocationButtonDashboard;
         let floatingFullscreenButton; 
         let carplayMainInterface;
+        let tripMapElement; // Reference to the trip map div
 
         // Function to update Google Maps source for only dashboard iframe now
         function updateMapSrc() {
@@ -1642,6 +1646,7 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
         let watchId = null; 
 
         function initializeTripApp() {
+            // Only initialize the map if it hasn't been already
             if (!tripMap) {
                 tripMap = L.map('trip-map').setView([23.6, 58.5], 13); 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -1649,9 +1654,14 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                 }).addTo(tripMap);
                 tripPolyline = L.polyline([], { color: '#8b5cf6', weight: 4 }).addTo(tripMap); 
             }
+            // Invalidate size every time the tab is opened to ensure it renders correctly
             if (tripMap) {
                 setTimeout(() => {
                     tripMap.invalidateSize();
+                    // Optionally, fit the map to the polyline if there's existing data
+                    if (tripPath.length > 0) {
+                        tripMap.fitBounds(tripPolyline.getBounds());
+                    }
                 }, 100); 
             }
 
@@ -1665,7 +1675,14 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
 
             tripPath = [];
             tripStartTime = new Date();
-            tripPolyline.setLatLngs([]); 
+            // Ensure tripPolyline is defined before calling setLatLngs
+            if (tripPolyline) {
+                tripPolyline.setLatLngs([]); 
+            } else {
+                console.error("tripPolyline is not initialized. Cannot start trip.");
+                showMessageBox("خطأ: الخريطة غير مهيأة بشكل صحيح. يرجى إعادة تحميل الصفحة.");
+                return;
+            }
             
             document.getElementById('trip-distance').textContent = '0 كم';
             document.getElementById('trip-duration').textContent = '0 دقيقة';
@@ -1706,8 +1723,12 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
 
             tripPath.push([lat, lng]);
             
-            tripPolyline.setLatLngs(tripPath);
-            tripMap.setView([lat, lng], 15);
+            if (tripPolyline) { // Ensure tripPolyline is defined
+                tripPolyline.setLatLngs(tripPath);
+            }
+            if (tripMap) { // Ensure tripMap is defined
+                tripMap.setView([lat, lng], 15);
+            }
             updateTripDistance();
         }
 
@@ -1733,7 +1754,13 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
         function calculateTripDistance(path) {
             let total = 0;
             for (let i = 1; i < path.length; i++) {
-                total += tripMap.distance(path[i - 1], path[i]) / 1000;
+                // Ensure tripMap is defined before using its methods
+                if (tripMap) {
+                    total += tripMap.distance(path[i - 1], path[i]) / 1000;
+                } else {
+                    console.error("tripMap is not initialized. Cannot calculate distance.");
+                    return 0;
+                }
             }
             return total;
         }
@@ -1768,43 +1795,20 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
         // --- End Trip App Specific JavaScript ---
 
         // --- Electronic Quran App Specific JavaScript ---
-        let quranAudio;
-        let playPauseButton;
-        let playPauseIcon;
-        let playPauseText;
-
+        // Removed previous Quran audio and text logic as it's now an iframe
+        // The iframe will handle its own content and playback
+        // Keeping initializeQuranApp for potential future use if custom controls are needed for the iframe
         function initializeQuranApp() {
-            quranAudio = document.getElementById('quranAudio');
-            playPauseButton = document.getElementById('playPauseQuran');
-            playPauseIcon = document.getElementById('playPauseIcon');
-            // playPauseText is not directly used in the HTML for the button span, it's just 'تشغيل'
-            // So, remove reference to playPauseText here.
-
-            if (playPauseButton) {
-                playPauseButton.onclick = togglePlayPause;
-            }
-        }
-
-        function togglePlayPause() {
-            if (quranAudio.paused) {
-                quranAudio.play();
-                playPauseIcon.setAttribute('data-lucide', 'pause');
-                // Update the span text directly if needed, but the current HTML uses a static span
-                playPauseButton.querySelector('span').textContent = 'إيقاف مؤقت';
-            } else {
-                quranAudio.pause();
-                playPauseIcon.setAttribute('data-lucide', 'play');
-                playPauseButton.querySelector('span').textContent = 'تشغيل';
-            }
-            lucide.createIcons(); // Re-render icon
+            // No direct audio or play/pause buttons for the embedded iframe
+            // If quran.com offers an API for control, it would be implemented here.
         }
         // --- End Electronic Quran App Specific JavaScript ---
 
         // --- Digital Clock JavaScript (Apple iOS 19 style) ---
         function updateDigitalClock() {
             const now = new Date();
-            // Use 'en-US' locale for English numbers
-            const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+            // Use 'en-US' locale for English numbers, and specify 12-hour format
+            const timeOptions = { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true, hourCycle: 'h12' };
             const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
 
             const digitalTimeElement = document.getElementById('digital-time');
@@ -1826,6 +1830,7 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
             getMyLocationButtonDashboard = document.getElementById('get-my-location-button-dashboard');
             floatingFullscreenButton = document.getElementById('floating-fullscreen-button'); 
             carplayMainInterface = document.getElementById('carplay-main-interface');
+            tripMapElement = document.getElementById('trip-map'); // Get reference to trip map div
 
             getMyLocationButtonDashboard.addEventListener('click', () => getMyLocation('dashboard'));
             floatingFullscreenButton.addEventListener('click', togglePseudoFullscreen); 
