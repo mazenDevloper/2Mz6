@@ -277,7 +277,7 @@
         }
 
         /* UPDATED: youtube-channel-card to be 50% smaller */
-        .youtube-channel-card, .youtube-search-card {
+        .youtube-channel-card {
             cursor: pointer;
             display: flex;
             flex-direction: column;
@@ -286,13 +286,12 @@
             padding: 0.4rem; /* Reduced padding for smaller card */
             transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
             aspect-ratio: 1 / 1; /* Make the card square */
-            text-align: center; /* Center text for search results */
         }
-        .youtube-channel-card:hover, .youtube-search-card:hover {
+        .youtube-channel-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
-        .youtube-channel-card img, .youtube-search-card img {
+        .youtube-channel-card img {
             width: 85%; /* Reverted to 85% */
             height: 85%; /* Reverted to 85% */
             object-fit: cover;
@@ -300,14 +299,10 @@
             margin-bottom: 0.4rem; /* Reduced margin-bottom for smaller card */
             border: 2px solid rgba(255,255,255,0.3);
         }
-        .youtube-channel-card h2, .youtube-search-card h2 {
+        .youtube-channel-card h2 {
             font-size: 0.8rem; /* Reduced font size for smaller card */
             font-weight: 600;
             color: white;
-            overflow: hidden; /* Hide overflow text */
-            text-overflow: ellipsis; /* Add ellipsis for overflow */
-            white-space: nowrap; /* Prevent text wrapping */
-            width: 100%; /* Ensure it takes full width */
         }
 
         .metallic-logo-effect {
@@ -546,11 +541,12 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
             color: rgba(255, 255, 255, 0.7);
         }
         #digital-time .seconds {
-            opacity: 0.5; /* 50% transparency for seconds */
+            color: rgba(255, 255, 255, 0.5); /* 50% transparency for seconds */
         }
         #digital-time .minutes {
-            opacity: 0.7; /* 70% transparency for minutes */
+            color: rgba(255, 255, 255, 0.7); /* 70% transparency for minutes */
         }
+
 
         /* Styles for the toggle switch */
         .toggle-switch-container {
@@ -717,29 +713,7 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                
                 <section id="screen-Media" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full">
                     <h1 class="text-4xl font-bold mb-6 text-center">🎥 الوسائط المتعددة</h1>
-                    
-                    <!-- YouTube Search Section -->
-                    <div id="youtube-search-section" class="w-full flex flex-col items-center mb-6">
-                        <div class="flex w-full max-w-lg gap-2 mb-4">
-                            <input
-                                type="text"
-                                id="youtube-search-input"
-                                placeholder="ابحث عن فيديوهات يوتيوب..."
-                                class="flex-grow p-3 rounded-full bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                onkeypress="if(event.key === 'Enter') document.getElementById('youtube-search-button').click();"
-                            />
-                            <button
-                                id="youtube-search-button"
-                                class="bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center"
-                            >
-                                <i data-lucide="search"></i>
-                            </button>
-                        </div>
-                        <div id="youtube-search-results" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 w-full mb-6 hidden">
-                            <!-- Search results will be dynamically loaded here -->
-                        </div>
-                    </div>
-
+                    <!-- UPDATED: Grid columns to make cards 50% smaller -->
                     <div id="youtube-playlist-view" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 w-full h-full flex flex-col">
                         <h1 class="col-span-full text-4xl font-bold mb-6 text-center">قوائم تشغيل يوتيوب</h1>
                         <div class="glass-surface glass-surface--svg youtube-channel-card" data-playlist-id="PLKcMYf5ZQsR06u4g0zXXS-Cv9WR9F8tCG">
@@ -762,7 +736,7 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
 
                     <div id="youtube-player-media-container" class="hidden flex-col items-center justify-center h-full w-full relative">
                         <!-- The global YouTube iframe will be appended here dynamically -->
-                        <button id="youtube-back-button-media" class="absolute bottom-4 left-4 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm">
+                        <button id="youtube-back-button" class="absolute bottom-4 left-4 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="arrow-left" class="lucide lucide-arrow-left w-4 h-4"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg> العودة
                         </button>
                     </div>
@@ -964,7 +938,9 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowfullscreen
             ></iframe>
-            <!-- The back button is now specific to the Media tab's player container -->
+            <button id="youtube-back-button" class="absolute bottom-4 left-4 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> العودة
+            </button>
         </div>
     </div>
 
@@ -1024,17 +1000,11 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
 
         // YouTube specific elements (now globally accessible)
         const youtubePlaylistView = document.getElementById('youtube-playlist-view'); // This is inside screen-Media
-        const youtubeSearchResults = document.getElementById('youtube-search-results'); // New element for search results
-        const youtubeSearchInput = document.getElementById('youtube-search-input'); // New search input
-        const youtubeSearchButton = document.getElementById('youtube-search-button'); // New search button
-
         const globalYoutubePlayerView = document.getElementById('global-youtube-player-view'); // This is now global
         const youtubePlayerIframe = document.getElementById('youtube-player-iframe'); // This is now global
-        const youtubeBackButtonMedia = document.getElementById('youtube-back-button-media'); // Back button in Media tab
+        const youtubeBackButton = document.getElementById('youtube-back-button'); // This is inside globalYoutubePlayerView
         const youtubePlayerMediaContainer = document.getElementById('youtube-player-media-container'); // Container in Media tab
-        
-        let currentPlayingId = ''; // State to track if a video is playing (can be playlist ID or video ID)
-        let isPlayingVideo = false; // To distinguish between playlist and single video
+        let currentPlayingPlaylistId = ''; // State to track if a video is playing
 
         // Dashboard specific elements for toggle
         const dashboardMapToggleBtn = document.getElementById('dashboard-map-toggle-button');
@@ -1062,9 +1032,8 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
 
             // Handle global YouTube player visibility and parenting
             if (appName === 'Media') {
-                if (currentPlayingId) {
+                if (currentPlayingPlaylistId) {
                     youtubePlaylistView.classList.add('hidden');
-                    youtubeSearchResults.classList.add('hidden'); // Hide search results too
                     youtubePlayerMediaContainer.classList.remove('hidden');
                     youtubePlayerMediaContainer.classList.add('flex');
                     
@@ -1081,24 +1050,20 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                     globalYoutubePlayerView.style.borderRadius = '0';
                     globalYoutubePlayerView.style.padding = '0';
                     globalYoutubePlayerView.style.backgroundColor = 'transparent'; // No dark overlay here
-                    youtubeBackButtonMedia.style.display = 'flex'; // Show back button
+                    youtubeBackButton.style.display = 'flex'; // Show back button
                     
                     // Re-assign src to ensure it loads/plays if it was interrupted or not loaded yet
-                    if (youtubePlayerIframe.src === '' || !youtubePlayerIframe.src.includes(currentPlayingId)) {
+                    if (youtubePlayerIframe.src === '' || !youtubePlayerIframe.src.includes(currentPlayingPlaylistId)) {
                         let youtubeSrc = '';
-                        if (isPlayingVideo) { // If it's a single video
-                            youtubeSrc = `https://www.youtube.com/embed/${currentPlayingId}?autoplay=1`;
-                        } else if (currentPlayingId.startsWith('UC')) { 
-                            youtubeSrc = `https://www.youtube.com/embed?listType=user_uploads&list=${currentPlayingId}&autoplay=1`;
-                        } else if (currentPlayingId.startsWith('PL')) { 
-                            youtubeSrc = `https://www.youtube.com/embed/videoseries?list=${currentPlayingId}&autoplay=1`;
+                        if (currentPlayingPlaylistId.startsWith('UC')) { 
+                            youtubeSrc = `https://www.youtube.com/embed?listType=user_uploads&list=${currentPlayingPlaylistId}&autoplay=1`;
+                        } else if (currentPlayingPlaylistId.startsWith('PL')) { 
+                            youtubeSrc = `https://www.youtube.com/embed/videoseries?list=${currentPlayingPlaylistId}&autoplay=1`;
                         }
                         youtubePlayerIframe.src = youtubeSrc;
                     }
                 } else {
                     youtubePlaylistView.classList.remove('hidden');
-                    youtubePlaylistView.classList.add('flex', 'flex-col');
-                    youtubeSearchResults.classList.add('hidden'); // Hide search results
                     youtubePlayerMediaContainer.classList.add('hidden');
                     globalYoutubePlayerView.classList.add('hidden'); // Ensure global player is hidden
                     globalYoutubePlayerView.classList.remove('flex');
@@ -1117,7 +1082,7 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                     youtubePlayerDashboardContainer.appendChild(globalYoutubePlayerView);
                     globalYoutubePlayerView.classList.remove('hidden');
                     globalYoutubePlayerView.classList.add('flex');
-                    youtubeBackButtonMedia.style.display = 'none'; // Hide back button in dashboard view
+                    youtubeBackButton.style.display = 'none'; // Hide back button in dashboard view
 
                     // Adjust globalYoutubePlayerView's CSS to fit the dashboard's YouTube container
                     globalYoutubePlayerView.style.position = 'relative'; // Relative to its new parent
@@ -1129,15 +1094,13 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
                     globalYoutubePlayerView.style.padding = '0';
                     globalYoutubePlayerView.style.backgroundColor = 'transparent'; // No dark overlay
 
-                    // Ensure src is set to currentPlayingId if available and not already playing
-                    if (currentPlayingId && (youtubePlayerIframe.src === '' || !youtubePlayerIframe.src.includes(currentPlayingId))) {
+                    // Ensure src is set to currentPlayingPlaylistId if available and not already playing
+                    if (currentPlayingPlaylistId && (youtubePlayerIframe.src === '' || !youtubePlayerIframe.src.includes(currentPlayingPlaylistId))) {
                         let youtubeSrc = '';
-                        if (isPlayingVideo) { // If it's a single video
-                            youtubeSrc = `https://www.youtube.com/embed/${currentPlayingId}?autoplay=1`;
-                        } else if (currentPlayingId.startsWith('UC')) { 
-                            youtubeSrc = `https://www.youtube.com/embed?listType=user_uploads&list=${currentPlayingId}&autoplay=1`;
-                        } else if (currentPlayingId.startsWith('PL')) { 
-                            youtubeSrc = `https://www.youtube.com/embed/videoseries?list=${currentPlayingId}&autoplay=1`;
+                        if (currentPlayingPlaylistId.startsWith('UC')) { 
+                            youtubeSrc = `https://www.youtube.com/embed?listType=user_uploads&list=${currentPlayingPlaylistId}&autoplay=1`;
+                        } else if (currentPlayingPlaylistId.startsWith('PL')) { 
+                            youtubeSrc = `https://www.youtube.com/embed/videoseries?list=${currentPlayingPlaylistId}&autoplay=1`;
                         }
                         youtubePlayerIframe.src = youtubeSrc;
                     }
@@ -1194,21 +1157,51 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
             card.addEventListener('click', () => {
                 const id = card.dataset.playlistId; 
                 if (id) {
-                    currentPlayingId = id; 
-                    isPlayingVideo = false; // It's a playlist
-                    switchApp('Media'); // Trigger app switch to Media to display player
+                    currentPlayingPlaylistId = id; 
+                    youtubePlaylistView.classList.add('hidden');
+                    youtubePlayerMediaContainer.classList.remove('hidden');
+                    youtubePlayerMediaContainer.classList.add('flex');
+                    
+                    // Move global player into Media container
+                    youtubePlayerMediaContainer.appendChild(globalYoutubePlayerView);
+                    globalYoutubePlayerView.classList.remove('hidden');
+                    globalYoutubePlayerView.classList.add('flex');
+                    youtubeBackButton.style.display = 'flex'; // Show back button
+                    
+                    // Reset its position/size for Media tab full-screen state within its container
+                    globalYoutubePlayerView.style.position = 'relative'; // Relative to its new parent
+                    globalYoutubePlayerView.style.top = '0';
+                    globalYoutubePlayerView.style.left = '0';
+                    globalYoutubePlayerView.style.width = '100%';
+                    globalYoutubePlayerView.style.height = '100%';
+                    globalYoutubePlayerView.style.borderRadius = '0';
+                    globalYoutubePlayerView.style.padding = '0';
+                    globalYoutubePlayerView.style.backgroundColor = 'transparent'; // No dark overlay here
+
+                    let youtubeSrc = '';
+                    if (id.startsWith('UC')) { 
+                        youtubeSrc = `https://www.youtube.com/embed?listType=user_uploads&list=${id}&autoplay=1`;
+                    } else if (id.startsWith('PL')) { 
+                        youtubeSrc = `https://www.youtube.com/embed/videoseries?list=${id}&autoplay=1`;
+                    } else {
+                        console.error('Invalid YouTube ID format:', id);
+                        showMessageBox('معرف يوتيوب غير صالح.');
+                        return;
+                    }
+                    youtubePlayerIframe.src = youtubeSrc;
                 }
             });
         });
 
         // YouTube back button handler (now in Media tab)
-        youtubeBackButtonMedia.addEventListener('click', () => {
+        youtubeBackButton.addEventListener('click', () => {
             globalYoutubePlayerView.classList.add('hidden');
             globalYoutubePlayerView.classList.remove('flex');
             youtubePlayerMediaContainer.classList.add('hidden');
             youtubePlaylistView.classList.remove('hidden');
             youtubePlaylistView.classList.add('flex', 'flex-col');
-            youtubeSearchResults.classList.add('hidden'); // Hide search results when going back to playlists
+            // Do NOT clear youtubePlayerIframe.src here to allow playback to continue
+            // currentPlayingPlaylistId = ''; // Keep currentPlayingPlaylistId if we want to resume it
             
             // Return global player to body
             document.body.appendChild(globalYoutubePlayerView); 
@@ -1228,68 +1221,64 @@ img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
             appState.dashboardView = 'map';
             dashboardMapToggleBtn.classList.add('active');
             dashboardYoutubeToggleBtn.classList.remove('active');
-            switchApp('Dashboard'); // Trigger app switch to Dashboard to display map
+            tripMapDashboardContainer.classList.remove('hidden');
+            youtubePlayerDashboardContainer.classList.add('hidden');
+            globalYoutubePlayerView.classList.add('hidden'); // Ensure global player is hidden
+            globalYoutubePlayerView.classList.remove('flex');
+
+            // Return global player to body
+            document.body.appendChild(globalYoutubePlayerView); 
+            // Reset its position/size for default (Media tab) full-screen state
+            globalYoutubePlayerView.style.position = 'fixed';
+            globalYoutubePlayerView.style.top = '0';
+            globalYoutubePlayerView.style.left = '0';
+            globalYoutubePlayerView.style.width = '100vw';
+            globalYoutubePlayerView.style.height = '100vh';
+            globalYoutubePlayerView.style.borderRadius = '0';
+            globalYoutubePlayerView.style.padding = '0';
+            globalYoutubePlayerView.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+
+            if (tripMap) {
+                setTimeout(() => {
+                    tripMap.invalidateSize();
+                }, 100);
+            }
         });
 
         dashboardYoutubeToggleBtn.addEventListener('click', () => {
             appState.dashboardView = 'youtube';
             dashboardYoutubeToggleBtn.classList.add('active');
             dashboardMapToggleBtn.classList.remove('active');
-            switchApp('Dashboard'); // Trigger app switch to Dashboard to display YouTube
-        });
+            tripMapDashboardContainer.classList.add('hidden');
+            youtubePlayerDashboardContainer.classList.remove('hidden');
+            
+            // Move global player into Dashboard container
+            youtubePlayerDashboardContainer.appendChild(globalYoutubePlayerView);
+            globalYoutubePlayerView.classList.remove('hidden');
+            globalYoutubePlayerView.classList.add('flex');
+            youtubeBackButton.style.display = 'none'; // Hide back button in dashboard view
 
-        // YouTube Search Functionality
-        youtubeSearchButton.addEventListener('click', searchYouTubeVideos);
-        youtubeSearchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                searchYouTubeVideos();
+            // Adjust globalYoutubePlayerView's CSS to fit the dashboard's YouTube container
+            globalYoutubePlayerView.style.position = 'relative'; // Relative to its new parent
+            globalYoutubePlayerView.style.top = '0';
+            globalYoutubePlayerView.style.left = '0';
+            globalYoutubePlayerView.style.width = '100%';
+            globalYoutubePlayerView.style.height = '100%';
+            globalYoutubePlayerView.style.borderRadius = '0.75rem'; // Match dashboard card rounding
+            globalYoutubePlayerView.style.padding = '0';
+            globalYoutubePlayerView.style.backgroundColor = 'transparent'; // No dark overlay
+
+            // Ensure src is set to currentPlayingPlaylistId if available and not already playing
+            if (currentPlayingPlaylistId && (youtubePlayerIframe.src === '' || !youtubePlayerIframe.src.includes(currentPlayingPlaylistId))) {
+                let youtubeSrc = '';
+                if (currentPlayingPlaylistId.startsWith('UC')) { 
+                    youtubeSrc = `https://www.youtube.com/embed?listType=user_uploads&list=${currentPlayingPlaylistId}&autoplay=1`;
+                } else if (currentPlayingPlaylistId.startsWith('PL')) { 
+                    youtubeSrc = `https://www.youtube.com/embed/videoseries?list=${currentPlayingPlaylistId}&autoplay=1`;
+                }
+                youtubePlayerIframe.src = youtubeSrc;
             }
         });
-
-        function searchYouTubeVideos() {
-            const query = youtubeSearchInput.value.trim();
-            if (query === '') {
-                showMessageBox('الرجاء إدخال كلمة للبحث.');
-                return;
-            }
-
-            // Simulate YouTube search results
-            const simulatedResults = [
-                { id: 'dQw4w9WgXcQ', title: 'Never Gonna Give You Up', thumbnail: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/mqdefault.jpg' },
-                { id: 'LXb3EKWsInQ', title: 'The Best of Arabic Music', thumbnail: 'https://i.ytimg.com/vi/LXb3EKWsInQ/mqdefault.jpg' },
-                { id: 'k_okcNVzULI', title: 'Relaxing Nature Sounds', thumbnail: 'https://i.ytimg.com/vi/k_okcNVzULI/mqdefault.jpg' },
-                { id: 'qYgM_o789vQ', title: 'Top 10 Car Technologies', thumbnail: 'https://i.ytimg.com/vi/qYgM_o789vQ/mqdefault.jpg' },
-                { id: 'M7lc1UVf-VE', title: 'Quran Recitation Beautiful', thumbnail: 'https://i.ytimg.com/vi/M7lc1UVf-VE/mqdefault.jpg' },
-                { id: 'F_V_gXz0274', title: 'Driving in Oman', thumbnail: 'https://i.ytimg.com/vi/F_V_gXz0274/mqdefault.jpg' }
-            ];
-
-            youtubeSearchResults.innerHTML = ''; // Clear previous results
-            youtubeSearchResults.classList.remove('hidden');
-            youtubePlaylistView.classList.add('hidden'); // Hide playlists when showing search results
-
-            if (simulatedResults.length > 0) {
-                simulatedResults.forEach(video => {
-                    const card = document.createElement('div');
-                    card.classList.add('glass-surface', 'glass-surface--svg', 'youtube-search-card');
-                    card.dataset.videoId = video.id;
-                    card.innerHTML = `
-                        <img src="${video.thumbnail}" alt="${video.title}">
-                        <h2>${video.title}</h2>
-                    `;
-                    card.addEventListener('click', () => {
-                        currentPlayingId = video.id;
-                        isPlayingVideo = true; // It's a single video
-                        youtubePlayerIframe.src = `https://www.youtube.com/embed/${video.id}?autoplay=1`;
-                        switchApp('Media'); // Switch to Media tab to display the player
-                    });
-                    youtubeSearchResults.appendChild(card);
-                });
-            } else {
-                youtubeSearchResults.classList.remove('grid');
-                youtubeSearchResults.classList.add('flex', 'justify-center', 'items-center');
-                youtubeSearchResults.innerHTML = '<p class="text-white/70">لا توجد نتائج بحث.</p>';
-            }
-        }
 
 
         const chatHistoryDiv = document.getElementById('chat-history');
