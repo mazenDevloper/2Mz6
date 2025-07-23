@@ -31,6 +31,10 @@
 div#youtube-playlist-view {
 direction: rtl;
 }
+button#minimize-video-button {
+height: 63px;
+position: fixed;
+}
         /* Define different background themes */
         body.theme-gradient-1 {
             background: linear-gradient(-45deg, #000000 0%, #000000 30%, #00FFFF 35%, #000000 60%, #4B0082 65%, #8A2BE2 70%, #FF00FF 75%, #000000 100%); /* UPDATED */
@@ -1089,7 +1093,7 @@ button#back-to-playlists-bottom-button-search {
                         ></iframe>
                         <!-- NEW: Minimize Video Button (now "Back to List") -->
                         <button id="minimize-video-button" class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm">
-                            <i data-lucide="arrow-left" class="w-4 h-4"></i> العودة إلى القائمة
+                            <i data-lucide="arrow-left" class="w-4 h-4"></i> العودة إلى الخلف
                         </button>
                     </div>
                 </section>
