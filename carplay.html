@@ -198,7 +198,7 @@ div#quran-quick-access {
 
         /* Floating Button Styles - Positioned and styled for glass effect */
         #floating-fullscreen-button,
-        #floating-video-fullscreen-button, /* Renamed */
+        #floating-back-to-video-button,
         #floating-media-button,
         #back-to-playlists-bottom-button,
         #back-to-playlists-bottom-button-search {
@@ -220,7 +220,7 @@ div#quran-quick-access {
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
         #floating-fullscreen-button:hover,
-        #floating-video-fullscreen-button:hover, /* Renamed */
+        #floating-back-to-video-button:hover,
         #floating-media-button:hover,
         #back-to-playlists-bottom-button:hover,
         #back-to-playlists-bottom-button-search:hover {
@@ -231,7 +231,7 @@ div#quran-quick-access {
         /* Specific positioning for floating buttons */
         #floating-fullscreen-button { bottom: 1rem; left: 6rem; right: auto; }
         #floating-media-button { bottom: 1rem; right: 1rem; }
-        #floating-video-fullscreen-button { bottom: 1rem; right: 8rem; display: none; } /* Hidden by default */
+        #floating-back-to-video-button { bottom: 1rem; right: 8rem; display: none; } /* Hidden by default */
         #back-to-playlists-bottom-button, #back-to-playlists-bottom-button-search {
             bottom: 1rem;
             left: 50%;
@@ -243,7 +243,6 @@ div#quran-quick-access {
         .top-bar {
             top: 1rem;
             transition: opacity 0.3s ease;
-            opacity: 0; /* Start hidden for default fullscreen */
         }
 
         /* Main CarPlay interface container adjustments */
@@ -253,16 +252,6 @@ div#quran-quick-access {
             height: calc(100vh - 8rem); /* Calculate height to fit between margins */
             transition: all 0.5s ease-in-out; /* Smooth transition for pseudo-fullscreen */
             max-width: 1280px; /* Max width for desktop */
-            /* Default to pseudo-fullscreen */
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            margin: 0;
-            border-radius: 0;
-            z-index: 99; /* Ensure it's above other content but below the floating button */
-            max-width: 100vw; /* When fullscreen, it should take full width */
         }
 
         /* Pseudo-fullscreen class for the CarPlay interface */
@@ -739,7 +728,7 @@ div#quran-quick-access {
 
             /* Floating Buttons - Mobile positioning */
             #floating-fullscreen-button,
-            #floating-video-fullscreen-button, /* Renamed */
+            #floating-back-to-video-button,
             #floating-media-button,
             #back-to-playlists-bottom-button,
             #back-to-playlists-bottom-button-search {
@@ -748,7 +737,7 @@ div#quran-quick-access {
                 gap: 0.25rem;
             }
             #floating-fullscreen-button { left: 1rem !important; transform: none; }
-            #floating-video-fullscreen-button { right: 5.5rem; }
+            #floating-back-to-video-button { right: 5.5rem; }
             #floating-media-button { right: 1rem; }
             #back-to-playlists-bottom-button, #back-to-playlists-bottom-button-search {
                 left: 50%;
@@ -769,6 +758,10 @@ div#quran-quick-access {
                 right: unset;
             }
         }
+
+        img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
+    position: fixed;
+}
     </style>
 </head>
 <body class="animated-bg text-white overflow-hidden theme-gradient-1">
@@ -812,10 +805,10 @@ div#quran-quick-access {
         </div>
 
         <!-- Lexus Logo Fixed at Top Center (color changed to white using filter) -->
-        <img src="https://dmusera.netlify.app/Lexus-Logo.wine.svg" alt="Lexus Logo" class="fixed top-2 left-1/2 -translate-x-1/2 h-12 z-[1000] opacity-80" style="filter: invert(1) grayscale(100%) brightness(200%);" />
+        <img src="https://dmusera.netlify.app/Lexus-Logo.wine.svg" width="200px" alt="Lexus Logo" class="fixed top-2 left-1/2 -translate-x-1/2 h-12 z-[1000] opacity-80" style="filter: invert(1) grayscale(100%) brightness(200%);" />
 
         <!-- Main CarPlay Interface Container -->
-        <div id="carplay-main-interface" class="w-full max-w-7xl flex flex-row shadow-2xl rounded-3xl overflow-hidden bg-black/20 border border-white/10 carplay-pseudo-fullscreen">
+        <div id="carplay-main-interface" class="w-full max-w-7xl flex flex-row shadow-2xl rounded-3xl overflow-hidden bg-black/20 border border-white/10">
             
             <!-- Navigation Dock (Left Sidebar) -->
             <nav class="w-20 sm:w-24 bg-black/20 flex flex-col items-center justify-start pt-8 p-2 space-y-4 border-r border-white/10 flex-shrink-0 transition-opacity 0.3s ease;">
@@ -863,7 +856,7 @@ div#quran-quick-access {
                         <!-- Middle Column (25% width on large screens): 360 Camera View -->
                         <div class="flex flex-col gap-4 md:gap-6 dashboard-col-25-percent">
                             <div class="glass-surface glass-surface--svg p-2 flex-grow flex flex-col items-center justify-center text-center car-cam-360-container">
-                                <img src="https://dmusera.netlify.app/es350g.png" alt="عرض الكاميرا 360 درجة للسيارة" class="w-full h-full object-cover rounded-lg opacity-80">
+                                <img src="https://dmusera.netlify.app/es350gb.png" alt="عرض الكاميرا 360 درجة للسيارة" class="w-full h-full object-cover rounded-lg opacity-80">
                             </div>
                         </div>
 
@@ -1146,16 +1139,16 @@ div#quran-quick-access {
         </div>
     </div>
 
-    <!-- Floating Full-Screen Button (for CarPlay app itself) -->
+    <!-- Floating Full-Screen Button -->
     <button id="floating-fullscreen-button" class="glass-surface glass-surface--svg rounded-full">
-        <i data-lucide="minimize" class="w-6 h-6"></i>
-        <span>تصغير الشاشة</span>
+        <i data-lucide="maximize" class="w-6 h-6"></i>
+        <span>ملء الشاشة</span>
     </button>
 
-    <!-- Floating Video Fullscreen Button (for YouTube video) -->
-    <button id="floating-video-fullscreen-button" class="glass-surface glass-surface--svg rounded-full">
+    <!-- Floating Back to Video Button (now "Maximize Video") -->
+    <button id="floating-back-to-video-button" class="glass-surface glass-surface--svg rounded-full">
         <i data-lucide="maximize-2" class="w-6 h-6"></i>
-        <span>ملء الشاشة للفيديو</span>
+        <span>تكبير الفيديو</span>
     </button>
 
     <!-- Floating Media Button -->
@@ -1261,8 +1254,7 @@ div#quran-quick-access {
         const quranIframe = document.getElementById('quran-iframe');
 
         // Floating UI elements
-        const floatingFullscreenButton = document.getElementById('floating-fullscreen-button'); // For CarPlay app fullscreen
-        const floatingVideoFullscreenButton = document.getElementById('floating-video-fullscreen-button'); // For YouTube video fullscreen
+        const floatingBackToVideoButton = document.getElementById('floating-back-to-video-button');
         const floatingMediaButton = document.getElementById('floating-media-button');
         const videoPopupContainer = document.getElementById('video-popup-container');
         const videoPopupIframe = document.getElementById('video-popup-iframe');
@@ -1341,7 +1333,7 @@ div#quran-quick-access {
         /**
          * Toggles the main CarPlay interface between normal and pseudo-fullscreen.
          */
-        function toggleCarPlayPseudoFullscreen() {
+        function togglePseudoFullscreen() {
             const carplayMainInterface = document.getElementById('carplay-main-interface');
             const topBar = document.querySelector('.top-bar');
 
@@ -1360,58 +1352,19 @@ div#quran-quick-access {
         }
 
         /**
-         * Updates the visibility and icon/text of the floating "Video Fullscreen" button.
+         * Updates the visibility of the floating "Maximize Video" button.
          */
-        function updateFloatingVideoFullscreenButton() {
-            if (currentPlayingVideoId) {
-                floatingVideoFullscreenButton.style.display = 'flex';
-                const isVideoFullscreen = document.fullscreenElement === youtubePlayerIframe || document.fullscreenElement === videoPopupIframe;
-                if (isVideoFullscreen) {
-                    floatingVideoFullscreenButton.innerHTML = '<i data-lucide="minimize-2" class="w-6 h-6"></i><span>تصغير الفيديو</span>';
-                } else {
-                    floatingVideoFullscreenButton.innerHTML = '<i data-lucide="maximize-2" class="w-6 h-6"></i><span>ملء الشاشة للفيديو</span>';
-                }
-            } else {
-                floatingVideoFullscreenButton.style.display = 'none';
-            }
-            lucide.createIcons();
-        }
+        function updateFloatingBackToVideoButtonVisibility() {
+            const activeScreen = document.querySelector('.app-screen.active');
+            const activeAppName = activeScreen ? activeScreen.id.replace('screen-', '') : '';
 
-        /**
-         * Toggles true browser fullscreen for the currently playing YouTube video.
-         */
-        function toggleVideoFullscreen() {
-            let videoElement = null;
-            if (activeMediaView === 'player' && !isVideoPlayingInPopup) {
-                videoElement = youtubePlayerIframe;
-            } else if (isVideoPlayingInPopup) {
-                videoElement = videoPopupIframe;
-            }
-
-            if (videoElement) {
-                if (document.fullscreenElement) { // If already in fullscreen
-                    document.exitFullscreen();
-                } else { // Request fullscreen
-                    if (videoElement.requestFullscreen) {
-                        videoElement.requestFullscreen();
-                    } else if (videoElement.mozRequestFullScreen) { // Firefox
-                        videoElement.mozRequestFullScreen();
-                    } else if (videoElement.webkitRequestFullscreen) { // Chrome, Safari and Opera
-                        videoElement.webkitRequestFullscreen();
-                    } else if (videoElement.msRequestFullscreen) { // IE/Edge
-                        videoElement.msRequestFullscreen();
-                    }
-                }
+            // Show maximize video button only if a video is playing in popup AND current app is NOT Media
+            if (isVideoPlayingInPopup && currentPlayingVideoId && activeAppName !== 'Media') {
+                floatingBackToVideoButton.style.display = 'flex';
             } else {
-                showMessageBox('لا يوجد فيديو لتشغيله بملء الشاشة.');
+                floatingBackToVideoButton.style.display = 'none';
             }
         }
-
-        // Listen for fullscreen changes to update the button
-        document.addEventListener('fullscreenchange', updateFloatingVideoFullscreenButton);
-        document.addEventListener('webkitfullscreenchange', updateFloatingVideoFullscreenButton); // For Safari
-        document.addEventListener('mozfullscreenchange', updateFloatingVideoFullscreenButton); // For Firefox
-        document.addEventListener('MSFullscreenChange', updateFloatingVideoFullscreenButton); // For IE/Edge
 
         /**
          * Updates the UI elements based on the current appState.
@@ -1503,7 +1456,6 @@ div#quran-quick-access {
             }
 
             updateUI(); // Update UI to reflect latest state
-            updateFloatingVideoFullscreenButton(); // Update video fullscreen button visibility
         }
 
         /**
@@ -1544,7 +1496,7 @@ div#quran-quick-access {
                     backToPlaylistsBottomButton.style.display = 'none';
                     backToPlaylistsBottomButtonSearch.style.display = 'none';
                 }
-                updateFloatingVideoFullscreenButton();
+                updateFloatingBackToVideoButtonVisibility();
             } else {
                 // If switching away from Media tab
                 backToPlaylistsBottomButton.style.display = 'none';
@@ -1561,7 +1513,7 @@ div#quran-quick-access {
                     // No video playing or pop-up not needed
                     videoPopupContainer.classList.remove('active');
                 }
-                updateFloatingVideoFullscreenButton();
+                updateFloatingBackToVideoButtonVisibility();
             }
         }
 
@@ -1644,7 +1596,7 @@ div#quran-quick-access {
                     }
                     backToPlaylistsBottomButton.style.display = 'flex';
                     backToPlaylistsBottomButtonSearch.style.display = 'none';
-                    updateFloatingVideoFullscreenButton();
+                    updateFloatingBackToVideoButtonVisibility();
                 } else {
                     showMessageBox('لم يتم العثور على فيديوهات في قائمة التشغيل هذه.');
                     console.warn('No videos found for playlist:', playlistId, data);
@@ -1653,7 +1605,7 @@ div#quran-quick-access {
                 console.error('Error fetching YouTube playlist videos:', error);
                 showMessageBox('حدث خطأ أثناء جلب فيديوهات قائمة التشغيل.');
             } finally {
-                updateFloatingVideoFullscreenButton();
+                updateFloatingBackToVideoButtonVisibility();
             }
         }
 
@@ -1681,7 +1633,7 @@ div#quran-quick-access {
             activeMediaView = 'player';
             backToPlaylistsBottomButton.style.display = 'none';
             backToPlaylistsBottomButtonSearch.style.display = 'none';
-            updateFloatingVideoFullscreenButton();
+            updateFloatingBackToVideoButtonVisibility();
         }
 
         /**
@@ -1703,7 +1655,7 @@ div#quran-quick-access {
             activeMediaView = 'player'; // Still consider it 'player' view for media logic
             backToPlaylistsBottomButton.style.display = 'none';
             backToPlaylistsBottomButtonSearch.style.display = 'none';
-            updateFloatingVideoFullscreenButton();
+            updateFloatingBackToVideoButtonVisibility();
         }
 
         /**
@@ -1714,7 +1666,16 @@ div#quran-quick-access {
             videoPopupIframe.src = ''; // Stop the video
             currentPlayingVideoId = '';
             isVideoPlayingInPopup = false;
-            updateFloatingVideoFullscreenButton();
+            updateFloatingBackToVideoButtonVisibility();
+        }
+
+        /**
+         * Maximizes the video from the pop-up into the main media player view.
+         */
+        function maximizeVideoPopup() {
+            if (currentPlayingVideoId) {
+                switchApp('Media'); // Switch to Media app, which handles bringing video to main view
+            }
         }
 
         /**
@@ -1732,8 +1693,8 @@ div#quran-quick-access {
 
         // Event listeners for video pop-up controls
         videoPopupCloseButton.addEventListener('click', hideVideoPopup);
-        videoPopupMaximizeButton.addEventListener('click', toggleVideoFullscreen); // Now toggles true fullscreen
-        floatingVideoFullscreenButton.addEventListener('click', toggleVideoFullscreen); // Now toggles true fullscreen
+        videoPopupMaximizeButton.addEventListener('click', maximizeVideoPopup);
+        floatingBackToVideoButton.addEventListener('click', maximizeVideoPopup);
         minimizeVideoButton.addEventListener('click', () => {
             if (activeMediaView === 'player' && !isVideoPlayingInPopup) {
                 minimizeVideoToPopup(currentPlayingVideoId);
@@ -1789,7 +1750,7 @@ div#quran-quick-access {
             activeMediaView = 'playlist';
             backToPlaylistsBottomButton.style.display = 'none';
             backToPlaylistsBottomButtonSearch.style.display = 'none';
-            updateFloatingVideoFullscreenButton();
+            updateFloatingBackToVideoButtonVisibility();
         }
 
         // Event listeners for back buttons in Media tab
@@ -1855,7 +1816,7 @@ div#quran-quick-access {
                     activeMediaView = 'searchResults';
                     backToPlaylistsBottomButton.style.display = 'none';
                     backToPlaylistsBottomButtonSearch.style.display = 'flex';
-                    updateFloatingVideoFullscreenButton();
+                    updateFloatingBackToVideoButtonVisibility();
                 } else {
                     showMessageBox('لم يتم العثور على نتائج بحث لـ: ' + query);
                     searchResultsContainer.innerHTML = '<p class="text-center text-white/70 col-span-full">لا توجد نتائج بحث.</p>';
@@ -2290,16 +2251,15 @@ div#quran-quick-access {
             // Get DOM element references that are only available after DOMContentLoaded
             dashboardMapIframe = document.getElementById('dashboard-map-iframe');
             const getMyLocationButtonDashboard = document.getElementById('get-my-location-button-dashboard');
-            
+            const floatingFullscreenButton = document.getElementById('floating-fullscreen-button');
+            // tripMapElement = document.getElementById('trip-map'); // This element was removed, so commenting out
+
             // Attach event listeners
             if (getMyLocationButtonDashboard) {
                 getMyLocationButtonDashboard.addEventListener('click', () => getMyLocation('dashboard'));
             }
             if (floatingFullscreenButton) {
-                floatingFullscreenButton.addEventListener('click', toggleCarPlayPseudoFullscreen);
-            }
-            if (floatingVideoFullscreenButton) { // New button for video fullscreen
-                floatingVideoFullscreenButton.addEventListener('click', toggleVideoFullscreen);
+                floatingFullscreenButton.addEventListener('click', togglePseudoFullscreen);
             }
             if (floatingMediaButton) {
                 floatingMediaButton.addEventListener('click', () => switchApp('Media'));
@@ -2315,7 +2275,7 @@ div#quran-quick-access {
             // Set initial app to Dashboard and update button visibility
             switchApp('Dashboard');
             populateSurahSelect(); // Populate Surah dropdown on load
-            updateFloatingVideoFullscreenButton(); // Initial check for floating video fullscreen button
+            updateFloatingBackToVideoButtonVisibility(); // Initial check for floating back button
         });
     </script>
 </body>
