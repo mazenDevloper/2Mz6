@@ -117,6 +117,12 @@ div#quran-quick-access {
                 inset 0 0 15px 5px rgba(0,0,0,0.2),
                 inset 0 0 20px 8px rgba(0,0,0,0.1);
         }
+        div#video-popup-container {
+    cursor: grab;
+    width: 46%;
+    height: 37%;
+}
+
         /* Fallback for browsers not supporting backdrop-filter */
         .glass-surface--fallback {
             background: rgba(255, 255, 255, 0.25);
@@ -401,6 +407,43 @@ div#quran-quick-access {
             -webkit-box-orient: vertical;
         }
 
+        /* YouTube Suggestion Buttons */
+        .youtube-suggestion-button {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px; /* Pill shape */
+            font-size: 0.85rem;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            white-space: nowrap; /* Prevent text wrapping */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: inline-flex; /* Use inline-flex for proper button layout */
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .youtube-suggestion-button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+        .youtube-suggestion-button:active {
+            transform: translateY(0);
+        }
+
+        /* YouTube Suggestion Category Tag */
+        .youtube-suggestion-category-tag {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 0.5rem;
+            align-self: flex-start; /* Align tag to the start of the column */
+        }
+
         /* Dashboard Logo Effect */
         .metallic-logo-effect {
             width: 300px; /* Increased width for 3x size */
@@ -482,7 +525,7 @@ div#quran-quick-access {
 
         /* Digital Clock Styles (Apple iOS 19 style) */
         #digital-time {
-            font-size: 2.8rem;
+            font-size: 2.2rem;
             font-weight: 800;
             color: white;
             margin-bottom: 0.5rem;
@@ -905,6 +948,11 @@ div#quran-quick-access {
                         </button>
                     </div>
 
+                    <!-- YouTube Search Suggestions -->
+                    <div id="youtube-suggestions" class="w-full mb-4 hidden">
+                        <!-- Suggestions will be dynamically loaded here -->
+                    </div>
+
                     <!-- YouTube Playlist View -->
                     <div id="youtube-playlist-view" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 w-full h-full flex-grow overflow-y-auto">
                         <h2 class="col-span-full text-3xl font-bold mb-4 text-center">قوائم تشغيل يوتيوب</h2>
@@ -954,7 +1002,7 @@ div#quran-quick-access {
                         </button>
                     </div>
 
-                    <!-- YouTube Video Player View -->
+                    <!-- YouTube Video Player View (This section will now be unused for initial playback from lists/search) -->
                     <div id="youtube-player-view" class="hidden flex-col items-center justify-center h-full w-full relative flex-grow">
                         <iframe
                             id="youtube-player-iframe"
@@ -1068,7 +1116,8 @@ div#quran-quick-access {
                         <iframe
                             id="quran-iframe"
                             class="full-iframe"
-                            src="https://quran.com/"
+                            src="https://quran.com/?lang=ar"
+                            lang="ar"
                             title="القرآن الكريم"
                             frameborder="0"
                             allowfullscreen
@@ -1188,7 +1237,7 @@ div#quran-quick-access {
         const GOOGLE_MAPS_API_KEY = 'AIzaSyCDWFDGIkq7Cu0dv8AL_q1YFEUIWlZdaP4'; 
         // IMPORTANT: REPLACE WITH YOUR ACTUAL GEMINI API KEY FROM GOOGLE AI STUDIO
         const AI_ASSISTANT_API_KEY = 'AIzaSyBMmtON9ww4dJxMHrl1wKyWTqI0ipJXJws'; 
-        // IMPORTANT: REPLACE WITH YOUR ACTUAL WEATHERAPI.COM KEY
+        // IMPORTANT: REPLACE WITH YOUR ACTUAL WEATHERAPI.COM KEY TO RESOLVE 401 ERROR
         const WEATHER_API_KEY = '7acefc26deee4904a2393917252207'; 
 
         // --- Global App State Management ---
@@ -1235,6 +1284,7 @@ div#quran-quick-access {
         // YouTube/Media specific elements
         const youtubeSearchInput = document.getElementById('youtube-search-input');
         const youtubeSearchButton = document.getElementById('youtube-search-button');
+        const youtubeSuggestionsDiv = document.getElementById('youtube-suggestions'); // New
         const youtubePlaylistView = document.getElementById('youtube-playlist-view');
         const youtubeVideoListView = document.getElementById('youtube-video-list-view'); 
         const videoListContainer = document.getElementById('video-list-container'); 
@@ -1254,7 +1304,8 @@ div#quran-quick-access {
         const quranIframe = document.getElementById('quran-iframe');
 
         // Floating UI elements
-        const floatingBackToVideoButton = document.getElementById('floating-back-to-video-button');
+        const floatingFullscreenButton = document.getElementById('floating-fullscreen-button'); // For CarPlay app fullscreen
+        const floatingBackToVideoButton = document.getElementById('floating-back-to-video-button'); // For YouTube video fullscreen
         const floatingMediaButton = document.getElementById('floating-media-button');
         const videoPopupContainer = document.getElementById('video-popup-container');
         const videoPopupIframe = document.getElementById('video-popup-iframe');
@@ -1456,6 +1507,7 @@ div#quran-quick-access {
             }
 
             updateUI(); // Update UI to reflect latest state
+            updateFloatingBackToVideoButtonVisibility(); // Update video fullscreen button visibility
         }
 
         /**
@@ -1471,6 +1523,7 @@ div#quran-quick-access {
                 youtubeVideoListView.classList.add('hidden');
                 youtubeSearchResultsView.classList.add('hidden'); 
                 youtubePlayerView.classList.add('hidden');
+                youtubeSuggestionsDiv.classList.remove('hidden'); // Show suggestions
 
                 youtubePlaylistView.classList.remove('flex', 'flex-col');
                 youtubeVideoListView.classList.remove('flex', 'flex-col');
@@ -1479,7 +1532,9 @@ div#quran-quick-access {
 
                 if (isVideoPlayingInPopup && currentPlayingVideoId) {
                     // If video was playing in pop-up, bring it to main view
-                    playVideoInMainView(currentPlayingVideoId); // This also sets isVideoPlayingInPopup to false
+                    // playVideoInMainView(currentPlayingVideoId); // This also sets isVideoPlayingInPopup to false
+                    // Per user request, do not play in main view, keep in popup or just hide popup if switching
+                    videoPopupContainer.classList.add('active'); // Ensure popup is still active
                 } else if (activeMediaView === 'videoList' && currentPlayingPlaylistId) {
                     youtubeVideoListView.classList.remove('hidden');
                     youtubeVideoListView.classList.add('flex', 'flex-col');
@@ -1502,6 +1557,7 @@ div#quran-quick-access {
                 backToPlaylistsBottomButton.style.display = 'none';
                 backToPlaylistsBottomButtonSearch.style.display = 'none';
                 floatingMediaButton.style.display = 'flex'; // Show media button when not in media tab
+                youtubeSuggestionsDiv.classList.add('hidden'); // Hide suggestions
                 
                 // If a video is playing in the main player, move it to pop-up
                 if (activeMediaView === 'player' && currentPlayingVideoId && !isVideoPlayingInPopup) {
@@ -1577,6 +1633,7 @@ div#quran-quick-access {
                             <img src="${thumbnailUrl}" alt="${title}" onerror="this.onerror=null;this.src='https://placehold.co/120x90/000000/FFFFFF?text=No+Thumbnail';" />
                             <h3>${title}</h3>
                         `;
+                        // Always show video in popup
                         videoCard.addEventListener('click', () => showVideoPopup(videoId));
                         videoListContainer.appendChild(videoCard);
                     });
@@ -1590,6 +1647,7 @@ div#quran-quick-access {
                     youtubePlayerView.classList.remove('flex', 'flex-col');
                     youtubeSearchResultsView.classList.add('hidden');
                     youtubeSearchResultsView.classList.remove('flex', 'flex-col');
+                    youtubeSuggestionsDiv.classList.add('hidden'); // Hide suggestions
 
                     if (updateActiveView) {
                         activeMediaView = 'videoList';
@@ -1615,6 +1673,8 @@ div#quran-quick-access {
          * @param {string} videoId - The ID of the YouTube video.
          */
         function playVideoInMainView(videoId) {
+            // This function is now effectively unused for initial playback from lists/search.
+            // It's kept for potential future use or if maximize from popup is desired to go to main view.
             youtubePlayerIframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
             currentPlayingVideoId = videoId;
             isVideoPlayingInPopup = false;
@@ -1626,6 +1686,7 @@ div#quran-quick-access {
             youtubeSearchResultsView.classList.remove('flex', 'flex-col');
             youtubePlayerView.classList.remove('hidden');
             youtubePlayerView.classList.add('flex', 'flex-col');
+            youtubeSuggestionsDiv.classList.add('hidden'); // Hide suggestions
             
             videoPopupContainer.classList.remove('active'); // Hide pop-up if it was active
             videoPopupIframe.src = ''; // Stop pop-up video
@@ -1641,7 +1702,10 @@ div#quran-quick-access {
          * @param {string} videoId - The ID of the YouTube video.
          */
         function showVideoPopup(videoId) {
-            videoPopupIframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+            // The `enablejsapi=1` and `origin` parameters are crucial for the iframe API
+            // to allow communication between the parent window and the iframe.
+            // This enables YouTube's internal suggestions to function within the pop-up.
+            videoPopupIframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1&origin=${window.location.protocol}//${window.location.host}`;
             currentPlayingVideoId = videoId;
             isVideoPlayingInPopup = true;
 
@@ -1650,7 +1714,8 @@ div#quran-quick-access {
             youtubePlaylistView.classList.add('hidden');
             youtubeVideoListView.classList.add('hidden');
             youtubeSearchResultsView.classList.add('hidden');
-            youtubePlayerView.classList.add('hidden');
+            youtubePlayerView.classList.add('hidden'); // Ensure main player is hidden
+            youtubeSuggestionsDiv.classList.add('hidden'); // Hide suggestions
             
             activeMediaView = 'player'; // Still consider it 'player' view for media logic
             backToPlaylistsBottomButton.style.display = 'none';
@@ -1674,7 +1739,9 @@ div#quran-quick-access {
          */
         function maximizeVideoPopup() {
             if (currentPlayingVideoId) {
-                switchApp('Media'); // Switch to Media app, which handles bringing video to main view
+                // When maximizing from pop-up, switch to Media app and play in main view
+                switchApp('Media'); 
+                playVideoInMainView(currentPlayingVideoId);
             }
         }
 
@@ -1745,6 +1812,7 @@ div#quran-quick-access {
 
             youtubePlaylistView.classList.remove('hidden');
             youtubePlaylistView.classList.add('flex', 'flex-col');
+            youtubeSuggestionsDiv.classList.remove('hidden'); // Show suggestions again
             
             currentPlayingPlaylistId = ''; // Reset selected playlist
             activeMediaView = 'playlist';
@@ -1755,10 +1823,91 @@ div#quran-quick-access {
 
         // Event listeners for back buttons in Media tab
         backToPlaylistsFromVideosButton.addEventListener('click', navigateBackToPlaylists);
-        backToPlaylistsBottomButton.addEventListener('click', navigateBackToPlaylists);
-        backToPlaylistsBottomButtonSearch.addEventListener('click', navigateBackToPlaylists);
+        backToPlaylistsBottomButton.addEventListener('click', navigateBackToPlaylists); 
+        backToPlaylistsBottomButtonSearch.addEventListener('click', navigateBackToPlaylists); 
 
         // YouTube Search Functionality
+        const youtubeReaderSuggestions = ["فارس عنتر","ياسر الدوسري", "علي جابر", "محمد ايوب", "عبد الباسط عبد الصمد", "مشاري العفاسي"];
+        // Using the first 63 surahs for demonstration (9 rows x 7 columns)
+        const youtubeSurahSuggestions = [
+            "الفاتحة", "البقرة", "آل عمران", "النساء", "المائدة", "الأنعام", "الأعراف", "الأنفال", "التوبة", "يونس",
+            "هود", "يوسف", "الرعد", "إبراهيم", "الحجر", "النحل", "الإسراء", "الكهف", "مريم", "طه",
+            "الأنبياء", "الحج", "المؤمنون", "النور", "الفرقان", "الشعراء", "النمل", "القصص", "العنكبوت", "الروم",
+            "لقمان", "السجدة", "الأحزاب", "سبأ", "فاطر", "يس", "الصافات", "ص", "الزمر", "غافر",
+            "فصلت", "الشورى", "الزخرف", "الدخان", "الجاثية", "الأحقاف", "محمد", "الفتح", "الحجرات", "ق",
+            "الذاريات", "الطور", "النجم", "القمر", "الرحمن", "الواقعة", "الحديد", "المجادلة", "الحشر", "الممتحنة",
+            "الصف", "الجمعة", "المنافقون"
+        ];
+
+        /**
+         * Populates and displays YouTube search suggestions.
+         */
+        function populateYoutubeSuggestions() {
+            youtubeSuggestionsDiv.innerHTML = ''; // Clear previous suggestions
+            // Use flex-col for mobile stacking, and flex-row-reverse for desktop to put readers on the right
+            youtubeSuggestionsDiv.classList.add('flex', 'flex-col', 'md:flex-row-reverse', 'gap-4', 'w-full'); 
+
+            // Readers section (will appear on the right on desktop, top on mobile)
+            const readersSection = document.createElement('div');
+            // Adjusted classes for readers section to be a single column and take less width
+            readersSection.classList.add('flex', 'flex-col', 'gap-2', 'p-3', 'rounded-xl', 'glass-surface', 'glass-surface--svg', 'md:w-1/5', 'flex-shrink-0'); 
+            readersSection.innerHTML = '<span class="youtube-suggestion-category-tag bg-blue-600">للقراء</span>';
+            youtubeReaderSuggestions.forEach(suggestion => {
+                const button = document.createElement('button');
+                button.classList.add('youtube-suggestion-button');
+                button.textContent = suggestion;
+                button.addEventListener('click', () => {
+                    youtubeSearchInput.value += suggestion + ' '; // Append text and a space
+                    youtubeSearchInput.focus();
+                });
+                readersSection.appendChild(button);
+            });
+            youtubeSuggestionsDiv.appendChild(readersSection);
+
+            // Surahs section (will appear on the left on desktop, bottom on mobile)
+            const surahsSection = document.createElement('div');
+            // Adjusted classes for surahs section to take remaining width
+            surahsSection.classList.add('flex', 'flex-col', 'gap-2', 'p-3', 'rounded-xl', 'glass-surface', 'glass-surface--svg', 'flex-grow'); 
+            surahsSection.innerHTML = '<span class="youtube-suggestion-category-tag bg-green-600">للسور</span>';
+            const surahButtonsContainer = document.createElement('div');
+            // Changed grid-cols-4 to md:grid-cols-9 for 9 columns on medium and larger screens
+            surahButtonsContainer.classList.add('grid', 'grid-cols-4', 'md:grid-cols-9', 'gap-2', 'w-full'); 
+
+            youtubeSurahSuggestions.forEach(name => {
+                const button = document.createElement('button');
+                button.classList.add('youtube-suggestion-button');
+                button.textContent = name;
+                button.addEventListener('click', () => {
+                    youtubeSearchInput.value += name + ' ';
+                    youtubeSearchInput.focus();
+                });
+                surahButtonsContainer.appendChild(button);
+            });
+            surahsSection.appendChild(surahButtonsContainer);
+            youtubeSuggestionsDiv.appendChild(surahsSection);
+        }
+
+        youtubeSearchInput.addEventListener('focus', () => {
+            if (youtubeSearchInput.value.trim() === '') {
+                populateYoutubeSuggestions();
+                youtubeSuggestionsDiv.classList.remove('hidden');
+            }
+        });
+
+        youtubeSearchInput.addEventListener('input', () => {
+            if (youtubeSearchInput.value.trim() === '') {
+                youtubeSuggestionsDiv.classList.remove('hidden');
+                populateYoutubeSuggestions(); // Repopulate to ensure all are there
+            } else {
+                // Only hide if there's content and it's not empty
+                youtubeSuggestionsDiv.classList.add('hidden');
+            }
+        });
+
+        // Removed the blur event listener that was causing premature hiding.
+        // Suggestions will now be hidden when a search is successfully performed or input is cleared.
+
+
         youtubeSearchButton.addEventListener('click', () => {
             const query = youtubeSearchInput.value.trim();
             if (query) {
@@ -1800,6 +1949,7 @@ div#quran-quick-access {
                             <img src="${thumbnailUrl}" alt="${title}" onerror="this.onerror=null;this.src='https://placehold.co/120x90/000000/FFFFFF?text=No+Thumbnail';" />
                             <h3>${title}</h3>
                         `;
+                        // Always show video in popup
                         videoCard.addEventListener('click', () => showVideoPopup(videoId));
                         searchResultsContainer.appendChild(videoCard);
                     });
@@ -1813,6 +1963,7 @@ div#quran-quick-access {
                     youtubePlayerView.classList.remove('flex', 'flex-col');
                     youtubeSearchResultsView.classList.remove('hidden');
                     youtubeSearchResultsView.classList.add('flex', 'flex-col');
+                    youtubeSuggestionsDiv.classList.add('hidden'); // Hide suggestions after search results are loaded
                     activeMediaView = 'searchResults';
                     backToPlaylistsBottomButton.style.display = 'none';
                     backToPlaylistsBottomButtonSearch.style.display = 'flex';
@@ -2210,7 +2361,7 @@ div#quran-quick-access {
             quranGoButton.addEventListener('click', () => {
                 const selectedSurah = quranSurahSelect.value;
                 if (selectedSurah) {
-                    quranIframe.src = `https://quran.com/${selectedSurah}`;
+                    quranIframe.src = `https://quran.com/${selectedSurah}?lang=ar`; // Added lang=ar
                     showMessageBox(`جارٍ الانتقال إلى سورة ${surahNames[selectedSurah - 1]} في القرآن الكريم.`);
                 } else {
                     showMessageBox('الرجاء اختيار سورة أولاً.');
@@ -2251,15 +2402,16 @@ div#quran-quick-access {
             // Get DOM element references that are only available after DOMContentLoaded
             dashboardMapIframe = document.getElementById('dashboard-map-iframe');
             const getMyLocationButtonDashboard = document.getElementById('get-my-location-button-dashboard');
-            const floatingFullscreenButton = document.getElementById('floating-fullscreen-button');
-            // tripMapElement = document.getElementById('trip-map'); // This element was removed, so commenting out
-
+            
             // Attach event listeners
             if (getMyLocationButtonDashboard) {
                 getMyLocationButtonDashboard.addEventListener('click', () => getMyLocation('dashboard'));
             }
             if (floatingFullscreenButton) {
                 floatingFullscreenButton.addEventListener('click', togglePseudoFullscreen);
+            }
+            if (floatingBackToVideoButton) { // New button for video fullscreen
+                floatingBackToVideoButton.addEventListener('click', maximizeVideoPopup); // Changed to maximizeVideoPopup
             }
             if (floatingMediaButton) {
                 floatingMediaButton.addEventListener('click', () => switchApp('Media'));
