@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>واجهة CarPlay - تصميم زجاجي تفاعلي</title>
+    <title>واجهة CarPlay - تصميم زجاجي منسدل تفاعلي</title>
     <!-- Tailwind CSS CDN for utility classes -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons for modern, customizable SVG icons -->
@@ -33,9 +33,10 @@
             justify-content: center;
             overflow: hidden; /* Prevent body scroll */
         }
-.flex-grow.flex.flex-col.lg\:flex-row.gap-4.md\:gap-6.h-full.dashboard-main-grid {
-    flex-direction: row-reverse;
-}
+        /* Removed flex-direction: row-reverse from dashboard-main-grid as it's now a CSS Grid */
+        /* .flex-grow.flex.flex-col.lg\:flex-row.gap-4.md\:gap-6.h-full.dashboard-main-grid {
+            flex-direction: row-reverse;
+        } */
         /* Ensure RTL direction for specific elements if needed */
         div#youtube-playlist-view, div#youtube-video-list-view, div#youtube-search-results-view {
             direction: rtl;
@@ -71,7 +72,7 @@ div#quran-quick-access {
     height: 97% !important;
 }
 
-        /* NEW GLASS SURFACE CSS - Enhanced for liquid 3D effect */
+        /* NEW GLASS SURFACE CSS - Enhanced for liquid 3D effect and "drop glass" */
         .glass-surface {
             position: relative;
             display: flex;
@@ -102,20 +103,23 @@ div#quran-quick-access {
             z-index: 1;
         }
         .glass-surface--svg {
-            background: light-dark(hsl(0 0% 100% / var(--glass-frost, 0)),
-                hsl(0 0% 0% / var(--glass-frost, 0)));
-            backdrop-filter: var(--filter-id, url(#glass-filter)) saturate(var(--glass-saturation, 1));
+            /* Adjusted background for a more pronounced "drop" effect */
+            background: light-dark(hsl(0 0% 100% / var(--glass-frost, 0.1)), /* Slightly more opaque background */
+                hsl(0 0% 0% / var(--glass-frost, 0.2))); /* Darker opaque background for dark mode */
+            
+            /* Enhanced backdrop-filter for stronger blur and saturation */
+            backdrop-filter: var(--filter-id, url(#glass-filter)) blur(10px) saturate(2.0) brightness(1.1); /* Reduced blur, saturation, and brightness for sharper effect */
+            -webkit-backdrop-filter: blur(10px) saturate(2.0) brightness(1.1); /* Webkit prefix */
+
+            /* More pronounced box-shadow for a "dropped" effect */
             box-shadow:
-                0 0 2px 1px light-dark(color-mix(in oklch, black, transparent 85%),
-                color-mix(in oklch, white, transparent 65%)) inset,
-                0 0 10px 4px light-dark(color-mix(in oklch, black, transparent 90%),
-                color-mix(in oklch, white, transparent 85%)) inset,
-                0px 4px 16px rgba(17, 17, 26, 0.05),
-                0px 8px 24px rgba(17, 17, 26, 0.05),
-                0px 16px 56px rgba(17, 17, 26, 0.05),
-                /* Modified inset shadows for internal border effect */
-                inset 0 0 15px 5px rgba(0,0,0,0.2),
-                inset 0 0 20px 8px rgba(0,0,0,0.1);
+                0 0 5px 2px rgba(255, 255, 255, 0.1) inset, /* Inner light glow */
+                0 0 15px 6px rgba(0, 255, 255, 0.15) inset, /* Inner cyan glow */
+                0px 8px 30px rgba(17, 17, 26, 0.1), /* Stronger outer shadow */
+                0px 16px 60px rgba(17, 17, 26, 0.15), /* Even stronger outer shadow */
+                0px 24px 80px rgba(17, 17, 26, 0.2), /* Deepest outer shadow */
+                inset 0 0 20px 8px rgba(0,0,0,0.3), /* Deeper inner shadow for depth */
+                inset 0 0 25px 10px rgba(0,0,0,0.2); /* Even deeper inner shadow */
         }
         div#video-popup-container {
     cursor: grab;
@@ -123,41 +127,41 @@ div#quran-quick-access {
     height: 37%;
 }
 
-        /* Fallback for browsers not supporting backdrop-filter */
+        /* Fallback for browsers not supporting backdrop-filter - also enhanced */
         .glass-surface--fallback {
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(12px) saturate(1.8) brightness(1.1);
-            -webkit-backdrop-filter: blur(12px) saturate(1.8) brightness(1.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.35); /* More opaque fallback */
+            backdrop-filter: blur(15px) saturate(2.0) brightness(1.2); /* Stronger fallback blur/saturate */
+            -webkit-backdrop-filter: blur(15px) saturate(2.0) brightness(1.2);
+            border: 1px solid rgba(255, 255, 255, 0.4); /* Stronger border */
             box-shadow:
-                0 8px 32px 0 rgba(31, 38, 135, 0.2),
-                0 2px 16px 0 rgba(31, 38, 135, 0.1),
-                inset 0 1px 0 0 rgba(255, 255, 255, 0.4),
-                inset 0 -1px 0 0 rgba(255, 255, 255, 0.2);
+                0 10px 40px 0 rgba(31, 38, 135, 0.3), /* Stronger fallback shadow */
+                0 4px 20px 0 rgba(31, 38, 135, 0.2),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.5),
+                inset 0 -1px 0 0 rgba(255, 255, 255, 0.3);
         }
         @media (prefers-color-scheme: dark) {
             .glass-surface--fallback {
-                background: rgba(255, 255, 255, 0.1);
-                backdrop-filter: blur(12px) saturate(1.8) brightness(1.2);
-                -webkit-backdrop-filter: blur(12px) saturate(1.8) brightness(1.2);
-                border: 1px solid rgba(255, 255, 255, 0.2);
+                background: rgba(255, 255, 255, 0.15); /* Dark mode fallback */
+                backdrop-filter: blur(15px) saturate(2.0) brightness(1.3);
+                -webkit-backdrop-filter: blur(15px) saturate(2.0) brightness(1.3);
+                border: 1px solid rgba(255, 255, 255, 0.3);
                 box-shadow:
-                    inset 0 1px 0 0 rgba(255, 255, 255, 0.2),
-                    inset 0 -1px 0 0 rgba(255, 255, 255, 0.1);
+                    inset 0 1px 0 0 rgba(255, 255, 255, 0.3),
+                    inset 0 -1px 0 0 rgba(255, 255, 255, 0.2);
             }
         }
         @supports not (backdrop-filter: blur(10px)) {
             .glass-surface--fallback {
-                background: rgba(255, 255, 255, 0.4);
+                background: rgba(255, 255, 255, 0.5); /* Strongest fallback for no backdrop-filter */
                 box-shadow:
-                    inset 0 1px 0 0 rgba(255, 255, 255, 0.5),
-                    inset 0 -1px 0 0 rgba(255, 255, 255, 0.3);
+                    inset 0 1px 0 0 rgba(255, 255, 255, 0.6),
+                    inset 0 -1px 0 0 rgba(255, 255, 255, 0.4);
             }
             .glass-surface--fallback::before {
                 content: '';
                 position: absolute;
                 inset: 0;
-                background: rgba(255, 255, 255, 0.15);
+                background: rgba(255, 255, 255, 0.2); /* More opaque overlay */
                 border-radius: inherit;
                 z-index: -1;
             }
@@ -253,11 +257,15 @@ div#quran-quick-access {
 
         /* Main CarPlay interface container adjustments */
         #carplay-main-interface {
-            margin-top: 4rem;
-            margin-bottom: 4rem;
-            height: calc(100vh - 8rem); /* Calculate height to fit between margins */
+            position: fixed; /* Changed to fixed for default 90% fullscreen */
+            top: 4%; /* Centered vertically */
+            left: 1%; /* Centered horizontally */
+            width: 98vw; /* 90% of viewport width */
+            height: 98vh; /* 90% of viewport height */
+            /* Removed margin-top and margin-bottom as position: fixed handles positioning */
             transition: all 0.5s ease-in-out; /* Smooth transition for pseudo-fullscreen */
             max-width: 1280px; /* Max width for desktop */
+            border-radius: 2rem; /* Increased rounded corners for main interface */
         }
 
         /* Pseudo-fullscreen class for the CarPlay interface */
@@ -611,12 +619,13 @@ div#quran-quick-access {
         }
 
         /* Dashboard Grid Column Sizing (Desktop) */
-        .dashboard-main-grid {
-            flex-direction: row; /* Ensure row direction for desktop columns */
+        /* Removed old flex-direction and width classes as layout is now a CSS Grid */
+        /* .dashboard-main-grid {
+            flex-direction: row;
         }
         .dashboard-col-25-percent { width: 25%; }
         .dashboard-col-50-percent { width: 50%; }
-        .dashboard-col-25-percent-right { width: 25%; }
+        .dashboard-col-25-percent-right { width: 25%; } */
 
      
 
@@ -693,9 +702,10 @@ div#quran-quick-access {
             }
 
             #carplay-main-interface {
-                margin-top: 1rem; /* Reduced margin for mobile */
-                margin-bottom: 1rem;
-                height: calc(100vh - 2rem); /* Calculate height to fill screen */
+                top: 2%; /* Adjusted for mobile to be slightly less than 5% */
+                left: 2%;
+                width: 96vw; /* Adjusted for mobile */
+                height: 96vh; /* Adjusted for mobile */
                 flex-direction: column; /* Stack main interface on smaller screens */
                 border-radius: 1rem;
             }
@@ -728,15 +738,17 @@ div#quran-quick-access {
                 padding: 1rem;
             }
 
+            /* Dashboard Grid Layout adjustments for mobile */
             .dashboard-main-grid {
-                flex-direction: column; /* Stack dashboard columns on mobile */
+                grid-template-columns: 1fr; /* Single column on mobile */
+                grid-template-rows: auto; /* Auto height for rows on mobile */
+                height: auto; /* Allow height to adjust */
             }
 
-            .dashboard-col-25-percent,
-            .dashboard-col-50-percent,
-            .dashboard-col-25-percent-right {
-                width: 100%; /* Full width for dashboard columns on mobile */
-                height: auto; /* Allow height to adjust */
+            /* Ensure children of the main grid stack correctly on mobile */
+            .dashboard-main-grid > div { /* Targets the direct children which are the grid cells/columns */
+                height: auto !important; /* Override fixed heights */
+                width: 100%; /* Full width */
             }
 
             .car-cam-360-container {
@@ -805,6 +817,66 @@ div#quran-quick-access {
         img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
     position: fixed;
 }
+        /* Prayer Times Specific Styles */
+        /* Changed from grid to flex for a single row display */
+        .prayer-times-row {
+            display: flex;
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            justify-content: center; /* Center items in the row */
+            gap: 0.75rem; /* Spacing between prayer times */
+            width: 100%;
+            margin-top: 1rem;
+        }
+        .prayer-time-item {
+            display: flex;
+            flex-direction: column; /* Stack name and time vertically */
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            min-width: 80px; /* Ensure minimum width for each item */
+            text-align: center;
+        }
+        .prayer-time-item.current-prayer {
+            background-color: rgba(147, 51, 234, 0.3); /* Highlight current prayer */
+            font-weight: bold;
+            border: 1px solid #9333ea;
+        }
+        .prayer-name {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem; /* Smaller font for name */
+            margin-bottom: 0.2rem;
+        }
+        .prayer-time {
+            color: white;
+            font-size: 1rem; /* Larger font for time */
+        }
+
+        /* OBD-II Specific Styles */
+        .obd-data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            width: 100%;
+        }
+        .obd-data-card {
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 1rem;
+            text-align: center;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+        }
+        .obd-data-card .value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #10b981; /* Green for data */
+            margin-bottom: 0.25rem;
+        }
+        .obd-data-card .label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
     </style>
 </head>
 <body class="animated-bg text-white overflow-hidden theme-gradient-1">
@@ -817,21 +889,21 @@ div#quran-quick-access {
                     href="data:image/svg+xml,%3Csvg viewBox='0 0 400 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='red-grad' x1='100%25' y1='0%25' x2='0%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%230000'/%3E%3Cstop offset='100%25' stop-color='red'/%3E%3C/linearGradient%3E%3ClinearGradient id='blue-grad' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230000'/%3E%3Cstop offset='100%25' stop-color='blue'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='0' y='0' width='400' height='200' fill='black'/%3E%3Crect x='0' y='0' width='400' height='200' rx='20' fill='url(%23red-grad)'/%3E%3Crect x='0' y='0' width='400' height='200' rx='20' fill='url(%23blue-grad)' style='mix-blend-mode: difference'/%3E%3Crect x='1.4' y='1.4' width='397.2' height='197.2' rx='20' fill='hsl(0 0% 50% / 0.93)' style='filter:blur(11px)'/%3E%3C/svg%3E"/>
                 
                 <!-- Displacement maps for RGB channels - adjusted scale for more distortion -->
-                <feDisplacementMap in="SourceGraphic" in2="map" id="redchannel" scale="200" xChannelSelector="R" yChannelSelector="G" result="dispRed" />
+                <feDisplacementMap in="SourceGraphic" in2="map" id="redchannel" scale="300" xChannelSelector="R" yChannelSelector="G" result="dispRed" />
                 <feColorMatrix in="dispRed" type="matrix" values="1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0" result="red" />
                 
-                <feDisplacementMap in="SourceGraphic" in2="map" id="greenchannel" scale="210" xChannelSelector="R" yChannelSelector="G" result="dispGreen" />
+                <feDisplacementMap in="SourceGraphic" in2="map" id="greenchannel" scale="310" xChannelSelector="R" yChannelSelector="G" result="dispGreen" />
                 <feColorMatrix in="dispGreen" type="matrix" values="0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0" result="green" />
                 
-                <feDisplacementMap in="SourceGraphic" in2="map" id="bluechannel" scale="220" xChannelSelector="R" yChannelSelector="G" result="dispBlue" />
-                <feColorMatrix in="dispBlue" type="matrix" values="0 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0" result="blue" />
+                <feDisplacementMap in="SourceGraphic" in2="map" id="bluechannel" scale="320" xChannelSelector="R" yChannelSelector="G" result="dispBlue" />
+                <feColorMatrix in="dispBlue" type="matrix" values="0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 1 0" result="blue" />
                 
                 <!-- Blending channels -->
                 <feBlend in="red" in2="green" mode="screen" result="rg" />
                 <feBlend in="rg" in2="blue" mode="screen" result="output" />
                 
                 <!-- Gaussian blur for liquid effect - increased stdDeviation -->
-                <feGaussianBlur in="output" stdDeviation="15" />
+                <feGaussianBlur in="output" stdDeviation="5" />
             </filter>
         </defs>
     </svg>
@@ -851,7 +923,7 @@ div#quran-quick-access {
         <img src="https://dmusera.netlify.app/Lexus-Logo.wine.svg" width="200px" alt="Lexus Logo" class="fixed top-2 left-1/2 -translate-x-1/2 h-12 z-[1000] opacity-80" style="filter: invert(1) grayscale(100%) brightness(200%);" />
 
         <!-- Main CarPlay Interface Container -->
-        <div id="carplay-main-interface" class="w-full max-w-7xl flex flex-row shadow-2xl rounded-3xl overflow-hidden bg-black/20 border border-white/10">
+        <div id="carplay-main-interface" class="flex flex-row shadow-2xl rounded-3xl overflow-hidden bg-black/20 border border-white/10">
             
             <!-- Navigation Dock (Left Sidebar) -->
             <nav class="w-20 sm:w-24 bg-black/20 flex flex-col items-center justify-start pt-8 p-2 space-y-4 border-r border-white/10 flex-shrink-0 transition-opacity 0.3s ease;">
@@ -870,7 +942,9 @@ div#quran-quick-access {
                 <button data-app="Weather" class="app-icon"> 
                     <i data-lucide="cloud-sun"></i> 
                 </button>
-                
+                <button data-app="OBDII" class="app-icon">
+                    <i data-lucide="car"></i>
+                </button>
                 <button data-app="Quran" class="app-icon">
                     <i data-lucide="book-open"></i>
                 </button>
@@ -883,28 +957,14 @@ div#quran-quick-access {
             <main class="flex-1 flex flex-col h-full">
                 
                 <!-- Dashboard Screen -->
-                <section id="screen-Dashboard" class="app-screen p-4 md:p-6 flex-col gap-4 md:gap-6 h-full">
+                <section id="screen-Dashboard" class="app-screen p-4 md:p-6 flex-col h-full">
                  
                     <!-- Dashboard Grid Layout -->
-                    <div class="flex-grow flex flex-col lg:flex-row gap-4 md:gap-6 h-full dashboard-main-grid">
-                        <!-- Left Column (50% width on large screens): Main Map -->
-                        <div class="flex-grow h-full rounded-3xl relative overflow-hidden flex items-center justify-center glass-surface glass-surface--svg p-1 dashboard-col-50-percent">
-                            <!-- Google Maps iframe. The 'src' will be set dynamically by JavaScript using the API key. -->
-                            <iframe id="dashboard-map-iframe" class="full-iframe" src="" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                            <button id="get-my-location-button-dashboard" class="absolute bottom-4 left-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm">
-                                <i data-lucide="map-pin" class="w-4 h-4"></i> موقعي الحالي
-                            </button>
-                        </div>
-
-                        <!-- Middle Column (25% width on large screens): 360 Camera View -->
-                        <div class="flex flex-col gap-4 md:gap-6 dashboard-col-25-percent">
-                            <div class="glass-surface glass-surface--svg p-2 flex-grow flex flex-col items-center justify-center text-center car-cam-360-container">
-                                <img src="https://dmusera.netlify.app/es350gb.png" alt="عرض الكاميرا 360 درجة للسيارة" class="w-full h-full object-cover rounded-lg opacity-80">
-                            </div>
-                        </div>
-
-                        <!-- Right Column (25% width on large screens): Weather + Digital Clock -->
-                        <div class="flex flex-col gap-4 md:gap-6 dashboard-col-25-percent-right">
+                    <!-- The main grid container for the dashboard content -->
+                    <div class="dashboard-main-grid grid grid-cols-1 md:grid-cols-3 grid-rows-[80%_20%] gap-4 md:gap-6 h-full w-full">
+                        
+                        <!-- Column 1: Weather & Clock (occupies 1st column, 1st row) -->
+                        <div class="flex flex-col gap-4 md:gap-6 col-span-1 row-start-1">
                             <!-- Weather Widget -->
                             <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center">
                                 <h2 class="text-xl font-bold mb-1">الطقس</h2>
@@ -920,6 +980,57 @@ div#quran-quick-access {
                                 <div id="digital-clock-widget" class="w-full h-full flex flex-col items-center justify-center text-center">
                                     <div id="digital-time">00:00:00</div>
                                     <div id="digital-date">Saturday, July 20</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Column 2: 360 Camera View (occupies 2nd column, 1st row) -->
+                        <div class="glass-surface glass-surface--svg p-2 flex flex-col items-center justify-center text-center car-cam-360-container col-span-1 row-start-1">
+                            <img src="https://dmusera.netlify.app/es350gb.png" alt="عرض الكاميرا 360 درجة للسيارة" class="w-full h-full object-cover rounded-lg opacity-80">
+                        </div>
+
+                        <!-- Column 3: Map (occupies 3rd column, 1st row) -->
+                        <div class="rounded-3xl relative overflow-hidden flex items-center justify-center glass-surface glass-surface--svg p-1 col-span-1 row-start-1">
+                            <!-- Google Maps iframe. The 'src' will be set dynamically by JavaScript using the API key. -->
+                            <iframe id="dashboard-map-iframe" class="full-iframe" src="" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                            <button id="get-my-location-button-dashboard" class="absolute bottom-4 left-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm">
+                                <i data-lucide="map-pin" class="w-4 h-4"></i> موقعي الحالي
+                            </button>
+                        </div>
+
+                        <!-- Prayer Times Widget (occupies all 3 columns, 2nd row) -->
+                        <div class="glass-surface glass-surface--svg p-4 flex flex-col items-center justify-center text-center col-span-full row-start-2">
+                           
+                            <!-- Prayer times will be dynamically loaded here -->
+                            <div id="prayer-times-container" class="prayer-times-row">
+                                <div class="prayer-time-item">
+                                    <span class="prayer-name">الفجر</span>
+                                    <span class="prayer-time" id="fajr-time">--:--</span>
+                                    <span class="prayer-iqama" id="fajr-iqama"></span>
+                                </div>
+                                <div class="prayer-time-item">
+                                    <span class="prayer-name">الشروق</span>
+                                    <span class="prayer-time" id="sunrise-time">--:--</span>
+                                </div>
+                                <div class="prayer-time-item">
+                                    <span class="prayer-name">الظهر</span>
+                                    <span class="prayer-time" id="dhuhr-time">--:--</span>
+                                    <span class="prayer-iqama" id="dhuhr-iqama"></span>
+                                </div>
+                                <div class="prayer-time-item">
+                                    <span class="prayer-name">العصر</span>
+                                    <span class="prayer-time" id="asr-time">--:--</span>
+                                    <span class="prayer-iqama" id="asr-iqama"></span>
+                                </div>
+                                <div class="prayer-time-item">
+                                    <span class="prayer-name">المغرب</span>
+                                    <span class="prayer-time" id="maghrib-time">--:--</span>
+                                    <span class="prayer-iqama" id="maghrib-iqama"></span>
+                                </div>
+                                <div class="prayer-time-item">
+                                    <span class="prayer-name">العشاء</span>
+                                    <span class="prayer-time" id="isha-time">--:--</span>
+                                    <span class="prayer-iqama" id="isha-iqama"></span>
                                 </div>
                             </div>
                         </div>
@@ -961,7 +1072,7 @@ div#quran-quick-access {
                         
                         <!-- New YouTube Channels Added Below -->
                         <div class="glass-surface glass-surface--svg youtube-channel-card" data-playlist-id="UUlncV9OLPto_MinRzGfjr2g" data-channel-id="UClncV9OLPto_MinRzGfjr2g">
-                            <img src="https://yt3.ggpht.com/ZpoYv5FstgResXDeuqEhkce079N0fM3UC5cmjGFBbKSPQI7tDXfl5W_vib_X2Q_hy5ipbZl4Fw=s176-c-k-c0x00ffffff-no-rj-mo" alt="صورة الشيخ عبد الباسط عبد الصمد" />
+                            <img src="https://yt3.ggpht.com/ZpoYv5FstgResXDeuqEhkce079N0fM3UC5cmjGFBbKSPQI7tDXfl5W_vib_X2Q_hyipbZl4Fw=s176-c-k-c0x00ffffff-no-rj-mo" alt="صورة الشيخ عبد الباسط عبد الصمد" />
                             <h2>تلاوات ياسر الدوسري</h2>
                         </div>
                         <div class="glass-surface glass-surface--svg youtube-channel-card" data-playlist-id="UUFPqvE8BYiiUeN1AUXa3lbA" data-channel-id="UCFPqvE8BYiiUeN1AUXa3lbA">
@@ -1100,8 +1211,47 @@ div#quran-quick-access {
                     </div>
                 </section>
 
-                <!-- Trip App Screen -->
-                
+                <!-- OBD-II Screen -->
+                <section id="screen-OBDII" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full">
+                    <h1 class="text-4xl font-bold mb-6">بيانات OBD-II <i data-lucide="car"></i></h1>
+                    <div class="w-full h-full flex flex-col gap-4">
+                        <div class="glass-surface glass-surface--svg p-6 rounded-3xl text-center flex flex-col items-center justify-center flex-grow">
+                            <h2 class="text-2xl font-bold mb-4">بيانات السيارة الحية (محاكاة)</h2>
+                            <div class="obd-data-grid">
+                                <div class="obd-data-card">
+                                    <div class="value" id="obd-engine-temp">--°C</div>
+                                    <div class="label">درجة حرارة المحرك</div>
+                                </div>
+                                <div class="obd-data-card">
+                                    <div class="value" id="obd-battery-voltage">-- V</div>
+                                    <div class="label">فولتية البطارية</div>
+                                </div>
+                                <div class="obd-data-card">
+                                    <div class="value" id="obd-tire-pressure-fl">-- PSI</div>
+                                    <div class="label">ضغط الإطار (أمامي يسار)</div>
+                                </div>
+                                <div class="obd-data-card">
+                                    <div class="value" id="obd-tire-pressure-fr">-- PSI</div>
+                                    <div class="label">ضغط الإطار (أمامي يمين)</div>
+                                </div>
+                                <div class="obd-data-card">
+                                    <div class="value" id="obd-tire-pressure-rl">-- PSI</div>
+                                    <div class="label">ضغط الإطار (خلفي يسار)</div>
+                                </div>
+                                <div class="obd-data-card">
+                                    <div class="value" id="obd-tire-pressure-rr">-- PSI</div>
+                                    <div class="label">ضغط الإطار (خلفي يمين)</div>
+                                </div>
+                            </div>
+                            <p class="text-red-300 text-xs mt-4">
+                                ملاحظة: الاتصال المباشر بـ OBD-II عبر البلوتوث غير مدعوم في بيئة المتصفح لأسباب أمنية. هذه البيانات محاكاة.
+                            </p>
+                            <button id="simulate-obd-data" class="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full transition-colors duration-200">
+                                محاكاة بيانات جديدة
+                            </button>
+                        </div>
+                    </div>
+                </section>
 
                 <!-- Electronic Quran App Screen -->
                 <section id="screen-Quran" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full relative">
@@ -1262,14 +1412,31 @@ div#quran-quick-access {
                 speed: null, 
                 rpm: null,   
                 fuel: null,  
-                temp: null,  
-                gear: 'P'
+                temp: null,
+                gear: 'P',
+                obd: { // Simulated OBD-II data
+                    engineTemp: null,
+                    batteryVoltage: null,
+                    tirePressureFL: null,
+                    tirePressureFR: null,
+                    tirePressureRL: null,
+                    tirePressureRR: null
+                }
             },
             settings: {
                 fontSize: 16,
                 backgroundTheme: 'theme-gradient-1',
                 enableLiveWeather: true,
                 carSpeedUnit: 'km/h'
+            },
+            prayerTimes: { // This will now hold the current day's prayer times from the array
+                Fajr: '--:--',
+                Sunrise: '--:--',
+                Dhuhr: '--:--',
+                Asr: '--:--',
+                Maghrib: '--:--',
+                Isha: '--:--',
+                currentPrayer: null
             }
         };
 
@@ -1319,6 +1486,29 @@ div#quran-quick-access {
         const aiMicButton = document.getElementById('ai-mic-button');
         const listeningIndicator = document.getElementById('listening-indicator');
 
+        // OBD-II elements
+        const obdEngineTemp = document.getElementById('obd-engine-temp');
+        const obdBatteryVoltage = document.getElementById('obd-battery-voltage');
+        const obdTirePressureFL = document.getElementById('obd-tire-pressure-fl');
+        const obdTirePressureFR = document.getElementById('obd-tire-pressure-fr');
+        const obdTirePressureRL = document.getElementById('obd-tire-pressure-rl');
+        const obdTirePressureRR = document.getElementById('obd-tire-pressure-rr');
+        const simulateObdDataButton = document.getElementById('simulate-obd-data');
+
+        // Prayer Times elements
+        const prayerTimesContainer = document.getElementById('prayer-times-container');
+        // New elements for prayer times display
+        const fajrTimeElement = document.getElementById('fajr-time');
+        const sunriseTimeElement = document.getElementById('sunrise-time');
+        const dhuhrTimeElement = document.getElementById('dhuhr-time');
+        const asrTimeElement = document.getElementById('asr-time');
+        const maghribTimeElement = document.getElementById('maghrib-time');
+        const ishaTimeElement = document.getElementById('isha-time');
+        const fajrIqamaElement = document.getElementById('fajr-iqama');
+        const dhuhrIqamaElement = document.getElementById('dhuhr-iqama');
+        const asrIqamaElement = document.getElementById('asr-iqama');
+        const maghribIqamaElement = document.getElementById('maghrib-iqama');
+        const ishaIqamaElement = document.getElementById('isha-iqama');
       
 
         // --- Global Variables for Media State ---
@@ -1465,6 +1655,19 @@ div#quran-quick-access {
 
             // Update Map iframe source when UI updates, especially on app switch
             updateMapSrc(); 
+
+            // Update OBD-II data
+            obdEngineTemp.textContent = appState.car.obd.engineTemp !== null ? `${appState.car.obd.engineTemp}°C` : '--°C';
+            obdBatteryVoltage.textContent = appState.car.obd.batteryVoltage !== null ? `${appState.car.obd.batteryVoltage} V` : '-- V';
+            obdTirePressureFL.textContent = appState.car.obd.tirePressureFL !== null ? `${appState.car.obd.tirePressureFL} PSI` : '-- PSI';
+            obdTirePressureFR.textContent = appState.car.obd.tirePressureFR !== null ? `${appState.car.obd.tirePressureFR} PSI` : '-- PSI';
+            obdTirePressureRL.textContent = appState.car.obd.tirePressureRL !== null ? `${appState.car.obd.tirePressureRL} PSI` : '-- PSI';
+            obdTirePressureRR.textContent = appState.car.obd.tirePressureRR !== null ? `${appState.car.obd.tirePressureRR} PSI` : '-- PSI';
+
+            // Update Prayer Times
+            loadPrayerTimes(); // Call loadPrayerTimes to update the display
+            determineCurrentPrayer(); // Re-determine current prayer after loading
+            renderPrayerTimes(); // Re-render to apply current prayer highlight
         }
 
         // --- App Switching Logic ---
@@ -1492,8 +1695,6 @@ div#quran-quick-access {
             // Handle Media (YouTube) view switching specifics
             handleMediaViewSwitch(appName);
 
-          
-
             // Handle Quran app specific visibility
             if (appName === 'Quran') {
                 // Ensure quranQuickAccess is defined before accessing its style property
@@ -1520,15 +1721,14 @@ div#quran-quick-access {
 
                 // Hide all media sub-views initially
                 youtubePlaylistView.classList.add('hidden');
-                youtubeVideoListView.classList.add('hidden');
-                youtubeSearchResultsView.classList.add('hidden'); 
-                youtubePlayerView.classList.add('hidden');
-                youtubeSuggestionsDiv.classList.remove('hidden'); // Show suggestions
-
                 youtubePlaylistView.classList.remove('flex', 'flex-col');
+                youtubeVideoListView.classList.add('hidden');
                 youtubeVideoListView.classList.remove('flex', 'flex-col');
+                youtubeSearchResultsView.classList.add('hidden'); 
                 youtubeSearchResultsView.classList.remove('flex', 'flex-col'); 
+                youtubePlayerView.classList.add('hidden');
                 youtubePlayerView.classList.remove('flex', 'flex-col');
+                youtubeSuggestionsDiv.classList.remove('hidden'); // Show suggestions
 
                 if (isVideoPlayingInPopup && currentPlayingVideoId) {
                     // If video was playing in pop-up, bring it to main view
@@ -1653,7 +1853,7 @@ div#quran-quick-access {
                         activeMediaView = 'videoList';
                     }
                     backToPlaylistsBottomButton.style.display = 'flex';
-                    backToPlaylistsBottomButtonSearch.style.display = 'none';
+                    backToPlayistsBottomButtonSearch.style.display = 'none';
                     updateFloatingBackToVideoButtonVisibility();
                 } else {
                     showMessageBox('لم يتم العثور على فيديوهات في قائمة التشغيل هذه.');
@@ -2159,7 +2359,7 @@ div#quran-quick-access {
                     dashboardMapIframe.src = 'about:blank'; // Clear iframe content
                     dashboardMapIframe.onload = () => { // Wait for iframe to load before writing
                         if (dashboardMapIframe.contentDocument) {
-                            dashboardMapIframe.contentDocument.body.innerHTML = '<div style="color: white; text-align: center; padding: 20px; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; height: 100%;">خطأ: لم يتم تعيين مفتاح Google Maps API.<br>يرجى استبدال "YOUR_GOOGLE_MAPS_API_KEY" بمفتاحك الخاص.</div>';
+                            dashboardMapIframe.contentDocument.body.innerHTML = '<div style="color: white; text-align: center; padding: 20px; font-size: 1.2rem; display: flex; align-items: center; justify: center; height: 100%;">خطأ: لم يتم تعيين مفتاح Google Maps API.<br>يرجى استبدال "YOUR_GOOGLE_MAPS_API_KEY" بمفتاحك الخاص.</div>';
                             dashboardMapIframe.contentDocument.body.style.backgroundColor = '#333'; // Dark background for the error message
                         }
                     };
@@ -2176,7 +2376,7 @@ div#quran-quick-access {
         }
 
         /**
-         * Gets the user's current location using Geolocation API.
+         * Gets the user's current location using Geolocation API and updates the map.
          * @param {string} buttonId - ID of the button that triggered the request (for context).
          */
         function getMyLocation(buttonId) {
@@ -2185,7 +2385,11 @@ div#quran-quick-access {
                     (position) => {
                         const userLatitude = position.coords.latitude;
                         const userLongitude = position.coords.longitude;
-                        showMessageBox(`موقعك الحالي: Latitude ${userLatitude}, Longitude ${userLongitude}\n\nملاحظة: خرائط Google المضمنة قد لا تدعم تحديث الموقع ديناميكيًا أو عرض مسارك الخاص.`);
+                        appState.mapLocation.lat = userLatitude;
+                        appState.mapLocation.lon = userLongitude;
+                        appState.mapLocation.zoom = 15; // Zoom in on user's location
+                        updateMapSrc(); // Update the map with the new location
+                        showMessageBox(`تم تحديث الخريطة إلى موقعك الحالي: Latitude ${userLatitude}, Longitude ${userLongitude}`);
                     },
                     (error) => {
                         console.error('Geolocation error:', error);
@@ -2321,52 +2525,223 @@ div#quran-quick-access {
             updateUI();
         });
 
-   
-        // --- Electronic Quran App Specific JavaScript ---
-        // Array of Surah names in Arabic (ordered by Surah number)
-        const surahNames = [
-            "الفاتحة", "البقرة", "آل عمران", "النساء", "المائدة", "الأنعام", "الأعراف", "الأنفال", "التوبة", "يونس",
-            "هود", "يوسف", "الرعد", "إبراهيم", "الحجر", "النحل", "الإسراء", "الكهف", "مريم", "طه",
-            "الأنبياء", "الحج", "المؤمنون", "النور", "الفرقان", "الشعراء", "النمل", "القصص", "العنكبوت", "الروم",
-            "لقمان", "السجدة", "الأحزاب", "سبأ", "فاطر", "يس", "الصافات", "ص", "الزمر", "غافر",
-            "فصلت", "الشورى", "الزخرف", "الدخان", "الجاثية", "الأحقاف", "محمد", "الفتح", "الحجرات", "ق",
-            "الذاريات", "الطور", "النجم", "القمر", "الرحمن", "الواقعة", "الحديد", "المجادلة", "الحشر", "الممتحنة",
-            "الصف", "الجمعة", "المنافقون", "التغابن", "الطلاق", "التحريم", "الملك", "القلم", "الحاقة", "المعارج",
-            "نوح", "الجن", "المزمل", "المدثر", "القيامة", "الإنسان", "المرسلات", "النبأ", "النازعات", "عبس",
-            "التكوير", "الانفطار", "المطففين", "الانشقاق", "البروج", "الطارق", "الأعلى", "الغاشية", "الفجر", "البلد",
-            "الشمس", "الليل", "الضحى", "الشرح", "التين", "العلق", "القدر", "البينة", "الزلزلة", "العاديات",
-            "القارعة", "التكاثر", "العصر", "الهمزة", "الفيل", "قريش", "الماعون", "الكوثر", "الكافرون", "النصر",
-            "المسد", "الإخلاص", "الفلق", "الناس"
+        // --- OBD-II Simulation Functions ---
+        /**
+         * Generates random simulated OBD-II data.
+         */
+        function simulateObdData() {
+            appState.car.obd.engineTemp = (Math.random() * (100 - 70) + 70).toFixed(1); // 70-100 C
+            appState.car.obd.batteryVoltage = (Math.random() * (14.7 - 12.0) + 12.0).toFixed(1); // 12.0-14.7 V
+            appState.car.obd.tirePressureFL = (Math.random() * (35 - 30) + 30).toFixed(0); // 30-35 PSI
+            appState.car.obd.tirePressureFR = (Math.random() * (35 - 30) + 30).toFixed(0);
+            appState.car.obd.tirePressureRL = (Math.random() * (35 - 30) + 30).toFixed(0);
+            appState.car.obd.tirePressureRR = (Math.random() * (35 - 30) + 30).toFixed(0);
+            updateUI();
+        }
+
+        // --- Prayer Times Integration ---
+        // Prayer times data provided by the user
+        const prayerTimes = [
+            {"date":"2025-07-27","fajr":"04:44","sunrise":"06:02","dhuhr":"12:35","asr":"15:49","maghrib":"19:03","isha":"20:17"},
+            {"date":"2025-07-28","fajr":"04:44","sunrise":"06:02","dhuhr":"12:35","asr":"15:49","maghrib":"19:03","isha":"20:16"},
+            {"date":"2025-07-29","fajr":"04:44","sunrise":"06:03","dhuhr":"12:35","asr":"15:48","maghrib":"19:03","isha":"20:16"},
+            {"date":"2025-07-30","fajr":"04:45","sunrise":"06:03","dhuhr":"12:35","asr":"15:48","maghrib":"19:02","isha":"20:15"},
+            {"date":"2025-07-31","fajr":"04:45","sunrise":"06:03","dhuhr":"12:35","asr":"15:47","maghrib":"19:02","isha":"20:15"},
+            {"date":"2025-08-01","fajr":"04:46","sunrise":"06:04","dhuhr":"12:35","asr":"15:46","maghrib":"19:02","isha":"20:14"},
+            {"date":"2025-08-02","fajr":"04:46","sunrise":"06:04","dhuhr":"12:35","asr":"15:46","maghrib":"19:01","isha":"20:14"},
+            {"date":"2025-08-03","fajr":"04:47","sunrise":"06:04","dhuhr":"12:35","asr":"15:45","maghrib":"19:01","isha":"20:13"},
+            {"date":"2025-08-04","fajr":"04:47","sunrise":"06:04","dhuhr":"12:35","asr":"15:44","maghrib":"19:00","isha":"20:13"},
+            {"date":"2025-08-05","fajr":"04:48","sunrise":"06:05","dhuhr":"12:35","asr":"15:44","maghrib":"19:00","isha":"20:12"},
+            {"date":"2025-08-06","fajr":"04:48","sunrise":"06:05","dhuhr":"12:35","asr":"15:44","maghrib":"18:59","isha":"20:11"},
+            {"date":"2025-08-07","fajr":"04:48","sunrise":"06:05","dhuhr":"12:35","asr":"15:44","maghrib":"18:59","isha":"20:11"},
+            {"date":"2025-08-08","fajr":"04:49","sunrise":"06:05","dhuhr":"12:34","asr":"15:45","maghrib":"18:58","isha":"20:10"},
+            {"date":"2025-08-09","fajr":"04:49","sunrise":"06:06","dhuhr":"12:34","asr":"15:45","maghrib":"18:58","isha":"20:09"},
+            {"date":"2025-08-10","fajr":"04:50","sunrise":"06:06","dhuhr":"12:34","asr":"15:45","maghrib":"18:57","isha":"20:09"},
+            {"date":"2025-08-11","fajr":"04:50","sunrise":"06:06","dhuhr":"12:34","asr":"15:45","maghrib":"18:57","isha":"20:08"},
+            {"date":"2025-08-12","fajr":"04:50","sunrise":"06:06","dhuhr":"12:34","asr":"15:46","maghrib":"18:56","isha":"20:07"},
+            {"date":"2025-08-13","fajr":"04:51","sunrise":"06:07","dhuhr":"12:34","asr":"15:46","maghrib":"18:56","isha":"20:06"},
+            {"date":"2025-08-14","fajr":"04:51","sunrise":"06:07","dhuhr":"12:33","asr":"15:46","maghrib":"18:55","isha":"20:06"},
+            {"date":"2025-08-15","fajr":"04:51","sunrise":"06:07","dhuhr":"12:33","asr":"15:46","maghrib":"18:54","isha":"20:05"},
+            {"date":"2025-08-16","fajr":"04:52","sunrise":"06:07","dhuhr":"12:33","asr":"15:46","maghrib":"18:54","isha":"20:04"},
+            {"date":"2025-08-17","fajr":"04:52","sunrise":"06:07","dhuhr":"12:33","asr":"15:47","maghrib":"18:53","isha":"20:03"},
+            {"date":"2025-08-18","fajr":"04:53","sunrise":"06:08","dhuhr":"12:33","asr":"15:47","maghrib":"18:53","isha":"20:03"},
+            {"date":"2025-08-19","fajr":"04:53","sunrise":"06:08","dhuhr":"12:32","asr":"15:47","maghrib":"18:52","isha":"20:02"},
+            {"date":"2025-08-20","fajr":"04:53","sunrise":"06:08","dhuhr":"12:32","asr":"15:47","maghrib":"18:51","isha":"20:01"},
+            {"date":"2025-08-21","fajr":"04:54","sunrise":"06:08","dhuhr":"12:32","asr":"15:47","maghrib":"18:51","isha":"20:00"},
+            {"date":"2025-08-22","fajr":"04:54","sunrise":"06:08","dhuhr":"12:32","asr":"15:47","maghrib":"18:50","isha":"19:59"},
+            {"date":"2025-08-23","fajr":"04:54","sunrise":"06:09","dhuhr":"12:31","asr":"15:47","maghrib":"18:49","isha":"19:59"},
+            {"date":"2025-08-24","fajr":"04:54","sunrise":"06:09","dhuhr":"12:31","asr":"15:47","maghrib":"18:48","isha":"19:58"},
+            {"date":"2025-08-25","fajr":"04:55","sunrise":"06:09","dhuhr":"12:31","asr":"15:47","maghrib":"18:48","isha":"19:57"},
+            {"date":"2025-08-26","fajr":"04:55","sunrise":"06:09","dhuhr":"12:31","asr":"15:47","maghrib":"18:47","isha":"19:56"},
+            {"date":"2025-08-27","fajr":"04:55","sunrise":"06:09","dhuhr":"12:30","asr":"15:47","maghrib":"18:46","isha":"19:55"},
+            {"date":"2025-08-28","fajr":"04:56","sunrise":"06:09","dhuhr":"12:30","asr":"15:47","maghrib":"18:46","isha":"19:54"},
+            {"date":"2025-08-29","fajr":"04:56","sunrise":"06:10","dhuhr":"12:30","asr":"15:47","maghrib":"18:45","isha":"19:54"},
+            {"date":"2025-08-30","fajr":"04:56","sunrise":"06:10","dhuhr":"12:29","asr":"15:47","maghrib":"18:44","isha":"19:53"},
+            {"date":"2025-08-31","fajr":"04:56","sunrise":"06:10","dhuhr":"12:29","asr":"15:47","maghrib":"18:43","isha":"19:52"},
+            {"date":"2025-09-01","fajr":"04:57","sunrise":"06:10","dhuhr":"12:29","asr":"15:47","maghrib":"18:42","isha":"19:51"},
+            {"date":"2025-09-02","fajr":"04:57","sunrise":"06:10","dhuhr":"12:28","asr":"15:47","maghrib":"18:42","isha":"19:50"},
+            {"date":"2025-09-03","fajr":"04:57","sunrise":"06:10","dhuhr":"12:28","asr":"15:47","maghrib":"18:41","isha":"19:49"},
+            {"date":"2025-09-04","fajr":"04:57","sunrise":"06:10","dhuhr":"12:28","asr":"15:47","maghrib":"18:40","isha":"19:48"},
+            {"date":"2025-09-05","fajr":"04:58","sunrise":"06:11","dhuhr":"12:27","asr":"15:47","maghrib":"18:39","isha":"19:47"},
+            {"date":"2025-09-06","fajr":"04:58","sunrise":"06:11","dhuhr":"12:27","asr":"15:47","maghrib":"18:39","isha":"19:46"},
+            {"date":"2025-09-07","fajr":"04:58","sunrise":"06:11","dhuhr":"12:27","asr":"15:47","maghrib":"18:38","isha":"19:46"},
+            {"date":"2025-09-08","fajr":"04:58","sunrise":"06:11","dhuhr":"12:26","asr":"15:47","maghrib":"18:37","isha":"19:45"},
+            {"date":"2025-09-09","fajr":"04:58","sunrise":"06:11","dhuhr":"12:26","asr":"15:46","maghrib":"18:36","isha":"19:44"},
+            {"date":"2025-09-10","fajr":"04:59","sunrise":"06:11","dhuhr":"12:26","asr":"15:46","maghrib":"18:35","isha":"19:43"},
+            {"date":"2025-09-11","fajr":"04:59","sunrise":"06:11","dhuhr":"12:25","asr":"15:46","maghrib":"18:34","isha":"19:42"},
+            {"date":"2025-09-12","fajr":"04:59","sunrise":"06:11","dhuhr":"12:25","asr":"15:46","maghrib":"18:34","isha":"19:41"},
+            {"date":"2025-09-13","fajr":"04:59","sunrise":"06:12","dhuhr":"12:25","asr":"15:46","maghrib":"18:33","isha":"19:40"},
+            {"date":"2025-09-14","fajr":"04:59","sunrise":"06:12","dhuhr":"12:24","asr":"15:46","maghrib":"18:32","isha":"19:39"},
+            {"date":"2025-09-15","fajr":"05:00","sunrise":"06:12","dhuhr":"12:24","asr":"15:45","maghrib":"18:31","isha":"19:38"},
+            {"date":"2025-09-16","fajr":"05:00","sunrise":"06:12","dhuhr":"12:24","asr":"15:45","maghrib":"18:30","isha":"19:38"},
+            {"date":"2025-09-17","fajr":"05:00","sunrise":"06:12","dhuhr":"12:23","asr":"15:45","maghrib":"18:29","isha":"19:37"},
+            {"date":"2025-09-18","fajr":"05:00","sunrise":"06:12","dhuhr":"12:23","asr":"15:45","maghrib":"18:29","isha":"19:36"},
+            {"date":"2025-09-19","fajr":"05:00","sunrise":"06:12","dhuhr":"12:23","asr":"15:44","maghrib":"18:28","isha":"19:35"},
+            {"date":"2025-09-20","fajr":"05:00","sunrise":"06:12","dhuhr":"12:22","asr":"15:44","maghrib":"18:27","isha":"19:34"},
+            {"date":"2025-09-21","fajr":"05:01","sunrise":"06:13","dhuhr":"12:22","asr":"15:44","maghrib":"18:26","isha":"19:33"},
+            {"date":"2025-09-22","fajr":"05:01","sunrise":"06:13","dhuhr":"12:21","asr":"15:44","maghrib":"18:25","isha":"19:32"},
+            {"date":"2025-09-23","fajr":"05:01","sunrise":"06:13","dhuhr":"12:21","asr":"15:43","maghrib":"18:25","isha":"19:31"},
+            {"date":"2025-09-24","fajr":"05:01","sunrise":"06:13","dhuhr":"12:21","asr":"15:43","maghrib":"18:24","isha":"19:31"},
+            {"date":"2025-09-25","fajr":"05:01","sunrise":"06:13","dhuhr":"12:20","asr":"15:43","maghrib":"18:23","isha":"19:30"},
+            {"date":"2025-09-26","fajr":"05:01","sunrise":"06:13","dhuhr":"12:20","asr":"15:42","maghrib":"18:22","isha":"19:29"},
+            {"date":"2025-09-27","fajr":"05:01","sunrise":"06:13","dhuhr":"12:20","asr":"15:42","maghrib":"18:21","isha":"19:28"},
         ];
 
         /**
-         * Populates the Surah selection dropdown with all 114 Surahs.
+         * Adds minutes to a given time string.
+         * @param {string} timeStr - The time string in "HH:MM" format.
+         * @param {number} minutesToAdd - The number of minutes to add.
+         * @returns {string} The new time string in "HH:MM" format.
          */
-        function populateSurahSelect() {
-            // Check if quranSurahSelect exists before populating
-            if (quranSurahSelect) {
-                quranSurahSelect.innerHTML = '<option value="">اختر سورة...</option>';
-                surahNames.forEach((name, index) => {
-                    const option = document.createElement('option');
-                    option.value = index + 1; // Surah numbers start from 1
-                    option.textContent = `${index + 1}. ${name}`;
-                    quranSurahSelect.appendChild(option);
-                });
-            }
+        function addMinutes(timeStr, minutesToAdd) {
+            const [hour, minute] = timeStr.split(':').map(Number);
+            const date = new Date();
+            date.setHours(hour);
+            date.setMinutes(minute + minutesToAdd);
+            // Get time in HH:MM format (e.g., "13:45")
+            return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
         }
 
-        // Event listener for "Go to Surah" button in Quran tab
-        // Check if quranGoButton exists before adding event listener
-        if (quranGoButton) {
-            quranGoButton.addEventListener('click', () => {
-                const selectedSurah = quranSurahSelect.value;
-                if (selectedSurah) {
-                    quranIframe.src = `https://quran.com/${selectedSurah}?lang=ar`; // Added lang=ar
-                    showMessageBox(`جارٍ الانتقال إلى سورة ${surahNames[selectedSurah - 1]} في القرآن الكريم.`);
-                } else {
-                    showMessageBox('الرجاء اختيار سورة أولاً.');
+        /**
+         * Loads prayer times for the current day from the local `prayerTimes` array.
+         */
+        function loadPrayerTimes() {
+            const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+            const data = prayerTimes.find(p => p.date === today);
+
+            if (data) {
+                appState.prayerTimes.Fajr = data.fajr;
+                appState.prayerTimes.Sunrise = data.sunrise;
+                appState.prayerTimes.Dhuhr = data.dhuhr;
+                appState.prayerTimes.Asr = data.asr;
+                appState.prayerTimes.Maghrib = data.maghrib;
+                appState.prayerTimes.Isha = data.isha;
+
+                // Update display elements
+                fajrTimeElement.textContent = data.fajr;
+                sunriseTimeElement.textContent = data.sunrise;
+                dhuhrTimeElement.textContent = data.dhuhr;
+                asrTimeElement.textContent = data.asr;
+                maghribTimeElement.textContent = data.maghrib;
+                ishaTimeElement.textContent = data.isha;
+
+                fajrIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.fajr, 25);
+                dhuhrIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.dhuhr, 20);
+                asrIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.asr, 20);
+                maghribIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.maghrib, 5);
+                ishaIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.isha, 20);
+
+            } else {
+                console.warn('No prayer times found for today in the local data.');
+                // Clear display if no data for today
+                fajrTimeElement.textContent = '--:--';
+                sunriseTimeElement.textContent = '--:--';
+                dhuhrTimeElement.textContent = '--:--';
+                asrTimeElement.textContent = '--:--';
+                maghribTimeElement.textContent = '--:--';
+                ishaTimeElement.textContent = '--:--';
+                fajrIqamaElement.textContent = '';
+                dhuhrIqamaElement.textContent = '';
+                asrIqamaElement.textContent = '';
+                maghribIqamaElement.textContent = '';
+                ishaIqamaElement.textContent = '';
+            }
+            renderPrayerTimes(); // Always re-render to apply current prayer highlight
+        }
+
+        /**
+         * Determines the current and next prayer time and updates appState.
+         */
+        function determineCurrentPrayer() {
+            const now = new Date();
+            const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
+            
+            const prayerNames = ["Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha"];
+            let currentPrayer = null;
+
+            for (let i = 0; i < prayerNames.length; i++) {
+                const prayerName = prayerNames[i];
+                const prayerTime = appState.prayerTimes[prayerName]; // Use appState for consistency
+                if (prayerTime && prayerTime !== '--:--') {
+                    const [hours, minutes] = prayerTime.split(':').map(Number);
+                    const prayerTimeInMinutes = hours * 60 + minutes;
+
+                    if (currentTimeInMinutes >= prayerTimeInMinutes) {
+                        currentPrayer = prayerName;
+                    } else {
+                        // If we found a prayer that's in the future, and we have a current prayer,
+                        // then the current prayer is the one we just passed.
+                        // If no current prayer was set yet, it means the current time is before Fajr,
+                        // so Isha of yesterday is the "current" or last passed prayer.
+                        break; // Found the next prayer, so stop
+                    }
                 }
+            }
+            
+            // Handle case where it's after Isha and before Fajr of next day
+            if (!currentPrayer && appState.prayerTimes.Fajr !== '--:--' && currentTimeInMinutes < (appState.prayerTimes.Fajr.split(':').map(Number)[0] * 60 + appState.prayerTimes.Fajr.split(':').map(Number)[1])) {
+                currentPrayer = 'Isha'; // Assume Isha of previous day is the last passed prayer
+            }
+
+            appState.prayerTimes.currentPrayer = currentPrayer;
+            renderPrayerTimes(); // Re-render to update highlight
+        }
+
+        /**
+         * Renders the prayer times in the dashboard.
+         */
+        function renderPrayerTimes() {
+            if (!prayerTimesContainer) return;
+
+            // Clear previous highlights
+            document.querySelectorAll('.prayer-time-item').forEach(item => {
+                item.classList.remove('current-prayer');
             });
+
+            // Mapping from English prayer names (in appState) to Arabic display names (in HTML)
+            const prayerNameMap = {
+                Fajr: 'الفجر',
+                Sunrise: 'الشروق',
+                Dhuhr: 'الظهر',
+                Asr: 'العصر',
+                Maghrib: 'المغرب',
+                Isha: 'العشاء'
+            };
+
+            // Apply highlight to current prayer
+            if (appState.prayerTimes.currentPrayer) {
+                const currentPrayerArabicName = prayerNameMap[appState.prayerTimes.currentPrayer];
+                if (currentPrayerArabicName) {
+                    // Iterate through all prayer time items and find the one with the matching Arabic name
+                    const prayerItems = document.querySelectorAll('.prayer-time-item');
+                    prayerItems.forEach(item => {
+                        const prayerNameSpan = item.querySelector('.prayer-name');
+                        if (prayerNameSpan && prayerNameSpan.textContent.trim() === currentPrayerArabicName) {
+                            item.classList.add('current-prayer');
+                        }
+                    });
+                }
+            }
         }
 
         // --- Digital Clock JavaScript (Apple iOS 19 style) ---
@@ -2416,6 +2791,9 @@ div#quran-quick-access {
             if (floatingMediaButton) {
                 floatingMediaButton.addEventListener('click', () => switchApp('Media'));
             }
+            if (simulateObdDataButton) {
+                simulateObdDataButton.addEventListener('click', simulateObdData);
+            }
 
             // Initial and periodic updates
             updateUI();
@@ -2423,10 +2801,13 @@ div#quran-quick-access {
             setInterval(fetchWeatherData, 300000); // Update weather every 5 minutes (300,000 ms)
             setInterval(updateDigitalClock, 1000);
             updateDigitalClock();
+            loadPrayerTimes(); // Load prayer times from local array
+            setInterval(determineCurrentPrayer, 60000); // Check current prayer every minute
             
             // Set initial app to Dashboard and update button visibility
             switchApp('Dashboard');
-            populateSurahSelect(); // Populate Surah dropdown on load
+            // Removed populateSurahSelect() as it was undefined and not used for Quran iframe
+            simulateObdData(); // Initial OBD data simulation
             updateFloatingBackToVideoButtonVisibility(); // Initial check for floating back button
         });
     </script>
