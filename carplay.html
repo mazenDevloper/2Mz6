@@ -11,7 +11,7 @@
     <!-- Font Awesome for additional icons (e.g., Trip log) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <!-- ADDED Google Maps API script -->
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCDWFDGIkq7Cu0dv8AL_q1YFEUIWlZdaP4&libraries=places&callback=initMap"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBRqAHJ2elbE_Z7NXXYC50XZpqi6HbG6Rk&libraries=places&callback=initMap"></script>
     <!-- Chart.js for potential future charts in Trip tab (currently not used but included) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -522,9 +522,9 @@ div#quran-quick-access {
             overflow: hidden;
         }
         .car-cam-360-container img {
-            height: 100%; /* Changed from 160% to 100% */
-            width: 100%; /* Added to ensure it takes full width */
-            object-fit: contain; /* Changed from cover to contain to fit image fully */
+            height: 160%; /* Changed from 100% to 160% as requested */
+            width: 100%; 
+            object-fit: cover; /* Changed from contain to cover as requested */
         }
 
         /* Digital Clock Styles (Apple iOS 19 style) */
@@ -591,14 +591,15 @@ div#quran-quick-access {
             50% { transform: scale(1.05) translateY(-2px); opacity: 0.9; }
             100% { transform: scale(1) translateY(0px); opacity: 1; }
         }
-        @keyframes rotate-subtle {
+        /* Removed rotate-subtle animation as requested */
+        /* @keyframes rotate-subtle {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
-        }
+        } */
 
         /* Apply animation to weather icons */
         #dashboard-weather-icon, #weather-icon {
-            animation: pulse-float 3s ease-in-out infinite alternate, rotate-subtle 60s linear infinite; /* Slower rotation */
+            animation: pulse-float 3s ease-in-out infinite alternate; /* Removed rotate-subtle */
             transition: transform 0.3s ease-in-out; /* Smooth transition for scale changes if any */
         }
 
@@ -743,7 +744,7 @@ div#quran-quick-access {
                 flex-direction: row; /* Horizontal icons on mobile */
                 justify-content: space-around;
                 padding: 0.5rem;
-                border-right: none;
+                border-r: none;
                 border-bottom: 1px solid rgba(255, 255, 255, 0.1);
                 order: 2; /* Move nav dock to bottom on mobile */
                 border-radius: 0 0 1rem 1rem; /* Rounded bottom corners */
@@ -1299,13 +1300,13 @@ div#quran-quick-access {
         // IMPORTANT: REPLACE WITH YOUR ACTUAL WEATHERAPI.COM KEY TO RESOLVE 401 ERROR
         const WEATHER_API_KEY = '7acefc26deee4904a2393917252207'; 
         // IMPORTANT: REPLACE WITH YOUR ACTUAL GOOGLE MAPS API KEY FOR MAP AND TRAFFIC TO WORK
-        const GOOGLE_MAPS_API_KEY = 'AIzaSyCDWFDGIkq7Cu0dv8AL_q1YFEUIWlZdaP4';
+        const GOOGLE_MAPS_API_KEY = 'AIzaSyBRqAHJ2elbE_Z7NXXYC50XZpqi6HbG6Rk';
 
         // --- Global App State Management ---
         // Centralized state for various app functionalities
         let appState = {
             currentTime: '',
-            mapLocation: { lat: 17.0151, lon: 54.0924, zoom: 12 }, // Default Salalah coordinates
+            mapLocation: { lat: 17.0151, lon: 54.0924, zoom: 15 }, // Default Salalah coordinates
             weather: {
                 temperature: null, 
                 feelsLike: null,
@@ -1334,7 +1335,8 @@ div#quran-quick-access {
                 Isha: '--:--',
                 nextPrayer: null, // Changed from currentPrayer to nextPrayer
                 nextPrayerIqamaTime: null // Stores the Date object for the next prayer's iqama
-            }
+            },
+            hasShownGeolocationError: false // New flag to control geolocation error message
         };
 
         // --- DOM Element References ---
@@ -1399,6 +1401,7 @@ div#quran-quick-access {
         let googleMap;
         let googleMarker;
         let trafficLayer; // For traffic
+        let watchId; // To store the watchPosition ID for continuous tracking
 
         // --- Global Variables for Media State ---
         let currentPlayingPlaylistId = ''; // Tracks the currently active playlist
@@ -1504,7 +1507,8 @@ div#quran-quick-access {
             document.getElementById('weather-wind').textContent = appState.weather.wind !== null ? `${appState.weather.wind} كم/س` : '-- كم/س';
             document.getElementById('weather-pressure').textContent = appState.weather.pressure !== null ? `${appState.weather.pressure} mb` : '-- mb';
             document.getElementById('weather-visibility').textContent = appState.weather.visibility !== null ? `${appState.weather.visibility} كم` : '-- كم';
-            document.getElementById('weather-uv').textContent = appState.weather.uvIndex !== null ? `${appState.weather.uvIndex}` : '--';
+            appState.weather.uvIndex = appState.weather.uvIndex !== null ? appState.weather.uvIndex : '--'; // Ensure UV index is updated
+            document.getElementById('weather-uv').textContent = appState.weather.uvIndex;
             appState.weather.lastUpdated = `آخر تحديث: ${new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: false })}`;
             document.getElementById('weather-last-updated').textContent = appState.weather.lastUpdated !== null ? appState.weather.lastUpdated : '--';
             const weatherIconElement = document.getElementById('weather-icon');
@@ -1843,7 +1847,7 @@ div#quran-quick-access {
             currentPlayingPlaylistId = ''; // Reset selected playlist
             activeMediaView = 'playlist';
             backToPlaylistsBottomButton.style.display = 'none';
-            backToPlaylistsBottomButtonSearch.style.display = 'none';
+            backToPlaylistsBottomButtonSearch.style.display = 'none'; // Corrected typo here
         }
 
         // Event listeners for back buttons in Media tab
@@ -2180,7 +2184,7 @@ div#quran-quick-access {
             if (googleMap) {
                 // If map already exists, just update its view (shouldn't happen with callback)
                 googleMap.setCenter({ lat: appState.mapLocation.lat, lng: appState.mapLocation.lon });
-                googleMap.setZoom(appState.mapLocation.zoom);
+                // No need to set zoom here, it will be handled by updateGoogleMapLocation
                 if (googleMarker) {
                     googleMarker.setPosition({ lat: appState.mapLocation.lat, lng: appState.mapLocation.lon });
                 }
@@ -2194,16 +2198,29 @@ div#quran-quick-access {
                 zoomControl: true, // Keep zoom controls
                 fullscreenControl: false, // Disable fullscreen control
                 streetViewControl: false, // Disable street view
-                mapTypeControl: false // Disable map type control
+                mapTypeControl: false, // Disable map type control
+                // Custom marker icon for a circular appearance
+                // Using a simple SVG circle for the marker
+                markerOptions: {
+                    icon: {
+                        path: google.maps.SymbolPath.CIRCLE,
+                        scale: 8, // Size of the circle
+                        fillColor: '#4285F4', // Blue color
+                        fillOpacity: 0.8,
+                        strokeWeight: 0, // No border
+                        anchor: new google.maps.Point(0, 0) // Center the circle
+                    }
+                }
             };
 
             googleMap = new google.maps.Map(mapContainer, mapOptions);
 
-            // Add a default marker at Salalah
+            // Add a default marker at Salalah with circular style
             googleMarker = new google.maps.Marker({
                 position: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon },
                 map: googleMap,
-                title: 'موقع صلالة الافتراضي'
+                title: 'موقع صلالة الافتراضي',
+                icon: mapOptions.markerOptions.icon // Apply the circular icon
             });
 
             // Add traffic layer
@@ -2211,6 +2228,7 @@ div#quran-quick-access {
             trafficLayer.setMap(googleMap);
 
             console.log("Google Map initialized with traffic layer.");
+            startContinuousLocationTracking(); // Start continuous tracking after map init
         }
 
         /**
@@ -2226,9 +2244,6 @@ div#quran-quick-access {
             appState.mapLocation.lon = lon;
 
             if (!googleMap) {
-                // This case should ideally not happen if initMap is called by the API.
-                // However, as a fallback, we can try to initialize it here.
-                // Note: This might not work if the Google Maps script itself hasn't loaded yet.
                 console.warn("Google Map not initialized when updateGoogleMapLocation called. Attempting initMap...");
                 initMap();
                 if (!googleMap) {
@@ -2241,30 +2256,73 @@ div#quran-quick-access {
 
             if (googleMarker) {
                 googleMarker.setPosition(newLatLng);
-                // Google Maps doesn't have direct "popup" like Leaflet, use InfoWindow
-                const infoWindow = new google.maps.InfoWindow({
-                    content: `موقعك الحالي<br>الدقة: ${accuracy.toFixed(0)} متر`
-                });
-                infoWindow.open(googleMap, googleMarker);
             } else {
                 googleMarker = new google.maps.Marker({
                     position: newLatLng,
                     map: googleMap,
-                    title: 'موقعك الحالي'
+                    title: 'موقعك الحالي',
+                    icon: { // Apply the circular icon for new marker
+                        path: google.maps.SymbolPath.CIRCLE,
+                        scale: 8,
+                        fillColor: '#4285F4',
+                        fillOpacity: 0.8,
+                        strokeWeight: 0,
+                        anchor: new google.maps.Point(0, 0)
+                    }
                 });
-                const infoWindow = new google.maps.InfoWindow({
-                    content: `موقعك الحالي<br>الدقة: ${accuracy.toFixed(0)} متر`
-                });
-                infoWindow.open(googleMap, googleMarker);
             }
             
-            // Adjust map view to fit the new location
+            // Adjust map view to fit the new location and increase zoom by 4
             googleMap.setCenter(newLatLng);
-            googleMap.setZoom(Math.max(appState.mapLocation.zoom, 15)); // Zoom in if current zoom is less than 15
+            googleMap.setZoom(Math.min(googleMap.getZoom() + 4, 20)); // Increase zoom by 4, max 20
         }
 
         /**
-         * Centers the Google Map on the user's current location.
+         * Starts continuous geolocation tracking and updates the map.
+         */
+        function startContinuousLocationTracking() {
+            if (navigator.geolocation) {
+                watchId = navigator.geolocation.watchPosition(
+                    (position) => {
+                        updateGoogleMapLocation(position);
+                        // Reset the error flag if location is successfully obtained
+                        appState.hasShownGeolocationError = false; 
+                    },
+                    (error) => {
+                        console.error('Geolocation watch error:', error);
+                        console.error('Geolocation error code:', error.code);
+                        console.error('Geolocation error message:', error.message);
+                        let errorMessage = 'تعذر تتبع موقعك الحالي بشكل مستمر.';
+                        switch (error.code) {
+                            case error.PERMISSION_DENIED:
+                                errorMessage += ' يرجى منح الإذن للموقع.';
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                errorMessage += ' معلومات الموقع غير متوفرة.';
+                                break;
+                            case error.TIMEOUT:
+                                errorMessage += ' انتهت مهلة طلب الموقع.';
+                                break;
+                            default:
+                                errorMessage += ' خطأ غير معروف.';
+                                break;
+                        }
+                        // Only show message box once for continuous errors
+                        if (!appState.hasShownGeolocationError) {
+                            showMessageBox(errorMessage);
+                            appState.hasShownGeolocationError = true;
+                        }
+                    },
+                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 } // Shorter timeout for continuous
+                );
+                console.log("Continuous geolocation tracking started.");
+            } else {
+                showMessageBox('الموقع الجغرافي غير مدعوم في هذا المتصفح.');
+            }
+        }
+
+        /**
+         * Centers the Google Map on the user's current location (one-time update).
          * This function is called when the "تحديث الموقع" button is clicked.
          */
         function centerMapOnUserLocation() {
@@ -2273,6 +2331,7 @@ div#quran-quick-access {
                     (position) => {
                         updateGoogleMapLocation(position);
                         showMessageBox(`تم تحديث الخريطة إلى موقعك الحالي.`);
+                        appState.hasShownGeolocationError = false; // Reset error flag on successful manual update
                     },
                     (error) => {
                         console.error('Geolocation error:', error);
@@ -2505,7 +2564,7 @@ div#quran-quick-access {
                 fajrIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.fajr, 25);
                 dhuhrIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.dhuhr, 20);
                 asrIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.asr, 20);
-                maghribIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.maghrib, 5);
+                maghribIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.maghrib, 7);
                 ishaIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.isha, 20);
 
             } else {
