@@ -10,9 +10,8 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Font Awesome for additional icons (e.g., Trip log) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-    <!-- Leaflet CSS & JS for the Trip tab (interactive map) -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- ADDED Google Maps API script -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCDWFDGIkq7Cu0dv8AL_q1YFEUIWlZdaP4&libraries=places&callback=initMap"></script>
     <!-- Chart.js for potential future charts in Trip tab (currently not used but included) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -523,9 +522,9 @@ div#quran-quick-access {
             overflow: hidden;
         }
         .car-cam-360-container img {
-            height: 160%; /* Changed from 160% to 100% */
+            height: 100%; /* Changed from 160% to 100% */
             width: 100%; /* Added to ensure it takes full width */
-            object-fit: cover; /* Changed from cover to contain to fit image fully */
+            object-fit: contain; /* Changed from cover to contain to fit image fully */
         }
 
         /* Digital Clock Styles (Apple iOS 19 style) */
@@ -544,7 +543,13 @@ div#quran-quick-access {
         /* New class for highlight when less than 20 minutes */
         #digital-date.countdown-highlight {
             font-size: 1.7rem;
-            color: green;
+            color: #90EE90; /* Light Chrome Green */
+            font-weight: bold;
+        }
+        /* New class for highlight when less than 1 hour but more than 20 minutes */
+        #digital-date.countdown-medium-highlight {
+            font-size: 1.7rem;
+            color: #FFA07A; /* Light Orange */
             font-weight: bold;
         }
 
@@ -586,7 +591,10 @@ div#quran-quick-access {
             50% { transform: scale(1.05) translateY(-2px); opacity: 0.9; }
             100% { transform: scale(1) translateY(0px); opacity: 1; }
         }
-     
+        @keyframes rotate-subtle {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
         /* Apply animation to weather icons */
         #dashboard-weather-icon, #weather-icon {
@@ -1002,7 +1010,7 @@ div#quran-quick-access {
 
                         <!-- Column 3: Map (occupies 3rd column, 1st row) -->
                         <div class="rounded-3xl relative overflow-hidden flex items-center justify-center glass-surface glass-surface--svg p-1 col-span-1 row-start-1">
-                            <!-- Leaflet map container -->
+                            <!-- Google Map container -->
                             <div id="dashboard-leaflet-map" class="full-iframe"></div>
                             <button id="get-my-location-button-dashboard" class="absolute bottom-4 left-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm">
                                 <i data-lucide="map-pin" class="w-4 h-4"></i> تحديث الموقع
@@ -1290,6 +1298,8 @@ div#quran-quick-access {
         const AI_ASSISTANT_API_KEY = 'AIzaSyBMmtON9ww4dJxMHrl1wKyWTqI0ipJXJws'; 
         // IMPORTANT: REPLACE WITH YOUR ACTUAL WEATHERAPI.COM KEY TO RESOLVE 401 ERROR
         const WEATHER_API_KEY = '7acefc26deee4904a2393917252207'; 
+        // IMPORTANT: REPLACE WITH YOUR ACTUAL GOOGLE MAPS API KEY FOR MAP AND TRAFFIC TO WORK
+        const GOOGLE_MAPS_API_KEY = 'AIzaSyCDWFDGIkq7Cu0dv8AL_q1YFEUIWlZdaP4';
 
         // --- Global App State Management ---
         // Centralized state for various app functionalities
@@ -1385,12 +1395,10 @@ div#quran-quick-access {
         const maghribIqamaElement = document.getElementById('maghrib-iqama');
         const ishaIqamaElement = document.getElementById('isha-iqama');
       
-        // Leaflet Map variables
-        let map;
-        let marker;
-        let watchId; // For navigator.geolocation.watchPosition
-        let markerPathPolyline; // Global variable for the dynamic path polyline
-        let markerPathLatLngs = []; // Array to store LatLngs for the path
+        // Google Map variables
+        let googleMap;
+        let googleMarker;
+        let trafficLayer; // For traffic
 
         // --- Global Variables for Media State ---
         let currentPlayingPlaylistId = ''; // Tracks the currently active playlist
@@ -2157,61 +2165,59 @@ div#quran-quick-access {
 
         aiSendButton.addEventListener('click', sendAIAssistantMessage);
 
-        // --- Leaflet Map and Geolocation Functions ---
+        // --- Google Map and Geolocation Functions ---
         /**
-         * Initializes the Leaflet map on the dashboard.
+         * Initializes the Google Map on the dashboard.
+         * This function is called by the Google Maps API script once loaded.
          */
-        function initializeLeafletMap() {
-            const mapContainer = document.getElementById('dashboard-leaflet-map');
+        function initMap() {
+            const mapContainer = document.getElementById('dashboard-leaflet-map'); // Keep the same container ID
             if (!mapContainer) {
-                console.error("Leaflet map container not found!");
+                console.error("Google Map container not found!");
                 return;
             }
 
-            // Initialize the map if it hasn't been already
-            if (!map) {
-                map = L.map('dashboard-leaflet-map').setView([appState.mapLocation.lat, appState.mapLocation.lon], appState.mapLocation.zoom);
-
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                }).addTo(map);
-
-                // Add a default marker at Salalah
-                marker = L.marker([appState.mapLocation.lat, appState.mapLocation.lon]).addTo(map)
-                    .bindPopup('موقع صلالة الافتراضي').openPopup();
-                
-                // Initialize the polyline for the driving path
-                markerPathPolyline = L.polyline([], {
-                    color: '#007AFF', // Bright blue for the path
-                    weight: 5,        // Thicker line
-                    opacity: 0.7
-                }).addTo(map);
-
-            } else {
-                // If map already exists, just update its view
-                map.setView([appState.mapLocation.lat, appState.mapLocation.lon], appState.mapLocation.zoom);
-                if (marker) {
-                    marker.setLatLng([appState.mapLocation.lat, appState.mapLocation.lon])
-                          .setPopupContent('موقع صلالة الافتراضي').openPopup();
+            if (googleMap) {
+                // If map already exists, just update its view (shouldn't happen with callback)
+                googleMap.setCenter({ lat: appState.mapLocation.lat, lng: appState.mapLocation.lon });
+                googleMap.setZoom(appState.mapLocation.zoom);
+                if (googleMarker) {
+                    googleMarker.setPosition({ lat: appState.mapLocation.lat, lng: appState.mapLocation.lon });
                 }
-                // Ensure the path polyline is still on the map
-                if (!markerPathPolyline) {
-                    markerPathPolyline = L.polyline([], {
-                        color: '#007AFF',
-                        weight: 5,
-                        opacity: 0.7
-                    }).addTo(map);
-                }
-                // Update the polyline with existing points if any
-                markerPathPolyline.setLatLngs(markerPathLatLngs);
+                return;
             }
+
+            const mapOptions = {
+                center: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon },
+                zoom: appState.mapLocation.zoom,
+                disableDefaultUI: true, // Hide default UI controls
+                zoomControl: true, // Keep zoom controls
+                fullscreenControl: false, // Disable fullscreen control
+                streetViewControl: false, // Disable street view
+                mapTypeControl: false // Disable map type control
+            };
+
+            googleMap = new google.maps.Map(mapContainer, mapOptions);
+
+            // Add a default marker at Salalah
+            googleMarker = new google.maps.Marker({
+                position: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon },
+                map: googleMap,
+                title: 'موقع صلالة الافتراضي'
+            });
+
+            // Add traffic layer
+            trafficLayer = new google.maps.TrafficLayer();
+            trafficLayer.setMap(googleMap);
+
+            console.log("Google Map initialized with traffic layer.");
         }
 
         /**
-         * Updates the Leaflet map with the user's current location and draws the path.
+         * Updates the Google Map with the user's current location.
          * @param {GeolocationPosition} position - The geolocation position object.
          */
-        function updateLeafletLocation(position) {
+        function updateGoogleMapLocation(position) {
             const lat = position.coords.latitude;
             const lon = position.coords.longitude;
             const accuracy = position.coords.accuracy;
@@ -2219,39 +2225,53 @@ div#quran-quick-access {
             appState.mapLocation.lat = lat;
             appState.mapLocation.lon = lon;
 
-            if (!map) {
-                initializeLeafletMap(); // Initialize if not already
+            if (!googleMap) {
+                // This case should ideally not happen if initMap is called by the API.
+                // However, as a fallback, we can try to initialize it here.
+                // Note: This might not work if the Google Maps script itself hasn't loaded yet.
+                console.warn("Google Map not initialized when updateGoogleMapLocation called. Attempting initMap...");
+                initMap();
+                if (!googleMap) {
+                    console.error("Failed to initialize Google Map.");
+                    return;
+                }
             }
 
-            const newLatLng = new L.LatLng(lat, lon);
+            const newLatLng = { lat: lat, lng: lon };
 
-            if (marker) {
-                marker.setLatLng(newLatLng);
-                marker.setPopupContent(`موقعك الحالي<br>الدقة: ${accuracy.toFixed(0)} متر`).openPopup();
+            if (googleMarker) {
+                googleMarker.setPosition(newLatLng);
+                // Google Maps doesn't have direct "popup" like Leaflet, use InfoWindow
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `موقعك الحالي<br>الدقة: ${accuracy.toFixed(0)} متر`
+                });
+                infoWindow.open(googleMap, googleMarker);
             } else {
-                marker = L.marker(newLatLng).addTo(map)
-                          .bindPopup(`موقعك الحالي<br>الدقة: ${accuracy.toFixed(0)} متر`).openPopup();
-            }
-
-            // Add new point to the path and update the polyline
-            markerPathLatLngs.push(newLatLng);
-            if (markerPathPolyline) {
-                markerPathPolyline.setLatLngs(markerPathLatLngs);
+                googleMarker = new google.maps.Marker({
+                    position: newLatLng,
+                    map: googleMap,
+                    title: 'موقعك الحالي'
+                });
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `موقعك الحالي<br>الدقة: ${accuracy.toFixed(0)} متر`
+                });
+                infoWindow.open(googleMap, googleMarker);
             }
             
-            // Adjust map view to fit the new location, possibly with a slight zoom change
-            map.setView(newLatLng, Math.max(appState.mapLocation.zoom, 15)); // Zoom in if current zoom is less than 15
+            // Adjust map view to fit the new location
+            googleMap.setCenter(newLatLng);
+            googleMap.setZoom(Math.max(appState.mapLocation.zoom, 15)); // Zoom in if current zoom is less than 15
         }
 
         /**
-         * Centers the Leaflet map on the user's current location.
+         * Centers the Google Map on the user's current location.
          * This function is called when the "تحديث الموقع" button is clicked.
          */
         function centerMapOnUserLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
-                        updateLeafletLocation(position);
+                        updateGoogleMapLocation(position);
                         showMessageBox(`تم تحديث الخريطة إلى موقعك الحالي.`);
                     },
                     (error) => {
@@ -2277,29 +2297,6 @@ div#quran-quick-access {
                 );
             } else {
                 showMessageBox('الموقع الجغرافي غير مدعوم في هذا المتصفح.');
-            }
-        }
-
-        /**
-         * Starts continuous geolocation tracking to update the map marker.
-         */
-        function startLocationTracking() {
-            if (navigator.geolocation) {
-                // Clear any existing watch to prevent multiple trackers
-                if (watchId) {
-                    navigator.geolocation.clearWatch(watchId);
-                }
-                watchId = navigator.geolocation.watchPosition(
-                    updateLeafletLocation,
-                    (error) => {
-                        console.warn('Geolocation tracking error:', error);
-                        // No need for message box on every tracking error, just log
-                    },
-                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
-                );
-                console.log("Started geolocation tracking.");
-            } else {
-                console.warn('Geolocation tracking not supported.');
             }
         }
         
@@ -2655,12 +2652,13 @@ div#quran-quick-access {
                 if (appState.prayerTimes.nextPrayerIqamaTime) {
                     const timeDiff = appState.prayerTimes.nextPrayerIqamaTime.getTime() - now.getTime();
                     
+                    digitalDateElement.classList.remove('countdown-highlight', 'countdown-medium-highlight'); // Clear previous highlights
+
                     if (timeDiff <= 0) {
                         // If countdown finished, re-determine next prayer
                         determineNextPrayer();
                         // Display a temporary message or immediately show the new countdown
                         digitalDateElement.textContent = `الصلاة القادمة: ${appState.prayerTimes.nextPrayer}`;
-                        digitalDateElement.classList.remove('countdown-highlight'); // Remove highlight
                     } else {
                         const totalSeconds = Math.floor(timeDiff / 1000);
                         const displayHours = Math.floor(totalSeconds / 3600);
@@ -2679,13 +2677,13 @@ div#quran-quick-access {
                         // Apply/remove highlight class based on time remaining
                         if (totalSeconds < 20 * 60) { // Less than 20 minutes
                             digitalDateElement.classList.add('countdown-highlight');
-                        } else {
-                            digitalDateElement.classList.remove('countdown-highlight');
+                        } else if (totalSeconds < 60 * 60) { // Less than 1 hour (and >= 20 minutes)
+                            digitalDateElement.classList.add('countdown-medium-highlight');
                         }
                     }
                 } else {
                     digitalDateElement.textContent = 'جاري تحميل أوقات الصلاة...';
-                    digitalDateElement.classList.remove('countdown-highlight');
+                    digitalDateElement.classList.remove('countdown-highlight', 'countdown-medium-highlight');
                 }
             }
         }
@@ -2719,9 +2717,8 @@ div#quran-quick-access {
             // Set initial app to Dashboard
             switchApp('Dashboard');
 
-            // Initialize Leaflet map and start tracking
-            initializeLeafletMap();
-            startLocationTracking(); // Start tracking immediately
+            // Google Map initialization is handled by the `callback=initMap` in the script tag
+            // No need to call initMap() or startLocationTracking() here directly.
         });
     </script>
 </body>
