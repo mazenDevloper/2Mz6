@@ -210,7 +210,8 @@ div#quran-quick-access {
         #floating-media-button,
         #back-to-playlists-bottom-button,
         #back-to-playlists-bottom-button-search,
-        #floating-keyboard-button { /* Added keyboard button */
+        #floating-keyboard-button, /* Added keyboard button */
+        #clear-search-button { /* Added clear search button */
             position: fixed;
             background-color: #8A0806; /* Purple glass */
             color: white;
@@ -232,7 +233,8 @@ div#quran-quick-access {
         #floating-media-button:hover,
         #back-to-playlists-bottom-button:hover,
         #back-to-playlists-bottom-button-search:hover,
-        #floating-keyboard-button:hover { /* Added keyboard button */
+        #floating-keyboard-button:hover, /* Added keyboard button */
+        #clear-search-button:hover { /* Added clear search button */
             transform: scale(1.05); /* Only scale, no translate */
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
         }
@@ -245,6 +247,28 @@ div#quran-quick-access {
             right: 8rem; /* Adjusted to be next to media button */
             display: none; /* Hidden by default */
         }
+        #floating-keyboard-button.active-keyboard {
+            background-color: #90EE90; /* Chrome Green */
+            color: black; /* Black icon */
+        }
+        #floating-keyboard-button.inactive-keyboard {
+            background-color: #FF0000; /* Red */
+            color: white; /* White icon */
+        }
+        #clear-search-button { /* New clear search button position */
+            top: 3rem; /* Adjusted to be at search bar level */
+            right: 1rem; /* Aligned with the right side of the screen */
+            padding: 0.75rem 1rem; /* Smaller padding for a cleaner look */
+            font-size: 0.8rem; /* Smaller font size */
+            display: none; /* Hidden by default, will be controlled by JS */
+        }
+        @media (max-width: 768px) { /* Mobile adjustments for clear search button */
+            #clear-search-button {
+                top: 10rem; /* Adjust for mobile layout */
+                right: 1rem;
+            }
+        }
+
         #back-to-playlists-bottom-button, #back-to-playlists-bottom-button-search {
             bottom: 1rem;
             left: 50%;
@@ -299,7 +323,8 @@ div#quran-quick-access {
 
         /* Active app icon styling */
         .app-icon.active {
-            background-color: rgba(147, 51, 234, 0.8);
+            background-color: #6b22ff; /* Chrome Green */
+            color: white; /* Black icon */
             transform: scale(1.1);
         }
 
@@ -713,6 +738,11 @@ div#quran-quick-access {
             border-radius: 1rem;
             overflow: hidden;
         }
+
+        div#digital-date-line2 {
+    font-size: 1.4em;
+}
+
         .video-popup-controls {
             position: absolute;
             top: 0.5rem;
@@ -1304,6 +1334,11 @@ div#quran-quick-access {
         <i data-lucide="keyboard" class="w-6 h-6"></i>
     </button>
 
+    <!-- Clear Search Button (New) -->
+    <button id="clear-search-button" class="glass-surface glass-surface--svg rounded-full">
+        <i data-lucide="x" class="w-4 h-4"></i>
+    </button>
+
     <!-- Video Pop-up Container -->
     <div id="video-popup-container">
         <iframe
@@ -1408,6 +1443,7 @@ div#quran-quick-access {
         const floatingFullscreenButton = document.getElementById('floating-fullscreen-button'); // For CarPlay app fullscreen
         const floatingMediaButton = document.getElementById('floating-media-button');
         const floatingKeyboardButton = document.getElementById('floating-keyboard-button'); // New keyboard button
+        const clearSearchButton = document.getElementById('clear-search-button'); // New clear search button
         const videoPopupContainer = document.getElementById('video-popup-container');
         const videoPopupIframe = document.getElementById('video-popup-iframe');
         const videoPopupCloseButton = document.getElementById('video-popup-close-button');
@@ -1432,7 +1468,7 @@ div#quran-quick-access {
         const asrIqamaElement = document.getElementById('asr-iqama');
         const maghribIqamaElement = document.getElementById('maghrib-iqama');
         const ishaIqamaElement = document.getElementById('isha-iqama');
-
+      
         // Digital Clock elements for opacity control
         const digitalHoursSpan = document.querySelector('#digital-time .hours');
         const digitalMinutesSpan = document.querySelector('#digital-time .minutes');
@@ -1585,7 +1621,7 @@ div#quran-quick-access {
             if (targetScreen) targetScreen.classList.add('active');
 
             const targetIcon = document.querySelector(`.app-icon[data-app="${appName}"]`);
-            if (targetIcon) targetIcon.classList.add('active', 'bg-purple-600/80', 'scale-110');
+            if (targetIcon) targetIcon.classList.add('active'); // Active class now handles the new styling
 
             // Handle Media (YouTube) view switching specifics
             handleMediaViewSwitch(appName);
@@ -1613,6 +1649,16 @@ div#quran-quick-access {
             if (currentAppName === 'Media') {
                 floatingMediaButton.style.display = 'none'; // Hide media button when already in media tab
                 floatingKeyboardButton.style.display = 'flex'; // Show keyboard button
+                clearSearchButton.style.display = 'flex'; // Always show clear search button in Media tab
+
+                // Set initial keyboard button state based on search input readonly status
+                if (youtubeSearchInput.readOnly) {
+                    floatingKeyboardButton.classList.add('inactive-keyboard');
+                    floatingKeyboardButton.classList.remove('active-keyboard');
+                } else {
+                    floatingKeyboardButton.classList.add('active-keyboard');
+                    floatingKeyboardButton.classList.remove('inactive-keyboard');
+                }
 
                 // Hide all media sub-views initially
                 youtubePlaylistView.classList.add('hidden');
@@ -1650,6 +1696,7 @@ div#quran-quick-access {
                 backToPlaylistsBottomButtonSearch.style.display = 'none';
                 floatingMediaButton.style.display = 'flex'; // Show media button when not in media tab
                 floatingKeyboardButton.style.display = 'none'; // Hide keyboard button
+                clearSearchButton.style.display = 'none'; // Hide clear search button
                 youtubeSuggestionsDiv.classList.add('hidden'); // Hide suggestions
                 
                 // If a video is playing in the main player, move it to pop-up
@@ -1891,7 +1938,7 @@ div#quran-quick-access {
             currentPlayingPlaylistId = ''; // Reset selected playlist
             activeMediaView = 'playlist';
             backToPlaylistsBottomButton.style.display = 'none';
-            backToPlaylistsBottomButtonSearch.style.display = 'none'; 
+            backToPlayistsBottomButtonSearch.style.display = 'none'; 
         }
 
         // Event listeners for back buttons in Media tab
@@ -1901,8 +1948,25 @@ div#quran-quick-access {
 
         // Keyboard button event listener
         floatingKeyboardButton.addEventListener('click', () => {
-            youtubeSearchInput.readOnly = false;
-            youtubeSearchInput.focus();
+            youtubeSearchInput.readOnly = !youtubeSearchInput.readOnly; // Toggle readonly
+            if (!youtubeSearchInput.readOnly) {
+                youtubeSearchInput.focus();
+                floatingKeyboardButton.classList.add('active-keyboard');
+                floatingKeyboardButton.classList.remove('inactive-keyboard');
+            } else {
+                youtubeSearchInput.blur(); // Remove focus
+                floatingKeyboardButton.classList.add('inactive-keyboard');
+                floatingKeyboardButton.classList.remove('active-keyboard');
+            }
+        });
+
+        // Clear search button event listener
+        clearSearchButton.addEventListener('click', () => {
+            youtubeSearchInput.value = ''; // Clear the input
+            youtubeSearchInput.readOnly = true; // Set back to readonly
+            floatingKeyboardButton.classList.add('inactive-keyboard'); // Set keyboard button to inactive
+            floatingKeyboardButton.classList.remove('active-keyboard');
+            navigateBackToPlaylists(); // Go back to playlists view
         });
 
 
@@ -1974,15 +2038,15 @@ div#quran-quick-access {
             }
         });
 
-        youtubeSearchInput.addEventListener('input', () => {
-            if (youtubeSearchInput.value.trim() === '') {
-                youtubeSuggestionsDiv.classList.remove('hidden');
-                populateYoutubeSuggestions(); // Repopulate to ensure all are there
-            } else {
-                // Only hide if there's content and it's not empty
-                youtubeSuggestionsDiv.classList.add('hidden');
-            }
-        });
+        // Removed the conditional display of clearSearchButton based on input.value
+        // youtubeSearchInput.addEventListener('input', () => {
+        //     if (youtubeSearchInput.value.trim() === '') {
+        //         youtubeSuggestionsDiv.classList.remove('hidden');
+        //         populateYoutubeSuggestions(); // Repopulate to ensure all are there
+        //     } else {
+        //         youtubeSuggestionsDiv.classList.add('hidden');
+        //     }
+        // });
 
         youtubeSearchButton.addEventListener('click', () => {
             const query = youtubeSearchInput.value.trim();
@@ -2410,6 +2474,8 @@ div#quran-quick-access {
             googleMap.setZoom(Math.min(googleMap.getZoom() + 4, 20)); // Increase zoom by 4, max 20
 
             // Auto-rotate map if heading is available and valid
+            // Note: Geolocation API's `heading` is the direction of travel, not device orientation.
+            // Map rotation based on device orientation is not directly supported by Google Maps JS API.
             if (typeof heading === 'number' && !isNaN(heading)) {
                 googleMap.setHeading(heading);
                 console.log("Map heading updated to:", heading);
