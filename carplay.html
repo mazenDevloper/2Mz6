@@ -523,7 +523,7 @@ div#quran-quick-access {
             overflow: hidden;
         }
         .car-cam-360-container img {
-            height: 100%;
+            height: 160%;
             width: auto;
             object-fit: cover;
         }
@@ -981,15 +981,15 @@ div#quran-quick-access {
 
                         <!-- Column 2: 360 Camera View (occupies 2nd column, 1st row) -->
                         <div class="glass-surface glass-surface--svg p-2 flex flex-col items-center justify-center text-center car-cam-360-container col-span-1 row-start-1">
-                            <img src="https://dmusera.netlify.app/es350gb.png" alt="عرض الكاميرا 360 درجة للسيارة" class="w-full h-full object-cover rounded-lg opacity-80">
+                            <img src="https://dmusera.netlify.app/es350gb.png" alt="عرض الكاميرا 360 درجة للسيارة" class="w object-cover rounded-lg opacity-80">
                         </div>
 
                         <!-- Column 3: Map (occupies 3rd column, 1st row) -->
                         <div class="rounded-3xl relative overflow-hidden flex items-center justify-center glass-surface glass-surface--svg p-1 col-span-1 row-start-1">
-                            <!-- Google Maps iframe. The 'src' will be set dynamically by JavaScript using the API key. -->
-                            <iframe id="dashboard-map-iframe" class="full-iframe" src="" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                            <!-- Leaflet map container -->
+                            <div id="dashboard-leaflet-map" class="full-iframe"></div>
                             <button id="get-my-location-button-dashboard" class="absolute bottom-4 left-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm">
-                                <i data-lucide="map-pin" class="w-4 h-4"></i> موقعي الحالي
+                                <i data-lucide="map-pin" class="w-4 h-4"></i> تحديث الموقع
                             </button>
                         </div>
 
@@ -1254,7 +1254,9 @@ div#quran-quick-access {
                         </button>
                     </div>
                    
-                    <div class="w-full h-full glass-surface glass-surface--svg p-4 rounded-xl flex flex-col items-center flex-grow">
+                    <div class="w-full h-full glass-surface glass-surface--svg p-4 rounded-xl flex flex-col items-center flex-grow" style="
+    height: 100%!important;
+">
                         <iframe
                             id="quran-iframe"
                             class="full-iframe"
@@ -1367,8 +1369,6 @@ div#quran-quick-access {
         // إذا لم تقم بتعيين مفتاح YouTube API الخاص بك، فلن تعمل ميزات YouTube.
         // يرجى استبدال 'YOUR_YOUTUBE_API_KEY' بمفتاح API الخاص بك من Google Cloud Console.
         const YOUTUBE_API_KEY = 'AIzaSyDj4w1H3Is_rmTLhl40zER7AgYhT_tKASo'; 
-        // IMPORTANT: REPLACE WITH YOUR ACTUAL GOOGLE MAPS API KEY FROM GOOGLE CLOUD CONSOLE
-        const GOOGLE_MAPS_API_KEY = 'AIzaSyCDWFDGIkq7Cu0dv8AL_q1YFEUIWlZdaP4'; 
         // IMPORTANT: REPLACE WITH YOUR ACTUAL GEMINI API KEY FROM GOOGLE AI STUDIO
         const AI_ASSISTANT_API_KEY = 'AIzaSyBMmtON9ww4dJxMHrl1wKyWTqI0ipJXJws'; 
         // IMPORTANT: REPLACE WITH YOUR ACTUAL WEATHERAPI.COM KEY TO RESOLVE 401 ERROR
@@ -1492,6 +1492,10 @@ div#quran-quick-access {
         const maghribIqamaElement = document.getElementById('maghrib-iqama');
         const ishaIqamaElement = document.getElementById('isha-iqama');
       
+        // Leaflet Map variables
+        let map;
+        let marker;
+        let watchId; // For navigator.geolocation.watchPosition
 
         // --- Global Variables for Media State ---
         let currentPlayingPlaylistId = ''; // Tracks the currently active playlist
@@ -1629,9 +1633,6 @@ div#quran-quick-access {
 
             // Apply background theme
             document.body.className = `text-white overflow-hidden ${appState.settings.backgroundTheme}`;
-
-            // Update Map iframe source when UI updates, especially on app switch
-            updateMapSrc(); 
 
             // Update OBD-II data
             obdEngineTemp.textContent = appState.car.obd.engineTemp !== null ? `${appState.car.obd.engineTemp}°C` : '--°C';
@@ -1992,7 +1993,7 @@ div#quran-quick-access {
             currentPlayingPlaylistId = ''; // Reset selected playlist
             activeMediaView = 'playlist';
             backToPlaylistsBottomButton.style.display = 'none';
-            backToPlaylistsBottomButtonSearch.style.display = 'none'; // Corrected typo here
+            backToPlaylistsBottomButtonSearch.style.display = 'none';
             // updateFloatingBackToVideoButtonVisibility(); // REMOVED
         }
 
@@ -2320,51 +2321,78 @@ div#quran-quick-access {
 
         aiSendButton.addEventListener('click', sendAIAssistantMessage);
 
-        // --- Map and Geolocation Functions ---
-        let dashboardMapIframe; // Reference to the dashboard map iframe
-
+        // --- Leaflet Map and Geolocation Functions ---
         /**
-         * Updates the Google Maps iframe source on the dashboard.
+         * Initializes the Leaflet map on the dashboard.
          */
-        function updateMapSrc() {
-            if (GOOGLE_MAPS_API_KEY === 'YOUR_GOOGLE_MAPS_API_KEY') {
-                console.error('Google Maps API Key is not set. Map may not load correctly.');
-                // Optionally display a message to the user in the map area
-                if (dashboardMapIframe) { // Check if iframe element exists
-                    dashboardMapIframe.src = 'about:blank'; // Clear iframe content
-                    dashboardMapIframe.onload = () => { // Wait for iframe to load before writing
-                        if (dashboardMapIframe.contentDocument) {
-                            dashboardMapIframe.contentDocument.body.innerHTML = '<div style="color: white; text-align: center; padding: 20px; font-size: 1.2rem; display: flex; align-items: center; justify: center; height: 100%;">خطأ: لم يتم تعيين مفتاح Google Maps API.<br>يرجى استبدال "YOUR_GOOGLE_MAPS_API_KEY" بمفتاحك الخاص.</div>';
-                            dashboardMapIframe.contentDocument.body.style.backgroundColor = '#333'; // Dark background for the error message
-                        }
-                    };
-                }
+        function initializeLeafletMap() {
+            const mapContainer = document.getElementById('dashboard-leaflet-map');
+            if (!mapContainer) {
+                console.error("Leaflet map container not found!");
                 return;
             }
-            const googleMapsSrc = `https://www.google.com/maps/embed/v1/view?key=${GOOGLE_MAPS_API_KEY}&center=${appState.mapLocation.lat},${appState.mapLocation.lon}&zoom=${appState.mapLocation.zoom}`;
-            
-            if (dashboardMapIframe) {
-                dashboardMapIframe.src = googleMapsSrc;
+
+            // Initialize the map if it hasn't been already
+            if (!map) {
+                map = L.map('dashboard-leaflet-map').setView([appState.mapLocation.lat, appState.mapLocation.lon], appState.mapLocation.zoom);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(map);
+
+                // Add a default marker at Salalah
+                marker = L.marker([appState.mapLocation.lat, appState.mapLocation.lon]).addTo(map)
+                    .bindPopup('موقع صلالة الافتراضي').openPopup();
             } else {
-                console.warn("Dashboard map iframe not found.");
+                // If map already exists, just update its view
+                map.setView([appState.mapLocation.lat, appState.mapLocation.lon], appState.mapLocation.zoom);
+                if (marker) {
+                    marker.setLatLng([appState.mapLocation.lat, appState.mapLocation.lon])
+                          .setPopupContent('موقع صلالة الافتراضي').openPopup();
+                }
             }
         }
 
         /**
-         * Gets the user's current location using Geolocation API and updates the map.
-         * @param {string} buttonId - ID of the button that triggered the request (for context).
+         * Updates the Leaflet map with the user's current location.
+         * @param {GeolocationPosition} position - The geolocation position object.
          */
-        function getMyLocation(buttonId) {
+        function updateLeafletLocation(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            const accuracy = position.coords.accuracy;
+
+            appState.mapLocation.lat = lat;
+            appState.mapLocation.lon = lon;
+
+            if (!map) {
+                initializeLeafletMap(); // Initialize if not already
+            }
+
+            const newLatLng = new L.LatLng(lat, lon);
+
+            if (marker) {
+                marker.setLatLng(newLatLng);
+                marker.setPopupContent(`موقعك الحالي<br>الدقة: ${accuracy.toFixed(0)} متر`).openPopup();
+            } else {
+                marker = L.marker(newLatLng).addTo(map)
+                          .bindPopup(`موقعك الحالي<br>الدقة: ${accuracy.toFixed(0)} متر`).openPopup();
+            }
+
+            // Adjust map view to fit the new location, possibly with a slight zoom change
+            map.setView(newLatLng, Math.max(appState.mapLocation.zoom, 15)); // Zoom in if current zoom is less than 15
+        }
+
+        /**
+         * Centers the Leaflet map on the user's current location.
+         * This function is called when the "تحديث الموقع" button is clicked.
+         */
+        function centerMapOnUserLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
-                        const userLatitude = position.coords.latitude;
-                        const userLongitude = position.coords.longitude;
-                        appState.mapLocation.lat = userLatitude;
-                        appState.mapLocation.lon = userLongitude;
-                        appState.mapLocation.zoom = 15; // Zoom in on user's location
-                        updateMapSrc(); // Update the map with the new location
-                        showMessageBox(`تم تحديث الخريطة إلى موقعك الحالي: Latitude ${userLatitude}, Longitude ${userLongitude}`);
+                        updateLeafletLocation(position);
+                        showMessageBox(`تم تحديث الخريطة إلى موقعك الحالي.`);
                     },
                     (error) => {
                         console.error('Geolocation error:', error);
@@ -2388,8 +2416,30 @@ div#quran-quick-access {
                     { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
                 );
             } else {
-                console.warn('Geolocation is not supported by this browser.');
                 showMessageBox('الموقع الجغرافي غير مدعوم في هذا المتصفح.');
+            }
+        }
+
+        /**
+         * Starts continuous geolocation tracking to update the map marker.
+         */
+        function startLocationTracking() {
+            if (navigator.geolocation) {
+                // Clear any existing watch to prevent multiple trackers
+                if (watchId) {
+                    navigator.geolocation.clearWatch(watchId);
+                }
+                watchId = navigator.geolocation.watchPosition(
+                    updateLeafletLocation,
+                    (error) => {
+                        console.warn('Geolocation tracking error:', error);
+                        // No need for message box on every tracking error, just log
+                    },
+                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+                );
+                console.log("Started geolocation tracking.");
+            } else {
+                console.warn('Geolocation tracking not supported.');
             }
         }
         
@@ -2742,12 +2792,11 @@ div#quran-quick-access {
         // --- Initial Setup and Event Listeners on DOM Load ---
         document.addEventListener('DOMContentLoaded', () => {
             // Get DOM element references that are only available after DOMContentLoaded
-            dashboardMapIframe = document.getElementById('dashboard-map-iframe');
             const getMyLocationButtonDashboard = document.getElementById('get-my-location-button-dashboard');
             
             // Attach event listeners
             if (getMyLocationButtonDashboard) {
-                getMyLocationButtonDashboard.addEventListener('click', () => getMyLocation('dashboard'));
+                getMyLocationButtonDashboard.addEventListener('click', centerMapOnUserLocation);
             }
             if (floatingFullscreenButton) {
                 floatingFullscreenButton.addEventListener('click', togglePseudoFullscreen);
@@ -2761,19 +2810,23 @@ div#quran-quick-access {
             }
 
             // Initial and periodic updates
-            updateUI();
+            updateUI(); // This will call loadPrayerTimes etc.
             fetchWeatherData();
             setInterval(fetchWeatherData, 300000); // Update weather every 5 minutes (300,000 ms)
             setInterval(updateDigitalClock, 1000);
             updateDigitalClock();
             loadPrayerTimes(); // Load prayer times from local array
-            setInterval(determineNextPrayer, 60000); // Check next prayer every minute
+            setInterval(determineNextPrayer, 60000);
             
             // Set initial app to Dashboard and update button visibility
             switchApp('Dashboard');
             // Removed populateSurahSelect() as it was undefined and not used for Quran iframe
             simulateObdData(); // Initial OBD data simulation
             // updateFloatingBackToVideoButtonVisibility(); // REMOVED
+
+            // Initialize Leaflet map and start tracking
+            initializeLeafletMap();
+            startLocationTracking(); // Start tracking immediately
         });
     </script>
 </body>
