@@ -209,7 +209,8 @@ div#quran-quick-access {
         #floating-fullscreen-button,
         #floating-media-button,
         #back-to-playlists-bottom-button,
-        #back-to-playlists-bottom-button-search {
+        #back-to-playlists-bottom-button-search,
+        #floating-keyboard-button { /* Added keyboard button */
             position: fixed;
             background-color: #8A0806; /* Purple glass */
             color: white;
@@ -230,7 +231,8 @@ div#quran-quick-access {
         #floating-fullscreen-button:hover,
         #floating-media-button:hover,
         #back-to-playlists-bottom-button:hover,
-        #back-to-playlists-bottom-button-search:hover {
+        #back-to-playlists-bottom-button-search:hover,
+        #floating-keyboard-button:hover { /* Added keyboard button */
             transform: scale(1.05); /* Only scale, no translate */
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
         }
@@ -238,6 +240,11 @@ div#quran-quick-access {
         /* Specific positioning for floating buttons */
         #floating-fullscreen-button { bottom: 1rem; left: 6rem; right: auto; }
         #floating-media-button { bottom: 1rem; right: 1rem; }
+        #floating-keyboard-button { /* New keyboard button position */
+            bottom: 1rem;
+            right: 8rem; /* Adjusted to be next to media button */
+            display: none; /* Hidden by default */
+        }
         #back-to-playlists-bottom-button, #back-to-playlists-bottom-button-search {
             bottom: 1rem;
             left: 50%;
@@ -533,12 +540,24 @@ div#quran-quick-access {
             font-weight: 800;
             color: white;
             margin-bottom: 0.5rem;
+            display: flex; /* Use flex to align hour/minute/second spans */
+            align-items: baseline; /* Align numbers at baseline */
+            gap: 0.2rem; /* Small gap between time parts */
         }
+        #digital-time span {
+            transition: opacity 0.3s ease; /* Smooth transition for opacity changes */
+        }
+        #digital-time .hours { opacity: 1; }
+        #digital-time .minutes { opacity: 0.8; }
+        #digital-time .seconds { opacity: 0.4; }
+
         /* Updated #digital-date styles based on user request */
         #digital-date {
             font-size: 1.2rem;
             color: rgb(255 255 255 / 99%);
             font-weight: bold;
+            text-align: center;
+            line-height: 1.4; /* Ensure good line spacing for two lines */
         }
         /* New class for highlight when less than 20 minutes */
         #digital-date.countdown-highlight {
@@ -812,13 +831,17 @@ div#quran-quick-access {
             #floating-fullscreen-button,
             #floating-media-button,
             #back-to-playlists-bottom-button,
-            #back-to-playlists-bottom-button-search {
+            #back-to-playlists-bottom-button-search,
+            #floating-keyboard-button { /* Added keyboard button */
                 padding: 0.75rem 1rem;
                 font-size: 0.8rem;
                 gap: 0.25rem;
             }
             #floating-fullscreen-button { left: 1rem !important; transform: none; }
             #floating-media-button { right: 1rem; }
+            #floating-keyboard-button { /* New keyboard button position for mobile */
+                right: 5.5rem; /* Adjusted for mobile */
+            }
             #back-to-playlists-bottom-button, #back-to-playlists-bottom-button-search {
                 left: 50%;
                 transform: translateX(-50%);
@@ -998,8 +1021,14 @@ div#quran-quick-access {
                             <!-- Digital Clock Widget (Apple iOS 19 style) -->
                             <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center">
                                 <div id="digital-clock-widget" class="w-full h-full flex flex-col items-center justify-center text-center">
-                                    <div id="digital-time">00:00:00</div>
-                                    <div id="digital-date">العد التنازلي للصلاة</div>
+                                    <!-- Changed to spans for individual opacity control -->
+                                    <div id="digital-time">
+                                        <span class="hours">00</span>:<span class="minutes">00</span>:<span class="seconds">00</span>
+                                    </div>
+                                    <div id="digital-date">
+                                        <div id="digital-date-line1">  </div>
+                                        <div id="digital-date-line2"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1067,6 +1096,7 @@ div#quran-quick-access {
                             placeholder="ابحث في يوتيوب..."
                             class="flex-grow p-3 rounded-full bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
                             onkeypress="if(event.key === 'Enter') document.getElementById('youtube-search-button').click();"
+                            readonly="true" <!-- Added readonly attribute -->
                         />
                         <button
                             id="youtube-search-button"
@@ -1269,6 +1299,11 @@ div#quran-quick-access {
         <i data-lucide="youtube" class="w-6 h-6"></i>
     </button>
 
+    <!-- Floating Keyboard Button (New) -->
+    <button id="floating-keyboard-button" class="glass-surface glass-surface--svg rounded-full">
+        <i data-lucide="keyboard" class="w-6 h-6"></i>
+    </button>
+
     <!-- Video Pop-up Container -->
     <div id="video-popup-container">
         <iframe
@@ -1296,7 +1331,7 @@ div#quran-quick-access {
         // يرجى استبدال 'YOUR_YOUTUBE_API_KEY' بمفتاح API الخاص بك من Google Cloud Console.
         const YOUTUBE_API_KEY = 'AIzaSyDj4w1H3Is_rmTLhl40zER7AgYhT_tKASo'; 
         // IMPORTANT: REPLACE WITH YOUR ACTUAL GEMINI API KEY FROM GOOGLE AI STUDIO
-        const AI_ASSISTANT_API_KEY = 'AIzaSyBMmtON9ww4dJxMHrl1wKyWTqI0ipJXJws'; 
+        const AI_ASSISTANT_API_KEY = 'AIzaSyBMmtON9ww4dJxMHrl1wKyWTvI0ipJXJws'; 
         // IMPORTANT: REPLACE WITH YOUR ACTUAL WEATHERAPI.COM KEY TO RESOLVE 401 ERROR
         const WEATHER_API_KEY = '7acefc26deee4904a2393917252207'; 
         // IMPORTANT: REPLACE WITH YOUR ACTUAL GOOGLE MAPS API KEY FOR MAP AND TRAFFIC TO WORK
@@ -1306,7 +1341,7 @@ div#quran-quick-access {
         // Centralized state for various app functionalities
         let appState = {
             currentTime: '',
-            mapLocation: { lat: 17.0151, lon: 54.0924, zoom: 11 }, // Default Salalah coordinates
+            mapLocation: { lat: 17.0151, lon: 54.0924, zoom: 12 }, // Default Salalah coordinates
             weather: {
                 temperature: null, 
                 feelsLike: null,
@@ -1372,6 +1407,7 @@ div#quran-quick-access {
         // Floating UI elements
         const floatingFullscreenButton = document.getElementById('floating-fullscreen-button'); // For CarPlay app fullscreen
         const floatingMediaButton = document.getElementById('floating-media-button');
+        const floatingKeyboardButton = document.getElementById('floating-keyboard-button'); // New keyboard button
         const videoPopupContainer = document.getElementById('video-popup-container');
         const videoPopupIframe = document.getElementById('video-popup-iframe');
         const videoPopupCloseButton = document.getElementById('video-popup-close-button');
@@ -1396,6 +1432,13 @@ div#quran-quick-access {
         const asrIqamaElement = document.getElementById('asr-iqama');
         const maghribIqamaElement = document.getElementById('maghrib-iqama');
         const ishaIqamaElement = document.getElementById('isha-iqama');
+
+        // Digital Clock elements for opacity control
+        const digitalHoursSpan = document.querySelector('#digital-time .hours');
+        const digitalMinutesSpan = document.querySelector('#digital-time .minutes');
+        const digitalSecondsSpan = document.querySelector('#digital-time .seconds');
+        const digitalDateLine1 = document.getElementById('digital-date-line1');
+        const digitalDateLine2 = document.getElementById('digital-date-line2');
       
         // Google Map variables
         let googleMap;
@@ -1418,13 +1461,12 @@ div#quran-quick-access {
             const now = new Date();
             let hours = now.getHours();
             const minutes = now.getMinutes().toString().padStart(2, '0');
-            const seconds = now.getSeconds().toString().padStart(2, '0');
 
             // Convert to 12-hour format without AM/PM
             hours = hours % 12;
             hours = hours ? hours : 12; // The hour '0' (midnight) should be '12'
 
-            const timeString = `${hours}:${minutes}:${seconds}`;
+            const timeString = `${hours}:${minutes}`; // Only hours and minutes for top bar
             timeElement.textContent = timeString;
             appState.currentTime = timeString; // Update state
         }
@@ -1570,6 +1612,7 @@ div#quran-quick-access {
         function handleMediaViewSwitch(currentAppName) {
             if (currentAppName === 'Media') {
                 floatingMediaButton.style.display = 'none'; // Hide media button when already in media tab
+                floatingKeyboardButton.style.display = 'flex'; // Show keyboard button
 
                 // Hide all media sub-views initially
                 youtubePlaylistView.classList.add('hidden');
@@ -1606,6 +1649,7 @@ div#quran-quick-access {
                 backToPlaylistsBottomButton.style.display = 'none';
                 backToPlaylistsBottomButtonSearch.style.display = 'none';
                 floatingMediaButton.style.display = 'flex'; // Show media button when not in media tab
+                floatingKeyboardButton.style.display = 'none'; // Hide keyboard button
                 youtubeSuggestionsDiv.classList.add('hidden'); // Hide suggestions
                 
                 // If a video is playing in the main player, move it to pop-up
@@ -1847,13 +1891,20 @@ div#quran-quick-access {
             currentPlayingPlaylistId = ''; // Reset selected playlist
             activeMediaView = 'playlist';
             backToPlaylistsBottomButton.style.display = 'none';
-            backToPlaylistsBottomButtonSearch.style.display = 'none'; // Corrected typo here
+            backToPlaylistsBottomButtonSearch.style.display = 'none'; 
         }
 
         // Event listeners for back buttons in Media tab
         backToPlaylistsFromVideosButton.addEventListener('click', navigateBackToPlaylists);
         backToPlaylistsBottomButton.addEventListener('click', navigateBackToPlaylists); 
         backToPlaylistsBottomButtonSearch.addEventListener('click', navigateBackToPlaylists); 
+
+        // Keyboard button event listener
+        floatingKeyboardButton.addEventListener('click', () => {
+            youtubeSearchInput.readOnly = false;
+            youtubeSearchInput.focus();
+        });
+
 
         // YouTube Search Functionality
         const youtubeReaderSuggestions = ["فارس عنتر","ياسر الدوسري", "علي جابر", "محمد ايوب", "عبد الباسط عبد الصمد", "مشاري العفاسي"];
@@ -2210,7 +2261,88 @@ div#quran-quick-access {
                         strokeWeight: 0, // No border
                         anchor: new google.maps.Point(0, 0) // Center the circle
                     }
-                }
+                },
+                // Dark mode styles for the map
+                styles: [
+                    { elementType: 'geometry', stylers: [{ color: '#242f3e' }] },
+                    { elementType: 'labels.text.stroke', stylers: [{ color: '#242f3e' }] },
+                    { elementType: 'labels.text.fill', stylers: [{ color: '#746855' }] },
+                    {
+                        featureType: 'administrative.locality',
+                        elementType: 'labels.text.fill',
+                        stylers: [{ color: '#d59563' }]
+                    },
+                    {
+                        featureType: 'poi',
+                        elementType: 'labels.text.fill',
+                        stylers: [{ color: '#d59563' }]
+                    },
+                    {
+                        featureType: 'poi.park',
+                        elementType: 'geometry',
+                        stylers: [{ color: '#263c3f' }]
+                    },
+                    {
+                        featureType: 'poi.park',
+                        elementType: 'labels.text.fill',
+                        stylers: [{ color: '#6b9a76' }]
+                    },
+                    {
+                        featureType: 'road',
+                        elementType: 'geometry',
+                        stylers: [{ color: '#38414e' }]
+                    },
+                    {
+                        featureType: 'road',
+                        elementType: 'geometry.stroke',
+                        stylers: [{ color: '#212a37' }]
+                    },
+                    {
+                        featureType: 'road',
+                        elementType: 'labels.text.fill',
+                        stylers: [{ color: '#9ca5b3' }]
+                    },
+                    {
+                        featureType: 'road.highway',
+                        elementType: 'geometry',
+                        stylers: [{ color: '#746855' }]
+                    },
+                    {
+                        featureType: 'road.highway',
+                        elementType: 'geometry.stroke',
+                        stylers: [{ color: '#1f2835' }]
+                    },
+                    {
+                        featureType: 'road.highway',
+                        elementType: 'labels.text.fill',
+                        stylers: [{ color: '#f3d19c' }]
+                    },
+                    {
+                        featureType: 'transit',
+                        elementType: 'geometry',
+                        stylers: [{ color: '#2f3948' }]
+                    },
+                    {
+                        featureType: 'transit.station',
+                        elementType: 'labels.text.fill',
+                        stylers: [{ color: '#d59563' }]
+                    },
+                    {
+                        featureType: 'water',
+                        elementType: 'geometry',
+                        stylers: [{ color: '#17263c' }]
+                    },
+                    {
+                        featureType: 'water',
+                        elementType: 'labels.text.fill',
+                        stylers: [{ color: '#515c6d' }]
+                    },
+                    {
+                        featureType: 'water',
+                        elementType: 'labels.text.stroke',
+                        stylers: [{ color: '#17263c' }]
+                    }
+                ]
             };
 
             googleMap = new google.maps.Map(mapContainer, mapOptions);
@@ -2239,6 +2371,7 @@ div#quran-quick-access {
             const lat = position.coords.latitude;
             const lon = position.coords.longitude;
             const accuracy = position.coords.accuracy;
+            const heading = position.coords.heading; // Get heading (direction of travel)
 
             appState.mapLocation.lat = lat;
             appState.mapLocation.lon = lon;
@@ -2275,6 +2408,14 @@ div#quran-quick-access {
             // Adjust map view to fit the new location and increase zoom by 4
             googleMap.setCenter(newLatLng);
             googleMap.setZoom(Math.min(googleMap.getZoom() + 4, 20)); // Increase zoom by 4, max 20
+
+            // Auto-rotate map if heading is available and valid
+            if (typeof heading === 'number' && !isNaN(heading)) {
+                googleMap.setHeading(heading);
+                console.log("Map heading updated to:", heading);
+            } else {
+                console.warn("Geolocation heading not available or invalid for auto-rotation.");
+            }
         }
 
         /**
@@ -2564,7 +2705,7 @@ div#quran-quick-access {
                 fajrIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.fajr, 25);
                 dhuhrIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.dhuhr, 20);
                 asrIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.asr, 20);
-                maghribIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.maghrib, 7);
+                maghribIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.maghrib, 5);
                 ishaIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.isha, 20);
 
             } else {
@@ -2697,28 +2838,42 @@ div#quran-quick-access {
             hours = hours % 12;
             hours = hours ? hours : 12; // The hour '0' (midnight) should be '12'
 
-            const timeString = `${hours}:${minutes}:${seconds}`;
-
-            const digitalTimeElement = document.getElementById('digital-time');
-            const digitalDateElement = document.getElementById('digital-date');
-
-            if (digitalTimeElement) {
-                digitalTimeElement.textContent = timeString;
+            // Update digital time with opacity
+            if (digitalHoursSpan && digitalMinutesSpan && digitalSecondsSpan) {
+                digitalHoursSpan.textContent = hours.toString().padStart(2, '0');
+                digitalMinutesSpan.textContent = minutes;
+                digitalSecondsSpan.textContent = seconds;
             }
 
             // Update countdown for next prayer's Iqama
-            if (digitalDateElement) {
+            if (digitalDateLine1 && digitalDateLine2) {
                 if (appState.prayerTimes.nextPrayerIqamaTime) {
                     const timeDiff = appState.prayerTimes.nextPrayerIqamaTime.getTime() - now.getTime();
                     
-                    digitalDateElement.classList.remove('countdown-highlight', 'countdown-medium-highlight'); // Clear previous highlights
+                    digitalDateLine1.classList.remove('countdown-highlight', 'countdown-medium-highlight'); // Clear previous highlights
+                    digitalDateLine2.classList.remove('countdown-highlight', 'countdown-medium-highlight');
 
                     if (timeDiff <= 0) {
-                        // If countdown finished, re-determine next prayer
-                        determineNextPrayer();
-                        // Display a temporary message or immediately show the new countdown
-                        digitalDateElement.textContent = `الصلاة القادمة: ${appState.prayerTimes.nextPrayer}`;
+                        // If countdown finished, check if within 5 minutes past iqama
+                        const timeSinceIqama = now.getTime() - appState.prayerTimes.nextPrayerIqamaTime.getTime();
+                        const fiveMinutes = 5 * 60 * 1000;
+
+                        if (timeSinceIqama <= fiveMinutes) {
+                            // Counting up for 5 minutes after Iqama
+                            const totalSecondsPassed = Math.floor(timeSinceIqama / 1000);
+                            const displayMinutesPassed = Math.floor(totalSecondsPassed / 60);
+                            const displaySecondsPassed = totalSecondsPassed % 60;
+
+                            digitalDateLine1.textContent = `الصلاة بدأت منذ...`;
+                            digitalDateLine2.textContent = `${displayMinutesPassed.toString().padStart(2, '0')}:${displaySecondsPassed.toString().padStart(2, '0')}`;
+                            digitalDateLine1.classList.add('countdown-highlight'); // Keep highlight for active prayer
+                            digitalDateLine2.classList.add('countdown-highlight');
+                        } else {
+                            // More than 5 minutes past iqama, find next prayer
+                            determineNextPrayer();
+                        }
                     } else {
+                        // Counting down to Iqama
                         const totalSeconds = Math.floor(timeDiff / 1000);
                         const displayHours = Math.floor(totalSeconds / 3600);
                         const displayMinutes = Math.floor((totalSeconds % 3600) / 60);
@@ -2731,18 +2886,23 @@ div#quran-quick-access {
                             countdownText = `${displayMinutes.toString().padStart(2, '0')}:${displaySeconds.toString().padStart(2, '0')}`;
                         }
                         
-                        digitalDateElement.textContent = `إقامة ${appState.prayerTimes.nextPrayer}: ${countdownText}`;
+                        digitalDateLine1.textContent = `إقامة صلاة ${appState.prayerTimes.nextPrayer}`;
+                        digitalDateLine2.textContent = `  ${countdownText}`;
 
                         // Apply/remove highlight class based on time remaining
                         if (totalSeconds < 20 * 60) { // Less than 20 minutes
-                            digitalDateElement.classList.add('countdown-highlight');
+                            digitalDateLine1.classList.add('countdown-highlight');
+                            digitalDateLine2.classList.add('countdown-highlight');
                         } else if (totalSeconds < 60 * 60) { // Less than 1 hour (and >= 20 minutes)
-                            digitalDateElement.classList.add('countdown-medium-highlight');
+                            digitalDateLine1.classList.add('countdown-medium-highlight');
+                            digitalDateLine2.classList.add('countdown-medium-highlight');
                         }
                     }
                 } else {
-                    digitalDateElement.textContent = 'جاري تحميل أوقات الصلاة...';
-                    digitalDateElement.classList.remove('countdown-highlight', 'countdown-medium-highlight');
+                    digitalDateLine1.textContent = 'جاري تحميل أوقات الصلاة...';
+                    digitalDateLine2.textContent = '';
+                    digitalDateLine1.classList.remove('countdown-highlight', 'countdown-medium-highlight');
+                    digitalDateLine2.classList.remove('countdown-highlight', 'countdown-medium-highlight');
                 }
             }
         }
