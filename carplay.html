@@ -535,9 +535,17 @@ div#quran-quick-access {
             color: white;
             margin-bottom: 0.5rem;
         }
+        /* Updated #digital-date styles based on user request */
         #digital-date {
-            font-size: 1.25rem;
-            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.2rem;
+            color: rgb(255 255 255 / 99%);
+            font-weight: bold;
+        }
+        /* New class for highlight when less than 20 minutes */
+        #digital-date.countdown-highlight {
+            font-size: 1.7rem;
+            color: green;
+            font-weight: bold;
         }
 
         /* Settings Range Input Styling */
@@ -571,7 +579,20 @@ div#quran-quick-access {
             box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.5);
         }
 
- 
+        /* Animated Weather Icon Styles */
+        /* Keyframes for a subtle pulse and float animation */
+        @keyframes pulse-float {
+            0% { transform: scale(1) translateY(0px); opacity: 1; }
+            50% { transform: scale(1.05) translateY(-2px); opacity: 0.9; }
+            100% { transform: scale(1) translateY(0px); opacity: 1; }
+        }
+     
+
+        /* Apply animation to weather icons */
+        #dashboard-weather-icon, #weather-icon {
+            animation: pulse-float 3s ease-in-out infinite alternate, rotate-subtle 60s linear infinite; /* Slower rotation */
+            transition: transform 0.3s ease-in-out; /* Smooth transition for scale changes if any */
+        }
 
         /* Electronic Quran specific styles */
         .quran-text {
@@ -938,14 +959,8 @@ div#quran-quick-access {
                 <button data-app="Weather" class="app-icon"> 
                     <i data-lucide="cloud-sun"></i> 
                 </button>
-                <button data-app="OBDII" class="app-icon">
-                    <i data-lucide="car"></i>
-                </button>
                 <button data-app="Quran" class="app-icon">
                     <i data-lucide="book-open"></i>
-                </button>
-                <button data-app="Settings" class="app-icon">
-                    <i data-lucide="settings"></i>
                 </button>
             </nav>
 
@@ -1204,48 +1219,6 @@ div#quran-quick-access {
                     </div>
                 </section>
 
-                <!-- OBD-II Screen -->
-                <section id="screen-OBDII" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full">
-                    <h1 class="text-4xl font-bold mb-6">بيانات OBD-II <i data-lucide="car"></i></h1>
-                    <div class="w-full h-full flex flex-col gap-4">
-                        <div class="glass-surface glass-surface--svg p-6 rounded-3xl text-center flex flex-col items-center justify-center flex-grow">
-                            <h2 class="text-2xl font-bold mb-4">بيانات السيارة الحية (محاكاة)</h2>
-                            <div class="obd-data-grid">
-                                <div class="obd-data-card">
-                                    <div class="value" id="obd-engine-temp">--°C</div>
-                                    <div class="label">درجة حرارة المحرك</div>
-                                </div>
-                                <div class="obd-data-card">
-                                    <div class="value" id="obd-battery-voltage">-- V</div>
-                                    <div class="label">فولتية البطارية</div>
-                                </div>
-                                <div class="obd-data-card">
-                                    <div class="value" id="obd-tire-pressure-fl">-- PSI</div>
-                                    <div class="label">ضغط الإطار (أمامي يسار)</div>
-                                </div>
-                                <div class="obd-data-card">
-                                    <div class="value" id="obd-tire-pressure-fr">-- PSI</div>
-                                    <div class="label">ضغط الإطار (أمامي يمين)</div>
-                                </div>
-                                <div class="obd-data-card">
-                                    <div class="value" id="obd-tire-pressure-rl">-- PSI</div>
-                                    <div class="label">ضغط الإطار (خلفي يسار)</div>
-                                </div>
-                                <div class="obd-data-card">
-                                    <div class="value" id="obd-tire-pressure-rr">-- PSI</div>
-                                    <div class="label">ضغط الإطار (خلفي يمين)</div>
-                                </div>
-                            </div>
-                            <p class="text-red-300 text-xs mt-4">
-                                ملاحظة: الاتصال المباشر بـ OBD-II عبر البلوتوث غير مدعوم في بيئة المتصفح لأسباب أمنية. هذه البيانات محاكاة.
-                            </p>
-                            <button id="simulate-obd-data" class="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full transition-colors duration-200">
-                                محاكاة بيانات جديدة
-                            </button>
-                        </div>
-                    </div>
-                </section>
-
                 <!-- Electronic Quran App Screen -->
                 <section id="screen-Quran" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full relative">
                    <div id="quran-quick-access" class="mt-4 bg-black/30 p-4 rounded-xl flex flex-col gap-3 items-end z-20 glass-surface glass-surface--svg w-full max-w-md">
@@ -1271,63 +1244,6 @@ div#quran-quick-access {
                     <!-- Quran Quick Access Section -->
                     
                 </section>
-
-                <!-- Settings Screen -->
-                 <section id="screen-Settings" class="app-screen p-8 flex-col h-full">
-                     <h1 class="text-4xl font-bold mb-8">الإعدادات</h1>
-                     <div class="w-full max-w-md flex flex-col gap-6">
-                        <div class="glass-surface glass-surface--svg p-4 rounded-xl flex flex-col">
-                            <label for="setting-font-size" class="text-lg font-semibold mb-2">حجم الخط: <span id="display-font-size">16px</span></label>
-                            <input type="range" id="setting-font-size" min="12" max="20" value="16" step="1" class="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer">
-                        </div>
-                        <div class="glass-surface glass-surface--svg p-4 rounded-xl flex flex-col">
-                            <label for="setting-background" class="text-lg font-semibold mb-2">خلفية التطبيق:</label>
-                            <select id="setting-background" class="w-full p-2 rounded-md bg-white/10 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
-                                <option value="theme-gradient-1">تدرج لوني 1 (افتراضي)</option>
-                                <option value="theme-gradient-2">تدرج لوني 2</option>
-                                <option value="theme-dark-blue">أزرق داكن</option>
-                                <option value="theme-purple-haze">ضباب بنفسجي</option>
-                            </select>
-                        </div>
-                        <div class="glass-surface glass-surface--svg p-4 rounded-xl flex flex-col">
-                            <label for="setting-car-speed" class="text-lg font-semibold mb-2">سرعة السيارة (كم/س): <span id="display-car-speed">--</span></label>
-                            <input type="range" id="setting-car-speed" min="0" max="200" value="0" class="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer">
-                        </div>
-                        <div class="glass-surface glass-surface--svg p-4 rounded-xl flex flex-col">
-                            <label for="setting-car-rpm" class="text-lg font-semibold mb-2">RPM المحرك: <span id="display-car-rpm">--</span></label>
-                            <input type="range" id="setting-car-rpm" min="0" max="6000" step="100" value="0" class="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer">
-                        </div>
-                        <div class="glass-surface glass-surface--svg p-4 rounded-xl flex flex-col">
-                            <label for="setting-car-fuel" class="text-lg font-semibold mb-2">مستوى الوقود (%): <span id="display-car-fuel">--</span></label>
-                            <input type="range" id="setting-car-fuel" min="0" max="100" value="0" class="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer">
-                        </div>
-                        <div class="glass-surface glass-surface--svg p-4 rounded-xl flex flex-col">
-                            <label for="setting-car-temp" class="text-lg font-semibold mb-2">درجة حرارة المحرك (°C): <span id="display-car-temp">--</span></label>
-                            <input type="range" id="setting-car-temp" min="50" max="120" value="50" class="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer">
-                        </div>
-                        <div class="glass-surface glass-surface--svg p-4 rounded-xl flex flex-col">
-                            <label for="setting-car-gear" class="text-lg font-semibold mb-2">الترس: <span id="display-car-gear">P</span></label>
-                            <select id="setting-car-gear" class="w-full p-2 rounded-md bg-white/10 text-white focus:outline-none focus:ring-2 focus:focus:ring-purple-500">
-                                <option value="P">P</option>
-                                <option value="R">R</option>
-                                <option value="N">N</option>
-                                <option value="D">D</option>
-                            </select>
-                        </div>
-                        <div class="glass-surface glass-surface--svg p-4 rounded-xl flex flex-col items-center justify-center text-center">
-                            <h3 class="text-xl font-bold mb-2">اتصال ODB II</h3>
-                            <p class="text-white/70 text-sm mb-4">
-                                للاتصال بنظام ODB II لسيارتك، ستحتاج عادةً إلى جهاز Bluetooth أو Wi-Fi متوافق وتطبيق خاص.
-                            </p>
-                            <p class="text-red-300 text-xs">
-                                ملاحظة: الاتصال المباشر بـ ODB II غير مدعوم في بيئة المتصفح هذه.
-                            </p>
-                            <button class="mt-4 bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-full transition-colors duration-200" onclick="showMessageBox('لا يمكن الاتصال بـ ODB II مباشرةً في بيئة المتصفح هذه لأسباب أمنية وتقنية.');">
-                                محاولة الاتصال بـ ODB II
-                            </button>
-                        </div>
-                     </div>
-                 </section>
 
             </main>
         </div>
@@ -1393,26 +1309,12 @@ div#quran-quick-access {
                 iconUrl: '',
                 location: 'Salalah, Oman'
             },
-            car: {
-                speed: null, 
-                rpm: null,   
-                fuel: null,  
-                temp: null,
-                gear: 'P',
-                obd: { // Simulated OBD-II data
-                    engineTemp: null,
-                    batteryVoltage: null,
-                    tirePressureFL: null,
-                    tirePressureFR: null,
-                    tirePressureRL: null,
-                    tirePressureRR: null
-                }
-            },
-            settings: {
-                fontSize: 16,
-                backgroundTheme: 'theme-gradient-1',
-                enableLiveWeather: true,
-                carSpeedUnit: 'km/h'
+            car: { // Simulated car data, no longer controlled by settings UI
+                speed: 0, 
+                rpm: 0,   
+                fuel: 0,  
+                temp: 0,
+                gear: 'P'
             },
             prayerTimes: { // This will now hold the current day's prayer times from the array
                 Fajr: '--:--',
@@ -1457,12 +1359,10 @@ div#quran-quick-access {
 
         // Floating UI elements
         const floatingFullscreenButton = document.getElementById('floating-fullscreen-button'); // For CarPlay app fullscreen
-        // const floatingBackToVideoButton = document.getElementById('floating-back-to-video-button'); // REMOVED
         const floatingMediaButton = document.getElementById('floating-media-button');
         const videoPopupContainer = document.getElementById('video-popup-container');
         const videoPopupIframe = document.getElementById('video-popup-iframe');
         const videoPopupCloseButton = document.getElementById('video-popup-close-button');
-        // const videoPopupMaximizeButton = document.getElementById('video-popup-maximize-button'); // REMOVED
 
         // AI Assistant elements
         const chatHistoryDiv = document.getElementById('chat-history');
@@ -1470,15 +1370,6 @@ div#quran-quick-access {
         const aiSendButton = document.getElementById('ai-send-button');
         const aiMicButton = document.getElementById('ai-mic-button');
         const listeningIndicator = document.getElementById('listening-indicator');
-
-        // OBD-II elements
-        const obdEngineTemp = document.getElementById('obd-engine-temp');
-        const obdBatteryVoltage = document.getElementById('obd-battery-voltage');
-        const obdTirePressureFL = document.getElementById('obd-tire-pressure-fl');
-        const obdTirePressureFR = document.getElementById('obd-tire-pressure-fr');
-        const obdTirePressureRL = document.getElementById('obd-tire-pressure-rl');
-        const obdTirePressureRR = document.getElementById('obd-tire-pressure-rr');
-        const simulateObdDataButton = document.getElementById('simulate-obd-data');
 
         // Prayer Times elements
         const prayerTimesContainer = document.getElementById('prayer-times-container');
@@ -1583,15 +1474,6 @@ div#quran-quick-access {
         }
 
         /**
-         * Updates the visibility of the floating "Maximize Video" button.
-         * This function is no longer needed as the button has been removed.
-         */
-        function updateFloatingBackToVideoButtonVisibility() {
-            // This function is now empty as the button it controls has been removed.
-            // Keeping it as a placeholder if future similar functionality is added.
-        }
-
-        /**
          * Updates the UI elements based on the current appState.
          */
         function updateUI() {
@@ -1613,7 +1495,6 @@ div#quran-quick-access {
             document.getElementById('weather-humidity').textContent = appState.weather.humidity !== null ? `${appState.weather.humidity}%` : '--%';
             document.getElementById('weather-wind').textContent = appState.weather.wind !== null ? `${appState.weather.wind} كم/س` : '-- كم/س';
             document.getElementById('weather-pressure').textContent = appState.weather.pressure !== null ? `${appState.weather.pressure} mb` : '-- mb';
-            // Removed the problematic line: document.weather.visibility = data.current.vis_km;
             document.getElementById('weather-visibility').textContent = appState.weather.visibility !== null ? `${appState.weather.visibility} كم` : '-- كم';
             document.getElementById('weather-uv').textContent = appState.weather.uvIndex !== null ? `${appState.weather.uvIndex}` : '--';
             appState.weather.lastUpdated = `آخر تحديث: ${new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: false })}`;
@@ -1623,28 +1504,6 @@ div#quran-quick-access {
                 weatherIconElement.src = appState.weather.iconUrl || 'https://placehold.co/96x96/000000/FFFFFF?text=No+Icon';
                 weatherIconElement.alt = appState.weather.description || 'Weather Icon';
             }
-
-            // Update Settings display values
-            document.getElementById('display-car-speed').textContent = appState.car.speed !== null ? appState.car.speed : '--';
-            document.getElementById('display-car-rpm').textContent = appState.car.rpm !== null ? appState.car.rpm : '--';
-            document.getElementById('display-car-fuel').textContent = appState.car.fuel !== null ? appState.car.fuel : '--';
-            document.getElementById('display-car-temp').textContent = appState.car.temp !== null ? appState.car.temp : '--';
-            document.getElementById('display-car-gear').textContent = appState.car.gear !== null ? appState.car.gear : '--';
-
-            // Apply font size
-            document.documentElement.style.setProperty('--base-font-size', `${appState.settings.fontSize}px`);
-            document.getElementById('display-font-size').textContent = `${appState.settings.fontSize}px`;
-
-            // Apply background theme
-            document.body.className = `text-white overflow-hidden ${appState.settings.backgroundTheme}`;
-
-            // Update OBD-II data
-            obdEngineTemp.textContent = appState.car.obd.engineTemp !== null ? `${appState.car.obd.engineTemp}°C` : '--°C';
-            obdBatteryVoltage.textContent = appState.car.obd.batteryVoltage !== null ? `${appState.car.obd.batteryVoltage} V` : '-- V';
-            obdTirePressureFL.textContent = appState.car.obd.tirePressureFL !== null ? `${appState.car.obd.tirePressureFL} PSI` : '-- PSI';
-            obdTirePressureFR.textContent = appState.car.obd.tirePressureFR !== null ? `${appState.car.obd.tirePressureFR} PSI` : '-- PSI';
-            obdTirePressureRL.textContent = appState.car.obd.tirePressureRL !== null ? `${appState.car.obd.tirePressureRL} PSI` : '-- PSI';
-            obdTirePressureRR.textContent = appState.car.obd.tirePressureRR !== null ? `${appState.car.obd.tirePressureRR} PSI` : '-- PSI';
 
             // Update Prayer Times
             loadPrayerTimes(); // Call loadPrayerTimes to update the display
@@ -1690,7 +1549,6 @@ div#quran-quick-access {
             }
 
             updateUI(); // Update UI to reflect latest state
-            // updateFloatingBackToVideoButtonVisibility(); // REMOVED
         }
 
         /**
@@ -1731,7 +1589,6 @@ div#quran-quick-access {
                     backToPlaylistsBottomButton.style.display = 'none';
                     backToPlaylistsBottomButtonSearch.style.display = 'none';
                 }
-                // updateFloatingBackToVideoButtonVisibility(); // REMOVED
             } else {
                 // If switching away from Media tab
                 backToPlaylistsBottomButton.style.display = 'none';
@@ -1749,7 +1606,6 @@ div#quran-quick-access {
                     // No video playing or pop-up not needed
                     videoPopupContainer.classList.remove('active');
                 }
-                // updateFloatingBackToVideoButtonVisibility(); // REMOVED
             }
         }
 
@@ -1802,7 +1658,8 @@ div#quran-quick-access {
                     videoListContainer.innerHTML = ''; // Clear previous videos
                     videoListContainer.scrollTop = 0; // Scroll to top of the list
                     data.items.forEach(item => {
-                        const videoId = item.snippet.resourceId.videoId.videoId; // Corrected path to videoId
+                        // Corrected path to videoId
+                        const videoId = item.snippet.resourceId.videoId; 
                         const title = item.snippet.title;
                         const thumbnailUrl = item.snippet.thumbnails.medium ? item.snippet.thumbnails.medium.url : 'https://placehold.co/120x90/000000/FFFFFF?text=No+Thumbnail';
 
@@ -1834,7 +1691,6 @@ div#quran-quick-access {
                     }
                     backToPlaylistsBottomButton.style.display = 'flex';
                     backToPlaylistsBottomButtonSearch.style.display = 'none';
-                    // updateFloatingBackToVideoButtonVisibility(); // REMOVED
                 } else {
                     showMessageBox('لم يتم العثور على فيديوهات في قائمة التشغيل هذه.');
                     console.warn('No videos found for playlist:', playlistId, data);
@@ -1842,8 +1698,6 @@ div#quran-quick-access {
             } catch (error) {
                 console.error('Error fetching YouTube playlist videos:', error);
                 showMessageBox('حدث خطأ أثناء جلب فيديوهات قائمة التشغيل.');
-            } finally {
-                // updateFloatingBackToVideoButtonVisibility(); // REMOVED
             }
         }
 
@@ -1874,7 +1728,6 @@ div#quran-quick-access {
             activeMediaView = 'player';
             backToPlaylistsBottomButton.style.display = 'none';
             backToPlaylistsBottomButtonSearch.style.display = 'none';
-            // updateFloatingBackToVideoButtonVisibility(); // REMOVED
         }
 
         /**
@@ -1900,7 +1753,6 @@ div#quran-quick-access {
             activeMediaView = 'player'; // Still consider it 'player' view for media logic
             backToPlaylistsBottomButton.style.display = 'none';
             backToPlaylistsBottomButtonSearch.style.display = 'none';
-            // updateFloatingBackToVideoButtonVisibility(); // REMOVED
         }
 
         /**
@@ -1911,19 +1763,7 @@ div#quran-quick-access {
             videoPopupIframe.src = ''; // Stop the video
             currentPlayingVideoId = '';
             isVideoPlayingInPopup = false;
-            // updateFloatingBackToVideoButtonVisibility(); // REMOVED
         }
-
-        /**
-         * This function is no longer needed as the "Maximize Video" button has been removed.
-         */
-        // function maximizeVideoPopup() { // REMOVED
-        //     if (currentPlayingVideoId) {
-        //         // When maximizing from pop-up, switch to Media app and play in main view
-        //         switchApp('Media'); 
-        //         playVideoInMainView(currentPlayingVideoId);
-        //     }
-        // }
 
         /**
          * Minimizes the video from the main media player view to the pop-up.
@@ -1940,8 +1780,6 @@ div#quran-quick-access {
 
         // Event listeners for video pop-up controls
         videoPopupCloseButton.addEventListener('click', hideVideoPopup);
-        // videoPopupMaximizeButton.addEventListener('click', maximizeVideoPopup); // REMOVED
-        // floatingBackToVideoButton.addEventListener('click', maximizeVideoPopup); // REMOVED
         minimizeVideoButton.addEventListener('click', () => {
             if (activeMediaView === 'player' && !isVideoPlayingInPopup) {
                 minimizeVideoToPopup(currentPlayingVideoId);
@@ -1998,7 +1836,6 @@ div#quran-quick-access {
             activeMediaView = 'playlist';
             backToPlaylistsBottomButton.style.display = 'none';
             backToPlaylistsBottomButtonSearch.style.display = 'none';
-            // updateFloatingBackToVideoButtonVisibility(); // REMOVED
         }
 
         // Event listeners for back buttons in Media tab
@@ -2084,10 +1921,6 @@ div#quran-quick-access {
             }
         });
 
-        // Removed the blur event listener that was causing premature hiding.
-        // Suggestions will now be hidden when a search is successfully performed or input is cleared.
-
-
         youtubeSearchButton.addEventListener('click', () => {
             const query = youtubeSearchInput.value.trim();
             if (query) {
@@ -2147,7 +1980,6 @@ div#quran-quick-access {
                     activeMediaView = 'searchResults';
                     backToPlaylistsBottomButton.style.display = 'none';
                     backToPlaylistsBottomButtonSearch.style.display = 'flex';
-                    // updateFloatingBackToVideoButtonVisibility(); // REMOVED
                 } else {
                     showMessageBox('لم يتم العثور على نتائج بحث لـ: ' + query);
                     searchResultsContainer.innerHTML = '<p class="text-center text-white/70 col-span-full">لا توجد نتائج بحث.</p>';
@@ -2517,6 +2349,8 @@ div#quran-quick-access {
                 appState.weather.pressure = data.current.pressure_mb;
                 appState.weather.visibility = data.current.vis_km; // Correctly assign here
                 appState.weather.uvIndex = data.current.uv;
+                // Correctly set the icon URL
+                appState.weather.iconUrl = `https:${data.current.condition.icon}`; 
                 
                 const now = new Date();
                 appState.weather.lastUpdated = `آخر تحديث: ${now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: false })}`;
@@ -2541,54 +2375,17 @@ div#quran-quick-access {
             }
         }
 
-        // --- Settings Control Event Listeners ---
-        document.getElementById('setting-font-size').addEventListener('input', (e) => {
-            appState.settings.fontSize = parseInt(e.target.value);
-            updateUI();
-        });
-
-        document.getElementById('setting-background').addEventListener('change', (e) => {
-            appState.settings.backgroundTheme = e.target.value;
-            updateUI();
-        });
-
-        document.getElementById('setting-car-speed').addEventListener('input', (e) => {
-            appState.car.speed = parseInt(e.target.value);
-            updateUI();
-        });
-
-        document.getElementById('setting-car-rpm').addEventListener('input', (e) => {
-            appState.car.rpm = parseInt(e.target.value);
-            updateUI();
-        });
-
-        document.getElementById('setting-car-fuel').addEventListener('input', (e) => {
-            appState.car.fuel = parseInt(e.target.value);
-            updateUI();
-        });
-
-        document.getElementById('setting-car-temp').addEventListener('input', (e) => {
-            appState.car.temp = parseInt(e.target.value);
-            updateUI();
-        });
-
-        document.getElementById('setting-car-gear').addEventListener('change', (e) => {
-            appState.car.gear = e.target.value;
-            updateUI();
-        });
-
-        // --- OBD-II Simulation Functions ---
+        // --- Simulated Car Data (for AI Assistant) ---
         /**
-         * Generates random simulated OBD-II data.
+         * Generates random simulated car data.
          */
-        function simulateObdData() {
-            appState.car.obd.engineTemp = (Math.random() * (100 - 70) + 70).toFixed(1); // 70-100 C
-            appState.car.obd.batteryVoltage = (Math.random() * (14.7 - 12.0) + 12.0).toFixed(1); // 12.0-14.7 V
-            appState.car.obd.tirePressureFL = (Math.random() * (35 - 30) + 30).toFixed(0); // 30-35 PSI
-            appState.car.obd.tirePressureFR = (Math.random() * (35 - 30) + 30).toFixed(0);
-            appState.car.obd.tirePressureRL = (Math.random() * (35 - 30) + 30).toFixed(0);
-            appState.car.obd.tirePressureRR = (Math.random() * (35 - 30) + 30).toFixed(0);
-            updateUI();
+        function simulateCarData() {
+            appState.car.speed = (Math.random() * 120).toFixed(0); // 0-120 km/h
+            appState.car.rpm = (Math.random() * (5000 - 800) + 800).toFixed(0); // 800-5000 RPM
+            appState.car.fuel = (Math.random() * 100).toFixed(0); // 0-100%
+            appState.car.temp = (Math.random() * (100 - 70) + 70).toFixed(1); // 70-100 C
+            const gears = ['P', 'R', 'N', 'D'];
+            appState.car.gear = gears[Math.floor(Math.random() * gears.length)];
         }
 
         // --- Prayer Times Integration ---
@@ -2863,14 +2660,32 @@ div#quran-quick-access {
                         determineNextPrayer();
                         // Display a temporary message or immediately show the new countdown
                         digitalDateElement.textContent = `الصلاة القادمة: ${appState.prayerTimes.nextPrayer}`;
+                        digitalDateElement.classList.remove('countdown-highlight'); // Remove highlight
                     } else {
                         const totalSeconds = Math.floor(timeDiff / 1000);
-                        const displayMinutes = Math.floor(totalSeconds / 60);
+                        const displayHours = Math.floor(totalSeconds / 3600);
+                        const displayMinutes = Math.floor((totalSeconds % 3600) / 60);
                         const displaySeconds = totalSeconds % 60;
-                        digitalDateElement.textContent = `إقامة ${appState.prayerTimes.nextPrayer}: ${displayMinutes.toString().padStart(2, '0')}:${displaySeconds.toString().padStart(2, '0')}`;
+
+                        let countdownText = '';
+                        if (displayHours > 0) {
+                            countdownText = `${displayHours.toString().padStart(2, '0')}:${displayMinutes.toString().padStart(2, '0')}:${displaySeconds.toString().padStart(2, '0')}`;
+                        } else {
+                            countdownText = `${displayMinutes.toString().padStart(2, '0')}:${displaySeconds.toString().padStart(2, '0')}`;
+                        }
+                        
+                        digitalDateElement.textContent = `إقامة ${appState.prayerTimes.nextPrayer}: ${countdownText}`;
+
+                        // Apply/remove highlight class based on time remaining
+                        if (totalSeconds < 20 * 60) { // Less than 20 minutes
+                            digitalDateElement.classList.add('countdown-highlight');
+                        } else {
+                            digitalDateElement.classList.remove('countdown-highlight');
+                        }
                     }
                 } else {
                     digitalDateElement.textContent = 'جاري تحميل أوقات الصلاة...';
+                    digitalDateElement.classList.remove('countdown-highlight');
                 }
             }
         }
@@ -2887,12 +2702,8 @@ div#quran-quick-access {
             if (floatingFullscreenButton) {
                 floatingFullscreenButton.addEventListener('click', togglePseudoFullscreen);
             }
-            // Removed floatingBackToVideoButton event listener
             if (floatingMediaButton) {
                 floatingMediaButton.addEventListener('click', () => switchApp('Media'));
-            }
-            if (simulateObdDataButton) {
-                simulateObdDataButton.addEventListener('click', simulateObdData);
             }
 
             // Initial and periodic updates
@@ -2902,13 +2713,11 @@ div#quran-quick-access {
             setInterval(updateDigitalClock, 1000); // Update clock and countdown every second
             updateDigitalClock();
             loadPrayerTimes(); // Load prayer times from local array
-            // determineNextPrayer is now called by loadPrayerTimes and updateDigitalClock
+            simulateCarData(); // Initial simulated car data
+            setInterval(simulateCarData, 5000); // Update simulated car data every 5 seconds
             
-            // Set initial app to Dashboard and update button visibility
+            // Set initial app to Dashboard
             switchApp('Dashboard');
-            // Removed populateSurahSelect() as it was undefined and not used for Quran iframe
-            simulateObdData(); // Initial OBD data simulation
-            // updateFloatingBackToVideoButtonVisibility(); // REMOVED
 
             // Initialize Leaflet map and start tracking
             initializeLeafletMap();
