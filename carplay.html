@@ -184,7 +184,7 @@ div#quran-quick-access {
             display: none; /* Hidden by default */
             animation: fadeIn 0.5s ease-in-out; /* Fade-in transition */
             width: 100%;
-            height: 100%; /* Ensure app screens take full height */
+            height: 100%;
             flex-direction: column;
             border-radius: 1.5rem; /* Ensure app screens have rounded corners */
         }
@@ -208,12 +208,11 @@ div#quran-quick-access {
 
         /* Floating Button Styles - Positioned and styled for glass effect */
         #floating-fullscreen-button,
-        #floating-back-to-video-button,
         #floating-media-button,
         #back-to-playlists-bottom-button,
         #back-to-playlists-bottom-button-search {
             position: fixed;
-            background-color: rgba(147, 51, 234, 0.8); /* Purple glass */
+            background-color: #8A0806; /* Purple glass */
             color: white;
             padding: 1rem 1.5rem;
             border-radius: 9999px; /* Pill shape */
@@ -230,7 +229,6 @@ div#quran-quick-access {
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
         #floating-fullscreen-button:hover,
-        #floating-back-to-video-button:hover,
         #floating-media-button:hover,
         #back-to-playlists-bottom-button:hover,
         #back-to-playlists-bottom-button-search:hover {
@@ -241,7 +239,6 @@ div#quran-quick-access {
         /* Specific positioning for floating buttons */
         #floating-fullscreen-button { bottom: 1rem; left: 6rem; right: auto; }
         #floating-media-button { bottom: 1rem; right: 1rem; }
-        #floating-back-to-video-button { bottom: 1rem; right: 8rem; display: none; } /* Hidden by default */
         #back-to-playlists-bottom-button, #back-to-playlists-bottom-button-search {
             bottom: 1rem;
             left: 50%;
@@ -259,7 +256,7 @@ div#quran-quick-access {
         #carplay-main-interface {
             position: fixed; /* Changed to fixed for default 90% fullscreen */
             top: 4%; /* Centered vertically */
-            left: 1%; /* Centered horizontally */
+            left: 4%; /* Centered horizontally */
             width: 98vw; /* 90% of viewport width */
             height: 98vh; /* 90% of viewport height */
             /* Removed margin-top and margin-bottom as position: fixed handles positioning */
@@ -783,7 +780,6 @@ div#quran-quick-access {
 
             /* Floating Buttons - Mobile positioning */
             #floating-fullscreen-button,
-            #floating-back-to-video-button,
             #floating-media-button,
             #back-to-playlists-bottom-button,
             #back-to-playlists-bottom-button-search {
@@ -792,7 +788,6 @@ div#quran-quick-access {
                 gap: 0.25rem;
             }
             #floating-fullscreen-button { left: 1rem !important; transform: none; }
-            #floating-back-to-video-button { right: 5.5rem; }
             #floating-media-button { right: 1rem; }
             #back-to-playlists-bottom-button, #back-to-playlists-bottom-button-search {
                 left: 50%;
@@ -896,7 +891,7 @@ div#quran-quick-access {
                 <feColorMatrix in="dispGreen" type="matrix" values="0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0" result="green" />
                 
                 <feDisplacementMap in="SourceGraphic" in2="map" id="bluechannel" scale="320" xChannelSelector="R" yChannelSelector="G" result="dispBlue" />
-                <feColorMatrix in="dispBlue" type="matrix" values="0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 1 0" result="blue" />
+                <feColorMatrix in="blue" type="matrix" values="0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 1 0" result="blue" />
                 
                 <!-- Blending channels -->
                 <feBlend in="red" in2="green" mode="screen" result="rg" />
@@ -1008,10 +1003,7 @@ div#quran-quick-access {
                                     <span class="prayer-time" id="fajr-time">--:--</span>
                                     <span class="prayer-iqama" id="fajr-iqama"></span>
                                 </div>
-                                <div class="prayer-time-item">
-                                    <span class="prayer-name">الشروق</span>
-                                    <span class="prayer-time" id="sunrise-time">--:--</span>
-                                </div>
+                                
                                 <div class="prayer-time-item">
                                     <span class="prayer-name">الظهر</span>
                                     <span class="prayer-time" id="dhuhr-time">--:--</span>
@@ -1072,7 +1064,7 @@ div#quran-quick-access {
                         
                         <!-- New YouTube Channels Added Below -->
                         <div class="glass-surface glass-surface--svg youtube-channel-card" data-playlist-id="UUlncV9OLPto_MinRzGfjr2g" data-channel-id="UClncV9OLPto_MinRzGfjr2g">
-                            <img src="https://yt3.ggpht.com/ZpoYv5FstgResXDeuqEhkce079N0fM3UC5cmjGFBbKSPQI7tDXfl5W_vib_X2Q_hyipbZl4Fw=s176-c-k-c0x00ffffff-no-rj-mo" alt="صورة الشيخ عبد الباسط عبد الصمد" />
+                            <img src="https://yt3.googleusercontent.com/ZpoYv5FstgResXDeuqEhkce079N0fM3UC5cmjGFBbKSPQI7tDXfl5W_vib_X2Q_hy5ipbZl4Fw=s160-c-k-c0x00ffffff-no-rj" alt="صورة الشيخ عبد الباسط عبد الصمد" />
                             <h2>تلاوات ياسر الدوسري</h2>
                         </div>
                         <div class="glass-surface glass-surface--svg youtube-channel-card" data-playlist-id="UUFPqvE8BYiiUeN1AUXa3lbA" data-channel-id="UCFPqvE8BYiiUeN1AUXa3lbA">
@@ -1341,19 +1333,12 @@ div#quran-quick-access {
     <!-- Floating Full-Screen Button -->
     <button id="floating-fullscreen-button" class="glass-surface glass-surface--svg rounded-full">
         <i data-lucide="maximize" class="w-6 h-6"></i>
-        <span>ملء الشاشة</span>
-    </button>
-
-    <!-- Floating Back to Video Button (now "Maximize Video") -->
-    <button id="floating-back-to-video-button" class="glass-surface glass-surface--svg rounded-full">
-        <i data-lucide="maximize-2" class="w-6 h-6"></i>
-        <span>تكبير الفيديو</span>
+        
     </button>
 
     <!-- Floating Media Button -->
     <button id="floating-media-button" class="glass-surface glass-surface--svg rounded-full">
         <i data-lucide="youtube" class="w-6 h-6"></i>
-        <span>الوسائط</span>
     </button>
 
     <!-- Video Pop-up Container -->
@@ -1370,9 +1355,6 @@ div#quran-quick-access {
             <button id="video-popup-close-button" title="إغلاق الفيديو">
                 <i data-lucide="x" class="w-4 h-4"></i>
             </button>
-            <button id="video-popup-maximize-button" title="تكبير الفيديو">
-                <i data-lucide="maximize-2" class="w-4 h-4"></i>
-            </button>
         </div>
     </div>
 
@@ -1382,6 +1364,8 @@ div#quran-quick-access {
 
         // --- API Keys ---
         // IMPORTANT: REPLACE WITH YOUR ACTUAL YOUTUBE API KEY FROM GOOGLE CLOUD CONSOLE
+        // إذا لم تقم بتعيين مفتاح YouTube API الخاص بك، فلن تعمل ميزات YouTube.
+        // يرجى استبدال 'YOUR_YOUTUBE_API_KEY' بمفتاح API الخاص بك من Google Cloud Console.
         const YOUTUBE_API_KEY = 'AIzaSyDj4w1H3Is_rmTLhl40zER7AgYhT_tKASo'; 
         // IMPORTANT: REPLACE WITH YOUR ACTUAL GOOGLE MAPS API KEY FROM GOOGLE CLOUD CONSOLE
         const GOOGLE_MAPS_API_KEY = 'AIzaSyCDWFDGIkq7Cu0dv8AL_q1YFEUIWlZdaP4'; 
@@ -1431,12 +1415,11 @@ div#quran-quick-access {
             },
             prayerTimes: { // This will now hold the current day's prayer times from the array
                 Fajr: '--:--',
-                Sunrise: '--:--',
                 Dhuhr: '--:--',
                 Asr: '--:--',
                 Maghrib: '--:--',
                 Isha: '--:--',
-                currentPrayer: null
+                nextPrayer: null // Changed from currentPrayer to nextPrayer
             }
         };
 
@@ -1472,12 +1455,12 @@ div#quran-quick-access {
 
         // Floating UI elements
         const floatingFullscreenButton = document.getElementById('floating-fullscreen-button'); // For CarPlay app fullscreen
-        const floatingBackToVideoButton = document.getElementById('floating-back-to-video-button'); // For YouTube video fullscreen
+        // const floatingBackToVideoButton = document.getElementById('floating-back-to-video-button'); // REMOVED
         const floatingMediaButton = document.getElementById('floating-media-button');
         const videoPopupContainer = document.getElementById('video-popup-container');
         const videoPopupIframe = document.getElementById('video-popup-iframe');
         const videoPopupCloseButton = document.getElementById('video-popup-close-button');
-        const videoPopupMaximizeButton = document.getElementById('video-popup-maximize-button');
+        // const videoPopupMaximizeButton = document.getElementById('video-popup-maximize-button'); // REMOVED
 
         // AI Assistant elements
         const chatHistoryDiv = document.getElementById('chat-history');
@@ -1499,7 +1482,6 @@ div#quran-quick-access {
         const prayerTimesContainer = document.getElementById('prayer-times-container');
         // New elements for prayer times display
         const fajrTimeElement = document.getElementById('fajr-time');
-        const sunriseTimeElement = document.getElementById('sunrise-time');
         const dhuhrTimeElement = document.getElementById('dhuhr-time');
         const asrTimeElement = document.getElementById('asr-time');
         const maghribTimeElement = document.getElementById('maghrib-time');
@@ -1581,11 +1563,11 @@ div#quran-quick-access {
             const isFullscreen = carplayMainInterface.classList.toggle('carplay-pseudo-fullscreen');
 
             if (isFullscreen) {
-                floatingFullscreenButton.innerHTML = '<i data-lucide="minimize" class="w-6 h-6"></i><span>تصغير الشاشة</span>';
+                floatingFullscreenButton.innerHTML = '<i data-lucide="minimize" class="w-6 h-6"></i>'; // Only icon
                 if (topBar) topBar.style.opacity = '0'; 
                 document.body.style.overflow = 'hidden'; 
             } else {
-                floatingFullscreenButton.innerHTML = '<i data-lucide="maximize" class="w-6 h-6"></i><span>ملء الشاشة</span>';
+                floatingFullscreenButton.innerHTML = '<i data-lucide="maximize" class="w-6 h-6"></i>'; // Only icon
                 if (topBar) topBar.style.opacity = '1';
                 document.body.style.overflow = ''; 
             }
@@ -1594,17 +1576,11 @@ div#quran-quick-access {
 
         /**
          * Updates the visibility of the floating "Maximize Video" button.
+         * This function is no longer needed as the button has been removed.
          */
         function updateFloatingBackToVideoButtonVisibility() {
-            const activeScreen = document.querySelector('.app-screen.active');
-            const activeAppName = activeScreen ? activeScreen.id.replace('screen-', '') : '';
-
-            // Show maximize video button only if a video is playing in popup AND current app is NOT Media
-            if (isVideoPlayingInPopup && currentPlayingVideoId && activeAppName !== 'Media') {
-                floatingBackToVideoButton.style.display = 'flex';
-            } else {
-                floatingBackToVideoButton.style.display = 'none';
-            }
+            // This function is now empty as the button it controls has been removed.
+            // Keeping it as a placeholder if future similar functionality is added.
         }
 
         /**
@@ -1629,6 +1605,7 @@ div#quran-quick-access {
             document.getElementById('weather-humidity').textContent = appState.weather.humidity !== null ? `${appState.weather.humidity}%` : '--%';
             document.getElementById('weather-wind').textContent = appState.weather.wind !== null ? `${appState.weather.wind} كم/س` : '-- كم/س';
             document.getElementById('weather-pressure').textContent = appState.weather.pressure !== null ? `${appState.weather.pressure} mb` : '-- mb';
+            // Removed the problematic line: document.weather.visibility = data.current.vis_km;
             document.getElementById('weather-visibility').textContent = appState.weather.visibility !== null ? `${appState.weather.visibility} كم` : '-- كم';
             document.getElementById('weather-uv').textContent = appState.weather.uvIndex !== null ? `${appState.weather.uvIndex}` : '--';
             appState.weather.lastUpdated = `آخر تحديث: ${new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: false })}`;
@@ -1666,7 +1643,7 @@ div#quran-quick-access {
 
             // Update Prayer Times
             loadPrayerTimes(); // Call loadPrayerTimes to update the display
-            determineCurrentPrayer(); // Re-determine current prayer after loading
+            determineNextPrayer(); // Changed to determineNextPrayer
             renderPrayerTimes(); // Re-render to apply current prayer highlight
         }
 
@@ -1708,7 +1685,7 @@ div#quran-quick-access {
             }
 
             updateUI(); // Update UI to reflect latest state
-            updateFloatingBackToVideoButtonVisibility(); // Update video fullscreen button visibility
+            // updateFloatingBackToVideoButtonVisibility(); // REMOVED
         }
 
         /**
@@ -1731,10 +1708,8 @@ div#quran-quick-access {
                 youtubeSuggestionsDiv.classList.remove('hidden'); // Show suggestions
 
                 if (isVideoPlayingInPopup && currentPlayingVideoId) {
-                    // If video was playing in pop-up, bring it to main view
-                    // playVideoInMainView(currentPlayingVideoId); // This also sets isVideoPlayingInPopup to false
-                    // Per user request, do not play in main view, keep in popup or just hide popup if switching
-                    videoPopupContainer.classList.add('active'); // Ensure popup is still active
+                    // If video was playing in pop-up, keep it active
+                    videoPopupContainer.classList.add('active'); 
                 } else if (activeMediaView === 'videoList' && currentPlayingPlaylistId) {
                     youtubeVideoListView.classList.remove('hidden');
                     youtubeVideoListView.classList.add('flex', 'flex-col');
@@ -1751,7 +1726,7 @@ div#quran-quick-access {
                     backToPlaylistsBottomButton.style.display = 'none';
                     backToPlaylistsBottomButtonSearch.style.display = 'none';
                 }
-                updateFloatingBackToVideoButtonVisibility();
+                // updateFloatingBackToVideoButtonVisibility(); // REMOVED
             } else {
                 // If switching away from Media tab
                 backToPlaylistsBottomButton.style.display = 'none';
@@ -1769,7 +1744,7 @@ div#quran-quick-access {
                     // No video playing or pop-up not needed
                     videoPopupContainer.classList.remove('active');
                 }
-                updateFloatingBackToVideoButtonVisibility();
+                // updateFloatingBackToVideoButtonVisibility(); // REMOVED
             }
         }
 
@@ -1822,7 +1797,7 @@ div#quran-quick-access {
                     videoListContainer.innerHTML = ''; // Clear previous videos
                     videoListContainer.scrollTop = 0; // Scroll to top of the list
                     data.items.forEach(item => {
-                        const videoId = item.snippet.resourceId.videoId;
+                        const videoId = item.snippet.resourceId.videoId.videoId; // Corrected path to videoId
                         const title = item.snippet.title;
                         const thumbnailUrl = item.snippet.thumbnails.medium ? item.snippet.thumbnails.medium.url : 'https://placehold.co/120x90/000000/FFFFFF?text=No+Thumbnail';
 
@@ -1853,8 +1828,8 @@ div#quran-quick-access {
                         activeMediaView = 'videoList';
                     }
                     backToPlaylistsBottomButton.style.display = 'flex';
-                    backToPlayistsBottomButtonSearch.style.display = 'none';
-                    updateFloatingBackToVideoButtonVisibility();
+                    backToPlaylistsBottomButtonSearch.style.display = 'none';
+                    // updateFloatingBackToVideoButtonVisibility(); // REMOVED
                 } else {
                     showMessageBox('لم يتم العثور على فيديوهات في قائمة التشغيل هذه.');
                     console.warn('No videos found for playlist:', playlistId, data);
@@ -1863,7 +1838,7 @@ div#quran-quick-access {
                 console.error('Error fetching YouTube playlist videos:', error);
                 showMessageBox('حدث خطأ أثناء جلب فيديوهات قائمة التشغيل.');
             } finally {
-                updateFloatingBackToVideoButtonVisibility();
+                // updateFloatingBackToVideoButtonVisibility(); // REMOVED
             }
         }
 
@@ -1894,7 +1869,7 @@ div#quran-quick-access {
             activeMediaView = 'player';
             backToPlaylistsBottomButton.style.display = 'none';
             backToPlaylistsBottomButtonSearch.style.display = 'none';
-            updateFloatingBackToVideoButtonVisibility();
+            // updateFloatingBackToVideoButtonVisibility(); // REMOVED
         }
 
         /**
@@ -1920,7 +1895,7 @@ div#quran-quick-access {
             activeMediaView = 'player'; // Still consider it 'player' view for media logic
             backToPlaylistsBottomButton.style.display = 'none';
             backToPlaylistsBottomButtonSearch.style.display = 'none';
-            updateFloatingBackToVideoButtonVisibility();
+            // updateFloatingBackToVideoButtonVisibility(); // REMOVED
         }
 
         /**
@@ -1931,19 +1906,19 @@ div#quran-quick-access {
             videoPopupIframe.src = ''; // Stop the video
             currentPlayingVideoId = '';
             isVideoPlayingInPopup = false;
-            updateFloatingBackToVideoButtonVisibility();
+            // updateFloatingBackToVideoButtonVisibility(); // REMOVED
         }
 
         /**
-         * Maximizes the video from the pop-up into the main media player view.
+         * This function is no longer needed as the "Maximize Video" button has been removed.
          */
-        function maximizeVideoPopup() {
-            if (currentPlayingVideoId) {
-                // When maximizing from pop-up, switch to Media app and play in main view
-                switchApp('Media'); 
-                playVideoInMainView(currentPlayingVideoId);
-            }
-        }
+        // function maximizeVideoPopup() { // REMOVED
+        //     if (currentPlayingVideoId) {
+        //         // When maximizing from pop-up, switch to Media app and play in main view
+        //         switchApp('Media'); 
+        //         playVideoInMainView(currentPlayingVideoId);
+        //     }
+        // }
 
         /**
          * Minimizes the video from the main media player view to the pop-up.
@@ -1960,8 +1935,8 @@ div#quran-quick-access {
 
         // Event listeners for video pop-up controls
         videoPopupCloseButton.addEventListener('click', hideVideoPopup);
-        videoPopupMaximizeButton.addEventListener('click', maximizeVideoPopup);
-        floatingBackToVideoButton.addEventListener('click', maximizeVideoPopup);
+        // videoPopupMaximizeButton.addEventListener('click', maximizeVideoPopup); // REMOVED
+        // floatingBackToVideoButton.addEventListener('click', maximizeVideoPopup); // REMOVED
         minimizeVideoButton.addEventListener('click', () => {
             if (activeMediaView === 'player' && !isVideoPlayingInPopup) {
                 minimizeVideoToPopup(currentPlayingVideoId);
@@ -2017,8 +1992,8 @@ div#quran-quick-access {
             currentPlayingPlaylistId = ''; // Reset selected playlist
             activeMediaView = 'playlist';
             backToPlaylistsBottomButton.style.display = 'none';
-            backToPlaylistsBottomButtonSearch.style.display = 'none';
-            updateFloatingBackToVideoButtonVisibility();
+            backToPlaylistsBottomButtonSearch.style.display = 'none'; // Corrected typo here
+            // updateFloatingBackToVideoButtonVisibility(); // REMOVED
         }
 
         // Event listeners for back buttons in Media tab
@@ -2167,7 +2142,7 @@ div#quran-quick-access {
                     activeMediaView = 'searchResults';
                     backToPlaylistsBottomButton.style.display = 'none';
                     backToPlaylistsBottomButtonSearch.style.display = 'flex';
-                    updateFloatingBackToVideoButtonVisibility();
+                    // updateFloatingBackToVideoButtonVisibility(); // REMOVED
                 } else {
                     showMessageBox('لم يتم العثور على نتائج بحث لـ: ' + query);
                     searchResultsContainer.innerHTML = '<p class="text-center text-white/70 col-span-full">لا توجد نتائج بحث.</p>';
@@ -2462,7 +2437,7 @@ div#quran-quick-access {
                 appState.weather.humidity = data.current.humidity;
                 appState.weather.wind = data.current.wind_kph;
                 appState.weather.pressure = data.current.pressure_mb;
-                appState.weather.visibility = data.current.vis_km;
+                appState.weather.visibility = data.current.vis_km; // Correctly assign here
                 appState.weather.uvIndex = data.current.uv;
                 appState.weather.iconUrl = `https:${data.current.condition.icon}`;
                 
@@ -2631,7 +2606,6 @@ div#quran-quick-access {
 
             if (data) {
                 appState.prayerTimes.Fajr = data.fajr;
-                appState.prayerTimes.Sunrise = data.sunrise;
                 appState.prayerTimes.Dhuhr = data.dhuhr;
                 appState.prayerTimes.Asr = data.asr;
                 appState.prayerTimes.Maghrib = data.maghrib;
@@ -2639,7 +2613,6 @@ div#quran-quick-access {
 
                 // Update display elements
                 fajrTimeElement.textContent = data.fajr;
-                sunriseTimeElement.textContent = data.sunrise;
                 dhuhrTimeElement.textContent = data.dhuhr;
                 asrTimeElement.textContent = data.asr;
                 maghribTimeElement.textContent = data.maghrib;
@@ -2655,7 +2628,6 @@ div#quran-quick-access {
                 console.warn('No prayer times found for today in the local data.');
                 // Clear display if no data for today
                 fajrTimeElement.textContent = '--:--';
-                sunriseTimeElement.textContent = '--:--';
                 dhuhrTimeElement.textContent = '--:--';
                 asrTimeElement.textContent = '--:--';
                 maghribTimeElement.textContent = '--:--';
@@ -2670,40 +2642,36 @@ div#quran-quick-access {
         }
 
         /**
-         * Determines the current and next prayer time and updates appState.
+         * Determines the next prayer time and updates appState.
          */
-        function determineCurrentPrayer() {
+        function determineNextPrayer() {
             const now = new Date();
             const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
             
-            const prayerNames = ["Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha"];
-            let currentPrayer = null;
+            const prayerNames = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
+            let nextPrayer = null;
 
             for (let i = 0; i < prayerNames.length; i++) {
                 const prayerName = prayerNames[i];
-                const prayerTime = appState.prayerTimes[prayerName]; // Use appState for consistency
+                const prayerTime = appState.prayerTimes[prayerName];
                 if (prayerTime && prayerTime !== '--:--') {
                     const [hours, minutes] = prayerTime.split(':').map(Number);
                     const prayerTimeInMinutes = hours * 60 + minutes;
 
-                    if (currentTimeInMinutes >= prayerTimeInMinutes) {
-                        currentPrayer = prayerName;
-                    } else {
-                        // If we found a prayer that's in the future, and we have a current prayer,
-                        // then the current prayer is the one we just passed.
-                        // If no current prayer was set yet, it means the current time is before Fajr,
-                        // so Isha of yesterday is the "current" or last passed prayer.
+                    if (currentTimeInMinutes < prayerTimeInMinutes) {
+                        nextPrayer = prayerName;
                         break; // Found the next prayer, so stop
                     }
                 }
             }
             
-            // Handle case where it's after Isha and before Fajr of next day
-            if (!currentPrayer && appState.prayerTimes.Fajr !== '--:--' && currentTimeInMinutes < (appState.prayerTimes.Fajr.split(':').map(Number)[0] * 60 + appState.prayerTimes.Fajr.split(':').map(Number)[1])) {
-                currentPrayer = 'Isha'; // Assume Isha of previous day is the last passed prayer
+            // If no next prayer found (i.e., it's after Isha), the next prayer is Fajr of the next day.
+            // For this display, we'll just loop back to Fajr of the current day.
+            if (!nextPrayer && appState.prayerTimes.Fajr !== '--:--') {
+                nextPrayer = 'Fajr';
             }
 
-            appState.prayerTimes.currentPrayer = currentPrayer;
+            appState.prayerTimes.nextPrayer = nextPrayer; // Changed from currentPrayer to nextPrayer
             renderPrayerTimes(); // Re-render to update highlight
         }
 
@@ -2721,22 +2689,21 @@ div#quran-quick-access {
             // Mapping from English prayer names (in appState) to Arabic display names (in HTML)
             const prayerNameMap = {
                 Fajr: 'الفجر',
-                Sunrise: 'الشروق',
                 Dhuhr: 'الظهر',
                 Asr: 'العصر',
                 Maghrib: 'المغرب',
                 Isha: 'العشاء'
             };
 
-            // Apply highlight to current prayer
-            if (appState.prayerTimes.currentPrayer) {
-                const currentPrayerArabicName = prayerNameMap[appState.prayerTimes.currentPrayer];
-                if (currentPrayerArabicName) {
+            // Apply highlight to next prayer
+            if (appState.prayerTimes.nextPrayer) { // Changed from currentPrayer to nextPrayer
+                const nextPrayerArabicName = prayerNameMap[appState.prayerTimes.nextPrayer];
+                if (nextPrayerArabicName) {
                     // Iterate through all prayer time items and find the one with the matching Arabic name
                     const prayerItems = document.querySelectorAll('.prayer-time-item');
                     prayerItems.forEach(item => {
                         const prayerNameSpan = item.querySelector('.prayer-name');
-                        if (prayerNameSpan && prayerNameSpan.textContent.trim() === currentPrayerArabicName) {
+                        if (prayerNameSpan && prayerNameSpan.textContent.trim() === nextPrayerArabicName) {
                             item.classList.add('current-prayer');
                         }
                     });
@@ -2785,9 +2752,7 @@ div#quran-quick-access {
             if (floatingFullscreenButton) {
                 floatingFullscreenButton.addEventListener('click', togglePseudoFullscreen);
             }
-            if (floatingBackToVideoButton) { // New button for video fullscreen
-                floatingBackToVideoButton.addEventListener('click', maximizeVideoPopup); // Changed to maximizeVideoPopup
-            }
+            // Removed floatingBackToVideoButton event listener
             if (floatingMediaButton) {
                 floatingMediaButton.addEventListener('click', () => switchApp('Media'));
             }
@@ -2802,13 +2767,13 @@ div#quran-quick-access {
             setInterval(updateDigitalClock, 1000);
             updateDigitalClock();
             loadPrayerTimes(); // Load prayer times from local array
-            setInterval(determineCurrentPrayer, 60000); // Check current prayer every minute
+            setInterval(determineNextPrayer, 60000); // Check next prayer every minute
             
             // Set initial app to Dashboard and update button visibility
             switchApp('Dashboard');
             // Removed populateSurahSelect() as it was undefined and not used for Quran iframe
             simulateObdData(); // Initial OBD data simulation
-            updateFloatingBackToVideoButtonVisibility(); // Initial check for floating back button
+            // updateFloatingBackToVideoButtonVisibility(); // REMOVED
         });
     </script>
 </body>
