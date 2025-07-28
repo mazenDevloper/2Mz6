@@ -523,9 +523,9 @@ div#quran-quick-access {
             overflow: hidden;
         }
         .car-cam-360-container img {
-            height: 160%;
-            width: auto;
-            object-fit: cover;
+            height: 160%; /* Changed from 160% to 100% */
+            width: 100%; /* Added to ensure it takes full width */
+            object-fit: cover; /* Changed from cover to contain to fit image fully */
         }
 
         /* Digital Clock Styles (Apple iOS 19 style) */
@@ -891,7 +891,8 @@ div#quran-quick-access {
                 <feColorMatrix in="dispGreen" type="matrix" values="0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0" result="green" />
                 
                 <feDisplacementMap in="SourceGraphic" in2="map" id="bluechannel" scale="320" xChannelSelector="R" yChannelSelector="G" result="dispBlue" />
-                <feColorMatrix in="blue" type="matrix" values="0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 1 0" result="blue" />
+                <!-- Corrected feColorMatrix for blue channel to ensure real colors are reflected -->
+                <feColorMatrix in="blue" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0" result="blue" />
                 
                 <!-- Blending channels -->
                 <feBlend in="red" in2="green" mode="screen" result="rg" />
@@ -974,14 +975,14 @@ div#quran-quick-access {
                             <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center">
                                 <div id="digital-clock-widget" class="w-full h-full flex flex-col items-center justify-center text-center">
                                     <div id="digital-time">00:00:00</div>
-                                    <div id="digital-date">Saturday, July 20</div>
+                                    <div id="digital-date">العد التنازلي للصلاة</div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Column 2: 360 Camera View (occupies 2nd column, 1st row) -->
                         <div class="glass-surface glass-surface--svg p-2 flex flex-col items-center justify-center text-center car-cam-360-container col-span-1 row-start-1">
-                            <img src="https://dmusera.netlify.app/es350gb.png" alt="عرض الكاميرا 360 درجة للسيارة" class="w object-cover rounded-lg opacity-80">
+                            <img src="https://dmusera.netlify.app/es350gb.png" alt="عرض الكاميرا 360 درجة للسيارة" class="w-full h-full object-contain rounded-lg opacity-80">
                         </div>
 
                         <!-- Column 3: Map (occupies 3rd column, 1st row) -->
@@ -1419,7 +1420,8 @@ div#quran-quick-access {
                 Asr: '--:--',
                 Maghrib: '--:--',
                 Isha: '--:--',
-                nextPrayer: null // Changed from currentPrayer to nextPrayer
+                nextPrayer: null, // Changed from currentPrayer to nextPrayer
+                nextPrayerIqamaTime: null // Stores the Date object for the next prayer's iqama
             }
         };
 
@@ -1496,6 +1498,8 @@ div#quran-quick-access {
         let map;
         let marker;
         let watchId; // For navigator.geolocation.watchPosition
+        let markerPathPolyline; // Global variable for the dynamic path polyline
+        let markerPathLatLngs = []; // Array to store LatLngs for the path
 
         // --- Global Variables for Media State ---
         let currentPlayingPlaylistId = ''; // Tracks the currently active playlist
@@ -2343,6 +2347,14 @@ div#quran-quick-access {
                 // Add a default marker at Salalah
                 marker = L.marker([appState.mapLocation.lat, appState.mapLocation.lon]).addTo(map)
                     .bindPopup('موقع صلالة الافتراضي').openPopup();
+                
+                // Initialize the polyline for the driving path
+                markerPathPolyline = L.polyline([], {
+                    color: '#007AFF', // Bright blue for the path
+                    weight: 5,        // Thicker line
+                    opacity: 0.7
+                }).addTo(map);
+
             } else {
                 // If map already exists, just update its view
                 map.setView([appState.mapLocation.lat, appState.mapLocation.lon], appState.mapLocation.zoom);
@@ -2350,11 +2362,21 @@ div#quran-quick-access {
                     marker.setLatLng([appState.mapLocation.lat, appState.mapLocation.lon])
                           .setPopupContent('موقع صلالة الافتراضي').openPopup();
                 }
+                // Ensure the path polyline is still on the map
+                if (!markerPathPolyline) {
+                    markerPathPolyline = L.polyline([], {
+                        color: '#007AFF',
+                        weight: 5,
+                        opacity: 0.7
+                    }).addTo(map);
+                }
+                // Update the polyline with existing points if any
+                markerPathPolyline.setLatLngs(markerPathLatLngs);
             }
         }
 
         /**
-         * Updates the Leaflet map with the user's current location.
+         * Updates the Leaflet map with the user's current location and draws the path.
          * @param {GeolocationPosition} position - The geolocation position object.
          */
         function updateLeafletLocation(position) {
@@ -2379,6 +2401,12 @@ div#quran-quick-access {
                           .bindPopup(`موقعك الحالي<br>الدقة: ${accuracy.toFixed(0)} متر`).openPopup();
             }
 
+            // Add new point to the path and update the polyline
+            markerPathLatLngs.push(newLatLng);
+            if (markerPathPolyline) {
+                markerPathPolyline.setLatLngs(markerPathLatLngs);
+            }
+            
             // Adjust map view to fit the new location, possibly with a slight zoom change
             map.setView(newLatLng, Math.max(appState.mapLocation.zoom, 15)); // Zoom in if current zoom is less than 15
         }
@@ -2489,7 +2517,6 @@ div#quran-quick-access {
                 appState.weather.pressure = data.current.pressure_mb;
                 appState.weather.visibility = data.current.vis_km; // Correctly assign here
                 appState.weather.uvIndex = data.current.uv;
-                appState.weather.iconUrl = `https:${data.current.condition.icon}`;
                 
                 const now = new Date();
                 appState.weather.lastUpdated = `آخر تحديث: ${now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: false })}`;
@@ -2624,7 +2651,7 @@ div#quran-quick-access {
             {"date":"2025-09-19","fajr":"05:00","sunrise":"06:12","dhuhr":"12:23","asr":"15:44","maghrib":"18:28","isha":"19:35"},
             {"date":"2025-09-20","fajr":"05:00","sunrise":"06:12","dhuhr":"12:22","asr":"15:44","maghrib":"18:27","isha":"19:34"},
             {"date":"2025-09-21","fajr":"05:01","sunrise":"06:13","dhuhr":"12:22","asr":"15:44","maghrib":"18:26","isha":"19:33"},
-            {"date":"2025-09-22","fajr":"05:01","sunrise":"06:13","dhuhr":"12:21","asr":"15:44","maghrib":"18:25","isha":"19:32"},
+            {"date":"2025-09-22","fajr":"05:01","sunrise":"06:13","dhuhr":"12:22","asr":"15:44","maghrib":"18:25","isha":"19:32"},
             {"date":"2025-09-23","fajr":"05:01","sunrise":"06:13","dhuhr":"12:21","asr":"15:43","maghrib":"18:25","isha":"19:31"},
             {"date":"2025-09-24","fajr":"05:01","sunrise":"06:13","dhuhr":"12:21","asr":"15:43","maghrib":"18:24","isha":"19:31"},
             {"date":"2025-09-25","fajr":"05:01","sunrise":"06:13","dhuhr":"12:20","asr":"15:43","maghrib":"18:23","isha":"19:30"},
@@ -2643,8 +2670,21 @@ div#quran-quick-access {
             const date = new Date();
             date.setHours(hour);
             date.setMinutes(minute + minutesToAdd);
-            // Get time in HH:MM format (e.g., "13:45")
+            date.setSeconds(0); // Ensure seconds are 0 for consistent iqama time
+            date.setMilliseconds(0); // Ensure milliseconds are 0
             return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+        }
+
+        /**
+         * Converts a time string (HH:MM) to a Date object for the current day.
+         * @param {string} timeStr - The time string in "HH:MM" format.
+         * @returns {Date} A Date object representing the time on the current day.
+         */
+        function timeToDate(timeStr) {
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            const now = new Date();
+            const date = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, 0, 0);
+            return date;
         }
 
         /**
@@ -2688,6 +2728,7 @@ div#quran-quick-access {
                 maghribIqamaElement.textContent = '';
                 ishaIqamaElement.textContent = '';
             }
+            determineNextPrayer(); // Re-determine next prayer after loading new times
             renderPrayerTimes(); // Always re-render to apply current prayer highlight
         }
 
@@ -2696,32 +2737,58 @@ div#quran-quick-access {
          */
         function determineNextPrayer() {
             const now = new Date();
-            const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
-            
-            const prayerNames = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
-            let nextPrayer = null;
+            const today = now.toISOString().split('T')[0];
+            const todayData = prayerTimes.find(p => p.date === today);
 
-            for (let i = 0; i < prayerNames.length; i++) {
-                const prayerName = prayerNames[i];
-                const prayerTime = appState.prayerTimes[prayerName];
-                if (prayerTime && prayerTime !== '--:--') {
-                    const [hours, minutes] = prayerTime.split(':').map(Number);
-                    const prayerTimeInMinutes = hours * 60 + minutes;
+            if (!todayData) {
+                appState.prayerTimes.nextPrayer = null;
+                appState.prayerTimes.nextPrayerIqamaTime = null;
+                return;
+            }
 
-                    if (currentTimeInMinutes < prayerTimeInMinutes) {
-                        nextPrayer = prayerName;
-                        break; // Found the next prayer, so stop
-                    }
+            const prayers = [
+                { name: "الفجر", time: todayData.fajr, iqamaOffset: 25 },
+                { name: "الظهر", time: todayData.dhuhr, iqamaOffset: 20 },
+                { name: "العصر", time: todayData.asr, iqamaOffset: 20 },
+                { name: "المغرب", time: todayData.maghrib, iqamaOffset: 5 },
+                { name: "العشاء", time: todayData.isha, iqamaOffset: 20 }
+            ];
+
+            let nextPrayerFound = false;
+            for (let i = 0; i < prayers.length; i++) {
+                const prayer = prayers[i];
+                const iqamaTimeStr = addMinutes(prayer.time, prayer.iqamaOffset);
+                const iqamaDate = timeToDate(iqamaTimeStr);
+
+                if (iqamaDate > now) {
+                    appState.prayerTimes.nextPrayer = prayer.name;
+                    appState.prayerTimes.nextPrayerIqamaTime = iqamaDate;
+                    nextPrayerFound = true;
+                    break;
                 }
             }
-            
-            // If no next prayer found (i.e., it's after Isha), the next prayer is Fajr of the next day.
-            // For this display, we'll just loop back to Fajr of the current day.
-            if (!nextPrayer && appState.prayerTimes.Fajr !== '--:--') {
-                nextPrayer = 'Fajr';
-            }
 
-            appState.prayerTimes.nextPrayer = nextPrayer; // Changed from currentPrayer to nextPrayer
+            // If no next prayer found for today (all passed), set next prayer to Fajr of next day
+            if (!nextPrayerFound) {
+                const nextDay = new Date(now);
+                nextDay.setDate(now.getDate() + 1);
+                const nextDayString = nextDay.toISOString().split('T')[0];
+                const nextDayData = prayerTimes.find(p => p.date === nextDayString);
+
+                if (nextDayData) {
+                    const fajrIqamaTimeStr = addMinutes(nextDayData.fajr, 25);
+                    const fajrIqamaDate = timeToDate(fajrIqamaTimeStr);
+                    // Adjust Fajr Iqama date to be on the next day
+                    fajrIqamaDate.setDate(nextDay.getDate());
+
+                    appState.prayerTimes.nextPrayer = "الفجر (غدًا)";
+                    appState.prayerTimes.nextPrayerIqamaTime = fajrIqamaDate;
+                } else {
+                    // Fallback if next day's data is also not found
+                    appState.prayerTimes.nextPrayer = null;
+                    appState.prayerTimes.nextPrayerIqamaTime = null;
+                }
+            }
             renderPrayerTimes(); // Re-render to update highlight
         }
 
@@ -2742,18 +2809,20 @@ div#quran-quick-access {
                 Dhuhr: 'الظهر',
                 Asr: 'العصر',
                 Maghrib: 'المغرب',
-                Isha: 'العشاء'
+                Isha: 'العشاء',
+                "الفجر (غدًا)": 'الفجر' // Special case for next day's Fajr
             };
 
             // Apply highlight to next prayer
-            if (appState.prayerTimes.nextPrayer) { // Changed from currentPrayer to nextPrayer
+            if (appState.prayerTimes.nextPrayer) { 
                 const nextPrayerArabicName = prayerNameMap[appState.prayerTimes.nextPrayer];
                 if (nextPrayerArabicName) {
                     // Iterate through all prayer time items and find the one with the matching Arabic name
                     const prayerItems = document.querySelectorAll('.prayer-time-item');
                     prayerItems.forEach(item => {
                         const prayerNameSpan = item.querySelector('.prayer-name');
-                        if (prayerNameSpan && prayerNameSpan.textContent.trim() === nextPrayerArabicName) {
+                        // Check if the text content matches, ignoring the "(غدًا)" part for highlighting
+                        if (prayerNameSpan && prayerNameSpan.textContent.trim().startsWith(nextPrayerArabicName)) {
                             item.classList.add('current-prayer');
                         }
                     });
@@ -2777,15 +2846,32 @@ div#quran-quick-access {
 
             const timeString = `${hours}:${minutes}:${seconds}`;
 
-            const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             const digitalTimeElement = document.getElementById('digital-time');
             const digitalDateElement = document.getElementById('digital-date');
 
             if (digitalTimeElement) {
                 digitalTimeElement.textContent = timeString;
             }
+
+            // Update countdown for next prayer's Iqama
             if (digitalDateElement) {
-                digitalDateElement.textContent = now.toLocaleDateString('en-US', dateOptions);
+                if (appState.prayerTimes.nextPrayerIqamaTime) {
+                    const timeDiff = appState.prayerTimes.nextPrayerIqamaTime.getTime() - now.getTime();
+                    
+                    if (timeDiff <= 0) {
+                        // If countdown finished, re-determine next prayer
+                        determineNextPrayer();
+                        // Display a temporary message or immediately show the new countdown
+                        digitalDateElement.textContent = `الصلاة القادمة: ${appState.prayerTimes.nextPrayer}`;
+                    } else {
+                        const totalSeconds = Math.floor(timeDiff / 1000);
+                        const displayMinutes = Math.floor(totalSeconds / 60);
+                        const displaySeconds = totalSeconds % 60;
+                        digitalDateElement.textContent = `إقامة ${appState.prayerTimes.nextPrayer}: ${displayMinutes.toString().padStart(2, '0')}:${displaySeconds.toString().padStart(2, '0')}`;
+                    }
+                } else {
+                    digitalDateElement.textContent = 'جاري تحميل أوقات الصلاة...';
+                }
             }
         }
 
@@ -2813,10 +2899,10 @@ div#quran-quick-access {
             updateUI(); // This will call loadPrayerTimes etc.
             fetchWeatherData();
             setInterval(fetchWeatherData, 300000); // Update weather every 5 minutes (300,000 ms)
-            setInterval(updateDigitalClock, 1000);
+            setInterval(updateDigitalClock, 1000); // Update clock and countdown every second
             updateDigitalClock();
             loadPrayerTimes(); // Load prayer times from local array
-            setInterval(determineNextPrayer, 60000);
+            // determineNextPrayer is now called by loadPrayerTimes and updateDigitalClock
             
             // Set initial app to Dashboard and update button visibility
             switchApp('Dashboard');
