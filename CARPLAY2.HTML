@@ -11,12 +11,12 @@
     <!-- Font Awesome for additional icons (e.g., Trip log) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     
-    <!-- HERE Maps API for JavaScript (Core, Service, UI, MapEvents, Geocoding) -->
+    <!-- HERE Maps API for JavaScript (Core, Service, UI, MapEvents, Search for Geocoding) -->
     <script src="https://js.api.here.com/v3/3.1/mapsjs-core.js"></script>
     <script src="https://js.api.here.com/v3/3.1/mapsjs-service.js"></script>
     <script src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>
     <script src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>
-    <script src="https://js.api.here.com/v3/3.1/mapsjs-service-geocoding.js"></script> <!-- For HERE Geocoding -->
+    <script src="https://js.api.here.com/v3/3.1/mapsjs-service-search.js"></script> <!-- Changed from mapsjs-service-geocoding.js for Search API v7 -->
 
     <!-- Chart.js for potential future charts in Trip tab (currently not used but included) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1070,7 +1070,7 @@ div#quran-quick-access {
                 <feColorMatrix in="dispRed" type="matrix" values="1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0" result="red" />
                 
                 <feDisplacementMap in="SourceGraphic" in2="map" id="greenchannel" scale="310" xChannelSelector="R" yChannelSelector="G" result="dispGreen" />
-                <feColorMatrix in="dispGreen" type="matrix" values="0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0" result="green" />
+                <feColorMatrix in="green" type="matrix" values="0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0" result="green" />
                 
                 <feDisplacementMap in="SourceGraphic" in2="map" id="bluechannel" scale="320" xChannelSelector="R" yChannelSelector="G" result="dispBlue" />
                 <!-- Corrected feColorMatrix for blue channel to ensure real colors are reflected -->
@@ -1533,7 +1533,7 @@ div#quran-quick-access {
         const WEATHER_API_KEY = '7acefc26deee4904a2393917252207'; 
         // IMPORTANT: REPLACE WITH YOUR ACTUAL HERE TECHNOLOGIES API KEY
         // إذا لم تقم بتعيين مفتاح HERE API الخاص بك، فلن تعمل طبقة حركة المرور أو الخرائط.
-        const HERE_API_KEY = 'CCvYImgvgyu8NxQWF1a4pB_48b6kG_8v3547fsmEXEM';
+        const HERE_API_KEY = 'lTSFEGM5LpUsz66hBRVL47GaTHf-sZ1CeiufLAg6Do4';
 
         // --- Global App State Management ---
         // Centralized state for various app functionalities
@@ -2159,7 +2159,7 @@ div#quran-quick-access {
             currentPlayingPlaylistId = ''; // Reset selected playlist
             activeMediaView = 'playlist';
             backToPlaylistsBottomButton.style.display = 'none';
-            backToPlayistsBottomButtonSearch.style.display = 'none'; 
+            backToPlaylistsBottomButtonSearch.style.display = 'none'; 
         }
 
         // Event listeners for back buttons in Media tab
@@ -2177,7 +2177,7 @@ div#quran-quick-access {
             } else {
                 youtubeSearchInput.blur(); // Remove focus
                 floatingKeyboardButton.classList.add('inactive-keyboard');
-                floatingKeyboardButton.classList.remove('inactive-keyboard'); // Corrected: ensure it's removed
+                floatingKeyboardButton.classList.remove('active-keyboard'); // Corrected: ensure it's removed
             }
         });
 
@@ -2511,12 +2511,19 @@ div#quran-quick-access {
          * Initializes the HERE maps on the dashboard and the dedicated map screen.
          */
         function initMap() {
-            if (HERE_API_KEY === 'TM1zxv4NyHIrxG8RCwZx') { // Check for the actual placeholder API key
-                showMessageBox('خطأ: لم يتم تعيين مفتاح HERE API. يرجى استبدال "TM1zxv4NyHIrxG8RCwZx" بمفتاحك الخاص لكي تعمل الخرائط بشكل صحيح.');
+            // Check if HERE_API_KEY is the default placeholder. If so, show an error and disable map functionality.
+            if (HERE_API_KEY === 'CCvYImgvgyu8NxQWF1a4pB_48b6kG_8v3547fsmEXEM' || !HERE_API_KEY) { 
+                showMessageBox('خطأ: لم يتم تعيين مفتاح HERE API. يرجى استبدال "CCvYImgvgyu8NxQWF1a4pB_48b6kG_8v3547fsmEXEM" بمفتاحك الخاص لكي تعمل الخرائط بشكل صحيح.');
                 console.error('HERE API Key is not set or is the placeholder.');
                 // Disable map functionality or show placeholder if API key is missing
-                document.getElementById('dashboard-map').innerHTML = '<div class="text-center text-red-500">خطأ: مفتاح HERE API غير موجود.</div>';
-                document.getElementById('full-map').innerHTML = '<div class="text-center text-red-500">خطأ: مفتاح HERE API غير موجود.</div>';
+                const dashboardMapContainer = document.getElementById('dashboard-map');
+                const fullMapContainer = document.getElementById('full-map');
+                if (dashboardMapContainer) {
+                    dashboardMapContainer.innerHTML = '<div class="text-center text-red-500">خطأ: مفتاح HERE API غير موجود.</div>';
+                }
+                if (fullMapContainer) {
+                    fullMapContainer.innerHTML = '<div class="text-center text-red-500">خطأ: مفتاح HERE API غير موجود.</div>';
+                }
                 if (trafficToggle) {
                     trafficToggle.disabled = true;
                     trafficToggle.nextElementSibling.textContent += ' (يتطلب مفتاح API)';
@@ -2532,7 +2539,7 @@ div#quran-quick-access {
 
             // Dashboard Map Initialization
             const dashboardMapContainer = document.getElementById('dashboard-map');
-            if (dashboardMapContainer) {
+            if (dashboardMapContainer && !dashboardMap) { // Check if dashboardMap is not already initialized
                 dashboardMap = new H.Map(dashboardMapContainer, defaultLayers.vector.normal.map, {
                     center: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon },
                     zoom: appState.mapLocation.zoom,
@@ -2553,7 +2560,7 @@ div#quran-quick-access {
 
             // Full Map Initialization
             const fullMapContainer = document.getElementById('full-map');
-            if (fullMapContainer) {
+            if (fullMapContainer && !fullMap) { // Check if fullMap is not already initialized
                 fullMap = new H.Map(fullMapContainer, defaultLayers.vector.normal.map, {
                     center: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon },
                     zoom: appState.mapLocation.zoom,
@@ -2644,9 +2651,8 @@ div#quran-quick-access {
                         appState.hasShownGeolocationError = false; 
                     },
                     (error) => {
-                        console.error('Geolocation watch error:', error);
+                        console.error('Geolocation watch error:', error.message); // Log error message
                         console.error('Geolocation error code:', error.code);
-                        console.error('Geolocation error message:', error.message);
                         let errorMessage = 'تعذر تتبع موقعك الحالي بشكل مستمر.';
                         if (error.code === error.PERMISSION_DENIED) {
                             errorMessage += ' يرجى منح الإذن للموقع في إعدادات متصفحك أو بيئة التشغيل. **ملاحظة: قد تكون هذه الميزة معطلة بسبب سياسات الأذونات في بيئة iframe التي تعمل فيها.**';
@@ -2684,7 +2690,7 @@ div#quran-quick-access {
                         appState.hasShownGeolocationError = false; 
                     },
                     (error) => {
-                        console.error('Geolocation error:', error);
+                        console.error('Geolocation error:', error.message); // Log error message
                         let errorMessage = 'تعذر الحصول على موقعك الحالي.';
                         if (error.code === error.PERMISSION_DENIED) {
                             errorMessage += ' يرجى منح الإذن للموقع في إعدادات متصفحك أو بيئة التشغيل. **ملاحظة: قد تكون هذه الميزة معطلة بسبب سياسات الأذونات في بيئة iframe التي تعمل فيها.**';
@@ -2720,17 +2726,17 @@ div#quran-quick-access {
                 return;
             }
 
-            // Corrected way to get GeocodingService
-            const geocodingService = platform.getService(H.service.Platform.Service.Geocoding);
+            // Corrected way to get SearchService (which includes geocoding)
+            const searchService = platform.getSearchService();
 
-            geocodingService.geocode({
-                searchText: query
+            searchService.geocode({
+                q: query // Use 'q' for query in Search API v7
             }, (result) => {
-                if (result.Response && result.Response.View && result.Response.View.length > 0 && result.Response.View[0].Result && result.Response.View[0].Result.length > 0) {
-                    const location = result.Response.View[0].Result[0].Location.DisplayPosition;
-                    const lat = location.Latitude;
-                    const lng = location.Longitude;
-                    const name = result.Response.View[0].Result[0].Location.Address.Label;
+                if (result.items && result.items.length > 0) {
+                    const location = result.items[0].position;
+                    const lat = location.lat;
+                    const lng = location.lng;
+                    const name = result.items[0].title;
 
                     if (fullMap && fullMapMarker) {
                         fullMapMarker.setGeometry({ lat: lat, lng: lng });
@@ -2748,8 +2754,8 @@ div#quran-quick-access {
                     distanceDisplay.textContent = '--';
                 }
             }, (error) => {
-                console.error('Error searching location with HERE Geocoding:', error);
-                showMessageBox('حدث خطأ أثناء البحث عن الموقع باستخدام HERE Geocoding. يرجى التحقق من اتصالك بالإنترنت ومفتاح API.');
+                console.error('Error searching location with HERE Search API:', error);
+                showMessageBox('حدث خطأ أثناء البحث عن الموقع باستخدام HERE Search API. يرجى التحقق من اتصالك بالإنترنت ومفتاح API.');
                 etaDisplay.textContent = '--';
                 distanceDisplay.textContent = '--';
             });
