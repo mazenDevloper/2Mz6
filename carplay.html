@@ -118,7 +118,9 @@ div#quran-quick-access {
                 0px 16px 60px rgba(17, 17, 26, 0.15), /* Even stronger outer shadow */
                 0px 24px 80px rgba(17, 17, 26, 0.2), /* Deepest outer shadow */
                 inset 0 0 20px 8px rgba(0,0,0,0.3), /* Deeper inner shadow for depth */
-                inset 0 0 25px 10px rgba(0,0,0,0.2); /* Even deeper inner shadow */
+                inset 0 0 25px 10px rgba(0,0,0,0.2), /* Even deeper inner shadow */
+                0 0 20px rgba(255, 255, 255, 0.15); /* Added subtle outer white glow for "shine" */
+            border: 1px solid rgba(255, 255, 255, 0.3); /* Added a subtle white border */
         }
         div#video-popup-container {
     cursor: grab;
@@ -257,7 +259,7 @@ div#quran-quick-access {
         }
         #clear-search-button { /* New clear search button position */
             top: 3rem; /* Adjusted to be at search bar level */
-            right: 1rem; /* Aligned with the right side of the screen */
+            right: 3.5rem; /* Aligned with the right side of the screen */
             padding: 0.75rem 1rem; /* Smaller padding for a cleaner look */
             font-size: 0.8rem; /* Smaller font size */
             display: none; /* Hidden by default, will be controlled by JS */
@@ -546,18 +548,40 @@ div#quran-quick-access {
             background-color: rgba(0, 0, 0, 0.5);
             border-radius: 1.5rem;
             display: flex;
+            flex-direction: column; /* Changed to column to stack image and buttons */
             align-items: center;
             justify-content: center;
             font-size: 1.5rem;
             color: rgba(255, 255, 255, 0.7);
             box-shadow: inset 0 0 15px rgba(0,0,0,0.7);
             overflow: hidden;
+            position: relative; /* Added for button positioning */
         }
         .car-cam-360-container img {
             height: 160%; /* Changed from 100% to 160% as requested */
             width: 100%; 
             object-fit: cover; /* Changed from contain to cover as requested */
         }
+        .car-cam-360-controls {
+            position: absolute;
+            bottom: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            z-index: 20;
+        }
+        .car-cam-360-controls button {
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .car-cam-360-controls button:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
 
         /* Digital Clock Styles (Apple iOS 19 style) */
         #digital-time {
@@ -1021,6 +1045,9 @@ div#quran-quick-access {
                 <button data-app="Weather" class="app-icon"> 
                     <i data-lucide="cloud-sun"></i> 
                 </button>
+                <button data-app="Map" class="app-icon"> <!-- New Map App Icon -->
+                    <i data-lucide="map"></i> 
+                </button>
                 <button data-app="Quran" class="app-icon">
                     <i data-lucide="book-open"></i>
                 </button>
@@ -1065,13 +1092,22 @@ div#quran-quick-access {
 
                         <!-- Column 2: 360 Camera View (occupies 2nd column, 1st row) -->
                         <div class="glass-surface glass-surface--svg p-2 flex flex-col items-center justify-center text-center car-cam-360-container col-span-1 row-start-1">
-                            <img src="https://dmusera.netlify.app/es350gb.png" alt="عرض الكاميرا 360 درجة للسيارة" class="w-full h-full object-contain rounded-lg opacity-80">
+                            <img id="car-360-image" src="https://dmusera.netlify.app/es350gb.png" alt="عرض الكاميرا 360 درجة للسيارة" class="w-full h-full object-contain rounded-lg opacity-80">
+                            <div class="car-cam-360-controls">
+                                <input type="file" id="upload-360-image-input" accept="image/*" class="hidden" />
+                                <button id="upload-360-image-button">
+                                    <i data-lucide="upload" class="w-4 h-4"></i> تحميل صورة
+                                </button>
+                                <button id="reset-360-image-button">
+                                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i> إعادة تعيين
+                                </button>
+                            </div>
                         </div>
 
                         <!-- Column 3: Map (occupies 3rd column, 1st row) -->
                         <div class="rounded-3xl relative overflow-hidden flex items-center justify-center glass-surface glass-surface--svg p-1 col-span-1 row-start-1">
                             <!-- Google Map container -->
-                            <div id="dashboard-leaflet-map" class="full-iframe"></div>
+                            <div id="dashboard-google-map" class="full-iframe"></div>
                             <button id="get-my-location-button-dashboard" class="absolute bottom-4 left-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm">
                                 <i data-lucide="map-pin" class="w-4 h-4"></i> تحديث الموقع
                             </button>
@@ -1288,6 +1324,51 @@ div#quran-quick-access {
                     </div>
                 </section>
 
+                <!-- NEW Map Screen -->
+                <section id="screen-Map" class="app-screen p-4 md:p-6 flex-col h-full">
+                    <h1 class="text-4xl font-bold mb-6 text-center">الخريطة والاتجاهات 🗺️</h1>
+                    <div class="flex flex-col md:flex-row h-full w-full gap-4">
+                        <!-- Left Panel: Search and Controls (25%) -->
+                        <div class="w-full md:w-1/4 flex flex-col gap-4 glass-surface glass-surface--svg p-4 rounded-3xl flex-shrink-0">
+                            <h2 class="text-xl font-bold text-center mb-2">تحديد الوجهة والبحث</h2>
+                            <div class="flex flex-col gap-2">
+                                <label for="destination-input" class="text-sm text-white/70">الوجهة:</label>
+                                <input
+                                    type="text"
+                                    id="destination-input"
+                                    placeholder="أدخل الوجهة..."
+                                    class="p-2 rounded-lg bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                                <button
+                                    id="start-directions-button"
+                                    class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 font-bold"
+                                >
+                                    <i data-lucide="navigation" class="w-5 h-5"></i> بدء الاتجاهات
+                                </button>
+                            </div>
+                            <div class="flex flex-col gap-2 mt-4 text-center">
+                                <div class="flex items-center justify-center gap-2">
+                                    <i data-lucide="clock" class="w-6 h-6 text-green-400"></i>
+                                    <span class="text-lg font-semibold">الوقت المقدر:</span>
+                                    <span id="eta-display" class="text-lg">--</span>
+                                </div>
+                                <div class="flex items-center justify-center gap-2">
+                                    <i data-lucide="ruler" class="w-6 h-6 text-purple-400"></i>
+                                    <span class="text-lg font-semibold">المسافة:</span>
+                                    <span id="distance-display" class="text-lg">--</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Right Panel: Google Map (75%) -->
+                        <div class="w-full md:w-3/4 rounded-3xl relative overflow-hidden flex items-center justify-center glass-surface glass-surface--svg p-1">
+                            <div id="full-google-map" class="full-iframe"></div>
+                            <button id="get-my-location-button-full-map" class="absolute bottom-4 left-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm">
+                                <i data-lucide="map-pin" class="w-4 h-4"></i> تحديث الموقع
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
                 <!-- Electronic Quran App Screen -->
                 <section id="screen-Quran" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full relative">
                    <div id="quran-quick-access" class="mt-4 bg-black/30 p-4 rounded-xl flex flex-col gap-3 items-end z-20 glass-surface glass-surface--svg w-full max-w-md">
@@ -1406,7 +1487,11 @@ div#quran-quick-access {
                 nextPrayer: null, // Changed from currentPrayer to nextPrayer
                 nextPrayerIqamaTime: null // Stores the Date object for the next prayer's iqama
             },
-            hasShownGeolocationError: false // New flag to control geolocation error message
+            hasShownGeolocationError: false, // New flag to control geolocation error message
+            mapZoomChangedByUser: false, // New: Tracks if map zoom was manually changed
+            dashboardReturnCounter: 0, // New: Counts returns to dashboard after map zoom change
+            custom360Image: localStorage.getItem('custom360Image') || null, // Load custom 360 image from local storage
+            currentLocation: null // Stores the current user's location for directions
         };
 
         // --- DOM Element References ---
@@ -1477,10 +1562,30 @@ div#quran-quick-access {
         const digitalDateLine2 = document.getElementById('digital-date-line2');
       
         // Google Map variables
-        let googleMap;
-        let googleMarker;
-        let trafficLayer; // For traffic
+        let dashboardGoogleMap; // For the map on the dashboard
+        let fullGoogleMap;      // For the dedicated map screen
+        let dashboardGoogleMarker;
+        let fullGoogleMarker;
+        let trafficLayerDashboard;
+        let trafficLayerFullMap;
+        let directionsService; // Google Maps Directions Service
+        let directionsRenderer; // Google Maps Directions Renderer
+        let autocomplete; // Google Maps Autocomplete for destination input
         let watchId; // To store the watchPosition ID for continuous tracking
+
+        // Map Screen elements
+        const destinationInput = document.getElementById('destination-input');
+        const startDirectionsButton = document.getElementById('start-directions-button');
+        const etaDisplay = document.getElementById('eta-display');
+        const distanceDisplay = document.getElementById('distance-display');
+        const getMyLocationButtonFullMap = document.getElementById('get-my-location-button-full-map');
+
+        // 360 Camera elements
+        const car360Image = document.getElementById('car-360-image');
+        const upload360ImageInput = document.getElementById('upload-360-image-input');
+        const upload360ImageButton = document.getElementById('upload-360-image-button');
+        const reset360ImageButton = document.getElementById('reset-360-image-button');
+        const default360ImageSrc = "https://dmusera.netlify.app/es350gb.png"; // Default image source
 
         // --- Global Variables for Media State ---
         let currentPlayingPlaylistId = ''; // Tracks the currently active playlist
@@ -1599,6 +1704,9 @@ div#quran-quick-access {
             loadPrayerTimes(); // Call loadPrayerTimes to update the display
             determineNextPrayer(); // Changed to determineNextPrayer
             renderPrayerTimes(); // Re-render to apply current prayer highlight
+            
+            // Update 360 Camera Image
+            car360Image.src = appState.custom360Image || default360ImageSrc;
         }
 
         // --- App Switching Logic ---
@@ -1622,6 +1730,26 @@ div#quran-quick-access {
 
             const targetIcon = document.querySelector(`.app-icon[data-app="${appName}"]`);
             if (targetIcon) targetIcon.classList.add('active'); // Active class now handles the new styling
+
+            // Handle map zoom reset logic when returning to Dashboard
+            if (appName === 'Dashboard') {
+                if (appState.mapZoomChangedByUser) {
+                    appState.dashboardReturnCounter++;
+                    if (appState.dashboardReturnCounter >= 2 && dashboardGoogleMap) {
+                        // Reset map zoom to default and clear flags
+                        dashboardGoogleMap.setZoom(appState.mapLocation.zoom); // Reset to initial zoom
+                        appState.mapZoomChangedByUser = false;
+                        appState.dashboardReturnCounter = 0;
+                        showMessageBox('تم إعادة تعيين تكبير الخريطة إلى الافتراضي.');
+                    }
+                }
+            } else {
+                // If navigating away from Dashboard, reset counter if map wasn't manually zoomed
+                // This ensures the "second back" only counts if there was a zoom change *before* leaving.
+                if (!appState.mapZoomChangedByUser) {
+                    appState.dashboardReturnCounter = 0;
+                }
+            }
 
             // Handle Media (YouTube) view switching specifics
             handleMediaViewSwitch(appName);
@@ -2286,144 +2414,126 @@ div#quran-quick-access {
 
         // --- Google Map and Geolocation Functions ---
         /**
-         * Initializes the Google Map on the dashboard.
+         * Initializes the Google Maps on the dashboard and the dedicated map screen.
          * This function is called by the Google Maps API script once loaded.
          */
         function initMap() {
-            const mapContainer = document.getElementById('dashboard-leaflet-map'); // Keep the same container ID
-            if (!mapContainer) {
-                console.error("Google Map container not found!");
-                return;
+            // Dashboard Map Initialization
+            const dashboardMapContainer = document.getElementById('dashboard-google-map');
+            if (dashboardMapContainer) {
+                const dashboardMapOptions = {
+                    center: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon },
+                    zoom: appState.mapLocation.zoom,
+                    disableDefaultUI: true,
+                    zoomControl: true,
+                    styles: [
+                        { elementType: 'geometry', stylers: [{ color: '#242f3e' }] },
+                        { elementType: 'labels.text.stroke', stylers: [{ color: '#242f3e' }] },
+                        { elementType: 'labels.text.fill', stylers: [{ color: '#746855' }] },
+                        { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#d59563' }] },
+                        { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#d59563' }] },
+                        { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#263c3f' }] },
+                        { featureType: 'poi.park', elementType: 'labels.text.fill', stylers: [{ color: '#6b9a76' }] },
+                        { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#38414e' }] },
+                        { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#212a37' }] },
+                        { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#9ca5b3' }] },
+                        { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#746855' }] },
+                        { featureType: 'road.highway', elementType: 'geometry.stroke', stylers: [{ color: '#1f2835' }] },
+                        { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#f3d19c' }] },
+                        { featureType: 'transit', elementType: 'geometry', stylers: [{ color: '#2f3948' }] },
+                        { featureType: 'transit.station', elementType: 'labels.text.fill', stylers: [{ color: '#d59563' }] },
+                        { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#17263c' }] },
+                        { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#515c6d' }] },
+                        { featureType: 'water', elementType: 'labels.text.stroke', stylers: [{ color: '#17263c' }] }
+                    ]
+                };
+                dashboardGoogleMap = new google.maps.Map(dashboardMapContainer, dashboardMapOptions);
+                dashboardGoogleMarker = new google.maps.Marker({
+                    position: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon },
+                    map: dashboardGoogleMap,
+                    title: 'موقع صلالة الافتراضي',
+                    icon: { // Custom map pin image
+                        url: 'https://dmusera.netlify.app/3604.png',
+                        scaledSize: new google.maps.Size(32, 32)
+                    }
+                });
+                trafficLayerDashboard = new google.maps.TrafficLayer();
+                trafficLayerDashboard.setMap(dashboardGoogleMap);
+
+                dashboardGoogleMap.addListener('zoom_changed', () => {
+                    if (dashboardGoogleMap.getZoom() !== appState.mapLocation.zoom) {
+                        appState.mapZoomChangedByUser = true;
+                    }
+                });
             }
 
-            if (googleMap) {
-                // If map already exists, just update its view (shouldn't happen with callback)
-                googleMap.setCenter({ lat: appState.mapLocation.lat, lng: appState.mapLocation.lon });
-                // No need to set zoom here, it will be handled by updateGoogleMapLocation
-                if (googleMarker) {
-                    googleMarker.setPosition({ lat: appState.mapLocation.lat, lng: appState.mapLocation.lon });
-                }
-                return;
+            // Full Map Initialization
+            const fullMapContainer = document.getElementById('full-google-map');
+            if (fullMapContainer) {
+                const fullMapOptions = {
+                    center: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon },
+                    zoom: appState.mapLocation.zoom,
+                    disableDefaultUI: true,
+                    zoomControl: true,
+                    styles: [
+                        { elementType: 'geometry', stylers: [{ color: '#242f3e' }] },
+                        { elementType: 'labels.text.stroke', stylers: [{ color: '#242f3e' }] },
+                        { elementType: 'labels.text.fill', stylers: [{ color: '#746855' }] },
+                        { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#d59563' }] },
+                        { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#d59563' }] },
+                        { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#263c3f' }] },
+                        { featureType: 'poi.park', elementType: 'labels.text.fill', stylers: [{ color: '#6b9a76' }] },
+                        { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#38414e' }] },
+                        { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#212a37' }] },
+                        { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#9ca5b3' }] },
+                        { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#746855' }] },
+                        { featureType: 'road.highway', elementType: 'geometry.stroke', stylers: [{ color: '#1f2835' }] },
+                        { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#f3d19c' }] },
+                        { featureType: 'transit', elementType: 'geometry', stylers: [{ color: '#2f3948' }] },
+                        { featureType: 'transit.station', elementType: 'labels.text.fill', stylers: [{ color: '#d59563' }] },
+                        { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#17263c' }] },
+                        { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#515c6d' }] },
+                        { featureType: 'water', elementType: 'labels.text.stroke', stylers: [{ color: '#17263c' }] }
+                    ]
+                };
+                fullGoogleMap = new google.maps.Map(fullMapContainer, fullMapOptions);
+                fullGoogleMarker = new google.maps.Marker({
+                    position: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon },
+                    map: fullGoogleMap,
+                    title: 'موقع صلالة الافتراضي',
+                    icon: { // Custom map pin image
+                        url: 'https://dmusera.netlify.app/3604.png',
+                        scaledSize: new google.maps.Size(32, 32)
+                    }
+                });
+                trafficLayerFullMap = new google.maps.TrafficLayer();
+                trafficLayerFullMap.setMap(fullGoogleMap);
+
+                // Initialize Directions Service and Renderer
+                directionsService = new google.maps.DirectionsService();
+                directionsRenderer = new google.maps.DirectionsRenderer({ map: fullGoogleMap });
+
+                // Initialize Autocomplete for destination input
+                autocomplete = new google.maps.places.Autocomplete(destinationInput);
+                autocomplete.bindTo('bounds', fullGoogleMap);
+
+                autocomplete.addListener('place_changed', () => {
+                    const place = autocomplete.getPlace();
+                    if (!place.geometry) {
+                        showMessageBox("لم يتم العثور على تفاصيل للمدخل: '" + place.name + "'");
+                        return;
+                    }
+                    // If the place has a geometry, then present it on a map.
+                    if (place.geometry.viewport) {
+                        fullGoogleMap.fitBounds(place.geometry.viewport);
+                    } else {
+                        fullGoogleMap.setCenter(place.geometry.location);
+                        fullGoogleMap.setZoom(17);  // Set a high zoom level
+                    }
+                    fullGoogleMarker.setPosition(place.geometry.location);
+                    fullGoogleMarker.setVisible(true);
+                });
             }
-
-            const mapOptions = {
-                center: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon },
-                zoom: appState.mapLocation.zoom,
-                disableDefaultUI: true, // Hide default UI controls
-                zoomControl: true, // Keep zoom controls
-                fullscreenControl: false, // Disable fullscreen control
-                streetViewControl: false, // Disable street view
-                mapTypeControl: false, // Disable map type control
-                // Custom marker icon for a circular appearance
-                // Using a simple SVG circle for the marker
-                markerOptions: {
-                    icon: {
-                        path: google.maps.SymbolPath.CIRCLE,
-                        scale: 8, // Size of the circle
-                        fillColor: '#4285F4', // Blue color
-                        fillOpacity: 0.8,
-                        strokeWeight: 0, // No border
-                        anchor: new google.maps.Point(0, 0) // Center the circle
-                    }
-                },
-                // Dark mode styles for the map
-                styles: [
-                    { elementType: 'geometry', stylers: [{ color: '#242f3e' }] },
-                    { elementType: 'labels.text.stroke', stylers: [{ color: '#242f3e' }] },
-                    { elementType: 'labels.text.fill', stylers: [{ color: '#746855' }] },
-                    {
-                        featureType: 'administrative.locality',
-                        elementType: 'labels.text.fill',
-                        stylers: [{ color: '#d59563' }]
-                    },
-                    {
-                        featureType: 'poi',
-                        elementType: 'labels.text.fill',
-                        stylers: [{ color: '#d59563' }]
-                    },
-                    {
-                        featureType: 'poi.park',
-                        elementType: 'geometry',
-                        stylers: [{ color: '#263c3f' }]
-                    },
-                    {
-                        featureType: 'poi.park',
-                        elementType: 'labels.text.fill',
-                        stylers: [{ color: '#6b9a76' }]
-                    },
-                    {
-                        featureType: 'road',
-                        elementType: 'geometry',
-                        stylers: [{ color: '#38414e' }]
-                    },
-                    {
-                        featureType: 'road',
-                        elementType: 'geometry.stroke',
-                        stylers: [{ color: '#212a37' }]
-                    },
-                    {
-                        featureType: 'road',
-                        elementType: 'labels.text.fill',
-                        stylers: [{ color: '#9ca5b3' }]
-                    },
-                    {
-                        featureType: 'road.highway',
-                        elementType: 'geometry',
-                        stylers: [{ color: '#746855' }]
-                    },
-                    {
-                        featureType: 'road.highway',
-                        elementType: 'geometry.stroke',
-                        stylers: [{ color: '#1f2835' }]
-                    },
-                    {
-                        featureType: 'road.highway',
-                        elementType: 'labels.text.fill',
-                        stylers: [{ color: '#f3d19c' }]
-                    },
-                    {
-                        featureType: 'transit',
-                        elementType: 'geometry',
-                        stylers: [{ color: '#2f3948' }]
-                    },
-                    {
-                        featureType: 'transit.station',
-                        elementType: 'labels.text.fill',
-                        stylers: [{ color: '#d59563' }]
-                    },
-                    {
-                        featureType: 'water',
-                        elementType: 'geometry',
-                        stylers: [{ color: '#17263c' }]
-                    },
-                    {
-                        featureType: 'water',
-                        elementType: 'labels.text.fill',
-                        stylers: [{ color: '#515c6d' }]
-                    },
-                    {
-                        featureType: 'water',
-                        elementType: 'labels.text.stroke',
-                        stylers: [{ color: '#17263c' }]
-                    }
-                ]
-            };
-
-            googleMap = new google.maps.Map(mapContainer, mapOptions);
-
-            // Add a default marker at Salalah with circular style
-            googleMarker = new google.maps.Marker({
-                position: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon },
-                map: googleMap,
-                title: 'موقع صلالة الافتراضي',
-                icon: mapOptions.markerOptions.icon // Apply the circular icon
-            });
-
-            // Add traffic layer
-            trafficLayer = new google.maps.TrafficLayer();
-            trafficLayer.setMap(googleMap);
-
-            console.log("Google Map initialized with traffic layer.");
             startContinuousLocationTracking(); // Start continuous tracking after map init
         }
 
@@ -2434,53 +2544,33 @@ div#quran-quick-access {
         function updateGoogleMapLocation(position) {
             const lat = position.coords.latitude;
             const lon = position.coords.longitude;
-            const accuracy = position.coords.accuracy;
-            const heading = position.coords.heading; // Get heading (direction of travel)
+            const heading = position.coords.heading;
 
-            appState.mapLocation.lat = lat;
-            appState.mapLocation.lon = lon;
-
-            if (!googleMap) {
-                console.warn("Google Map not initialized when updateGoogleMapLocation called. Attempting initMap...");
-                initMap();
-                if (!googleMap) {
-                    console.error("Failed to initialize Google Map.");
-                    return;
-                }
-            }
+            appState.currentLocation = { lat: lat, lng: lon }; // Store current location
 
             const newLatLng = { lat: lat, lng: lon };
 
-            if (googleMarker) {
-                googleMarker.setPosition(newLatLng);
-            } else {
-                googleMarker = new google.maps.Marker({
-                    position: newLatLng,
-                    map: googleMap,
-                    title: 'موقعك الحالي',
-                    icon: { // Apply the circular icon for new marker
-                        path: google.maps.SymbolPath.CIRCLE,
-                        scale: 8,
-                        fillColor: '#4285F4',
-                        fillOpacity: 0.8,
-                        strokeWeight: 0,
-                        anchor: new google.maps.Point(0, 0)
-                    }
-                });
+            // Update Dashboard Map
+            if (dashboardGoogleMap && dashboardGoogleMarker) {
+                dashboardGoogleMarker.setPosition(newLatLng);
+                // Only adjust zoom if it hasn't been manually changed by the user on dashboard
+                if (!appState.mapZoomChangedByUser) {
+                    dashboardGoogleMap.setCenter(newLatLng);
+                    dashboardGoogleMap.setZoom(Math.min(appState.mapLocation.zoom + 4, 20));
+                }
             }
-            
-            // Adjust map view to fit the new location and increase zoom by 4
-            googleMap.setCenter(newLatLng);
-            googleMap.setZoom(Math.min(googleMap.getZoom() + 4, 20)); // Increase zoom by 4, max 20
+
+            // Update Full Map
+            if (fullGoogleMap && fullGoogleMarker) {
+                fullGoogleMarker.setPosition(newLatLng);
+                fullGoogleMap.setCenter(newLatLng);
+                fullGoogleMap.setZoom(Math.min(appState.mapLocation.zoom + 4, 20)); // Always auto-zoom on full map for current location
+            }
 
             // Auto-rotate map if heading is available and valid
-            // Note: Geolocation API's `heading` is the direction of travel, not device orientation.
-            // Map rotation based on device orientation is not directly supported by Google Maps JS API.
             if (typeof heading === 'number' && !isNaN(heading)) {
-                googleMap.setHeading(heading);
-                console.log("Map heading updated to:", heading);
-            } else {
-                console.warn("Geolocation heading not available or invalid for auto-rotation.");
+                if (dashboardGoogleMap) dashboardGoogleMap.setHeading(heading);
+                if (fullGoogleMap) fullGoogleMap.setHeading(heading);
             }
         }
 
@@ -2492,7 +2582,6 @@ div#quran-quick-access {
                 watchId = navigator.geolocation.watchPosition(
                     (position) => {
                         updateGoogleMapLocation(position);
-                        // Reset the error flag if location is successfully obtained
                         appState.hasShownGeolocationError = false; 
                     },
                     (error) => {
@@ -2500,27 +2589,21 @@ div#quran-quick-access {
                         console.error('Geolocation error code:', error.code);
                         console.error('Geolocation error message:', error.message);
                         let errorMessage = 'تعذر تتبع موقعك الحالي بشكل مستمر.';
-                        switch (error.code) {
-                            case error.PERMISSION_DENIED:
-                                errorMessage += ' يرجى منح الإذن للموقع.';
-                                break;
-                            case error.POSITION_UNAVAILABLE:
-                                errorMessage += ' معلومات الموقع غير متوفرة.';
-                                break;
-                            case error.TIMEOUT:
-                                errorMessage += ' انتهت مهلة طلب الموقع.';
-                                break;
-                            default:
-                                errorMessage += ' خطأ غير معروف.';
-                                break;
+                        if (error.code === error.PERMISSION_DENIED) {
+                            errorMessage += ' يرجى منح الإذن للموقع في إعدادات متصفحك أو بيئة التشغيل (قد يكون معطلاً بسبب سياسة الأذونات في iframe).';
+                        } else if (error.code === error.POSITION_UNAVAILABLE) {
+                            errorMessage += ' معلومات الموقع غير متوفرة.';
+                        } else if (error.code === error.TIMEOUT) {
+                            errorMessage += ' انتهت مهلة طلب الموقع.';
+                        } else {
+                            errorMessage += ' خطأ غير معروف.';
                         }
-                        // Only show message box once for continuous errors
                         if (!appState.hasShownGeolocationError) {
                             showMessageBox(errorMessage);
                             appState.hasShownGeolocationError = true;
                         }
                     },
-                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 } // Shorter timeout for continuous
+                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
                 );
                 console.log("Continuous geolocation tracking started.");
             } else {
@@ -2532,30 +2615,25 @@ div#quran-quick-access {
          * Centers the Google Map on the user's current location (one-time update).
          * This function is called when the "تحديث الموقع" button is clicked.
          */
-        function centerMapOnUserLocation() {
+        function centerMapOnUserLocation(mapType = 'dashboard') {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
                         updateGoogleMapLocation(position);
                         showMessageBox(`تم تحديث الخريطة إلى موقعك الحالي.`);
-                        appState.hasShownGeolocationError = false; // Reset error flag on successful manual update
+                        appState.hasShownGeolocationError = false; 
                     },
                     (error) => {
                         console.error('Geolocation error:', error);
                         let errorMessage = 'تعذر الحصول على موقعك الحالي.';
-                        switch (error.code) {
-                            case error.PERMISSION_DENIED:
-                                errorMessage += ' يرجى منح الإذن للموقع.';
-                                break;
-                            case error.POSITION_UNAVAILABLE:
-                                errorMessage += ' معلومات الموقع غير متوفرة.';
-                                break;
-                            case error.TIMEOUT:
-                                errorMessage += ' انتهت مهلة طلب الموقع.';
-                                break;
-                            default:
-                                errorMessage += ' خطأ غير معروف.';
-                                break;
+                        if (error.code === error.PERMISSION_DENIED) {
+                            errorMessage += ' يرجى منح الإذن للموقع في إعدادات متصفحك أو بيئة التشغيل (قد يكون معطلاً بسبب سياسة الأذونات في iframe).';
+                        } else if (error.code === error.POSITION_UNAVAILABLE) {
+                            errorMessage += ' معلومات الموقع غير متوفرة.';
+                        } else if (error.code === error.TIMEOUT) {
+                            errorMessage += ' انتهت مهلة طلب الموقع.';
+                        } else {
+                            errorMessage += ' خطأ غير معروف.';
                         }
                         showMessageBox(errorMessage);
                     },
@@ -2563,6 +2641,55 @@ div#quran-quick-access {
                 );
             } else {
                 showMessageBox('الموقع الجغرافي غير مدعوم في هذا المتصفح.');
+            }
+        }
+
+        /**
+         * Calculates and displays directions on the full map.
+         */
+        async function calculateAndDisplayRoute() {
+            if (!directionsService || !directionsRenderer) {
+                showMessageBox('خدمة الاتجاهات غير مهيأة بعد.');
+                return;
+            }
+
+            const destination = destinationInput.value.trim();
+            if (!destination) {
+                showMessageBox('الرجاء إدخال وجهة.');
+                return;
+            }
+
+            let origin = appState.currentLocation;
+            if (!origin) {
+                // Fallback to Salalah if current location not available
+                origin = { lat: 17.0151, lng: 54.0924 };
+                showMessageBox('تعذر الحصول على موقعك الحالي، سيتم استخدام صلالة كنقطة بداية.');
+            }
+
+            const request = {
+                origin: origin,
+                destination: destination,
+                travelMode: google.maps.TravelMode.DRIVING
+            };
+
+            try {
+                const response = await directionsService.route(request);
+                if (response.status === 'OK') {
+                    directionsRenderer.setDirections(response);
+
+                    const route = response.routes[0].legs[0];
+                    etaDisplay.textContent = route.duration.text;
+                    distanceDisplay.textContent = route.distance.text;
+                } else {
+                    showMessageBox('تعذر العثور على اتجاهات للوجهة المحددة: ' + response.status);
+                    etaDisplay.textContent = '--';
+                    distanceDisplay.textContent = '--';
+                }
+            } catch (error) {
+                console.error('Error calculating directions:', error);
+                showMessageBox('حدث خطأ أثناء حساب الاتجاهات. يرجى التحقق من الوجهة.');
+                etaDisplay.textContent = '--';
+                distanceDisplay.textContent = '--';
             }
         }
         
@@ -2973,6 +3100,37 @@ div#quran-quick-access {
             }
         }
 
+        // --- 360 Camera Image Upload Functions ---
+        /**
+         * Handles the file input change event to upload a new 360 camera image.
+         */
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    appState.custom360Image = e.target.result;
+                    localStorage.setItem('custom360Image', e.target.result); // Save to local storage
+                    updateUI(); // Update the image on the UI
+                    showMessageBox('تم تحميل الصورة بنجاح!');
+                };
+                reader.onerror = () => {
+                    showMessageBox('حدث خطأ أثناء قراءة الملف.');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        /**
+         * Resets the 360 camera image to its default.
+         */
+        function resetImageToDefault() {
+            appState.custom360Image = null; // Clear custom image from state
+            localStorage.removeItem('custom360Image'); // Remove from local storage
+            updateUI(); // Update the image on the UI
+            showMessageBox('تم إعادة تعيين الصورة إلى الافتراضية.');
+        }
+
         // --- Initial Setup and Event Listeners on DOM Load ---
         document.addEventListener('DOMContentLoaded', () => {
             // Get DOM element references that are only available after DOMContentLoaded
@@ -2980,13 +3138,32 @@ div#quran-quick-access {
             
             // Attach event listeners
             if (getMyLocationButtonDashboard) {
-                getMyLocationButtonDashboard.addEventListener('click', centerMapOnUserLocation);
+                getMyLocationButtonDashboard.addEventListener('click', () => centerMapOnUserLocation('dashboard'));
             }
             if (floatingFullscreenButton) {
                 floatingFullscreenButton.addEventListener('click', togglePseudoFullscreen);
             }
             if (floatingMediaButton) {
                 floatingMediaButton.addEventListener('click', () => switchApp('Media'));
+            }
+
+            // Map screen specific event listeners
+            if (startDirectionsButton) {
+                startDirectionsButton.addEventListener('click', calculateAndDisplayRoute);
+            }
+            if (getMyLocationButtonFullMap) {
+                getMyLocationButtonFullMap.addEventListener('click', () => centerMapOnUserLocation('full'));
+            }
+
+            // 360 Camera Image Upload Listeners
+            if (upload360ImageButton) {
+                upload360ImageButton.addEventListener('click', () => upload360ImageInput.click());
+            }
+            if (upload360ImageInput) {
+                upload360ImageInput.addEventListener('change', handleImageUpload);
+            }
+            if (reset360ImageButton) {
+                reset360ImageButton.addEventListener('click', resetImageToDefault);
             }
 
             // Initial and periodic updates
