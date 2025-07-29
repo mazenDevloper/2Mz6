@@ -1439,7 +1439,7 @@ div#quran-quick-access {
                    <div id="quran-quick-access" class="mt-4 bg-black/30 p-4 rounded-xl flex flex-col gap-3 items-end z-20 glass-surface glass-surface--svg w-full max-w-md">
                         
                         <button id="quran-go-button" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm self-center">
-                            الذهاب
+                            
                         </button>
                     </div>
                    
@@ -1467,7 +1467,7 @@ div#quran-quick-access {
     <!-- Floating Full-Screen Button -->
     <button id="floating-fullscreen-button" class="glass-surface glass-surface--svg rounded-full">
         <i data-lucide="maximize" class="w-6 h-6"></i>
-        تكبير
+        
     </button>
 
     <!-- Floating Media Button -->
@@ -1533,7 +1533,7 @@ div#quran-quick-access {
         const WEATHER_API_KEY = '7acefc26deee4904a2393917252207'; 
         // IMPORTANT: REPLACE WITH YOUR ACTUAL HERE TECHNOLOGIES API KEY
         // إذا لم تقم بتعيين مفتاح HERE API الخاص بك، فلن تعمل طبقة حركة المرور أو الخرائط.
-        const HERE_API_KEY = 'dNSfqyYGEpABRzDfF61JPkvHx2YS0h_iYNF6fsBYi8s';
+        const HERE_API_KEY = 'lTSFEGM5LpUsz66hBRVL47GaTHf-sZ1CeiufLAg6Do4';
 
         // --- Global App State Management ---
         // Centralized state for various app functionalities
@@ -1966,8 +1966,8 @@ div#quran-quick-access {
          * @param {boolean} [updateActiveView=true] - Whether to update activeMediaView. Defaults to true.
          */
         async function fetchPlaylistVideos(playlistId, updateActiveView = true) {
-            if (YOUTUBE_API_KEY === 'AIzaSyDj4w1H3Is_rmTLhl40zER7AgYhT_tKASo') {
-                showMessageBox('خطأ: لم يتم تعيين مفتاح YouTube API. يرجى استبدال "AIzaSyDj4w1H3Is_rmTLhl40zER7AgYhT_tKASo" بمفتاحك الخاص.');
+            if (YOUTUBE_API_KEY === 'YOUR_YOUTUBE_API_KEY') {
+                showMessageBox('خطأ: لم يتم تعيين مفتاح YouTube API. يرجى استبدال "YOUR_YOUTUBE_API_KEY" بمفتاحك الخاص.');
                 console.error('YouTube API Key is not set.');
                 return;
             }
@@ -2283,8 +2283,8 @@ div#quran-quick-access {
          * @param {string} query - The search query.
          */
         async function searchYouTubeVideos(query) {
-            if (YOUTUBE_API_KEY === 'AIzaSyDj4w1H3Is_rmTLhl40zER7AgYhT_tKASo') {
-                showMessageBox('خطأ: لم يتم تعيين مفتاح YouTube API. يرجى استبدال "AIzaSyDj4w1H3Is_rmTLhl40zER7AgYhT_tKASo" بمفتاحك الخاص.');
+            if (YOUTUBE_API_KEY === 'YOUR_YOUTUBE_API_KEY') {
+                showMessageBox('خطأ: لم يتم تعيين مفتاح YouTube API. يرجى استبدال "YOUR_YOUTUBE_API_KEY" بمفتاحك الخاص.');
                 console.error('YouTube API Key is not set.');
                 return;
             }
@@ -2327,7 +2327,7 @@ div#quran-quick-access {
                     youtubeSuggestionsDiv.classList.add('hidden'); // Hide suggestions after search results are loaded
                     activeMediaView = 'searchResults';
                     backToPlaylistsBottomButton.style.display = 'none';
-                    backToPlayationsBottomButtonSearch.style.display = 'flex';
+                    backToPlaylistsBottomButtonSearch.style.display = 'flex';
                 } else {
                     showMessageBox('لم يتم العثور على نتائج بحث لـ: ' + query);
                     searchResultsContainer.innerHTML = '<p class="text-center text-white/70 col-span-full">لا توجد نتائج بحث.</p>';
@@ -2448,8 +2448,8 @@ div#quran-quick-access {
             } else {
                 // Original Gemini API call for general questions
                 try {
-                    if (AI_ASSISTANT_API_KEY === 'AIzaSyBMmtON9ww4dJxMHrl1wKyWTvI0ipJXJws') {
-                        aiResponseText = 'خطأ: لم يتم تعيين مفتاح Gemini API. يرجى استبدال "AIzaSyBMmtON9ww4dJxMHrl1wKyWTvI0ipJXJws" بمفتاحك الخاص.';
+                    if (AI_ASSISTANT_API_KEY === 'YOUR_GEMINI_API_KEY') {
+                        aiResponseText = 'خطأ: لم يتم تعيين مفتاح Gemini API. يرجى استبدال "YOUR_GEMINI_API_KEY" بمفتاحك الخاص.';
                         console.error('Gemini API Key is not set.');
                     } else {
                         let chatHistory = [];
@@ -2512,8 +2512,8 @@ div#quran-quick-access {
          */
         function initMap() {
             // Check if HERE_API_KEY is the default placeholder. If so, show an error and disable map functionality.
-            if (HERE_API_KEY === 'lTSFEGM5LpUsz66hBRVL47GaTHf-sZ1CeiufLAg6Do4' || !HERE_API_KEY) { 
-                showMessageBox('خطأ: لم يتم تعيين مفتاح HERE API. يرجى استبدال "lTSFEGM5LpUsz66hBRVL47GaTHf-sZ1CeiufLAg6Do4" بمفتاحك الخاص لكي تعمل الخرائط بشكل صحيح.');
+            if (HERE_API_KEY === 'CCvYImgvgyu8NxQWF1a4pB_48b6kG_8v3547fsmEXEM' || !HERE_API_KEY) { 
+                showMessageBox('خطأ: لم يتم تعيين مفتاح HERE API. يرجى استبدال "CCvYImgvgyu8NxQWF1a4pB_48b6kG_8v3547fsmEXEM" بمفتاحك الخاص لكي تعمل الخرائط بشكل صحيح.');
                 console.error('HERE API Key is not set or is the placeholder.');
                 // Disable map functionality or show placeholder if API key is missing
                 const dashboardMapContainer = document.getElementById('dashboard-map');
@@ -2767,8 +2767,8 @@ div#quran-quick-access {
          * Fetches live weather data from WeatherAPI.com and updates appState.
          */
         async function fetchWeatherData() {
-            if (WEATHER_API_KEY === '7acefc26deee4904a2393917252207') {
-                showMessageBox('خطأ: لم يتم تعيين مفتاح WeatherAPI. يرجى استبدال "7acefc26deee4904a2393917252207" بمفتاحك الخاص.');
+            if (WEATHER_API_KEY === 'YOUR_WEATHERAPI_KEY') {
+                showMessageBox('خطأ: لم يتم تعيين مفتاح WeatherAPI. يرجى استبدال "YOUR_WEATHERAPI_KEY" بمفتاحك الخاص.');
                 console.error('WeatherAPI Key is not set.');
                 // Fallback to default or clear data on API key error
                 appState.weather.temperature = '--';
