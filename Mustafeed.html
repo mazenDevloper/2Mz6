@@ -1,0 +1,88 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>نموذج تقييم الخدمة - رموز تعبيرية</title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; direction: rtl; }
+    h1, h2 { color: #003366; }
+    .section { background: white; padding: 20px; margin-bottom: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    label { display: block; margin-top: 10px; font-weight: bold; margin-bottom: 5px; }
+    .emoji-options { display: flex; gap: 15px; margin-bottom: 20px; }
+    .emoji-options label { text-align: center; cursor: pointer; }
+    .emoji-options input[type="radio"] { display: none; }
+    .emoji-options span {
+      font-size: 30px; display: block; padding: 10px;
+      border: 2px solid transparent; border-radius: 10px;
+    }
+    .emoji-options input[type="radio"]:checked + span {
+      border-color: #0077cc;
+      background-color: #e0f0ff;
+    }
+    textarea {
+      width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; resize: vertical;
+    }
+    button {
+      background-color: #0066cc; color: white; border: none; padding: 10px 20px;
+      border-radius: 5px; cursor: pointer; font-size: 16px;
+    }
+    button:hover { background-color: #004999; }
+  </style>
+</head>
+<body>
+
+  <h1>نموذج تقييم الخدمة</h1>
+
+  <form action="#" method="post">
+
+    <div class="section">
+      <h2>يرجى تقييم العناصر التالية:</h2>
+
+      <label>سرعة الاستجابة:</label>
+      <div class="emoji-options">
+        <label><input type="radio" name="speed" value="bad" required><span>😠</span><div>سيء</div></label>
+        <label><input type="radio" name="speed" value="neutral"><span>😐</span><div>محايد</div></label>
+        <label><input type="radio" name="speed" value="good"><span>😊</span><div>راضٍ</div></label>
+      </div>
+
+      <label>جودة الخدمة:</label>
+      <div class="emoji-options">
+        <label><input type="radio" name="quality" value="bad" required><span>😠</span><div>سيء</div></label>
+        <label><input type="radio" name="quality" value="neutral"><span>😐</span><div>محايد</div></label>
+        <label><input type="radio" name="quality" value="good"><span>😊</span><div>راضٍ</div></label>
+      </div>
+
+      <label>اللباقة والتعامل:</label>
+      <div class="emoji-options">
+        <label><input type="radio" name="attitude" value="bad" required><span>😠</span><div>سيء</div></label>
+        <label><input type="radio" name="attitude" value="neutral"><span>😐</span><div>محايد</div></label>
+        <label><input type="radio" name="attitude" value="good"><span>😊</span><div>راضٍ</div></label>
+      </div>
+
+      <label>وضوح الإجراءات:</label>
+      <div class="emoji-options">
+        <label><input type="radio" name="clarity" value="bad" required><span>😠</span><div>سيء</div></label>
+        <label><input type="radio" name="clarity" value="neutral"><span>😐</span><div>محايد</div></label>
+        <label><input type="radio" name="clarity" value="good"><span>😊</span><div>راضٍ</div></label>
+      </div>
+
+      <label>الرضا العام:</label>
+      <div class="emoji-options">
+        <label><input type="radio" name="satisfaction" value="bad" required><span>😠</span><div>سيء</div></label>
+        <label><input type="radio" name="satisfaction" value="neutral"><span>😐</span><div>محايد</div></label>
+        <label><input type="radio" name="satisfaction" value="good"><span>😊</span><div>راضٍ</div></label>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>ملاحظات إضافية (اختياري)</h2>
+      <textarea name="comments" rows="4" placeholder="اكتب ملاحظاتك أو اقتراحاتك هنا..."></textarea>
+    </div>
+
+    <button type="submit">إرسال التقييم</button>
+  </form>
+
+</body>
+</html>

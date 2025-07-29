@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نموذج الترشيح لمسارات حوافز الإجادة المؤسسية</title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #f3f3f3; padding: 20px; direction: rtl; }
+    h1, h2 { color: #003366; }
+    label { display: block; margin: 10px 0 5px; font-weight: bold; }
+    input, select, textarea { width: 100%; padding: 8px; margin-bottom: 15px; border-radius: 5px; border: 1px solid #ccc; }
+    .section { background: white; padding: 20px; margin-bottom: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    button { padding: 10px 20px; background-color: #0077cc; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    button:hover { background-color: #005fa3; }
+  </style>
+</head>
+<body>
+  <h1>نموذج الترشيح لمسارات حوافز الإجادة المؤسسية</h1>
+  
+  <form action="#" method="post" enctype="multipart/form-data">
+    <div class="section">
+      <h2>البيانات العامة</h2>
+      <label>الاسم الكامل:</label>
+      <input type="text" name="name" required>
+
+      <label>الرقم الوظيفي:</label>
+      <input type="text" name="employee_id" required>
+
+      <label>القسم/الدائرة:</label>
+      <select name="department">
+        <option value="">-- اختر القسم --</option>
+        <option value="الخدمات">الخدمات</option>
+        <option value="الصحة">الصحة</option>
+        <option value="المالية">المالية</option>
+        <!-- يمكن التوسع لاحقًا -->
+      </select>
+
+      <label>البريد الإلكتروني:</label>
+      <input type="email" name="email" required>
+    </div>
+
+    <div class="section">
+      <h2>اختيار مسار الترشيح</h2>
+      <label><input type="radio" name="track" value="month" required> موظف الشهر</label>
+      <label><input type="radio" name="track" value="innovator"> الموظف المبتكر</label>
+      <label><input type="radio" name="track" value="initiator"> الموظف المبادر</label>
+    </div>
+
+    <div class="section">
+      <h2>تفاصيل الترشيح حسب المسار المختار</h2>
+
+      <label>وصف المبادرة أو الخدمة أو الفكرة:</label>
+      <textarea name="description" rows="4" required></textarea>
+
+      <label>التاريخ:</label>
+      <input type="date" name="date">
+
+      <label>الأثر أو النتائج:</label>
+      <textarea name="impact" rows="3"></textarea>
+
+      <label>إرفاق مستندات داعمة (PDF, JPG):</label>
+      <input type="file" name="attachment" accept=".pdf, .jpg, .jpeg, .png">
+    </div>
+
+    <button type="submit">إرسال الطلب</button>
+  </form>
+</body>
+</html>
