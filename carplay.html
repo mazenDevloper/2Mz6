@@ -1664,6 +1664,7 @@ div#quran-quick-access {
                 text-align: center;
                 max-width: 80%;
                 font-size: 1.1rem;
+                display:none;
             `;
             messageBox.innerHTML = `
                 <p>${message}</p>
@@ -2660,18 +2661,10 @@ div#quran-quick-access {
                         console.error('Geolocation error code:', error.code);
                         console.error('Geolocation error message:', error.message);
                         let errorMessage = 'تعذر تتبع موقعك الحالي بشكل مستمر.';
-                        if (error.code === error.PERMISSION_DENIED) {
-                            errorMessage += ' يرجى منح الإذن للموقع في إعدادات متصفحك أو بيئة التشغيل (قد يكون معطلاً بسبب سياسة الأذونات في iframe).';
-                        } else if (error.code === error.POSITION_UNAVAILABLE) {
-                            errorMessage += ' معلومات الموقع غير متوفرة.';
-                        } else if (error.code === error.TIMEOUT) {
-                            errorMessage += ' انتهت مهلة طلب الموقع.';
-                        } else {
-                            errorMessage += ' خطأ غير معروف.';
-                        }
+                        if (error.code === error.POSITION_UNAVAILABLE) 
                         if (!appState.hasShownGeolocationError) {
                             showMessageBox(errorMessage);
-                            appState.hasShownGeolocationError = true;
+                            appState.hasShownGeolocationError = FALSE;
                         }
                     },
                     { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
