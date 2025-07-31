@@ -10,7 +10,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Font Awesome for additional icons (e.g., Trip log) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-    <!-- ADDED Google Maps API script -->
+    <!-- ADDED Google Maps API script - Using the provided key -->
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBRqAHJ2elbE_Z7NXXYC50XZpqi6HbG6Rk&libraries=places&callback=initMap"></script>
     <!-- Chart.js for potential future charts in Trip tab (currently not used but included) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -213,7 +213,8 @@ div#quran-quick-access {
         #back-to-playlists-bottom-button,
         #back-to-playlists-bottom-button-search,
         #floating-keyboard-button, /* Added keyboard button */
-        #clear-search-button { /* Added clear search button */
+        #clear-search-button, /* Added clear search button */
+        #start-trip-button { /* New start trip button */
             position: fixed;
             background-color: #8A0806; /* Purple glass */
             color: white;
@@ -236,7 +237,8 @@ div#quran-quick-access {
         #back-to-playlists-bottom-button:hover,
         #back-to-playlists-bottom-button-search:hover,
         #floating-keyboard-button:hover, /* Added keyboard button */
-        #clear-search-button:hover { /* Added clear search button */
+        #clear-search-button:hover, /* Added clear search button */
+        #start-trip-button:hover { /* New start trip button */
             transform: scale(1.05); /* Only scale, no translate */
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
         }
@@ -264,10 +266,19 @@ div#quran-quick-access {
             font-size: 0.8rem; /* Smaller font size */
             display: none; /* Hidden by default, will be controlled by JS */
         }
+        #start-trip-button { /* New start trip button position */
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none; /* Hidden by default, shown when directions are ready */
+        }
         @media (max-width: 768px) { /* Mobile adjustments for clear search button */
             #clear-search-button {
                 top: 10rem; /* Adjust for mobile layout */
                 right: 1rem;
+            }
+            #start-trip-button {
+                bottom: 5.5rem; /* Adjust for mobile layout to not overlap with nav */
             }
         }
 
@@ -609,15 +620,17 @@ div#quran-quick-access {
             line-height: 1.4; /* Ensure good line spacing for two lines */
         }
         /* New class for highlight when less than 20 minutes */
-        #digital-date.countdown-highlight {
+        #digital-date-line1.countdown-highlight,
+        #digital-date-line2.countdown-highlight {
             font-size: 1.7rem;
-            color: #90EE90; /* Light Chrome Green */
+            color: #76ff03!important; /* Chrome Green */
             font-weight: bold;
         }
         /* New class for highlight when less than 1 hour but more than 20 minutes */
-        #digital-date.countdown-medium-highlight {
+        #digital-date-line1.countdown-medium-highlight,
+        #digital-date-line2.countdown-medium-highlight {
             font-size: 1.7rem;
-            color: #FFA07A; /* Light Orange */
+            color: #ffb74d!important; /* Light Orange */
             font-weight: bold;
         }
 
@@ -886,7 +899,8 @@ div#quran-quick-access {
             #floating-media-button,
             #back-to-playlists-bottom-button,
             #back-to-playlists-bottom-button-search,
-            #floating-keyboard-button { /* Added keyboard button */
+            #floating-keyboard-button, /* Added keyboard button */
+            #start-trip-button { /* New start trip button */
                 padding: 0.75rem 1rem;
                 font-size: 0.8rem;
                 gap: 0.25rem;
@@ -1343,7 +1357,7 @@ div#quran-quick-access {
                                     id="start-directions-button"
                                     class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 font-bold"
                                 >
-                                    <i data-lucide="navigation" class="w-5 h-5"></i> بدء الاتجاهات
+                                    <i data-lucide="navigation" class="w-5 h-5"></i> البحث عن الموقع
                                 </button>
                             </div>
                             <div class="flex flex-col gap-2 mt-4 text-center">
@@ -1357,6 +1371,14 @@ div#quran-quick-access {
                                     <span class="text-lg font-semibold">المسافة:</span>
                                     <span id="distance-display" class="text-lg">--</span>
                                 </div>
+                            </div>
+                             <!-- Traffic Layer Toggle (NEW) -->
+                            <div class="flex flex-col gap-2 mt-4">
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="traffic-toggle" class="sr-only peer">
+                                    <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border after:border-gray-300 after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                                    <span class="ms-3 text-sm font-medium text-white/70">طبقة حركة المرور</span>
+                                </label>
                             </div>
                         </div>
                         <!-- Right Panel: Google Map (75%) -->
@@ -1374,7 +1396,7 @@ div#quran-quick-access {
                    <div id="quran-quick-access" class="mt-4 bg-black/30 p-4 rounded-xl flex flex-col gap-3 items-end z-20 glass-surface glass-surface--svg w-full max-w-md">
                         
                         <button id="quran-go-button" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm self-center">
-                            
+                            الذهاب
                         </button>
                     </div>
                    
@@ -1402,7 +1424,7 @@ div#quran-quick-access {
     <!-- Floating Full-Screen Button -->
     <button id="floating-fullscreen-button" class="glass-surface glass-surface--svg rounded-full">
         <i data-lucide="maximize" class="w-6 h-6"></i>
-        
+        تكبير
     </button>
 
     <!-- Floating Media Button -->
@@ -1418,6 +1440,12 @@ div#quran-quick-access {
     <!-- Clear Search Button (New) -->
     <button id="clear-search-button" class="glass-surface glass-surface--svg rounded-full">
         <i data-lucide="x" class="w-4 h-4"></i>
+    </button>
+
+    <!-- Start Trip Button (New) -->
+    <button id="start-trip-button" class="glass-surface glass-surface--svg rounded-full">
+        <i data-lucide="send" class="w-6 h-6"></i>
+        بدء الرحلة
     </button>
 
     <!-- Video Pop-up Container -->
@@ -1450,8 +1478,8 @@ div#quran-quick-access {
         const AI_ASSISTANT_API_KEY = 'AIzaSyBMmtON9ww4dJxMHrl1wKyWTvI0ipJXJws'; 
         // IMPORTANT: REPLACE WITH YOUR ACTUAL WEATHERAPI.COM KEY TO RESOLVE 401 ERROR
         const WEATHER_API_KEY = '7acefc26deee4904a2393917252207'; 
-        // IMPORTANT: REPLACE WITH YOUR ACTUAL GOOGLE MAPS API KEY FOR MAP AND TRAFFIC TO WORK
-        const GOOGLE_MAPS_API_KEY = 'AIzaSyBRqAHJ2elbE_Z7NXXYC50XZpqi6HbG6Rk';
+        // GOOGLE MAPS API KEY IS INCLUDED IN THE SCRIPT TAG IN THE HEAD
+        const GOOGLE_MAPS_API_KEY = 'AIzaSyBRqAHJ2elbE_Z7NXXYC50XZpqi6HbG6Rk'; // This is already in the script tag in the head
 
         // --- Global App State Management ---
         // Centralized state for various app functionalities
@@ -1485,6 +1513,7 @@ div#quran-quick-access {
                 Maghrib: '--:--',
                 Isha: '--:--',
                 nextPrayer: null, // Changed from currentPrayer to nextPrayer
+                nextPrayerAdhanTime: null, // New: Stores the Date object for the next prayer's Adhan
                 nextPrayerIqamaTime: null // Stores the Date object for the next prayer's iqama
             },
             hasShownGeolocationError: false, // New flag to control geolocation error message
@@ -1529,6 +1558,7 @@ div#quran-quick-access {
         const floatingMediaButton = document.getElementById('floating-media-button');
         const floatingKeyboardButton = document.getElementById('floating-keyboard-button'); // New keyboard button
         const clearSearchButton = document.getElementById('clear-search-button'); // New clear search button
+        const startTripButton = document.getElementById('start-trip-button'); // New start trip button
         const videoPopupContainer = document.getElementById('video-popup-container');
         const videoPopupIframe = document.getElementById('video-popup-iframe');
         const videoPopupCloseButton = document.getElementById('video-popup-close-button');
@@ -1571,6 +1601,7 @@ div#quran-quick-access {
         let directionsService; // Google Maps Directions Service
         let directionsRenderer; // Google Maps Directions Renderer
         let autocomplete; // Google Maps Autocomplete for destination input
+        let geocoder; // Google Maps Geocoder for reverse geocoding
         let watchId; // To store the watchPosition ID for continuous tracking
 
         // Map Screen elements
@@ -1579,6 +1610,7 @@ div#quran-quick-access {
         const etaDisplay = document.getElementById('eta-display');
         const distanceDisplay = document.getElementById('distance-display');
         const getMyLocationButtonFullMap = document.getElementById('get-my-location-button-full-map');
+        const trafficToggle = document.getElementById('traffic-toggle'); // Traffic toggle element
 
         // 360 Camera elements
         const car360Image = document.getElementById('car-360-image');
@@ -1656,11 +1688,11 @@ div#quran-quick-access {
             const isFullscreen = carplayMainInterface.classList.toggle('carplay-pseudo-fullscreen');
 
             if (isFullscreen) {
-                floatingFullscreenButton.innerHTML = '<i data-lucide="minimize" class="w-6 h-6"></i>'; // Only icon
+                floatingFullscreenButton.innerHTML = '<i data-lucide="minimize" class="w-6 h-6"></i> تكبير'; // Only icon
                 if (topBar) topBar.style.opacity = '0'; 
                 document.body.style.overflow = 'hidden'; 
             } else {
-                floatingFullscreenButton.innerHTML = '<i data-lucide="maximize" class="w-6 h-6"></i>'; // Only icon
+                floatingFullscreenButton.innerHTML = '<i data-lucide="maximize" class="w-6 h-6"></i> تصغير'; // Only icon
                 if (topBar) topBar.style.opacity = '1';
                 document.body.style.overflow = ''; 
             }
@@ -1764,6 +1796,13 @@ div#quran-quick-access {
                 if (quranQuickAccess) {
                     quranQuickAccess.style.display = 'none';
                 }
+            }
+
+            // Show/hide "Start Trip" button based on current screen
+            if (appName === 'Map' && destinationInput.value.trim() !== '') {
+                startTripButton.style.display = 'flex';
+            } else {
+                startTripButton.style.display = 'none';
             }
 
             updateUI(); // Update UI to reflect latest state
@@ -1873,9 +1912,9 @@ div#quran-quick-access {
          * @param {boolean} [updateActiveView=true] - Whether to update activeMediaView. Defaults to true.
          */
         async function fetchPlaylistVideos(playlistId, updateActiveView = true) {
-            if (YOUTUBE_API_KEY === 'YOUR_YOUTUBE_API_KEY') {
-                showMessageBox('خطأ: لم يتم تعيين مفتاح YouTube API. يرجى استبدال "YOUR_YOUTUBE_API_KEY" بمفتاحك الخاص.');
-                console.error('YouTube API Key is not set.');
+            if (YOUTUBE_API_KEY === 'AIzaSyDj4w1H3Is_rmTLhl40zER7AgYhT_tKASo') { // Check against the placeholder
+                showMessageBox('خطأ: لم يتم تعيين مفتاح YouTube API. يرجى استبدال "AIzaSyDj4w1H3Is_rmTLhl40zER7AgYhT_tKASo" بمفتاحك الخاص.');
+                console.error('YouTube API Key is not set or is the placeholder.');
                 return;
             }
 
@@ -2066,7 +2105,7 @@ div#quran-quick-access {
             currentPlayingPlaylistId = ''; // Reset selected playlist
             activeMediaView = 'playlist';
             backToPlaylistsBottomButton.style.display = 'none';
-            backToPlayistsBottomButtonSearch.style.display = 'none'; 
+            backToPlaylistsBottomButtonSearch.style.display = 'none'; 
         }
 
         // Event listeners for back buttons in Media tab
@@ -2190,9 +2229,9 @@ div#quran-quick-access {
          * @param {string} query - The search query.
          */
         async function searchYouTubeVideos(query) {
-            if (YOUTUBE_API_KEY === 'YOUR_YOUTUBE_API_KEY') {
-                showMessageBox('خطأ: لم يتم تعيين مفتاح YouTube API. يرجى استبدال "YOUR_YOUTUBE_API_KEY" بمفتاحك الخاص.');
-                console.error('YouTube API Key is not set.');
+            if (YOUTUBE_API_KEY === 'AIzaSyDj4w1H3Is_rmTLhl40zER7AgYhT_tKASo') { // Check against the placeholder
+                showMessageBox('خطأ: لم يتم تعيين مفتاح YouTube API. يرجى استبدال "AIzaSyDj4w1H3Is_rmTLhl40zER7AgYhT_tKASo" بمفتاحك الخاص.');
+                console.error('YouTube API Key is not set or is the placeholder.');
                 return;
             }
 
@@ -2355,9 +2394,9 @@ div#quran-quick-access {
             } else {
                 // Original Gemini API call for general questions
                 try {
-                    if (AI_ASSISTANT_API_KEY === 'YOUR_GEMINI_API_KEY') {
-                        aiResponseText = 'خطأ: لم يتم تعيين مفتاح Gemini API. يرجى استبدال "YOUR_GEMINI_API_KEY" بمفتاحك الخاص.';
-                        console.error('Gemini API Key is not set.');
+                    if (AI_ASSISTANT_API_KEY === 'AIzaSyBMmtON9ww4dJxMHrl1wKyWTvI0ipJXJws') { // Check against the placeholder
+                        aiResponseText = 'خطأ: لم يتم تعيين مفتاح Gemini API. يرجى استبدال "AIzaSyBMmtON9ww4dJxMHrl1wKyWTvI0ipJXJws" بمفتاحك الخاص.';
+                        console.error('Gemini API Key is not set or is the placeholder.');
                     } else {
                         let chatHistory = [];
                         chatHistory.push({ role: "user", parts: [{ text: userMessageText }] });
@@ -2412,15 +2451,16 @@ div#quran-quick-access {
 
         aiSendButton.addEventListener('click', sendAIAssistantMessage);
 
-        // --- Google Map and Geolocation Functions ---
+        // --- Google Maps and Geolocation Functions ---
+        
         /**
          * Initializes the Google Maps on the dashboard and the dedicated map screen.
-         * This function is called by the Google Maps API script once loaded.
+         * This function is called by the Google Maps API script after it loads.
          */
         function initMap() {
             // Dashboard Map Initialization
             const dashboardMapContainer = document.getElementById('dashboard-google-map');
-            if (dashboardMapContainer) {
+            if (dashboardMapContainer && !dashboardGoogleMap) { // Check if dashboardMap is not already initialized
                 const dashboardMapOptions = {
                     center: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon },
                     zoom: appState.mapLocation.zoom,
@@ -2454,7 +2494,7 @@ div#quran-quick-access {
                     title: 'موقع صلالة الافتراضي',
                     icon: { // Custom map pin image
                         url: 'https://dmusera.netlify.app/3604.png',
-                        scaledSize: new google.maps.Size(32, 32)
+                        scaledSize: new google.maps.Size(85, 85)
                     }
                 });
                 trafficLayerDashboard = new google.maps.TrafficLayer();
@@ -2469,7 +2509,7 @@ div#quran-quick-access {
 
             // Full Map Initialization
             const fullMapContainer = document.getElementById('full-google-map');
-            if (fullMapContainer) {
+            if (fullMapContainer && !fullGoogleMap) { // Check if fullMap is not already initialized
                 const fullMapOptions = {
                     center: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon },
                     zoom: appState.mapLocation.zoom,
@@ -2532,6 +2572,32 @@ div#quran-quick-access {
                     }
                     fullGoogleMarker.setPosition(place.geometry.location);
                     fullGoogleMarker.setVisible(true);
+                    // Show "Start Trip" button when a destination is selected
+                    startTripButton.style.display = 'flex';
+                });
+
+                // Initialize Geocoder for reverse geocoding (click to set destination)
+                geocoder = new google.maps.Geocoder();
+
+                // Add click listener to the full map to set destination
+                fullGoogleMap.addListener('click', (event) => {
+                    const latLng = event.latLng;
+                    geocoder.geocode({ 'location': latLng }, (results, status) => {
+                        if (status === 'OK') {
+                            if (results[0]) {
+                                destinationInput.value = results[0].formatted_address;
+                                fullGoogleMarker.setPosition(latLng);
+                                fullGoogleMap.setCenter(latLng);
+                                startTripButton.style.display = 'flex'; // Show "Start Trip" button
+                                showMessageBox(`تم تحديد الوجهة: ${results[0].formatted_address}`);
+                            } else {
+                                showMessageBox('لم يتم العثور على عنوان لهذا الموقع.');
+                            }
+                        } else {
+                            showMessageBox('فشل البحث الجغرافي العكسي بسبب: ' + status);
+                            console.error('Geocoder failed due to: ' + status);
+                        }
+                    });
                 });
             }
             startContinuousLocationTracking(); // Start continuous tracking after map init
@@ -2543,12 +2609,12 @@ div#quran-quick-access {
          */
         function updateGoogleMapLocation(position) {
             const lat = position.coords.latitude;
-            const lon = position.coords.longitude;
+            const lng = position.coords.longitude;
             const heading = position.coords.heading;
 
-            appState.currentLocation = { lat: lat, lng: lon }; // Store current location
+            appState.currentLocation = { lat: lat, lng: lng }; // Store current location
 
-            const newLatLng = { lat: lat, lng: lon };
+            const newLatLng = { lat: lat, lng: lng };
 
             // Update Dashboard Map
             if (dashboardGoogleMap && dashboardGoogleMarker) {
@@ -2568,9 +2634,14 @@ div#quran-quick-access {
             }
 
             // Auto-rotate map if heading is available and valid
-            if (typeof heading === 'number' && !isNaN(heading)) {
-                if (dashboardGoogleMap) dashboardGoogleMap.setHeading(heading);
-                if (fullGoogleMap) fullGoogleMap.setHeading(heading);
+            // Set map heading to 315 degrees (top-left angle) and tilt to 45 degrees
+            if (dashboardGoogleMap) {
+                dashboardGoogleMap.setHeading(315);
+                dashboardGoogleMap.setTilt(45);
+            }
+            if (fullGoogleMap) {
+                fullGoogleMap.setHeading(315);
+                fullGoogleMap.setTilt(45);
             }
         }
 
@@ -2676,14 +2747,22 @@ div#quran-quick-access {
                 const response = await directionsService.route(request);
                 if (response.status === 'OK') {
                     directionsRenderer.setDirections(response);
+                    // Also show on dashboard map
+                    if (dashboardGoogleMap && directionsService && directionsRenderer) {
+                        directionsRenderer.setMap(dashboardGoogleMap); // Re-set renderer to dashboard map
+                        directionsRenderer.setDirections(response);
+                        directionsRenderer.setMap(fullGoogleMap); // Set back to full map
+                    }
 
                     const route = response.routes[0].legs[0];
                     etaDisplay.textContent = route.duration.text;
                     distanceDisplay.textContent = route.distance.text;
+                    showMessageBox(`تم العثور على الاتجاهات إلى: ${destination}`);
                 } else {
                     showMessageBox('تعذر العثور على اتجاهات للوجهة المحددة: ' + response.status);
                     etaDisplay.textContent = '--';
                     distanceDisplay.textContent = '--';
+                    directionsRenderer.setDirections({ routes: [] }); // Clear previous directions
                 }
             } catch (error) {
                 console.error('Error calculating directions:', error);
@@ -2699,9 +2778,9 @@ div#quran-quick-access {
          * Fetches live weather data from WeatherAPI.com and updates appState.
          */
         async function fetchWeatherData() {
-            if (WEATHER_API_KEY === 'YOUR_WEATHERAPI_KEY') {
-                showMessageBox('خطأ: لم يتم تعيين مفتاح WeatherAPI. يرجى استبدال "YOUR_WEATHERAPI_KEY" بمفتاحك الخاص.');
-                console.error('WeatherAPI Key is not set.');
+            if (WEATHER_API_KEY === '7acefc26deee4904a239391725220') { // Check against the placeholder
+                showMessageBox('خطأ: لم يتم تعيين مفتاح WeatherAPI. يرجى استبدال "7acefc26deee4904a2393917252207" بمفتاحك الخاص.');
+                console.error('WeatherAPI Key is not set or is the placeholder.');
                 // Fallback to default or clear data on API key error
                 appState.weather.temperature = '--';
                 appState.weather.feelsLike = '--';
@@ -2841,7 +2920,7 @@ div#quran-quick-access {
             {"date":"2025-09-22","fajr":"05:01","sunrise":"06:13","dhuhr":"12:22","asr":"15:44","maghrib":"18:25","isha":"19:32"},
             {"date":"2025-09-23","fajr":"05:01","sunrise":"06:13","dhuhr":"12:21","asr":"15:43","maghrib":"18:25","isha":"19:31"},
             {"date":"2025-09-24","fajr":"05:01","sunrise":"06:13","dhuhr":"12:21","asr":"15:43","maghrib":"18:24","isha":"19:31"},
-            {"date":"2025-09-25","fajr":"05:01","sunrise":"06:13","dhuhr":"12:20","asr":"15:43","maghrib":"18:23","isha":"19:30"},
+            {"date":"2025-09-25","fajr":"05:01","sunrise":"06:13","dhuhr":"12:21","asr":"15:43","maghrib":"18:23","isha":"19:30"},
             {"date":"2025-09-26","fajr":"05:01","sunrise":"06:13","dhuhr":"12:20","asr":"15:42","maghrib":"18:22","isha":"19:29"},
             {"date":"2025-09-27","fajr":"05:01","sunrise":"06:13","dhuhr":"12:20","asr":"15:42","maghrib":"18:21","isha":"19:28"},
         ];
@@ -2897,7 +2976,7 @@ div#quran-quick-access {
 
                 fajrIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.fajr, 25);
                 dhuhrIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.dhuhr, 20);
-                asrIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.asr, 20);
+                asrIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.asr, 10); // Changed Asr Iqama to 10 minutes
                 maghribIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.maghrib, 5);
                 ishaIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.isha, 20);
 
@@ -2929,26 +3008,29 @@ div#quran-quick-access {
 
             if (!todayData) {
                 appState.prayerTimes.nextPrayer = null;
+                appState.prayerTimes.nextPrayerAdhanTime = null;
                 appState.prayerTimes.nextPrayerIqamaTime = null;
                 return;
             }
 
             const prayers = [
-                { name: "الفجر", time: todayData.fajr, iqamaOffset: 25 },
-                { name: "الظهر", time: todayData.dhuhr, iqamaOffset: 20 },
-                { name: "العصر", time: todayData.asr, iqamaOffset: 20 },
-                { name: "المغرب", time: todayData.maghrib, iqamaOffset: 5 },
-                { name: "العشاء", time: todayData.isha, iqamaOffset: 20 }
+                { name: "الفجر", adhanTime: todayData.fajr, iqamaOffset: 25 },
+                { name: "الظهر", adhanTime: todayData.dhuhr, iqamaOffset: 20 },
+                { name: "العصر", adhanTime: todayData.asr, iqamaOffset: 10 }, // Changed Asr Iqama to 10 minutes
+                { name: "المغرب", adhanTime: todayData.maghrib, iqamaOffset: 5 },
+                { name: "العشاء", adhanTime: todayData.isha, iqamaOffset: 20 }
             ];
 
             let nextPrayerFound = false;
             for (let i = 0; i < prayers.length; i++) {
                 const prayer = prayers[i];
-                const iqamaTimeStr = addMinutes(prayer.time, prayer.iqamaOffset);
+                const adhanDate = timeToDate(prayer.adhanTime);
+                const iqamaTimeStr = addMinutes(prayer.adhanTime, prayer.iqamaOffset);
                 const iqamaDate = timeToDate(iqamaTimeStr);
 
-                if (iqamaDate > now) {
+                if (iqamaDate > now) { // Check against Iqama time to determine next prayer
                     appState.prayerTimes.nextPrayer = prayer.name;
+                    appState.prayerTimes.nextPrayerAdhanTime = adhanDate;
                     appState.prayerTimes.nextPrayerIqamaTime = iqamaDate;
                     nextPrayerFound = true;
                     break;
@@ -2963,16 +3045,19 @@ div#quran-quick-access {
                 const nextDayData = prayerTimes.find(p => p.date === nextDayString);
 
                 if (nextDayData) {
+                    const fajrAdhanDate = timeToDate(nextDayData.fajr);
+                    fajrAdhanDate.setDate(nextDay.getDate()); // Ensure it's for the next day
                     const fajrIqamaTimeStr = addMinutes(nextDayData.fajr, 25);
                     const fajrIqamaDate = timeToDate(fajrIqamaTimeStr);
-                    // Adjust Fajr Iqama date to be on the next day
-                    fajrIqamaDate.setDate(nextDay.getDate());
+                    fajrIqamaDate.setDate(nextDay.getDate()); // Ensure it's for the next day
 
                     appState.prayerTimes.nextPrayer = "الفجر (غدًا)";
+                    appState.prayerTimes.nextPrayerAdhanTime = fajrAdhanDate;
                     appState.prayerTimes.nextPrayerIqamaTime = fajrIqamaDate;
                 } else {
                     // Fallback if next day's data is also not found
                     appState.prayerTimes.nextPrayer = null;
+                    appState.prayerTimes.nextPrayerAdhanTime = null;
                     appState.prayerTimes.nextPrayerIqamaTime = null;
                 }
             }
@@ -3040,62 +3125,51 @@ div#quran-quick-access {
 
             // Update countdown for next prayer's Iqama
             if (digitalDateLine1 && digitalDateLine2) {
-                if (appState.prayerTimes.nextPrayerIqamaTime) {
-                    const timeDiff = appState.prayerTimes.nextPrayerIqamaTime.getTime() - now.getTime();
+                // Clear previous highlights before applying new ones
+                digitalDateLine1.classList.remove('countdown-highlight', 'countdown-medium-highlight'); 
+                digitalDateLine2.classList.remove('countdown-highlight', 'countdown-medium-highlight');
+
+                if (appState.prayerTimes.nextPrayerAdhanTime && appState.prayerTimes.nextPrayerIqamaTime) {
+                    const timeDiffAdhan = appState.prayerTimes.nextPrayerAdhanTime.getTime() - now.getTime();
+                    const timeDiffIqama = appState.prayerTimes.nextPrayerIqamaTime.getTime() - now.getTime();
                     
-                    digitalDateLine1.classList.remove('countdown-highlight', 'countdown-medium-highlight'); // Clear previous highlights
-                    digitalDateLine2.classList.remove('countdown-highlight', 'countdown-medium-highlight');
-
-                    if (timeDiff <= 0) {
-                        // If countdown finished, check if within 5 minutes past iqama
+                    if (timeDiffAdhan > 0 && timeDiffAdhan <= 60 * 60 * 1000) { // Less than 1 hour to Adhan
+                        const totalSeconds = Math.floor(timeDiffAdhan / 1000);
+                        const displayMinutes = Math.floor((totalSeconds % 3600) / 60);
+                        const displaySeconds = totalSeconds % 60;
+                        digitalDateLine1.textContent = `أذان صلاة ${appState.prayerTimes.nextPrayer} بعد...`;
+                        digitalDateLine2.textContent = `${displayMinutes.toString().padStart(2, '0')}:${displaySeconds.toString().padStart(2, '0')}`;
+                        digitalDateLine1.classList.add('countdown-medium-highlight'); // Light Orange
+                        digitalDateLine2.classList.add('countdown-medium-highlight');
+                    } else if (timeDiffIqama > 0) { // Countdown to Iqama
+                        const totalSeconds = Math.floor(timeDiffIqama / 1000);
+                        const displayMinutes = Math.floor((totalSeconds % 3600) / 60);
+                        const displaySeconds = totalSeconds % 60;
+                        digitalDateLine1.textContent = `إقامة صلاة ${appState.prayerTimes.nextPrayer} بعد...`;
+                        digitalDateLine2.textContent = `${displayMinutes.toString().padStart(2, '0')}:${displaySeconds.toString().padStart(2, '0')}`;
+                        digitalDateLine1.classList.add('countdown-highlight'); // Chrome Green
+                        digitalDateLine2.classList.add('countdown-highlight');
+                    } else if (timeDiffIqama <= 0) { // After Iqama
+                        const iqamaDuration = (appState.prayerTimes.nextPrayer === 'العصر' ? 10 : 5) * 60 * 1000;
                         const timeSinceIqama = now.getTime() - appState.prayerTimes.nextPrayerIqamaTime.getTime();
-                        const fiveMinutes = 5 * 60 * 1000;
 
-                        if (timeSinceIqama <= fiveMinutes) {
-                            // Counting up for 5 minutes after Iqama
+                        if (timeSinceIqama <= iqamaDuration) {
                             const totalSecondsPassed = Math.floor(timeSinceIqama / 1000);
                             const displayMinutesPassed = Math.floor(totalSecondsPassed / 60);
                             const displaySecondsPassed = totalSecondsPassed % 60;
 
                             digitalDateLine1.textContent = `الصلاة بدأت منذ...`;
-                            digitalDateLine2.textContent = `${displayMinutesPassed.toString().padStart(2, '0')}:${displaySecondsPassed.toString().padStart(2, '0')}`;
-                            digitalDateLine1.classList.add('countdown-highlight'); // Keep highlight for active prayer
+                            digitalDateLine2.textContent = `+${displayMinutesPassed.toString().padStart(2, '0')}:${displaySecondsPassed.toString().padStart(2, '0')}`;
+                            digitalDateLine1.classList.add('countdown-highlight'); // Chrome Green
                             digitalDateLine2.classList.add('countdown-highlight');
                         } else {
-                            // More than 5 minutes past iqama, find next prayer
+                            // If more than iqamaDuration has passed, find the next prayer
                             determineNextPrayer();
-                        }
-                    } else {
-                        // Counting down to Iqama
-                        const totalSeconds = Math.floor(timeDiff / 1000);
-                        const displayHours = Math.floor(totalSeconds / 3600);
-                        const displayMinutes = Math.floor((totalSeconds % 3600) / 60);
-                        const displaySeconds = totalSeconds % 60;
-
-                        let countdownText = '';
-                        if (displayHours > 0) {
-                            countdownText = `${displayHours.toString().padStart(2, '0')}:${displayMinutes.toString().padStart(2, '0')}:${displaySeconds.toString().padStart(2, '0')}`;
-                        } else {
-                            countdownText = `${displayMinutes.toString().padStart(2, '0')}:${displaySeconds.toString().padStart(2, '0')}`;
-                        }
-                        
-                        digitalDateLine1.textContent = `إقامة صلاة ${appState.prayerTimes.nextPrayer}`;
-                        digitalDateLine2.textContent = `  ${countdownText}`;
-
-                        // Apply/remove highlight class based on time remaining
-                        if (totalSeconds < 20 * 60) { // Less than 20 minutes
-                            digitalDateLine1.classList.add('countdown-highlight');
-                            digitalDateLine2.classList.add('countdown-highlight');
-                        } else if (totalSeconds < 60 * 60) { // Less than 1 hour (and >= 20 minutes)
-                            digitalDateLine1.classList.add('countdown-medium-highlight');
-                            digitalDateLine2.classList.add('countdown-medium-highlight');
                         }
                     }
                 } else {
                     digitalDateLine1.textContent = 'جاري تحميل أوقات الصلاة...';
                     digitalDateLine2.textContent = '';
-                    digitalDateLine1.classList.remove('countdown-highlight', 'countdown-medium-highlight');
-                    digitalDateLine2.classList.remove('countdown-highlight', 'countdown-medium-highlight');
                 }
             }
         }
@@ -3154,6 +3228,9 @@ div#quran-quick-access {
             if (getMyLocationButtonFullMap) {
                 getMyLocationButtonFullMap.addEventListener('click', () => centerMapOnUserLocation('full'));
             }
+            if (startTripButton) {
+                startTripButton.addEventListener('click', calculateAndDisplayRoute);
+            }
 
             // 360 Camera Image Upload Listeners
             if (upload360ImageButton) {
@@ -3176,6 +3253,13 @@ div#quran-quick-access {
             simulateCarData(); // Initial simulated car data
             setInterval(simulateCarData, 5000); // Update simulated car data every 5 seconds
             
+            // Auto-click get-my-location-button-dashboard every 7 seconds
+            setInterval(() => {
+                if (getMyLocationButtonDashboard) {
+                    getMyLocationButtonDashboard.click();
+                }
+            }, 7000);
+
             // Set initial app to Dashboard
             switchApp('Dashboard');
 
