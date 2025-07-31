@@ -2467,7 +2467,7 @@ div#quran-quick-access {
                     title: 'موقع صلالة الافتراضي',
                     icon: { // Custom map pin image
                         url: 'https://dmusera.netlify.app/3604.png',
-                        scaledSize: new google.maps.Size(32, 32)
+                        scaledSize: new google.maps.Size(80, 80)
                     }
                 });
                 trafficLayerDashboard = new google.maps.TrafficLayer();
@@ -3003,11 +3003,11 @@ div#quran-quick-access {
                 maghribTimeElement.textContent = data.maghrib;
                 ishaTimeElement.textContent = data.isha;
 
-                fajrIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.fajr, 5); // 5 mins for Fajr
-                dhuhrIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.dhuhr, 5); // 5 mins for Dhuhr
-                asrIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.asr, 10); // 10 mins for Asr
+                fajrIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.fajr, 25); // 5 mins for Fajr
+                dhuhrIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.dhuhr, 20); // 5 mins for Dhuhr
+                asrIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.asr, 20); // 10 mins for Asr
                 maghribIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.maghrib, 5); // 5 mins for Maghrib
-                ishaIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.isha, 5); // 5 mins for Isha
+                ishaIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.isha, 20); // 5 mins for Isha
 
             } else {
                 console.warn('No prayer times found for today in the local data.');
@@ -3043,11 +3043,11 @@ div#quran-quick-access {
             }
 
             const prayers = [
-                { name: "الفجر", time: todayData.fajr, iqamaOffset: 5 },
-                { name: "الظهر", time: todayData.dhuhr, iqamaOffset: 5 },
-                { name: "العصر", time: todayData.asr, iqamaOffset: 10 },
+                { name: "الفجر", time: todayData.fajr, iqamaOffset: 25 },
+                { name: "الظهر", time: todayData.dhuhr, iqamaOffset: 20 },
+                { name: "العصر", time: todayData.asr, iqamaOffset: 20 },
                 { name: "المغرب", time: todayData.maghrib, iqamaOffset: 5 },
-                { name: "العشاء", time: todayData.isha, iqamaOffset: 5 }
+                { name: "العشاء", time: todayData.isha, iqamaOffset: 20 }
             ];
 
             let nextPrayerFound = false;
@@ -3207,7 +3207,7 @@ div#quran-quick-access {
                             "الظهر": { time: todayData.dhuhr, iqamaOffset: 5, grace: 5 },
                             "العصر": { time: todayData.asr, iqamaOffset: 10, grace: 10 },
                             "المغرب": { time: todayData.maghrib, iqamaOffset: 5, grace: 5 },
-                            "العشاء": { time: todayData.isha, iqamaOffset: 5, grace: 5 }
+                            "العشاء": { time: todayData.isha, iqamaOffset: 25, grace: 25 }
                         }[appState.prayerTimes.currentPrayer];
 
                         if (prayerData) {
