@@ -1495,7 +1495,7 @@ div#quran-quick-access {
         // Centralized state for various app functionalities
         let appState = {
             currentTime: '',
-            mapLocation: { lat: 17.0151, lon: 54.0924, zoom: 12 }, // Default Salalah coordinates
+            mapLocation: { lat: 17.0151, lon: 54.0924, zoom: 17 }, // Default Salalah coordinates
             weather: {
                 temperature: null, 
                 feelsLike: null,
@@ -3224,8 +3224,8 @@ div#quran-quick-access {
                         const displaySeconds = remainingToIqama % 60;
                         digitalDateLine1.textContent = `إقامة صلاة ${appState.prayerTimes.currentPrayer} في:`;
                         digitalDateLine2.textContent = `${displayMinutes.toString().padStart(2, '0')}:${displaySeconds.toString().padStart(2, '0')}`;
-                        digitalDateLine1.style.color = '#90EE90'; // Chrome Green
-                        digitalDateLine2.style.color = '#90EE90'; // Chrome Green
+                        digitalDateLine1.style.color = '#7eff7e'; // Chrome Green
+                        digitalDateLine2.style.color = '#7eff7e'; // Chrome Green
                     } else if (currentPrayerIqamaTime && now >= currentPrayerIqamaTime && now < (currentPrayerIqamaTime.getTime() + gracePeriodDuration)) {
                         // After Iqama, during grace period (count up)
                         const elapsedSinceIqama = Math.floor((now.getTime() - currentPrayerIqamaTime.getTime()) / 1000);
@@ -3233,8 +3233,8 @@ div#quran-quick-access {
                         const displaySeconds = elapsedSinceIqama % 60;
                         digitalDateLine1.textContent = `انتهت إقامة صلاة ${appState.prayerTimes.currentPrayer} منذ:`;
                         digitalDateLine2.textContent = `+${displayMinutes.toString().padStart(2, '0')}:${displaySeconds.toString().padStart(2, '0')}`;
-                        digitalDateLine1.style.color = '#90EE90'; // Chrome Green
-                        digitalDateLine2.style.color = '#90EE90'; // Chrome Green
+                        digitalDateLine1.style.color = '#7eff7e'; // Chrome Green
+                        digitalDateLine2.style.color = '#7eff7e'; // Chrome Green
                     }
                     else if (totalSeconds <= 0) {
                         // If next prayer time has passed, re-determine next prayer
@@ -3254,7 +3254,7 @@ div#quran-quick-access {
                         }
                         
                         digitalDateLine1.textContent = `الأذان القادم: ${appState.prayerTimes.nextPrayer}`;
-                        digitalDateLine2.textContent = `المتبقي: ${countdownText}`;
+                        digitalDateLine2.textContent = ` ${countdownText}`;
 
                         // Apply highlight based on time remaining
                         if (totalSeconds < 60 * 60) { // Less than 1 hour
