@@ -1,0 +1,989 @@
+   /* Import Inter font for a modern, clean look */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Default background gradient - UPDATED: black parts are wider, animation is 3x slower */
+            background: linear-gradient(-45deg, #000000 0%, #000000 30%, #00FFFF 35%, #000000 60%, #4B0082 65%, #8A2BE2 70%, #FF00FF 75%, #000000 100%);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite; /* Animation duration decreased to 15s */
+            transition: background-image 0.5s ease; /* Smooth transition for background changes */
+            font-size: var(--base-font-size, 16px); /* Default font size, controlled by settings */
+            min-height: 100vh; /* Ensure body takes full viewport height */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden; /* Prevent body scroll */
+        }
+        /* Removed flex-direction: row-reverse from dashboard-main-grid as it's now a CSS Grid */
+        /* .flex-grow.flex.flex-col.lg\:flex-row.gap-4.md\:gap-6.h-full.dashboard-main-grid {
+            flex-direction: row-reverse;
+        } */
+        /* Ensure RTL direction for specific elements if needed */
+        div#youtube-playlist-view, div#youtube-video-list-view, div#youtube-search-results-view {
+            direction: rtl;
+        }
+
+        /* Define different background themes for customization */
+        body.theme-gradient-1 {
+            background: linear-gradient(-45deg, #000000 0%, #000000 30%, #00FFFF 35%, #000000 60%, #4B0082 65%, #8A2BE2 70%, #FF00FF 75%, #000000 100%);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        body.theme-gradient-2 {
+            background: linear-gradient(-45deg, #4CAF50, #8BC34A, #FFEB3B, #FFC107);
+            background-size: 400% 400%;
+            animation: gradient 25s ease infinite reverse;
+        }
+        body.theme-dark-blue {
+            background-color: #1a202c; /* Dark blue-gray */
+            background-image: none;
+            animation: none;
+        }
+        body.theme-purple-haze {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-size: 100% 100%;
+            animation: none;
+        }
+
+div#quran-quick-access {
+    display: none !important;
+}
+
+.h-full {
+    height: 97% !important;
+}
+
+        /* NEW GLASS SURFACE CSS - Enhanced for liquid 3D effect and "drop glass" */
+        .glass-surface {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition: opacity 0.26s ease-out;
+            border-radius: 1.5rem; /* Ensure rounded corners */
+        }
+        .glass-surface__filter {
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            z-index: -1;
+        }
+        .glass-surface__content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            border-radius: inherit;
+            position: relative;
+            z-index: 1;
+        }
+        .glass-surface--svg {
+            /* Adjusted background for a more pronounced "drop" effect */
+            background: light-dark(hsl(0 0% 100% / var(--glass-frost, 0.1)), /* Slightly more opaque background */
+                hsl(0 0% 0% / var(--glass-frost, 0.2))); /* Darker opaque background for dark mode */
+            
+            /* Enhanced backdrop-filter for stronger blur and saturation */
+            backdrop-filter: var(--filter-id, url(#glass-filter)) blur(10px) saturate(2.0) brightness(1.1); /* Reduced blur, saturation, and brightness for sharper effect */
+            -webkit-backdrop-filter: blur(10px) saturate(2.0) brightness(1.1); /* Webkit prefix */
+
+            /* More pronounced box-shadow for a "dropped" effect */
+            box-shadow:
+                0 0 5px 2px rgba(255, 255, 255, 0.1) inset, /* Inner light glow */
+                0 0 15px 6px rgba(0, 255, 255, 0.15) inset, /* Inner cyan glow */
+                0px 8px 30px rgba(17, 17, 26, 0.1), /* Stronger outer shadow */
+                0px 16px 60px rgba(17, 17, 26, 0.15), /* Even stronger outer shadow */
+                0px 24px 80px rgba(17, 17, 26, 0.2), /* Deepest outer shadow */
+                inset 0 0 20px 8px rgba(0,0,0,0.3), /* Deeper inner shadow for depth */
+                inset 0 0 25px 10px rgba(0,0,0,0.2), /* Even deeper inner shadow */
+                0 0 20px rgba(255, 255, 255, 0.15); /* Added subtle outer white glow for "shine" */
+            border: 1px solid rgba(255, 255, 255, 0.3); /* Added a subtle white border */
+        }
+        div#video-popup-container {
+    cursor: grab;
+    width: 46%;
+    height: 37%;
+}
+
+        /* Fallback for browsers not supporting backdrop-filter - also enhanced */
+        .glass-surface--fallback {
+            background: rgba(255, 255, 255, 0.35); /* More opaque fallback */
+            backdrop-filter: blur(15px) saturate(2.0) brightness(1.2); /* Stronger fallback blur/saturate */
+            -webkit-backdrop-filter: blur(15px) saturate(2.0) brightness(1.2);
+            border: 1px solid rgba(255, 255, 255, 0.4); /* Stronger border */
+            box-shadow:
+                0 10px 40px 0 rgba(31, 38, 135, 0.3), /* Stronger fallback shadow */
+                0 4px 20px 0 rgba(31, 38, 135, 0.2),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.5),
+                inset 0 -1px 0 0 rgba(255, 255, 255, 0.3);
+        }
+        @media (prefers-color-scheme: dark) {
+            .glass-surface--fallback {
+                background: rgba(255, 255, 255, 0.15); /* Dark mode fallback */
+                backdrop-filter: blur(15px) saturate(2.0) brightness(1.3);
+                -webkit-backdrop-filter: blur(15px) saturate(2.0) brightness(1.3);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                box-shadow:
+                    inset 0 1px 0 0 rgba(255, 255, 255, 0.3),
+                    inset 0 -1px 0 0 rgba(255, 255, 255, 0.2);
+            }
+        }
+        @supports not (backdrop-filter: blur(10px)) {
+            .glass-surface--fallback {
+                background: rgba(255, 255, 255, 0.5); /* Strongest fallback for no backdrop-filter */
+                box-shadow:
+                    inset 0 1px 0 0 rgba(255, 255, 255, 0.6),
+                    inset 0 -1px 0 0 rgba(255, 255, 255, 0.4);
+            }
+            .glass-surface--fallback::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: rgba(255, 255, 255, 0.2); /* More opaque overlay */
+                border-radius: inherit;
+                z-index: -1;
+            }
+        }
+        .glass-surface:focus-visible {
+            outline: 2px solid light-dark(#007AFF, #0A84FF);
+            outline-offset: 2px;
+        }
+        /* END NEW GLASS SURFACE CSS */
+
+        /* Keyframe animation for the background gradient */
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Styles for individual app screens */
+        .app-screen {
+            display: none; /* Hidden by default */
+            animation: fadeIn 0.5s ease-in-out; /* Fade-in transition */
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+            border-radius: 1.5rem; /* Ensure app screens have rounded corners */
+        }
+        .app-screen.active {
+            display: flex; /* Display when active */
+        }
+        
+        /* Fade-in animation for screen transitions */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        /* Styling for iframes to fit their containers */
+        .full-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 1.5rem;
+        }
+
+        /* Floating Button Styles - Positioned and styled for glass effect */
+        #floating-fullscreen-button,
+        #floating-media-button,
+        #back-to-playlists-bottom-button,
+        #back-to-playlists-bottom-button-search,
+        #floating-keyboard-button, /* Added keyboard button */
+        #clear-search-button, /* Added clear search button */
+        #start-trip-floating-button { /* New: Floating Start Trip Button */
+            position: fixed;
+            background-color: #8A0806; /* Purple glass */
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 9999px; /* Pill shape */
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            z-index: 100; /* Above everything else */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        #floating-fullscreen-button:hover,
+        #floating-media-button:hover,
+        #back-to-playlists-bottom-button:hover,
+        #back-to-playlists-bottom-button-search:hover,
+        #floating-keyboard-button:hover, /* Added keyboard button */
+        #clear-search-button:hover, /* Added clear search button */
+        #start-trip-floating-button:hover { /* New: Floating Start Trip Button */
+            transform: scale(1.05); /* Only scale, no translate */
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Specific positioning for floating buttons */
+        #floating-fullscreen-button { bottom: 1rem; left: 6rem; right: auto; }
+        #floating-media-button { bottom: 1rem; right: 1rem; }
+        #floating-keyboard-button { /* New keyboard button position */
+            bottom: 1rem;
+            right: 8rem; /* Adjusted to be next to media button */
+            display: none; /* Hidden by default */
+        }
+        #floating-keyboard-button.active-keyboard {
+            background-color: #90EE90; /* Chrome Green */
+            color: black; /* Black icon */
+        }
+        #floating-keyboard-button.inactive-keyboard {
+            background-color: #FF0000; /* Red */
+            color: white; /* White icon */
+        }
+        #clear-search-button { /* New clear search button position */
+            top: 3rem; /* Adjusted to be at search bar level */
+            right: 3.5rem; /* Aligned with the right side of the screen */
+            padding: 0.75rem 1rem; /* Smaller padding for a cleaner look */
+            font-size: 0.8rem; /* Smaller font size */
+            display: none; /* Hidden by default, will be controlled by JS */
+        }
+        @media (max-width: 768px) { /* Mobile adjustments for clear search button */
+            #clear-search-button {
+                top: 10rem; /* Adjust for mobile layout */
+                right: 1rem;
+            }
+        }
+
+        #back-to-playlists-bottom-button, #back-to-playlists-bottom-button-search {
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none; /* Hidden by default */
+        }
+
+        #start-trip-floating-button { /* New: Floating Start Trip Button */
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #10B981; /* Green color */
+            display: none; /* Hidden by default */
+        }
+
+        /* Top bar positioning and transition */
+        .top-bar {
+            top: 1rem;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Main CarPlay interface container adjustments */
+        #carplay-main-interface {
+            position: fixed; /* Changed to fixed for default 90% fullscreen */
+            top: 4%; /* Centered vertically */
+            left: 4%; /* Centered horizontally */
+            width: 98vw; /* 90% of viewport width */
+            height: 98vh; /* 90% of viewport height */
+            /* Removed margin-top and margin-bottom as position: fixed handles positioning */
+            transition: all 0.5s ease-in-out; /* Smooth transition for pseudo-fullscreen */
+            max-width: 1280px; /* Max width for desktop */
+            border-radius: 2rem; /* Increased rounded corners for main interface */
+        }
+
+        /* Pseudo-fullscreen class for the CarPlay interface */
+        #carplay-main-interface.carplay-pseudo-fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            border-radius: 0;
+            z-index: 99; /* Ensure it's above other content but below the floating button */
+            max-width: 100vw; /* When fullscreen, it should take full width */
+        }
+
+        /* Shrink content when in pseudo-fullscreen mode for better fit */
+        #carplay-main-interface.carplay-pseudo-fullscreen #digital-time {
+            font-size: 2.2rem !important;
+        }
+        #carplay-main-interface.carplay-pseudo-fullscreen #weather-temp-main {
+            font-size: 4rem !important;
+        }
+
+        /* Scrollbar styling for better aesthetics */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+
+        /* Active app icon styling */
+        .app-icon.active {
+            background-color: #6b22ff; /* Chrome Green */
+            color: white; /* Black icon */
+            transform: scale(1.1);
+        }
+
+        /* Gemini-like Chat Styling */
+        .chat-message {
+            max-width: 70%;
+            padding: 0.75rem 1rem;
+            border-radius: 1.5rem; /* More rounded */
+            margin-bottom: 0.75rem;
+            word-wrap: break-word;
+            font-size: 0.9rem; /* Slightly smaller font for chat */
+        }
+
+        .chat-message.user {
+            background-color: #4f46e5; /* Blue */
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 0.5rem; /* Pointy bottom right */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .chat-message.ai {
+            background-color: #2d3748; /* Darker gray */
+            color: white;
+            margin-right: auto;
+            border-bottom-left-radius: 0.5rem; /* Pointy bottom left */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        #ai-input {
+            border-radius: 2rem; /* Fully rounded pill shape */
+            padding: 0.75rem 1.25rem;
+            background-color: rgba(255, 255, 255, 0.15); /* Lighter glass */
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+        }
+        #ai-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        #ai-input:focus {
+            background-color: rgba(255, 255, 255, 0.2);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.4), 0 0 0 2px rgba(147, 51, 234, 0.5);
+        }
+
+        /* YouTube Channel Card Styling (Playlist View) - Smaller and more responsive */
+        .youtube-channel-card {
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.4rem; /* Reduced padding for smaller card */
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            aspect-ratio: 1 / 1; /* Make the card square */
+            width: 100%; /* Ensure it takes full grid cell width */
+            box-sizing: border-box; /* Include padding and border in the element's total width and height */
+        }
+        .youtube-channel-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .youtube-channel-card img {
+            width: 85%; /* Reverted to 85% */
+            height: 85%; /* Reverted to 85% */
+            object-fit: cover;
+            border-radius: 1rem; /* Slightly rounded corners for the image */
+            margin-bottom: 0.4rem; /* Reduced margin-bottom for smaller card */
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        .youtube-channel-card h2 {
+            font-size: 0.8rem; /* Reduced font size for smaller card */
+            font-weight: 600;
+            color: white;
+            text-align: center; /* Center text */
+            white-space: nowrap; /* Prevent text wrapping */
+            overflow: hidden; /* Hide overflow text */
+            text-overflow: ellipsis; /* Add ellipsis for long titles */
+            max-width: 95%; /* Limit width of text */
+        }
+
+        /* YouTube Video Card Styling (List View and Search Results) - Smaller and more responsive */
+        .youtube-video-card, .youtube-search-card {
+            cursor: pointer;
+            display: flex;
+            flex-direction: row; /* Horizontal layout for list */
+            align-items: center;
+            padding: 0.5rem; /* Reduced padding */
+            border-radius: 0.75rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+            width: 100%; /* Take full width in list */
+            box-sizing: border-box;
+        }
+        .youtube-video-card:hover, .youtube-search-card:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        .youtube-video-card img, .youtube-search-card img {
+            width: 100px; /* Reduced thumbnail size for list view */
+            height: 56.25px; /* 16:9 aspect ratio */
+            object-fit: cover;
+            border-radius: 0.5rem;
+            margin-right: 0.5rem; /* Reduced margin */
+            flex-shrink: 0; /* Prevent image from shrinking */
+        }
+        .youtube-video-card h3, .youtube-search-card h3 {
+            font-size: 0.9rem; /* Reduced font size for list */
+            font-weight: 500;
+            color: white;
+            line-height: 1.3;
+            flex-grow: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* Limit to 2 lines */
+            -webkit-box-orient: vertical;
+        }
+
+        /* YouTube Suggestion Buttons */
+        .youtube-suggestion-button {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px; /* Pill shape */
+            font-size: 0.85rem;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            white-space: nowrap; /* Prevent text wrapping */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: inline-flex; /* Use inline-flex for proper button layout */
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .youtube-suggestion-button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+        .youtube-suggestion-button:active {
+            transform: translateY(0);
+        }
+
+        /* YouTube Suggestion Category Tag */
+        .youtube-suggestion-category-tag {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 0.5rem;
+            align-self: flex-start; /* Align tag to the start of the column */
+        }
+
+        /* Dashboard Logo Effect */
+        .metallic-logo-effect {
+            width: 300px; /* Increased width for 3x size */
+            height: auto;
+            margin-bottom: 1rem;
+            filter: grayscale(100%) brightness(30%); /* Dark gray metallic effect */
+        }
+
+        /* Car Dashboard Specific Styles */
+        .car-dashboard-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .gauge-container.absolute-pos {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        .gauge-label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 0.25rem;
+        }
+
+        .speed-display {
+            font-size: 2.5rem;
+            line-height: 1;
+        }
+
+        .rpm-display {
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+
+        .gear-indicator {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #10b981;
+        }
+
+        /* Styles for 360 Camera View */
+        .car-cam-360-container {
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 1.5rem;
+            display: flex;
+            flex-direction: column; /* Changed to column to stack image and buttons */
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.7);
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.7);
+            overflow: hidden;
+            position: relative; /* Added for button positioning */
+        }
+        .car-cam-360-container img {
+            height: 160%; /* Changed from 100% to 160% as requested */
+            width: 100%; 
+            object-fit: cover; /* Changed from contain to cover as requested */
+        }
+        .car-cam-360-controls {
+            position: absolute;
+            bottom: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            z-index: 20;
+        }
+        .car-cam-360-controls button {
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .car-cam-360-controls button:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+
+        /* Digital Clock Styles (Apple iOS 19 style) */
+        #digital-time {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 0.5rem;
+            display: flex; /* Use flex to align hour/minute/second spans */
+            align-items: baseline; /* Align numbers at baseline */
+            gap: 0.2rem; /* Small gap between time parts */
+        }
+        #digital-time span {
+            transition: opacity 0.3s ease; /* Smooth transition for opacity changes */
+        }
+        #digital-time .hours { opacity: 1; }
+        #digital-time .minutes { opacity: 0.8; }
+        #digital-time .seconds { opacity: 0.4; }
+
+        /* Updated #digital-date styles based on user request */
+        #digital-date {
+            font-size: 1.2rem;
+            color: rgb(255 255 255 / 99%);
+            font-weight: bold;
+            text-align: center;
+            line-height: 1.4; /* Ensure good line spacing for two lines */
+        }
+        /* New class for highlight when less than 20 minutes */
+        #digital-date.countdown-highlight {
+            font-size: 1.7rem;
+            color: #90EE90; /* Light Chrome Green */
+            font-weight: bold;
+        }
+        /* New class for highlight when less than 1 hour but more than 20 minutes */
+        #digital-date.countdown-medium-highlight {
+            font-size: 1.7rem;
+            color: #FFA07A; /* Light Orange */
+            font-weight: bold;
+        }
+
+        /* Settings Range Input Styling */
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+        input[type="range"]:hover { opacity: 1; }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #9333ea; /* Purple thumb */
+            cursor: pointer;
+            box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.5);
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #9333ea;
+            cursor: pointer;
+            box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.5);
+        }
+
+        /* Animated Weather Icon Styles */
+        /* Keyframes for a subtle pulse and float animation */
+        @keyframes pulse-float {
+            0% { transform: scale(1) translateY(0px); opacity: 1; }
+            50% { transform: scale(1.05) translateY(-2px); opacity: 0.9; }
+            100% { transform: scale(1) translateY(0px); opacity: 1; }
+        }
+        /* Removed rotate-subtle animation as requested */
+        /* @keyframes rotate-subtle {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        } */
+
+        /* Apply animation to weather icons */
+        #dashboard-weather-icon, #weather-icon {
+            animation: pulse-float 3s ease-in-out infinite alternate; /* Removed rotate-subtle */
+            transition: transform 0.3s ease-in-out; /* Smooth transition for scale changes if any */
+        }
+
+        /* Electronic Quran specific styles */
+        .quran-text {
+            font-family: 'Amiri Quran', serif; /* A common font for Quranic text */
+            font-size: 2rem; /* Larger font size for readability */
+            line-height: 2.5; /* Increased line height */
+            text-align: center;
+            direction: rtl; /* Ensure right-to-left text direction */
+            padding: 1rem;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 1rem;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            overflow-y: auto;
+            max-height: 80%; /* Limit height to allow scrolling */
+        }
+
+        /* Tajweed Colors (Example - these are simplified and not exhaustive) */
+        .tajweed-ghunnah { color: #ff0000; } /* Red for Ghunnah */
+        .tajweed-idgham { color: #00ff00; } /* Green for Idgham */
+        .tajweed-ikhfaa { color: #0000ff; } /* Blue for Ikhfaa */
+        .tajweed-qalqalah { color: #ffff00; } /* Yellow for Qalqalah */
+        .tajweed-madd { color: #ffa500; } /* Orange for Madd */
+
+        .quran-controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+        .quran-control-button {
+            background-image: linear-gradient(to right, #6366f1, #8b5cf6);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .quran-control-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Dashboard Grid Column Sizing (Desktop) */
+        /* Removed old flex-direction and width classes as layout is now a CSS Grid */
+        /* .dashboard-main-grid {
+            flex-direction: row;
+        }
+        .dashboard-col-25-percent { width: 25%; }
+        .dashboard-col-50-percent { width: 50%; }
+        .dashboard-col-25-percent-right { width: 25%; } */
+
+     
+
+        /* Weather section content to take full width and height */
+        #screen-Weather > div {
+            width: 100%;
+            height: 100%;
+            max-width: none;
+        }
+        #screen-Weather .glass-surface {
+            flex-grow: 1;
+        }
+
+        /* Video Pop-up Container Styles */
+        #video-popup-container {
+            position: fixed;
+            bottom: 6rem;
+            right: 1rem;
+            width: 320px;
+            height: 180px;
+            background-color: rgba(0, 0, 0, 0.9);
+            border-radius: 1rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 110;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            resize: both; /* Allow resizing */
+            min-width: 200px;
+            min-height: 112px;
+        }
+        #video-popup-container.active { display: flex; }
+        #video-popup-iframe {
+            width: 100%;
+            height: 100%;
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        div#digital-date-line2 {
+    font-size: 1.4em;
+}
+
+        .video-popup-controls {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            display: flex;
+            gap: 0.5rem;
+            z-index: 120;
+        }
+        .video-popup-controls button {
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .video-popup-controls button:hover { background-color: rgba(0, 0, 0, 0.8); }
+
+        /* Responsive adjustments for smaller screens (mobile first) */
+        @media (max-width: 768px) {
+            body {
+                overflow-y: auto; /* Allow scrolling on mobile body if content overflows */
+            }
+            .top-bar {
+                padding: 0.5rem 1rem;
+                font-size: 0.8rem;
+                top: 0.5rem; /* Closer to top edge */
+            }
+
+            #carplay-main-interface {
+                top: 2%; /* Adjusted for mobile to be slightly less than 5% */
+                left: 2%;
+                width: 96vw; /* Adjusted for mobile */
+                height: 96vh; /* Adjusted for mobile */
+                flex-direction: column; /* Stack main interface on smaller screens */
+                border-radius: 1rem;
+            }
+
+            /* Navigation Dock (bottom on mobile) */
+            <nav class="w-20 sm:w-24 bg-black/20 flex flex-col items-center justify-start pt-8 p-2 space-y-4 border-r border-white/10 flex-shrink-0 transition-opacity 0.3s ease;">
+                <button data-app="Dashboard" class="app-icon">
+                    <i data-lucide="layout-grid"></i>
+                </button>
+                <button data-app="Media" class="app-icon">
+                    <i data-lucide="play-circle"></i>
+                </button>
+                 <button data-app="Radio" class="app-icon">
+                    <i data-lucide="radio"></i>
+                </button>
+                <button data-app="AIAssistant" class="app-icon"> 
+                    <i data-lucide="sparkles"></i> 
+                </button>
+                <button data-app="Weather" class="app-icon"> 
+                    <i data-lucide="cloud-sun"></i> 
+                </button>
+                <button data-app="Map" class="app-icon"> <!-- New Map App Icon -->
+                    <i data-lucide="map"></i> 
+                </button>
+                <button data-app="Quran" class="app-icon">
+                    <i data-lucide="book-open"></i>
+                </button>
+            </nav>
+
+            main {
+                order: 1; /* Main content above nav dock on mobile */
+                height: calc(100% - 64px); /* Adjust height for nav dock */
+            }
+
+            .app-screen {
+                padding: 1rem;
+            }
+
+            /* Dashboard Grid Layout adjustments for mobile */
+            .dashboard-main-grid {
+                grid-template-columns: 1fr; /* Single column on mobile */
+                grid-template-rows: auto; /* Auto height for rows on mobile */
+                height: auto; /* Allow height to adjust */
+            }
+
+            /* Ensure children of the main grid stack correctly on mobile */
+            .dashboard-main-grid > div { /* Targets the direct children which are the grid cells/columns */
+                height: auto !important; /* Override fixed heights */
+                width: 100%; /* Full width */
+            }
+
+            .car-cam-360-container {
+                height: 200px; /* Fixed height for camera on mobile */
+            }
+
+        
+
+            /* YouTube Channel Card (Playlist View) - Mobile adjustments */
+            .youtube-channel-card {
+                padding: 0.2rem;
+                border-radius: 0.75rem;
+            }
+            .youtube-channel-card img {
+                width: 70%;
+                height: 70%;
+                border-radius: 0.75rem;
+            }
+            .youtube-channel-card h2 {
+                font-size: 0.7rem;
+            }
+
+            /* YouTube Video Card (List/Search) - Mobile adjustments */
+            .youtube-video-card img, .youtube-search-card img {
+                width: 90px;
+                height: 50.625px; /* Maintain 16:9 aspect ratio */
+                margin-right: 0.5rem;
+            }
+            .youtube-video-card h3, .youtube-search-card h3 {
+                font-size: 0.85rem;
+            }
+
+            /* Floating Buttons - Mobile positioning */
+            #floating-fullscreen-button,
+            #floating-media-button,
+            #back-to-playlists-bottom-button,
+            #back-to-playlists-bottom-button-search,
+            #floating-keyboard-button, /* Added keyboard button */
+            #start-trip-floating-button { /* New: Floating Start Trip Button */
+                padding: 0.75rem 1rem;
+                font-size: 0.8rem;
+                gap: 0.25rem;
+            }
+            #floating-fullscreen-button { left: 1rem !important; transform: none; }
+            #floating-media-button { right: 1rem; }
+            #floating-keyboard-button { /* New keyboard button position for mobile */
+                right: 5.5rem; /* Adjusted for mobile */
+            }
+            #back-to-playlists-bottom-button, #back-to-playlists-bottom-button-search {
+                left: 50%;
+                transform: translateX(-50%);
+                bottom: 5.5rem; /* Adjust position to not overlap with other buttons */
+            }
+            #start-trip-floating-button { /* New: Floating Start Trip Button */
+                bottom: 5.5rem; /* Adjusted for mobile */
+            }
+
+            /* Video Pop-up Container - Mobile adjustments */
+            #video-popup-container {
+                width: 90%;
+                height: auto;
+                min-width: unset;
+                min-height: unset;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                bottom: unset;
+                right: unset;
+            }
+        }
+
+        img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
+    position: fixed;
+}
+        /* Prayer Times Specific Styles */
+        /* Changed from grid to flex for a single row display */
+        .prayer-times-row {
+            display: flex;
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            justify-content: center; /* Center items in the row */
+            gap: 0.75rem; /* Spacing between prayer times */
+            width: 100%;
+            margin-top: 1rem;
+        }
+        .prayer-time-item {
+            display: flex;
+            flex-direction: column; /* Stack name and time vertically */
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            min-width: 80px; /* Ensure minimum width for each item */
+            text-align: center;
+            transition: background-color 0.3s ease; /* Smooth transition for highlight */
+        }
+        .prayer-time-item.current-prayer {
+            background-color: rgba(147, 51, 234, 0.3); /* Highlight current prayer */
+            font-weight: bold;
+            border: 1px solid #9333ea;
+        }
+        .prayer-time-item.next-prayer { /* New: Next prayer highlight */
+            background-color: rgba(0, 123, 255, 0.2); /* Light blue */
+            border: 1px solid #007bff;
+        }
+        .prayer-name {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem; /* Smaller font for name */
+            margin-bottom: 0.2rem;
+        }
+        .prayer-time {
+            color: white;
+            font-size: 1rem; /* Larger font for time */
+        }
+
+        /* OBD-II Specific Styles */
+        .obd-data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            width: 100%;
+        }
+        .obd-data-card {
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 1rem;
+            text-align: center;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+        }
+        .obd-data-card .value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #10b981; /* Green for data */
+            margin-bottom: 0.25rem;
+        }
+        .obd-data-card .label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
