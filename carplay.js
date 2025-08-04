@@ -655,7 +655,7 @@
 
 
         // YouTube Search Functionality
-        const youtubeReaderSuggestions = ["فارس عنتر","ياسر الدوسري", "علي جابر", "محمد ايوب", "عبد الباسط عبد الصمد", "مشاري العفاسي"];
+        const youtubeReaderSuggestions = ["فارس عنتر", "عبد الباسط عبد الصمد","ياسر الدوسري", "علي جابر", "محمد ايوب", "مشاري العفاسي", "عمر وهنا "];
         // Using the first 63 surahs for demonstration (9 rows x 7 columns)
         const youtubeSurahSuggestions = [
             "الفاتحة", "البقرة", "آل عمران", "النساء", "المائدة", "الأنعام", "الأعراف", "الأنفال", "التوبة", "يونس",
