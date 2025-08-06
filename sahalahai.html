@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سهالة AI: ذكاء اصطناعي يبسط حياتك</title>
+    <title>سهالة AI: ذكاء اصطناعي لخدمتكم</title>
 
     <!-- External Libraries & Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
@@ -94,14 +94,15 @@
             height: 100%;
             position: relative;
             display: flex;
-            align-items: center;
+            align-items: flex-end; /* Align to bottom */
             justify-content: center;
             overflow: hidden;
         }
 
         #hero-robot-img {
-            width: 110%;
-            max-width: 1000px;
+            height: 150%; /* Modified */
+            width: auto;   /* Modified */
+            max-width: none;
             animation: float-robot 15s infinite ease-in-out;
         }
 
@@ -144,23 +145,21 @@
             box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4);
         }
 
-        /* UPDATED: Features Grid */
+        /* Features Grid */
         .features-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 1.5rem;
-            max-width: 72rem; /* max-w-6xl */
+            max-width: 72rem;
             margin: auto;
         }
         .feature-card {
-            background-color: #1f2937; /* bg-gray-800 */
+            background-color: #1f2937;
             padding: 2rem;
-            border-radius: 0.75rem; /* rounded-xl */
-            border: 1px solid #374151; /* border-gray-700 */
+            border-radius: 0.75rem;
+            border: 1px solid #374151;
             text-align: center;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            position: relative;
-            overflow: hidden;
         }
         .feature-card:hover {
             transform: translateY(-10px);
@@ -184,7 +183,7 @@
             color: #9ca3af;
         }
 
-        /* UPDATED: How it Works Steps */
+        /* How it Works Steps */
         .how-it-works-container {
             display: flex;
             flex-direction: column;
@@ -239,7 +238,7 @@
             color: #9ca3af;
         }
         
-        /* UPDATED: Accordion Styles */
+        /* Accordion Styles */
         .accordion-item {
             background-color: #1f2937;
             border-radius: 0.75rem;
@@ -313,9 +312,9 @@
         @media (max-width: 768px) {
             .hero-content-wrapper { flex-direction: column; }
             .hero-image-container, .hero-text-container { width: 100%; }
-            .hero-image-container { height: 50vh; order: 1; }
-            .hero-text-container { height: 50vh; order: 2; text-align: center; padding: 1rem; }
-            #hero-robot-img { width: 80%; }
+            .hero-image-container { height: 50vh; order: 1; align-items: center; }
+            #hero-robot-img { height: 100%; }
+            .hero-text-container { height: 50vh; order: 2; text-align: center; padding: 1rem; justify-content: start; }
             .hero-text-container a { margin: 0 auto; }
             .timeline-line { display: none; }
         }
@@ -336,16 +335,16 @@
             </div>
             <div class="hero-text-container">
                 <h1 class="animate-pulse-slow animate-fade-in-up" style="font-size: 3rem; line-height: 1.1; font-weight: 800; margin-bottom: 1.5rem; text-shadow: 0 0 20px rgba(0,0,0,0.5); color: #f9fafb;">
-                    سهالة AI: ذكاء اصطناعي يبسط حياتك 
-                    <span style="display: inline-block; background-image: linear-gradient(to right, #a855f7, #3b82f6); color: white; font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.75rem; border-radius: 9999px; margin-right: 0.5rem;">جديد</span>
+                    سهالة AI: لخدمة مراجعين أسهل
+                    <span style="display: inline-block; background-image: linear-gradient(to right, #a855f7, #3b82f6); color: white; font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.75rem; border-radius: 9999px; margin-right: 0.5rem;">حصري</span>
                 </h1>
                 <p class="animate-fade-in-up" style="font-size: 1.25rem; color: #d1d5db; margin-bottom: 2.5rem; animation-delay: 0.2s; text-shadow: 0 0 10px rgba(0,0,0,0.5);">
-                    اكتشف كيف يمكن لسهالة AI أن يحول طريقة عملك وتفاعلك مع التكنولوجيا، مقدمًا حلولًا ذكية ومبتكرة.
+                    نقدم لكم الطريقة الأحدث والأذكى للتواصل وتقديم الشكاوى ومتابعتها بكل سهولة عبر واتساب.
                 </p>
                 <a href="#" class="glass-surface animate-fade-in-up" style="width: fit-content; height: 64px; border-radius: 32px; padding: 0.75rem 2rem; text-decoration: none; cursor: pointer; animation-delay: 0.4s;">
                     <button style="color: white; font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; background: none; border: none; cursor: pointer;">
-                        <i class="fas fa-rocket" style="margin-left: 0.5rem;"></i>
-                        <span>ابدأ الآن</span>
+                        <i class="fab fa-whatsapp" style="margin-left: 0.75rem;"></i>
+                        <span>ابدأ المحادثة</span>
                     </button>
                 </a>
             </div>
@@ -355,7 +354,7 @@
     <!-- Features Section -->
     <section style="padding: 5rem 1rem; background-color: #111827;">
         <h2 class="motion-element" style="font-size: 2.25rem; font-weight: 700; text-align: center; margin-bottom: 3rem;" class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-teal-400">
-            قدرات استثنائية
+            ميزات رئيسية لخدمتكم
         </h2>
         <div id="features-grid" class="features-grid motion-element">
             <!-- Feature cards will be injected by JS -->
@@ -365,37 +364,11 @@
     <!-- How it Works section -->
     <section style="padding: 5rem 1rem; background-color: #030712;">
         <h2 class="motion-element" style="font-size: 2.25rem; font-weight: 700; text-align: center; margin-bottom: 4rem;" class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-400">
-            كيف يعمل سهالة AI
+            رحلة المراجع في خطوات بسيطة
         </h2>
-        <div class="how-it-works-container">
+        <div id="how-it-works-container" class="how-it-works-container">
             <div class="timeline-line"></div>
-            <!-- Step 1 -->
-            <div class="step-card motion-element" style="animation-delay: 0.1s;">
-                <div class="step-number">01</div>
-                <div class="step-icon"><i class="fas fa-keyboard"></i></div>
-                <div class="step-content">
-                    <h3>أدخل طلبك</h3>
-                    <p>ابدأ بكتابة سؤالك، فكرتك، أو المهمة التي تريد إنجازها. يمكنك استخدام لغة طبيعية وبسيطة.</p>
-                </div>
-            </div>
-            <!-- Step 2 -->
-            <div class="step-card motion-element" style="animation-delay: 0.3s;">
-                <div class="step-number">02</div>
-                <div class="step-icon"><i class="fas fa-cogs"></i></div>
-                <div class="step-content">
-                    <h3>معالجة ذكية</h3>
-                    <p>يقوم سهالة AI بتحليل طلبك باستخدام نماذج لغوية متقدمة لفهم السياق والهدف بدقة.</p>
-                </div>
-            </div>
-            <!-- Step 3 -->
-            <div class="step-card motion-element" style="animation-delay: 0.5s;">
-                <div class="step-number">03</div>
-                <div class="step-icon"><i class="fas fa-lightbulb"></i></div>
-                <div class="step-content">
-                    <h3>احصل على نتائج</h3>
-                    <p>يقدم لك سهالة AI إجابات دقيقة، محتوى إبداعي، أو حلول مبتكرة في ثوانٍ معدودة.</p>
-                </div>
-            </div>
+            <!-- Steps will be injected by JS -->
         </div>
     </section>
     
@@ -403,15 +376,15 @@
     <section style="padding: 5rem 1rem; background-color: #111827;">
         <div class="motion-element" style="max-width: 56rem; margin: auto; text-align: center;">
             <h2 style="font-size: 2.25rem; font-weight: 700; margin-bottom: 2rem;" class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-400">
-                ماذا يقول مستخدمونا؟
+                ماذا يقول مراجعونا؟
             </h2>
             <blockquote style="font-size: 1.5rem; font-style: italic; color: #d1d5db; margin-bottom: 2rem; line-height: 1.75;">
-                "سهالة AI غيرت قواعد اللعبة بالنسبة لنا، لقد بسطت عملياتنا بشكل كبير وزادت من كفاءة فريقنا. لا يمكنني تخيل العمل بدونها الآن."
+                "خدمة سهالة AI عبر واتساب هي الأفضل على الإطلاق! قدمت شكوى وتم حلها بسرعة وكفاءة. تجربة ممتازة ومتابعة مستمرة لحالة الطلب."
             </blockquote>
             <div style="display: flex; flex-direction: column; align-items: center; background-color: #1f2937; padding: 1.5rem; border-radius: 0.75rem; border: 1px solid #374151; max-width: 20rem; margin: auto;">
-                <img src="https://edm.gov.om/wp-content/uploads/2025/07/sahalah-ai.png" alt="سهالة AI" style="width: 6rem; height: 6rem; border-radius: 50%; object-fit: cover; margin-bottom: 1rem; border: 2px solid #a855f7;">
-                <h3 style="font-size: 1.25rem; font-weight: 700; color: #f9fafb; margin-bottom: 0.25rem;">سهالة AI</h3>
-                <p style="color: #9ca3af; font-size: 0.875rem;">مساعد الذكاء الاصطناعي</p>
+                <img src="https://i.pravatar.cc/150?u=a042581f4e29026704d" alt="أحمد المحروقي" style="width: 6rem; height: 6rem; border-radius: 50%; object-fit: cover; margin-bottom: 1rem; border: 2px solid #a855f7;">
+                <h3 style="font-size: 1.25rem; font-weight: 700; color: #f9fafb; margin-bottom: 0.25rem;">أحمد المحروقي</h3>
+                <p style="color: #9ca3af; font-size: 0.875rem;">مراجع راضٍ</p>
             </div>
         </div>
     </section>
@@ -434,27 +407,36 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
 
-            // --- DATA ---
+            // --- DATA (Updated based on the provided scenario) ---
             const featuresData = [
-                { icon: "fas fa-brain", title: "فهم اللغة الطبيعية المتقدم", description: "يتفهم سهالة AI لغتك الطبيعية بدقة غير مسبوقة، مما يتيح تفاعلات سلسة وفعالة." },
-                { icon: "fas fa-cogs", title: "تخصيص ذكي", description: "يتكيف سهالة AI مع احتياجاتك وتفضيلاتك، مقدمًا تجربة مخصصة وفريدة لكل مستخدم." },
-                { icon: "fas fa-plug", title: "تكامل سلس", description: "يمكن دمج سهالة AI بسهولة مع أنظمتك وتطبيقاتك الحالية، لتعزيز سير العمل." },
-                { icon: "fas fa-chart-line", title: "تحليلات عميقة", description: "يقدم سهالة AI رؤى قيمة من خلال تحليلات البيانات المتقدمة، لمساعدتك في اتخاذ قرارات أفضل." },
-                { icon: "fas fa-robot", title: "تفاعل متعدد الأوجه", description: "تفاعل مع سهالة AI عبر النصوص، الصوت، وحتى الصور للحصول على تجربة شاملة." },
-                { icon: "fas fa-shield-alt", title: "أمان وخصوصية", description: "نلتزم بأعلى معايير الأمان لحماية بياناتك وضمان خصوصيتك في جميع الأوقات." }
+                { icon: "fab fa-whatsapp", title: "تواصل فوري عبر واتساب", description: "ابدأ محادثة مع مساعدنا الذكي مباشرة من واتساب لتقديم طلب أو شكوى." },
+                { icon: "fas fa-file-signature", title: "تقديم وتتبع الشكاوى", description: "قدم شكواك بسهولة وتتبع حالتها خطوة بخطوة من خلال رقم الطلب الخاص بك." },
+                { icon: "fas fa-lightbulb", title: "تحليل ذكي للشكوى", description: "يقوم الذكاء الاصطناعي بتحليل شرحك لاقتراح الفئة الأنسب لطلبك وتسريع المعالجة." },
+                { icon: "fas fa-paper-plane", title: "إرسال سهل للمرفقات", description: "أرفق الصور والموقع الجغرافي مباشرة في المحادثة لتوضيح شكواك بشكل أفضل." },
+                { icon: "fas fa-bell", title: "إشعارات بحالة الطلب", description: "ابق على اطلاع دائم بحالة طلبك عبر إشعارات تصلك عند كل تحديث، من التسجيل حتى الإغلاق." },
+                { icon: "fas fa-headset", title: "تحويل للمساعدة البشرية", description: "في حال احتجت لمساعدة إضافية، يمكنك طلب التحويل إلى موظف مركز الاتصالات بسهولة." }
+            ];
+
+            const howItWorksData = [
+                { number: "01", icon: "fab fa-whatsapp", title: "ابدأ المحادثة", description: "تواصل مع حسابنا على واتساب. سيرحب بك مساعدنا الذكي ويقدم لك الخيارات." },
+                { number: "02", icon: "fas fa-edit", title: "قدم بيانات الشكوى", description: "اختر 'تقديم طلب جديد' وقدم شرحاً كتابياً لشكواك، مع إمكانية إرفاق صور وموقع." },
+                { number: "03", icon: "fas fa-cogs", title: "دع الذكاء الاصطناعي يعمل", description: "يحلل النظام شكواك ويوجهها للقسم المختص في بلدية ظفار تلقائياً." },
+                { number: "04", icon: "fas fa-tasks", title: "تابع التنفيذ", description: "يتم تكليف الموظفين بمعالجة طلبك، ويمكنك متابعة حالته في أي وقت." },
+                { number: "05", icon: "fas fa-check-circle", title: "استلم إشعار الإغلاق", description: "سيتم إبلاغك عند إغلاق الطلب مع إمكانية تقييم جودة الخدمة المقدمة." }
             ];
 
             const faqData = [
-                { title: "ما هو سهالة AI؟", content: "سهالة AI هو مساعد ذكاء اصطناعي متقدم مصمم لتبسيط المهام اليومية، وتحسين الإنتاجية، وتقديم تجربة تفاعلية سلسة للمستخدمين الأفراد والشركات." },
-                { title: "كيف يمكن لسهالة AI أن يساعدني؟", content: "يمكن لسهالة AI مساعدتك في مجموعة واسعة من المهام، بما في ذلك الإجابة على الأسئلة، كتابة النصوص، جدولة المواعيد، تحليل البيانات، وحتى توليد الأفكار الإبداعية." },
-                { title: "هل سهالة AI آمن للاستخدام؟", content: "نعم، نحن نولي أقصى درجات الأمان والخصوصية لبيانات مستخدمينا. يتم تشفير جميع التفاعلات، ونتبع أفضل الممارسات العالمية لحماية معلوماتك." },
-                { title: "ما هي خطط التسعير لسهالة AI؟", content: "نقدم خطط تسعير مرنة تناسب الأفراد والشركات من جميع الأحجام. يمكنك زيارة صفحة التسعير الخاصة بنا للحصول على تفاصيل كاملة حول الميزات والأسعار." }
+                { title: "كيف أبدأ الخدمة؟", content: "بكل بساطة، أرسل رسالة إلى رقم واتساب الخاص بالخدمة لبدء محادثة مع مساعد سهالة AI الذكي." },
+                { title: "كيف يمكنني تقديم شكوى؟", content: "بعد بدء المحادثة، اختر خيار 'تقديم طلب جديد' واتبع التعليمات. يمكنك كتابة شرح المشكلة وإرفاق صور أو موقع إذا لزم الأمر." },
+                { title: "كيف أتتبع حالة شكواي؟", content: "اختر خيار 'عرض حالة طلب سابق' من القائمة الرئيسية وأدخل رقم هاتفك. سيعرض لك النظام حالة طلبك الحالي." },
+                { title: "هل يمكنني التحدث إلى موظف حقيقي؟", content: "نعم، إذا لم يتمكن المساعد الذكي من حل مشكلتك أو كنت تفضل التحدث إلى شخص، يمكنك اختيار 'طلب مساعدة' ليتم تحويلك إلى موظف في مركز الاتصالات." }
             ];
 
             // --- INITIALIZATION ---
             initVantaBackground();
             initSplashCursor();
             initFeaturesGrid();
+            initHowItWorks();
             initFaq();
             initMotionOnScroll();
 
@@ -514,7 +496,7 @@
                 });
             }
 
-            // --- UPDATED: FEATURES GRID ---
+            // --- FEATURES GRID ---
             function initFeaturesGrid() {
                 const grid = document.getElementById('features-grid');
                 if (!grid) return;
@@ -528,7 +510,28 @@
                 `).join('');
             }
 
-            // --- UPDATED: FAQ ACCORDION ---
+            // --- HOW IT WORKS STEPS ---
+            function initHowItWorks() {
+                const container = document.getElementById('how-it-works-container');
+                if (!container) return;
+                
+                // Keep the timeline line
+                let content = '<div class="timeline-line"></div>';
+
+                content += howItWorksData.map((step, index) => `
+                    <div class="step-card motion-element" style="animation-delay: ${index * 0.2}s;">
+                        <div class="step-number">${step.number}</div>
+                        <div class="step-icon"><i class="${step.icon}"></i></div>
+                        <div class="step-content">
+                            <h3>${step.title}</h3>
+                            <p>${step.description}</p>
+                        </div>
+                    </div>
+                `).join('');
+                container.innerHTML = content;
+            }
+
+            // --- FAQ ACCORDION ---
             function initFaq() {
                 const container = document.getElementById('faq-container');
                 if (!container) return;
@@ -550,10 +553,8 @@
                     if (button) {
                         const parentItem = button.closest('.accordion-item');
                         const content = parentItem.querySelector('.accordion-content');
-                        
                         const isOpen = parentItem.classList.contains('open');
 
-                        // Close all other items
                         container.querySelectorAll('.accordion-item').forEach(item => {
                             item.classList.remove('open');
                             item.querySelector('.accordion-button').classList.remove('open');
@@ -561,7 +562,6 @@
                             item.querySelector('.accordion-button i').className = 'fas fa-plus';
                         });
 
-                        // Open the clicked one if it was closed
                         if (!isOpen) {
                             parentItem.classList.add('open');
                             button.classList.add('open');
