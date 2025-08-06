@@ -48,25 +48,81 @@
             transition: transform 1s ease-out, opacity 1s ease-out;
         }
 
+        /* NEW: Navigation Bar Styles */
+        .main-nav {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 1100px;
+            z-index: 1000;
+            border-radius: 9999px; /* Pill shape */
+            padding: 0.75rem 1.5rem;
+            /* Glass effect */
+            background: rgba(31, 41, 55, 0.3); /* bg-gray-800 with opacity */
+            backdrop-filter: blur(16px) saturate(1.8);
+            -webkit-backdrop-filter: blur(16px) saturate(1.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+            transition: all 0.3s ease;
+        }
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+        .nav-logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #f9fafb;
+            text-decoration: none;
+        }
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+            margin: 0;
+            padding: 0;
+        }
+        .nav-links a {
+            color: #d1d5db;
+            text-decoration: none;
+            font-weight: 700;
+            transition: color 0.3s ease;
+        }
+        .nav-links a:hover {
+            color: #60a5fa; /* blue-400 */
+        }
+        .nav-cta {
+            display: inline-block;
+            background-image: linear-gradient(to right, #3b82f6, #818cf8);
+            color: white;
+            padding: 0.5rem 1.25rem;
+            border-radius: 9999px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .nav-cta:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(96, 165, 250, 0.5);
+        }
+        .nav-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
         /* Animation Keyframes */
-        @keyframes pulse-slow {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; }
-        }
-        @keyframes fade-in-up {
-            0% { opacity: 0; transform: translateY(20px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes float-robot {
-            0% { transform: translateY(0px) scale(1) rotate(0deg); }
-            50% { transform: translateY(-20px) scale(1.02) rotate(1deg); }
-            100% { transform: translateY(0px) scale(1) rotate(0deg); }
-        }
-        @keyframes gradient-glow {
-            0% { box-shadow: 0 0 15px 5px rgba(96, 165, 250, 0.2); }
-            50% { box-shadow: 0 0 25px 10px rgba(192, 132, 252, 0.3); }
-            100% { box-shadow: 0 0 15px 5px rgba(96, 165, 250, 0.2); }
-        }
+        @keyframes pulse-slow { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
+        @keyframes fade-in-up { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
+        @keyframes float-robot { 0% { transform: translateY(0px) scale(1) rotate(0deg); } 50% { transform: translateY(-20px) scale(1.02) rotate(1deg); } 100% { transform: translateY(0px) scale(1) rotate(0deg); } }
+        @keyframes gradient-glow { 0% { box-shadow: 0 0 15px 5px rgba(96, 165, 250, 0.2); } 50% { box-shadow: 0 0 25px 10px rgba(192, 132, 252, 0.3); } 100% { box-shadow: 0 0 15px 5px rgba(96, 165, 250, 0.2); } }
 
         /* Animation Utility Classes */
         .animate-pulse-slow { animation: pulse-slow 4s infinite ease-in-out; }
@@ -80,226 +136,52 @@
             align-items: center;
             overflow: hidden;
         }
-
-        .hero-content-wrapper {
-            display: flex;
-            width: 100%;
-            height: 100%;
-            position: relative;
-            z-index: 2;
-        }
-
-        .hero-image-container {
-            width: 50%;
-            height: 100%;
-            position: relative;
-            display: flex;
-            align-items: flex-end; /* Align to bottom */
-            justify-content: center;
-            overflow: hidden;
-        }
-
-        #hero-robot-img {
-            height: 150%; /* Modified */
-            width: auto;   /* Modified */
-            max-width: none;
-            margin-top: auto;
-            animation: float-robot 15s infinite ease-in-out;
-        }
-
-        .hero-text-container {
-            width: 50%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 2rem 4rem;
-            text-align: right;
-        }
+        .hero-content-wrapper { display: flex; width: 100%; height: 100%; position: relative; z-index: 2; }
+        .hero-image-container { width: 50%; height: 100%; position: relative; display: flex; align-items: flex-end; justify-content: center; overflow: hidden; }
+        #hero-robot-img { height: 150%; width: auto;margin-top:auto ; max-width: none; animation: float-robot 15s infinite ease-in-out; }
+        .hero-text-container { width: 50%; display: flex; flex-direction: column; justify-content: center; padding: 2rem 4rem; text-align: right; }
         
         /* Motion Component - Scroll Animation */
-        .motion-element {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-        }
-        .motion-element.in-view {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        .motion-element { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
+        .motion-element.in-view { opacity: 1; transform: translateY(0); }
 
         /* Glass Surface CSS */
-        .glass-surface {
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            transition: all 0.3s ease-out;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(15px) saturate(1.8) brightness(1.1);
-            -webkit-backdrop-filter: blur(15px) saturate(1.8) brightness(1.1);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-        }
-        .glass-surface:hover {
-            transform: scale(1.05);
-            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4);
-        }
+        .glass-surface { position: relative; display: inline-flex; align-items: center; justify-content: center; overflow: hidden; transition: all 0.3s ease-out; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px) saturate(1.8) brightness(1.1); -webkit-backdrop-filter: blur(15px) saturate(1.8) brightness(1.1); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); }
+        .glass-surface:hover { transform: scale(1.05); box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4); }
 
         /* Features Grid */
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            max-width: 72rem;
-            margin: auto;
-        }
-        .feature-card {
-            background-color: #1f2937;
-            padding: 2rem;
-            border-radius: 0.75rem;
-            border: 1px solid #374151;
-            text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 0 25px 5px rgba(96, 165, 250, 0.25);
-        }
-        .feature-card .icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            background-image: linear-gradient(to right, #60a5fa, #c084fc);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-        .feature-card h3 {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #f9fafb;
-            margin-bottom: 0.5rem;
-        }
-        .feature-card p {
-            color: #9ca3af;
-        }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; max-width: 72rem; margin: auto; }
+        .feature-card { background-color: #1f2937; padding: 2rem; border-radius: 0.75rem; border: 1px solid #374151; text-align: center; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .feature-card:hover { transform: translateY(-10px); box-shadow: 0 0 25px 5px rgba(96, 165, 250, 0.25); }
+        .feature-card .icon { font-size: 3rem; margin-bottom: 1rem; background-image: linear-gradient(to right, #60a5fa, #c084fc); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .feature-card h3 { font-size: 1.25rem; font-weight: 700; color: #f9fafb; margin-bottom: 0.5rem; }
+        .feature-card p { color: #9ca3af; }
 
         /* How it Works Steps */
-        .how-it-works-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2rem;
-            max-width: 48rem;
-            margin: auto;
-            position: relative;
-        }
-        .timeline-line {
-            position: absolute;
-            top: 2rem;
-            bottom: 2rem;
-            right: 50%;
-            transform: translateX(50%);
-            width: 3px;
-            background: linear-gradient(#1f2937, #3b82f6, #1f2937);
-            z-index: 0;
-        }
-        .step-card {
-            background-color: #1f2937;
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            border: 1px solid #374151;
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-            width: 100%;
-            position: relative;
-            z-index: 1;
-            transition: transform 0.3s ease;
-        }
-        .step-card:hover {
-            transform: scale(1.03);
-        }
-        .step-card .step-number {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: #3b82f6;
-            flex-shrink: 0;
-        }
-        .step-card .step-icon {
-            font-size: 2.5rem;
-            color: #818cf8;
-        }
-        .step-card .step-content h3 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-        .step-card .step-content p {
-            color: #9ca3af;
-        }
+        .how-it-works-container { display: flex; flex-direction: column; align-items: center; gap: 2rem; max-width: 48rem; margin: auto; position: relative; }
+        .timeline-line { position: absolute; top: 2rem; bottom: 2rem; right: 50%; transform: translateX(50%); width: 3px; background: linear-gradient(#1f2937, #3b82f6, #1f2937); z-index: 0; }
+        .step-card { background-color: #1f2937; padding: 1.5rem; border-radius: 0.75rem; border: 1px solid #374151; display: flex; align-items: center; gap: 1.5rem; width: 100%; position: relative; z-index: 1; transition: transform 0.3s ease; }
+        .step-card:hover { transform: scale(1.03); }
+        .step-card .step-number { font-size: 2.5rem; font-weight: 800; color: #3b82f6; flex-shrink: 0; }
+        .step-card .step-icon { font-size: 2.5rem; color: #818cf8; }
+        .step-card .step-content h3 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .step-card .step-content p { color: #9ca3af; }
         
         /* Accordion Styles */
-        .accordion-item {
-            background-color: #1f2937;
-            border-radius: 0.75rem;
-            border: 1px solid #374151;
-            margin-bottom: 1rem;
-            overflow: hidden;
-            transition: box-shadow 0.3s ease;
-        }
-        .accordion-item.open {
-            animation: gradient-glow 3s infinite ease-in-out;
-            border-color: #60a5fa;
-        }
-        .accordion-button {
-            width: 100%;
-            text-align: right;
-            padding: 1.25rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: #f9fafb;
-            font-size: 1.25rem;
-            font-weight: 700;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        .accordion-button:hover {
-            background-color: #374151;
-        }
-        .accordion-button i {
-            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-        }
-        .accordion-button.open i {
-            transform: rotate(135deg);
-        }
-        .accordion-content {
-            max-height: 0;
-            opacity: 0;
-            overflow: hidden;
-            transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out, padding 0.5s ease-in-out;
-            padding: 0 1.25rem;
-        }
-        .accordion-content.open {
-            max-height: 500px;
-            opacity: 1;
-            padding: 0 1.25rem 1.25rem 1.25rem;
-        }
-        .accordion-content-inner {
-            border-top: 1px solid #374151;
-            padding-top: 1.25rem;
-            color: #d1d5db;
-        }
+        .accordion-item { background-color: #1f2937; border-radius: 0.75rem; border: 1px solid #374151; margin-bottom: 1rem; overflow: hidden; transition: box-shadow 0.3s ease; }
+        .accordion-item.open { animation: gradient-glow 3s infinite ease-in-out; border-color: #60a5fa; }
+        .accordion-button { width: 100%; text-align: right; padding: 1.25rem; display: flex; justify-content: space-between; align-items: center; color: #f9fafb; font-size: 1.25rem; font-weight: 700; background: transparent; border: none; cursor: pointer; transition: background-color 0.3s ease; }
+        .accordion-button:hover { background-color: #374151; }
+        .accordion-button i { transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
+        .accordion-button.open i { transform: rotate(135deg); }
+        .accordion-content { max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out, padding 0.5s ease-in-out; padding: 0 1.25rem; }
+        .accordion-content.open { max-height: 500px; opacity: 1; padding: 0 1.25rem 1.25rem 1.25rem; }
+        .accordion-content-inner { border-top: 1px solid #374151; padding-top: 1.25rem; color: #d1d5db; }
         
         /* Helper and Utility Classes */
         .text-transparent { color: transparent; }
         .bg-clip-text { -webkit-background-clip: text; background-clip: text; }
         .bg-gradient-to-r { background-image: linear-gradient(to right, var(--tw-gradient-stops)); }
-        .from-blue-400 { --tw-gradient-from: #60a5fa; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(96, 165, 250, 0)); }
-        .to-purple-400 { --tw-gradient-to: #c084fc; }
         .from-green-400 { --tw-gradient-from: #4ade80; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(74, 222, 128, 0)); }
         .to-teal-400 { --tw-gradient-to: #2dd4bf; }
         .from-cyan-400 { --tw-gradient-from: #22d3ee; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(34, 211, 238, 0)); }
@@ -311,6 +193,8 @@
 
         /* Responsive Design */
         @media (max-width: 768px) {
+            .nav-links, .nav-cta { display: none; }
+            .nav-toggle { display: block; }
             .hero-content-wrapper { flex-direction: column; }
             .hero-image-container, .hero-text-container { width: 100%; }
             .hero-image-container { height: 50vh; order: 1; align-items: center; }
@@ -319,7 +203,6 @@
             .hero-text-container a { margin: 0 auto; }
             .timeline-line { display: none; }
         }
-
     </style>
 </head>
 <body>
@@ -327,6 +210,20 @@
     <!-- Custom Cursor Elements -->
     <div id="cursor-dot" class="cursor-dot"></div>
     <div id="cursor-splash-container"></div>
+
+    <!-- NEW: Navigation Bar -->
+    <nav class="main-nav">
+        <div class="nav-content">
+            <a href="#" class="nav-logo">سهالة AI</a>
+            <ul class="nav-links">
+                <li><a href="#features-grid">الميزات</a></li>
+                <li><a href="#how-it-works-container">كيف يعمل</a></li>
+                <li><a href="#faq-container">الأسئلة الشائعة</a></li>
+            </ul>
+            <a href="#" class="nav-cta">ابدأ المحادثة</a>
+            <button class="nav-toggle"><i class="fas fa-bars"></i></button>
+        </div>
+    </nav>
 
     <!-- Hero Section -->
     <section id="hero-section">
@@ -339,7 +236,7 @@
                     سهالة AI: لخدمة مراجعين أسهل
                     <span style="display: inline-block; background-image: linear-gradient(to right, #a855f7, #3b82f6); color: white; font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.75rem; border-radius: 9999px; margin-right: 0.5rem;">حصري</span>
                 </h1>
-                <p class="animate-fade-in-up" style="font-size: 1.25rem; color: #d1d5db; margin-bottom: 2.5rem; animation-delay: 0.2s; text-shadow: 0 0 10px rgba(0,0,0,0.5);">
+                <p id="dynamic-hero-text" class="animate-fade-in-up" style="font-size: 1.25rem; color: #d1d5db; margin-bottom: 2.5rem; animation-delay: 0.2s; text-shadow: 0 0 10px rgba(0,0,0,0.5); min-height: 84px; transition: opacity 0.5s ease-in-out;">
                     نقدم لكم الطريقة الأحدث والأذكى للتواصل وتقديم الشكاوى ومتابعتها بكل سهولة عبر واتساب.
                 </p>
                 <a href="#" class="glass-surface animate-fade-in-up" style="width: fit-content; height: 64px; border-radius: 32px; padding: 0.75rem 2rem; text-decoration: none; cursor: pointer; animation-delay: 0.4s;">
@@ -353,7 +250,7 @@
     </section>
 
     <!-- Features Section -->
-    <section style="padding: 5rem 1rem; background-color: #111827;">
+    <section id="features-section" style="padding: 5rem 1rem; background-color: #111827;">
         <h2 class="motion-element" style="font-size: 2.25rem; font-weight: 700; text-align: center; margin-bottom: 3rem;" class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-teal-400">
             ميزات رئيسية لخدمتكم
         </h2>
@@ -363,12 +260,11 @@
     </section>
 
     <!-- How it Works section -->
-    <section style="padding: 5rem 1rem; background-color: #030712;">
+    <section id="how-it-works-section" style="padding: 5rem 1rem; background-color: #030712;">
         <h2 class="motion-element" style="font-size: 2.25rem; font-weight: 700; text-align: center; margin-bottom: 4rem;" class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-400">
             رحلة المراجع في خطوات بسيطة
         </h2>
         <div id="how-it-works-container" class="how-it-works-container">
-            <div class="timeline-line"></div>
             <!-- Steps will be injected by JS -->
         </div>
     </section>
@@ -383,10 +279,7 @@
                 "خدمة سهالة AI عبر واتساب هي الأفضل على الإطلاق! قدمت شكوى وتم حلها بسرعة وكفاءة. تجربة ممتازة ومتابعة مستمرة لحالة الطلب."
             </blockquote>
             <div style="display: flex; flex-direction: column; align-items: center; background-color: #1f2937; padding: 1.5rem; border-radius: 0.75rem; border: 1px solid #374151; max-width: 20rem; margin: auto;">
-               <i class="fab fa-whatsapp" style="
-    color: aquamarine;
-    font-size: xxx-large;
-"></i>
+               <i class="fab fa-whatsapp" style="color: aquamarine; font-size: xxx-large;"></i>
                 <h3 style="font-size: 1.25rem; font-weight: 700; color: #f9fafb; margin-bottom: 0.25rem;">أحمد المحروقي</h3>
                 <p style="color: #9ca3af; font-size: 0.875rem;">مراجع راضٍ</p>
             </div>
@@ -394,7 +287,7 @@
     </section>
 
     <!-- FAQ Section -->
-    <section style="padding: 5rem 1rem; background-color: #030712;">
+    <section id="faq-section" style="padding: 5rem 1rem; background-color: #030712;">
         <h2 class="motion-element" style="font-size: 2.25rem; font-weight: 700; text-align: center; margin-bottom: 3rem;" class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
             الأسئلة الشائعة
         </h2>
@@ -411,7 +304,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
 
-            // --- DATA (Updated based on the provided scenario) ---
+            // --- DATA ---
             const featuresData = [
                 { icon: "fab fa-whatsapp", title: "تواصل فوري عبر واتساب", description: "ابدأ محادثة مع مساعدنا الذكي مباشرة من واتساب لتقديم طلب أو شكوى." },
                 { icon: "fas fa-file-signature", title: "تقديم وتتبع الشكاوى", description: "قدم شكواك بسهولة وتتبع حالتها خطوة بخطوة من خلال رقم الطلب الخاص بك." },
@@ -420,7 +313,6 @@
                 { icon: "fas fa-bell", title: "إشعارات بحالة الطلب", description: "ابق على اطلاع دائم بحالة طلبك عبر إشعارات تصلك عند كل تحديث، من التسجيل حتى الإغلاق." },
                 { icon: "fas fa-headset", title: "تحويل للمساعدة البشرية", description: "في حال احتجت لمساعدة إضافية، يمكنك طلب التحويل إلى موظف مركز الاتصالات بسهولة." }
             ];
-
             const howItWorksData = [
                 { number: "01", icon: "fab fa-whatsapp", title: "ابدأ المحادثة", description: "تواصل مع حسابنا على واتساب. سيرحب بك مساعدنا الذكي ويقدم لك الخيارات." },
                 { number: "02", icon: "fas fa-edit", title: "قدم بيانات الشكوى", description: "اختر 'تقديم طلب جديد' وقدم شرحاً كتابياً لشكواك، مع إمكانية إرفاق صور وموقع." },
@@ -428,12 +320,17 @@
                 { number: "04", icon: "fas fa-tasks", title: "تابع التنفيذ", description: "يتم تكليف الموظفين بمعالجة طلبك، ويمكنك متابعة حالته في أي وقت." },
                 { number: "05", icon: "fas fa-check-circle", title: "استلم إشعار الإغلاق", description: "سيتم إبلاغك عند إغلاق الطلب مع إمكانية تقييم جودة الخدمة المقدمة." }
             ];
-
             const faqData = [
                 { title: "كيف أبدأ الخدمة؟", content: "بكل بساطة، أرسل رسالة إلى رقم واتساب الخاص بالخدمة لبدء محادثة مع مساعد سهالة AI الذكي." },
                 { title: "كيف يمكنني تقديم شكوى؟", content: "بعد بدء المحادثة، اختر خيار 'تقديم طلب جديد' واتبع التعليمات. يمكنك كتابة شرح المشكلة وإرفاق صور أو موقع إذا لزم الأمر." },
                 { title: "كيف أتتبع حالة شكواي؟", content: "اختر خيار 'عرض حالة طلب سابق' من القائمة الرئيسية وأدخل رقم هاتفك. سيعرض لك النظام حالة طلبك الحالي." },
                 { title: "هل يمكنني التحدث إلى موظف حقيقي؟", content: "نعم، إذا لم يتمكن المساعد الذكي من حل مشكلتك أو كنت تفضل التحدث إلى شخص، يمكنك اختيار 'طلب مساعدة' ليتم تحويلك إلى موظف في مركز الاتصالات." }
+            ];
+             const dynamicHeroTexts = [
+                "نقدم لكم الطريقة الأحدث والأذكى للتواصل وتقديم الشكاوى ومتابعتها بكل سهولة عبر واتساب.",
+                "حلول ذكية لتحليل طلبك وتوجيهه للقسم المختص فوراً.",
+                "تابع حالة طلبك خطوة بخطوة واحصل على إشعارات فورية.",
+                "خدمة متاحة على مدار الساعة لراحتكم."
             ];
 
             // --- INITIALIZATION ---
@@ -443,25 +340,14 @@
             initHowItWorks();
             initFaq();
             initMotionOnScroll();
+            initDynamicText();
+            initSmoothScroll();
 
             // --- VANTA.JS INTERACTIVE BACKGROUND ---
             function initVantaBackground() {
                 const heroSection = document.getElementById('hero-section');
                 if (heroSection && window.VANTA) {
-                    VANTA.GLOBE({
-                        el: "#hero-section",
-                        mouseControls: true,
-                        touchControls: true,
-                        gyroControls: false,
-                        minHeight: 200.00,
-                        minWidth: 200.00,
-                        scale: 1.00,
-                        scaleMobile: 1.00,
-                        color: 0x8a2be2,
-                        color2: 0x3b82f6,
-                        backgroundColor: 0x030712,
-                        size: 1.20
-                    });
+                    VANTA.GLOBE({ el: "#hero-section", mouseControls: true, touchControls: true, gyroControls: false, minHeight: 200.00, minWidth: 200.00, scale: 1.00, scaleMobile: 1.00, color: 0x8a2be2, color2: 0x3b82f6, backgroundColor: 0x030712, size: 1.20 });
                 }
             }
 
@@ -470,58 +356,53 @@
                 const dot = document.getElementById('cursor-dot');
                 const splashContainer = document.getElementById('cursor-splash-container');
                 if (!dot || !splashContainer) return;
-
-                window.addEventListener('mousemove', e => {
-                    dot.style.left = `${e.clientX}px`;
-                    dot.style.top = `${e.clientY}px`;
-                });
-
+                window.addEventListener('mousemove', e => { dot.style.left = `${e.clientX}px`; dot.style.top = `${e.clientY}px`; });
                 window.addEventListener('click', e => {
                     const splash = document.createElement('div');
                     splash.className = 'cursor-splash';
                     const size = Math.random() * 20 + 10;
-                    splash.style.left = `${e.clientX}px`;
-                    splash.style.top = `${e.clientY}px`;
-                    splash.style.width = `${size}px`;
-                    splash.style.height = `${size}px`;
+                    splash.style.left = `${e.clientX}px`; splash.style.top = `${e.clientY}px`; splash.style.width = `${size}px`; splash.style.height = `${size}px`;
                     splash.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 70%)`;
-                    splash.style.transform = `translate(-50%, -50%) scale(1)`;
-                    splash.style.opacity = 1;
+                    splash.style.transform = `translate(-50%, -50%) scale(1)`; splash.style.opacity = 1;
                     splashContainer.appendChild(splash);
-
-                    setTimeout(() => {
-                        splash.style.transform = `translate(-50%, -50%) scale(3)`;
-                        splash.style.opacity = 0;
-                    }, 50);
-
-                    setTimeout(() => {
-                        splash.remove();
-                    }, 1000);
+                    setTimeout(() => { splash.style.transform = `translate(-50%, -50%) scale(3)`; splash.style.opacity = 0; }, 50);
+                    setTimeout(() => { splash.remove(); }, 1000);
                 });
+            }
+
+            // --- DYNAMIC HERO TEXT ---
+            function initDynamicText() {
+                const textElement = document.getElementById('dynamic-hero-text');
+                if (!textElement) return;
+                let currentIndex = 0;
+
+                setInterval(() => {
+                    currentIndex = (currentIndex + 1) % dynamicHeroTexts.length;
+                    textElement.style.opacity = 0;
+                    setTimeout(() => {
+                        textElement.textContent = dynamicHeroTexts[currentIndex];
+                        textElement.style.opacity = 1;
+                    }, 500); // Corresponds to CSS transition duration
+                }, 7000);
             }
 
             // --- FEATURES GRID ---
             function initFeaturesGrid() {
                 const grid = document.getElementById('features-grid');
                 if (!grid) return;
-                
                 grid.innerHTML = featuresData.map(feature => `
                     <div class="feature-card">
                         <div class="icon"><i class="${feature.icon}"></i></div>
                         <h3>${feature.title}</h3>
                         <p>${feature.description}</p>
-                    </div>
-                `).join('');
+                    </div>`).join('');
             }
 
             // --- HOW IT WORKS STEPS ---
             function initHowItWorks() {
                 const container = document.getElementById('how-it-works-container');
                 if (!container) return;
-                
-                // Keep the timeline line
                 let content = '<div class="timeline-line"></div>';
-
                 content += howItWorksData.map((step, index) => `
                     <div class="step-card motion-element" style="animation-delay: ${index * 0.2}s;">
                         <div class="step-number">${step.number}</div>
@@ -530,8 +411,7 @@
                             <h3>${step.title}</h3>
                             <p>${step.description}</p>
                         </div>
-                    </div>
-                `).join('');
+                    </div>`).join('');
                 container.innerHTML = content;
             }
 
@@ -539,7 +419,6 @@
             function initFaq() {
                 const container = document.getElementById('faq-container');
                 if (!container) return;
-
                 container.innerHTML = faqData.map((item, index) => `
                     <div class="accordion-item" data-index="${index}">
                         <button class="accordion-button" data-index="${index}">
@@ -549,23 +428,19 @@
                         <div class="accordion-content" data-index="${index}">
                             <div class="accordion-content-inner">${item.content}</div>
                         </div>
-                    </div>
-                `).join('');
-
+                    </div>`).join('');
                 container.addEventListener('click', e => {
                     const button = e.target.closest('.accordion-button');
                     if (button) {
                         const parentItem = button.closest('.accordion-item');
                         const content = parentItem.querySelector('.accordion-content');
                         const isOpen = parentItem.classList.contains('open');
-
                         container.querySelectorAll('.accordion-item').forEach(item => {
                             item.classList.remove('open');
                             item.querySelector('.accordion-button').classList.remove('open');
                             item.querySelector('.accordion-content').classList.remove('open');
                             item.querySelector('.accordion-button i').className = 'fas fa-plus';
                         });
-
                         if (!isOpen) {
                             parentItem.classList.add('open');
                             button.classList.add('open');
@@ -580,19 +455,35 @@
             function initMotionOnScroll() {
                 const motionElements = document.querySelectorAll('.motion-element');
                 if (motionElements.length === 0) return;
-
                 const observer = new IntersectionObserver((entries) => {
                     entries.forEach(entry => {
                         if (entry.isIntersecting) {
                             entry.target.classList.add('in-view');
                         }
                     });
-                }, {
-                    threshold: 0.1
-                });
+                }, { threshold: 0.1 });
+                motionElements.forEach(el => { observer.observe(el); });
+            }
 
-                motionElements.forEach(el => {
-                    observer.observe(el);
+            // --- SMOOTH SCROLL FOR NAV LINKS ---
+            function initSmoothScroll() {
+                document.querySelectorAll('.nav-links a[href^="#"]').forEach(anchor => {
+                    anchor.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        const targetId = this.getAttribute('href');
+                        // Map link href to section ID
+                        const sectionMap = {
+                            '#features-grid': '#features-section',
+                            '#how-it-works-container': '#how-it-works-section',
+                            '#faq-container': '#faq-section'
+                        };
+                        const targetElement = document.querySelector(sectionMap[targetId] || targetId);
+                        if(targetElement) {
+                            targetElement.scrollIntoView({
+                                behavior: 'smooth'
+                            });
+                        }
+                    });
                 });
             }
         });
