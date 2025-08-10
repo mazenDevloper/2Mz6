@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Cache Control Meta Tags -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>واجهة CarPlay - تصميم زجاجي منسدل تفاعلي</title>
     <!-- Tailwind CSS CDN for utility classes -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -12,7 +16,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <!-- ADDED Google Maps API script -->
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBRqAHJ2elbE_Z7NXXYC50XZpqi6HbG6Rk&libraries=places&callback=initMap"></script>
-    <!-- Chart.js for potential future charts in Trip tab (currently not used but included) -->
+    <!-- Chart.js for the new weekly forecast chart -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* Import Inter font for a modern, clean look */
@@ -32,10 +36,6 @@
             justify-content: center;
             overflow: hidden; /* Prevent body scroll */
         }
-        /* Removed flex-direction: row-reverse from dashboard-main-grid as it's now a CSS Grid */
-        /* .flex-grow.flex.flex-col.lg\:flex-row.gap-4.md\:gap-6.h-full.dashboard-main-grid {
-            flex-direction: row-reverse;
-        } */
         /* Ensure RTL direction for specific elements if needed */
         div#youtube-playlist-view, div#youtube-video-list-view, div#youtube-search-results-view {
             direction: rtl;
@@ -63,13 +63,13 @@
             animation: none;
         }
 
-div#quran-quick-access {
-    display: none !important;
-}
+        div#quran-quick-access {
+            display: none !important;
+        }
 
-.h-full {
-    height: 97% !important;
-}
+        .h-full {
+            height: 97% !important;
+        }
 
         /* NEW GLASS SURFACE CSS - Enhanced for liquid 3D effect and "drop glass" */
         .glass-surface {
@@ -123,10 +123,10 @@ div#quran-quick-access {
             border: 1px solid rgba(255, 255, 255, 0.3); /* Added a subtle white border */
         }
         div#video-popup-container {
-    cursor: grab;
-    width: 46%;
-    height: 37%;
-}
+            cursor: grab;
+            width: 46%;
+            height: 37%;
+        }
 
         /* Fallback for browsers not supporting backdrop-filter - also enhanced */
         .glass-surface--fallback {
@@ -462,6 +462,7 @@ div#quran-quick-access {
             padding: 0.5rem 1rem;
             border-radius: 9999px; /* Pill shape */
             font-size: 0.85rem;
+            font-weight: bold; /* Added bold font */
             transition: background-color 0.2s ease, transform 0.1s ease;
             white-space: nowrap; /* Prevent text wrapping */
             overflow: hidden;
@@ -478,6 +479,10 @@ div#quran-quick-access {
         }
         .youtube-suggestion-button:active {
             transform: translateY(0);
+        }
+        .youtube-suggestion-button.selected { /* Style for selected reader */
+            background-color: #9333ea;
+            box-shadow: 0 0 10px rgba(147, 51, 234, 0.7);
         }
 
         /* YouTube Suggestion Category Tag */
@@ -669,16 +674,10 @@ div#quran-quick-access {
             50% { transform: scale(1.05) translateY(-2px); opacity: 0.9; }
             100% { transform: scale(1) translateY(0px); opacity: 1; }
         }
-        /* Removed rotate-subtle animation as requested */
-        /* @keyframes rotate-subtle {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        } */
-
         /* Apply animation to weather icons */
         #dashboard-weather-icon, #weather-icon {
-            animation: pulse-float 3s ease-in-out infinite alternate; /* Removed rotate-subtle */
-            transition: transform 0.3s ease-in-out; /* Smooth transition for scale changes if any */
+            animation: pulse-float 3s ease-in-out infinite alternate;
+            transition: transform 0.3s ease-in-out;
         }
 
         /* Electronic Quran specific styles */
@@ -695,13 +694,6 @@ div#quran-quick-access {
             overflow-y: auto;
             max-height: 80%; /* Limit height to allow scrolling */
         }
-
-        /* Tajweed Colors (Example - these are simplified and not exhaustive) */
-        .tajweed-ghunnah { color: #ff0000; } /* Red for Ghunnah */
-        .tajweed-idgham { color: #00ff00; } /* Green for Idgham */
-        .tajweed-ikhfaa { color: #0000ff; } /* Blue for Ikhfaa */
-        .tajweed-qalqalah { color: #ffff00; } /* Yellow for Qalqalah */
-        .tajweed-madd { color: #ffa500; } /* Orange for Madd */
 
         .quran-controls {
             display: flex;
@@ -722,17 +714,6 @@ div#quran-quick-access {
             transform: translateY(-2px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
         }
-
-        /* Dashboard Grid Column Sizing (Desktop) */
-        /* Removed old flex-direction and width classes as layout is now a CSS Grid */
-        /* .dashboard-main-grid {
-            flex-direction: row;
-        }
-        .dashboard-col-25-percent { width: 25%; }
-        .dashboard-col-50-percent { width: 50%; }
-        .dashboard-col-25-percent-right { width: 25%; } */
-
-     
 
         /* Weather section content to take full width and height */
         #screen-Weather > div {
@@ -774,8 +755,8 @@ div#quran-quick-access {
         }
 
         div#digital-date-line2 {
-    font-size: 1.4em;
-}
+            font-size: 1.4em;
+        }
 
         .video-popup-controls {
             position: absolute;
@@ -870,7 +851,6 @@ div#quran-quick-access {
             .car-cam-360-container {
                 height: 200px; /* Fixed height for camera on mobile */
             }
-
         
 
             /* YouTube Channel Card (Playlist View) - Mobile adjustments */
@@ -937,8 +917,8 @@ div#quran-quick-access {
         }
 
         img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
-    position: fixed;
-}
+            position: fixed;
+        }
         /* Prayer Times Specific Styles */
         /* Changed from grid to flex for a single row display */
         .prayer-times-row {
@@ -1308,43 +1288,30 @@ div#quran-quick-access {
                 <section id="screen-Weather" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full">
                     <h1 class="text-4xl font-bold mb-6">الطقس <i data-lucide="cloud-sun"></i></h1>
                     <div class="w-full h-full flex flex-col gap-4">
-                        <!-- Main Weather Card (Top) -->
-                        <div class="glass-surface glass-surface--svg p-6 rounded-3xl text-center flex flex-col items-center justify-center flex-grow">
-                            <div class="text-3xl font-bold mb-2" id="weather-location">صلالة، عمان</div>
-                            <img id="weather-icon" src="" alt="Weather Icon" class="w-24 h-24 text-yellow-400 mb-4" />
-                            <p class="text-6xl font-extrabold mb-2" id="weather-temp">--°C</p>
-                            <p class="text-xl text-white/70 mb-4" id="weather-desc">--</p>
-                            <p class="text-sm text-white/50" id="weather-feels-like">الشعور كـ: --°C</p>
-                            <p class="text-sm text-white/50" id="weather-last-updated">آخر تحديث: --</p>
-                        </div>
+                        <!-- Main Weather Card (Top) - REMOVED AS PER REQUEST -->
 
                         <!-- Additional Details (Bottom Grid) -->
-                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 w-full">
+                        <div class="grid grid-cols-2 sm:grid-cols-2 gap-4 w-full">
+                            <!-- Humidity Card - REMOVED AS PER REQUEST -->
+                            
+                            <!-- Wind Card - MODIFIED TO TEMP CARD AS PER REQUEST -->
                             <div class="glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center">
-                                <i data-lucide="droplet" class="w-10 h-10 text-blue-300 mb-2"></i>
-                                <span class="text-2xl font-bold" id="weather-humidity">--%</span>
-                                <span class="text-sm text-white/50">الرطوبة</span>
+                                <i data-lucide="thermometer" class="w-10 h-10 text-red-400 mb-2"></i>
+                                <span class="text-2xl font-bold" id="weather-temp-card">--°C</span>
+                                <span class="text-sm text-white/50">الحرارة</span>
                             </div>
-                            <div class="glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center">
-                                <i data-lucide="wind" class="w-10 h-10 text-gray-300 mb-2"></i>
-                                <span class="text-2xl font-bold" id="weather-wind">-- كم/س</span>
-                                <span class="text-sm text-white/50">الرياح</span>
-                            </div>
-                            <div class="glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center">
-                                <i data-lucide="gauge" class="w-10 h-10 text-green-300 mb-2"></i>
-                                <span class="text-2xl font-bold" id="weather-pressure">-- mb</span>
-                                <span class="text-sm text-white/50">الضغط</span>
-                            </div>
-                            <div class="glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center">
-                                <i data-lucide="eye" class="w-10 h-10 text-purple-300 mb-2"></i>
-                                <span class="text-2xl font-bold" id="weather-visibility">-- كم</span>
-                                <span class="text-sm text-white/50">الرؤية</span>
-                            </div>
+                            
+                            <!-- UV Index Card -->
                             <div class="glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center">
                                 <i data-lucide="sun" class="w-10 h-10 text-orange-300 mb-2"></i>
                                 <span class="text-2xl font-bold" id="weather-uv">--</span>
                                 <span class="text-sm text-white/50">مؤشر الأشعة فوق البنفسجية</span>
                             </div>
+                        </div>
+                        
+                        <!-- NEW: Weekly Forecast Chart Container -->
+                        <div class="glass-surface glass-surface--svg p-4 rounded-3xl mt-4 w-full col-span-full flex-grow">
+                            <canvas id="weekly-forecast-chart"></canvas>
                         </div>
                     </div>
                 </section>
@@ -1635,6 +1602,7 @@ div#quran-quick-access {
         let activeMediaView = 'playlist'; // 'playlist', 'videoList', 'player', 'searchResults'
         let currentPlayingVideoId = ''; // Stores the ID of the currently playing video
         let isVideoPlayingInPopup = false; // True if video is in the floating pop-up
+        let selectedReaderName = ''; // For two-step search
 
         // --- Utility Functions ---
 
@@ -1725,24 +1693,10 @@ div#quran-quick-access {
             document.getElementById('dashboard-weather-location').textContent = appState.weather.location;
 
             // Update Weather Tab
-            document.getElementById('weather-location').textContent = appState.weather.location; 
-            document.getElementById('weather-temp').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature}°C` : '--°C';
-            document.getElementById('weather-desc').textContent = appState.weather.description !== null ? appState.weather.description : '--';
-            document.getElementById('weather-feels-like').textContent = appState.weather.feelsLike !== null ? `الشعور كـ: ${appState.weather.feelsLike}°C` : 'الشعور كـ: --°C';
-            document.getElementById('weather-humidity').textContent = appState.weather.humidity !== null ? `${appState.weather.humidity}%` : '--%';
-            document.getElementById('weather-wind').textContent = appState.weather.wind !== null ? `${appState.weather.wind} كم/س` : '-- كم/س';
-            document.getElementById('weather-pressure').textContent = appState.weather.pressure !== null ? `${appState.weather.pressure} mb` : '-- mb';
-            document.getElementById('weather-visibility').textContent = appState.weather.visibility !== null ? `${appState.weather.visibility} كم` : '-- كم';
+            document.getElementById('weather-temp-card').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature}°C` : '--°C';
             appState.weather.uvIndex = appState.weather.uvIndex !== null ? appState.weather.uvIndex : '--'; // Ensure UV index is updated
             document.getElementById('weather-uv').textContent = appState.weather.uvIndex;
-            appState.weather.lastUpdated = `آخر تحديث: ${new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: false })}`;
-            document.getElementById('weather-last-updated').textContent = appState.weather.lastUpdated !== null ? appState.weather.lastUpdated : '--';
-            const weatherIconElement = document.getElementById('weather-icon');
-            if (weatherIconElement) {
-                weatherIconElement.src = appState.weather.iconUrl || 'https://placehold.co/96x96/000000/FFFFFF?text=No+Icon';
-                weatherIconElement.alt = appState.weather.description || 'Weather Icon';
-            }
-
+            
             // Update Prayer Times
             loadPrayerTimes(); // Call loadPrayerTimes to update the display
             determineNextPrayer(); // Changed to determineNextPrayer
@@ -1851,38 +1805,27 @@ div#quran-quick-access {
 
                 // Hide all media sub-views initially
                 youtubePlaylistView.classList.add('hidden');
-                youtubePlaylistView.classList.remove('flex', 'flex-col');
                 youtubeVideoListView.classList.add('hidden');
-                youtubeVideoListView.classList.remove('flex', 'flex-col');
                 youtubeSearchResultsView.classList.add('hidden'); 
-                youtubeSearchResultsView.classList.remove('flex', 'flex-col'); 
                 youtubePlayerView.classList.add('hidden');
-                youtubePlayerView.classList.remove('flex', 'flex-col');
                 youtubeSuggestionsDiv.classList.remove('hidden'); // Show suggestions
 
+                // Restore appropriate view
                 if (isVideoPlayingInPopup && currentPlayingVideoId) {
-                    // If video was playing in pop-up, keep it active
                     videoPopupContainer.classList.add('active'); 
                 } else if (activeMediaView === 'videoList' && currentPlayingPlaylistId) {
                     youtubeVideoListView.classList.remove('hidden');
                     youtubeVideoListView.classList.add('flex', 'flex-col');
-                    backToPlaylistsBottomButton.style.display = 'flex';
-                    backToPlaylistsBottomButtonSearch.style.display = 'none';
                 } else if (activeMediaView === 'searchResults') { 
                     youtubeSearchResultsView.classList.remove('hidden');
                     youtubeSearchResultsView.classList.add('flex', 'flex-col');
-                    backToPlaylistsBottomButton.style.display = 'none';
-                    backToPlaylistsBottomButtonSearch.style.display = 'flex';
                 } else { // Default to playlist view
                     youtubePlaylistView.classList.remove('hidden');
                     youtubePlaylistView.classList.add('flex', 'flex-col');
-                    backToPlaylistsBottomButton.style.display = 'none';
-                    backToPlaylistsBottomButtonSearch.style.display = 'none';
+                    resetYoutubeSearchUI(); // Reset to initial two-step search state
                 }
             } else {
                 // If switching away from Media tab
-                backToPlaylistsBottomButton.style.display = 'none';
-                backToPlaylistsBottomButtonSearch.style.display = 'none';
                 floatingMediaButton.style.display = 'flex'; // Show media button when not in media tab
                 floatingKeyboardButton.style.display = 'none'; // Hide keyboard button
                 clearSearchButton.style.display = 'none'; // Hide clear search button
@@ -1969,13 +1912,10 @@ div#quran-quick-access {
 
                     // Update view visibility
                     youtubePlaylistView.classList.add('hidden');
-                    youtubePlaylistView.classList.remove('flex', 'flex-col');
                     youtubeVideoListView.classList.remove('hidden');
                     youtubeVideoListView.classList.add('flex', 'flex-col');
                     youtubePlayerView.classList.add('hidden');
-                    youtubePlayerView.classList.remove('flex', 'flex-col');
                     youtubeSearchResultsView.classList.add('hidden');
-                    youtubeSearchResultsView.classList.remove('flex', 'flex-col');
                     youtubeSuggestionsDiv.classList.add('hidden'); // Hide suggestions
 
                     if (updateActiveView) {
@@ -2035,7 +1975,6 @@ div#quran-quick-access {
             if (videoId) {
                 youtubePlayerIframe.src = ''; // Stop video in main player
                 youtubePlayerView.classList.add('hidden');
-                youtubePlayerView.classList.remove('flex', 'flex-col');
 
                 showVideoPopup(videoId); // Show in pop-up
             }
@@ -2087,18 +2026,15 @@ div#quran-quick-access {
          */
         function navigateBackToPlaylists() {
             youtubeVideoListView.classList.add('hidden');
-            youtubeVideoListView.classList.remove('flex', 'flex-col');
             youtubeSearchResultsView.classList.add('hidden');
-            youtubeSearchResultsView.classList.remove('flex', 'flex-col');
-
             youtubePlaylistView.classList.remove('hidden');
-            youtubePlaylistView.classList.add('flex', 'flex-col');
-            youtubeSuggestionsDiv.classList.remove('hidden'); // Show suggestions again
+            youtubeSuggestionsDiv.classList.remove('hidden');
             
             currentPlayingPlaylistId = ''; // Reset selected playlist
             activeMediaView = 'playlist';
             backToPlaylistsBottomButton.style.display = 'none';
-            backToPlayistsBottomButtonSearch.style.display = 'none'; 
+            backToPlaylistsBottomButtonSearch.style.display = 'none'; 
+            resetYoutubeSearchUI(); // Reset to two-step search
         }
 
         // Event listeners for back buttons in Media tab
@@ -2131,8 +2067,7 @@ div#quran-quick-access {
 
 
         // YouTube Search Functionality
-        const youtubeReaderSuggestions = ["فارس عنتر","ياسر الدوسري", "علي جابر", "محمد ايوب", "عبد الباسط عبد الصمد", "مشاري العفاسي"];
-        // Using the first 63 surahs for demonstration (9 rows x 7 columns)
+        const youtubeReaderSuggestions = ["احمد النفيس","فارس عنتر","ياسر الدوسري", "علي جابر", "محمد ايوب", "عبد الباسط عبد الصمد", "مشاري العفاسي"];
         const youtubeSurahSuggestions = [
             "الفاتحة", "البقرة", "آل عمران", "النساء", "المائدة", "الأنعام", "الأعراف", "الأنفال", "التوبة", "يونس",
             "هود", "يوسف", "الرعد", "إبراهيم", "الحجر", "النحل", "الإسراء", "الكهف", "مريم", "طه",
@@ -2144,37 +2079,73 @@ div#quran-quick-access {
         ];
 
         /**
-         * Populates and displays YouTube search suggestions.
+         * Resets the YouTube search UI to its initial state (showing only readers).
+         */
+        function resetYoutubeSearchUI() {
+            youtubeSuggestionsDiv.innerHTML = ''; // Clear all suggestions
+            youtubeSuggestionsDiv.classList.remove('hidden');
+            selectedReaderName = ''; // Clear selected reader
+            youtubeSearchInput.value = ''; // Clear search input
+            populateYoutubeSuggestions(); // Repopulate with just readers
+        }
+
+        /**
+         * Populates the YouTube search suggestions, starting with readers.
          */
         function populateYoutubeSuggestions() {
             youtubeSuggestionsDiv.innerHTML = ''; // Clear previous suggestions
-            // Use flex-col for mobile stacking, and flex-row-reverse for desktop to put readers on the right
-            youtubeSuggestionsDiv.classList.add('flex', 'flex-col', 'md:flex-row-reverse', 'gap-4', 'w-full'); 
+            youtubeSuggestionsDiv.classList.add('flex', 'flex-col', 'gap-4', 'w-full');
 
-            // Readers section (will appear on the right on desktop, top on mobile)
+            // Readers section
             const readersSection = document.createElement('div');
-            // Adjusted classes for readers section to be a single column and take less width
-            readersSection.classList.add('flex', 'flex-col', 'gap-2', 'p-3', 'rounded-xl', 'glass-surface', 'glass-surface--svg', 'md:w-1/5', 'flex-shrink-0'); 
-            readersSection.innerHTML = '<span class="youtube-suggestion-category-tag bg-blue-600">للقراء</span>';
+            readersSection.id = 'youtube-readers-section';
+            readersSection.classList.add('flex', 'flex-col', 'gap-2', 'p-3', 'rounded-xl', 'glass-surface', 'glass-surface--svg', 'w-full'); 
+            readersSection.innerHTML = '<span class="youtube-suggestion-category-tag bg-blue-600">الخطوة 1: اختر القارئ</span>';
+            
+            const readerButtonsContainer = document.createElement('div');
+            readerButtonsContainer.classList.add('grid', 'grid-cols-2', 'sm:grid-cols-4', 'md:grid-cols-7', 'gap-2', 'w-full');
+
             youtubeReaderSuggestions.forEach(suggestion => {
                 const button = document.createElement('button');
                 button.classList.add('youtube-suggestion-button');
                 button.textContent = suggestion;
-                button.addEventListener('click', () => {
-                    youtubeSearchInput.value += suggestion + ' '; // Append text and a space
-                    youtubeSearchInput.focus();
+                button.addEventListener('click', (e) => {
+                    // Remove 'selected' from all other reader buttons
+                    document.querySelectorAll('#youtube-readers-section .youtube-suggestion-button').forEach(btn => btn.classList.remove('selected'));
+                    // Add 'selected' to the clicked button
+                    e.currentTarget.classList.add('selected');
+                    selectedReaderName = suggestion;
+                    youtubeSearchInput.value = suggestion + ' ';
+                    
+                    // Hide the readers section and show surahs
+                    const readersSectionEl = document.getElementById('youtube-readers-section');
+                    if (readersSectionEl) {
+                        readersSectionEl.style.display = 'none';
+                    }
+                    showSurahSuggestions();
                 });
-                readersSection.appendChild(button);
+                readerButtonsContainer.appendChild(button);
             });
+            readersSection.appendChild(readerButtonsContainer);
             youtubeSuggestionsDiv.appendChild(readersSection);
+        }
 
-            // Surahs section (will appear on the left on desktop, bottom on mobile)
+        /**
+         * Shows the surah suggestions after a reader has been selected.
+         */
+        function showSurahSuggestions() {
+            // Remove existing surah section if it exists
+            const existingSurahsSection = document.getElementById('youtube-surahs-section');
+            if (existingSurahsSection) {
+                existingSurahsSection.remove();
+            }
+
+            // Surahs section
             const surahsSection = document.createElement('div');
-            // Adjusted classes for surahs section to take remaining width
-            surahsSection.classList.add('flex', 'flex-col', 'gap-2', 'p-3', 'rounded-xl', 'glass-surface', 'glass-surface--svg', 'flex-grow'); 
-            surahsSection.innerHTML = '<span class="youtube-suggestion-category-tag bg-green-600">للسور</span>';
+            surahsSection.id = 'youtube-surahs-section';
+            surahsSection.classList.add('flex', 'flex-col', 'gap-2', 'p-3', 'rounded-xl', 'glass-surface', 'glass-surface--svg', 'w-full', 'mt-4'); 
+            surahsSection.innerHTML = '<span class="youtube-suggestion-category-tag bg-green-600">الخطوة 2: اختر السورة</span>';
             const surahButtonsContainer = document.createElement('div');
-            // Changed grid-cols-4 to md:grid-cols-9 for 9 columns on medium and larger screens
             surahButtonsContainer.classList.add('grid', 'grid-cols-4', 'md:grid-cols-9', 'gap-2', 'w-full'); 
 
             youtubeSurahSuggestions.forEach(name => {
@@ -2182,7 +2153,7 @@ div#quran-quick-access {
                 button.classList.add('youtube-suggestion-button');
                 button.textContent = name;
                 button.addEventListener('click', () => {
-                    youtubeSearchInput.value += name + ' ';
+                    youtubeSearchInput.value = selectedReaderName + ' ' + name;
                     youtubeSearchInput.focus();
                 });
                 surahButtonsContainer.appendChild(button);
@@ -2193,20 +2164,10 @@ div#quran-quick-access {
 
         youtubeSearchInput.addEventListener('focus', () => {
             if (youtubeSearchInput.value.trim() === '') {
-                populateYoutubeSuggestions();
                 youtubeSuggestionsDiv.classList.remove('hidden');
+                resetYoutubeSearchUI();
             }
         });
-
-        // Removed the conditional display of clearSearchButton based on input.value
-        // youtubeSearchInput.addEventListener('input', () => {
-        //     if (youtubeSearchInput.value.trim() === '') {
-        //         youtubeSuggestionsDiv.classList.remove('hidden');
-        //         populateYoutubeSuggestions(); // Repopulate to ensure all are there
-        //     } else {
-        //         youtubeSuggestionsDiv.classList.add('hidden');
-        //     }
-        // });
 
         youtubeSearchButton.addEventListener('click', () => {
             const query = youtubeSearchInput.value.trim();
@@ -2256,11 +2217,8 @@ div#quran-quick-access {
 
                     // Update view visibility
                     youtubePlaylistView.classList.add('hidden');
-                    youtubePlaylistView.classList.remove('flex', 'flex-col');
                     youtubeVideoListView.classList.add('hidden');
-                    youtubeVideoListView.classList.remove('flex', 'flex-col');
                     youtubePlayerView.classList.add('hidden');
-                    youtubePlayerView.classList.remove('flex', 'flex-col');
                     youtubeSearchResultsView.classList.remove('hidden');
                     youtubeSearchResultsView.classList.add('flex', 'flex-col');
                     youtubeSuggestionsDiv.classList.add('hidden'); // Hide suggestions after search results are loaded
@@ -2274,6 +2232,8 @@ div#quran-quick-access {
             } catch (error) {
                 console.error('Error searching YouTube videos:', error);
                 showMessageBox('حدث خطأ أثناء البحث في يوتيوب.');
+            } finally {
+                resetYoutubeSearchUI(); // Reset the suggestion UI after search
             }
         }
 
@@ -2802,76 +2762,157 @@ div#quran-quick-access {
         }
         
         // --- Weather API Integration ---
+        let weeklyForecastChart = null; // To hold the chart instance
 
         /**
-         * Fetches live weather data from WeatherAPI.com and updates appState.
+         * Fetches live and forecast weather data from WeatherAPI.com.
          */
         async function fetchWeatherData() {
             if (WEATHER_API_KEY === 'YOUR_WEATHERAPI_KEY') {
                 showMessageBox('خطأ: لم يتم تعيين مفتاح WeatherAPI. يرجى استبدال "YOUR_WEATHERAPI_KEY" بمفتاحك الخاص.');
                 console.error('WeatherAPI Key is not set.');
-                // Fallback to default or clear data on API key error
-                appState.weather.temperature = '--';
-                appState.weather.feelsLike = '--';
-                appState.weather.description = 'خطأ في مفتاح API';
-                appState.weather.humidity = '--';
-                appState.weather.wind = '--';
-                appState.weather.pressure = '--';
-                appState.weather.visibility = '--';
-                appState.weather.uvIndex = '--';
-                appState.weather.iconUrl = '';
-                appState.weather.lastUpdated = '--';
-                updateUI();
                 return;
             }
 
             const location = appState.weather.location.split(',')[0].trim();
-            const apiUrl = `https://api.weatherapi.com/v1/current.json?key=${WEATHER_API_KEY}&q=${location}&lang=ar`; 
+            const currentApiUrl = `https://api.weatherapi.com/v1/current.json?key=${WEATHER_API_KEY}&q=${location}&lang=ar`;
+            const forecastApiUrl = `https://api.weatherapi.com/v1/forecast.json?key=${WEATHER_API_KEY}&q=${location}&days=7&aqi=no&alerts=no&lang=ar`;
 
             try {
-                const response = await fetch(apiUrl);
-                if (!response.ok) {
-                    // Check for 401 specifically
-                    if (response.status === 401) {
-                        throw new Error(`خطأ في مصادقة API (401). يرجى التحقق من مفتاح WeatherAPI الخاص بك.`);
-                    }
-                    throw new Error(`خطأ HTTP! الحالة: ${response.status}`);
-                }
-                const data = await response.json();
+                // Fetch both current and forecast data
+                const [currentResponse, forecastResponse] = await Promise.all([
+                    fetch(currentApiUrl),
+                    fetch(forecastApiUrl)
+                ]);
 
-                appState.weather.temperature = data.current.temp_c;
-                appState.weather.feelsLike = data.current.feelslike_c;
-                appState.weather.description = data.current.condition.text;
-                appState.weather.humidity = data.current.humidity;
-                appState.weather.wind = data.current.wind_kph;
-                appState.weather.pressure = data.current.pressure_mb;
-                appState.weather.visibility = data.current.vis_km; // Correctly assign here
-                appState.weather.uvIndex = data.current.uv;
-                // Correctly set the icon URL
-                appState.weather.iconUrl = `https:${data.current.condition.icon}`; 
+                if (!currentResponse.ok || !forecastResponse.ok) {
+                    throw new Error(`خطأ HTTP! الحالة: ${currentResponse.status} / ${forecastResponse.status}`);
+                }
+
+                const currentData = await currentResponse.json();
+                const forecastData = await forecastResponse.json();
+
+                // Update current weather state
+                appState.weather.temperature = currentData.current.temp_c;
+                appState.weather.feelsLike = currentData.current.feelslike_c;
+                appState.weather.description = currentData.current.condition.text;
+                appState.weather.humidity = currentData.current.humidity;
+                appState.weather.wind = currentData.current.wind_kph;
+                appState.weather.uvIndex = currentData.current.uv;
+                appState.weather.iconUrl = `https:${currentData.current.condition.icon}`; 
+                appState.weather.lastUpdated = `آخر تحديث: ${new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: false })}`;
+                appState.weather.location = `${currentData.location.name}, ${currentData.location.country}`;
                 
-                const now = new Date();
-                appState.weather.lastUpdated = `آخر تحديث: ${now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: false })}`;
-                appState.weather.location = `${data.location.name}, ${data.location.country}`;
+                // Render the weekly forecast chart
+                renderWeeklyWeatherChart(forecastData.forecast.forecastday);
 
             } catch (error) {
                 console.error('Error fetching weather data:', error);
-                showMessageBox(`تعذر جلب بيانات الطقس: ${error.message}. يرجى التحقق من مفتاح API والموقع.`);
-                // Fallback to default or clear data on error
-                appState.weather.temperature = '--';
-                appState.weather.feelsLike = '--';
-                appState.weather.description = 'خطأ في التحميل';
-                appState.weather.humidity = '--';
-                appState.weather.wind = '--';
-                appState.weather.pressure = '--';
-                appState.weather.visibility = '--';
-                appState.weather.uvIndex = '--';
-                appState.weather.iconUrl = '';
-                appState.weather.lastUpdated = '--';
+                showMessageBox(`تعذر جلب بيانات الطقس: ${error.message}.`);
             } finally {
                 updateUI(); // Always update UI, even on error
             }
         }
+
+        /**
+         * Renders the weekly weather forecast chart.
+         * @param {Array} forecastDays - An array of forecast day objects from the API.
+         */
+        function renderWeeklyWeatherChart(forecastDays) {
+            const ctx = document.getElementById('weekly-forecast-chart').getContext('2d');
+            if (!ctx) return;
+
+            const labels = forecastDays.map(day => new Date(day.date).toLocaleDateString('ar-SA', { weekday: 'short' }));
+            const highTemps = forecastDays.map(day => day.day.maxtemp_c);
+            const lowTemps = forecastDays.map(day => day.day.mintemp_c);
+
+            if (weeklyForecastChart) {
+                weeklyForecastChart.destroy(); // Destroy old chart before creating a new one
+            }
+
+            weeklyForecastChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'أعلى درجة حرارة',
+                            data: highTemps,
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            fill: false,
+                            tension: 0.4,
+                            pointBackgroundColor: 'rgba(255, 99, 132, 1)',
+                            pointBorderColor: '#fff',
+                            pointHoverRadius: 7,
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(255, 99, 132, 1)',
+                        },
+                        {
+                            label: 'أدنى درجة حرارة',
+                            data: lowTemps,
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            fill: false,
+                            tension: 0.4,
+                            pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+                            pointBorderColor: '#fff',
+                            pointHoverRadius: 7,
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(54, 162, 235, 1)',
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: 'white',
+                                font: {
+                                    size: 14,
+                                    family: 'Inter, sans-serif'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.parsed.y}°C`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'white',
+                                callback: function(value) {
+                                    return value + '°C';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: 'white'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
 
         // --- Simulated Car Data (for AI Assistant) ---
         /**
