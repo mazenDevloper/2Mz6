@@ -439,7 +439,7 @@
         <button class="modal-close-btn" aria-label="إغلاق">&times;</button>
         <div class="modal-content">
             <div id="video-iframe-container">
-                <iframe id="video-iframe" src="" allow="autoplay" allowfullscreen></iframe>
+                <iframe id="video-iframe" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
             </div>
         </div>
     </div>
@@ -690,8 +690,8 @@
                 const videoModal = document.getElementById('video-modal');
                 const videoIframe = document.getElementById('video-iframe');
                 const playVideoBtn = document.getElementById('play-video-btn-hero');
-                const GOOGLE_DRIVE_FILE_ID = '1XqZ4bA7b6a8cDefGhiJkLmnOpqRsTuvW'; // Example Public Google Drive Video ID
-                const videoUrl = `https://drive.google.com/file/d/${GOOGLE_DRIVE_FILE_ID}/preview`;
+                // Updated Google Drive embed link
+                const videoUrl = "https://drive.google.com/file/d/15uEHQDWPZ3jjWxGkwoWjuPF7qog1UyWC/preview";
 
                 if (playVideoBtn && videoModal) {
                     playVideoBtn.addEventListener('click', () => {
