@@ -14,10 +14,12 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Font Awesome for additional icons (e.g., Trip log) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-    <!-- ADDED Google Maps API script -->
+    <!-- Google Maps API script -->
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBRqAHJ2elbE_Z7NXXYC50XZpqi6HbG6Rk&libraries=places&callback=initMap"></script>
     <!-- Chart.js for the new weekly forecast chart -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- YouTube Iframe API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
     <style>
         /* Import Inter font for a modern, clean look */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -40,9 +42,9 @@
         div#youtube-playlist-view, div#youtube-video-list-view, div#youtube-search-results-view {
             direction: rtl;
         }
-div#youtube-readers-section {
-    direction: rtl;
-}
+        div#youtube-readers-section {
+            direction: rtl;
+        }
         /* Define different background themes for customization */
         body.theme-gradient-1 {
             background: linear-gradient(-45deg, #000000 0%, #000000 30%, #00FFFF 35%, #000000 60%, #4B0082 65%, #8A2BE2 70%, #FF00FF 75%, #000000 100%);
@@ -806,6 +808,10 @@ div#youtube-readers-section {
             align-items: center;
             justify-content: center;
         }
+        #full-screen-video-iframe-container {
+            width: 100%;
+            height: 100%;
+        }
         #full-screen-video-iframe {
             width: 100%;
             height: 100%;
@@ -828,6 +834,26 @@ div#youtube-readers-section {
             z-index: 210;
         }
         #full-screen-video-close-button:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+        /* NEW: Full-screen to Pop-up button */
+        #full-screen-video-popup-button {
+            position: absolute;
+            top: 2rem;
+            right: 6.5rem; /* Next to the close button */
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            z-index: 210;
+        }
+        #full-screen-video-popup-button:hover {
             background-color: rgba(255, 255, 255, 0.4);
         }
 
@@ -853,8 +879,8 @@ div#youtube-readers-section {
             min-height: 112px;
         }
         #video-popup-container.active { display: flex; }
-        #video-popup-iframe {
-            width: 100%;
+        #video-popup-iframe-container {
+             width: 100%;
             height: 100%;
             border-radius: 1rem;
             overflow: hidden;
@@ -1508,14 +1534,10 @@ div#youtube-readers-section {
 
     <!-- NEW: Full-Screen Video Player Container -->
     <div id="full-screen-video-container">
-        <iframe
-            id="full-screen-video-iframe"
-            src=""
-            title="Full-screen YouTube video player"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen
-        ></iframe>
+        <div id="full-screen-video-iframe-container"></div>
+        <button id="full-screen-video-popup-button" title="فتح في نافذة منبثقة" class="navigable" tabindex="0">
+            <i data-lucide="square-arrow-up-right" class="w-7 h-7"></i>
+        </button>
         <button id="full-screen-video-close-button" title="إغلاق ملء الشاشة" class="navigable" tabindex="0">
             <i data-lucide="x" class="w-8 h-8"></i>
         </button>
@@ -1523,14 +1545,7 @@ div#youtube-readers-section {
 
     <!-- Video Pop-up Container -->
     <div id="video-popup-container">
-        <iframe
-            id="video-popup-iframe"
-            src=""
-            title="YouTube video player pop-up"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen
-        ></iframe>
+        <div id="video-popup-iframe-container"></div>
         <div class="video-popup-controls">
             <button id="video-popup-close-button" title="إغلاق الفيديو" class="navigable" tabindex="0">
                 <i data-lucide="x" class="w-4 h-4"></i>
@@ -1622,12 +1637,13 @@ div#youtube-readers-section {
         
         // Full-screen player elements
         const fullScreenVideoContainer = document.getElementById('full-screen-video-container');
-        const fullScreenVideoIframe = document.getElementById('full-screen-video-iframe');
+        const fullScreenVideoIframeContainer = document.getElementById('full-screen-video-iframe-container');
         const fullScreenVideoCloseButton = document.getElementById('full-screen-video-close-button');
+        const fullScreenVideoPopupButton = document.getElementById('full-screen-video-popup-button'); // NEW
 
         // Video Pop-up elements
         const videoPopupContainer = document.getElementById('video-popup-container');
-        const videoPopupIframe = document.getElementById('video-popup-iframe');
+        const videoPopupIframeContainer = document.getElementById('video-popup-iframe-container');
         const videoPopupCloseButton = document.getElementById('video-popup-close-button');
 
         // Quran specific elements
@@ -1701,6 +1717,8 @@ div#youtube-readers-section {
         let activeMediaView = 'playlist'; // 'playlist', 'videoList', 'searchResults'
         let currentPlayingVideoId = ''; // Stores the ID of the currently playing video
         let selectedReaderName = ''; // For two-step search
+        let fullScreenPlayer, popupPlayer;
+        let isYouTubeApiReady = false;
 
         // --- Utility Functions ---
 
@@ -1956,6 +1974,13 @@ div#youtube-readers-section {
         
         // --- YouTube/Media Specific Functions and Event Handlers ---
 
+        /**
+         * This function is called by the YouTube Iframe API script once it's ready.
+         */
+        function onYouTubeIframeAPIReady() {
+            isYouTubeApiReady = true;
+        }
+
         // YouTube playlist card click handler
         document.querySelectorAll('.youtube-channel-card').forEach(card => {
             card.addEventListener('click', () => {
@@ -2041,9 +2066,13 @@ div#youtube-readers-section {
         /**
          * Plays a video in the full-screen player.
          * @param {string} videoId - The ID of the YouTube video.
+         * @param {number} [startTime=0] - The time in seconds to start the video.
          */
-        function playVideoInFullScreen(videoId) {
-            fullScreenVideoIframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1&origin=${window.location.protocol}//${window.location.host}`;
+        function playVideoInFullScreen(videoId, startTime = 0) {
+            if (!isYouTubeApiReady) {
+                setTimeout(() => playVideoInFullScreen(videoId, startTime), 100);
+                return;
+            }
             currentPlayingVideoId = videoId;
             
             fullScreenVideoContainer.style.display = 'flex';
@@ -2053,6 +2082,21 @@ div#youtube-readers-section {
                      el.style.display = 'none';
                 }
             });
+
+            if (fullScreenPlayer) {
+                fullScreenPlayer.loadVideoById({ videoId: videoId, startSeconds: startTime });
+            } else {
+                fullScreenVideoIframeContainer.innerHTML = '<div id="full-screen-video-iframe"></div>';
+                fullScreenPlayer = new YT.Player('full-screen-video-iframe', {
+                    height: '100%',
+                    width: '100%',
+                    videoId: videoId,
+                    playerVars: { 'autoplay': 1, 'controls': 1, 'start': startTime },
+                    events: {
+                        'onReady': (event) => event.target.playVideo()
+                    }
+                });
+            }
             setTimeout(() => setFocus(fullScreenVideoCloseButton), 100);
         }
 
@@ -2060,32 +2104,78 @@ div#youtube-readers-section {
          * Closes the full-screen video player and returns to the main interface.
          */
         function closeFullScreenPlayer() {
-            fullScreenVideoIframe.src = ''; // Stop the video
-            currentPlayingVideoId = '';
+            if (fullScreenPlayer && typeof fullScreenPlayer.stopVideo === 'function') {
+                fullScreenPlayer.stopVideo();
+            }
+            currentPlayingVideoId = ''; // Reset the current video ID
             
             fullScreenVideoContainer.style.display = 'none';
             document.getElementById('carplay-main-interface').style.display = 'flex'; // Show main interface
             document.querySelectorAll('.fixed:not(#full-screen-video-container)').forEach(el => {
                  el.style.display = 'flex'; 
             });
-            // Specific handling for buttons that might have been hidden
-            floatingFullscreenButton.style.display = 'flex';
-            const currentApp = document.querySelector('.app-screen.active').id.replace('screen-', '');
-            if(currentApp !== 'Media') {
-                floatingMediaButton.style.display = 'flex';
-            }
             // Re-evaluate button visibility based on the current app
+            const currentApp = document.querySelector('.app-screen.active')?.id.replace('screen-', '') || 'Dashboard';
             switchApp(currentApp);
+        }
+
+        /**
+         * Switches the video from full-screen to pop-up mode.
+         */
+        function switchFullScreenToPopup() {
+            if (currentPlayingVideoId && fullScreenPlayer && typeof fullScreenPlayer.getCurrentTime === 'function') {
+                const currentTime = fullScreenPlayer.getCurrentTime();
+                
+                // Hide full screen player and stop video
+                fullScreenPlayer.stopVideo();
+                fullScreenVideoContainer.style.display = 'none';
+                
+                // Restore main interface
+                document.getElementById('carplay-main-interface').style.display = 'flex';
+                document.querySelectorAll('.fixed:not(#full-screen-video-container)').forEach(el => {
+                     if (!el.closest('#full-screen-video-container')) {
+                         el.style.display = 'flex'; 
+                     }
+                });
+                
+                // Re-evaluate button visibility
+                const currentApp = document.querySelector('.app-screen.active')?.id.replace('screen-', '') || 'Dashboard';
+                if(currentApp !== 'Media') {
+                    floatingMediaButton.style.display = 'flex';
+                }
+                
+                // Show the pop-up with the same video at the correct time
+                showVideoPopup(currentPlayingVideoId, currentTime);
+            }
         }
 
         /**
          * Shows the video in a pop-up window.
          * @param {string} videoId - The ID of the YouTube video.
+         * @param {number} [startTime=0] - The time in seconds to start the video.
          */
-        function showVideoPopup(videoId) {
-            videoPopupIframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1&origin=${window.location.protocol}//${window.location.host}`;
+        function showVideoPopup(videoId, startTime = 0) {
+            if (!isYouTubeApiReady) {
+                setTimeout(() => showVideoPopup(videoId, startTime), 100);
+                return;
+            }
             currentPlayingVideoId = videoId;
             videoPopupContainer.classList.add('active');
+
+            if (popupPlayer) {
+                popupPlayer.loadVideoById({ videoId: videoId, startSeconds: startTime });
+            } else {
+                videoPopupIframeContainer.innerHTML = '<div id="video-popup-iframe"></div>';
+                popupPlayer = new YT.Player('video-popup-iframe', {
+                    height: '100%',
+                    width: '100%',
+                    videoId: videoId,
+                    playerVars: { 'autoplay': 1, 'controls': 1, 'start': startTime },
+                    events: {
+                        'onReady': (event) => event.target.playVideo()
+                    }
+                });
+            }
             setTimeout(() => setFocus(videoPopupCloseButton), 100);
         }
 
@@ -2093,9 +2183,11 @@ div#youtube-readers-section {
          * Hides the video pop-up and stops the video.
          */
         function hideVideoPopup() {
+            if (popupPlayer && typeof popupPlayer.stopVideo === 'function') {
+                popupPlayer.stopVideo();
+            }
             videoPopupContainer.classList.remove('active');
-            videoPopupIframe.src = ''; // Stop the video
-            currentPlayingVideoId = '';
+            
             // Return focus to a sensible element in the background
             const activeScreen = document.querySelector('.app-screen.active');
             if(activeScreen) {
@@ -2105,6 +2197,7 @@ div#youtube-readers-section {
         }
 
         fullScreenVideoCloseButton.addEventListener('click', closeFullScreenPlayer);
+        fullScreenVideoPopupButton.addEventListener('click', switchFullScreenToPopup); // NEW
         videoPopupCloseButton.addEventListener('click', hideVideoPopup);
 
 
@@ -3203,7 +3296,7 @@ div#youtube-readers-section {
                 maghribIqamaElement.textContent = '';
                 ishaIqamaElement.textContent = '';
             }
-            determineNextPrayer(); // Re-determine next prayer after loading new times
+                 determineNextPrayer(); // Re-determine next prayer after loading new times
             renderPrayerTimes(); // Always re-render to apply current prayer highlight
         }
 
@@ -3274,7 +3367,7 @@ div#youtube-readers-section {
                 const nextDayString = nextDay.toISOString().split('T')[0];
                  const nextDayData = prayerTimes.find(p => p.date === nextDayString);
 
-                if (nextDayData) {
+                  if (nextDayData) {
                     const fajrTimeDate = timeToDate(nextDayData.fajr);
                     fajrTimeDate.setDate(nextDay.getDate()); // Ensure it's for the next day
 
