@@ -169,11 +169,14 @@ div#youtube-readers-section {
                 z-index: -1;
             }
         }
-        .glass-surface:focus-visible {
-            outline: 2px solid light-dark(#007AFF, #0A84FF);
-            outline-offset: 2px;
+        
+        /* TV Remote Focus Style */
+        .navigable:focus, .navigable.tv-focus {
+            outline: 3px solid #0A84FF;
+            box-shadow: 0 0 20px rgba(10, 132, 255, 0.7);
+            transform: scale(1.03);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        /* END NEW GLASS SURFACE CSS */
 
         /* Keyframe animation for the background gradient */
         @keyframes gradient {
@@ -419,33 +422,39 @@ div#youtube-readers-section {
             max-width: 95%; /* Limit width of text */
         }
 
-        /* YouTube Video Card Styling (List View and Search Results) - Smaller and more responsive */
+        /* YouTube Video Card Styling (List View and Search Results) */
         .youtube-video-card, .youtube-search-card {
-            cursor: pointer;
             display: flex;
-            flex-direction: row; /* Horizontal layout for list */
+            flex-direction: row;
             align-items: center;
-            padding: 0.5rem; /* Reduced padding */
+            padding: 0.5rem;
             border-radius: 0.75rem;
             background-color: rgba(255, 255, 255, 0.05);
             transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
-            width: 100%; /* Take full width in list */
+            width: 100%;
             box-sizing: border-box;
+            position: relative; /* For positioning the popup button */
         }
         .youtube-video-card:hover, .youtube-search-card:hover {
             background-color: rgba(255, 255, 255, 0.1);
             transform: translateY(-2px);
         }
+        .video-card-clickable-area {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            cursor: pointer;
+        }
         .youtube-video-card img, .youtube-search-card img {
-            width: 100px; /* Reduced thumbnail size for list view */
-            height: 56.25px; /* 16:9 aspect ratio */
+            width: 100px;
+            height: 56.25px;
             object-fit: cover;
             border-radius: 0.5rem;
-            margin-right: 0.5rem; /* Reduced margin */
-            flex-shrink: 0; /* Prevent image from shrinking */
+            margin-left: 0.75rem; /* Margin left for RTL */
+            flex-shrink: 0;
         }
         .youtube-video-card h3, .youtube-search-card h3 {
-            font-size: 0.9rem; /* Reduced font size for list */
+            font-size: 0.9rem;
             font-weight: 500;
             color: white;
             line-height: 1.3;
@@ -453,8 +462,26 @@ div#youtube-readers-section {
             overflow: hidden;
             text-overflow: ellipsis;
             display: -webkit-box;
-            -webkit-line-clamp: 2; /* Limit to 2 lines */
+            -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
+        }
+        .video-popup-button {
+            background-color: rgba(0,0,0,0.4);
+            color: white;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+            flex-shrink: 0;
+            margin-right: 0.5rem; /* Margin right for RTL */
+        }
+        .video-popup-button:hover {
+            background-color: rgba(0,0,0,0.7);
+            transform: scale(1.1);
         }
 
         /* YouTube Reader Card Styling (Suggestions) */
@@ -804,6 +831,35 @@ div#youtube-readers-section {
             background-color: rgba(255, 255, 255, 0.4);
         }
 
+        /* Video Pop-up Container Styles */
+        #video-popup-container {
+            position: fixed;
+            bottom: 6rem;
+            right: 1rem;
+            width: 320px;
+            height: 180px;
+            background-color: rgba(0, 0, 0, 0.9);
+            border-radius: 1rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 110;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            resize: both; /* Allow resizing */
+            min-width: 200px;
+            min-height: 112px;
+        }
+        #video-popup-container.active { display: flex; }
+        #video-popup-iframe {
+            width: 100%;
+            height: 100%;
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
         div#digital-date-line2 {
             font-size: 1.4em;
         }
@@ -1085,25 +1141,25 @@ div#youtube-readers-section {
             
             <!-- Navigation Dock (Left Sidebar) -->
             <nav class="w-20 sm:w-24 bg-black/20 flex flex-col items-center justify-start pt-8 p-2 space-y-4 border-r border-white/10 flex-shrink-0 transition-opacity 0.3s ease;">
-                <button data-app="Dashboard" class="app-icon">
+                <button data-app="Dashboard" class="app-icon navigable" tabindex="0">
                     <i data-lucide="layout-grid"></i>
                 </button>
-                <button data-app="Media" class="app-icon">
+                <button data-app="Media" class="app-icon navigable" tabindex="0">
                     <i data-lucide="play-circle"></i>
                 </button>
-                 <button data-app="Radio" class="app-icon">
+                 <button data-app="Radio" class="app-icon navigable" tabindex="0">
                     <i data-lucide="radio"></i>
                 </button>
-                <button data-app="AIAssistant" class="app-icon"> 
+                <button data-app="AIAssistant" class="app-icon navigable" tabindex="0"> 
                     <i data-lucide="sparkles"></i> 
                 </button>
-                <button data-app="Weather" class="app-icon"> 
+                <button data-app="Weather" class="app-icon navigable" tabindex="0"> 
                     <i data-lucide="cloud-sun"></i> 
                 </button>
-                <button data-app="Map" class="app-icon"> <!-- New Map App Icon -->
+                <button data-app="Map" class="app-icon navigable" tabindex="0"> <!-- New Map App Icon -->
                     <i data-lucide="map"></i> 
                 </button>
-                <button data-app="Quran" class="app-icon">
+                <button data-app="Quran" class="app-icon navigable" tabindex="0">
                     <i data-lucide="book-open"></i>
                 </button>
             </nav>
@@ -1121,7 +1177,7 @@ div#youtube-readers-section {
                         <!-- Column 1: Weather & Clock (occupies 1st column, 1st row) -->
                         <div class="flex flex-col gap-4 md:gap-6 col-span-1 row-start-1">
                             <!-- Weather Widget -->
-                            <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center">
+                            <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center navigable" tabindex="0">
                                 <h2 class="text-xl font-bold mb-1">الطقس</h2>
                                 <div id="weather-widget-container" class="w-full h-full flex flex-col items-center justify-center">
                                     <img id="dashboard-weather-icon" src="" alt="Weather Icon" class="w-16 h-16 text-white mb-2" />
@@ -1146,7 +1202,7 @@ div#youtube-readers-section {
                         </div>
 
                         <!-- Column 2: 360 Camera View (occupies 2nd column, 1st row) -->
-                        <div class="glass-surface glass-surface--svg p-2 flex flex-col items-center justify-center text-center car-cam-360-container col-span-1 row-start-1">
+                        <div class="glass-surface glass-surface--svg p-2 flex flex-col items-center justify-center text-center car-cam-360-container col-span-1 row-start-1 navigable" tabindex="0">
                             <img id="car-360-image" src="https://dmusera.netlify.app/es350gb.png" alt="عرض الكاميرا 360 درجة للسيارة" class="w-full h-full object-contain rounded-lg opacity-80">
                             <div class="car-cam-360-controls">
                                 <input type="file" id="upload-360-image-input" accept="image/*" class="hidden" />
@@ -1160,7 +1216,7 @@ div#youtube-readers-section {
                         </div>
 
                         <!-- Column 3: Map (occupies 3rd column, 1st row) -->
-                        <div class="rounded-3xl relative overflow-hidden flex items-center justify-center glass-surface glass-surface--svg p-1 col-span-1 row-start-1">
+                        <div class="rounded-3xl relative overflow-hidden flex items-center justify-center glass-surface glass-surface--svg p-1 col-span-1 row-start-1 navigable" tabindex="0">
                             <!-- Google Map container -->
                             <div id="dashboard-google-map" class="full-iframe"></div>
                             <button id="get-my-location-button-dashboard" class="absolute bottom-4 left-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm">
@@ -1215,13 +1271,13 @@ div#youtube-readers-section {
                             type="text"
                             id="youtube-search-input"
                             placeholder="ابحث في يوتيوب..."
-                            class="flex-grow p-3 rounded-full bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            class="flex-grow p-3 rounded-full bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 navigable" tabindex="0"
                             onkeypress="if(event.key === 'Enter') document.getElementById('youtube-search-button').click();"
-                            readonly="true" <!-- Added readonly attribute -->
+                            readonly="true" 
                         />
                         <button
                             id="youtube-search-button"
-                            class="bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center"
+                            class="bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center navigable" tabindex="0"
                         >
                             <i data-lucide="search"></i>
                         </button>
@@ -1236,18 +1292,16 @@ div#youtube-readers-section {
                     <div id="youtube-playlist-view" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 w-full h-full flex-grow overflow-y-auto">
                         <h2 class="col-span-full text-3xl font-bold mb-4 text-center">قوائم تشغيل يوتيوب</h2>
                         
-                
-                        
                         <!-- New YouTube Channels Added Below -->
-                        <div class="glass-surface glass-surface--svg youtube-channel-card" data-playlist-id="UUlncV9OLPto_MinRzGfjr2g" data-channel-id="UClncV9OLPto_MinRzGfjr2g">
+                        <div class="glass-surface glass-surface--svg youtube-channel-card navigable" tabindex="0" data-playlist-id="UUlncV9OLPto_MinRzGfjr2g" data-channel-id="UClncV9OLPto_MinRzGfjr2g">
                             <img src="https://yt3.googleusercontent.com/ZpoYv5FstgResXDeuqEhkce079N0fM3UC5cmjGFBbKSPQI7tDXfl5W_vib_X2Q_hy5ipbZl4Fw=s160-c-k-c0x00ffffff-no-rj" alt="صورة الشيخ عبد الباسط عبد الصمد" />
                             <h2>تلاوات ياسر الدوسري</h2>
                         </div>
-                        <div class="glass-surface glass-surface--svg youtube-channel-card" data-playlist-id="UUFPqvE8BYiiUeN1AUXa3lbA" data-channel-id="UCFPqvE8BYiiUeN1AUXa3lbA">
+                        <div class="glass-surface glass-surface--svg youtube-channel-card navigable" tabindex="0" data-playlist-id="UUFPqvE8BYiiUeN1AUXa3lbA" data-channel-id="UCFPqvE8BYiiUeN1AUXa3lbA">
                             <img src="https://imgs.search.brave.com/-WtPBvI7AmvUdQ2X1oZpk6wlNV-PlUSktoA9JVVQL3o/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9zdGF0/aWMuc3VyYXRtcDMu/Y29tL3BpY3MvcmVj/aXRlcnMvdGh1bWJz/LzM3XzE2MF8xNjAu/anBn" alt="صورة الشيخ مشاري العفاسي" />
                             <h2>الشيخ محمد ايوب </h2>
                         </div>
-                        <div class="glass-surface glass-surface--svg youtube-channel-card" data-playlist-id="UUy0WYogELm9hEjulWPeYOJg" data-channel-id="UCy0WYogELm9hEjulWPeYOJg">
+                        <div class="glass-surface glass-surface--svg youtube-channel-card navigable" tabindex="0" data-playlist-id="UUy0WYogELm9hEjulWPeYOJg" data-channel-id="UCy0WYogELm9hEjulWPeYOJg">
                             <img src="https://yt3.googleusercontent.com/jE4NSU3a46l5ZI5rTvaq2Jvk_TWWS3GtPhs4qchBQagGTeypLWC1V3ewrcE1xbMOgkZaHGGNWA=s160-c-k-c0x00ffffff-no-rj" alt="صورة الشيخ ماهر المعيقلي" />
                             <h2>مزامير القرآن</h2>
                         </div>
@@ -1256,7 +1310,7 @@ div#youtube-readers-section {
 
                     <!-- YouTube Video List View -->
                     <div id="youtube-video-list-view" class="hidden flex-col items-center justify-center h-full w-full relative p-4 overflow-y-auto gap-4 flex-grow">
-                        <button id="back-to-playlists-from-videos" class="absolute top-4 left-4 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm">
+                        <button id="back-to-playlists-from-videos" class="absolute top-4 left-4 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm navigable" tabindex="0">
                             <i data-lucide="arrow-left" class="w-4 h-4"></i> العودة لقوائم التشغيل
                         </button>
                         <h2 class="text-3xl font-bold mb-4 text-center w-full">فيديوهات قائمة التشغيل</h2>
@@ -1264,7 +1318,7 @@ div#youtube-readers-section {
                             <!-- Videos will be dynamically loaded here -->
                         </div>
                         <!-- Bottom "Back to Playlists" Button -->
-                        <button id="back-to-playlists-bottom-button" class="mt-4 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-full transition-colors duration-200 flex items-center justify-center gap-2 text-base">
+                        <button id="back-to-playlists-bottom-button" class="mt-4 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-full transition-colors duration-200 flex items-center justify-center gap-2 text-base navigable" tabindex="0">
                             <i data-lucide="arrow-left" class="w-5 h-5"></i> العودة إلى قوائم التشغيل الرئيسية
                         </button>
                     </div>
@@ -1276,7 +1330,7 @@ div#youtube-readers-section {
                             <!-- Search results will be dynamically loaded here -->
                         </div>
                         <!-- Bottom "Back to Playlists" Button for search results -->
-                        <button id="back-to-playlists-bottom-button-search" class="mt-4 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-full transition-colors duration-200 flex items-center justify-center gap-2 text-base">
+                        <button id="back-to-playlists-bottom-button-search" class="mt-4 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-full transition-colors duration-200 flex items-center justify-center gap-2 text-base navigable" tabindex="0">
                             <i data-lucide="arrow-left" class="w-5 h-5"></i> العودة إلى قوائم التشغيل الرئيسية
                         </button>
                     </div>
@@ -1299,18 +1353,18 @@ div#youtube-readers-section {
                             type="text"
                             id="ai-input"
                             placeholder="اسألني أي شيء..."
-                            class="flex-grow p-3 rounded-full bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            class="flex-grow p-3 rounded-full bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 navigable" tabindex="0"
                             onkeypress="if(event.key === 'Enter') document.getElementById('ai-send-button').click();"
                         />
                         <button
                             id="ai-mic-button" 
-                            class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center"
+                            class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center navigable" tabindex="0"
                         >
                             <i data-lucide="mic"></i>
                         </button>
                         <button
                             id="ai-send-button"
-                            class="bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center"
+                            class="bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center navigable" tabindex="0"
                         >
                             <i data-lucide="send"></i>
                         </button>
@@ -1358,17 +1412,17 @@ div#youtube-readers-section {
                                     type="text"
                                     id="destination-input"
                                     placeholder="أدخل الوجهة أو رابط Google Maps..."
-                                    class="p-2 rounded-lg bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    class="p-2 rounded-lg bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 navigable" tabindex="0"
                                 />
                                 <button
                                     id="start-directions-button"
-                                    class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 font-bold"
+                                    class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 font-bold navigable" tabindex="0"
                                 >
                                     <i data-lucide="navigation" class="w-5 h-5"></i> البحث عن الاتجاهات
                                 </button>
                                 <button
                                     id="toggle-traffic-button"
-                                    class="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 font-bold mt-2"
+                                    class="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 font-bold mt-2 navigable" tabindex="0"
                                 >
                                     <i data-lucide="traffic-cone" class="w-5 h-5"></i> إظهار حركة المرور
                                 </button>
@@ -1389,7 +1443,7 @@ div#youtube-readers-section {
                         <!-- Right Panel: Google Map (75%) -->
                         <div class="w-full md:w-3/4 rounded-3xl relative overflow-hidden flex items-center justify-center glass-surface glass-surface--svg p-1">
                             <div id="full-google-map" class="full-iframe"></div>
-                            <button id="get-my-location-button-full-map" class="absolute bottom-4 left-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm">
+                            <button id="get-my-location-button-full-map" class="absolute bottom-4 left-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm navigable" tabindex="0">
                                 <i data-lucide="map-pin" class="w-4 h-4"></i> تحديث الموقع
                             </button>
                         </div>
@@ -1400,7 +1454,7 @@ div#youtube-readers-section {
                 <section id="screen-Quran" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full relative">
                    <div id="quran-quick-access" class="mt-4 bg-black/30 p-4 rounded-xl flex flex-col gap-3 items-end z-20 glass-surface glass-surface--svg w-full max-w-md">
                         
-                        <button id="quran-go-button" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm self-center">
+                        <button id="quran-go-button" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm self-center navigable" tabindex="0">
                             
                         </button>
                     </div>
@@ -1427,28 +1481,28 @@ div#youtube-readers-section {
     </div>
 
     <!-- Floating Full-Screen Button -->
-    <button id="floating-fullscreen-button" class="glass-surface glass-surface--svg rounded-full">
+    <button id="floating-fullscreen-button" class="glass-surface glass-surface--svg rounded-full navigable" tabindex="0">
         <i data-lucide="maximize" class="w-6 h-6"></i>
         
     </button>
 
     <!-- Floating Media Button -->
-    <button id="floating-media-button" class="glass-surface glass-surface--svg rounded-full">
+    <button id="floating-media-button" class="glass-surface glass-surface--svg rounded-full navigable" tabindex="0">
         <i data-lucide="youtube" class="w-6 h-6"></i>
     </button>
 
     <!-- Floating Keyboard Button (New) -->
-    <button id="floating-keyboard-button" class="glass-surface glass-surface--svg rounded-full">
+    <button id="floating-keyboard-button" class="glass-surface glass-surface--svg rounded-full navigable" tabindex="0">
         <i data-lucide="keyboard" class="w-6 h-6"></i>
     </button>
 
     <!-- Clear Search Button (New) -->
-    <button id="clear-search-button" class="glass-surface glass-surface--svg rounded-full">
+    <button id="clear-search-button" class="glass-surface glass-surface--svg rounded-full navigable" tabindex="0">
         <i data-lucide="x" class="w-4 h-4"></i>
     </button>
 
     <!-- Floating Start Trip Button (New) -->
-    <button id="start-trip-floating-button" class="glass-surface glass-surface--svg rounded-full">
+    <button id="start-trip-floating-button" class="glass-surface glass-surface--svg rounded-full navigable" tabindex="0">
         <i data-lucide="map-pin" class="w-6 h-6"></i> بدء الرحلة
     </button>
 
@@ -1462,9 +1516,26 @@ div#youtube-readers-section {
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowfullscreen
         ></iframe>
-        <button id="full-screen-video-close-button" title="إغلاق ملء الشاشة">
+        <button id="full-screen-video-close-button" title="إغلاق ملء الشاشة" class="navigable" tabindex="0">
             <i data-lucide="x" class="w-8 h-8"></i>
         </button>
+    </div>
+
+    <!-- Video Pop-up Container -->
+    <div id="video-popup-container">
+        <iframe
+            id="video-popup-iframe"
+            src=""
+            title="YouTube video player pop-up"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+        ></iframe>
+        <div class="video-popup-controls">
+            <button id="video-popup-close-button" title="إغلاق الفيديو" class="navigable" tabindex="0">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
     </div>
 
     <script>
@@ -1553,6 +1624,11 @@ div#youtube-readers-section {
         const fullScreenVideoContainer = document.getElementById('full-screen-video-container');
         const fullScreenVideoIframe = document.getElementById('full-screen-video-iframe');
         const fullScreenVideoCloseButton = document.getElementById('full-screen-video-close-button');
+
+        // Video Pop-up elements
+        const videoPopupContainer = document.getElementById('video-popup-container');
+        const videoPopupIframe = document.getElementById('video-popup-iframe');
+        const videoPopupCloseButton = document.getElementById('video-popup-close-button');
 
         // Quran specific elements
         const quranIframe = document.getElementById('quran-iframe');
@@ -1808,6 +1884,15 @@ div#youtube-readers-section {
             }
 
             updateUI(); // Update UI to reflect latest state
+            // Set focus for TV remote navigation
+            setTimeout(() => {
+                const firstNavigable = targetScreen.querySelector('.navigable');
+                if (firstNavigable) {
+                    setFocus(firstNavigable);
+                } else {
+                     setFocus(targetIcon);
+                }
+            }, 100); // Delay to allow screen transition animation
         }
 
         /**
@@ -1866,8 +1951,7 @@ div#youtube-readers-section {
         
         // Apply common styles to sidebar app icons
         sidebarIcons.forEach(el => {
-            el.classList.add('w-16', 'h-16', 'rounded-2xl', 'flex', 'items-center', 'justify-center', 'transition-all', 'duration-300', 'ease-in-out', 'focus:outline-none', 'focus:ring-4', 'focus:ring-purple-500/50', 'hover:bg-white/20', 'text-white');
-            el.setAttribute('role', 'button');
+            el.classList.add('w-16', 'h-16', 'rounded-2xl', 'flex', 'items-center', 'justify-center', 'transition-all', 'duration-300', 'ease-in-out');
         });
         
         // --- YouTube/Media Specific Functions and Event Handlers ---
@@ -1905,21 +1989,32 @@ div#youtube-readers-section {
                     videoListContainer.innerHTML = ''; // Clear previous videos
                     videoListContainer.scrollTop = 0; // Scroll to top of the list
                     data.items.forEach(item => {
-                        // Corrected path to videoId
                         const videoId = item.snippet.resourceId.videoId; 
                         const title = item.snippet.title;
                         const thumbnailUrl = item.snippet.thumbnails.medium ? item.snippet.thumbnails.medium.url : 'https://placehold.co/120x90/000000/FFFFFF?text=No+Thumbnail';
 
                         const videoCard = document.createElement('div');
-                        videoCard.classList.add('glass-surface', 'glass-surface--svg', 'youtube-video-card');
+                        videoCard.classList.add('glass-surface', 'glass-surface--svg', 'youtube-video-card', 'navigable');
+                        videoCard.tabIndex = 0;
                         videoCard.dataset.videoId = videoId;
                         videoCard.innerHTML = `
-                            <img src="${thumbnailUrl}" alt="${title}" onerror="this.onerror=null;this.src='https://placehold.co/120x90/000000/FFFFFF?text=No+Thumbnail';" />
-                            <h3>${title}</h3>
+                            <div class="video-card-clickable-area">
+                                <img src="${thumbnailUrl}" alt="${title}" onerror="this.onerror=null;this.src='https://placehold.co/120x90/000000/FFFFFF?text=No+Thumbnail';" />
+                                <h3>${title}</h3>
+                            </div>
+                            <button class="video-popup-button navigable" tabindex="0" title="تشغيل في نافذة منبثقة">
+                                <i data-lucide="square-arrow-up-right" class="w-4 h-4"></i>
+                            </button>
                         `;
-                        videoCard.addEventListener('click', () => playVideoInFullScreen(videoId));
+                        videoCard.querySelector('.video-card-clickable-area').addEventListener('click', () => playVideoInFullScreen(videoId));
+                        videoCard.querySelector('.video-popup-button').addEventListener('click', (e) => {
+                            e.stopPropagation(); // Prevent card click event
+                            showVideoPopup(videoId);
+                        });
                         videoListContainer.appendChild(videoCard);
                     });
+                    lucide.createIcons();
+
 
                     // Update view visibility
                     youtubePlaylistView.classList.add('hidden');
@@ -1953,11 +2048,12 @@ div#youtube-readers-section {
             
             fullScreenVideoContainer.style.display = 'flex';
             document.getElementById('carplay-main-interface').style.display = 'none'; // Hide main interface
-            document.querySelectorAll('.fixed').forEach(el => { // Hide all other fixed elements
-                if (el.id !== 'full-screen-video-container' && !el.closest('#full-screen-video-container')) {
-                    el.style.display = 'none';
+            document.querySelectorAll('.fixed:not(#full-screen-video-container)').forEach(el => {
+                if (!el.closest('#full-screen-video-container')) {
+                     el.style.display = 'none';
                 }
             });
+            setTimeout(() => setFocus(fullScreenVideoCloseButton), 100);
         }
 
         /**
@@ -1969,19 +2065,48 @@ div#youtube-readers-section {
             
             fullScreenVideoContainer.style.display = 'none';
             document.getElementById('carplay-main-interface').style.display = 'flex'; // Show main interface
-            document.querySelectorAll('.fixed').forEach(el => { // Restore visibility of fixed elements
-                if (el.id !== 'full-screen-video-container') {
-                    el.style.display = 'flex'; // Or 'block', depending on original style
-                }
+            document.querySelectorAll('.fixed:not(#full-screen-video-container)').forEach(el => {
+                 el.style.display = 'flex'; 
             });
             // Specific handling for buttons that might have been hidden
             floatingFullscreenButton.style.display = 'flex';
-            floatingMediaButton.style.display = 'flex';
+            const currentApp = document.querySelector('.app-screen.active').id.replace('screen-', '');
+            if(currentApp !== 'Media') {
+                floatingMediaButton.style.display = 'flex';
+            }
             // Re-evaluate button visibility based on the current app
-            switchApp(document.querySelector('.app-screen.active').id.replace('screen-', ''));
+            switchApp(currentApp);
+        }
+
+        /**
+         * Shows the video in a pop-up window.
+         * @param {string} videoId - The ID of the YouTube video.
+         */
+        function showVideoPopup(videoId) {
+            videoPopupIframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1&origin=${window.location.protocol}//${window.location.host}`;
+            currentPlayingVideoId = videoId;
+            videoPopupContainer.classList.add('active');
+            setTimeout(() => setFocus(videoPopupCloseButton), 100);
+        }
+
+        /**
+         * Hides the video pop-up and stops the video.
+         */
+        function hideVideoPopup() {
+            videoPopupContainer.classList.remove('active');
+            videoPopupIframe.src = ''; // Stop the video
+            currentPlayingVideoId = '';
+            // Return focus to a sensible element in the background
+            const activeScreen = document.querySelector('.app-screen.active');
+            if(activeScreen) {
+                const firstNavigable = activeScreen.querySelector('.navigable');
+                if (firstNavigable) setFocus(firstNavigable);
+            }
         }
 
         fullScreenVideoCloseButton.addEventListener('click', closeFullScreenPlayer);
+        videoPopupCloseButton.addEventListener('click', hideVideoPopup);
+
 
         /**
          * Navigates back to the main YouTube playlists view.
@@ -2116,7 +2241,8 @@ div#youtube-readers-section {
 
             youtubeReaderSuggestions.forEach(reader => {
                 const card = document.createElement('div');
-                card.classList.add('youtube-reader-card');
+                card.classList.add('youtube-reader-card', 'navigable');
+                card.tabIndex = 0;
                 card.innerHTML = `
                     <img src="${reader.image}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64/000000/FFFFFF?text=Reciter';" />
                     <h3>${reader.name}</h3>
@@ -2162,7 +2288,8 @@ div#youtube-readers-section {
 
             youtubeSurahSuggestions.forEach((name) => {
                 const button = document.createElement('button');
-                button.classList.add('youtube-suggestion-button');
+                button.classList.add('youtube-suggestion-button', 'navigable');
+                button.tabIndex = 0;
                 button.textContent = name;
                 const juzNumber = surahToJuzMap[name] || 1; // Default to Juz 1 color if not found
                 button.style.backgroundImage = juzColors[juzNumber - 1]; // Apply specific color based on Juz
@@ -2220,15 +2347,26 @@ div#youtube-readers-section {
                         const thumbnailUrl = item.snippet.thumbnails.medium ? item.snippet.thumbnails.medium.url : 'https://placehold.co/120x90/000000/FFFFFF?text=No+Thumbnail';
 
                         const videoCard = document.createElement('div');
-                        videoCard.classList.add('glass-surface', 'glass-surface--svg', 'youtube-search-card');
+                        videoCard.classList.add('glass-surface', 'glass-surface--svg', 'youtube-search-card', 'navigable');
+                        videoCard.tabIndex = 0;
                         videoCard.dataset.videoId = videoId;
                         videoCard.innerHTML = `
-                            <img src="${thumbnailUrl}" alt="${title}" onerror="this.onerror=null;this.src='https://placehold.co/120x90/000000/FFFFFF?text=No+Thumbnail';" />
-                            <h3>${title}</h3>
+                            <div class="video-card-clickable-area">
+                                <img src="${thumbnailUrl}" alt="${title}" onerror="this.onerror=null;this.src='https://placehold.co/120x90/000000/FFFFFF?text=No+Thumbnail';" />
+                                <h3>${title}</h3>
+                            </div>
+                            <button class="video-popup-button navigable" tabindex="0" title="تشغيل في نافذة منبثقة">
+                                <i data-lucide="square-arrow-up-right" class="w-4 h-4"></i>
+                            </button>
                         `;
-                        videoCard.addEventListener('click', () => playVideoInFullScreen(videoId));
+                        videoCard.querySelector('.video-card-clickable-area').addEventListener('click', () => playVideoInFullScreen(videoId));
+                        videoCard.querySelector('.video-popup-button').addEventListener('click', (e) => {
+                            e.stopPropagation(); // Prevent card click event
+                            showVideoPopup(videoId);
+                        });
                         searchResultsContainer.appendChild(videoCard);
                     });
+                     lucide.createIcons();
 
                     // Update view visibility
                     youtubePlaylistView.classList.add('hidden');
@@ -3002,12 +3140,6 @@ div#youtube-readers-section {
             {"date":"2025-09-27","fajr":"05:01","sunrise":"06:13","dhuhr":"12:20","asr":"15:42","maghrib":"18:21","isha":"19:28"},
         ];
 
-        /**
-         * Adds minutes to a given time string.
-         * @param {string} timeStr - The time string in "HH:MM" format.
-         * @param {number} minutesToAdd - The number of minutes to add.
-         * @returns {string} The new time string in "HH:MM" format.
-         */
         function addMinutes(timeStr, minutesToAdd) {
             const [hour, minute] = timeStr.split(':').map(Number);
             const date = new Date();
