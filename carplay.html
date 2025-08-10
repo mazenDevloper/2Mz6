@@ -174,11 +174,12 @@
         
         /* TV Remote Focus Style */
         .navigable:focus, .navigable.tv-focus {
-            outline: 3px solid #0A84FF;
-            box-shadow: 0 0 20px rgba(10, 132, 255, 0.7);
+            outline: 3px solid #0A84FF !important; /* Use !important to override other outlines */
+            box-shadow: 0 0 20px rgba(10, 132, 255, 0.7) !important; /* Use !important */
             transform: scale(1.03);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
+
 
         /* Keyframe animation for the background gradient */
         @keyframes gradient {
@@ -1213,7 +1214,7 @@
                                 </div>
                             </div>
                             <!-- Digital Clock Widget (Apple iOS 19 style) -->
-                            <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center">
+                            <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center navigable" tabindex="0">
                                 <div id="digital-clock-widget" class="w-full h-full flex flex-col items-center justify-center text-center">
                                     <!-- Changed to spans for individual opacity control -->
                                     <div id="digital-time">
@@ -1232,10 +1233,10 @@
                             <img id="car-360-image" src="https://dmusera.netlify.app/es350gb.png" alt="عرض الكاميرا 360 درجة للسيارة" class="w-full h-full object-contain rounded-lg opacity-80">
                             <div class="car-cam-360-controls">
                                 <input type="file" id="upload-360-image-input" accept="image/*" class="hidden" />
-                                <button id="upload-360-image-button">
+                                <button id="upload-360-image-button" class="navigable" tabindex="0">
                                     <i data-lucide="upload" class="w-4 h-4"></i> تحميل صورة
                                 </button>
-                                <button id="reset-360-image-button">
+                                <button id="reset-360-image-button" class="navigable" tabindex="0">
                                     <i data-lucide="rotate-ccw" class="w-4 h-4"></i> إعادة تعيين
                                 </button>
                             </div>
@@ -1245,38 +1246,38 @@
                         <div class="rounded-3xl relative overflow-hidden flex items-center justify-center glass-surface glass-surface--svg p-1 col-span-1 row-start-1 navigable" tabindex="0">
                             <!-- Google Map container -->
                             <div id="dashboard-google-map" class="full-iframe"></div>
-                            <button id="get-my-location-button-dashboard" class="absolute bottom-4 left-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm">
+                            <button id="get-my-location-button-dashboard" class="absolute bottom-4 left-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm navigable" tabindex="0">
                                 <i data-lucide="map-pin" class="w-6 h-6"></i> تحديث الموقع
                             </button>
                         </div>
 
                         <!-- Prayer Times Widget (occupies all 3 columns, 2nd row) -->
-                        <div class="glass-surface glass-surface--svg p-4 flex flex-col items-center justify-center text-center col-span-full row-start-2">
+                        <div class="glass-surface glass-surface--svg p-4 flex flex-col items-center justify-center text-center col-span-full row-start-2 navigable" tabindex="0">
                            
                             <!-- Prayer times will be dynamically loaded here -->
                             <div id="prayer-times-container" class="prayer-times-row">
-                                <div class="prayer-time-item">
+                                <div class="prayer-time-item navigable" tabindex="0">
                                     <span class="prayer-name">الفجر</span>
                                     <span class="prayer-time" id="fajr-time">--:--</span>
                                     <span class="prayer-iqama" id="fajr-iqama"></span>
                                 </div>
                                 
-                                <div class="prayer-time-item">
+                                <div class="prayer-time-item navigable" tabindex="0">
                                     <span class="prayer-name">الظهر</span>
                                     <span class="prayer-time" id="dhuhr-time">--:--</span>
                                     <span class="prayer-iqama" id="dhuhr-iqama"></span>
                                 </div>
-                                <div class="prayer-time-item">
+                                <div class="prayer-time-item navigable" tabindex="0">
                                     <span class="prayer-name">العصر</span>
                                     <span class="prayer-time" id="asr-time">--:--</span>
                                     <span class="prayer-iqama" id="asr-iqama"></span>
                                 </div>
-                                <div class="prayer-time-item">
+                                <div class="prayer-time-item navigable" tabindex="0">
                                     <span class="prayer-name">المغرب</span>
                                     <span class="prayer-time" id="maghrib-time">--:--</span>
                                     <span class="prayer-iqama" id="maghrib-iqama"></span>
                                 </div>
-                                <div class="prayer-time-item">
+                                <div class="prayer-time-item navigable" tabindex="0">
                                     <span class="prayer-name">العشاء</span>
                                     <span class="prayer-time" id="isha-time">--:--</span>
                                     <span class="prayer-iqama" id="isha-iqama"></span>
@@ -1404,14 +1405,14 @@
                         <!-- Additional Details (Grid) -->
                         <div class="grid grid-cols-2 sm:grid-cols-2 gap-4 w-full">
                             <!-- Temp Card -->
-                            <div class="glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center">
+                            <div class="glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center navigable" tabindex="0">
                                 <i data-lucide="thermometer" class="w-10 h-10 text-red-400 mb-2"></i>
                                 <span class="text-2xl font-bold" id="weather-temp-card">--°C</span>
                                 <span class="text-sm text-white/50">الحرارة</span>
                             </div>
                             
                             <!-- UV Index Card -->
-                            <div class="glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center">
+                            <div class="glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center navigable" tabindex="0">
                                 <i data-lucide="sun" class="w-10 h-10 text-orange-300 mb-2"></i>
                                 <span class="text-2xl font-bold" id="weather-uv">--</span>
                                 <span class="text-sm text-white/50">مؤشر الأشعة فوق البنفسجية</span>
@@ -1419,7 +1420,7 @@
                         </div>
                         
                         <!-- NEW: Hourly Forecast Chart Container -->
-                        <div class="glass-surface glass-surface--svg p-4 rounded-3xl mt-4 w-full col-span-full flex-grow">
+                        <div class="glass-surface glass-surface--svg p-4 rounded-3xl mt-4 w-full col-span-full flex-grow navigable" tabindex="0">
                             <canvas id="hourly-forecast-chart"></canvas>
                         </div>
                     </div>
@@ -3259,8 +3260,8 @@
          * Loads prayer times for the current day from the local `prayerTimes` array.
          */
         function loadPrayerTimes() {
-            const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
-            const data = prayerTimes.find(p => p.date === today);
+            const today = new Date().toISOString().split('T')[0]; // Get today's date
+               const data = prayerTimes.find(p => p.date === today);
 
             if (data) {
                 appState.prayerTimes.Fajr = data.fajr;
