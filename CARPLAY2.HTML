@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -179,6 +179,7 @@
             transform: scale(1.03);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
+
 
 
         /* Keyframe animation for the background gradient */
@@ -1244,7 +1245,7 @@
                 <section id="screen-Media" class="app-screen p-4 md:p-6 flex-col items-center h-full relative">
                     <div class="w-full flex flex-col gap-4">
                         <!-- Search Row -->
-                        <div class="w-full flex flex-row-reverse items-center gap-2 grid-container">
+                        <div class="w-full flex flex-row items-center gap-2 grid-container">
                             <button id="youtube-search-button" class="bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center navigable grid-item" tabindex="0">
                                 <i data-lucide="search"></i>
                             </button>
@@ -1549,7 +1550,7 @@
         const surahToJuzMap = {"الفاتحة":1,"البقرة":1,"آل عمران":3,"النساء":4,"المائدة":6,"الأنعام":7,"الأعراف":8,"الأنفال":9,"التوبة":10,"يونس":11,"هود":11,"يوسف":12,"الرعد":13,"إبراهيم":13,"الحجر":14,"النحل":14,"الإسراء":15,"الكهف":15,"مريم":16,"طه":16,"الأنبياء":17,"الحج":17,"المؤمنون":18,"النور":18,"الفرقان":18,"الشعراء":19,"النمل":19,"القصص":20,"العنكبوت":20,"الروم":21,"لقمان":21,"السجدة":21,"الأحزاب":21,"سبأ":22,"فاطر":22,"يس":22,"الصافات":23,"ص":23,"الزمر":23,"غافر":24,"فصلت":24,"الشورى":25,"الزخرف":25,"الدخان":25,"الجاثية":25,"الأحقاف":26,"محمد":26,"الفتح":26,"الحجرات":26,"ق":26,"الذاريات":27,"الطور":27,"النجم":27,"القمر":27,"الرحمن":27,"الواقعة":27,"الحديد":27,"المجادلة":28,"الحشر":28,"الممتحنة":28,"الصف":28,"الجمعة":28,"المنافقون":28,"التغابن":28,"الطلاق":28,"التحريم":28,"الملك":29,"القلم":29,"الحاقة":29,"المعارج":29,"نوح":29,"الجن":29,"المزمل":29,"المدثر":29,"القيامة":29,"الإنسان":29,"المرسلات":29,"جزء عم":30};
         const juzColors = Array.from({length:30},(_,i)=>`radial-gradient(circle, hsla(${(i*360/30)%360}, 80%, 60%, 0.4) 0%, hsla(${(i*360/30)%360}, 85%, 45%, 0.8) 100%)`);
         function resetYoutubeSearchUI() { youtubeSuggestionsDiv.innerHTML = ''; youtubeSuggestionsDiv.classList.remove('hidden'); selectedReaderName = ''; youtubeSearchInput.value = ''; populateYoutubeSuggestions(); }
-        function populateYoutubeSuggestions() { youtubeSuggestionsDiv.innerHTML = ''; youtubeSuggestionsDiv.className = 'flex flex-col gap-4 w-full'; const readersSection = document.createElement('div'); readersSection.id = 'youtube-readers-section'; readersSection.className = 'flex flex-col gap-2 p-3 rounded-xl glass-surface glass-surface--svg w-full'; readersSection.innerHTML = '<span class="youtube-suggestion-category-tag bg-blue-600">اختر القارئ</span>'; const readerButtonsContainer = document.createElement('div'); readerButtonsContainer.className = 'reader-container'; youtubeReaderSuggestions.forEach(reader => { const card = document.createElement('div'); card.className = 'youtube-reader-card navigable grid-item'; card.tabIndex = 0; card.innerHTML = `<img src="${reader.image}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';"><h3>${reader.name}</h3>`; card.addEventListener('click', (e) => { document.querySelectorAll('#youtube-readers-section .youtube-reader-card').forEach(c => c.classList.remove('selected')); e.currentTarget.classList.add('selected'); selectedReaderName = reader.name; youtubeSearchInput.value = reader.name + ' '; readersSection.style.display = 'none'; showSurahSuggestions(); }); readerButtonsContainer.appendChild(card); }); readersSection.appendChild(readerButtonsContainer); youtubeSuggestionsDiv.appendChild(readersSection); }
+        function populateYoutubeSuggestions() { youtubeSuggestionsDiv.innerHTML = ''; youtubeSuggestionsDiv.className = 'flex flex-col gap-4 w-full'; const readersSection = document.createElement('div'); readersSection.id = 'youtube-readers-section'; readersSection.className = 'flex flex-col gap-2 p-3 rounded-xl glass-surface glass-surface--svg w-full'; readersSection.innerHTML = '<span class="youtube-suggestion-category-tag bg-blue-600">اختر القارئ</span>'; const readerButtonsContainer = document.createElement('div'); readerButtonsContainer.className = 'reader-container'; youtubeReaderSuggestions.forEach(reader => { const card = document.createElement('div'); card.className = 'youtube-reader-card navigable grid-item'; card.tabIndex = 0; card.innerHTML = `<img src="${reader.image}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';"><h3>${reader.name}</h3>`; card.addEventListener('click', (e) => { document.querySelectorAll('#youtube-readers-section .youtube-reader-card').forEach(c => c.classList.remove('selected')); e.currentTarget.classList.add('selected'); selectedReaderName = reader.name; youtubeSearchInput.value = reader.name + ' '; readersSection.style.display = 'none'; showSurahSuggestions(); setTimeout(() => { const firstSurahButton = document.querySelector('#youtube-surah-section .grid-item'); if (firstSurahButton) setFocus(firstSurahButton); }, 100); }); readerButtonsContainer.appendChild(card); }); readersSection.appendChild(readerButtonsContainer); youtubeSuggestionsDiv.appendChild(readersSection); }
         function showSurahSuggestions() { const existing = document.getElementById('youtube-surah-section'); if (existing) existing.remove(); const surahSection = document.createElement('div'); surahSection.id = 'youtube-surah-section'; surahSection.className = 'flex flex-col gap-2 p-3 rounded-xl glass-surface glass-surface--svg w-full mt-4 grid-container'; surahSection.innerHTML = '<span class="youtube-suggestion-category-tag bg-green-600">اختر السورة</span>'; const surahButtonsContainer = document.createElement('div'); surahButtonsContainer.className = 'grid grid-cols-9 gap-2 w-full'; youtubeSurahSuggestions.forEach(name => { const button = document.createElement('button'); button.className = 'youtube-suggestion-button navigable grid-item'; button.tabIndex = 0; button.textContent = name; button.style.backgroundImage = juzColors[(surahToJuzMap[name] || 1) - 1]; button.addEventListener('click', () => { const query = selectedReaderName + ' سورة ' + name; youtubeSearchInput.value = query; searchYouTubeVideos(query); }); surahButtonsContainer.appendChild(button); }); surahSection.appendChild(surahButtonsContainer); youtubeSuggestionsDiv.appendChild(surahSection); }
         youtubeSearchInput.addEventListener('focus', () => { if (youtubeSearchInput.value.trim() === '') { youtubeSuggestionsDiv.classList.remove('hidden'); resetYoutubeSearchUI(); } });
         youtubeSearchButton.addEventListener('click', () => { const query = youtubeSearchInput.value.trim(); if (query) searchYouTubeVideos(query); else showMessageBox('الرجاء إدخال كلمة للبحث.'); });
@@ -1596,13 +1597,173 @@
         function handleImageUpload(e) { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = (ev) => { appState.custom360Image = ev.target.result; localStorage.setItem('custom360Image', ev.target.result); updateUI(); }; reader.readAsDataURL(file); } }
         function resetImageToDefault() { appState.custom360Image = null; localStorage.removeItem('custom360Image'); updateUI(); }
 
-        // --- TV Remote / Keyboard Navigation ---
+        // --- TV Remote / Keyboard Navigation (REBUILT) ---
         let currentFocus = null;
         function setFocus(el) { if (currentFocus) currentFocus.classList.remove('tv-focus'); if (el) { el.classList.add('tv-focus'); el.focus({ preventScroll: true }); currentFocus = el; el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' }); } }
-        function handleNavigation(e) { const activeEl = document.activeElement; if (!activeEl || activeEl === document.body) { const firstIcon = document.querySelector('nav .app-icon'); if(firstIcon) { e.preventDefault(); setFocus(firstIcon); } return; } const inNav = activeEl.closest('nav'); const inReaderList = activeEl.closest('.reader-container'); const inApp = activeEl.closest('.app-screen.active'); if (inNav) { handleNavSidebarNavigation(e, activeEl); } else if (inReaderList) { handleHorizontalListNavigation(e, activeEl); } else if (inApp) { handleAppScreenNavigation(e, activeEl, inApp); } else { const container = activeEl.closest('.grid-container'); if (container) handleAppScreenNavigation(e, activeEl, container); } }
-        function handleNavSidebarNavigation(e, activeEl) { const icons = Array.from(document.querySelectorAll('nav .app-icon')); const idx = icons.indexOf(activeEl); let nextIdx = -1; switch (e.key) { case 'ArrowUp': e.preventDefault(); nextIdx = idx > 0 ? idx - 1 : icons.length - 1; break; case 'ArrowDown': e.preventDefault(); nextIdx = idx < icons.length - 1 ? idx + 1 : 0; break; case 'ArrowRight': case 'Enter': case 'OK': e.preventDefault(); activeEl.click(); return; } if (nextIdx !== -1) setFocus(icons[nextIdx]); }
-        function handleHorizontalListNavigation(e, activeEl) { const container = activeEl.parentElement; const items = Array.from(container.querySelectorAll('.grid-item')); const currentIndex = items.indexOf(activeEl); let nextIndex = -1; switch (e.key) { case 'ArrowLeft': nextIndex = currentIndex > 0 ? currentIndex - 1 : -1; break; case 'ArrowRight': nextIndex = currentIndex < items.length - 1 ? currentIndex + 1 : -1; break; case 'Enter': case 'OK': e.preventDefault(); activeEl.click(); return; } if (nextIndex !== -1) { e.preventDefault(); setFocus(items[nextIndex]); } }
-        function handleAppScreenNavigation(e, activeEl, container) { const items = Array.from(container.querySelectorAll('.grid-item:not([style*="display: none"])')); if (items.length <= 1) return; const idx = items.indexOf(activeEl); if (idx === -1) return; const y = items.length > 0 ? items[0].getBoundingClientRect().top : 0; const cols = items.filter(item => Math.abs(item.getBoundingClientRect().top - y) < 20).length || 1; let nextIdx = -1; switch (e.key) { case 'ArrowUp': nextIdx = idx - cols; break; case 'ArrowDown': nextIdx = idx + cols; break; case 'ArrowLeft': if (idx % cols === 0) { e.preventDefault(); const navIcon = document.querySelector('nav .app-icon.active'); if (navIcon) setFocus(navIcon); return; } nextIdx = idx - 1; break; case 'ArrowRight': if ((idx + 1) % cols !== 0 && idx + 1 < items.length) nextIdx = idx + 1; break; case 'Enter': case 'OK': e.preventDefault(); activeEl.click(); return; } if (nextIdx >= 0 && nextIdx < items.length) { e.preventDefault(); setFocus(items[nextIdx]); } }
+        
+        function handleNavigation(e) {
+            const key = e.key;
+            if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', 'OK'].includes(key)) return;
+
+            const activeEl = document.activeElement;
+            if (!activeEl || activeEl === document.body) {
+                const firstIcon = document.querySelector('nav .app-icon');
+                if (firstIcon) {
+                    e.preventDefault();
+                    setFocus(firstIcon);
+                }
+                return;
+            }
+
+            const inNav = activeEl.closest('nav');
+            const inMediaScreen = activeEl.closest('#screen-Media');
+
+            if (inNav) {
+                handleNavSidebarNavigation(e, activeEl);
+            } else if (inMediaScreen) {
+                handleMediaScreenNavigation(e, activeEl);
+            } else {
+                const container = activeEl.closest('.grid-container');
+                if (container) {
+                    handleGenericGridNavigation(e, activeEl, container);
+                }
+            }
+        }
+
+        function handleNavSidebarNavigation(e, activeEl) {
+            e.preventDefault();
+            const icons = Array.from(document.querySelectorAll('nav .app-icon'));
+            const idx = icons.indexOf(activeEl);
+            let nextIdx = -1;
+            switch (e.key) {
+                case 'ArrowUp': nextIdx = idx > 0 ? idx - 1 : icons.length - 1; break;
+                case 'ArrowDown': nextIdx = idx < icons.length - 1 ? idx + 1 : 0; break;
+                case 'ArrowRight': case 'Enter': case 'OK': activeEl.click(); return;
+            }
+            if (nextIdx !== -1) setFocus(icons[nextIdx]);
+        }
+
+        function handleMediaScreenNavigation(e, activeEl) {
+            e.preventDefault();
+
+            const inSearchRow = activeEl.closest('.flex.items-center.gap-2.grid-container');
+            const inReaders = activeEl.closest('#youtube-readers-section');
+            const inSurahs = activeEl.closest('#youtube-surah-section');
+            const inPlaylists = activeEl.closest('#youtube-playlist-view');
+            const inVideoList = activeEl.closest('#youtube-video-list-view');
+            const inSearchResults = activeEl.closest('#youtube-search-results-view');
+
+            if (inSearchRow) {
+                const items = Array.from(inSearchRow.querySelectorAll('.grid-item'));
+                const idx = items.indexOf(activeEl);
+                if (e.key === 'ArrowRight') { // Move visually right
+                    if (idx > 0) {
+                        setFocus(items[idx - 1]);
+                    } else {
+                         const navIcon = document.querySelector('nav .app-icon.active');
+                         if (navIcon) setFocus(navIcon);
+                    }
+                } else if (e.key === 'ArrowLeft') { // Move visually left
+                    if (idx < items.length - 1) setFocus(items[idx + 1]);
+                } else if (e.key === 'ArrowDown') {
+                    const firstReader = document.querySelector('#youtube-readers-section .grid-item');
+                    if (firstReader) setFocus(firstReader);
+                } else if (e.key === 'Enter' || e.key === 'OK') {
+                    activeEl.click();
+                }
+
+            } else if (inReaders) {
+                const container = activeEl.parentElement;
+                const items = Array.from(container.querySelectorAll('.grid-item'));
+                const idx = items.indexOf(activeEl);
+
+                if (e.key === 'ArrowRight') {
+                    if (idx < items.length - 1) setFocus(items[idx + 1]);
+                } else if (e.key === 'ArrowLeft') {
+                    if (idx > 0) {
+                        setFocus(items[idx - 1]);
+                    } else {
+                        const navIcon = document.querySelector('nav .app-icon.active');
+                        if (navIcon) setFocus(navIcon);
+                    }
+                } else if (e.key === 'ArrowUp') {
+                    setFocus(youtubeSearchInput);
+                } else if (e.key === 'ArrowDown') {
+                    const surahSection = document.getElementById('youtube-surah-section');
+                    if (surahSection && surahSection.offsetParent !== null) {
+                        const firstSurah = surahSection.querySelector('.grid-item');
+                        if (firstSurah) setFocus(firstSurah);
+                    } else {
+                        const firstPlaylist = document.querySelector('#youtube-playlist-view .grid-item');
+                        if (firstPlaylist) setFocus(firstPlaylist);
+                    }
+                } else if (e.key === 'Enter' || e.key === 'OK') {
+                    activeEl.click();
+                }
+
+            } else if (inSurahs || inPlaylists || inVideoList || inSearchResults) {
+                 handleGenericGridNavigation(e, activeEl, activeEl.closest('.grid-container'), {
+                     onArrowUpAtTop: () => {
+                         if (inSurahs) {
+                             const selectedReader = document.querySelector('#youtube-readers-section .youtube-reader-card.selected') || document.querySelector('#youtube-readers-section .youtube-reader-card');
+                             if (selectedReader) setFocus(selectedReader);
+                         } else {
+                             const searchInput = document.getElementById('youtube-search-input');
+                             if(searchInput) setFocus(searchInput);
+                         }
+                     }
+                 });
+            }
+        }
+
+        function handleGenericGridNavigation(e, activeEl, container, options = {}) {
+            const items = Array.from(container.querySelectorAll('.grid-item:not([style*="display: none"])')).filter(el => el.offsetParent !== null);
+            if (items.length <= 1) {
+                if (e.key === 'ArrowRight') {
+                    const navIcon = document.querySelector('nav .app-icon.active');
+                    if (navIcon) { e.preventDefault(); setFocus(navIcon); }
+                } else if (e.key === 'Enter' || e.key === 'OK') { e.preventDefault(); activeEl.click(); }
+                return;
+            }
+
+            const idx = items.indexOf(activeEl);
+            if (idx === -1) return;
+
+            const firstItemTop = items.length > 0 ? items[0].getBoundingClientRect().top : 0;
+            const cols = items.filter(item => Math.abs(item.getBoundingClientRect().top - firstItemTop) < 20).length || 1;
+            const isTopRow = idx < cols;
+            let nextIdx = -1;
+
+            switch (e.key) {
+                case 'ArrowUp':
+                    if (isTopRow) {
+                        if (options.onArrowUpAtTop) { e.preventDefault(); options.onArrowUpAtTop(); }
+                    } else {
+                        nextIdx = idx - cols;
+                    }
+                    break;
+                case 'ArrowDown': nextIdx = idx + cols; break;
+                case 'ArrowRight': // RTL: Move Right (visually) -> previous item
+                    if (idx % cols === 0) {
+                        const navIcon = document.querySelector('nav .app-icon.active');
+                        if (navIcon) setFocus(navIcon);
+                    } else {
+                        nextIdx = idx - 1;
+                    }
+                    break;
+                case 'ArrowLeft': // RTL: Move Left (visually) -> next item
+                    if ((idx + 1) % cols !== 0 && idx + 1 < items.length) {
+                        nextIdx = idx + 1;
+                    }
+                    break;
+                case 'Enter': case 'OK': activeEl.click(); return;
+            }
+
+            if (nextIdx >= 0 && nextIdx < items.length) {
+                e.preventDefault();
+                setFocus(items[nextIdx]);
+            }
+        }
         
         // --- Initial Setup ---
         document.addEventListener('DOMContentLoaded', () => { document.getElementById('get-my-location-button-dashboard')?.addEventListener('click', centerMapOnUserLocation); floatingFullscreenButton?.addEventListener('click', togglePseudoFullscreen); floatingMediaButton?.addEventListener('click', () => switchApp('Media')); startDirectionsButton?.addEventListener('click', calculateAndDisplayRoute); getMyLocationButtonFullMap?.addEventListener('click', centerMapOnUserLocation); toggleTrafficButton?.addEventListener('click', toggleTrafficLayer); startTripFloatingButton?.addEventListener('click', () => { if (appState.destinationSet) calculateAndDisplayRoute(); else showMessageBox('الرجاء تحديد وجهة أولاً.'); }); upload360ImageButton?.addEventListener('click', () => upload360ImageInput.click()); upload360ImageInput?.addEventListener('change', handleImageUpload); reset360ImageButton?.addEventListener('click', resetImageToDefault); document.addEventListener('keydown', handleNavigation); updateUI(); fetchWeatherData(); setInterval(fetchWeatherData, 300000); setInterval(updateDigitalClock, 1000); setInterval(simulateCarData, 5000); switchApp('Dashboard'); });
