@@ -1537,13 +1537,43 @@
         const upload360ImageButton = document.getElementById('upload-360-image-button');
         const reset360ImageButton = document.getElementById('reset-360-image-button');
         const default360ImageSrc = "https://dmusera.netlify.app/es350gb.png";
-        // --- REFACTORED: YouTube Player State ---
         let currentPlayingPlaylistId = '', activeMediaView = 'playlist', currentPlayingVideoId = '', selectedReaderName = '';
-        let fullScreenPlayer = null, popupPlayer = null, isYouTubeApiReady = false;
+        let fullScreenPlayer = null, popupPlayer = null;
+
+        // --- REFACTORED: YouTube API Readiness Promise ---
+        let resolveYoutubeApiReady;
+        const youtubeApiReady = new Promise(resolve => {
+            resolveYoutubeApiReady = resolve;
+        });
+        
+        // This function MUST be in the global scope for the YouTube API to find it.
+        window.onYouTubeIframeAPIReady = function() {
+            console.log("YouTube API is ready.");
+            resolveYoutubeApiReady();
+        };
 
         // --- Utility Functions ---
         function updateTopBarTime() { const now = new Date(); timeElement.textContent = now.toLocaleTimeString('ar-SA', { hour: 'numeric', minute: '2-digit' }); }
-        function showMessageBox(message) { const box = document.createElement('div'); box.style.cssText = `position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(0, 0, 0, 0.8); color: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); z-index: 1000; text-align: center; max-width: 80%; font-size: 1.1rem;`; box.innerHTML = `<p>${message}</p><button style="margin-top: 15px; padding: 8px 15px; background-color: #9333ea; border: none; border-radius: 5px; color: white; cursor: pointer;">إغلاق</button>`; document.body.appendChild(box); box.querySelector('button').addEventListener('click', () => document.body.removeChild(box)); }
+        
+        // --- MODIFIED: showMessageBox to support loading indicators ---
+        function showMessageBox(message, showCloseButton = true) {
+            const existingBox = document.querySelector('.temp-message-box');
+            if (existingBox) existingBox.remove();
+            const box = document.createElement('div');
+            box.className = 'temp-message-box';
+            box.style.cssText = `position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(0, 0, 0, 0.8); color: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); z-index: 1000; text-align: center; max-width: 80%; font-size: 1.1rem;`;
+            let content = `<p>${message}</p>`;
+            if (showCloseButton) {
+                content += `<button style="margin-top: 15px; padding: 8px 15px; background-color: #9333ea; border: none; border-radius: 5px; color: white; cursor: pointer;">إغلاق</button>`;
+            }
+            box.innerHTML = content;
+            document.body.appendChild(box);
+            if (showCloseButton) {
+                box.querySelector('button').addEventListener('click', () => document.body.removeChild(box));
+            }
+            return box;
+        }
+
         function togglePseudoFullscreen() { const carplay = document.getElementById('carplay-main-interface'); const topBar = document.querySelector('.top-bar'); const isFull = carplay.classList.toggle('carplay-pseudo-fullscreen'); floatingFullscreenButton.innerHTML = isFull ? '<i data-lucide="minimize" class="w-6 h-6"></i>' : '<i data-lucide="maximize" class="w-6 h-6"></i>'; if (topBar) topBar.style.opacity = isFull ? '0' : '1'; document.body.style.overflow = isFull ? 'hidden' : ''; lucide.createIcons(); }
         function updateUI() { document.getElementById('dashboard-weather-temp').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature}°C` : '--°C'; document.getElementById('dashboard-weather-desc').textContent = appState.weather.description || '--'; document.getElementById('dashboard-weather-icon').src = appState.weather.iconUrl || 'https://placehold.co/64x64/000000/FFFFFF?text=X'; document.getElementById('dashboard-weather-location').textContent = appState.weather.location; document.getElementById('weather-temp-card').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature}°C` : '--°C'; const uvEl = document.getElementById('weather-uv'); if (uvEl) { uvEl.textContent = appState.weather.uvIndex !== null ? appState.weather.uvIndex : '--'; uvEl.style.color = getUvIndexColor(appState.weather.uvIndex); } loadPrayerTimes(); car360Image.src = appState.custom360Image || default360ImageSrc; startTripFloatingButton.style.display = appState.destinationSet ? 'flex' : 'none'; }
 
@@ -1554,26 +1584,34 @@
         sidebarIcons.forEach(el => el.classList.add('w-16', 'h-16', 'rounded-2xl', 'flex', 'items-center', 'justify-center', 'transition-all', 'duration-300', 'ease-in-out'));
         
         // --- YouTube/Media Functions ---
-        // This function is called by the YouTube API script once it's loaded.
-        function onYouTubeIframeAPIReady() { isYouTubeApiReady = true; console.log("YouTube API is ready."); }
         document.querySelectorAll('.youtube-channel-card').forEach(c => c.addEventListener('click', () => { currentPlayingPlaylistId = c.dataset.playlistId; fetchPlaylistVideos(currentPlayingPlaylistId); }));
         async function fetchPlaylistVideos(playlistId, updateView = true) { try { const res = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&key=${YOUTUBE_API_KEY}&maxResults=20`); const data = await res.json(); if(data.error) { showMessageBox(`خطأ في YouTube API: ${data.error.message}`); return; } if (data.items && data.items.length > 0) { videoListContainer.innerHTML = ''; data.items.forEach(item => { const { videoId } = item.snippet.resourceId; const { title } = item.snippet; const thumb = item.snippet.thumbnails.medium ? item.snippet.thumbnails.medium.url : 'https://placehold.co/120x90'; const card = document.createElement('div'); card.className = 'glass-surface glass-surface--svg youtube-video-card navigable grid-item'; card.tabIndex = 0; card.dataset.videoId = videoId; card.innerHTML = `<div class="video-card-clickable-area"><img src="${thumb}" alt="${title}" onerror="this.onerror=null;this.src='https://placehold.co/120x90';"><h3>${title}</h3></div><button class="video-popup-button navigable grid-item" tabindex="0" title="تشغيل في نافذة منبثقة"><i data-lucide="square-arrow-up-right" class="w-4 h-4"></i></button>`; card.querySelector('.video-card-clickable-area').addEventListener('click', () => playVideoInFullScreen(videoId)); card.querySelector('.video-popup-button').addEventListener('click', (e) => { e.stopPropagation(); showVideoPopup(videoId); }); videoListContainer.appendChild(card); }); lucide.createIcons(); youtubePlaylistView.classList.add('hidden'); youtubeVideoListView.classList.remove('hidden'); youtubeSearchResultsView.classList.add('hidden'); youtubeSuggestionsDiv.classList.add('hidden'); if (updateView) activeMediaView = 'videoList'; backToPlaylistsBottomButton.style.display = 'flex'; backToPlaylistsBottomButtonSearch.style.display = 'none'; } else { showMessageBox('لم يتم العثور على فيديوهات في قائمة التشغيل هذه.'); } } catch (err) { console.error('Error fetching YouTube playlist videos:', err); showMessageBox('حدث خطأ أثناء جلب فيديوهات قائمة التشغيل.'); } }
         
         // --- REFACTORED: YouTube Player Logic for WebView Compatibility ---
-        function playVideoInFullScreen(videoId, start = 0) {
-            if (!isYouTubeApiReady) { showMessageBox("واجهة برمجة تطبيقات يوتيوب غير جاهزة بعد، يرجى المحاولة مرة أخرى."); return; }
-            if (fullScreenPlayer) { fullScreenPlayer.destroy(); fullScreenPlayer = null; }
-            currentPlayingVideoId = videoId;
-            fullScreenVideoContainer.style.display = 'flex';
-            document.getElementById('carplay-main-interface').style.display = 'none';
-            document.querySelectorAll('.fixed:not(#full-screen-video-container)').forEach(el => { if (!el.closest('#full-screen-video-container')) el.style.display = 'none'; });
-            fullScreenVideoIframeContainer.innerHTML = '<div id="full-screen-video-iframe"></div>';
-            fullScreenPlayer = new YT.Player('full-screen-video-iframe', {
-                height: '100%', width: '100%', videoId: videoId,
-                playerVars: { 'autoplay': 1, 'controls': 1, 'start': start, 'playsinline': 1, 'origin': window.location.origin },
-                events: { 'onReady': (e) => { e.target.playVideo(); console.log("Fullscreen player ready and playing."); } }
-            });
-            setTimeout(() => setFocus(fullScreenVideoCloseButton), 100);
+        async function playVideoInFullScreen(videoId, start = 0) {
+            const loadingMessage = showMessageBox('جاري تحميل الفيديو...', false);
+            try {
+                await youtubeApiReady;
+                if (fullScreenPlayer) { fullScreenPlayer.destroy(); fullScreenPlayer = null; }
+                currentPlayingVideoId = videoId;
+                fullScreenVideoContainer.style.display = 'flex';
+                document.getElementById('carplay-main-interface').style.display = 'none';
+                document.querySelectorAll('.fixed:not(#full-screen-video-container)').forEach(el => { if (!el.closest('#full-screen-video-container')) el.style.display = 'none'; });
+                fullScreenVideoIframeContainer.innerHTML = '<div id="full-screen-video-iframe"></div>';
+                fullScreenPlayer = new YT.Player('full-screen-video-iframe', {
+                    height: '100%', width: '100%', videoId: videoId,
+                    playerVars: { 'autoplay': 1, 'controls': 1, 'start': start, 'playsinline': 1, 'origin': window.location.origin },
+                    events: {
+                        'onReady': (e) => { loadingMessage.remove(); e.target.playVideo(); },
+                        'onError': (e) => { loadingMessage.remove(); showMessageBox(`حدث خطأ في مشغل يوتيوب: ${e.data}`); }
+                    }
+                });
+                setTimeout(() => setFocus(fullScreenVideoCloseButton), 100);
+            } catch (error) {
+                loadingMessage.remove();
+                console.error("Error during video playback setup:", error);
+                showMessageBox("فشل تحميل الفيديو. يرجى التحقق من اتصالك بالإنترنت.");
+            }
         }
 
         function closeFullScreenPlayer() {
@@ -1586,26 +1624,36 @@
             switchApp(app);
         }
 
-        function switchFullScreenToPopup() {
+        async function switchFullScreenToPopup() {
             if (currentPlayingVideoId && fullScreenPlayer?.getCurrentTime) {
-                const time = fullScreenPlayer.getCurrentTime();
+                const time = await fullScreenPlayer.getCurrentTime();
                 closeFullScreenPlayer();
                 showVideoPopup(currentPlayingVideoId, time);
             }
         }
 
-        function showVideoPopup(videoId, start = 0) {
-            if (!isYouTubeApiReady) { showMessageBox("واجهة برمجة تطبيقات يوتيوب غير جاهزة بعد، يرجى المحاولة مرة أخرى."); return; }
-            if (popupPlayer) { popupPlayer.destroy(); popupPlayer = null; }
-            currentPlayingVideoId = videoId;
-            videoPopupContainer.classList.add('active');
-            videoPopupIframeContainer.innerHTML = '<div id="video-popup-iframe"></div>';
-            popupPlayer = new YT.Player('video-popup-iframe', {
-                height: '100%', width: '100%', videoId: videoId,
-                playerVars: { 'autoplay': 1, 'controls': 1, 'start': start, 'playsinline': 1, 'origin': window.location.origin },
-                events: { 'onReady': (e) => { e.target.playVideo(); console.log("Popup player ready and playing."); } }
-            });
-            setTimeout(() => setFocus(videoPopupCloseButton), 100);
+        async function showVideoPopup(videoId, start = 0) {
+            const loadingMessage = showMessageBox('جاري تحميل الفيديو...', false);
+            try {
+                await youtubeApiReady;
+                if (popupPlayer) { popupPlayer.destroy(); popupPlayer = null; }
+                currentPlayingVideoId = videoId;
+                videoPopupContainer.classList.add('active');
+                videoPopupIframeContainer.innerHTML = '<div id="video-popup-iframe"></div>';
+                popupPlayer = new YT.Player('video-popup-iframe', {
+                    height: '100%', width: '100%', videoId: videoId,
+                    playerVars: { 'autoplay': 1, 'controls': 1, 'start': start, 'playsinline': 1, 'origin': window.location.origin },
+                    events: {
+                        'onReady': (e) => { loadingMessage.remove(); e.target.playVideo(); },
+                        'onError': (e) => { loadingMessage.remove(); showMessageBox(`حدث خطأ في مشغل يوتيوب: ${e.data}`); }
+                    }
+                });
+                setTimeout(() => setFocus(videoPopupCloseButton), 100);
+            } catch (error) {
+                loadingMessage.remove();
+                console.error("Error during popup video setup:", error);
+                showMessageBox("فشل تحميل الفيديو المنبثق.");
+            }
         }
 
         function hideVideoPopup() {
