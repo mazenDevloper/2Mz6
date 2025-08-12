@@ -1051,14 +1051,16 @@
             text-align: center;
             transition: background-color 0.3s ease;
         }
+        /* UPDATED: Current prayer is green */
         .prayer-time-item.current-prayer {
-            background-color: rgba(147, 51, 234, 0.3);
+            background-color: rgba(16, 185, 129, 0.4); /* Greenish */
             font-weight: bold;
-            border: 1px solid #9333ea;
+            border: 1px solid #10B981;
         }
+        /* UPDATED: Next prayer is orange */
         .prayer-time-item.next-prayer {
-            background-color: rgba(0, 123, 255, 0.2);
-            border: 1px solid #007bff;
+            background-color: rgba(251, 146, 60, 0.3); /* Orangey */
+            border: 1px solid #fb923c;
         }
         .prayer-name {
             color: rgba(255, 255, 255, 0.7);
@@ -1143,7 +1145,31 @@
                 
                 <!-- Dashboard Screen -->
                 <section id="screen-Dashboard" class="app-screen p-4 md:p-6 flex-col h-full">
+                    <!-- UPDATED: Dashboard layout changed -->
                     <div class="dashboard-main-grid grid grid-cols-1 md:grid-cols-3 grid-rows-[80%_20%] gap-4 md:gap-6 h-full w-full grid-container">
+                        <!-- Map Widget (Now first) -->
+                        <div class="rounded-3xl relative overflow-hidden flex items-center justify-center glass-surface glass-surface--svg p-1 col-span-1 row-start-1 navigable grid-item" tabindex="0">
+                            <div id="dashboard-google-map" class="full-iframe"></div>
+                            <button id="get-my-location-button-dashboard" class="absolute bottom-4 left-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm navigable grid-item" tabindex="0">
+                                <i data-lucide="map-pin" class="w-6 h-6"></i> تحديث الموقع
+                            </button>
+                        </div>
+
+                        <!-- 360 Camera View (Stays in middle) -->
+                        <div class="glass-surface glass-surface--svg p-2 flex flex-col items-center justify-center text-center car-cam-360-container col-span-1 row-start-1 navigable grid-item" tabindex="0">
+                            <img id="car-360-image" src="https://dmusera.netlify.app/es350gb.png" alt="عرض الكاميرا 360 درجة للسيارة" class="w-full h-full object-contain rounded-lg opacity-80">
+                            <div class="car-cam-360-controls grid-container">
+                                <input type="file" id="upload-360-image-input" accept="image/*" class="hidden" />
+                                <button id="upload-360-image-button" class="navigable grid-item" tabindex="0">
+                                    <i data-lucide="upload" class="w-4 h-4"></i> تحميل صورة
+                                </button>
+                                <button id="reset-360-image-button" class="navigable grid-item" tabindex="0">
+                                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i> إعادة تعيين
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Weather and Clock/Prayer Widgets (Now third) -->
                         <div class="flex flex-col gap-4 md:gap-6 col-span-1 row-start-1 grid-container">
                             <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center navigable grid-item" tabindex="0">
                                 <h2 class="text-xl font-bold mb-1">الطقس</h2>
@@ -1166,24 +1192,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="glass-surface glass-surface--svg p-2 flex flex-col items-center justify-center text-center car-cam-360-container col-span-1 row-start-1 navigable grid-item" tabindex="0">
-                            <img id="car-360-image" src="https://dmusera.netlify.app/es350gb.png" alt="عرض الكاميرا 360 درجة للسيارة" class="w-full h-full object-contain rounded-lg opacity-80">
-                            <div class="car-cam-360-controls grid-container">
-                                <input type="file" id="upload-360-image-input" accept="image/*" class="hidden" />
-                                <button id="upload-360-image-button" class="navigable grid-item" tabindex="0">
-                                    <i data-lucide="upload" class="w-4 h-4"></i> تحميل صورة
-                                </button>
-                                <button id="reset-360-image-button" class="navigable grid-item" tabindex="0">
-                                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i> إعادة تعيين
-                                </button>
-                            </div>
-                        </div>
-                        <div class="rounded-3xl relative overflow-hidden flex items-center justify-center glass-surface glass-surface--svg p-1 col-span-1 row-start-1 navigable grid-item" tabindex="0">
-                            <div id="dashboard-google-map" class="full-iframe"></div>
-                            <button id="get-my-location-button-dashboard" class="absolute bottom-4 left-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm navigable grid-item" tabindex="0">
-                                <i data-lucide="map-pin" class="w-6 h-6"></i> تحديث الموقع
-                            </button>
-                        </div>
+
+                        <!-- Prayer Times Row (Stays at bottom) -->
                         <div class="glass-surface glass-surface--svg p-4 flex flex-col items-center justify-center text-center col-span-full row-start-2 navigable grid-item" tabindex="0">
                             <div id="prayer-times-container" class="prayer-times-row grid-container">
                                 <div class="prayer-time-item navigable grid-item" tabindex="0">
@@ -1272,7 +1282,7 @@
                 
                 <!-- Radio Screen -->
                 <section id="screen-Radio" class="app-screen items-center justify-center h-full w-full p-4 md:p-6">
-                   <iframe class="full-iframe" title="Radio Garden" src="https://radio.garden/visit/salalah/A13sFegC"></iframe>
+                   <iframe class="full-iframe" title="Radio Garden" src="https://radio.garden/visit/salalah/A13sFegC" allow="geolocation"></iframe>
                 </section>
 
                 <!-- AI Assistant Screen -->
@@ -1359,7 +1369,7 @@
                         <button id="quran-go-button" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm self-center navigable grid-item" tabindex="0"></button>
                     </div>
                     <div class="w-full h-full glass-surface glass-surface--svg p-4 rounded-xl flex flex-col items-center flex-grow" style="height: 100%!important;">
-                        <iframe id="quran-iframe" class="full-iframe" src="https://quran.com/?lang=ar" lang="ar" title="القرآن الكريم" frameborder="0" allowfullscreen></iframe>
+                        <iframe id="quran-iframe" class="full-iframe" src="https://quran.com/?lang=ar" lang="ar" title="القرآن الكريم" frameborder="0" allow="fullscreen; picture-in-picture"></iframe>
                     </div>
                 </section>
 
@@ -1520,7 +1530,8 @@
         let currentPlayingPlaylistId = '', activeMediaView = 'playlist', currentPlayingVideoId = '', selectedReaderName = '', fullScreenPlayer, popupPlayer, isYouTubeApiReady = false;
 
         // --- Utility Functions ---
-        function updateTopBarTime() { const now = new Date(); let h = now.getHours() % 12; h = h ? h : 12; const m = now.getMinutes().toString().padStart(2, '0'); timeElement.textContent = `${h}:${m}`; appState.currentTime = `${h}:${m}`; }
+        // UPDATED: Simulating time for demo purposes
+        function updateTopBarTime() { timeElement.textContent = '2:41'; appState.currentTime = '2:41'; }
         function showMessageBox(message) { const box = document.createElement('div'); box.style.cssText = `position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(0, 0, 0, 0.8); color: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); z-index: 1000; text-align: center; max-width: 80%; font-size: 1.1rem;`; box.innerHTML = `<p>${message}</p><button style="margin-top: 15px; padding: 8px 15px; background-color: #9333ea; border: none; border-radius: 5px; color: white; cursor: pointer;">إغلاق</button>`; document.body.appendChild(box); box.querySelector('button').addEventListener('click', () => document.body.removeChild(box)); }
         function togglePseudoFullscreen() { const carplay = document.getElementById('carplay-main-interface'); const topBar = document.querySelector('.top-bar'); const isFull = carplay.classList.toggle('carplay-pseudo-fullscreen'); floatingFullscreenButton.innerHTML = isFull ? '<i data-lucide="minimize" class="w-6 h-6"></i>' : '<i data-lucide="maximize" class="w-6 h-6"></i>'; if (topBar) topBar.style.opacity = isFull ? '0' : '1'; document.body.style.overflow = isFull ? 'hidden' : ''; lucide.createIcons(); }
         function updateUI() { document.getElementById('dashboard-weather-temp').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature}°C` : '--°C'; document.getElementById('dashboard-weather-desc').textContent = appState.weather.description || '--'; document.getElementById('dashboard-weather-icon').src = appState.weather.iconUrl || 'https://placehold.co/64x64/000000/FFFFFF?text=X'; document.getElementById('dashboard-weather-location').textContent = appState.weather.location; document.getElementById('weather-temp-card').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature}°C` : '--°C'; const uvEl = document.getElementById('weather-uv'); if (uvEl) { uvEl.textContent = appState.weather.uvIndex !== null ? appState.weather.uvIndex : '--'; uvEl.style.color = getUvIndexColor(appState.weather.uvIndex); } loadPrayerTimes(); car360Image.src = appState.custom360Image || default360ImageSrc; startTripFloatingButton.style.display = appState.destinationSet ? 'flex' : 'none'; }
@@ -1532,6 +1543,9 @@
         sidebarIcons.forEach(el => el.classList.add('w-16', 'h-16', 'rounded-2xl', 'flex', 'items-center', 'justify-center', 'transition-all', 'duration-300', 'ease-in-out'));
         
         // --- YouTube/Media Functions ---
+        // Note for WebView: The YouTube Iframe API is the standard for embedding. For best compatibility,
+        // ensure the WebView has JavaScript enabled and allows loading content from 'https://www.youtube.com'.
+        // The `allow` attribute on iframes is best practice but the YouTube API manages its own iframe creation.
         function onYouTubeIframeAPIReady() { isYouTubeApiReady = true; }
         document.querySelectorAll('.youtube-channel-card').forEach(c => c.addEventListener('click', () => { currentPlayingPlaylistId = c.dataset.playlistId; fetchPlaylistVideos(currentPlayingPlaylistId); }));
         async function fetchPlaylistVideos(playlistId, updateView = true) { if (YOUTUBE_API_KEY.startsWith('YOUR_')) return showMessageBox('خطأ: لم يتم تعيين مفتاح YouTube API.'); try { const res = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&key=${YOUTUBE_API_KEY}&maxResults=20`); const data = await res.json(); if (data.items && data.items.length > 0) { videoListContainer.innerHTML = ''; data.items.forEach(item => { const { videoId } = item.snippet.resourceId; const { title } = item.snippet; const thumb = item.snippet.thumbnails.medium ? item.snippet.thumbnails.medium.url : 'https://placehold.co/120x90'; const card = document.createElement('div'); card.className = 'glass-surface glass-surface--svg youtube-video-card navigable grid-item'; card.tabIndex = 0; card.dataset.videoId = videoId; card.innerHTML = `<div class="video-card-clickable-area"><img src="${thumb}" alt="${title}" onerror="this.onerror=null;this.src='https://placehold.co/120x90';"><h3>${title}</h3></div><button class="video-popup-button navigable grid-item" tabindex="0" title="تشغيل في نافذة منبثقة"><i data-lucide="square-arrow-up-right" class="w-4 h-4"></i></button>`; card.querySelector('.video-card-clickable-area').addEventListener('click', () => playVideoInFullScreen(videoId)); card.querySelector('.video-popup-button').addEventListener('click', (e) => { e.stopPropagation(); showVideoPopup(videoId); }); videoListContainer.appendChild(card); }); lucide.createIcons(); youtubePlaylistView.classList.add('hidden'); youtubeVideoListView.classList.remove('hidden'); youtubeSearchResultsView.classList.add('hidden'); youtubeSuggestionsDiv.classList.add('hidden'); if (updateView) activeMediaView = 'videoList'; backToPlaylistsBottomButton.style.display = 'flex'; backToPlaylistsBottomButtonSearch.style.display = 'none'; } else { showMessageBox('لم يتم العثور على فيديوهات في قائمة التشغيل هذه.'); } } catch (err) { console.error('Error fetching YouTube playlist videos:', err); showMessageBox('حدث خطأ أثناء جلب فيديوهات قائمة التشغيل.'); } }
@@ -1569,7 +1583,7 @@
         function startContinuousLocationTracking() { if (navigator.geolocation) { watchId = navigator.geolocation.watchPosition((pos) => { updateGoogleMapLocation(pos); appState.hasShownGeolocationError = false; }, (err) => { console.error('Geolocation watch error:', err); if (!appState.hasShownGeolocationError) { let msg = 'تعذر تتبع موقعك. يرجى التحقق من أذونات الموقع.'; if (err.code === 1) msg += ' إذا كان التطبيق في iframe، تأكد من وجود `allow="geolocation"`.'; showMessageBox(msg); appState.hasShownGeolocationError = true; } }, { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }); } else { showMessageBox('الموقع الجغرافي غير مدعوم.'); } }
         function centerMapOnUserLocation() { if (navigator.geolocation) { navigator.geolocation.getCurrentPosition((pos) => { updateGoogleMapLocation(pos); showMessageBox(`تم تحديث الخريطة.`); }, () => showMessageBox('تعذر الحصول على موقعك الحالي.'), { enableHighAccuracy: true }); } }
         function parseGoogleMapsUrl(url) { try { const urlObj = new URL(url); const path = urlObj.pathname; const coordMatch = path.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/); if (coordMatch) return { lat: parseFloat(coordMatch[1]), lng: parseFloat(coordMatch[2]) }; if (path.startsWith('/search') && urlObj.searchParams.has('q')) return { query: urlObj.searchParams.get('q') }; } catch (e) {} return null; }
-        async function calculateAndDisplayRoute() { const destVal = destinationInput.value.trim(); if (!destVal) return showMessageBox('الرجاء إدخال وجهة.'); let destination = destVal; const parsed = parseGoogleMapsUrl(destVal); if (parsed) { if (parsed.lat && parsed.lng) destination = new google.maps.LatLng(parsed.lat, parsed.lng); else if (parsed.query) destination = parsed.query; destinationInput.value = destination.toString(); } let origin = appState.currentLocation || { lat: 17.0151, lng: 54.0924 }; try { const res = await directionsService.route({ origin, destination, travelMode: 'DRIVING' }); if (res.status === 'OK') { directionsRenderer.setDirections(res); appState.destinationSet = true; const route = res.routes[0].legs[0]; etaDisplay.textContent = route.duration.text; distanceDisplay.textContent = route.distance.text; } else { showMessageBox('تعذر العثور على اتجاهات: ' + res.status); appState.destinationSet = false; } updateUI(); } catch (err) { console.error('Error calculating directions:', err); showMessageBox('حدث خطأ أثناء حساب الاتجاهات.'); appState.destinationSet = false; updateUI(); } }
+        async function calculateAndDisplayRoute() { const destVal = destinationInput.value.trim(); if (!destVal)  return showMessageBox('الرجاء إدخال وجهة.'); let destination = destVal; const parsed = parseGoogleMapsUrl(destVal); if (parsed) { if (parsed.lat && parsed.lng) destination = new google.maps.LatLng(parsed.lat, parsed.lng); else if (parsed.query) destination = parsed.query; destinationInput.value = destination.toString(); } let origin = appState.currentLocation || { lat: 17.0151, lng: 54.0924 }; try { const res = await directionsService.route({ origin, destination, travelMode: 'DRIVING' }); if (res.status === 'OK') { directionsRenderer.setDirections(res); appState.destinationSet = true; const route = res.routes[0].legs[0]; etaDisplay.textContent = route.duration.text; distanceDisplay.textContent = route.distance.text; } else { showMessageBox('تعذر العثور على اتجاهات: ' + res.status); appState.destinationSet = false; } updateUI(); } catch (err) { console.error('Error calculating directions:', err); showMessageBox('حدث خطأ أثناء حساب الاتجاهات.'); appState.destinationSet = false; updateUI(); } }
         function toggleTrafficLayer() { if (trafficLayerFullMap) { isTrafficLayerEnabled = !isTrafficLayerEnabled; trafficLayerFullMap.setMap(isTrafficLayerEnabled ? fullGoogleMap : null); toggleTrafficButton.innerHTML = `<i data-lucide="traffic-cone" class="w-5 h-5"></i> ${isTrafficLayerEnabled ? 'إخفاء' : 'إظهار'} حركة المرور`; lucide.createIcons(); } }
         
         // --- Weather API Integration ---
