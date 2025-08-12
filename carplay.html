@@ -1537,7 +1537,9 @@
         const upload360ImageButton = document.getElementById('upload-360-image-button');
         const reset360ImageButton = document.getElementById('reset-360-image-button');
         const default360ImageSrc = "https://dmusera.netlify.app/es350gb.png";
-        let currentPlayingPlaylistId = '', activeMediaView = 'playlist', currentPlayingVideoId = '', selectedReaderName = '', fullScreenPlayer, popupPlayer, isYouTubeApiReady = false;
+        // --- REFACTORED: YouTube Player State ---
+        let currentPlayingPlaylistId = '', activeMediaView = 'playlist', currentPlayingVideoId = '', selectedReaderName = '';
+        let fullScreenPlayer = null, popupPlayer = null, isYouTubeApiReady = false;
 
         // --- Utility Functions ---
         function updateTopBarTime() { const now = new Date(); timeElement.textContent = now.toLocaleTimeString('ar-SA', { hour: 'numeric', minute: '2-digit' }); }
@@ -1553,15 +1555,70 @@
         
         // --- YouTube/Media Functions ---
         // This function is called by the YouTube API script once it's loaded.
-        function onYouTubeIframeAPIReady() { isYouTubeApiReady = true; }
+        function onYouTubeIframeAPIReady() { isYouTubeApiReady = true; console.log("YouTube API is ready."); }
         document.querySelectorAll('.youtube-channel-card').forEach(c => c.addEventListener('click', () => { currentPlayingPlaylistId = c.dataset.playlistId; fetchPlaylistVideos(currentPlayingPlaylistId); }));
         async function fetchPlaylistVideos(playlistId, updateView = true) { try { const res = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&key=${YOUTUBE_API_KEY}&maxResults=20`); const data = await res.json(); if(data.error) { showMessageBox(`خطأ في YouTube API: ${data.error.message}`); return; } if (data.items && data.items.length > 0) { videoListContainer.innerHTML = ''; data.items.forEach(item => { const { videoId } = item.snippet.resourceId; const { title } = item.snippet; const thumb = item.snippet.thumbnails.medium ? item.snippet.thumbnails.medium.url : 'https://placehold.co/120x90'; const card = document.createElement('div'); card.className = 'glass-surface glass-surface--svg youtube-video-card navigable grid-item'; card.tabIndex = 0; card.dataset.videoId = videoId; card.innerHTML = `<div class="video-card-clickable-area"><img src="${thumb}" alt="${title}" onerror="this.onerror=null;this.src='https://placehold.co/120x90';"><h3>${title}</h3></div><button class="video-popup-button navigable grid-item" tabindex="0" title="تشغيل في نافذة منبثقة"><i data-lucide="square-arrow-up-right" class="w-4 h-4"></i></button>`; card.querySelector('.video-card-clickable-area').addEventListener('click', () => playVideoInFullScreen(videoId)); card.querySelector('.video-popup-button').addEventListener('click', (e) => { e.stopPropagation(); showVideoPopup(videoId); }); videoListContainer.appendChild(card); }); lucide.createIcons(); youtubePlaylistView.classList.add('hidden'); youtubeVideoListView.classList.remove('hidden'); youtubeSearchResultsView.classList.add('hidden'); youtubeSuggestionsDiv.classList.add('hidden'); if (updateView) activeMediaView = 'videoList'; backToPlaylistsBottomButton.style.display = 'flex'; backToPlaylistsBottomButtonSearch.style.display = 'none'; } else { showMessageBox('لم يتم العثور على فيديوهات في قائمة التشغيل هذه.'); } } catch (err) { console.error('Error fetching YouTube playlist videos:', err); showMessageBox('حدث خطأ أثناء جلب فيديوهات قائمة التشغيل.'); } }
-        function playVideoInFullScreen(videoId, start = 0) { if (!isYouTubeApiReady) return setTimeout(() => playVideoInFullScreen(videoId, start), 100); currentPlayingVideoId = videoId; fullScreenVideoContainer.style.display = 'flex'; document.getElementById('carplay-main-interface').style.display = 'none'; document.querySelectorAll('.fixed:not(#full-screen-video-container)').forEach(el => { if (!el.closest('#full-screen-video-container')) el.style.display = 'none'; }); if (fullScreenPlayer) { fullScreenPlayer.loadVideoById({ videoId, startSeconds: start }); } else { fullScreenVideoIframeContainer.innerHTML = '<div id="full-screen-video-iframe"></div>'; fullScreenPlayer = new YT.Player('full-screen-video-iframe', { height: '100%', width: '100%', videoId, playerVars: { 'autoplay': 1, 'controls': 1, 'start': start, 'playsinline': 1 }, events: { 'onReady': (e) => e.target.playVideo() } }); } setTimeout(() => setFocus(fullScreenVideoCloseButton), 100); }
-        function closeFullScreenPlayer() { if (fullScreenPlayer?.stopVideo) fullScreenPlayer.stopVideo(); currentPlayingVideoId = ''; fullScreenVideoContainer.style.display = 'none'; document.getElementById('carplay-main-interface').style.display = 'flex'; document.querySelectorAll('.fixed:not(#full-screen-video-container)').forEach(el => el.style.display = 'flex'); const app = document.querySelector('.app-screen.active')?.id.replace('screen-', '') || 'Dashboard'; switchApp(app); }
-        function switchFullScreenToPopup() { if (currentPlayingVideoId && fullScreenPlayer?.getCurrentTime) { const time = fullScreenPlayer.getCurrentTime(); fullScreenPlayer.stopVideo(); fullScreenVideoContainer.style.display = 'none'; document.getElementById('carplay-main-interface').style.display = 'flex'; document.querySelectorAll('.fixed:not(#full-screen-video-container)').forEach(el => { if (!el.closest('#full-screen-video-container')) el.style.display = 'flex'; }); const app = document.querySelector('.app-screen.active')?.id.replace('screen-', '') || 'Dashboard'; if(app !== 'Media') floatingMediaButton.style.display = 'flex'; showVideoPopup(currentPlayingVideoId, time); } }
-        function showVideoPopup(videoId, start = 0) { if (!isYouTubeApiReady) return setTimeout(() => showVideoPopup(videoId, start), 100); currentPlayingVideoId = videoId; videoPopupContainer.classList.add('active'); if (popupPlayer) { popupPlayer.loadVideoById({ videoId, startSeconds: start }); } else { videoPopupIframeContainer.innerHTML = '<div id="video-popup-iframe"></div>'; popupPlayer = new YT.Player('video-popup-iframe', { height: '100%', width: '100%', videoId, playerVars: { 'autoplay': 1, 'controls': 1, 'start': start, 'playsinline': 1 }, events: { 'onReady': (e) => e.target.playVideo() } }); } setTimeout(() => setFocus(videoPopupCloseButton), 100); }
-        function hideVideoPopup() { if (popupPlayer?.stopVideo) popupPlayer.stopVideo(); videoPopupContainer.classList.remove('active'); const screen = document.querySelector('.app-screen.active'); if(screen) { const item = screen.querySelector('.grid-item'); if (item) setFocus(item); } }
-        fullScreenVideoCloseButton.addEventListener('click', closeFullScreenPlayer); fullScreenVideoPopupButton.addEventListener('click', switchFullScreenToPopup); videoPopupCloseButton.addEventListener('click', hideVideoPopup);
+        
+        // --- REFACTORED: YouTube Player Logic for WebView Compatibility ---
+        function playVideoInFullScreen(videoId, start = 0) {
+            if (!isYouTubeApiReady) { showMessageBox("واجهة برمجة تطبيقات يوتيوب غير جاهزة بعد، يرجى المحاولة مرة أخرى."); return; }
+            if (fullScreenPlayer) { fullScreenPlayer.destroy(); fullScreenPlayer = null; }
+            currentPlayingVideoId = videoId;
+            fullScreenVideoContainer.style.display = 'flex';
+            document.getElementById('carplay-main-interface').style.display = 'none';
+            document.querySelectorAll('.fixed:not(#full-screen-video-container)').forEach(el => { if (!el.closest('#full-screen-video-container')) el.style.display = 'none'; });
+            fullScreenVideoIframeContainer.innerHTML = '<div id="full-screen-video-iframe"></div>';
+            fullScreenPlayer = new YT.Player('full-screen-video-iframe', {
+                height: '100%', width: '100%', videoId: videoId,
+                playerVars: { 'autoplay': 1, 'controls': 1, 'start': start, 'playsinline': 1, 'origin': window.location.origin },
+                events: { 'onReady': (e) => { e.target.playVideo(); console.log("Fullscreen player ready and playing."); } }
+            });
+            setTimeout(() => setFocus(fullScreenVideoCloseButton), 100);
+        }
+
+        function closeFullScreenPlayer() {
+            if (fullScreenPlayer) { fullScreenPlayer.destroy(); fullScreenPlayer = null; }
+            currentPlayingVideoId = '';
+            fullScreenVideoContainer.style.display = 'none';
+            document.getElementById('carplay-main-interface').style.display = 'flex';
+            document.querySelectorAll('.fixed:not(#full-screen-video-container)').forEach(el => el.style.display = 'flex');
+            const app = document.querySelector('.app-screen.active')?.id.replace('screen-', '') || 'Dashboard';
+            switchApp(app);
+        }
+
+        function switchFullScreenToPopup() {
+            if (currentPlayingVideoId && fullScreenPlayer?.getCurrentTime) {
+                const time = fullScreenPlayer.getCurrentTime();
+                closeFullScreenPlayer();
+                showVideoPopup(currentPlayingVideoId, time);
+            }
+        }
+
+        function showVideoPopup(videoId, start = 0) {
+            if (!isYouTubeApiReady) { showMessageBox("واجهة برمجة تطبيقات يوتيوب غير جاهزة بعد، يرجى المحاولة مرة أخرى."); return; }
+            if (popupPlayer) { popupPlayer.destroy(); popupPlayer = null; }
+            currentPlayingVideoId = videoId;
+            videoPopupContainer.classList.add('active');
+            videoPopupIframeContainer.innerHTML = '<div id="video-popup-iframe"></div>';
+            popupPlayer = new YT.Player('video-popup-iframe', {
+                height: '100%', width: '100%', videoId: videoId,
+                playerVars: { 'autoplay': 1, 'controls': 1, 'start': start, 'playsinline': 1, 'origin': window.location.origin },
+                events: { 'onReady': (e) => { e.target.playVideo(); console.log("Popup player ready and playing."); } }
+            });
+            setTimeout(() => setFocus(videoPopupCloseButton), 100);
+        }
+
+        function hideVideoPopup() {
+            if (popupPlayer) { popupPlayer.destroy(); popupPlayer = null; }
+            videoPopupContainer.classList.remove('active');
+            const screen = document.querySelector('.app-screen.active');
+            if (screen) { const item = screen.querySelector('.grid-item'); if (item) setFocus(item); }
+        }
+
+        fullScreenVideoCloseButton.addEventListener('click', closeFullScreenPlayer);
+        fullScreenVideoPopupButton.addEventListener('click', switchFullScreenToPopup);
+        videoPopupCloseButton.addEventListener('click', hideVideoPopup);
+        
         function navigateBackToPlaylists() { youtubeVideoListView.classList.add('hidden'); youtubeSearchResultsView.classList.add('hidden'); youtubePlaylistView.classList.remove('hidden'); youtubeSuggestionsDiv.classList.remove('hidden'); currentPlayingPlaylistId = ''; activeMediaView = 'playlist'; backToPlaylistsBottomButton.style.display = 'none'; backToPlaylistsBottomButtonSearch.style.display = 'none'; resetYoutubeSearchUI(); setTimeout(() => { setFocus(youtubeSearchInput); }, 100); }
         backToPlaylistsFromVideosButton.addEventListener('click', navigateBackToPlaylists); backToPlaylistsBottomButton.addEventListener('click', navigateBackToPlaylists); backToPlaylistsBottomButtonSearch.addEventListener('click', navigateBackToPlaylists);
         floatingKeyboardButton.addEventListener('click', () => { youtubeSearchInput.readOnly = !youtubeSearchInput.readOnly; if (!youtubeSearchInput.readOnly) youtubeSearchInput.focus(); else youtubeSearchInput.blur(); floatingKeyboardButton.classList.toggle('active-keyboard', !youtubeSearchInput.readOnly); floatingKeyboardButton.classList.toggle('inactive-keyboard', youtubeSearchInput.readOnly); });
