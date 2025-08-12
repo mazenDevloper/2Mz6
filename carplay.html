@@ -1049,7 +1049,7 @@
             font-size: 0.9rem;
             min-width: 80px;
             text-align: center;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, border 0.3s ease;
         }
         /* UPDATED: Current prayer is green */
         .prayer-time-item.current-prayer {
@@ -1199,27 +1199,22 @@
                                 <div class="prayer-time-item navigable grid-item" tabindex="0">
                                     <span class="prayer-name">الفجر</span>
                                     <span class="prayer-time" id="fajr-time">--:--</span>
-                                    <span class="prayer-iqama" id="fajr-iqama"></span>
                                 </div>
                                 <div class="prayer-time-item navigable grid-item" tabindex="0">
                                     <span class="prayer-name">الظهر</span>
                                     <span class="prayer-time" id="dhuhr-time">--:--</span>
-                                    <span class="prayer-iqama" id="dhuhr-iqama"></span>
                                 </div>
                                 <div class="prayer-time-item navigable grid-item" tabindex="0">
                                     <span class="prayer-name">العصر</span>
                                     <span class="prayer-time" id="asr-time">--:--</span>
-                                    <span class="prayer-iqama" id="asr-iqama"></span>
                                 </div>
                                 <div class="prayer-time-item navigable grid-item" tabindex="0">
                                     <span class="prayer-name">المغرب</span>
                                     <span class="prayer-time" id="maghrib-time">--:--</span>
-                                    <span class="prayer-iqama" id="maghrib-iqama"></span>
                                 </div>
                                 <div class="prayer-time-item navigable grid-item" tabindex="0">
                                     <span class="prayer-name">العشاء</span>
                                     <span class="prayer-time" id="isha-time">--:--</span>
-                                    <span class="prayer-iqama" id="isha-iqama"></span>
                                 </div>
                             </div>
                         </div>
@@ -1503,11 +1498,6 @@
         const asrTimeElement = document.getElementById('asr-time');
         const maghribTimeElement = document.getElementById('maghrib-time');
         const ishaTimeElement = document.getElementById('isha-time');
-        const fajrIqamaElement = document.getElementById('fajr-iqama');
-        const dhuhrIqamaElement = document.getElementById('dhuhr-iqama');
-        const asrIqamaElement = document.getElementById('asr-iqama');
-        const maghribIqamaElement = document.getElementById('maghrib-iqama');
-        const ishaIqamaElement = document.getElementById('isha-iqama');
         const digitalHoursSpan = document.querySelector('#digital-time .hours');
         const digitalMinutesSpan = document.querySelector('#digital-time .minutes');
         const digitalSecondsSpan = document.querySelector('#digital-time .seconds');
@@ -1530,8 +1520,7 @@
         let currentPlayingPlaylistId = '', activeMediaView = 'playlist', currentPlayingVideoId = '', selectedReaderName = '', fullScreenPlayer, popupPlayer, isYouTubeApiReady = false;
 
         // --- Utility Functions ---
-        // UPDATED: Simulating time for demo purposes
-        function updateTopBarTime() { timeElement.textContent = '2:41'; appState.currentTime = '2:41'; }
+        function updateTopBarTime() { const now = new Date(); timeElement.textContent = now.toLocaleTimeString('ar-SA', { hour: 'numeric', minute: '2-digit' }); }
         function showMessageBox(message) { const box = document.createElement('div'); box.style.cssText = `position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(0, 0, 0, 0.8); color: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); z-index: 1000; text-align: center; max-width: 80%; font-size: 1.1rem;`; box.innerHTML = `<p>${message}</p><button style="margin-top: 15px; padding: 8px 15px; background-color: #9333ea; border: none; border-radius: 5px; color: white; cursor: pointer;">إغلاق</button>`; document.body.appendChild(box); box.querySelector('button').addEventListener('click', () => document.body.removeChild(box)); }
         function togglePseudoFullscreen() { const carplay = document.getElementById('carplay-main-interface'); const topBar = document.querySelector('.top-bar'); const isFull = carplay.classList.toggle('carplay-pseudo-fullscreen'); floatingFullscreenButton.innerHTML = isFull ? '<i data-lucide="minimize" class="w-6 h-6"></i>' : '<i data-lucide="maximize" class="w-6 h-6"></i>'; if (topBar) topBar.style.opacity = isFull ? '0' : '1'; document.body.style.overflow = isFull ? 'hidden' : ''; lucide.createIcons(); }
         function updateUI() { document.getElementById('dashboard-weather-temp').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature}°C` : '--°C'; document.getElementById('dashboard-weather-desc').textContent = appState.weather.description || '--'; document.getElementById('dashboard-weather-icon').src = appState.weather.iconUrl || 'https://placehold.co/64x64/000000/FFFFFF?text=X'; document.getElementById('dashboard-weather-location').textContent = appState.weather.location; document.getElementById('weather-temp-card').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature}°C` : '--°C'; const uvEl = document.getElementById('weather-uv'); if (uvEl) { uvEl.textContent = appState.weather.uvIndex !== null ? appState.weather.uvIndex : '--'; uvEl.style.color = getUvIndexColor(appState.weather.uvIndex); } loadPrayerTimes(); car360Image.src = appState.custom360Image || default360ImageSrc; startTripFloatingButton.style.display = appState.destinationSet ? 'flex' : 'none'; }
@@ -1543,12 +1532,9 @@
         sidebarIcons.forEach(el => el.classList.add('w-16', 'h-16', 'rounded-2xl', 'flex', 'items-center', 'justify-center', 'transition-all', 'duration-300', 'ease-in-out'));
         
         // --- YouTube/Media Functions ---
-        // Note for WebView: The YouTube Iframe API is the standard for embedding. For best compatibility,
-        // ensure the WebView has JavaScript enabled and allows loading content from 'https://www.youtube.com'.
-        // The `allow` attribute on iframes is best practice but the YouTube API manages its own iframe creation.
         function onYouTubeIframeAPIReady() { isYouTubeApiReady = true; }
         document.querySelectorAll('.youtube-channel-card').forEach(c => c.addEventListener('click', () => { currentPlayingPlaylistId = c.dataset.playlistId; fetchPlaylistVideos(currentPlayingPlaylistId); }));
-        async function fetchPlaylistVideos(playlistId, updateView = true) { if (YOUTUBE_API_KEY.startsWith('YOUR_')) return showMessageBox('خطأ: لم يتم تعيين مفتاح YouTube API.'); try { const res = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&key=${YOUTUBE_API_KEY}&maxResults=20`); const data = await res.json(); if (data.items && data.items.length > 0) { videoListContainer.innerHTML = ''; data.items.forEach(item => { const { videoId } = item.snippet.resourceId; const { title } = item.snippet; const thumb = item.snippet.thumbnails.medium ? item.snippet.thumbnails.medium.url : 'https://placehold.co/120x90'; const card = document.createElement('div'); card.className = 'glass-surface glass-surface--svg youtube-video-card navigable grid-item'; card.tabIndex = 0; card.dataset.videoId = videoId; card.innerHTML = `<div class="video-card-clickable-area"><img src="${thumb}" alt="${title}" onerror="this.onerror=null;this.src='https://placehold.co/120x90';"><h3>${title}</h3></div><button class="video-popup-button navigable grid-item" tabindex="0" title="تشغيل في نافذة منبثقة"><i data-lucide="square-arrow-up-right" class="w-4 h-4"></i></button>`; card.querySelector('.video-card-clickable-area').addEventListener('click', () => playVideoInFullScreen(videoId)); card.querySelector('.video-popup-button').addEventListener('click', (e) => { e.stopPropagation(); showVideoPopup(videoId); }); videoListContainer.appendChild(card); }); lucide.createIcons(); youtubePlaylistView.classList.add('hidden'); youtubeVideoListView.classList.remove('hidden'); youtubeSearchResultsView.classList.add('hidden'); youtubeSuggestionsDiv.classList.add('hidden'); if (updateView) activeMediaView = 'videoList'; backToPlaylistsBottomButton.style.display = 'flex'; backToPlaylistsBottomButtonSearch.style.display = 'none'; } else { showMessageBox('لم يتم العثور على فيديوهات في قائمة التشغيل هذه.'); } } catch (err) { console.error('Error fetching YouTube playlist videos:', err); showMessageBox('حدث خطأ أثناء جلب فيديوهات قائمة التشغيل.'); } }
+        async function fetchPlaylistVideos(playlistId, updateView = true) { if (YOUTUBE_API_KEY.startsWith('AIzaSyD')) return showMessageBox('خطأ: لم يتم تعيين مفتاح YouTube API.'); try { const res = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&key=${YOUTUBE_API_KEY}&maxResults=20`); const data = await res.json(); if (data.items && data.items.length > 0) { videoListContainer.innerHTML = ''; data.items.forEach(item => { const { videoId } = item.snippet.resourceId; const { title } = item.snippet; const thumb = item.snippet.thumbnails.medium ? item.snippet.thumbnails.medium.url : 'https://placehold.co/120x90'; const card = document.createElement('div'); card.className = 'glass-surface glass-surface--svg youtube-video-card navigable grid-item'; card.tabIndex = 0; card.dataset.videoId = videoId; card.innerHTML = `<div class="video-card-clickable-area"><img src="${thumb}" alt="${title}" onerror="this.onerror=null;this.src='https://placehold.co/120x90';"><h3>${title}</h3></div><button class="video-popup-button navigable grid-item" tabindex="0" title="تشغيل في نافذة منبثقة"><i data-lucide="square-arrow-up-right" class="w-4 h-4"></i></button>`; card.querySelector('.video-card-clickable-area').addEventListener('click', () => playVideoInFullScreen(videoId)); card.querySelector('.video-popup-button').addEventListener('click', (e) => { e.stopPropagation(); showVideoPopup(videoId); }); videoListContainer.appendChild(card); }); lucide.createIcons(); youtubePlaylistView.classList.add('hidden'); youtubeVideoListView.classList.remove('hidden'); youtubeSearchResultsView.classList.add('hidden'); youtubeSuggestionsDiv.classList.add('hidden'); if (updateView) activeMediaView = 'videoList'; backToPlaylistsBottomButton.style.display = 'flex'; backToPlaylistsBottomButtonSearch.style.display = 'none'; } else { showMessageBox('لم يتم العثور على فيديوهات في قائمة التشغيل هذه.'); } } catch (err) { console.error('Error fetching YouTube playlist videos:', err); showMessageBox('حدث خطأ أثناء جلب فيديوهات قائمة التشغيل.'); } }
         function playVideoInFullScreen(videoId, start = 0) { if (!isYouTubeApiReady) return setTimeout(() => playVideoInFullScreen(videoId, start), 100); currentPlayingVideoId = videoId; fullScreenVideoContainer.style.display = 'flex'; document.getElementById('carplay-main-interface').style.display = 'none'; document.querySelectorAll('.fixed:not(#full-screen-video-container)').forEach(el => { if (!el.closest('#full-screen-video-container')) el.style.display = 'none'; }); if (fullScreenPlayer) { fullScreenPlayer.loadVideoById({ videoId, startSeconds: start }); } else { fullScreenVideoIframeContainer.innerHTML = '<div id="full-screen-video-iframe"></div>'; fullScreenPlayer = new YT.Player('full-screen-video-iframe', { height: '100%', width: '100%', videoId, playerVars: { 'autoplay': 1, 'controls': 1, 'start': start }, events: { 'onReady': (e) => e.target.playVideo() } }); } setTimeout(() => setFocus(fullScreenVideoCloseButton), 100); }
         function closeFullScreenPlayer() { if (fullScreenPlayer?.stopVideo) fullScreenPlayer.stopVideo(); currentPlayingVideoId = ''; fullScreenVideoContainer.style.display = 'none'; document.getElementById('carplay-main-interface').style.display = 'flex'; document.querySelectorAll('.fixed:not(#full-screen-video-container)').forEach(el => el.style.display = 'flex'); const app = document.querySelector('.app-screen.active')?.id.replace('screen-', '') || 'Dashboard'; switchApp(app); }
         function switchFullScreenToPopup() { if (currentPlayingVideoId && fullScreenPlayer?.getCurrentTime) { const time = fullScreenPlayer.getCurrentTime(); fullScreenPlayer.stopVideo(); fullScreenVideoContainer.style.display = 'none'; document.getElementById('carplay-main-interface').style.display = 'flex'; document.querySelectorAll('.fixed:not(#full-screen-video-container)').forEach(el => { if (!el.closest('#full-screen-video-container')) el.style.display = 'flex'; }); const app = document.querySelector('.app-screen.active')?.id.replace('screen-', '') || 'Dashboard'; if(app !== 'Media') floatingMediaButton.style.display = 'flex'; showVideoPopup(currentPlayingVideoId, time); } }
@@ -1568,13 +1554,13 @@
         function showSurahSuggestions() { const existing = document.getElementById('youtube-surah-section'); if (existing) existing.remove(); const surahSection = document.createElement('div'); surahSection.id = 'youtube-surah-section'; surahSection.className = 'flex flex-col gap-2 p-3 rounded-xl glass-surface glass-surface--svg w-full mt-4 grid-container'; surahSection.innerHTML = '<span class="youtube-suggestion-category-tag bg-green-600">اختر السورة</span>'; const surahButtonsContainer = document.createElement('div'); surahButtonsContainer.className = 'grid grid-cols-9 gap-2 w-full'; youtubeSurahSuggestions.forEach(name => { const button = document.createElement('button'); button.className = 'youtube-suggestion-button navigable grid-item'; button.tabIndex = 0; button.textContent = name; button.style.backgroundImage = juzColors[(surahToJuzMap[name] || 1) - 1]; button.addEventListener('click', () => { const query = selectedReaderName + ' سورة ' + name; youtubeSearchInput.value = query; searchYouTubeVideos(query); }); surahButtonsContainer.appendChild(button); }); surahSection.appendChild(surahButtonsContainer); youtubeSuggestionsDiv.appendChild(surahSection); }
         youtubeSearchInput.addEventListener('focus', () => { if (youtubeSearchInput.value.trim() === '') { youtubeSuggestionsDiv.classList.remove('hidden'); resetYoutubeSearchUI(); } });
         youtubeSearchButton.addEventListener('click', () => { const query = youtubeSearchInput.value.trim(); if (query) searchYouTubeVideos(query); else showMessageBox('الرجاء إدخال كلمة للبحث.'); });
-        async function searchYouTubeVideos(query) { if (YOUTUBE_API_KEY.startsWith('YOUR_')) return showMessageBox('خطأ: لم يتم تعيين مفتاح YouTube API.'); try { const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&key=${YOUTUBE_API_KEY}&maxResults=20`); const data = await res.json(); if (data.items && data.items.length > 0) { searchResultsContainer.innerHTML = ''; data.items.forEach(item => { const { videoId } = item.id; const { title } = item.snippet; const thumb = item.snippet.thumbnails.medium ? item.snippet.thumbnails.medium.url : 'https://placehold.co/120x90'; const card = document.createElement('div'); card.className = 'glass-surface glass-surface--svg youtube-search-card navigable grid-item'; card.tabIndex = 0; card.dataset.videoId = videoId; card.innerHTML = `<div class="video-card-clickable-area"><img src="${thumb}" alt="${title}" onerror="this.onerror=null;this.src='https://placehold.co/120x90';"><h3>${title}</h3></div><button class="video-popup-button navigable grid-item" tabindex="0" title="تشغيل في نافذة منبثقة"><i data-lucide="square-arrow-up-right" class="w-4 h-4"></i></button>`; card.querySelector('.video-card-clickable-area').addEventListener('click', () => playVideoInFullScreen(videoId)); card.querySelector('.video-popup-button').addEventListener('click', (e) => { e.stopPropagation(); showVideoPopup(videoId); }); searchResultsContainer.appendChild(card); }); lucide.createIcons(); youtubePlaylistView.classList.add('hidden'); youtubeVideoListView.classList.add('hidden'); youtubeSearchResultsView.classList.remove('hidden'); youtubeSuggestionsDiv.classList.add('hidden'); activeMediaView = 'searchResults'; backToPlaylistsBottomButton.style.display = 'none'; backToPlaylistsBottomButtonSearch.style.display = 'flex'; setTimeout(() => { const firstResult = searchResultsContainer.querySelector('.grid-item'); if (firstResult) setFocus(firstResult); }, 100); } else { showMessageBox('لم يتم العثور على نتائج بحث لـ: ' + query); } } catch (err) { console.error('Error searching YouTube videos:', err); showMessageBox('حدث خطأ أثناء البحث في يوتيوب.'); } }
+        async function searchYouTubeVideos(query) { if (YOUTUBE_API_KEY.startsWith('AIzaSyD')) return showMessageBox('خطأ: لم يتم تعيين مفتاح YouTube API.'); try { const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&key=${YOUTUBE_API_KEY}&maxResults=20`); const data = await res.json(); if (data.items && data.items.length > 0) { searchResultsContainer.innerHTML = ''; data.items.forEach(item => { const { videoId } = item.id; const { title } = item.snippet; const thumb = item.snippet.thumbnails.medium ? item.snippet.thumbnails.medium.url : 'https://placehold.co/120x90'; const card = document.createElement('div'); card.className = 'glass-surface glass-surface--svg youtube-search-card navigable grid-item'; card.tabIndex = 0; card.dataset.videoId = videoId; card.innerHTML = `<div class="video-card-clickable-area"><img src="${thumb}" alt="${title}" onerror="this.onerror=null;this.src='https://placehold.co/120x90';"><h3>${title}</h3></div><button class="video-popup-button navigable grid-item" tabindex="0" title="تشغيل في نافذة منبثقة"><i data-lucide="square-arrow-up-right" class="w-4 h-4"></i></button>`; card.querySelector('.video-card-clickable-area').addEventListener('click', () => playVideoInFullScreen(videoId)); card.querySelector('.video-popup-button').addEventListener('click', (e) => { e.stopPropagation(); showVideoPopup(videoId); }); searchResultsContainer.appendChild(card); }); lucide.createIcons(); youtubePlaylistView.classList.add('hidden'); youtubeVideoListView.classList.add('hidden'); youtubeSearchResultsView.classList.remove('hidden'); youtubeSuggestionsDiv.classList.add('hidden'); activeMediaView = 'searchResults'; backToPlaylistsBottomButton.style.display = 'none'; backToPlaylistsBottomButtonSearch.style.display = 'flex'; setTimeout(() => { const firstResult = searchResultsContainer.querySelector('.grid-item'); if (firstResult) setFocus(firstResult); }, 100); } else { showMessageBox('لم يتم العثور على نتائج بحث لـ: ' + query); } } catch (err) { console.error('Error searching YouTube videos:', err); showMessageBox('حدث خطأ أثناء البحث في يوتيوب.'); } }
         
         // --- AI Assistant Logic ---
         let recognition; if ('webkitSpeechRecognition' in window) { recognition = new webkitSpeechRecognition(); recognition.continuous = false; recognition.interimResults = false; recognition.lang = 'ar-SA'; recognition.onstart = () => { aiMicButton.classList.add('bg-red-500'); listeningIndicator.classList.remove('hidden'); aiInput.placeholder = 'جاري الاستماع...'; }; recognition.onresult = (e) => { aiInput.value = e.results[0][0].transcript; sendAIAssistantMessage(); }; recognition.onerror = (e) => { console.error('Speech recognition error:', e.error); showMessageBox('عذرًا، لم أستطع فهمك.'); }; recognition.onend = () => { aiMicButton.classList.remove('bg-red-500'); listeningIndicator.classList.add('hidden'); aiInput.placeholder = 'اسألني أي شيء...'; }; } else { aiMicButton.style.display = 'none'; }
         aiMicButton.addEventListener('click', () => recognition?.start());
         let synth = window.speechSynthesis, arabicVoice = null; function setArabicVoice() { if (synth) arabicVoice = synth.getVoices().find(v => v.lang.startsWith('ar')); } if (synth) { synth.onvoiceschanged = setArabicVoice; setArabicVoice(); }
-        async function sendAIAssistantMessage() { const msg = aiInput.value.trim(); if (msg === '') return; const userDiv = document.createElement('div'); userDiv.className = 'chat-message user'; userDiv.textContent = msg; chatHistoryDiv.appendChild(userDiv); aiInput.value = ''; const typingDiv = document.createElement('div'); typingDiv.className = 'chat-message ai'; typingDiv.textContent = 'جاري الكتابة...'; chatHistoryDiv.appendChild(typingDiv); chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight; let aiRes = ''; const lowerMsg = msg.toLowerCase(); if (lowerMsg.includes('سرعة')) aiRes = `سرعة السيارة الحالية هي ${appState.car.speed} كم/س.`; else if (lowerMsg.includes('وقود')) aiRes = `مستوى الوقود الحالي هو ${appState.car.fuel}%.`; else if (lowerMsg.includes('rpm')) aiRes = `عدد دورات المحرك (RPM) هو ${appState.car.rpm}.`; else if (lowerMsg.includes('حرارة')) aiRes = `درجة حرارة المحرك هي ${appState.car.temp}°C.`; else if (lowerMsg.includes('ترس')) aiRes = `الترس الحالي هو ${appState.car.gear}.`; else { try { if (AI_ASSISTANT_API_KEY.startsWith('YOUR_')) { aiRes = 'خطأ: لم يتم تعيين مفتاح Gemini API.'; } else { const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${AI_ASSISTANT_API_KEY}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: msg }] }] }) }); const result = await res.json(); aiRes = result.candidates?.[0]?.content?.parts?.[0]?.text || 'عذرًا، حدث خطأ.'; } } catch (err) { console.error('Error calling Gemini API:', err); aiRes = 'عذرًا، حدث خطأ في الاتصال بالذكاء الاصطناعي.'; } } typingDiv.remove(); const aiDiv = document.createElement('div'); aiDiv.className = 'chat-message ai'; aiDiv.textContent = aiRes; chatHistoryDiv.appendChild(aiDiv); if (synth && aiRes) { const utterance = new SpeechSynthesisUtterance(aiRes); if (arabicVoice) utterance.voice = arabicVoice; utterance.lang = 'ar-SA'; synth.speak(utterance); } chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight; }
+        async function sendAIAssistantMessage() { const msg = aiInput.value.trim(); if (msg === '') return; const userDiv = document.createElement('div'); userDiv.className = 'chat-message user'; userDiv.textContent = msg; chatHistoryDiv.appendChild(userDiv); aiInput.value = ''; const typingDiv = document.createElement('div'); typingDiv.className = 'chat-message ai'; typingDiv.textContent = 'جاري الكتابة...'; chatHistoryDiv.appendChild(typingDiv); chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight; let aiRes = ''; const lowerMsg = msg.toLowerCase(); if (lowerMsg.includes('سرعة')) aiRes = `سرعة السيارة الحالية هي ${appState.car.speed} كم/س.`; else if (lowerMsg.includes('وقود')) aiRes = `مستوى الوقود الحالي هو ${appState.car.fuel}%.`; else if (lowerMsg.includes('rpm')) aiRes = `عدد دورات المحرك (RPM) هو ${appState.car.rpm}.`; else if (lowerMsg.includes('حرارة')) aiRes = `درجة حرارة المحرك هي ${appState.car.temp}°C.`; else if (lowerMsg.includes('ترس')) aiRes = `الترس الحالي هو ${appState.car.gear}.`; else { try { if (AI_ASSISTANT_API_KEY.startsWith('AIzaSyB')) { aiRes = 'خطأ: لم يتم تعيين مفتاح Gemini API.'; } else { const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${AI_ASSISTANT_API_KEY}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: msg }] }] }) }); const result = await res.json(); aiRes = result.candidates?.[0]?.content?.parts?.[0]?.text || 'عذرًا، حدث خطأ.'; } } catch (err) { console.error('Error calling Gemini API:', err); aiRes = 'عذرًا، حدث خطأ في الاتصال بالذكاء الاصطناعي.'; } } typingDiv.remove(); const aiDiv = document.createElement('div'); aiDiv.className = 'chat-message ai'; aiDiv.textContent = aiRes; chatHistoryDiv.appendChild(aiDiv); if (synth && aiRes) { const utterance = new SpeechSynthesisUtterance(aiRes); if (arabicVoice) utterance.voice = arabicVoice; utterance.lang = 'ar-SA'; synth.speak(utterance); } chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight; }
         aiSendButton.addEventListener('click', sendAIAssistantMessage);
 
         // --- Google Map and Geolocation ---
@@ -1596,121 +1582,159 @@
         // --- Simulated Car Data ---
         function simulateCarData() { appState.car.speed = (Math.random() * 120).toFixed(0); appState.car.rpm = (Math.random() * 4200 + 800).toFixed(0); appState.car.fuel = (Math.random() * 100).toFixed(0); appState.car.temp = (Math.random() * 30 + 70).toFixed(1); appState.car.gear = ['P', 'R', 'N', 'D'][Math.floor(Math.random() * 4)]; }
 
-        // --- Prayer Times Integration ---
+        // --- Prayer Times Integration (REBUILT LOGIC) ---
         const prayerTimes = [{"date":"2025-07-27","fajr":"04:44","dhuhr":"12:35","asr":"15:49","maghrib":"19:03","isha":"20:17"},{"date":"2025-07-28","fajr":"04:44","dhuhr":"12:35","asr":"15:49","maghrib":"19:03","isha":"20:16"},{"date":"2025-07-29","fajr":"04:44","dhuhr":"12:35","asr":"15:48","maghrib":"19:03","isha":"20:16"},{"date":"2025-07-30","fajr":"04:45","dhuhr":"12:35","asr":"15:48","maghrib":"19:02","isha":"20:15"},{"date":"2025-07-31","fajr":"04:45","dhuhr":"12:35","asr":"15:47","maghrib":"19:02","isha":"20:15"},{"date":"2025-08-01","fajr":"04:46","dhuhr":"12:35","asr":"15:46","maghrib":"19:02","isha":"20:14"},{"date":"2025-08-02","fajr":"04:46","dhuhr":"12:35","asr":"15:46","maghrib":"19:01","isha":"20:14"},{"date":"2025-08-03","fajr":"04:47","dhuhr":"12:35","asr":"15:45","maghrib":"19:01","isha":"20:13"},{"date":"2025-08-04","fajr":"04:47","dhuhr":"12:35","asr":"15:44","maghrib":"19:00","isha":"20:13"},{"date":"2025-08-05","fajr":"04:48","dhuhr":"12:35","asr":"15:44","maghrib":"19:00","isha":"20:12"},{"date":"2025-08-06","fajr":"04:48","dhuhr":"12:35","asr":"15:44","maghrib":"18:59","isha":"20:11"},{"date":"2025-08-07","fajr":"04:48","dhuhr":"12:35","asr":"15:44","maghrib":"18:59","isha":"20:11"},{"date":"2025-08-08","fajr":"04:49","dhuhr":"12:34","asr":"15:45","maghrib":"18:58","isha":"20:10"},{"date":"2025-08-09","fajr":"04:49","dhuhr":"12:34","asr":"15:45","maghrib":"18:58","isha":"20:09"},{"date":"2025-08-10","fajr":"04:50","dhuhr":"12:34","asr":"15:45","maghrib":"18:57","isha":"20:09"},{"date":"2025-08-11","fajr":"04:50","dhuhr":"12:34","asr":"15:46","maghrib":"18:57","isha":"20:08"},{"date":"2025-08-12","fajr":"04:50","dhuhr":"12:34","asr":"15:46","maghrib":"18:56","isha":"20:07"}];
-        function addMinutes(time, min) { const [h, m] = time.split(':').map(Number); const d = new Date(); d.setHours(h, m + min, 0, 0); return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }); }
-        function timeToDate(time) { const [h, m] = time.split(':').map(Number); const d = new Date(); d.setHours(h, m, 0, 0); return d; }
-        function loadPrayerTimes() { const today = new Date().toISOString().split('T')[0]; const data = prayerTimes.find(p => p.date === today); if (data) { appState.prayerTimes = { ...appState.prayerTimes, Fajr: data.fajr, Dhuhr: data.dhuhr, Asr: data.asr, Maghrib: data.maghrib, Isha: data.isha }; fajrTimeElement.textContent = data.fajr; dhuhrTimeElement.textContent = data.dhuhr; asrTimeElement.textContent = data.asr; maghribTimeElement.textContent = data.maghrib; ishaTimeElement.textContent = data.isha; fajrIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.fajr, 25); dhuhrIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.dhuhr, 20); asrIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.asr, 20); maghribIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.maghrib, 5); ishaIqamaElement.textContent = 'الإقامة: ' + addMinutes(data.isha, 20); } else { console.warn('No prayer times for today.'); } determineNextPrayer(); }
-        function determineNextPrayer() { const now = new Date(); const todayData = prayerTimes.find(p => p.date === now.toISOString().split('T')[0]); if (!todayData) return; const prayers = [{n:"الفجر",t:todayData.fajr,o:25,g:5},{n:"الظهر",t:todayData.dhuhr,o:20,g:5},{n:"العصر",t:todayData.asr,o:20,g:10},{n:"المغرب",t:todayData.maghrib,o:5,g:5},{n:"العشاء",t:todayData.isha,o:20,g:25}]; let found = false; appState.prayerTimes.currentPrayer = null; for (const p of prayers) { const pTime = timeToDate(p.t); const iqamaTime = timeToDate(addMinutes(p.t, p.o)); const graceEnd = new Date(iqamaTime.getTime() + p.g * 60000); if (now >= pTime && now < graceEnd) { appState.prayerTimes.currentPrayer = p.n; appState.prayerTimes.nextPrayer = p.n; appState.prayerTimes.nextPrayerIqamaTime = (now < iqamaTime) ? iqamaTime : graceEnd; found = true; break; } if (now < pTime && !found) { appState.prayerTimes.nextPrayer = p.n; appState.prayerTimes.nextPrayerIqamaTime = pTime; found = true; break; } } if (!found) { const tomorrow = new Date(now); tomorrow.setDate(now.getDate() + 1); const tomorrowData = prayerTimes.find(p => p.date === tomorrow.toISOString().split('T')[0]); if (tomorrowData) { const fajrTomorrow = timeToDate(tomorrowData.fajr); fajrTomorrow.setDate(tomorrow.getDate()); appState.prayerTimes.nextPrayer = "الفجر (غدًا)"; appState.prayerTimes.nextPrayerIqamaTime = fajrTomorrow; } } renderPrayerTimes(); }
-        function renderPrayerTimes() { if (!prayerTimesContainer) return; document.querySelectorAll('.prayer-time-item').forEach(i => i.classList.remove('current-prayer', 'next-prayer')); const map = {Fajr:'الفجر',Dhuhr:'الظهر',Asr:'العصر',Maghrib:'المغرب',Isha:'العشاء',"الفجر (غدًا)":'الفجر'}; if (appState.prayerTimes.currentPrayer) { const name = map[appState.prayerTimes.currentPrayer]; const item = Array.from(document.querySelectorAll('.prayer-time-item .prayer-name')).find(s => s.textContent === name)?.parentElement; if (item) item.classList.add('current-prayer'); } if (appState.prayerTimes.nextPrayer && appState.prayerTimes.nextPrayer !== appState.prayerTimes.currentPrayer) { const name = map[appState.prayerTimes.nextPrayer]; const item = Array.from(document.querySelectorAll('.prayer-time-item .prayer-name')).find(s => s.textContent.startsWith(name))?.parentElement; if (item && !item.classList.contains('current-prayer')) item.classList.add('next-prayer'); } }
+        function timeToDate(timeStr, date = new Date()) { const [h, m] = timeStr.split(':').map(Number); const d = new Date(date); d.setHours(h, m, 0, 0); return d; }
+        function loadPrayerTimes() { const today = new Date().toISOString().split('T')[0]; const data = prayerTimes.find(p => p.date === today); if (data) { fajrTimeElement.textContent = data.fajr; dhuhrTimeElement.textContent = data.dhuhr; asrTimeElement.textContent = data.asr; maghribTimeElement.textContent = data.maghrib; ishaTimeElement.textContent = data.isha; } else { console.warn('No prayer times for today.'); } determineNextPrayer(); }
+        function determineNextPrayer() {
+            const now = new Date();
+            const todayStr = now.toISOString().split('T')[0];
+            const todayData = prayerTimes.find(p => p.date === todayStr);
+            if (!todayData) return;
+
+            const prayerSchedule = [
+                { name: "الفجر", time: todayData.fajr }, { name: "الظهر", time: todayData.dhuhr },
+                { name: "العصر", time: todayData.asr }, { name: "المغرب", time: todayData.maghrib },
+                { name: "العشاء", time: todayData.isha },
+            ];
+
+            let nextPrayer = null, currentPrayer = null;
+
+            for (let i = 0; i < prayerSchedule.length; i++) {
+                if (timeToDate(prayerSchedule[i].time) > now) {
+                    nextPrayer = prayerSchedule[i];
+                    currentPrayer = i > 0 ? prayerSchedule[i - 1] : prayerSchedule[prayerSchedule.length - 1];
+                    break;
+                }
+            }
+
+            if (nextPrayer === null) {
+                currentPrayer = prayerSchedule[prayerSchedule.length - 1];
+                const tomorrow = new Date(now);
+                tomorrow.setDate(now.getDate() + 1);
+                const tomorrowStr = tomorrow.toISOString().split('T')[0];
+                const tomorrowData = prayerTimes.find(p => p.date === tomorrowStr);
+                if (tomorrowData) {
+                    nextPrayer = { name: "الفجر (غدًا)", time: tomorrowData.fajr, date: tomorrow };
+                }
+            }
+            
+            appState.prayerTimes.currentPrayer = currentPrayer ? currentPrayer.name : null;
+            appState.prayerTimes.nextPrayer = nextPrayer ? nextPrayer.name : null;
+            if (nextPrayer) {
+                appState.prayerTimes.nextPrayerIqamaTime = timeToDate(nextPrayer.time, nextPrayer.date);
+            } else {
+                appState.prayerTimes.nextPrayerIqamaTime = null;
+            }
+            renderPrayerTimes();
+        }
+        function renderPrayerTimes() {
+            if (!prayerTimesContainer) return;
+            document.querySelectorAll('.prayer-time-item').forEach(i => i.classList.remove('current-prayer', 'next-prayer'));
+
+            if (appState.prayerTimes.currentPrayer) {
+                const currentItem = Array.from(document.querySelectorAll('.prayer-time-item .prayer-name')).find(s => s.textContent === appState.prayerTimes.currentPrayer)?.parentElement;
+                if (currentItem) currentItem.classList.add('current-prayer');
+            }
+
+            if (appState.prayerTimes.nextPrayer) {
+                const nextPrayerName = appState.prayerTimes.nextPrayer.includes('غدًا') ? 'الفجر' : appState.prayerTimes.nextPrayer;
+                const nextItem = Array.from(document.querySelectorAll('.prayer-time-item .prayer-name')).find(s => s.textContent === nextPrayerName)?.parentElement;
+                if (nextItem && !nextItem.classList.contains('current-prayer')) {
+                    nextItem.classList.add('next-prayer');
+                }
+            }
+        }
         
         // --- Digital Clock ---
-        function updateDigitalClock() { const now = new Date(); let h = now.getHours() % 12; h = h ? h : 12; digitalHoursSpan.textContent = h.toString().padStart(2, '0'); digitalMinutesSpan.textContent = now.getMinutes().toString().padStart(2, '0'); digitalSecondsSpan.textContent = now.getSeconds().toString().padStart(2, '0'); digitalDateLine1.style.color = 'white'; digitalDateLine2.style.color = 'white'; if (appState.prayerTimes.nextPrayerIqamaTime) { const diff = appState.prayerTimes.nextPrayerIqamaTime - now; if (diff <= 0) return determineNextPrayer(); const totalSecs = Math.floor(diff / 1000); const s = totalSecs % 60; const m = Math.floor((totalSecs / 60) % 60); const hr = Math.floor(totalSecs / 3600); const currentPrayerData = appState.prayerTimes.currentPrayer ? [{n:"الفجر",o:25},{n:"الظهر",o:20},{n:"العصر",o:20},{n:"المغرب",o:5},{n:"العشاء",o:20}].find(p=>p.n===appState.prayerTimes.currentPrayer) : null; const isAfterAzan = currentPrayerData && now >= timeToDate(appState.prayerTimes[currentPrayerData.n]) && now < timeToDate(addMinutes(appState.prayerTimes[currentPrayerData.n], currentPrayerData.o)); if (isAfterAzan) { digitalDateLine1.textContent = `إقامة صلاة ${appState.prayerTimes.currentPrayer} في:`; digitalDateLine2.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`; digitalDateLine1.style.color = '#7eff7e'; digitalDateLine2.style.color = '#7eff7e'; } else { digitalDateLine1.textContent = `الأذان القادم: ${appState.prayerTimes.nextPrayer}`; digitalDateLine2.textContent = hr > 0 ? `${hr}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}` : `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`; if (totalSecs < 3600) { digitalDateLine1.style.color = '#FFA07A'; digitalDateLine2.style.color = '#FFA07A'; } } } else { digitalDateLine1.textContent = 'جاري تحميل أوقات الصلاة...'; digitalDateLine2.textContent = ''; } }
+        function updateDigitalClock() {
+            const now = new Date();
+            let h = now.getHours();
+            const m = now.getMinutes();
+            const s = now.getSeconds();
+            digitalHoursSpan.textContent = h.toString().padStart(2, '0');
+            digitalMinutesSpan.textContent = m.toString().padStart(2, '0');
+            digitalSecondsSpan.textContent = s.toString().padStart(2, '0');
+
+            digitalDateLine1.style.color = 'white';
+            digitalDateLine2.style.color = 'white';
+            digitalDateLine1.parentElement.classList.remove('countdown-highlight', 'countdown-medium-highlight');
+
+            if (appState.prayerTimes.nextPrayerIqamaTime) {
+                const diff = appState.prayerTimes.nextPrayerIqamaTime - now;
+                if (diff <= 0) {
+                    determineNextPrayer(); // Time for next prayer has passed, recalculate
+                    return;
+                }
+                const totalSecs = Math.floor(diff / 1000);
+                const secs = totalSecs % 60;
+                const mins = Math.floor((totalSecs / 60) % 60);
+                const hrs = Math.floor(totalSecs / 3600);
+
+                digitalDateLine1.textContent = `الأذان القادم: ${appState.prayerTimes.nextPrayer}`;
+                digitalDateLine2.textContent = hrs > 0 ? `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}` : `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                
+                if (totalSecs < 1200) { // Less than 20 minutes
+                    digitalDateLine1.parentElement.classList.add('countdown-highlight');
+                } else if (totalSecs < 3600) { // Less than 1 hour
+                     digitalDateLine1.parentElement.classList.add('countdown-medium-highlight');
+                }
+            } else {
+                digitalDateLine1.textContent = 'جاري تحميل أوقات الصلاة...';
+                digitalDateLine2.textContent = '';
+            }
+        }
 
         // --- 360 Camera ---
         function handleImageUpload(e) { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = (ev) => { appState.custom360Image = ev.target.result; localStorage.setItem('custom360Image', ev.target.result); updateUI(); }; reader.readAsDataURL(file); } }
         function resetImageToDefault() { appState.custom360Image = null; localStorage.removeItem('custom360Image'); updateUI(); }
 
-        // --- TV Remote / Keyboard Navigation (REBUILT) ---
+        // --- TV Remote / Keyboard Navigation ---
         let currentFocus = null;
         function setFocus(el) { if (currentFocus) currentFocus.classList.remove('tv-focus'); if (el) { el.classList.add('tv-focus'); el.focus({ preventScroll: true }); currentFocus = el; el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' }); } }
-        
         function handleNavigation(e) {
             const key = e.key;
             if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', 'OK'].includes(key)) return;
-
             const activeEl = document.activeElement;
             if (!activeEl || activeEl === document.body) {
                 const firstIcon = document.querySelector('nav .app-icon');
-                if (firstIcon) {
-                    e.preventDefault();
-                    setFocus(firstIcon);
-                }
+                if (firstIcon) { e.preventDefault(); setFocus(firstIcon); }
                 return;
             }
-
             const inNav = activeEl.closest('nav');
             const inMediaScreen = activeEl.closest('#screen-Media');
-
-            if (inNav) {
-                handleNavSidebarNavigation(e, activeEl);
-            } else if (inMediaScreen) {
-                handleMediaScreenNavigation(e, activeEl);
-            } else {
-                const container = activeEl.closest('.grid-container');
-                if (container) {
-                    handleGenericGridNavigation(e, activeEl, container);
-                }
-            }
+            if (inNav) { handleNavSidebarNavigation(e, activeEl); } 
+            else if (inMediaScreen) { handleMediaScreenNavigation(e, activeEl); } 
+            else { const container = activeEl.closest('.grid-container'); if (container) handleGenericGridNavigation(e, activeEl, container); }
         }
-
         function handleNavSidebarNavigation(e, activeEl) {
             e.preventDefault();
             const icons = Array.from(document.querySelectorAll('nav .app-icon'));
             const idx = icons.indexOf(activeEl);
             let nextIdx = -1;
             switch (e.key) {
-                case 'ArrowUp':
-                    nextIdx = idx > 0 ? idx - 1 : icons.length - 1;
-                    break;
-                case 'ArrowDown':
-                    nextIdx = idx < icons.length - 1 ? idx + 1 : 0;
-                    break;
-                case 'ArrowRight': // In RTL, right arrow should go to main content
-                    const screen = document.querySelector('.app-screen.active');
-                    if (screen) {
-                        const firstItem = screen.querySelector('.grid-item');
-                        if (firstItem) setFocus(firstItem);
-                    }
-                    return;
-                case 'Enter':
-                case 'OK':
-                    activeEl.click();
-                    return;
+                case 'ArrowUp': nextIdx = idx > 0 ? idx - 1 : icons.length - 1; break;
+                case 'ArrowDown': nextIdx = idx < icons.length - 1 ? idx + 1 : 0; break;
+                case 'ArrowRight': const screen = document.querySelector('.app-screen.active'); if (screen) { const firstItem = screen.querySelector('.grid-item'); if (firstItem) setFocus(firstItem); } return;
+                case 'Enter': case 'OK': activeEl.click(); return;
             }
             if (nextIdx !== -1) setFocus(icons[nextIdx]);
         }
-        
-        // REBUILT: Specific navigation logic for the complex Media screen
         function handleMediaScreenNavigation(e, activeEl) {
             e.preventDefault();
-
-            // Define all potential containers
             const searchRow = document.querySelector('#screen-Media .flex.flex-row.items-center.gap-2.grid-container');
             const readersContainer = document.querySelector('.reader-container');
             const surahContainer = document.querySelector('#youtube-surah-section');
             const playlistContainer = document.querySelector('#youtube-playlist-view');
             const videoListContainer = document.querySelector('#video-list-container');
             const searchResultsContainer = document.querySelector('#search-results-container');
-
-            // Identify current section
             const inSearchRow = activeEl.closest('.flex.flex-row.items-center.gap-2.grid-container');
             const inReaders = activeEl.closest('.reader-container');
-            const inSurahs = activeEl.closest('#youtube-surah-section');
-            const inPlaylists = activeEl.closest('#youtube-playlist-view');
-            const inVideoList = activeEl.closest('#video-list-container');
-            const inSearchResults = activeEl.closest('#search-results-container');
-
-            // Handle vertical transitions between sections
-            if (e.key === 'ArrowDown') {
-                if (inSearchRow) {
-                    // From search, go to the first visible container below it
-                    const nextVisibleContainer = [readersContainer, surahContainer, playlistContainer, videoListContainer, searchResultsContainer].find(c => c && c.offsetParent !== null);
-                    if (nextVisibleContainer) {
-                        const firstItem = nextVisibleContainer.querySelector('.grid-item');
-                        if (firstItem) { setFocus(firstItem); return; }
-                    }
-                }
-                if (inReaders) {
-                    if (surahContainer && surahContainer.offsetParent !== null) {
-                        const firstItem = surahContainer.querySelector('.grid-item');
-                        if (firstItem) { setFocus(firstItem); return; }
-                    }
-                }
+            if (e.key === 'ArrowDown' && inSearchRow) {
+                const nextVisibleContainer = [readersContainer, surahContainer, playlistContainer, videoListContainer, searchResultsContainer].find(c => c && c.offsetParent !== null);
+                if (nextVisibleContainer) { const firstItem = nextVisibleContainer.querySelector('.grid-item'); if (firstItem) { setFocus(firstItem); return; } }
             }
-
             if (e.key === 'ArrowUp') {
-                // If in any container's top row, go to search
                 const currentContainer = activeEl.closest('.grid-container, .reader-container');
                 if (currentContainer && currentContainer !== searchRow) {
                     const items = Array.from(currentContainer.querySelectorAll('.grid-item:not([style*="display: none"])')).filter(el => el.offsetParent !== null);
@@ -1719,93 +1743,64 @@
                         const firstItemTop = items[0].getBoundingClientRect().top;
                         let cols = items.filter(item => Math.abs(item.getBoundingClientRect().top - firstItemTop) < 20).length;
                         if (cols === 0) cols = 1;
-                        if (idx < cols) { // Is in top row
-                            setFocus(youtubeSearchInput);
-                            return;
-                        }
+                        if (idx < cols) { setFocus(youtubeSearchInput); return; }
                     }
                 }
             }
-
-            // Handle navigation WITHIN a section
             if (inReaders) {
                 const items = Array.from(readersContainer.querySelectorAll('.grid-item'));
                 const idx = items.indexOf(activeEl);
-                if (e.key === 'ArrowLeft') { // LTR scroll left
-                    if (idx > 0) setFocus(items[idx - 1]);
-                } else if (e.key === 'ArrowRight') { // LTR scroll right
-                    if (idx < items.length - 1) setFocus(items[idx + 1]);
-                } else if (e.key === 'Enter' || e.key === 'OK') {
-                    activeEl.click();
-                } else if (e.key === 'ArrowLeft' && idx === 0) { // Special case: From first reader, go to nav bar
-                    const navIcon = document.querySelector('nav .app-icon.active');
-                    if (navIcon) setFocus(navIcon);
-                }
-                return; // Stop further processing
+                if (e.key === 'ArrowLeft') { if (idx > 0) setFocus(items[idx - 1]); } 
+                else if (e.key === 'ArrowRight') { if (idx < items.length - 1) setFocus(items[idx + 1]); } 
+                else if (e.key === 'Enter' || e.key === 'OK') { activeEl.click(); } 
+                else if (e.key === 'ArrowLeft' && idx === 0) { const navIcon = document.querySelector('nav .app-icon.active'); if (navIcon) setFocus(navIcon); }
+                return;
             }
-
-            // Default to generic grid navigation for all other cases
             const container = activeEl.closest('.grid-container');
-            if (container) {
-                handleGenericGridNavigation(e, activeEl, container);
-            }
+            if (container) handleGenericGridNavigation(e, activeEl, container);
         }
-
         function handleGenericGridNavigation(e, activeEl, container) {
             e.preventDefault();
             const items = Array.from(container.querySelectorAll('.grid-item:not([style*="display: none"])')).filter(el => el.offsetParent !== null);
             if (items.length === 0) return;
-        
             const idx = items.indexOf(activeEl);
             if (idx === -1) return;
-        
-            // Calculate columns based on layout
             const firstItemTop = items[0].getBoundingClientRect().top;
             let cols = items.filter(item => Math.abs(item.getBoundingClientRect().top - firstItemTop) < 20).length;
-            if (cols === 0) cols = 1; // Fallback for single-item rows or vertical lists
-        
+            if (cols === 0) cols = 1;
             const isTopRow = idx < cols;
             let nextIdx = -1;
-        
             switch (e.key) {
-                case 'ArrowUp':
-                    if (!isTopRow) {
-                        nextIdx = idx - cols;
-                    }
-                    // Vertical transitions are handled by handleMediaScreenNavigation
-                    break;
-                case 'ArrowDown':
-                     nextIdx = idx + cols;
-                    // Vertical transitions are handled by handleMediaScreenNavigation
-                    break;
-                case 'ArrowRight': // RTL: Move visually RIGHT (DOM previous)
-                    if (idx % cols !== 0) {
-                        nextIdx = idx - 1;
-                    }
-                    break;
-                case 'ArrowLeft': // RTL: Move visually LEFT (DOM next)
-                    if ((idx + 1) % cols === 0 || idx === items.length - 1) {
-                        // If at the leftmost edge, go to the nav bar
-                        const navIcon = document.querySelector('nav .app-icon.active');
-                        if (navIcon) setFocus(navIcon);
-                        return;
-                    } else {
-                        nextIdx = idx + 1;
-                    }
-                    break;
-                case 'Enter':
-                case 'OK':
-                    activeEl.click();
-                    return;
+                case 'ArrowUp': if (!isTopRow) nextIdx = idx - cols; break;
+                case 'ArrowDown': nextIdx = idx + cols; break;
+                case 'ArrowRight': if (idx % cols !== 0) nextIdx = idx - 1; break;
+                case 'ArrowLeft': if ((idx + 1) % cols === 0 || idx === items.length - 1) { const navIcon = document.querySelector('nav .app-icon.active'); if (navIcon) setFocus(navIcon); return; } else { nextIdx = idx + 1; } break;
+                case 'Enter': case 'OK': activeEl.click(); return;
             }
-        
-            if (nextIdx >= 0 && nextIdx < items.length) {
-                setFocus(items[nextIdx]);
-            }
+            if (nextIdx >= 0 && nextIdx < items.length) setFocus(items[nextIdx]);
         }
         
         // --- Initial Setup ---
-        document.addEventListener('DOMContentLoaded', () => { document.getElementById('get-my-location-button-dashboard')?.addEventListener('click', centerMapOnUserLocation); floatingFullscreenButton?.addEventListener('click', togglePseudoFullscreen); floatingMediaButton?.addEventListener('click', () => switchApp('Media')); startDirectionsButton?.addEventListener('click', calculateAndDisplayRoute); getMyLocationButtonFullMap?.addEventListener('click', centerMapOnUserLocation); toggleTrafficButton?.addEventListener('click', toggleTrafficLayer); startTripFloatingButton?.addEventListener('click', () => { if (appState.destinationSet) calculateAndDisplayRoute(); else showMessageBox('الرجاء تحديد وجهة أولاً.'); }); upload360ImageButton?.addEventListener('click', () => upload360ImageInput.click()); upload360ImageInput?.addEventListener('change', handleImageUpload); reset360ImageButton?.addEventListener('click', resetImageToDefault); document.addEventListener('keydown', handleNavigation); updateUI(); fetchWeatherData(); setInterval(fetchWeatherData, 300000); setInterval(updateDigitalClock, 1000); setInterval(simulateCarData, 5000); switchApp('Dashboard'); });
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('get-my-location-button-dashboard')?.addEventListener('click', centerMapOnUserLocation);
+            floatingFullscreenButton?.addEventListener('click', togglePseudoFullscreen);
+            floatingMediaButton?.addEventListener('click', () => switchApp('Media'));
+            startDirectionsButton?.addEventListener('click', calculateAndDisplayRoute);
+            getMyLocationButtonFullMap?.addEventListener('click', centerMapOnUserLocation);
+            toggleTrafficButton?.addEventListener('click', toggleTrafficLayer);
+            startTripFloatingButton?.addEventListener('click', () => { if (appState.destinationSet) calculateAndDisplayRoute(); else showMessageBox('الرجاء تحديد وجهة أولاً.'); });
+            upload360ImageButton?.addEventListener('click', () => upload360ImageInput.click());
+            upload360ImageInput?.addEventListener('change', handleImageUpload);
+            reset360ImageButton?.addEventListener('click', resetImageToDefault);
+            document.addEventListener('keydown', handleNavigation);
+            updateUI();
+            fetchWeatherData();
+            setInterval(fetchWeatherData, 300000); // 5 minutes
+            setInterval(updateDigitalClock, 1000);
+            setInterval(updateTopBarTime, 1000);
+            setInterval(simulateCarData, 5000);
+            switchApp('Dashboard');
+        });
     </script>
 </body>
 </html>
