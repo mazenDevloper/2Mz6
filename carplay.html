@@ -706,18 +706,31 @@
             text-align: center;
             line-height: 1.4;
         }
-        /* New class for highlight when less than 20 minutes */
+        /* Highlight for less than 20 minutes to Adhan */
         #digital-date.countdown-highlight {
             font-size: 1.7rem;
             color: #90EE90;
             font-weight: bold;
         }
-        /* New class for highlight when less than 1 hour but more than 20 minutes */
+        /* Highlight for less than 1 hour to Adhan */
         #digital-date.countdown-medium-highlight {
             font-size: 1.7rem;
             color: #FFA07A;
             font-weight: bold;
         }
+        /* NEW: Highlight for countdown to Iqama */
+        #digital-date.countdown-iqama {
+            font-size: 1.7rem;
+            color: #67e8f9; /* Light Cyan */
+            font-weight: bold;
+        }
+        /* NEW: Highlight for count up after Iqama */
+        #digital-date.countdown-post-iqama {
+            font-size: 1.7rem;
+            color: #facc15; /* Yellow */
+            font-weight: bold;
+        }
+
 
         /* Settings Range Input Styling */
         input[type="range"] {
@@ -1448,7 +1461,14 @@
             mapLocation: { lat: 17.0151, lon: 54.0924, zoom: 17 },
             weather: { temperature: null, description: null, uvIndex: null, iconUrl: '', location: 'Salalah, Oman' },
             car: { speed: 0, rpm: 0, fuel: 0, temp: 0, gear: 'P' },
-            prayerTimes: { Fajr: '--:--', Dhuhr: '--:--', Asr: '--:--', Maghrib: '--:--', Isha: '--:--', nextPrayer: null, nextPrayerIqamaTime: null, currentPrayer: null },
+            prayerTimes: {
+                nextPrayer: null,
+                nextPrayerAdhanTime: null,
+                nextPrayerIqamaTime: null,
+                postIqamaEndTime: null,
+                countdownState: 'to_adhan', // States: 'to_adhan', 'to_iqama', 'post_iqama'
+                currentPrayerForHighlight: null,
+            },
             hasShownGeolocationError: false,
             mapZoomChangedByUser: false,
             dashboardReturnCounter: 0,
@@ -1584,64 +1604,98 @@
 
         // --- Prayer Times Integration (REBUILT LOGIC) ---
         const prayerTimes = [{"date":"2025-07-27","fajr":"04:44","dhuhr":"12:35","asr":"15:49","maghrib":"19:03","isha":"20:17"},{"date":"2025-07-28","fajr":"04:44","dhuhr":"12:35","asr":"15:49","maghrib":"19:03","isha":"20:16"},{"date":"2025-07-29","fajr":"04:44","dhuhr":"12:35","asr":"15:48","maghrib":"19:03","isha":"20:16"},{"date":"2025-07-30","fajr":"04:45","dhuhr":"12:35","asr":"15:48","maghrib":"19:02","isha":"20:15"},{"date":"2025-07-31","fajr":"04:45","dhuhr":"12:35","asr":"15:47","maghrib":"19:02","isha":"20:15"},{"date":"2025-08-01","fajr":"04:46","dhuhr":"12:35","asr":"15:46","maghrib":"19:02","isha":"20:14"},{"date":"2025-08-02","fajr":"04:46","dhuhr":"12:35","asr":"15:46","maghrib":"19:01","isha":"20:14"},{"date":"2025-08-03","fajr":"04:47","dhuhr":"12:35","asr":"15:45","maghrib":"19:01","isha":"20:13"},{"date":"2025-08-04","fajr":"04:47","dhuhr":"12:35","asr":"15:44","maghrib":"19:00","isha":"20:13"},{"date":"2025-08-05","fajr":"04:48","dhuhr":"12:35","asr":"15:44","maghrib":"19:00","isha":"20:12"},{"date":"2025-08-06","fajr":"04:48","dhuhr":"12:35","asr":"15:44","maghrib":"18:59","isha":"20:11"},{"date":"2025-08-07","fajr":"04:48","dhuhr":"12:35","asr":"15:44","maghrib":"18:59","isha":"20:11"},{"date":"2025-08-08","fajr":"04:49","dhuhr":"12:34","asr":"15:45","maghrib":"18:58","isha":"20:10"},{"date":"2025-08-09","fajr":"04:49","dhuhr":"12:34","asr":"15:45","maghrib":"18:58","isha":"20:09"},{"date":"2025-08-10","fajr":"04:50","dhuhr":"12:34","asr":"15:45","maghrib":"18:57","isha":"20:09"},{"date":"2025-08-11","fajr":"04:50","dhuhr":"12:34","asr":"15:46","maghrib":"18:57","isha":"20:08"},{"date":"2025-08-12","fajr":"04:50","dhuhr":"12:34","asr":"15:46","maghrib":"18:56","isha":"20:07"}];
+        const iqamaOffsets = { "الفجر": 25, "الظهر": 20, "العصر": 20, "المغرب": 5, "العشاء": 20 };
+        
         function timeToDate(timeStr, date = new Date()) { const [h, m] = timeStr.split(':').map(Number); const d = new Date(date); d.setHours(h, m, 0, 0); return d; }
-        function loadPrayerTimes() { const today = new Date().toISOString().split('T')[0]; const data = prayerTimes.find(p => p.date === today); if (data) { fajrTimeElement.textContent = data.fajr; dhuhrTimeElement.textContent = data.dhuhr; asrTimeElement.textContent = data.asr; maghribTimeElement.textContent = data.maghrib; ishaTimeElement.textContent = data.isha; } else { console.warn('No prayer times for today.'); } determineNextPrayer(); }
+
+        function loadPrayerTimes() {
+            const today = new Date().toISOString().split('T')[0];
+            const data = prayerTimes.find(p => p.date === today);
+            if (data) {
+                fajrTimeElement.textContent = data.fajr;
+                dhuhrTimeElement.textContent = data.dhuhr;
+                asrTimeElement.textContent = data.asr;
+                maghribTimeElement.textContent = data.maghrib;
+                ishaTimeElement.textContent = data.isha;
+            } else {
+                console.warn('No prayer times for today.');
+            }
+            determineNextPrayer();
+        }
+
         function determineNextPrayer() {
             const now = new Date();
-            const todayStr = now.toISOString().split('T')[0];
-            const todayData = prayerTimes.find(p => p.date === todayStr);
-            if (!todayData) return;
+            const prayerSchedule = [];
 
-            const prayerSchedule = [
-                { name: "الفجر", time: todayData.fajr }, { name: "الظهر", time: todayData.dhuhr },
-                { name: "العصر", time: todayData.asr }, { name: "المغرب", time: todayData.maghrib },
-                { name: "العشاء", time: todayData.isha },
-            ];
+            // Populate schedule for today and tomorrow to handle overnight case
+            for (let d = 0; d < 2; d++) {
+                const date = new Date(now);
+                date.setDate(now.getDate() + d);
+                const dateStr = date.toISOString().split('T')[0];
+                const data = prayerTimes.find(p => p.date === dateStr);
+                if (data) {
+                    prayerSchedule.push(
+                        { name: "الفجر", adhanTime: timeToDate(data.fajr, date) },
+                        { name: "الظهر", adhanTime: timeToDate(data.dhuhr, date) },
+                        { name: "العصر", adhanTime: timeToDate(data.asr, date) },
+                        { name: "المغرب", adhanTime: timeToDate(data.maghrib, date) },
+                        { name: "العشاء", adhanTime: timeToDate(data.isha, date) }
+                    );
+                }
+            }
 
-            let nextPrayer = null, currentPrayer = null;
+            let eventFound = false;
+            for (const prayer of prayerSchedule) {
+                const offsetMins = iqamaOffsets[prayer.name];
+                const iqamaTime = new Date(prayer.adhanTime.getTime() + offsetMins * 60000);
+                const postIqamaEndTime = new Date(iqamaTime.getTime() + 10 * 60000); // 10 minutes after iqama
 
-            for (let i = 0; i < prayerSchedule.length; i++) {
-                if (timeToDate(prayerSchedule[i].time) > now) {
-                    nextPrayer = prayerSchedule[i];
-                    currentPrayer = i > 0 ? prayerSchedule[i - 1] : prayerSchedule[prayerSchedule.length - 1];
+                if (now < prayer.adhanTime) {
+                    appState.prayerTimes.nextPrayer = prayer.name;
+                    appState.prayerTimes.nextPrayerAdhanTime = prayer.adhanTime;
+                    appState.prayerTimes.countdownState = 'to_adhan';
+                    appState.prayerTimes.currentPrayerForHighlight = prayer.name;
+                    eventFound = true;
+                    break;
+                } else if (now < iqamaTime) {
+                    appState.prayerTimes.nextPrayer = prayer.name;
+                    appState.prayerTimes.nextPrayerIqamaTime = iqamaTime;
+                    appState.prayerTimes.countdownState = 'to_iqama';
+                    appState.prayerTimes.currentPrayerForHighlight = prayer.name;
+                    eventFound = true;
+                    break;
+                } else if (now < postIqamaEndTime) {
+                    appState.prayerTimes.nextPrayer = prayer.name;
+                    appState.prayerTimes.nextPrayerIqamaTime = iqamaTime;
+                    appState.prayerTimes.postIqamaEndTime = postIqamaEndTime;
+                    appState.prayerTimes.countdownState = 'post_iqama';
+                    appState.prayerTimes.currentPrayerForHighlight = prayer.name;
+                    eventFound = true;
                     break;
                 }
             }
-
-            if (nextPrayer === null) {
-                currentPrayer = prayerSchedule[prayerSchedule.length - 1];
-                const tomorrow = new Date(now);
-                tomorrow.setDate(now.getDate() + 1);
-                const tomorrowStr = tomorrow.toISOString().split('T')[0];
-                const tomorrowData = prayerTimes.find(p => p.date === tomorrowStr);
-                if (tomorrowData) {
-                    nextPrayer = { name: "الفجر (غدًا)", time: tomorrowData.fajr, date: tomorrow };
-                }
+            if (!eventFound) {
+                 // Should not happen with 2 days of data, but as a fallback
+                 appState.prayerTimes.nextPrayer = null;
             }
-            
-            appState.prayerTimes.currentPrayer = currentPrayer ? currentPrayer.name : null;
-            appState.prayerTimes.nextPrayer = nextPrayer ? nextPrayer.name : null;
-            if (nextPrayer) {
-                appState.prayerTimes.nextPrayerIqamaTime = timeToDate(nextPrayer.time, nextPrayer.date);
-            } else {
-                appState.prayerTimes.nextPrayerIqamaTime = null;
-            }
-            renderPrayerTimes();
+            renderPrayerTimesHighlight();
         }
-        function renderPrayerTimes() {
+
+        function renderPrayerTimesHighlight() {
             if (!prayerTimesContainer) return;
             document.querySelectorAll('.prayer-time-item').forEach(i => i.classList.remove('current-prayer', 'next-prayer'));
+            
+            const state = appState.prayerTimes.countdownState;
+            const prayerName = appState.prayerTimes.currentPrayerForHighlight;
 
-            if (appState.prayerTimes.currentPrayer) {
-                const currentItem = Array.from(document.querySelectorAll('.prayer-time-item .prayer-name')).find(s => s.textContent === appState.prayerTimes.currentPrayer)?.parentElement;
-                if (currentItem) currentItem.classList.add('current-prayer');
-            }
-
-            if (appState.prayerTimes.nextPrayer) {
-                const nextPrayerName = appState.prayerTimes.nextPrayer.includes('غدًا') ? 'الفجر' : appState.prayerTimes.nextPrayer;
-                const nextItem = Array.from(document.querySelectorAll('.prayer-time-item .prayer-name')).find(s => s.textContent === nextPrayerName)?.parentElement;
-                if (nextItem && !nextItem.classList.contains('current-prayer')) {
-                    nextItem.classList.add('next-prayer');
+            if (prayerName) {
+                const item = Array.from(document.querySelectorAll('.prayer-time-item .prayer-name')).find(s => s.textContent === prayerName)?.parentElement;
+                if (item) {
+                     if(state === 'to_adhan') {
+                        item.classList.add('next-prayer');
+                     } else {
+                        item.classList.add('current-prayer');
+                     }
                 }
             }
         }
@@ -1649,40 +1703,68 @@
         // --- Digital Clock ---
         function updateDigitalClock() {
             const now = new Date();
-            let h = now.getHours();
-            const m = now.getMinutes();
-            const s = now.getSeconds();
-            digitalHoursSpan.textContent = h.toString().padStart(2, '0');
-            digitalMinutesSpan.textContent = m.toString().padStart(2, '0');
-            digitalSecondsSpan.textContent = s.toString().padStart(2, '0');
+            digitalHoursSpan.textContent = now.getHours().toString().padStart(2, '0');
+            digitalMinutesSpan.textContent = now.getMinutes().toString().padStart(2, '0');
+            digitalSecondsSpan.textContent = now.getSeconds().toString().padStart(2, '0');
 
-            digitalDateLine1.style.color = 'white';
-            digitalDateLine2.style.color = 'white';
-            digitalDateLine1.parentElement.classList.remove('countdown-highlight', 'countdown-medium-highlight');
+            const { nextPrayer, nextPrayerAdhanTime, nextPrayerIqamaTime, postIqamaEndTime, countdownState } = appState.prayerTimes;
+            const clockWidget = digitalDateLine1.parentElement;
+            clockWidget.classList.remove('countdown-highlight', 'countdown-medium-highlight', 'countdown-iqama', 'countdown-post-iqama');
 
-            if (appState.prayerTimes.nextPrayerIqamaTime) {
-                const diff = appState.prayerTimes.nextPrayerIqamaTime - now;
-                if (diff <= 0) {
-                    determineNextPrayer(); // Time for next prayer has passed, recalculate
-                    return;
-                }
-                const totalSecs = Math.floor(diff / 1000);
-                const secs = totalSecs % 60;
-                const mins = Math.floor((totalSecs / 60) % 60);
-                const hrs = Math.floor(totalSecs / 3600);
-
-                digitalDateLine1.textContent = `الأذان القادم: ${appState.prayerTimes.nextPrayer}`;
-                digitalDateLine2.textContent = hrs > 0 ? `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}` : `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-                
-                if (totalSecs < 1200) { // Less than 20 minutes
-                    digitalDateLine1.parentElement.classList.add('countdown-highlight');
-                } else if (totalSecs < 3600) { // Less than 1 hour
-                     digitalDateLine1.parentElement.classList.add('countdown-medium-highlight');
-                }
-            } else {
+            if (!nextPrayer) {
                 digitalDateLine1.textContent = 'جاري تحميل أوقات الصلاة...';
                 digitalDateLine2.textContent = '';
+                return;
             }
+
+            let diff, totalSecs, hrs, mins, secs, label, countdownText;
+
+            switch (countdownState) {
+                case 'to_adhan':
+                    diff = nextPrayerAdhanTime - now;
+                    label = `الأذان القادم: ${nextPrayer}`;
+                    if (diff <= 0) { determineNextPrayer(); return; }
+                    totalSecs = Math.floor(diff / 1000);
+                    if (totalSecs < 1200) clockWidget.classList.add('countdown-highlight');
+                    else if (totalSecs < 3600) clockWidget.classList.add('countdown-medium-highlight');
+                    break;
+
+                case 'to_iqama':
+                    diff = nextPrayerIqamaTime - now;
+                    label = `إقامة صلاة ${nextPrayer}`;
+                    if (diff <= 0) { determineNextPrayer(); return; }
+                    totalSecs = Math.floor(diff / 1000);
+                    clockWidget.classList.add('countdown-iqama');
+                    break;
+
+                case 'post_iqama':
+                    diff = now - nextPrayerIqamaTime;
+                    label = `بعد إقامة ${nextPrayer}`;
+                    if (now >= postIqamaEndTime) { determineNextPrayer(); return; }
+                    totalSecs = Math.floor(diff / 1000);
+                    clockWidget.classList.add('countdown-post-iqama');
+                    break;
+                
+                default:
+                    digitalDateLine1.textContent = 'جاري الحساب...';
+                    digitalDateLine2.textContent = '';
+                    return;
+            }
+
+            hrs = Math.floor(totalSecs / 3600);
+            mins = Math.floor((totalSecs / 60) % 60);
+            secs = totalSecs % 60;
+
+            countdownText = hrs > 0
+                ? `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+                : `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            
+            if (countdownState === 'post_iqama') {
+                countdownText = `+${countdownText}`;
+            }
+
+            digitalDateLine1.textContent = label;
+            digitalDateLine2.textContent = countdownText;
         }
 
         // --- 360 Camera ---
