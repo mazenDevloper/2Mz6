@@ -126,11 +126,6 @@
                 0 0 20px rgba(255, 255, 255, 0.15); /* Added subtle outer white glow for "shine" */
             border: 1px solid rgba(255, 255, 255, 0.3); /* Added a subtle white border */
         }
-        div#video-popup-container {
-            cursor: grab;
-            width: 46%;
-            height: 37%;
-        }
 
         /* Fallback for browsers not supporting backdrop-filter - also enhanced */
         .glass-surface--fallback {
@@ -217,7 +212,6 @@
         }
 
         /* Floating Button Styles - Positioned and styled for glass effect */
-        #floating-fullscreen-button,
         #floating-media-button,
         #back-to-playlists-bottom-button,
         #back-to-playlists-bottom-button-search,
@@ -256,7 +250,6 @@
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        #floating-fullscreen-button:hover,
         #floating-media-button:hover,
         #back-to-playlists-bottom-button:hover,
         #back-to-playlists-bottom-button-search:hover,
@@ -268,7 +261,6 @@
         }
 
         /* Specific positioning for floating buttons */
-        #floating-fullscreen-button { bottom: 1rem; left: 6rem; right: auto; }
         #floating-media-button { bottom: 1rem; right: 1rem; }
         #floating-keyboard-button {
             bottom: 1rem;
@@ -438,17 +430,11 @@
             transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
             width: 100%;
             box-sizing: border-box;
-            position: relative;
+            cursor: pointer;
         }
         .youtube-video-card:hover, .youtube-search-card:hover {
             background-color: rgba(255, 255, 255, 0.1);
             transform: translateY(-2px);
-        }
-        .video-card-clickable-area {
-            display: flex;
-            align-items: center;
-            flex-grow: 1;
-            cursor: pointer;
         }
         .youtube-video-card img, .youtube-search-card img {
             width: 100px;
@@ -469,24 +455,6 @@
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
-        }
-        .video-popup-button {
-            background-color: rgba(0,0,0,0.4);
-            color: white;
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: background-color 0.2s, transform 0.2s;
-            flex-shrink: 0;
-            margin-right: 0.5rem; /* Margin right for RTL */
-        }
-        .video-popup-button:hover {
-            background-color: rgba(0,0,0,0.7);
-            transform: scale(1.1);
         }
 
         /* YouTube Reader Card Styling (Suggestions) */
@@ -690,6 +658,7 @@
             display: flex;
             align-items: baseline;
             gap: 0.2rem;
+            direction: ltr; /* FIX: Enforce LTR for correct HH:MM:SS order */
         }
         #digital-time span {
             transition: opacity 0.3s ease;
@@ -706,31 +675,18 @@
             text-align: center;
             line-height: 1.4;
         }
-        /* Highlight for less than 20 minutes to Adhan */
+        /* New class for highlight when less than 20 minutes */
         #digital-date.countdown-highlight {
             font-size: 1.7rem;
             color: #90EE90;
             font-weight: bold;
         }
-        /* Highlight for less than 1 hour to Adhan */
+        /* New class for highlight when less than 1 hour but more than 20 minutes */
         #digital-date.countdown-medium-highlight {
             font-size: 1.7rem;
             color: #FFA07A;
             font-weight: bold;
         }
-        /* NEW: Highlight for countdown to Iqama */
-        #digital-date.countdown-iqama {
-            font-size: 1.7rem;
-            color: #67e8f9; /* Light Cyan */
-            font-weight: bold;
-        }
-        /* NEW: Highlight for count up after Iqama */
-        #digital-date.countdown-post-iqama {
-            font-size: 1.7rem;
-            color: #facc15; /* Yellow */
-            font-weight: bold;
-        }
-
 
         /* Settings Range Input Styling */
         input[type="range"] {
@@ -818,69 +774,7 @@
         #screen-Weather .glass-surface {
             flex-grow: 1;
         }
-
-        /* Full-Screen Video Player Styles */
-        #full-screen-video-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: black;
-            z-index: 200;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        #full-screen-video-iframe-container {
-            width: 100%;
-            height: 100%;
-        }
-        #full-screen-video-iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-        #full-screen-video-close-button {
-            position: absolute;
-            top: 2rem;
-            right: 2rem;
-            background-color: rgba(255, 255, 255, 0.2);
-            color: white;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            z-index: 210;
-        }
-        #full-screen-video-close-button:hover {
-            background-color: rgba(255, 255, 255, 0.4);
-        }
-        #full-screen-video-popup-button {
-            position: absolute;
-            top: 2rem;
-            right: 6.5rem;
-            background-color: rgba(255, 255, 255, 0.2);
-            color: white;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            z-index: 210;
-        }
-        #full-screen-video-popup-button:hover {
-            background-color: rgba(255, 255, 255, 0.4);
-        }
-
+        
         /* Video Pop-up Container Styles */
         #video-popup-container {
             position: fixed;
@@ -901,10 +795,11 @@
             resize: both;
             min-width: 200px;
             min-height: 112px;
+            cursor: grab;
         }
         #video-popup-container.active { display: flex; }
-        #video-popup-iframe-container {
-             width: 100%;
+        #video-popup-player-container {
+            width: 100%;
             height: 100%;
             border-radius: 1rem;
             overflow: hidden;
@@ -1003,7 +898,6 @@
                 font-size: 0.85rem;
             }
 
-            #floating-fullscreen-button,
             #floating-media-button,
             #back-to-playlists-bottom-button,
             #back-to-playlists-bottom-button-search,
@@ -1013,7 +907,6 @@
                 font-size: 0.8rem;
                 gap: 0.25rem;
             }
-            #floating-fullscreen-button { left: 1rem !important; transform: none; }
             #floating-media-button { right: 1rem; }
             #floating-keyboard-button {
                 right: 5.5rem;
@@ -1062,7 +955,7 @@
             font-size: 0.9rem;
             min-width: 80px;
             text-align: center;
-            transition: background-color 0.3s ease, border 0.3s ease;
+            transition: background-color 0.3s ease;
         }
         /* UPDATED: Current prayer is green */
         .prayer-time-item.current-prayer {
@@ -1117,7 +1010,7 @@
         <defs>
             <filter id="glass-filter" colorInterpolationFilters="sRGB" x="0%" y="0%" width="100%" height="100%">
                 <feImage x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="map" 
-                    href="data:image/svg+xml,%3Csvg viewBox='0 0 400 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='red-grad' x1='100%25' y1='0%25' x2='0%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%230000'/%3E%3Cstop offset='100%25' stop-color='red'/%3E%3C/linearGradient%3E%3ClinearGradient id='blue-grad' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230000'/%3E%3Cstop offset='100%25' stop-color='blue'/%3E%3C/defs%3E%3Crect x='0' y='0' width='400' height='200' fill='black'/%3E%3Crect x='0' y='0' width='400' height='200' rx='20' fill='url(%23red-grad)'/%3E%3Crect x='0' y='0' width='400' height='200' rx='20' fill='url(%23blue-grad)' style='mix-blend-mode: difference'/%3E%3Crect x='1.4' y='1.4' width='397.2' height='197.2' rx='20' fill='hsl(0 0% 50% / 0.93)' style='filter:blur(11px)'/%3E%3C/svg%3E"/>
+                    href="data:image/svg+xml,%3Csvg viewBox='0 0 400 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='red-grad' x1='100%25' y1='0%25' x2='0%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%230000'/%3E%3Cstop offset='100%25' stop-color='red'/%3E%3C/linearGradient%3E%3ClinearGradient id='blue-grad' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230000'/%3E%3Cstop offset='100%25' stop-color='blue'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='0' y='0' width='400' height='200' fill='black'/%3E%3Crect x='0' y='0' width='400' height='200' rx='20' fill='url(%23red-grad)'/%3E%3Crect x='0' y='0' width='400' height='200' rx='20' fill='url(%23blue-grad)' style='mix-blend-mode: difference'/%3E%3Crect x='1.4' y='1.4' width='397.2' height='197.2' rx='20' fill='hsl(0 0% 50% / 0.93)' style='filter:blur(11px)'/%3E%3C/svg%3E"/>
                 
                 <feDisplacementMap in="SourceGraphic" in2="map" id="redchannel" scale="300" xChannelSelector="R" yChannelSelector="G" result="dispRed" />
                 <feColorMatrix in="dispRed" type="matrix" values="1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0" result="red" />
@@ -1144,7 +1037,7 @@
                 <i data-lucide="wifi"></i>
                 <span>5G</span>
             </div>
-            <div id="current-time">9:35</div>
+            <div id="current-time">00:00</div>
         </div>
 
         <!-- Lexus Logo Fixed at Top Center -->
@@ -1209,26 +1102,8 @@
                         <!-- Prayer Times Row (Stays at bottom) -->
                         <div class="glass-surface glass-surface--svg p-4 flex flex-col items-center justify-center text-center col-span-full row-start-2 navigable grid-item" tabindex="0">
                             <div id="prayer-times-container" class="prayer-times-row grid-container">
-                                <div class="prayer-time-item navigable grid-item" tabindex="0">
-                                    <span class="prayer-name">الفجر</span>
-                                    <span class="prayer-time" id="fajr-time">--:--</span>
-                                </div>
-                                <div class="prayer-time-item navigable grid-item" tabindex="0">
-                                    <span class="prayer-name">الظهر</span>
-                                    <span class="prayer-time" id="dhuhr-time">--:--</span>
-                                </div>
-                                <div class="prayer-time-item navigable grid-item" tabindex="0">
-                                    <span class="prayer-name">العصر</span>
-                                    <span class="prayer-time" id="asr-time">--:--</span>
-                                </div>
-                                <div class="prayer-time-item navigable grid-item" tabindex="0">
-                                    <span class="prayer-name">المغرب</span>
-                                    <span class="prayer-time" id="maghrib-time">--:--</span>
-                                </div>
-                                <div class="prayer-time-item navigable grid-item" tabindex="0">
-                                    <span class="prayer-name">العشاء</span>
-                                    <span class="prayer-time" id="isha-time">--:--</span>
-                                </div>
+                                <!-- Prayer times will be loaded here by JavaScript -->
+                                <p class="text-white/70 col-span-full">جاري تحميل أوقات الصلاة...</p>
                             </div>
                         </div>
                     </div>
@@ -1312,9 +1187,20 @@
                 </section>
 
                 <!-- Weather Screen -->
-                <section id="screen-Weather" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full">
-                    <h1 class="text-4xl font-bold mb-6">الطقس <i data-lucide="cloud-sun"></i></h1>
-                    <div class="w-full h-full flex flex-col gap-4">
+                <section id="screen-Weather" class="app-screen p-4 md:p-6 flex-col items-center justify-start h-full">
+                    <h1 class="text-4xl font-bold mb-4">الطقس <i data-lucide="cloud-sun"></i></h1>
+                    
+                    <!-- NEW: Gemini Weather Summary Section -->
+                    <div class="w-full max-w-3xl mx-auto mb-4">
+                        <div id="weather-summary-container" class="glass-surface glass-surface--svg p-4 rounded-3xl text-center min-h-[60px] flex items-center justify-center">
+                            <p id="weather-summary-text" class="text-lg text-white/90">اضغط على الزر للحصول على ملخص للطقس.</p>
+                        </div>
+                        <button id="gemini-weather-summary-button" class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 font-bold mt-4 w-full navigable grid-item" tabindex="0">
+                            <i data-lucide="sparkles" class="w-5 h-5"></i> ✨ الحصول على ملخص وتوصية
+                        </button>
+                    </div>
+
+                    <div class="w-full h-full flex flex-col gap-4 flex-grow">
                         <div class="grid grid-cols-2 sm:grid-cols-2 gap-4 w-full grid-container">
                             <div class="glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center navigable grid-item" tabindex="0">
                                 <i data-lucide="thermometer" class="w-10 h-10 text-red-400 mb-2"></i>
@@ -1348,6 +1234,10 @@
                                 <button id="toggle-traffic-button" class="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 font-bold mt-2 navigable grid-item" tabindex="0">
                                     <i data-lucide="traffic-cone" class="w-5 h-5"></i> إظهار حركة المرور
                                 </button>
+                                <!-- NEW: Gemini Trip Suggester Button -->
+                                <button id="gemini-trip-suggester-button" class="bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 font-bold mt-2 navigable grid-item hidden" tabindex="0">
+                                    <i data-lucide="sparkles" class="w-5 h-5"></i> ✨ اقتراح محطات توقف
+                                </button>
                             </div>
                             <div class="flex flex-col gap-2 mt-4 text-center">
                                 <div class="flex items-center justify-center gap-2">
@@ -1360,6 +1250,10 @@
                                     <span class="text-lg font-semibold">المسافة:</span>
                                     <span id="distance-display" class="text-lg">--</span>
                                 </div>
+                            </div>
+                            <!-- NEW: Gemini Trip Suggestions Container -->
+                            <div id="trip-suggestions-container" class="mt-4 flex flex-col gap-2 overflow-y-auto flex-grow">
+                                <!-- Gemini suggestions will be injected here -->
                             </div>
                         </div>
                         <div class="w-full md:w-3/4 rounded-3xl relative overflow-hidden flex items-center justify-center glass-surface glass-surface--svg p-1 grid-container">
@@ -1411,9 +1305,6 @@
     </div>
 
     <!-- Floating UI Elements -->
-    <button id="floating-fullscreen-button" class="glass-surface glass-surface--svg rounded-full navigable grid-item" tabindex="0">
-        <i data-lucide="maximize" class="w-6 h-6"></i>
-    </button>
     <button id="floating-media-button" class="glass-surface glass-surface--svg rounded-full navigable grid-item" tabindex="0">
         <i data-lucide="youtube" class="w-6 h-6"></i>
     </button>
@@ -1424,20 +1315,9 @@
         <i data-lucide="map-pin" class="w-6 h-6"></i> بدء الرحلة
     </button>
 
-    <!-- Full-Screen Video Player Container -->
-    <div id="full-screen-video-container" class="grid-container">
-        <div id="full-screen-video-iframe-container"></div>
-        <button id="full-screen-video-popup-button" title="فتح في نافذة منبثقة" class="navigable grid-item" tabindex="0">
-            <i data-lucide="square-arrow-up-right" class="w-7 h-7"></i>
-        </button>
-        <button id="full-screen-video-close-button" title="إغلاق ملء الشاشة" class="navigable grid-item" tabindex="0">
-            <i data-lucide="x" class="w-8 h-8"></i>
-        </button>
-    </div>
-
     <!-- Video Pop-up Container -->
     <div id="video-popup-container">
-        <div id="video-popup-iframe-container"></div>
+        <div id="video-popup-player-container"></div>
         <div class="video-popup-controls grid-container">
             <button id="video-popup-close-button" title="إغلاق الفيديو" class="navigable grid-item" tabindex="0">
                 <i data-lucide="x" class="w-4 h-4"></i>
@@ -1450,7 +1330,7 @@
         lucide.createIcons();
 
         // --- API Keys ---
-        const YOUTUBE_API_KEY = 'AIzaSyAjdVZ2Rodp6ZVEF1pZT195kAtGELolxSI'; // UPDATED KEY
+        const YOUTUBE_API_KEY = 'AIzaSyDj4w1H3Is_rmTLhl40zER7AgYhT_tKASo'; 
         const AI_ASSISTANT_API_KEY = 'AIzaSyBMmtON9ww4dJxMHrl1wKyWTvI0ipJXJws'; 
         const WEATHER_API_KEY = '7acefc26deee4904a2393917252207'; 
         const GOOGLE_MAPS_API_KEY = 'AIzaSyBRqAHJ2elbE_Z7NXXYC50XZpqi6HbG6Rk';
@@ -1461,14 +1341,7 @@
             mapLocation: { lat: 17.0151, lon: 54.0924, zoom: 17 },
             weather: { temperature: null, description: null, uvIndex: null, iconUrl: '', location: 'Salalah, Oman' },
             car: { speed: 0, rpm: 0, fuel: 0, temp: 0, gear: 'P' },
-            prayerTimes: {
-                nextPrayer: null,
-                nextPrayerAdhanTime: null,
-                nextPrayerIqamaTime: null,
-                postIqamaEndTime: null,
-                countdownState: 'to_adhan', // States: 'to_adhan', 'to_iqama', 'post_iqama'
-                currentPrayerForHighlight: null,
-            },
+            prayerTimes: { Fajr: '--:--', Dhuhr: '--:--', Asr: '--:--', Maghrib: '--:--', Isha: '--:--', nextPrayer: null, nextPrayerIqamaTime: null, currentPrayer: null },
             hasShownGeolocationError: false,
             mapZoomChangedByUser: false,
             dashboardReturnCounter: 0,
@@ -1494,15 +1367,10 @@
         const backToPlaylistsFromVideosButton = document.getElementById('back-to-playlists-from-videos'); 
         const backToPlaylistsBottomButton = document.getElementById('back-to-playlists-bottom-button');
         const backToPlaylistsBottomButtonSearch = document.getElementById('back-to-playlists-bottom-button-search');
-        const fullScreenVideoContainer = document.getElementById('full-screen-video-container');
-        const fullScreenVideoIframeContainer = document.getElementById('full-screen-video-iframe-container');
-        const fullScreenVideoCloseButton = document.getElementById('full-screen-video-close-button');
-        const fullScreenVideoPopupButton = document.getElementById('full-screen-video-popup-button');
         const videoPopupContainer = document.getElementById('video-popup-container');
-        const videoPopupIframeContainer = document.getElementById('video-popup-iframe-container');
+        const videoPopupPlayerContainer = document.getElementById('video-popup-player-container');
         const videoPopupCloseButton = document.getElementById('video-popup-close-button');
         const quranIframe = document.getElementById('quran-iframe');
-        const floatingFullscreenButton = document.getElementById('floating-fullscreen-button');
         const floatingMediaButton = document.getElementById('floating-media-button');
         const floatingKeyboardButton = document.getElementById('floating-keyboard-button');
         const clearSearchButton = document.getElementById('clear-search-button');
@@ -1513,11 +1381,6 @@
         const aiMicButton = document.getElementById('ai-mic-button');
         const listeningIndicator = document.getElementById('listening-indicator');
         const prayerTimesContainer = document.getElementById('prayer-times-container');
-        const fajrTimeElement = document.getElementById('fajr-time');
-        const dhuhrTimeElement = document.getElementById('dhuhr-time');
-        const asrTimeElement = document.getElementById('asr-time');
-        const maghribTimeElement = document.getElementById('maghrib-time');
-        const ishaTimeElement = document.getElementById('isha-time');
         const digitalHoursSpan = document.querySelector('#digital-time .hours');
         const digitalMinutesSpan = document.querySelector('#digital-time .minutes');
         const digitalSecondsSpan = document.querySelector('#digital-time .seconds');
@@ -1537,136 +1400,144 @@
         const upload360ImageButton = document.getElementById('upload-360-image-button');
         const reset360ImageButton = document.getElementById('reset-360-image-button');
         const default360ImageSrc = "https://dmusera.netlify.app/es350gb.png";
-        let currentPlayingPlaylistId = '', activeMediaView = 'playlist', currentPlayingVideoId = '', selectedReaderName = '';
-        let fullScreenPlayer = null, popupPlayer = null;
-
-        // --- REFACTORED: YouTube API Readiness Promise ---
-        let resolveYoutubeApiReady;
-        const youtubeApiReady = new Promise(resolve => {
-            resolveYoutubeApiReady = resolve;
-        });
-        
-        // This function MUST be in the global scope for the YouTube API to find it.
-        window.onYouTubeIframeAPIReady = function() {
-            console.log("YouTube API is ready.");
-            resolveYoutubeApiReady();
-        };
+        let currentPlayingPlaylistId = '', activeMediaView = 'playlist', currentPlayingVideoId = '', selectedReaderName = '', popupPlayer, isYouTubeApiReady = false;
+        const geminiWeatherSummaryButton = document.getElementById('gemini-weather-summary-button');
+        const weatherSummaryText = document.getElementById('weather-summary-text');
+        const geminiTripSuggesterButton = document.getElementById('gemini-trip-suggester-button');
+        const tripSuggestionsContainer = document.getElementById('trip-suggestions-container');
 
         // --- Utility Functions ---
-        function updateTopBarTime() { const now = new Date(); timeElement.textContent = now.toLocaleTimeString('ar-SA', { hour: 'numeric', minute: '2-digit' }); }
+        function updateTopBarTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            timeElement.textContent = `${hours}:${minutes}`;
+        }
+        function showMessageBox(message) { const box = document.createElement('div'); box.style.cssText = `position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(0, 0, 0, 0.8); color: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); z-index: 1000; text-align: center; max-width: 80%; font-size: 1.1rem;`; box.innerHTML = `<p>${message}</p><button style="margin-top: 15px; padding: 8px 15px; background-color: #9333ea; border: none; border-radius: 5px; color: white; cursor: pointer;">إغلاق</button>`; document.body.appendChild(box); box.querySelector('button').addEventListener('click', () => document.body.removeChild(box)); }
         
-        // --- MODIFIED: showMessageBox to support loading indicators ---
-        function showMessageBox(message, showCloseButton = true) {
-            const existingBox = document.querySelector('.temp-message-box');
-            if (existingBox) existingBox.remove();
-            const box = document.createElement('div');
-            box.className = 'temp-message-box';
-            box.style.cssText = `position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(0, 0, 0, 0.8); color: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); z-index: 1000; text-align: center; max-width: 80%; font-size: 1.1rem;`;
-            let content = `<p>${message}</p>`;
-            if (showCloseButton) {
-                content += `<button style="margin-top: 15px; padding: 8px 15px; background-color: #9333ea; border: none; border-radius: 5px; color: white; cursor: pointer;">إغلاق</button>`;
-            }
-            box.innerHTML = content;
-            document.body.appendChild(box);
-            if (showCloseButton) {
-                box.querySelector('button').addEventListener('click', () => document.body.removeChild(box));
-            }
-            return box;
+        function updateUI() { 
+            document.getElementById('dashboard-weather-temp').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature}°C` : '--°C'; 
+            document.getElementById('dashboard-weather-desc').textContent = appState.weather.description || '--'; 
+            document.getElementById('dashboard-weather-icon').src = appState.weather.iconUrl || 'https://placehold.co/64x64/000000/FFFFFF?text=X'; 
+            document.getElementById('dashboard-weather-location').textContent = appState.weather.location; 
+            document.getElementById('weather-temp-card').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature}°C` : '--°C'; 
+            const uvEl = document.getElementById('weather-uv'); 
+            if (uvEl) { uvEl.textContent = appState.weather.uvIndex !== null ? appState.weather.uvIndex : '--'; uvEl.style.color = getUvIndexColor(appState.weather.uvIndex); } 
+            car360Image.src = appState.custom360Image || default360ImageSrc; 
+            startTripFloatingButton.style.display = appState.destinationSet ? 'flex' : 'none'; 
+            geminiTripSuggesterButton.classList.toggle('hidden', !appState.destinationSet); 
         }
 
-        function togglePseudoFullscreen() { const carplay = document.getElementById('carplay-main-interface'); const topBar = document.querySelector('.top-bar'); const isFull = carplay.classList.toggle('carplay-pseudo-fullscreen'); floatingFullscreenButton.innerHTML = isFull ? '<i data-lucide="minimize" class="w-6 h-6"></i>' : '<i data-lucide="maximize" class="w-6 h-6"></i>'; if (topBar) topBar.style.opacity = isFull ? '0' : '1'; document.body.style.overflow = isFull ? 'hidden' : ''; lucide.createIcons(); }
-        function updateUI() { document.getElementById('dashboard-weather-temp').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature}°C` : '--°C'; document.getElementById('dashboard-weather-desc').textContent = appState.weather.description || '--'; document.getElementById('dashboard-weather-icon').src = appState.weather.iconUrl || 'https://placehold.co/64x64/000000/FFFFFF?text=X'; document.getElementById('dashboard-weather-location').textContent = appState.weather.location; document.getElementById('weather-temp-card').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature}°C` : '--°C'; const uvEl = document.getElementById('weather-uv'); if (uvEl) { uvEl.textContent = appState.weather.uvIndex !== null ? appState.weather.uvIndex : '--'; uvEl.style.color = getUvIndexColor(appState.weather.uvIndex); } loadPrayerTimes(); car360Image.src = appState.custom360Image || default360ImageSrc; startTripFloatingButton.style.display = appState.destinationSet ? 'flex' : 'none'; }
-
         // --- App Switching Logic ---
-        function switchApp(appName) { appScreens.forEach(s => s.classList.remove('active')); sidebarIcons.forEach(i => i.classList.remove('active')); const screen = document.getElementById(`screen-${appName}`); if (screen) screen.classList.add('active'); const icon = document.querySelector(`.app-icon[data-app="${appName}"]`); if (icon) icon.classList.add('active'); if (appName === 'Dashboard' && appState.mapZoomChangedByUser) { appState.dashboardReturnCounter++; if (appState.dashboardReturnCounter >= 2 && dashboardGoogleMap) { dashboardGoogleMap.setZoom(appState.mapLocation.zoom); appState.mapZoomChangedByUser = false; appState.dashboardReturnCounter = 0; showMessageBox('تم إعادة تعيين تكبير الخريطة إلى الافتراضي.'); } } else if (appName !== 'Dashboard' && !appState.mapZoomChangedByUser) { appState.dashboardReturnCounter = 0; } handleMediaViewSwitch(appName); quranQuickAccess.style.display = (appName === 'Quran') ? 'flex' : 'none'; startTripFloatingButton.style.display = (appName === 'Map' && appState.destinationSet) ? 'flex' : 'none'; updateUI(); if (document.activeElement && document.activeElement.closest('nav')) { setTimeout(() => { const firstItem = screen.querySelector('.grid-item'); if (firstItem) setFocus(firstItem); }, 100); } }
+        function switchApp(appName) { appScreens.forEach(s => s.classList.remove('active')); sidebarIcons.forEach(i => i.classList.remove('active')); const screen = document.getElementById(`screen-${appName}`); if (screen) screen.classList.add('active'); const icon = document.querySelector(`.app-icon[data-app="${appName}"]`); if (icon) icon.classList.add('active'); if (appName === 'Dashboard' && appState.mapZoomChangedByUser) { appState.dashboardReturnCounter++; if (appState.dashboardReturnCounter >= 2 && dashboardGoogleMap) { dashboardGoogleMap.setZoom(appState.mapLocation.zoom); appState.mapZoomChangedByUser = false; appState.dashboardReturnCounter = 0; showMessageBox('تم إعادة تعيين تكبير الخريطة إلى الافتراضي.'); } } else if (appName !== 'Dashboard' && !appState.mapZoomChangedByUser) { appState.dashboardReturnCounter = 0; } handleMediaViewSwitch(appName); quranQuickAccess.style.display = (appName === 'Quran') ? 'flex' : 'none'; startTripFloatingButton.style.display = (appName === 'Map' && appState.destinationSet) ? 'flex' : 'none'; if (document.activeElement && document.activeElement.closest('nav')) { setTimeout(() => { const firstItem = screen.querySelector('.grid-item'); if (firstItem) setFocus(firstItem); }, 100); } }
         function handleMediaViewSwitch(appName) { floatingMediaButton.style.display = (appName === 'Media') ? 'none' : 'flex'; floatingKeyboardButton.style.display = (appName === 'Media') ? 'flex' : 'none'; clearSearchButton.style.display = (appName === 'Media') ? 'flex' : 'none'; youtubeSuggestionsDiv.style.display = (appName !== 'Media') ? 'none' : ''; if (appName === 'Media') { floatingKeyboardButton.classList.toggle('active-keyboard', !youtubeSearchInput.readOnly); floatingKeyboardButton.classList.toggle('inactive-keyboard', youtubeSearchInput.readOnly); youtubePlaylistView.classList.add('hidden'); youtubeVideoListView.classList.add('hidden'); youtubeSearchResultsView.classList.add('hidden'); youtubeSuggestionsDiv.classList.remove('hidden'); if (activeMediaView === 'videoList' && currentPlayingPlaylistId) youtubeVideoListView.classList.remove('hidden'); else if (activeMediaView === 'searchResults') youtubeSearchResultsView.classList.remove('hidden'); else { youtubePlaylistView.classList.remove('hidden'); resetYoutubeSearchUI(); } } }
         appButtons.forEach(b => b.addEventListener('click', () => switchApp(b.dataset.app)));
         sidebarIcons.forEach(el => el.classList.add('w-16', 'h-16', 'rounded-2xl', 'flex', 'items-center', 'justify-center', 'transition-all', 'duration-300', 'ease-in-out'));
         
-        // --- YouTube/Media Functions ---
-        document.querySelectorAll('.youtube-channel-card').forEach(c => c.addEventListener('click', () => { currentPlayingPlaylistId = c.dataset.playlistId; fetchPlaylistVideos(currentPlayingPlaylistId); }));
-        async function fetchPlaylistVideos(playlistId, updateView = true) { try { const res = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&key=${YOUTUBE_API_KEY}&maxResults=20`); const data = await res.json(); if(data.error) { showMessageBox(`خطأ في YouTube API: ${data.error.message}`); return; } if (data.items && data.items.length > 0) { videoListContainer.innerHTML = ''; data.items.forEach(item => { const { videoId } = item.snippet.resourceId; const { title } = item.snippet; const thumb = item.snippet.thumbnails.medium ? item.snippet.thumbnails.medium.url : 'https://placehold.co/120x90'; const card = document.createElement('div'); card.className = 'glass-surface glass-surface--svg youtube-video-card navigable grid-item'; card.tabIndex = 0; card.dataset.videoId = videoId; card.innerHTML = `<div class="video-card-clickable-area"><img src="${thumb}" alt="${title}" onerror="this.onerror=null;this.src='https://placehold.co/120x90';"><h3>${title}</h3></div><button class="video-popup-button navigable grid-item" tabindex="0" title="تشغيل في نافذة منبثقة"><i data-lucide="square-arrow-up-right" class="w-4 h-4"></i></button>`; card.querySelector('.video-card-clickable-area').addEventListener('click', () => playVideoInFullScreen(videoId)); card.querySelector('.video-popup-button').addEventListener('click', (e) => { e.stopPropagation(); showVideoPopup(videoId); }); videoListContainer.appendChild(card); }); lucide.createIcons(); youtubePlaylistView.classList.add('hidden'); youtubeVideoListView.classList.remove('hidden'); youtubeSearchResultsView.classList.add('hidden'); youtubeSuggestionsDiv.classList.add('hidden'); if (updateView) activeMediaView = 'videoList'; backToPlaylistsBottomButton.style.display = 'flex'; backToPlaylistsBottomButtonSearch.style.display = 'none'; } else { showMessageBox('لم يتم العثور على فيديوهات في قائمة التشغيل هذه.'); } } catch (err) { console.error('Error fetching YouTube playlist videos:', err); showMessageBox('حدث خطأ أثناء جلب فيديوهات قائمة التشغيل.'); } }
+        // --- YouTube/Media Functions (REFACTORED) ---
+        function onYouTubeIframeAPIReady() { isYouTubeApiReady = true; }
         
-        // --- REFACTORED: YouTube Player Logic for WebView Compatibility ---
-        async function playVideoInFullScreen(videoId, start = 0) {
-            const loadingMessage = showMessageBox('جاري تحميل الفيديو...', false);
+        function createVideoCard(videoId, title, thumb) {
+            const card = document.createElement('div');
+            card.className = 'glass-surface glass-surface--svg youtube-video-card navigable grid-item';
+            card.tabIndex = 0;
+            card.dataset.videoId = videoId;
+            card.innerHTML = `
+                <img src="${thumb}" alt="${title}" class="w-[100px] h-[56.25px] object-cover rounded-md ml-4 flex-shrink-0" onerror="this.onerror=null;this.src='https://placehold.co/100x56';">
+                <h3 class="font-medium text-white flex-grow overflow-hidden text-ellipsis line-clamp-2">${title}</h3>
+            `;
+            card.addEventListener('click', () => showVideoPopup(videoId));
+            return card;
+        }
+
+        async function fetchPlaylistVideos(playlistId) {
+            if (YOUTUBE_API_KEY.startsWith('YOUR_')) return showMessageBox('خطأ: لم يتم تعيين مفتاح YouTube API.');
             try {
-                await youtubeApiReady;
-                if (fullScreenPlayer) { fullScreenPlayer.destroy(); fullScreenPlayer = null; }
-                currentPlayingVideoId = videoId;
-                fullScreenVideoContainer.style.display = 'flex';
-                document.getElementById('carplay-main-interface').style.display = 'none';
-                document.querySelectorAll('.fixed:not(#full-screen-video-container)').forEach(el => { if (!el.closest('#full-screen-video-container')) el.style.display = 'none'; });
-                fullScreenVideoIframeContainer.innerHTML = '<div id="full-screen-video-iframe"></div>';
-                fullScreenPlayer = new YT.Player('full-screen-video-iframe', {
-                    height: '100%', width: '100%', videoId: videoId,
-                    playerVars: { 'autoplay': 1, 'controls': 1, 'start': start, 'playsinline': 1, 'origin': window.location.origin },
-                    events: {
-                        'onReady': (e) => { loadingMessage.remove(); e.target.playVideo(); },
-                        'onError': (e) => { loadingMessage.remove(); showMessageBox(`حدث خطأ في مشغل يوتيوب: ${e.data}`); }
-                    }
-                });
-                setTimeout(() => setFocus(fullScreenVideoCloseButton), 100);
-            } catch (error) {
-                loadingMessage.remove();
-                console.error("Error during video playback setup:", error);
-                showMessageBox("فشل تحميل الفيديو. يرجى التحقق من اتصالك بالإنترنت.");
+                const res = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&key=${YOUTUBE_API_KEY}&maxResults=20`);
+                const data = await res.json();
+                if (data.items && data.items.length > 0) {
+                    videoListContainer.innerHTML = '';
+                    data.items.forEach(item => {
+                        const videoId = item.snippet.resourceId.videoId;
+                        const title = item.snippet.title;
+                        const thumb = item.snippet.thumbnails.medium ? item.snippet.thumbnails.medium.url : 'https://placehold.co/120x90';
+                        videoListContainer.appendChild(createVideoCard(videoId, title, thumb));
+                    });
+                    youtubePlaylistView.classList.add('hidden');
+                    youtubeVideoListView.classList.remove('hidden');
+                    youtubeSearchResultsView.classList.add('hidden');
+                    youtubeSuggestionsDiv.classList.add('hidden');
+                    activeMediaView = 'videoList';
+                    backToPlaylistsBottomButton.style.display = 'flex';
+                    backToPlaylistsBottomButtonSearch.style.display = 'none';
+                } else {
+                    showMessageBox('لم يتم العثور على فيديوهات في قائمة التشغيل هذه.');
+                }
+            } catch (err) {
+                console.error('Error fetching YouTube playlist videos:', err);
+                showMessageBox('حدث خطأ أثناء جلب فيديوهات قائمة التشغيل.');
             }
         }
 
-        function closeFullScreenPlayer() {
-            if (fullScreenPlayer) { fullScreenPlayer.destroy(); fullScreenPlayer = null; }
-            currentPlayingVideoId = '';
-            fullScreenVideoContainer.style.display = 'none';
-            document.getElementById('carplay-main-interface').style.display = 'flex';
-            document.querySelectorAll('.fixed:not(#full-screen-video-container)').forEach(el => el.style.display = 'flex');
-            const app = document.querySelector('.app-screen.active')?.id.replace('screen-', '') || 'Dashboard';
-            switchApp(app);
-        }
-
-        async function switchFullScreenToPopup() {
-            if (currentPlayingVideoId && fullScreenPlayer?.getCurrentTime) {
-                const time = await fullScreenPlayer.getCurrentTime();
-                closeFullScreenPlayer();
-                showVideoPopup(currentPlayingVideoId, time);
-            }
-        }
-
-        async function showVideoPopup(videoId, start = 0) {
-            const loadingMessage = showMessageBox('جاري تحميل الفيديو...', false);
+        async function searchYouTubeVideos(query) {
+            if (YOUTUBE_API_KEY.startsWith('YOUR_')) return showMessageBox('خطأ: لم يتم تعيين مفتاح YouTube API.');
             try {
-                await youtubeApiReady;
-                if (popupPlayer) { popupPlayer.destroy(); popupPlayer = null; }
-                currentPlayingVideoId = videoId;
-                videoPopupContainer.classList.add('active');
-                videoPopupIframeContainer.innerHTML = '<div id="video-popup-iframe"></div>';
-                popupPlayer = new YT.Player('video-popup-iframe', {
-                    height: '100%', width: '100%', videoId: videoId,
-                    playerVars: { 'autoplay': 1, 'controls': 1, 'start': start, 'playsinline': 1, 'origin': window.location.origin },
-                    events: {
-                        'onReady': (e) => { loadingMessage.remove(); e.target.playVideo(); },
-                        'onError': (e) => { loadingMessage.remove(); showMessageBox(`حدث خطأ في مشغل يوتيوب: ${e.data}`); }
-                    }
-                });
-                setTimeout(() => setFocus(videoPopupCloseButton), 100);
-            } catch (error) {
-                loadingMessage.remove();
-                console.error("Error during popup video setup:", error);
-                showMessageBox("فشل تحميل الفيديو المنبثق.");
+                const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&key=${YOUTUBE_API_KEY}&maxResults=20`);
+                const data = await res.json();
+                if (data.items && data.items.length > 0) {
+                    searchResultsContainer.innerHTML = '';
+                    data.items.forEach(item => {
+                        const videoId = item.id.videoId;
+                        const title = item.snippet.title;
+                        const thumb = item.snippet.thumbnails.medium ? item.snippet.thumbnails.medium.url : 'https://placehold.co/120x90';
+                        searchResultsContainer.appendChild(createVideoCard(videoId, title, thumb));
+                    });
+                    youtubePlaylistView.classList.add('hidden');
+                    youtubeVideoListView.classList.add('hidden');
+                    youtubeSearchResultsView.classList.remove('hidden');
+                    youtubeSuggestionsDiv.classList.add('hidden');
+                    activeMediaView = 'searchResults';
+                    backToPlaylistsBottomButton.style.display = 'none';
+                    backToPlaylistsBottomButtonSearch.style.display = 'flex';
+                    setTimeout(() => { const firstResult = searchResultsContainer.querySelector('.grid-item'); if (firstResult) setFocus(firstResult); }, 100);
+                } else {
+                    showMessageBox('لم يتم العثور على نتائج بحث لـ: ' + query);
+                }
+            } catch (err) {
+                console.error('Error searching YouTube videos:', err);
+                showMessageBox('حدث خطأ أثناء البحث في يوتيوب.');
             }
+        }
+        
+        function showVideoPopup(videoId, start = 0) {
+            if (!isYouTubeApiReady) return setTimeout(() => showVideoPopup(videoId, start), 100);
+            currentPlayingVideoId = videoId;
+            videoPopupContainer.classList.add('active');
+            if (popupPlayer) {
+                popupPlayer.loadVideoById({ videoId, startSeconds: start });
+            } else {
+                videoPopupPlayerContainer.innerHTML = '<div id="video-popup-player"></div>';
+                popupPlayer = new YT.Player('video-popup-player', {
+                    height: '100%', width: '100%', videoId,
+                    playerVars: { 'autoplay': 1, 'controls': 1, 'start': start },
+                    events: { 'onReady': (e) => e.target.playVideo() }
+                });
+            }
+            setTimeout(() => setFocus(videoPopupCloseButton), 100);
         }
 
         function hideVideoPopup() {
-            if (popupPlayer) { popupPlayer.destroy(); popupPlayer = null; }
+            if (popupPlayer?.stopVideo) popupPlayer.stopVideo();
             videoPopupContainer.classList.remove('active');
             const screen = document.querySelector('.app-screen.active');
-            if (screen) { const item = screen.querySelector('.grid-item'); if (item) setFocus(item); }
+            if (screen) {
+                const item = screen.querySelector('.grid-item');
+                if (item) setFocus(item);
+            }
         }
-
-        fullScreenVideoCloseButton.addEventListener('click', closeFullScreenPlayer);
-        fullScreenVideoPopupButton.addEventListener('click', switchFullScreenToPopup);
-        videoPopupCloseButton.addEventListener('click', hideVideoPopup);
         
+        videoPopupCloseButton.addEventListener('click', hideVideoPopup);
+        document.querySelectorAll('.youtube-channel-card').forEach(c => c.addEventListener('click', () => { currentPlayingPlaylistId = c.dataset.playlistId; fetchPlaylistVideos(currentPlayingPlaylistId); }));
         function navigateBackToPlaylists() { youtubeVideoListView.classList.add('hidden'); youtubeSearchResultsView.classList.add('hidden'); youtubePlaylistView.classList.remove('hidden'); youtubeSuggestionsDiv.classList.remove('hidden'); currentPlayingPlaylistId = ''; activeMediaView = 'playlist'; backToPlaylistsBottomButton.style.display = 'none'; backToPlaylistsBottomButtonSearch.style.display = 'none'; resetYoutubeSearchUI(); setTimeout(() => { setFocus(youtubeSearchInput); }, 100); }
         backToPlaylistsFromVideosButton.addEventListener('click', navigateBackToPlaylists); backToPlaylistsBottomButton.addEventListener('click', navigateBackToPlaylists); backToPlaylistsBottomButtonSearch.addEventListener('click', navigateBackToPlaylists);
         floatingKeyboardButton.addEventListener('click', () => { youtubeSearchInput.readOnly = !youtubeSearchInput.readOnly; if (!youtubeSearchInput.readOnly) youtubeSearchInput.focus(); else youtubeSearchInput.blur(); floatingKeyboardButton.classList.toggle('active-keyboard', !youtubeSearchInput.readOnly); floatingKeyboardButton.classList.toggle('inactive-keyboard', youtubeSearchInput.readOnly); });
@@ -1680,17 +1551,110 @@
         function showSurahSuggestions() { const existing = document.getElementById('youtube-surah-section'); if (existing) existing.remove(); const surahSection = document.createElement('div'); surahSection.id = 'youtube-surah-section'; surahSection.className = 'flex flex-col gap-2 p-3 rounded-xl glass-surface glass-surface--svg w-full mt-4 grid-container'; surahSection.innerHTML = '<span class="youtube-suggestion-category-tag bg-green-600">اختر السورة</span>'; const surahButtonsContainer = document.createElement('div'); surahButtonsContainer.className = 'grid grid-cols-9 gap-2 w-full'; youtubeSurahSuggestions.forEach(name => { const button = document.createElement('button'); button.className = 'youtube-suggestion-button navigable grid-item'; button.tabIndex = 0; button.textContent = name; button.style.backgroundImage = juzColors[(surahToJuzMap[name] || 1) - 1]; button.addEventListener('click', () => { const query = selectedReaderName + ' سورة ' + name; youtubeSearchInput.value = query; searchYouTubeVideos(query); }); surahButtonsContainer.appendChild(button); }); surahSection.appendChild(surahButtonsContainer); youtubeSuggestionsDiv.appendChild(surahSection); }
         youtubeSearchInput.addEventListener('focus', () => { if (youtubeSearchInput.value.trim() === '') { youtubeSuggestionsDiv.classList.remove('hidden'); resetYoutubeSearchUI(); } });
         youtubeSearchButton.addEventListener('click', () => { const query = youtubeSearchInput.value.trim(); if (query) searchYouTubeVideos(query); else showMessageBox('الرجاء إدخال كلمة للبحث.'); });
-        async function searchYouTubeVideos(query) { try { const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&key=${YOUTUBE_API_KEY}&maxResults=20`); const data = await res.json(); if(data.error) { showMessageBox(`خطأ في YouTube API: ${data.error.message}`); return; } if (data.items && data.items.length > 0) { searchResultsContainer.innerHTML = ''; data.items.forEach(item => { const { videoId } = item.id; const { title } = item.snippet; const thumb = item.snippet.thumbnails.medium ? item.snippet.thumbnails.medium.url : 'https://placehold.co/120x90'; const card = document.createElement('div'); card.className = 'glass-surface glass-surface--svg youtube-search-card navigable grid-item'; card.tabIndex = 0; card.dataset.videoId = videoId; card.innerHTML = `<div class="video-card-clickable-area"><img src="${thumb}" alt="${title}" onerror="this.onerror=null;this.src='https://placehold.co/120x90';"><h3>${title}</h3></div><button class="video-popup-button navigable grid-item" tabindex="0" title="تشغيل في نافذة منبثقة"><i data-lucide="square-arrow-up-right" class="w-4 h-4"></i></button>`; card.querySelector('.video-card-clickable-area').addEventListener('click', () => playVideoInFullScreen(videoId)); card.querySelector('.video-popup-button').addEventListener('click', (e) => { e.stopPropagation(); showVideoPopup(videoId); }); searchResultsContainer.appendChild(card); }); lucide.createIcons(); youtubePlaylistView.classList.add('hidden'); youtubeVideoListView.classList.add('hidden'); youtubeSearchResultsView.classList.remove('hidden'); youtubeSuggestionsDiv.classList.add('hidden'); activeMediaView = 'searchResults'; backToPlaylistsBottomButton.style.display = 'none'; backToPlaylistsBottomButtonSearch.style.display = 'flex'; setTimeout(() => { const firstResult = searchResultsContainer.querySelector('.grid-item'); if (firstResult) setFocus(firstResult); }, 100); } else { showMessageBox('لم يتم العثور على نتائج بحث لـ: ' + query); } } catch (err) { console.error('Error searching YouTube videos:', err); showMessageBox('حدث خطأ أثناء البحث في يوتيوب.'); } }
         
-        // --- AI Assistant Logic ---
+        // --- AI Assistant Logic (GEMINI UPGRADE) ---
         let recognition; if ('webkitSpeechRecognition' in window) { recognition = new webkitSpeechRecognition(); recognition.continuous = false; recognition.interimResults = false; recognition.lang = 'ar-SA'; recognition.onstart = () => { aiMicButton.classList.add('bg-red-500'); listeningIndicator.classList.remove('hidden'); aiInput.placeholder = 'جاري الاستماع...'; }; recognition.onresult = (e) => { aiInput.value = e.results[0][0].transcript; sendAIAssistantMessage(); }; recognition.onerror = (e) => { console.error('Speech recognition error:', e.error); showMessageBox('عذرًا، لم أستطع فهمك.'); }; recognition.onend = () => { aiMicButton.classList.remove('bg-red-500'); listeningIndicator.classList.add('hidden'); aiInput.placeholder = 'اسألني أي شيء...'; }; } else { aiMicButton.style.display = 'none'; }
         aiMicButton.addEventListener('click', () => recognition?.start());
         let synth = window.speechSynthesis, arabicVoice = null; function setArabicVoice() { if (synth) arabicVoice = synth.getVoices().find(v => v.lang.startsWith('ar')); } if (synth) { synth.onvoiceschanged = setArabicVoice; setArabicVoice(); }
-        async function sendAIAssistantMessage() { const msg = aiInput.value.trim(); if (msg === '') return; const userDiv = document.createElement('div'); userDiv.className = 'chat-message user'; userDiv.textContent = msg; chatHistoryDiv.appendChild(userDiv); aiInput.value = ''; const typingDiv = document.createElement('div'); typingDiv.className = 'chat-message ai'; typingDiv.textContent = 'جاري الكتابة...'; chatHistoryDiv.appendChild(typingDiv); chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight; let aiRes = ''; const lowerMsg = msg.toLowerCase(); if (lowerMsg.includes('سرعة')) aiRes = `سرعة السيارة الحالية هي ${appState.car.speed} كم/س.`; else if (lowerMsg.includes('وقود')) aiRes = `مستوى الوقود الحالي هو ${appState.car.fuel}%.`; else if (lowerMsg.includes('rpm')) aiRes = `عدد دورات المحرك (RPM) هو ${appState.car.rpm}.`; else if (lowerMsg.includes('حرارة')) aiRes = `درجة حرارة المحرك هي ${appState.car.temp}°C.`; else if (lowerMsg.includes('ترس')) aiRes = `الترس الحالي هو ${appState.car.gear}.`; else { try { if (AI_ASSISTANT_API_KEY.startsWith('AIzaSyB')) { aiRes = 'خطأ: لم يتم تعيين مفتاح Gemini API.'; } else { const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${AI_ASSISTANT_API_KEY}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: msg }] }] }) }); const result = await res.json(); aiRes = result.candidates?.[0]?.content?.parts?.[0]?.text || 'عذرًا، حدث خطأ.'; } } catch (err) { console.error('Error calling Gemini API:', err); aiRes = 'عذرًا، حدث خطأ في الاتصال بالذكاء الاصطناعي.'; } } typingDiv.remove(); const aiDiv = document.createElement('div'); aiDiv.className = 'chat-message ai'; aiDiv.textContent = aiRes; chatHistoryDiv.appendChild(aiDiv); if (synth && aiRes) { const utterance = new SpeechSynthesisUtterance(aiRes); if (arabicVoice) utterance.voice = arabicVoice; utterance.lang = 'ar-SA'; synth.speak(utterance); } chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight; }
+        async function sendAIAssistantMessage() { const msg = aiInput.value.trim(); if (msg === '') return; const userDiv = document.createElement('div'); userDiv.className = 'chat-message user'; userDiv.textContent = msg; chatHistoryDiv.appendChild(userDiv); aiInput.value = ''; const typingDiv = document.createElement('div'); typingDiv.className = 'chat-message ai'; typingDiv.textContent = 'جاري الكتابة...'; chatHistoryDiv.appendChild(typingDiv); chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight; let aiRes = ''; const lowerMsg = msg.toLowerCase(); if (lowerMsg.includes('سرعة')) aiRes = `سرعة السيارة الحالية هي ${appState.car.speed} كم/س.`; else if (lowerMsg.includes('وقود')) aiRes = `مستوى الوقود الحالي هو ${appState.car.fuel}%.`; else if (lowerMsg.includes('rpm')) aiRes = `عدد دورات المحرك (RPM) هو ${appState.car.rpm}.`; else if (lowerMsg.includes('حرارة')) aiRes = `درجة حرارة المحرك هي ${appState.car.temp}°C.`; else if (lowerMsg.includes('ترس')) aiRes = `الترس الحالي هو ${appState.car.gear}.`; else { try { if (AI_ASSISTANT_API_KEY.startsWith('AIzaSyB')) { aiRes = 'خطأ: لم يتم تعيين مفتاح Gemini API.'; } else { const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${AI_ASSISTANT_API_KEY}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: msg }] }] }) }); const result = await res.json(); aiRes = result.candidates?.[0]?.content?.parts?.[0]?.text || 'عذرًا، حدث خطأ.'; } } catch (err) { console.error('Error calling Gemini API:', err); aiRes = 'عذرًا، حدث خطأ في الاتصال بالذكاء الاصطناعي.'; } } typingDiv.remove(); const aiDiv = document.createElement('div'); aiDiv.className = 'chat-message ai'; aiDiv.textContent = aiRes; chatHistoryDiv.appendChild(aiDiv); if (synth && aiRes) { const utterance = new SpeechSynthesisUtterance(aiRes); if (arabicVoice) utterance.voice = arabicVoice; utterance.lang = 'ar-SA'; synth.speak(utterance); } chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight; }
         aiSendButton.addEventListener('click', sendAIAssistantMessage);
 
+        // --- Gemini Weather Summary ---
+        async function getWeatherSummary() {
+            if (appState.weather.temperature === null) {
+                showMessageBox('بيانات الطقس غير متاحة بعد. يرجى المحاولة مرة أخرى.');
+                return;
+            }
+            weatherSummaryText.textContent = '✨ جاري إنشاء الملخص...';
+            const { temperature, description, uvIndex, location } = appState.weather;
+            const prompt = `You are a friendly car assistant. The current weather in ${location} is ${temperature}°C with ${description} and a UV index of ${uvIndex}. Provide a short, conversational summary (one sentence) and a simple clothing recommendation (one sentence). Respond in Arabic.`;
+            try {
+                const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${AI_ASSISTANT_API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!res.ok) throw new Error(`API call failed with status: ${res.status}`);
+                const result = await res.json();
+                const summary = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (summary) {
+                    weatherSummaryText.textContent = summary;
+                } else {
+                    throw new Error('No content in Gemini response.');
+                }
+            } catch (err) {
+                console.error('Error fetching weather summary from Gemini:', err);
+                weatherSummaryText.textContent = 'فشل في الحصول على الملخص. حاول مرة أخرى.';
+            }
+        }
+
+        // --- Gemini Trip Planner ---
+        async function getTripSuggestions() {
+            if (!appState.destinationSet || !destinationInput.value) {
+                showMessageBox('الرجاء تحديد وجهة أولاً.');
+                return;
+            }
+            tripSuggestionsContainer.innerHTML = '<div class="text-center text-white/70">✨ جاري البحث عن اقتراحات...</div>';
+            const origin = appState.currentLocation ? `${appState.currentLocation.lat},${appState.currentLocation.lng}` : 'Salalah, Oman';
+            const destination = destinationInput.value;
+            const prompt = `I am planning a road trip in Oman from ${origin} to ${destination}. Please suggest 3 interesting and convenient points of interest to stop at along the way. These could be landmarks, restaurants with local food, or scenic viewpoints. For each suggestion, provide its name and a brief, one-sentence description of why it's a good stop.`;
+            try {
+                const payload = {
+                    contents: [{ role: "user", parts: [{ text: prompt }] }],
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "OBJECT",
+                            properties: {
+                                "suggestions": {
+                                    type: "ARRAY",
+                                    items: {
+                                        type: "OBJECT",
+                                        properties: { "name": { "type": "STRING" }, "description": { "type": "STRING" } },
+                                        required: ["name", "description"]
+                                    }
+                                }
+                            },
+                            required: ["suggestions"]
+                        }
+                    }
+                };
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${AI_ASSISTANT_API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!res.ok) throw new Error(`API call failed with status: ${res.status}`);
+                const result = await res.json();
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!text) throw new Error('No content in Gemini response.');
+                const parsedJson = JSON.parse(text);
+                const suggestions = parsedJson.suggestions;
+                tripSuggestionsContainer.innerHTML = '';
+                if (suggestions && suggestions.length > 0) {
+                    suggestions.forEach(suggestion => {
+                        const suggestionEl = document.createElement('div');
+                        suggestionEl.className = 'glass-surface glass-surface--svg p-3 rounded-lg cursor-pointer hover:bg-white/20 transition-colors duration-200 navigable grid-item';
+                        suggestionEl.tabIndex = 0;
+                        suggestionEl.innerHTML = `<h4 class="font-bold text-purple-300">${suggestion.name}</h4><p class="text-sm text-white/80">${suggestion.description}</p>`;
+                        suggestionEl.addEventListener('click', () => {
+                            destinationInput.value = suggestion.name;
+                            calculateAndDisplayRoute();
+                        });
+                        tripSuggestionsContainer.appendChild(suggestionEl);
+                    });
+                } else {
+                    tripSuggestionsContainer.innerHTML = '<div class="text-center text-white/70">لم يتم العثور على اقتراحات.</div>';
+                }
+            } catch (err) {
+                console.error('Error fetching trip suggestions from Gemini:', err);
+                tripSuggestionsContainer.innerHTML = '<div class="text-center text-red-400">فشل في الحصول على الاقتراحات.</div>';
+            }
+        }
+
         // --- Google Map and Geolocation ---
-        function initMap() { const mapOpts = { center: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon }, zoom: appState.mapLocation.zoom, disableDefaultUI: true, zoomControl: true }; dashboardGoogleMap = new google.maps.Map(document.getElementById('dashboard-google-map'), mapOpts); dashboardGoogleMarker = new google.maps.Marker({ position: mapOpts.center, map: dashboardGoogleMap, icon: { url: 'https://dmusera.netlify.app/3605.png', scaledSize: new google.maps.Size(90, 90) } }); trafficLayerDashboard = new google.maps.TrafficLayer(); trafficLayerDashboard.setMap(dashboardGoogleMap); dashboardGoogleMap.addListener('zoom_changed', () => { if (dashboardGoogleMap.getZoom() !== appState.mapLocation.zoom) appState.mapZoomChangedByUser = true; }); fullGoogleMap = new google.maps.Map(document.getElementById('full-google-map'), mapOpts); fullGoogleMarker = new google.maps.Marker({ position: mapOpts.center, map: fullGoogleMap, icon: { url: 'https://dmusera.netlify.app/3604.png', scaledSize: new google.maps.Size(60, 60) } }); trafficLayerFullMap = new google.maps.TrafficLayer(); trafficLayerFullMap.setMap(fullGoogleMap); directionsService = new google.maps.DirectionsService(); directionsRenderer = new google.maps.DirectionsRenderer({ map: fullGoogleMap }); autocomplete = new google.maps.places.Autocomplete(destinationInput); autocomplete.bindTo('bounds', fullGoogleMap); autocomplete.addListener('place_changed', () => { const place = autocomplete.getPlace(); if (!place.geometry) return showMessageBox("لم يتم العثور على تفاصيل للمدخل: '" + place.name + "'"); if (place.geometry.viewport) fullGoogleMap.fitBounds(place.geometry.viewport); else { fullGoogleMap.setCenter(place.geometry.location); fullGoogleMap.setZoom(17); } fullGoogleMarker.setPosition(place.geometry.location); fullGoogleMarker.setVisible(true); appState.destinationSet = true; updateUI(); }); destinationInput.addEventListener('input', () => { if (destinationInput.value.trim() === '') { appState.destinationSet = false; directionsRenderer.setDirections({ routes: [] }); etaDisplay.textContent = '--'; distanceDisplay.textContent = '--'; updateUI(); } }); startContinuousLocationTracking(); }
+        function initMap() { const mapOpts = { center: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon }, zoom: appState.mapLocation.zoom, disableDefaultUI: true, zoomControl: true }; dashboardGoogleMap = new google.maps.Map(document.getElementById('dashboard-google-map'), mapOpts); dashboardGoogleMarker = new google.maps.Marker({ position: mapOpts.center, map: dashboardGoogleMap, icon: { url: 'https://dmusera.netlify.app/3605.png', scaledSize: new google.maps.Size(90, 90) } }); trafficLayerDashboard = new google.maps.TrafficLayer(); trafficLayerDashboard.setMap(dashboardGoogleMap); dashboardGoogleMap.addListener('zoom_changed', () => { if (dashboardGoogleMap.getZoom() !== appState.mapLocation.zoom) appState.mapZoomChangedByUser = true; }); fullGoogleMap = new google.maps.Map(document.getElementById('full-google-map'), mapOpts); fullGoogleMarker = new google.maps.Marker({ position: mapOpts.center, map: fullGoogleMap, icon: { url: 'https://dmusera.netlify.app/3604.png', scaledSize: new google.maps.Size(60, 60) } }); trafficLayerFullMap = new google.maps.TrafficLayer(); trafficLayerFullMap.setMap(fullGoogleMap); directionsService = new google.maps.DirectionsService(); directionsRenderer = new google.maps.DirectionsRenderer({ map: fullGoogleMap }); autocomplete = new google.maps.places.Autocomplete(destinationInput); autocomplete.bindTo('bounds', fullGoogleMap); autocomplete.addListener('place_changed', () => { const place = autocomplete.getPlace(); if (!place.geometry) return showMessageBox("لم يتم العثور على تفاصيل للمدخل: '" + place.name + "'"); if (place.geometry.viewport) fullGoogleMap.fitBounds(place.geometry.viewport); else { fullGoogleMap.setCenter(place.geometry.location); fullGoogleMap.setZoom(17); } fullGoogleMarker.setPosition(place.geometry.location); fullGoogleMarker.setVisible(true); appState.destinationSet = true; updateUI(); }); destinationInput.addEventListener('input', () => { if (destinationInput.value.trim() === '') { appState.destinationSet = false; directionsRenderer.setDirections({ routes: [] }); etaDisplay.textContent = '--'; distanceDisplay.textContent = '--'; tripSuggestionsContainer.innerHTML = ''; updateUI(); } }); startContinuousLocationTracking(); }
         function updateGoogleMapLocation(pos) { const { latitude: lat, longitude: lng, heading } = pos.coords; appState.currentLocation = { lat, lng }; const newLatLng = { lat, lng }; if (dashboardGoogleMap && dashboardGoogleMarker) { dashboardGoogleMarker.setPosition(newLatLng); if (!appState.mapZoomChangedByUser) { dashboardGoogleMap.setCenter(newLatLng); dashboardGoogleMap.setZoom(appState.mapLocation.zoom); } } if (fullGoogleMap && fullGoogleMarker) { fullGoogleMarker.setPosition(newLatLng); fullGoogleMap.setCenter(newLatLng); } if (typeof heading === 'number' && !isNaN(heading)) { if (dashboardGoogleMap) dashboardGoogleMap.setHeading(heading); if (fullGoogleMap) fullGoogleMap.setHeading(heading); } }
         function startContinuousLocationTracking() { if (navigator.geolocation) { watchId = navigator.geolocation.watchPosition((pos) => { updateGoogleMapLocation(pos); appState.hasShownGeolocationError = false; }, (err) => { console.error('Geolocation watch error:', err); if (!appState.hasShownGeolocationError) { let msg = 'تعذر تتبع موقعك. يرجى التحقق من أذونات الموقع.'; if (err.code === 1) msg += ' إذا كان التطبيق في iframe، تأكد من وجود `allow="geolocation"`.'; showMessageBox(msg); appState.hasShownGeolocationError = true; } }, { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }); } else { showMessageBox('الموقع الجغرافي غير مدعوم.'); } }
         function centerMapOnUserLocation() { if (navigator.geolocation) { navigator.geolocation.getCurrentPosition((pos) => { updateGoogleMapLocation(pos); showMessageBox(`تم تحديث الخريطة.`); }, () => showMessageBox('تعذر الحصول على موقعك الحالي.'), { enableHighAccuracy: true }); } }
@@ -1700,7 +1664,7 @@
         
         // --- Weather API Integration ---
         let hourlyForecastChart = null;
-        async function fetchWeatherData() { try { const res = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=${WEATHER_API_KEY}&q=${appState.weather.location.split(',')[0].trim()}&days=2&aqi=no&alerts=no&lang=ar`); if (!res.ok) throw new Error(`خطأ HTTP! الحالة: ${res.status}`); const data = await res.json(); appState.weather.temperature = data.current.temp_c; appState.weather.description = data.current.condition.text; appState.weather.uvIndex = data.current.uv; appState.weather.iconUrl = `https:${data.current.condition.icon}`; appState.weather.location = `${data.location.name}, ${data.location.country}`; const hourlyData = [...data.forecast.forecastday[0].hour, ...data.forecast.forecastday[1]?.hour || []]; const now = new Date(); const upcomingHours = hourlyData.filter(h => new Date(h.time_epoch * 1000) >= now).slice(0, 12); renderHourlyForecastChart(upcomingHours); } catch (err) { console.error('Error fetching weather data:', err); showMessageBox(`تعذر جلب بيانات الطقس: ${err.message}.`); } finally { updateUI(); } }
+        async function fetchWeatherData() { if (WEATHER_API_KEY.startsWith('YOUR_')) return showMessageBox('خطأ: لم يتم تعيين مفتاح WeatherAPI.'); try { const res = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=${WEATHER_API_KEY}&q=${appState.weather.location.split(',')[0].trim()}&days=2&aqi=no&alerts=no&lang=ar`); if (!res.ok) throw new Error(`خطأ HTTP! الحالة: ${res.status}`); const data = await res.json(); appState.weather.temperature = data.current.temp_c; appState.weather.description = data.current.condition.text; appState.weather.uvIndex = data.current.uv; appState.weather.iconUrl = `https:${data.current.condition.icon}`; appState.weather.location = `${data.location.name}, ${data.location.country}`; const hourlyData = [...data.forecast.forecastday[0].hour, ...data.forecast.forecastday[1]?.hour || []]; const now = new Date(); const upcomingHours = hourlyData.filter(h => new Date(h.time_epoch * 1000) >= now).slice(0, 12); renderHourlyForecastChart(upcomingHours); updateUI(); } catch (err) { console.error('Error fetching weather data:', err); showMessageBox(`تعذر جلب بيانات الطقس: ${err.message}.`); } }
         const dataLabelsPlugin = { id: 'dataLabels', afterDatasetsDraw: (chart) => { const { ctx } = chart; ctx.save(); ctx.font = `bold 14px Inter`; ctx.fillStyle = 'white'; ctx.textAlign = 'center'; const meta = chart.getDatasetMeta(0); meta.data.forEach((bar, index) => { ctx.fillText(`${Math.round(chart.data.datasets[0].data[index])}°`, bar.x, bar.y - 5); }); ctx.restore(); } };
         async function renderHourlyForecastChart(upcomingHours) { const ctx = document.getElementById('hourly-forecast-chart')?.getContext('2d'); if (!ctx) return; const labels = upcomingHours.map(h => new Date(h.time_epoch * 1000).toLocaleTimeString('ar-SA', { hour: 'numeric', hour12: true })); const temps = upcomingHours.map(h => h.temp_c); const icons = upcomingHours.map(h => `https:${h.condition.icon}`); const iconImages = icons.map(url => { const img = new Image(32, 32); img.src = url; return img; }); await Promise.all(iconImages.filter(img => !img.complete).map(img => new Promise(resolve => { img.onload = img.onerror = resolve; }))); if (hourlyForecastChart) hourlyForecastChart.destroy(); const weatherIconPlugin = { id: 'weatherIconPlugin', afterDraw: (chart) => { const { ctx } = chart; const meta = chart.getDatasetMeta(0); meta.data.forEach((bar, index) => { const img = iconImages[index]; if (img.complete) { ctx.drawImage(img, bar.x - 16, bar.y - 45, 32, 32); } }); } }; hourlyForecastChart = new Chart(ctx, { type: 'bar', data: { labels, datasets: [{ label: 'درجة الحرارة', data: temps, backgroundColor: 'rgba(255, 255, 255, 0.3)', borderColor: 'rgba(255, 255, 255, 0.6)', borderWidth: 1, borderRadius: 5 }] }, plugins: [dataLabelsPlugin, weatherIconPlugin], options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: false } }, scales: { y: { beginAtZero: false, grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: 'white', callback: (v) => v + '°C' }, grace: '25%' }, x: { grid: { display: false }, ticks: { color: 'white' } } } } }); }
         function getUvIndexColor(uv) { if (uv <= 2) return '#4ade80'; if (uv <= 5) return '#facc15'; if (uv <= 7) return '#fb923c'; if (uv <= 10) return '#f87171'; return '#c084fc'; }
@@ -1708,206 +1672,257 @@
         // --- Simulated Car Data ---
         function simulateCarData() { appState.car.speed = (Math.random() * 120).toFixed(0); appState.car.rpm = (Math.random() * 4200 + 800).toFixed(0); appState.car.fuel = (Math.random() * 100).toFixed(0); appState.car.temp = (Math.random() * 30 + 70).toFixed(1); appState.car.gear = ['P', 'R', 'N', 'D'][Math.floor(Math.random() * 4)]; }
 
-        // --- Prayer Times Integration (REBUILT LOGIC) ---
-        const prayerTimes = [{"date":"2025-07-27","fajr":"04:44","dhuhr":"12:35","asr":"15:49","maghrib":"19:03","isha":"20:17"},{"date":"2025-07-28","fajr":"04:44","dhuhr":"12:35","asr":"15:49","maghrib":"19:03","isha":"20:16"},{"date":"2025-07-29","fajr":"04:44","dhuhr":"12:35","asr":"15:48","maghrib":"19:03","isha":"20:16"},{"date":"2025-07-30","fajr":"04:45","dhuhr":"12:35","asr":"15:48","maghrib":"19:02","isha":"20:15"},{"date":"2025-07-31","fajr":"04:45","dhuhr":"12:35","asr":"15:47","maghrib":"19:02","isha":"20:15"},{"date":"2025-08-01","fajr":"04:46","dhuhr":"12:35","asr":"15:46","maghrib":"19:02","isha":"20:14"},{"date":"2025-08-02","fajr":"04:46","dhuhr":"12:35","asr":"15:46","maghrib":"19:01","isha":"20:14"},{"date":"2025-08-03","fajr":"04:47","dhuhr":"12:35","asr":"15:45","maghrib":"19:01","isha":"20:13"},{"date":"2025-08-04","fajr":"04:47","dhuhr":"12:35","asr":"15:44","maghrib":"19:00","isha":"20:13"},{"date":"2025-08-05","fajr":"04:48","dhuhr":"12:35","asr":"15:44","maghrib":"19:00","isha":"20:12"},{"date":"2025-08-06","fajr":"04:48","dhuhr":"12:35","asr":"15:44","maghrib":"18:59","isha":"20:11"},{"date":"2025-08-07","fajr":"04:48","dhuhr":"12:35","asr":"15:44","maghrib":"18:59","isha":"20:11"},{"date":"2025-08-08","fajr":"04:49","dhuhr":"12:34","asr":"15:45","maghrib":"18:58","isha":"20:10"},{"date":"2025-08-09","fajr":"04:49","dhuhr":"12:34","asr":"15:45","maghrib":"18:58","isha":"20:09"},{"date":"2025-08-10","fajr":"04:50","dhuhr":"12:34","asr":"15:45","maghrib":"18:57","isha":"20:09"},{"date":"2025-08-11","fajr":"04:50","dhuhr":"12:34","asr":"15:46","maghrib":"18:57","isha":"20:08"},{"date":"2025-08-12","fajr":"04:50","dhuhr":"12:34","asr":"15:46","maghrib":"18:56","isha":"20:07"}];
-        const iqamaOffsets = { "الفجر": 25, "الظهر": 20, "العصر": 20, "المغرب": 5, "العشاء": 20 };
-        
-        function timeToDate(timeStr, date = new Date()) { const [h, m] = timeStr.split(':').map(Number); const d = new Date(date); d.setHours(h, m, 0, 0); return d; }
+        // --- Prayer Times Integration (FIXED) ---
+        async function fetchAndLoadPrayerTimes() {
+            const city = 'Salalah';
+            const country = 'Oman';
+            const method = 2; // Umm al-Qura, Makkah
+            const apiUrl = `https://api.aladhan.com/v1/timingsByCity?city=${city}&country=${country}&method=${method}`;
 
-        function loadPrayerTimes() {
-            const today = new Date().toISOString().split('T')[0];
-            const data = prayerTimes.find(p => p.date === today);
-            if (data) {
-                fajrTimeElement.textContent = data.fajr;
-                dhuhrTimeElement.textContent = data.dhuhr;
-                asrTimeElement.textContent = data.asr;
-                maghribTimeElement.textContent = data.maghrib;
-                ishaTimeElement.textContent = data.isha;
-            } else {
-                console.warn('No prayer times for today.');
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) throw new Error(`API call failed: ${response.status}`);
+                
+                const data = await response.json();
+                if (data.code === 200 && data.data.timings) {
+                    const timings = data.data.timings;
+                    appState.prayerTimes = {
+                        ...appState.prayerTimes,
+                        Fajr: timings.Fajr, Dhuhr: timings.Dhuhr, Asr: timings.Asr,
+                        Maghrib: timings.Maghrib, Isha: timings.Isha
+                    };
+                    
+                    // Clear loading message and render times
+                    prayerTimesContainer.innerHTML = '';
+                    const prayerOrder = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+                    const prayerNames = { Fajr: 'الفجر', Dhuhr: 'الظهر', Asr: 'العصر', Maghrib: 'المغرب', Isha: 'العشاء' };
+                    const iqamaOffsets = { Fajr: 25, Dhuhr: 20, Asr: 20, Maghrib: 5, Isha: 20 };
+
+                    prayerOrder.forEach(key => {
+                        const item = document.createElement('div');
+                        item.className = 'prayer-time-item navigable grid-item';
+                        item.tabIndex = 0;
+                        item.innerHTML = `
+                            <span class="prayer-name">${prayerNames[key]}</span>
+                            <span class="prayer-time">${timings[key]}</span>
+                            <span class="prayer-iqama text-xs text-white/50">الإقامة: ${addMinutes(timings[key], iqamaOffsets[key])}</span>
+                        `;
+                        prayerTimesContainer.appendChild(item);
+                    });
+
+                    determineNextPrayer(); // Calculate current/next prayer
+                } else {
+                    throw new Error('Invalid data from prayer times API.');
+                }
+            } catch (error) {
+                console.error('Error fetching prayer times:', error);
+                prayerTimesContainer.innerHTML = `<p class="text-red-400 col-span-full">عفواً، لم نتمكن من تحميل أوقات الصلاة.</p>`;
+                digitalDateLine1.textContent = 'فشل تحميل أوقات الصلاة';
+                digitalDateLine2.textContent = '';
             }
-            determineNextPrayer();
         }
+
+        function addMinutes(time, min) { const [h, m] = time.split(':').map(Number); const d = new Date(); d.setHours(h, m + min, 0, 0); return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }); }
+        function timeToDate(time) { const [h, m] = time.split(':').map(Number); const d = new Date(); d.setHours(h, m, 0, 0); return d; }
 
         function determineNextPrayer() {
             const now = new Date();
-            const prayerSchedule = [];
+            const todayTimings = appState.prayerTimes;
+            if (!todayTimings.Fajr || todayTimings.Fajr === '--:--') return;
 
-            // Populate schedule for today and tomorrow to handle overnight case
-            for (let d = 0; d < 2; d++) {
-                const date = new Date(now);
-                date.setDate(now.getDate() + d);
-                const dateStr = date.toISOString().split('T')[0];
-                const data = prayerTimes.find(p => p.date === dateStr);
-                if (data) {
-                    prayerSchedule.push(
-                        { name: "الفجر", adhanTime: timeToDate(data.fajr, date) },
-                        { name: "الظهر", adhanTime: timeToDate(data.dhuhr, date) },
-                        { name: "العصر", adhanTime: timeToDate(data.asr, date) },
-                        { name: "المغرب", adhanTime: timeToDate(data.maghrib, date) },
-                        { name: "العشاء", adhanTime: timeToDate(data.isha, date) }
-                    );
+            const prayers = [
+                { n: "الفجر", t: todayTimings.Fajr, o: 25, g: 5 }, { n: "الظهر", t: todayTimings.Dhuhr, o: 20, g: 5 },
+                { n: "العصر", t: todayTimings.Asr, o: 20, g: 10 }, { n: "المغرب", t: todayTimings.Maghrib, o: 5, g: 5 },
+                { n: "العشاء", t: todayTimings.Isha, o: 20, g: 25 }
+            ];
+            
+            let found = false;
+            appState.prayerTimes.currentPrayer = null;
+            appState.prayerTimes.nextPrayer = null;
+            appState.prayerTimes.nextPrayerIqamaTime = null;
+
+            for (const p of prayers) {
+                const pTime = timeToDate(p.t);
+                const iqamaTime = timeToDate(addMinutes(p.t, p.o));
+                const graceEnd = new Date(iqamaTime.getTime() + p.g * 60000);
+
+                if (now >= pTime && now < graceEnd) {
+                    appState.prayerTimes.currentPrayer = p.n;
+                    appState.prayerTimes.nextPrayer = p.n;
+                    appState.prayerTimes.nextPrayerIqamaTime = (now < iqamaTime) ? iqamaTime : graceEnd;
+                    found = true;
+                    break;
                 }
-            }
-
-            let eventFound = false;
-            for (const prayer of prayerSchedule) {
-                const offsetMins = iqamaOffsets[prayer.name];
-                const iqamaTime = new Date(prayer.adhanTime.getTime() + offsetMins * 60000);
-                const postIqamaEndTime = new Date(iqamaTime.getTime() + 10 * 60000); // 10 minutes after iqama
-
-                if (now < prayer.adhanTime) {
-                    appState.prayerTimes.nextPrayer = prayer.name;
-                    appState.prayerTimes.nextPrayerAdhanTime = prayer.adhanTime;
-                    appState.prayerTimes.countdownState = 'to_adhan';
-                    appState.prayerTimes.currentPrayerForHighlight = prayer.name;
-                    eventFound = true;
-                    break;
-                } else if (now < iqamaTime) {
-                    appState.prayerTimes.nextPrayer = prayer.name;
-                    appState.prayerTimes.nextPrayerIqamaTime = iqamaTime;
-                    appState.prayerTimes.countdownState = 'to_iqama';
-                    appState.prayerTimes.currentPrayerForHighlight = prayer.name;
-                    eventFound = true;
-                    break;
-                } else if (now < postIqamaEndTime) {
-                    appState.prayerTimes.nextPrayer = prayer.name;
-                    appState.prayerTimes.nextPrayerIqamaTime = iqamaTime;
-                    appState.prayerTimes.postIqamaEndTime = postIqamaEndTime;
-                    appState.prayerTimes.countdownState = 'post_iqama';
-                    appState.prayerTimes.currentPrayerForHighlight = prayer.name;
-                    eventFound = true;
+                if (now < pTime && !found) {
+                    appState.prayerTimes.nextPrayer = p.n;
+                    appState.prayerTimes.nextPrayerIqamaTime = pTime;
+                    found = true;
                     break;
                 }
             }
-            if (!eventFound) {
-                 // Should not happen with 2 days of data, but as a fallback
-                 appState.prayerTimes.nextPrayer = null;
+            if (!found) { // After Isha
+                appState.prayerTimes.nextPrayer = "الفجر (غدًا)";
+                appState.prayerTimes.nextPrayerIqamaTime = null; // We don't have tomorrow's time yet
             }
-            renderPrayerTimesHighlight();
+            renderPrayerTimesHighlights();
         }
 
-        function renderPrayerTimesHighlight() {
+        function renderPrayerTimesHighlights() {
             if (!prayerTimesContainer) return;
             document.querySelectorAll('.prayer-time-item').forEach(i => i.classList.remove('current-prayer', 'next-prayer'));
             
-            const state = appState.prayerTimes.countdownState;
-            const prayerName = appState.prayerTimes.currentPrayerForHighlight;
-
-            if (prayerName) {
-                const item = Array.from(document.querySelectorAll('.prayer-time-item .prayer-name')).find(s => s.textContent === prayerName)?.parentElement;
-                if (item) {
-                     if(state === 'to_adhan') {
-                        item.classList.add('next-prayer');
-                     } else {
-                        item.classList.add('current-prayer');
-                     }
-                }
+            if (appState.prayerTimes.currentPrayer) {
+                const item = Array.from(prayerTimesContainer.querySelectorAll('.prayer-name')).find(s => s.textContent === appState.prayerTimes.currentPrayer)?.parentElement;
+                if (item) item.classList.add('current-prayer');
+            }
+            if (appState.prayerTimes.nextPrayer && appState.prayerTimes.nextPrayer !== appState.prayerTimes.currentPrayer) {
+                const nextPrayerName = appState.prayerTimes.nextPrayer.replace(' (غدًا)', '');
+                const item = Array.from(prayerTimesContainer.querySelectorAll('.prayer-name')).find(s => s.textContent === nextPrayerName)?.parentElement;
+                if (item && !item.classList.contains('current-prayer')) item.classList.add('next-prayer');
             }
         }
         
         // --- Digital Clock ---
         function updateDigitalClock() {
             const now = new Date();
-            digitalHoursSpan.textContent = now.getHours().toString().padStart(2, '0');
-            digitalMinutesSpan.textContent = now.getMinutes().toString().padStart(2, '0');
-            digitalSecondsSpan.textContent = now.getSeconds().toString().padStart(2, '0');
+            const h = now.getHours();
+            const m = now.getMinutes();
+            const s = now.getSeconds();
 
-            const { nextPrayer, nextPrayerAdhanTime, nextPrayerIqamaTime, postIqamaEndTime, countdownState } = appState.prayerTimes;
-            const clockWidget = digitalDateLine1.parentElement;
-            clockWidget.classList.remove('countdown-highlight', 'countdown-medium-highlight', 'countdown-iqama', 'countdown-post-iqama');
+            digitalHoursSpan.textContent = h.toString().padStart(2, '0');
+            digitalMinutesSpan.textContent = m.toString().padStart(2, '0');
+            digitalSecondsSpan.textContent = s.toString().padStart(2, '0');
 
-            if (!nextPrayer) {
+            digitalDateLine1.classList.remove('countdown-highlight', 'countdown-medium-highlight');
+            digitalDateLine2.classList.remove('countdown-highlight', 'countdown-medium-highlight');
+
+            if (appState.prayerTimes.nextPrayerIqamaTime) {
+                const diff = appState.prayerTimes.nextPrayerIqamaTime - now;
+                const totalSecs = Math.floor(diff / 1000);
+                const secs = totalSecs % 60;
+                const mins = Math.floor((totalSecs / 60) % 60);
+                const hrs = Math.floor(totalSecs / 3600);
+
+                const currentPrayerData = appState.prayerTimes.currentPrayer ? [{ n: "الفجر", t: appState.prayerTimes.Fajr, o: 25 }, { n: "الظهر", t: appState.prayerTimes.Dhuhr, o: 20 }, { n: "العصر", t: appState.prayerTimes.Asr, o: 20 }, { n: "المغرب", t: appState.prayerTimes.Maghrib, o: 5 }, { n: "العشاء", t: appState.prayerTimes.Isha, o: 20 }].find(p => p.n === appState.prayerTimes.currentPrayer) : null;
+                const isAfterAzan = currentPrayerData && now >= timeToDate(currentPrayerData.t) && now < timeToDate(addMinutes(currentPrayerData.t, currentPrayerData.o));
+
+                if (isAfterAzan) {
+                    digitalDateLine1.textContent = `إقامة صلاة ${appState.prayerTimes.currentPrayer} في:`;
+                    digitalDateLine2.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                    if (totalSecs < 1200) { // Highlight under 20 mins
+                         digitalDateLine1.classList.add('countdown-highlight');
+                         digitalDateLine2.classList.add('countdown-highlight');
+                    }
+                } else {
+                    digitalDateLine1.textContent = `الأذان القادم: ${appState.prayerTimes.nextPrayer}`;
+                    digitalDateLine2.textContent = hrs > 0 ? `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}` : `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                    if (totalSecs < 1200) { // Highlight under 20 mins
+                         digitalDateLine1.classList.add('countdown-highlight');
+                         digitalDateLine2.classList.add('countdown-highlight');
+                    } else if (totalSecs < 3600) { // Highlight under 1 hour
+                         digitalDateLine1.classList.add('countdown-medium-highlight');
+                         digitalDateLine2.classList.add('countdown-medium-highlight');
+                    }
+                }
+            } else if (appState.prayerTimes.nextPrayer) { // Case for Fajr tomorrow
+                digitalDateLine1.textContent = `الأذان القادم: ${appState.prayerTimes.nextPrayer}`;
+                digitalDateLine2.textContent = '';
+            } else {
                 digitalDateLine1.textContent = 'جاري تحميل أوقات الصلاة...';
                 digitalDateLine2.textContent = '';
-                return;
             }
-
-            let diff, totalSecs, hrs, mins, secs, label, countdownText;
-
-            switch (countdownState) {
-                case 'to_adhan':
-                    diff = nextPrayerAdhanTime - now;
-                    label = `الأذان القادم: ${nextPrayer}`;
-                    if (diff <= 0) { determineNextPrayer(); return; }
-                    totalSecs = Math.floor(diff / 1000);
-                    if (totalSecs < 1200) clockWidget.classList.add('countdown-highlight');
-                    else if (totalSecs < 3600) clockWidget.classList.add('countdown-medium-highlight');
-                    break;
-
-                case 'to_iqama':
-                    diff = nextPrayerIqamaTime - now;
-                    label = `إقامة صلاة ${nextPrayer}`;
-                    if (diff <= 0) { determineNextPrayer(); return; }
-                    totalSecs = Math.floor(diff / 1000);
-                    clockWidget.classList.add('countdown-iqama');
-                    break;
-
-                case 'post_iqama':
-                    diff = now - nextPrayerIqamaTime;
-                    label = `بعد إقامة ${nextPrayer}`;
-                    if (now >= postIqamaEndTime) { determineNextPrayer(); return; }
-                    totalSecs = Math.floor(diff / 1000);
-                    clockWidget.classList.add('countdown-post-iqama');
-                    break;
-                
-                default:
-                    digitalDateLine1.textContent = 'جاري الحساب...';
-                    digitalDateLine2.textContent = '';
-                    return;
-            }
-
-            hrs = Math.floor(totalSecs / 3600);
-            mins = Math.floor((totalSecs / 60) % 60);
-            secs = totalSecs % 60;
-
-            countdownText = hrs > 0
-                ? `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
-                : `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-            
-            if (countdownState === 'post_iqama') {
-                countdownText = `+${countdownText}`;
-            }
-
-            digitalDateLine1.textContent = label;
-            digitalDateLine2.textContent = countdownText;
         }
 
         // --- 360 Camera ---
         function handleImageUpload(e) { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = (ev) => { appState.custom360Image = ev.target.result; localStorage.setItem('custom360Image', ev.target.result); updateUI(); }; reader.readAsDataURL(file); } }
         function resetImageToDefault() { appState.custom360Image = null; localStorage.removeItem('custom360Image'); updateUI(); }
 
+        // --- Draggable/Resizable Popup Logic ---
+        let isDragging = false;
+        let offsetX, offsetY;
+        videoPopupContainer.addEventListener('mousedown', (e) => {
+            if (e.target === videoPopupContainer || e.target.closest('.video-popup-controls')) {
+                isDragging = true;
+                offsetX = e.clientX - videoPopupContainer.offsetLeft;
+                offsetY = e.clientY - videoPopupContainer.offsetTop;
+                videoPopupContainer.style.cursor = 'grabbing';
+                videoPopupPlayerContainer.style.pointerEvents = 'none';
+            }
+        });
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                videoPopupContainer.style.left = `${e.clientX - offsetX}px`;
+                videoPopupContainer.style.top = `${e.clientY - offsetY}px`;
+                videoPopupContainer.style.bottom = 'auto';
+                videoPopupContainer.style.right = 'auto';
+            }
+        });
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+            videoPopupContainer.style.cursor = 'grab';
+            videoPopupPlayerContainer.style.pointerEvents = 'auto';
+        });
+
         // --- TV Remote / Keyboard Navigation ---
         let currentFocus = null;
         function setFocus(el) { if (currentFocus) currentFocus.classList.remove('tv-focus'); if (el) { el.classList.add('tv-focus'); el.focus({ preventScroll: true }); currentFocus = el; el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' }); } }
+        
         function handleNavigation(e) {
             const key = e.key;
             if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', 'OK'].includes(key)) return;
+
             const activeEl = document.activeElement;
             if (!activeEl || activeEl === document.body) {
                 const firstIcon = document.querySelector('nav .app-icon');
-                if (firstIcon) { e.preventDefault(); setFocus(firstIcon); }
+                if (firstIcon) {
+                    e.preventDefault();
+                    setFocus(firstIcon);
+                }
                 return;
             }
+
             const inNav = activeEl.closest('nav');
             const inMediaScreen = activeEl.closest('#screen-Media');
-            if (inNav) { handleNavSidebarNavigation(e, activeEl); } 
-            else if (inMediaScreen) { handleMediaScreenNavigation(e, activeEl); } 
-            else { const container = activeEl.closest('.grid-container'); if (container) handleGenericGridNavigation(e, activeEl, container); }
+
+            if (inNav) {
+                handleNavSidebarNavigation(e, activeEl);
+            } else if (inMediaScreen) {
+                handleMediaScreenNavigation(e, activeEl);
+            } else {
+                const container = activeEl.closest('.grid-container');
+                if (container) {
+                    handleGenericGridNavigation(e, activeEl, container);
+                }
+            }
         }
+
         function handleNavSidebarNavigation(e, activeEl) {
             e.preventDefault();
             const icons = Array.from(document.querySelectorAll('nav .app-icon'));
             const idx = icons.indexOf(activeEl);
             let nextIdx = -1;
             switch (e.key) {
-                case 'ArrowUp': nextIdx = idx > 0 ? idx - 1 : icons.length - 1; break;
-                case 'ArrowDown': nextIdx = idx < icons.length - 1 ? idx + 1 : 0; break;
-                case 'ArrowRight': const screen = document.querySelector('.app-screen.active'); if (screen) { const firstItem = screen.querySelector('.grid-item'); if (firstItem) setFocus(firstItem); } return;
-                case 'Enter': case 'OK': activeEl.click(); return;
+                case 'ArrowUp':
+                    nextIdx = idx > 0 ? idx - 1 : icons.length - 1;
+                    break;
+                case 'ArrowDown':
+                    nextIdx = idx < icons.length - 1 ? idx + 1 : 0;
+                    break;
+                case 'ArrowRight': // In RTL, right arrow should go to main content
+                    const screen = document.querySelector('.app-screen.active');
+                    if (screen) {
+                        const firstItem = screen.querySelector('.grid-item');
+                        if (firstItem) setFocus(firstItem);
+                    }
+                    return;
+                case 'Enter':
+                case 'OK':
+                    activeEl.click();
+                    return;
             }
             if (nextIdx !== -1) setFocus(icons[nextIdx]);
         }
+        
         function handleMediaScreenNavigation(e, activeEl) {
             e.preventDefault();
             const searchRow = document.querySelector('#screen-Media .flex.flex-row.items-center.gap-2.grid-container');
@@ -1918,10 +1933,22 @@
             const searchResultsContainer = document.querySelector('#search-results-container');
             const inSearchRow = activeEl.closest('.flex.flex-row.items-center.gap-2.grid-container');
             const inReaders = activeEl.closest('.reader-container');
-            if (e.key === 'ArrowDown' && inSearchRow) {
-                const nextVisibleContainer = [readersContainer, surahContainer, playlistContainer, videoListContainer, searchResultsContainer].find(c => c && c.offsetParent !== null);
-                if (nextVisibleContainer) { const firstItem = nextVisibleContainer.querySelector('.grid-item'); if (firstItem) { setFocus(firstItem); return; } }
+            if (e.key === 'ArrowDown') {
+                if (inSearchRow) {
+                    const nextVisibleContainer = [readersContainer, surahContainer, playlistContainer, videoListContainer, searchResultsContainer].find(c => c && c.offsetParent !== null);
+                    if (nextVisibleContainer) {
+                        const firstItem = nextVisibleContainer.querySelector('.grid-item');
+                        if (firstItem) { setFocus(firstItem); return; }
+                    }
+                }
+                if (inReaders) {
+                    if (surahContainer && surahContainer.offsetParent !== null) {
+                        const firstItem = surahContainer.querySelector('.grid-item');
+                        if (firstItem) { setFocus(firstItem); return; }
+                    }
+                }
             }
+
             if (e.key === 'ArrowUp') {
                 const currentContainer = activeEl.closest('.grid-container, .reader-container');
                 if (currentContainer && currentContainer !== searchRow) {
@@ -1945,8 +1972,9 @@
                 return;
             }
             const container = activeEl.closest('.grid-container');
-            if (container) handleGenericGridNavigation(e, activeEl, container);
+            if (container) { handleGenericGridNavigation(e, activeEl, container); }
         }
+
         function handleGenericGridNavigation(e, activeEl, container) {
             e.preventDefault();
             const items = Array.from(container.querySelectorAll('.grid-item:not([style*="display: none"])')).filter(el => el.offsetParent !== null);
@@ -1959,35 +1987,48 @@
             const isTopRow = idx < cols;
             let nextIdx = -1;
             switch (e.key) {
-                case 'ArrowUp': if (!isTopRow) nextIdx = idx - cols; break;
+                case 'ArrowUp': if (!isTopRow) { nextIdx = idx - cols; } break;
                 case 'ArrowDown': nextIdx = idx + cols; break;
-                case 'ArrowRight': if (idx % cols !== 0) nextIdx = idx - 1; break;
-                case 'ArrowLeft': if ((idx + 1) % cols === 0 || idx === items.length - 1) { const navIcon = document.querySelector('nav .app-icon.active'); if (navIcon) setFocus(navIcon); return; } else { nextIdx = idx + 1; } break;
+                case 'ArrowRight': if (idx % cols !== 0) { nextIdx = idx - 1; } break;
+                case 'ArrowLeft':
+                    if ((idx + 1) % cols === 0 || idx === items.length - 1) {
+                        const navIcon = document.querySelector('nav .app-icon.active');
+                        if (navIcon) setFocus(navIcon);
+                        return;
+                    } else { nextIdx = idx + 1; }
+                    break;
                 case 'Enter': case 'OK': activeEl.click(); return;
             }
-            if (nextIdx >= 0 && nextIdx < items.length) setFocus(items[nextIdx]);
+            if (nextIdx >= 0 && nextIdx < items.length) { setFocus(items[nextIdx]); }
         }
         
         // --- Initial Setup ---
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('get-my-location-button-dashboard')?.addEventListener('click', centerMapOnUserLocation);
-            floatingFullscreenButton?.addEventListener('click', togglePseudoFullscreen);
-            floatingMediaButton?.addEventListener('click', () => switchApp('Media'));
-            startDirectionsButton?.addEventListener('click', calculateAndDisplayRoute);
-            getMyLocationButtonFullMap?.addEventListener('click', centerMapOnUserLocation);
-            toggleTrafficButton?.addEventListener('click', toggleTrafficLayer);
-            startTripFloatingButton?.addEventListener('click', () => { if (appState.destinationSet) calculateAndDisplayRoute(); else showMessageBox('الرجاء تحديد وجهة أولاً.'); });
-            upload360ImageButton?.addEventListener('click', () => upload360ImageInput.click());
-            upload360ImageInput?.addEventListener('change', handleImageUpload);
-            reset360ImageButton?.addEventListener('click', resetImageToDefault);
-            document.addEventListener('keydown', handleNavigation);
-            updateUI();
-            fetchWeatherData();
-            setInterval(fetchWeatherData, 300000); // 5 minutes
-            setInterval(updateDigitalClock, 1000);
+        document.addEventListener('DOMContentLoaded', () => { 
+            // Standard Listeners
+            document.getElementById('get-my-location-button-dashboard')?.addEventListener('click', centerMapOnUserLocation); 
+            floatingMediaButton?.addEventListener('click', () => switchApp('Media')); 
+            startDirectionsButton?.addEventListener('click', calculateAndDisplayRoute); 
+            getMyLocationButtonFullMap?.addEventListener('click', centerMapOnUserLocation); 
+            toggleTrafficButton?.addEventListener('click', toggleTrafficLayer); 
+            startTripFloatingButton?.addEventListener('click', () => { if (appState.destinationSet) calculateAndDisplayRoute(); else showMessageBox('الرجاء تحديد وجهة أولاً.'); }); 
+            upload360ImageButton?.addEventListener('click', () => upload360ImageInput.click()); 
+            upload360ImageInput?.addEventListener('change', handleImageUpload); 
+            reset360ImageButton?.addEventListener('click', resetImageToDefault); 
+            document.addEventListener('keydown', handleNavigation); 
+            
+            // Gemini Feature Listeners
+            geminiWeatherSummaryButton?.addEventListener('click', getWeatherSummary);
+            geminiTripSuggesterButton?.addEventListener('click', getTripSuggestions);
+
+            // Initial Calls
+            fetchWeatherData(); 
+            fetchAndLoadPrayerTimes();
+            setInterval(fetchWeatherData, 300000); 
+            setInterval(updateDigitalClock, 1000); 
             setInterval(updateTopBarTime, 1000);
-            setInterval(simulateCarData, 5000);
-            switchApp('Dashboard');
+            setInterval(determineNextPrayer, 60000);
+            setInterval(simulateCarData, 5000); 
+            switchApp('Dashboard'); 
         });
     </script>
 </body>
