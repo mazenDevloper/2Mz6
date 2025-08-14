@@ -126,7 +126,7 @@
                 0 0 20px rgba(255, 255, 255, 0.15); /* Added subtle outer white glow for "shine" */
             border: 1px solid rgba(255, 255, 255, 0.3); /* Added a subtle white border */
         }
-
+        
         /* Fallback for browsers not supporting backdrop-filter - also enhanced */
         .glass-surface--fallback {
             background: rgba(255, 255, 255, 0.35); /* More opaque fallback */
@@ -891,7 +891,7 @@
 
             .youtube-video-card img, .youtube-search-card img {
                 width: 90px;
-                height: 50.625px;
+                height: 50.625px; /* Maintain 16:9 aspect ratio */
                 margin-right: 0.5rem;
             }
             .youtube-video-card h3, .youtube-search-card h3 {
@@ -914,7 +914,7 @@
             #back-to-playlists-bottom-button, #back-to-playlists-bottom-button-search {
                 left: 50%;
                 transform: translateX(-50%);
-                bottom: 5.5rem;
+                bottom: 5.5rem; /* Adjust position to not overlap with other buttons */
             }
             #start-trip-floating-button {
                 bottom: 5.5rem;
@@ -1165,25 +1165,12 @@
                 
                 <!-- Radio Screen -->
                 <section id="screen-Radio" class="app-screen items-center justify-center h-full w-full p-4 md:p-6">
-                   <iframe class="full-iframe" title="Radio Garden" src="https://radio.garden/visit/salalah/A13sFegC" allow="geolocation"></iframe>
+                   <iframe class="full-iframe" title="Quran Radio" src="https://quran.com/radio" allow="geolocation"></iframe>
                 </section>
 
-                <!-- AI Assistant Screen -->
-                <section id="screen-AIAssistant" class="app-screen p-4 md:p-6 flex-col justify-between h-full">
-                    <h1 class="text-4xl font-bold mb-4 text-center">مساعد Gemini الذكي ✨</h1>
-                    <div id="chat-history" class="flex-grow overflow-y-auto p-4 rounded-xl glass-surface glass-surface--svg mb-4">
-                        <div class="chat-message ai">أهلاً بك! كيف يمكنني مساعدتك اليوم؟ يمكنك سؤالي عن سرعة السيارة، مستوى الوقود، RPM، درجة الحرارة، أو الترس.</div>
-                        <div id="listening-indicator" class="chat-message ai hidden">جاري الاستماع...</div>
-                    </div>
-                    <div class="flex gap-2 grid-container">
-                        <input type="text" id="ai-input" placeholder="اسألني أي شيء..." class="flex-grow p-3 rounded-full bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 navigable grid-item" tabindex="0" onkeypress="if(event.key === 'Enter') document.getElementById('ai-send-button').click();" />
-                        <button id="ai-mic-button" class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center navigable grid-item" tabindex="0">
-                            <i data-lucide="mic"></i>
-                        </button>
-                        <button id="ai-send-button" class="bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center navigable grid-item" tabindex="0">
-                            <i data-lucide="send"></i>
-                        </button>
-                    </div>
+                <!-- Reciters Screen -->
+                <section id="screen-Reciters" class="app-screen items-center justify-center h-full w-full p-4 md:p-6">
+                   <iframe class="full-iframe" title="Quran Reciters" src="https://quran.com/reciters" allow="geolocation"></iframe>
                 </section>
 
                 <!-- Weather Screen -->
@@ -1193,7 +1180,7 @@
                     <!-- NEW: Gemini Weather Summary Section -->
                     <div class="w-full max-w-3xl mx-auto mb-4">
                         <div id="weather-summary-container" class="glass-surface glass-surface--svg p-4 rounded-3xl text-center min-h-[60px] flex items-center justify-center">
-                            <p id="weather-summary-text" class="text-lg text-white/90">اضغط على الزر للحصول على ملخص للطقس.</p>
+                            <p id="weather-summary-text" class="text-lg text-white/90"></p>
                         </div>
                         <button id="gemini-weather-summary-button" class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 font-bold mt-4 w-full navigable grid-item" tabindex="0">
                             <i data-lucide="sparkles" class="w-5 h-5"></i> ✨ الحصول على ملخص وتوصية
@@ -1288,8 +1275,8 @@
                  <button data-app="Radio" class="app-icon navigable grid-item" tabindex="0">
                     <i data-lucide="radio"></i>
                 </button>
-                <button data-app="AIAssistant" class="app-icon navigable grid-item" tabindex="0"> 
-                    <i data-lucide="sparkles"></i> 
+                <button data-app="Reciters" class="app-icon navigable grid-item" tabindex="0"> 
+                    <i data-lucide="users"></i> 
                 </button>
                 <button data-app="Weather" class="app-icon navigable grid-item" tabindex="0"> 
                     <i data-lucide="cloud-sun"></i> 
@@ -1375,11 +1362,6 @@
         const floatingKeyboardButton = document.getElementById('floating-keyboard-button');
         const clearSearchButton = document.getElementById('clear-search-button');
         const startTripFloatingButton = document.getElementById('start-trip-floating-button');
-        const chatHistoryDiv = document.getElementById('chat-history');
-        const aiInput = document.getElementById('ai-input');
-        const aiSendButton = document.getElementById('ai-send-button');
-        const aiMicButton = document.getElementById('ai-mic-button');
-        const listeningIndicator = document.getElementById('listening-indicator');
         const prayerTimesContainer = document.getElementById('prayer-times-container');
         const digitalHoursSpan = document.querySelector('#digital-time .hours');
         const digitalMinutesSpan = document.querySelector('#digital-time .minutes');
@@ -1536,12 +1518,6 @@
             }
         }
         
-        videoPopupCloseButton.addEventListener('click', hideVideoPopup);
-        document.querySelectorAll('.youtube-channel-card').forEach(c => c.addEventListener('click', () => { currentPlayingPlaylistId = c.dataset.playlistId; fetchPlaylistVideos(currentPlayingPlaylistId); }));
-        function navigateBackToPlaylists() { youtubeVideoListView.classList.add('hidden'); youtubeSearchResultsView.classList.add('hidden'); youtubePlaylistView.classList.remove('hidden'); youtubeSuggestionsDiv.classList.remove('hidden'); currentPlayingPlaylistId = ''; activeMediaView = 'playlist'; backToPlaylistsBottomButton.style.display = 'none'; backToPlaylistsBottomButtonSearch.style.display = 'none'; resetYoutubeSearchUI(); setTimeout(() => { setFocus(youtubeSearchInput); }, 100); }
-        backToPlaylistsFromVideosButton.addEventListener('click', navigateBackToPlaylists); backToPlaylistsBottomButton.addEventListener('click', navigateBackToPlaylists); backToPlaylistsBottomButtonSearch.addEventListener('click', navigateBackToPlaylists);
-        floatingKeyboardButton.addEventListener('click', () => { youtubeSearchInput.readOnly = !youtubeSearchInput.readOnly; if (!youtubeSearchInput.readOnly) youtubeSearchInput.focus(); else youtubeSearchInput.blur(); floatingKeyboardButton.classList.toggle('active-keyboard', !youtubeSearchInput.readOnly); floatingKeyboardButton.classList.toggle('inactive-keyboard', youtubeSearchInput.readOnly); });
-        clearSearchButton.addEventListener('click', () => { youtubeSearchInput.value = ''; youtubeSearchInput.readOnly = true; floatingKeyboardButton.classList.add('inactive-keyboard'); floatingKeyboardButton.classList.remove('active-keyboard'); navigateBackToPlaylists(); });
         const youtubeReaderSuggestions = [{"name":"محمد ايوب","image":"https://dmusera.netlify.app/512px-Muhammad_Ayyub.webp"},{"name":"فارس عنتر","image":"https://dmusera.netlify.app/faresantar.jpg"},{"name":"علي جابر","image":"https://dmusera.netlify.app/ali-jaber.webp"},{"name":"عبد الباسط عبد الصمد","image":"https://dmusera.netlify.app/abdulbaset-abdulsamad.jpeg"},{"name":"مشاري العفاسي","image":"https://dmusera.netlify.app/512px-%D0%9C%D0%B8%D1%88%D0%B0%D1%80%D0%B8_%D0%A0%D0%B0%D1%88%D0%B8%D0%B4.webp"},{"name":"احمد النفيس","image":"https://dmusera.netlify.app/ahmednafes.jpg"},{"name":"ياسر الدوسري","image":"https://dmusera.netlify.app/Yasser_Al-Dosari.jpg"}];
         const youtubeSurahSuggestions = ["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","جزء عم"];
         const surahToJuzMap = {"الفاتحة":1,"البقرة":1,"آل عمران":3,"النساء":4,"المائدة":6,"الأنعام":7,"الأعراف":8,"الأنفال":9,"التوبة":10,"يونس":11,"هود":11,"يوسف":12,"الرعد":13,"إبراهيم":13,"الحجر":14,"النحل":14,"الإسراء":15,"الكهف":15,"مريم":16,"طه":16,"الأنبياء":17,"الحج":17,"المؤمنون":18,"النور":18,"الفرقان":18,"الشعراء":19,"النمل":19,"القصص":20,"العنكبوت":20,"الروم":21,"لقمان":21,"السجدة":21,"الأحزاب":21,"سبأ":22,"فاطر":22,"يس":22,"الصافات":23,"ص":23,"الزمر":23,"غافر":24,"فصلت":24,"الشورى":25,"الزخرف":25,"الدخان":25,"الجاثية":25,"الأحقاف":26,"محمد":26,"الفتح":26,"الحجرات":26,"ق":26,"الذاريات":27,"الطور":27,"النجم":27,"القمر":27,"الرحمن":27,"الواقعة":27,"الحديد":27,"المجادلة":28,"الحشر":28,"الممتحنة":28,"الصف":28,"الجمعة":28,"المنافقون":28,"التغابن":28,"الطلاق":28,"التحريم":28,"الملك":29,"القلم":29,"الحاقة":29,"المعارج":29,"نوح":29,"الجن":29,"المزمل":29,"المدثر":29,"القيامة":29,"الإنسان":29,"المرسلات":29,"جزء عم":30};
@@ -1549,15 +1525,7 @@
         function resetYoutubeSearchUI() { youtubeSuggestionsDiv.innerHTML = ''; youtubeSuggestionsDiv.classList.remove('hidden'); selectedReaderName = ''; youtubeSearchInput.value = ''; populateYoutubeSuggestions(); }
         function populateYoutubeSuggestions() { youtubeSuggestionsDiv.innerHTML = ''; youtubeSuggestionsDiv.className = 'flex flex-col gap-4 w-full'; const readersSection = document.createElement('div'); readersSection.id = 'youtube-readers-section'; readersSection.className = 'flex flex-col gap-2 p-3 rounded-xl glass-surface glass-surface--svg w-full'; readersSection.innerHTML = '<span class="youtube-suggestion-category-tag bg-blue-600">اختر القارئ</span>'; const readerButtonsContainer = document.createElement('div'); readerButtonsContainer.className = 'reader-container'; youtubeReaderSuggestions.forEach(reader => { const card = document.createElement('div'); card.className = 'youtube-reader-card navigable grid-item'; card.tabIndex = 0; card.innerHTML = `<img src="${reader.image}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';"><h3>${reader.name}</h3>`; card.addEventListener('click', (e) => { document.querySelectorAll('#youtube-readers-section .youtube-reader-card').forEach(c => c.classList.remove('selected')); e.currentTarget.classList.add('selected'); selectedReaderName = reader.name; youtubeSearchInput.value = reader.name + ' '; readersSection.style.display = 'none'; showSurahSuggestions(); setTimeout(() => { const firstSurahButton = document.querySelector('#youtube-surah-section .grid-item'); if (firstSurahButton) setFocus(firstSurahButton); }, 100); }); readerButtonsContainer.appendChild(card); }); readersSection.appendChild(readerButtonsContainer); youtubeSuggestionsDiv.appendChild(readersSection); }
         function showSurahSuggestions() { const existing = document.getElementById('youtube-surah-section'); if (existing) existing.remove(); const surahSection = document.createElement('div'); surahSection.id = 'youtube-surah-section'; surahSection.className = 'flex flex-col gap-2 p-3 rounded-xl glass-surface glass-surface--svg w-full mt-4 grid-container'; surahSection.innerHTML = '<span class="youtube-suggestion-category-tag bg-green-600">اختر السورة</span>'; const surahButtonsContainer = document.createElement('div'); surahButtonsContainer.className = 'grid grid-cols-9 gap-2 w-full'; youtubeSurahSuggestions.forEach(name => { const button = document.createElement('button'); button.className = 'youtube-suggestion-button navigable grid-item'; button.tabIndex = 0; button.textContent = name; button.style.backgroundImage = juzColors[(surahToJuzMap[name] || 1) - 1]; button.addEventListener('click', () => { const query = selectedReaderName + ' سورة ' + name; youtubeSearchInput.value = query; searchYouTubeVideos(query); }); surahButtonsContainer.appendChild(button); }); surahSection.appendChild(surahButtonsContainer); youtubeSuggestionsDiv.appendChild(surahSection); }
-        youtubeSearchInput.addEventListener('focus', () => { if (youtubeSearchInput.value.trim() === '') { youtubeSuggestionsDiv.classList.remove('hidden'); resetYoutubeSearchUI(); } });
-        youtubeSearchButton.addEventListener('click', () => { const query = youtubeSearchInput.value.trim(); if (query) searchYouTubeVideos(query); else showMessageBox('الرجاء إدخال كلمة للبحث.'); });
-        
-        // --- AI Assistant Logic (GEMINI UPGRADE) ---
-        let recognition; if ('webkitSpeechRecognition' in window) { recognition = new webkitSpeechRecognition(); recognition.continuous = false; recognition.interimResults = false; recognition.lang = 'ar-SA'; recognition.onstart = () => { aiMicButton.classList.add('bg-red-500'); listeningIndicator.classList.remove('hidden'); aiInput.placeholder = 'جاري الاستماع...'; }; recognition.onresult = (e) => { aiInput.value = e.results[0][0].transcript; sendAIAssistantMessage(); }; recognition.onerror = (e) => { console.error('Speech recognition error:', e.error); showMessageBox('عذرًا، لم أستطع فهمك.'); }; recognition.onend = () => { aiMicButton.classList.remove('bg-red-500'); listeningIndicator.classList.add('hidden'); aiInput.placeholder = 'اسألني أي شيء...'; }; } else { aiMicButton.style.display = 'none'; }
-        aiMicButton.addEventListener('click', () => recognition?.start());
-        let synth = window.speechSynthesis, arabicVoice = null; function setArabicVoice() { if (synth) arabicVoice = synth.getVoices().find(v => v.lang.startsWith('ar')); } if (synth) { synth.onvoiceschanged = setArabicVoice; setArabicVoice(); }
-        async function sendAIAssistantMessage() { const msg = aiInput.value.trim(); if (msg === '') return; const userDiv = document.createElement('div'); userDiv.className = 'chat-message user'; userDiv.textContent = msg; chatHistoryDiv.appendChild(userDiv); aiInput.value = ''; const typingDiv = document.createElement('div'); typingDiv.className = 'chat-message ai'; typingDiv.textContent = 'جاري الكتابة...'; chatHistoryDiv.appendChild(typingDiv); chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight; let aiRes = ''; const lowerMsg = msg.toLowerCase(); if (lowerMsg.includes('سرعة')) aiRes = `سرعة السيارة الحالية هي ${appState.car.speed} كم/س.`; else if (lowerMsg.includes('وقود')) aiRes = `مستوى الوقود الحالي هو ${appState.car.fuel}%.`; else if (lowerMsg.includes('rpm')) aiRes = `عدد دورات المحرك (RPM) هو ${appState.car.rpm}.`; else if (lowerMsg.includes('حرارة')) aiRes = `درجة حرارة المحرك هي ${appState.car.temp}°C.`; else if (lowerMsg.includes('ترس')) aiRes = `الترس الحالي هو ${appState.car.gear}.`; else { try { if (AI_ASSISTANT_API_KEY.startsWith('AIzaSyB')) { aiRes = 'خطأ: لم يتم تعيين مفتاح Gemini API.'; } else { const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${AI_ASSISTANT_API_KEY}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: msg }] }] }) }); const result = await res.json(); aiRes = result.candidates?.[0]?.content?.parts?.[0]?.text || 'عذرًا، حدث خطأ.'; } } catch (err) { console.error('Error calling Gemini API:', err); aiRes = 'عذرًا، حدث خطأ في الاتصال بالذكاء الاصطناعي.'; } } typingDiv.remove(); const aiDiv = document.createElement('div'); aiDiv.className = 'chat-message ai'; aiDiv.textContent = aiRes; chatHistoryDiv.appendChild(aiDiv); if (synth && aiRes) { const utterance = new SpeechSynthesisUtterance(aiRes); if (arabicVoice) utterance.voice = arabicVoice; utterance.lang = 'ar-SA'; synth.speak(utterance); } chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight; }
-        aiSendButton.addEventListener('click', sendAIAssistantMessage);
+        function navigateBackToPlaylists() { youtubePlaylistView.classList.remove('hidden'); youtubeVideoListView.classList.add('hidden'); youtubeSearchResultsView.classList.add('hidden'); youtubeSuggestionsDiv.classList.remove('hidden'); activeMediaView = 'playlist'; currentPlayingPlaylistId = ''; backToPlaylistsBottomButton.style.display = 'none'; backToPlaylistsBottomButtonSearch.style.display = 'none'; resetYoutubeSearchUI(); setTimeout(() => { const firstPlaylistItem = youtubePlaylistView.querySelector('.grid-item'); if (firstPlaylistItem) setFocus(firstPlaylistItem); }, 100); }
 
         // --- Gemini Weather Summary ---
         async function getWeatherSummary() {
@@ -1656,7 +1624,7 @@
         // --- Google Map and Geolocation ---
         function initMap() { const mapOpts = { center: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon }, zoom: appState.mapLocation.zoom, disableDefaultUI: true, zoomControl: true }; dashboardGoogleMap = new google.maps.Map(document.getElementById('dashboard-google-map'), mapOpts); dashboardGoogleMarker = new google.maps.Marker({ position: mapOpts.center, map: dashboardGoogleMap, icon: { url: 'https://dmusera.netlify.app/3605.png', scaledSize: new google.maps.Size(90, 90) } }); trafficLayerDashboard = new google.maps.TrafficLayer(); trafficLayerDashboard.setMap(dashboardGoogleMap); dashboardGoogleMap.addListener('zoom_changed', () => { if (dashboardGoogleMap.getZoom() !== appState.mapLocation.zoom) appState.mapZoomChangedByUser = true; }); fullGoogleMap = new google.maps.Map(document.getElementById('full-google-map'), mapOpts); fullGoogleMarker = new google.maps.Marker({ position: mapOpts.center, map: fullGoogleMap, icon: { url: 'https://dmusera.netlify.app/3604.png', scaledSize: new google.maps.Size(60, 60) } }); trafficLayerFullMap = new google.maps.TrafficLayer(); trafficLayerFullMap.setMap(fullGoogleMap); directionsService = new google.maps.DirectionsService(); directionsRenderer = new google.maps.DirectionsRenderer({ map: fullGoogleMap }); autocomplete = new google.maps.places.Autocomplete(destinationInput); autocomplete.bindTo('bounds', fullGoogleMap); autocomplete.addListener('place_changed', () => { const place = autocomplete.getPlace(); if (!place.geometry) return showMessageBox("لم يتم العثور على تفاصيل للمدخل: '" + place.name + "'"); if (place.geometry.viewport) fullGoogleMap.fitBounds(place.geometry.viewport); else { fullGoogleMap.setCenter(place.geometry.location); fullGoogleMap.setZoom(17); } fullGoogleMarker.setPosition(place.geometry.location); fullGoogleMarker.setVisible(true); appState.destinationSet = true; updateUI(); }); destinationInput.addEventListener('input', () => { if (destinationInput.value.trim() === '') { appState.destinationSet = false; directionsRenderer.setDirections({ routes: [] }); etaDisplay.textContent = '--'; distanceDisplay.textContent = '--'; tripSuggestionsContainer.innerHTML = ''; updateUI(); } }); startContinuousLocationTracking(); }
         function updateGoogleMapLocation(pos) { const { latitude: lat, longitude: lng, heading } = pos.coords; appState.currentLocation = { lat, lng }; const newLatLng = { lat, lng }; if (dashboardGoogleMap && dashboardGoogleMarker) { dashboardGoogleMarker.setPosition(newLatLng); if (!appState.mapZoomChangedByUser) { dashboardGoogleMap.setCenter(newLatLng); dashboardGoogleMap.setZoom(appState.mapLocation.zoom); } } if (fullGoogleMap && fullGoogleMarker) { fullGoogleMarker.setPosition(newLatLng); fullGoogleMap.setCenter(newLatLng); } if (typeof heading === 'number' && !isNaN(heading)) { if (dashboardGoogleMap) dashboardGoogleMap.setHeading(heading); if (fullGoogleMap) fullGoogleMap.setHeading(heading); } }
-        function startContinuousLocationTracking() { if (navigator.geolocation) { watchId = navigator.geolocation.watchPosition((pos) => { updateGoogleMapLocation(pos); appState.hasShownGeolocationError = false; }, (err) => { console.error('Geolocation watch error:', err); if (!appState.hasShownGeolocationError) { let msg = 'تعذر تتبع موقعك. يرجى التحقق من أذونات الموقع.'; if (err.code === 1) msg += ' إذا كان التطبيق في iframe، تأكد من وجود `allow="geolocation"`.'; showMessageBox(msg); appState.hasShownGeolocationError = true; } }, { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }); } else { showMessageBox('الموقع الجغرافي غير مدعوم.'); } }
+        function startContinuousLocationTracking() { if (navigator.geolocation) { watchId = navigator.geolocation.watchPosition((pos) => { updateGoogleMapLocation(pos); appState.hasShownGeolocationError = false; }, (err) => { if (!appState.hasShownGeolocationError) { let msg = 'تعذر تتبع موقعك. يرجى التحقق من أذونات الموقع.'; if (err.code === 1) msg += ' إذا كان التطبيق في iframe، تأكد من وجود `allow="geolocation"`.'; showMessageBox(msg); appState.hasShownGeolocationError = true; } }, { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }); } else { showMessageBox('الموقع الجغرافي غير مدعوم.'); } }
         function centerMapOnUserLocation() { if (navigator.geolocation) { navigator.geolocation.getCurrentPosition((pos) => { updateGoogleMapLocation(pos); showMessageBox(`تم تحديث الخريطة.`); }, () => showMessageBox('تعذر الحصول على موقعك الحالي.'), { enableHighAccuracy: true }); } }
         function parseGoogleMapsUrl(url) { try { const urlObj = new URL(url); const path = urlObj.pathname; const coordMatch = path.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/); if (coordMatch) return { lat: parseFloat(coordMatch[1]), lng: parseFloat(coordMatch[2]) }; if (path.startsWith('/search') && urlObj.searchParams.has('q')) return { query: urlObj.searchParams.get('q') }; } catch (e) {} return null; }
         async function calculateAndDisplayRoute() { const destVal = destinationInput.value.trim(); if (!destVal)  return showMessageBox('الرجاء إدخال وجهة.'); let destination = destVal; const parsed = parseGoogleMapsUrl(destVal); if (parsed) { if (parsed.lat && parsed.lng) destination = new google.maps.LatLng(parsed.lat, parsed.lng); else if (parsed.query) destination = parsed.query; destinationInput.value = destination.toString(); } let origin = appState.currentLocation || { lat: 17.0151, lng: 54.0924 }; try { const res = await directionsService.route({ origin, destination, travelMode: 'DRIVING' }); if (res.status === 'OK') { directionsRenderer.setDirections(res); appState.destinationSet = true; const route = res.routes[0].legs[0]; etaDisplay.textContent = route.duration.text; distanceDisplay.textContent = route.distance.text; } else { showMessageBox('تعذر العثور على اتجاهات: ' + res.status); appState.destinationSet = false; } updateUI(); } catch (err) { console.error('Error calculating directions:', err); showMessageBox('حدث خطأ أثناء حساب الاتجاهات.'); appState.destinationSet = false; updateUI(); } }
@@ -1692,7 +1660,6 @@
                         Maghrib: timings.Maghrib, Isha: timings.Isha
                     };
                     
-                    // Clear loading message and render times
                     prayerTimesContainer.innerHTML = '';
                     const prayerOrder = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
                     const prayerNames = { Fajr: 'الفجر', Dhuhr: 'الظهر', Asr: 'العصر', Maghrib: 'المغرب', Isha: 'العشاء' };
@@ -1710,7 +1677,9 @@
                         prayerTimesContainer.appendChild(item);
                     });
 
-                    determineNextPrayer(); // Calculate current/next prayer
+                    // *** FIX: Call these immediately after data is loaded ***
+                    determineNextPrayer(); 
+                    updateDigitalClock();
                 } else {
                     throw new Error('Invalid data from prayer times API.');
                 }
@@ -2014,7 +1983,17 @@
             upload360ImageButton?.addEventListener('click', () => upload360ImageInput.click()); 
             upload360ImageInput?.addEventListener('change', handleImageUpload); 
             reset360ImageButton?.addEventListener('click', resetImageToDefault); 
-            document.addEventListener('keydown', handleNavigation); 
+            document.addEventListener('keydown', handleNavigation);
+            
+            videoPopupCloseButton.addEventListener('click', hideVideoPopup);
+            document.querySelectorAll('.youtube-channel-card').forEach(c => c.addEventListener('click', () => { currentPlayingPlaylistId = c.dataset.playlistId; fetchPlaylistVideos(currentPlayingPlaylistId); }));
+            backToPlaylistsFromVideosButton.addEventListener('click', navigateBackToPlaylists);
+            backToPlaylistsBottomButton.addEventListener('click', navigateBackToPlaylists);
+            backToPlaylistsBottomButtonSearch.addEventListener('click', navigateBackToPlaylists);
+            floatingKeyboardButton.addEventListener('click', () => { youtubeSearchInput.readOnly = !youtubeSearchInput.readOnly; if (!youtubeSearchInput.readOnly) youtubeSearchInput.focus(); else youtubeSearchInput.blur(); floatingKeyboardButton.classList.toggle('active-keyboard', !youtubeSearchInput.readOnly); floatingKeyboardButton.classList.toggle('inactive-keyboard', youtubeSearchInput.readOnly); });
+            clearSearchButton.addEventListener('click', () => { youtubeSearchInput.value = ''; youtubeSearchInput.readOnly = true; floatingKeyboardButton.classList.add('inactive-keyboard'); floatingKeyboardButton.classList.remove('active-keyboard'); navigateBackToPlaylists(); });
+            youtubeSearchInput.addEventListener('focus', () => { if (youtubeSearchInput.value.trim() === '') { youtubeSuggestionsDiv.classList.remove('hidden'); resetYoutubeSearchUI(); } });
+            youtubeSearchButton.addEventListener('click', () => { const query = youtubeSearchInput.value.trim(); if (query) searchYouTubeVideos(query); else showMessageBox('الرجاء إدخال كلمة للبحث.'); });
             
             // Gemini Feature Listeners
             geminiWeatherSummaryButton?.addEventListener('click', getWeatherSummary);
