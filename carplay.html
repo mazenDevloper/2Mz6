@@ -1010,7 +1010,7 @@
         <defs>
             <filter id="glass-filter" colorInterpolationFilters="sRGB" x="0%" y="0%" width="100%" height="100%">
                 <feImage x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="map" 
-                    href="data:image/svg+xml,%3Csvg viewBox='0 0 400 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='red-grad' x1='100%25' y1='0%25' x2='0%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%230000'/%3E%3Cstop offset='100%25' stop-color='red'/%3E%3C/linearGradient%3E%3ClinearGradient id='blue-grad' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230000'/%3E%3Cstop offset='100%25' stop-color='blue'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='0' y='0' width='400' height='200' fill='black'/%3E%3Crect x='0' y='0' width='400' height='200' rx='20' fill='url(%23red-grad)'/%3E%3Crect x='0' y='0' width='400' height='200' rx='20' fill='url(%23blue-grad)' style='mix-blend-mode: difference'/%3E%3Crect x='1.4' y='1.4' width='397.2' height='197.2' rx='20' fill='hsl(0 0% 50% / 0.93)' style='filter:blur(11px)'/%3E%3C/svg%3E"/>
+                    href="data:image/svg+xml,%3Csvg viewBox='0 0 400 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='red-grad' x1='100%25' y1='0%25' x2='0%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%230000'/%3E%3Cstop offset='100%25' stop-color='red'/%3E%3C/linearGradient%3E%3ClinearGradient id='blue-grad' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230000'/%3E%3Cstop offset='100%25' stop-color='blue'/%3E%3C/defs%3E%3Crect x='0' y='0' width='400' height='200' fill='black'/%3E%3Crect x='0' y='0' width='400' height='200' rx='20' fill='url(%23red-grad)'/%3E%3Crect x='0' y='0' width='400' height='200' rx='20' fill='url(%23blue-grad)' style='mix-blend-mode: difference'/%3E%3Crect x='1.4' y='1.4' width='397.2' height='197.2' rx='20' fill='hsl(0 0% 50% / 0.93)' style='filter:blur(11px)'/%3E%3C/svg%3E"/>
                 
                 <feDisplacementMap in="SourceGraphic" in2="map" id="redchannel" scale="300" xChannelSelector="R" yChannelSelector="G" result="dispRed" />
                 <feColorMatrix in="dispRed" type="matrix" values="1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0" result="red" />
@@ -1177,16 +1177,6 @@
                 <section id="screen-Weather" class="app-screen p-4 md:p-6 flex-col items-center justify-start h-full">
                     <h1 class="text-4xl font-bold mb-4">الطقس <i data-lucide="cloud-sun"></i></h1>
                     
-                    <!-- NEW: Gemini Weather Summary Section -->
-                    <div class="w-full max-w-3xl mx-auto mb-4">
-                        <div id="weather-summary-container" class="glass-surface glass-surface--svg p-4 rounded-3xl text-center min-h-[60px] flex items-center justify-center">
-                            <p id="weather-summary-text" class="text-lg text-white/90"></p>
-                        </div>
-                        <button id="gemini-weather-summary-button" class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 font-bold mt-4 w-full navigable grid-item" tabindex="0">
-                            <i data-lucide="sparkles" class="w-5 h-5"></i> ✨ الحصول على ملخص وتوصية
-                        </button>
-                    </div>
-
                     <div class="w-full h-full flex flex-col gap-4 flex-grow">
                         <div class="grid grid-cols-2 sm:grid-cols-2 gap-4 w-full grid-container">
                             <div class="glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center navigable grid-item" tabindex="0">
@@ -1207,49 +1197,10 @@
                 </section>
 
                 <!-- Map Screen -->
-                <section id="screen-Map" class="app-screen p-4 md:p-6 flex-col h-full">
-                    <h1 class="text-4xl font-bold mb-6 text-center">الخريطة والاتجاهات 🗺️</h1>
-                    <div class="flex flex-col md:flex-row h-full w-full gap-4">
-                        <div class="w-full md:w-1/4 flex flex-col gap-4 glass-surface glass-surface--svg p-4 rounded-3xl flex-shrink-0 grid-container">
-                            <h2 class="text-xl font-bold text-center mb-2">تحديد الوجهة والبحث</h2>
-                            <div class="flex flex-col gap-2">
-                                <label for="destination-input" class="text-sm text-white/70">الوجهة:</label>
-                                <input type="text" id="destination-input" placeholder="أدخل الوجهة أو رابط Google Maps..." class="p-2 rounded-lg bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 navigable grid-item" tabindex="0" />
-                                <button id="start-directions-button" class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 font-bold navigable grid-item" tabindex="0">
-                                    <i data-lucide="navigation" class="w-5 h-5"></i> البحث عن الاتجاهات
-                                </button>
-                                <button id="toggle-traffic-button" class="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 font-bold mt-2 navigable grid-item" tabindex="0">
-                                    <i data-lucide="traffic-cone" class="w-5 h-5"></i> إظهار حركة المرور
-                                </button>
-                                <!-- NEW: Gemini Trip Suggester Button -->
-                                <button id="gemini-trip-suggester-button" class="bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 font-bold mt-2 navigable grid-item hidden" tabindex="0">
-                                    <i data-lucide="sparkles" class="w-5 h-5"></i> ✨ اقتراح محطات توقف
-                                </button>
-                            </div>
-                            <div class="flex flex-col gap-2 mt-4 text-center">
-                                <div class="flex items-center justify-center gap-2">
-                                    <i data-lucide="clock" class="w-6 h-6 text-green-400"></i>
-                                    <span class="text-lg font-semibold">الوقت المقدر:</span>
-                                    <span id="eta-display" class="text-lg">--</span>
-                                </div>
-                                <div class="flex items-center justify-center gap-2">
-                                    <i data-lucide="ruler" class="w-6 h-6 text-purple-400"></i>
-                                    <span class="text-lg font-semibold">المسافة:</span>
-                                    <span id="distance-display" class="text-lg">--</span>
-                                </div>
-                            </div>
-                            <!-- NEW: Gemini Trip Suggestions Container -->
-                            <div id="trip-suggestions-container" class="mt-4 flex flex-col gap-2 overflow-y-auto flex-grow">
-                                <!-- Gemini suggestions will be injected here -->
-                            </div>
-                        </div>
-                        <div class="w-full md:w-3/4 rounded-3xl relative overflow-hidden flex items-center justify-center glass-surface glass-surface--svg p-1 grid-container">
-                            <div id="full-google-map" class="full-iframe"></div>
-                            <button id="get-my-location-button-full-map" class="absolute bottom-4 left-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm navigable grid-item" tabindex="0">
-                                <i data-lucide="map-pin" class="w-4 h-4"></i> تحديث الموقع
-                            </button>
-                        </div>
-                    </div>
+                <section id="screen-Map" class="app-screen p-4 md:p-6 flex-col h-full items-center justify-center">
+                   <div class="w-full h-full rounded-3xl bg-black/100 flex items-center justify-center">
+                        <img src="https://dmusera.netlify.app/eshome.png" alt="Car Home Screen" class="max-w-full max-h-full object-contain">
+                   </div>
                 </section>
 
                 <!-- Electronic Quran App Screen -->
@@ -1383,8 +1334,6 @@
         const reset360ImageButton = document.getElementById('reset-360-image-button');
         const default360ImageSrc = "https://dmusera.netlify.app/es350gb.png";
         let currentPlayingPlaylistId = '', activeMediaView = 'playlist', currentPlayingVideoId = '', selectedReaderName = '', popupPlayer, isYouTubeApiReady = false;
-        const geminiWeatherSummaryButton = document.getElementById('gemini-weather-summary-button');
-        const weatherSummaryText = document.getElementById('weather-summary-text');
         const geminiTripSuggesterButton = document.getElementById('gemini-trip-suggester-button');
         const tripSuggestionsContainer = document.getElementById('trip-suggestions-container');
 
@@ -1407,7 +1356,9 @@
             if (uvEl) { uvEl.textContent = appState.weather.uvIndex !== null ? appState.weather.uvIndex : '--'; uvEl.style.color = getUvIndexColor(appState.weather.uvIndex); } 
             car360Image.src = appState.custom360Image || default360ImageSrc; 
             startTripFloatingButton.style.display = appState.destinationSet ? 'flex' : 'none'; 
-            geminiTripSuggesterButton.classList.toggle('hidden', !appState.destinationSet); 
+            if(geminiTripSuggesterButton) {
+                geminiTripSuggesterButton.classList.toggle('hidden', !appState.destinationSet); 
+            }
         }
 
         // --- App Switching Logic ---
@@ -1527,102 +1478,8 @@
         function showSurahSuggestions() { const existing = document.getElementById('youtube-surah-section'); if (existing) existing.remove(); const surahSection = document.createElement('div'); surahSection.id = 'youtube-surah-section'; surahSection.className = 'flex flex-col gap-2 p-3 rounded-xl glass-surface glass-surface--svg w-full mt-4 grid-container'; surahSection.innerHTML = '<span class="youtube-suggestion-category-tag bg-green-600">اختر السورة</span>'; const surahButtonsContainer = document.createElement('div'); surahButtonsContainer.className = 'grid grid-cols-9 gap-2 w-full'; youtubeSurahSuggestions.forEach(name => { const button = document.createElement('button'); button.className = 'youtube-suggestion-button navigable grid-item'; button.tabIndex = 0; button.textContent = name; button.style.backgroundImage = juzColors[(surahToJuzMap[name] || 1) - 1]; button.addEventListener('click', () => { const query = selectedReaderName + ' سورة ' + name; youtubeSearchInput.value = query; searchYouTubeVideos(query); }); surahButtonsContainer.appendChild(button); }); surahSection.appendChild(surahButtonsContainer); youtubeSuggestionsDiv.appendChild(surahSection); }
         function navigateBackToPlaylists() { youtubePlaylistView.classList.remove('hidden'); youtubeVideoListView.classList.add('hidden'); youtubeSearchResultsView.classList.add('hidden'); youtubeSuggestionsDiv.classList.remove('hidden'); activeMediaView = 'playlist'; currentPlayingPlaylistId = ''; backToPlaylistsBottomButton.style.display = 'none'; backToPlaylistsBottomButtonSearch.style.display = 'none'; resetYoutubeSearchUI(); setTimeout(() => { const firstPlaylistItem = youtubePlaylistView.querySelector('.grid-item'); if (firstPlaylistItem) setFocus(firstPlaylistItem); }, 100); }
 
-        // --- Gemini Weather Summary ---
-        async function getWeatherSummary() {
-            if (appState.weather.temperature === null) {
-                showMessageBox('بيانات الطقس غير متاحة بعد. يرجى المحاولة مرة أخرى.');
-                return;
-            }
-            weatherSummaryText.textContent = '✨ جاري إنشاء الملخص...';
-            const { temperature, description, uvIndex, location } = appState.weather;
-            const prompt = `You are a friendly car assistant. The current weather in ${location} is ${temperature}°C with ${description} and a UV index of ${uvIndex}. Provide a short, conversational summary (one sentence) and a simple clothing recommendation (one sentence). Respond in Arabic.`;
-            try {
-                const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${AI_ASSISTANT_API_KEY}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                if (!res.ok) throw new Error(`API call failed with status: ${res.status}`);
-                const result = await res.json();
-                const summary = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (summary) {
-                    weatherSummaryText.textContent = summary;
-                } else {
-                    throw new Error('No content in Gemini response.');
-                }
-            } catch (err) {
-                console.error('Error fetching weather summary from Gemini:', err);
-                weatherSummaryText.textContent = 'فشل في الحصول على الملخص. حاول مرة أخرى.';
-            }
-        }
-
-        // --- Gemini Trip Planner ---
-        async function getTripSuggestions() {
-            if (!appState.destinationSet || !destinationInput.value) {
-                showMessageBox('الرجاء تحديد وجهة أولاً.');
-                return;
-            }
-            tripSuggestionsContainer.innerHTML = '<div class="text-center text-white/70">✨ جاري البحث عن اقتراحات...</div>';
-            const origin = appState.currentLocation ? `${appState.currentLocation.lat},${appState.currentLocation.lng}` : 'Salalah, Oman';
-            const destination = destinationInput.value;
-            const prompt = `I am planning a road trip in Oman from ${origin} to ${destination}. Please suggest 3 interesting and convenient points of interest to stop at along the way. These could be landmarks, restaurants with local food, or scenic viewpoints. For each suggestion, provide its name and a brief, one-sentence description of why it's a good stop.`;
-            try {
-                const payload = {
-                    contents: [{ role: "user", parts: [{ text: prompt }] }],
-                    generationConfig: {
-                        responseMimeType: "application/json",
-                        responseSchema: {
-                            type: "OBJECT",
-                            properties: {
-                                "suggestions": {
-                                    type: "ARRAY",
-                                    items: {
-                                        type: "OBJECT",
-                                        properties: { "name": { "type": "STRING" }, "description": { "type": "STRING" } },
-                                        required: ["name", "description"]
-                                    }
-                                }
-                            },
-                            required: ["suggestions"]
-                        }
-                    }
-                };
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${AI_ASSISTANT_API_KEY}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                if (!res.ok) throw new Error(`API call failed with status: ${res.status}`);
-                const result = await res.json();
-                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (!text) throw new Error('No content in Gemini response.');
-                const parsedJson = JSON.parse(text);
-                const suggestions = parsedJson.suggestions;
-                tripSuggestionsContainer.innerHTML = '';
-                if (suggestions && suggestions.length > 0) {
-                    suggestions.forEach(suggestion => {
-                        const suggestionEl = document.createElement('div');
-                        suggestionEl.className = 'glass-surface glass-surface--svg p-3 rounded-lg cursor-pointer hover:bg-white/20 transition-colors duration-200 navigable grid-item';
-                        suggestionEl.tabIndex = 0;
-                        suggestionEl.innerHTML = `<h4 class="font-bold text-purple-300">${suggestion.name}</h4><p class="text-sm text-white/80">${suggestion.description}</p>`;
-                        suggestionEl.addEventListener('click', () => {
-                            destinationInput.value = suggestion.name;
-                            calculateAndDisplayRoute();
-                        });
-                        tripSuggestionsContainer.appendChild(suggestionEl);
-                    });
-                } else {
-                    tripSuggestionsContainer.innerHTML = '<div class="text-center text-white/70">لم يتم العثور على اقتراحات.</div>';
-                }
-            } catch (err) {
-                console.error('Error fetching trip suggestions from Gemini:', err);
-                tripSuggestionsContainer.innerHTML = '<div class="text-center text-red-400">فشل في الحصول على الاقتراحات.</div>';
-            }
-        }
-
         // --- Google Map and Geolocation ---
-        function initMap() { const mapOpts = { center: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon }, zoom: appState.mapLocation.zoom, disableDefaultUI: true, zoomControl: true }; dashboardGoogleMap = new google.maps.Map(document.getElementById('dashboard-google-map'), mapOpts); dashboardGoogleMarker = new google.maps.Marker({ position: mapOpts.center, map: dashboardGoogleMap, icon: { url: 'https://dmusera.netlify.app/3605.png', scaledSize: new google.maps.Size(90, 90) } }); trafficLayerDashboard = new google.maps.TrafficLayer(); trafficLayerDashboard.setMap(dashboardGoogleMap); dashboardGoogleMap.addListener('zoom_changed', () => { if (dashboardGoogleMap.getZoom() !== appState.mapLocation.zoom) appState.mapZoomChangedByUser = true; }); fullGoogleMap = new google.maps.Map(document.getElementById('full-google-map'), mapOpts); fullGoogleMarker = new google.maps.Marker({ position: mapOpts.center, map: fullGoogleMap, icon: { url: 'https://dmusera.netlify.app/3604.png', scaledSize: new google.maps.Size(60, 60) } }); trafficLayerFullMap = new google.maps.TrafficLayer(); trafficLayerFullMap.setMap(fullGoogleMap); directionsService = new google.maps.DirectionsService(); directionsRenderer = new google.maps.DirectionsRenderer({ map: fullGoogleMap }); autocomplete = new google.maps.places.Autocomplete(destinationInput); autocomplete.bindTo('bounds', fullGoogleMap); autocomplete.addListener('place_changed', () => { const place = autocomplete.getPlace(); if (!place.geometry) return showMessageBox("لم يتم العثور على تفاصيل للمدخل: '" + place.name + "'"); if (place.geometry.viewport) fullGoogleMap.fitBounds(place.geometry.viewport); else { fullGoogleMap.setCenter(place.geometry.location); fullGoogleMap.setZoom(17); } fullGoogleMarker.setPosition(place.geometry.location); fullGoogleMarker.setVisible(true); appState.destinationSet = true; updateUI(); }); destinationInput.addEventListener('input', () => { if (destinationInput.value.trim() === '') { appState.destinationSet = false; directionsRenderer.setDirections({ routes: [] }); etaDisplay.textContent = '--'; distanceDisplay.textContent = '--'; tripSuggestionsContainer.innerHTML = ''; updateUI(); } }); startContinuousLocationTracking(); }
+        function initMap() { const mapOpts = { center: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon }, zoom: appState.mapLocation.zoom, disableDefaultUI: true, zoomControl: true }; dashboardGoogleMap = new google.maps.Map(document.getElementById('dashboard-google-map'), mapOpts); dashboardGoogleMarker = new google.maps.Marker({ position: mapOpts.center, map: dashboardGoogleMap, icon: { url: 'https://dmusera.netlify.app/3606.png', scaledSize: new google.maps.Size(90, 90) } }); trafficLayerDashboard = new google.maps.TrafficLayer(); trafficLayerDashboard.setMap(dashboardGoogleMap); dashboardGoogleMap.addListener('zoom_changed', () => { if (dashboardGoogleMap.getZoom() !== appState.mapLocation.zoom) appState.mapZoomChangedByUser = true; }); startContinuousLocationTracking(); }
         function updateGoogleMapLocation(pos) { const { latitude: lat, longitude: lng, heading } = pos.coords; appState.currentLocation = { lat, lng }; const newLatLng = { lat, lng }; if (dashboardGoogleMap && dashboardGoogleMarker) { dashboardGoogleMarker.setPosition(newLatLng); if (!appState.mapZoomChangedByUser) { dashboardGoogleMap.setCenter(newLatLng); dashboardGoogleMap.setZoom(appState.mapLocation.zoom); } } if (fullGoogleMap && fullGoogleMarker) { fullGoogleMarker.setPosition(newLatLng); fullGoogleMap.setCenter(newLatLng); } if (typeof heading === 'number' && !isNaN(heading)) { if (dashboardGoogleMap) dashboardGoogleMap.setHeading(heading); if (fullGoogleMap) fullGoogleMap.setHeading(heading); } }
         function startContinuousLocationTracking() { if (navigator.geolocation) { watchId = navigator.geolocation.watchPosition((pos) => { updateGoogleMapLocation(pos); appState.hasShownGeolocationError = false; }, (err) => { if (!appState.hasShownGeolocationError) { let msg = 'تعذر تتبع موقعك. يرجى التحقق من أذونات الموقع.'; if (err.code === 1) msg += ' إذا كان التطبيق في iframe، تأكد من وجود `allow="geolocation"`.'; showMessageBox(msg); appState.hasShownGeolocationError = true; } }, { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }); } else { showMessageBox('الموقع الجغرافي غير مدعوم.'); } }
         function centerMapOnUserLocation() { if (navigator.geolocation) { navigator.geolocation.getCurrentPosition((pos) => { updateGoogleMapLocation(pos); showMessageBox(`تم تحديث الخريطة.`); }, () => showMessageBox('تعذر الحصول على موقعك الحالي.'), { enableHighAccuracy: true }); } }
@@ -1640,167 +1497,84 @@
         // --- Simulated Car Data ---
         function simulateCarData() { appState.car.speed = (Math.random() * 120).toFixed(0); appState.car.rpm = (Math.random() * 4200 + 800).toFixed(0); appState.car.fuel = (Math.random() * 100).toFixed(0); appState.car.temp = (Math.random() * 30 + 70).toFixed(1); appState.car.gear = ['P', 'R', 'N', 'D'][Math.floor(Math.random() * 4)]; }
 
-        // --- Prayer Times Integration (FIXED) ---
-        async function fetchAndLoadPrayerTimes() {
-            const city = 'Salalah';
-            const country = 'Oman';
-            const method = 2; // Umm al-Qura, Makkah
-            const apiUrl = `https://api.aladhan.com/v1/timingsByCity?city=${city}&country=${country}&method=${method}`;
-
-            try {
-                const response = await fetch(apiUrl);
-                if (!response.ok) throw new Error(`API call failed: ${response.status}`);
-                
-                const data = await response.json();
-                if (data.code === 200 && data.data.timings) {
-                    const timings = data.data.timings;
-                    appState.prayerTimes = {
-                        ...appState.prayerTimes,
-                        Fajr: timings.Fajr, Dhuhr: timings.Dhuhr, Asr: timings.Asr,
-                        Maghrib: timings.Maghrib, Isha: timings.Isha
-                    };
-                    
-                    prayerTimesContainer.innerHTML = '';
-                    const prayerOrder = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
-                    const prayerNames = { Fajr: 'الفجر', Dhuhr: 'الظهر', Asr: 'العصر', Maghrib: 'المغرب', Isha: 'العشاء' };
-                    const iqamaOffsets = { Fajr: 25, Dhuhr: 20, Asr: 20, Maghrib: 5, Isha: 20 };
-
-                    prayerOrder.forEach(key => {
-                        const item = document.createElement('div');
-                        item.className = 'prayer-time-item navigable grid-item';
-                        item.tabIndex = 0;
-                        item.innerHTML = `
-                            <span class="prayer-name">${prayerNames[key]}</span>
-                            <span class="prayer-time">${timings[key]}</span>
-                            <span class="prayer-iqama text-xs text-white/50">الإقامة: ${addMinutes(timings[key], iqamaOffsets[key])}</span>
-                        `;
-                        prayerTimesContainer.appendChild(item);
-                    });
-
-                    // *** FIX: Call these immediately after data is loaded ***
-                    determineNextPrayer(); 
-                    updateDigitalClock();
-                } else {
-                    throw new Error('Invalid data from prayer times API.');
-                }
-            } catch (error) {
-                console.error('Error fetching prayer times:', error);
-                prayerTimesContainer.innerHTML = `<p class="text-red-400 col-span-full">عفواً، لم نتمكن من تحميل أوقات الصلاة.</p>`;
-                digitalDateLine1.textContent = 'فشل تحميل أوقات الصلاة';
-                digitalDateLine2.textContent = '';
+        // --- Prayer Times Integration ---
+        const prayerTimes = [
+            {"date":"2025-08-14","fajr":"04:51","sunrise":"06:07","dhuhr":"12:33","asr":"15:46","maghrib":"18:55","isha":"20:06"},
+            {"date":"2025-08-15","fajr":"04:51","sunrise":"06:07","dhuhr":"12:33","asr":"15:46","maghrib":"18:54","isha":"20:05"},
+            {"date":"2025-08-16","fajr":"04:52","sunrise":"06:07","dhuhr":"12:33","asr":"15:46","maghrib":"18:54","isha":"20:04"},
+            {"date":"2025-08-17","fajr":"04:52","sunrise":"06:07","dhuhr":"12:33","asr":"15:47","maghrib":"18:53","isha":"20:03"},
+            {"date":"2025-08-18","fajr":"04:53","sunrise":"06:08","dhuhr":"12:33","asr":"15:47","maghrib":"18:53","isha":"20:03"},
+            {"date":"2025-08-19","fajr":"04:53","sunrise":"06:08","dhuhr":"12:32","asr":"15:47","maghrib":"18:52","isha":"20:02"},
+            {"date":"2025-08-20","fajr":"04:53","sunrise":"06:08","dhuhr":"12:32","asr":"15:47","maghrib":"18:51","isha":"20:01"},
+            {"date":"2025-08-21","fajr":"04:54","sunrise":"06:08","dhuhr":"12:32","asr":"15:47","maghrib":"18:51","isha":"20:00"},
+            {"date":"2025-08-22","fajr":"04:54","sunrise":"06:08","dhuhr":"12:32","asr":"15:47","maghrib":"18:50","isha":"19:59"},
+            {"date":"2025-08-23","fajr":"04:54","sunrise":"06:09","dhuhr":"12:31","asr":"15:47","maghrib":"18:49","isha":"19:59"},
+            {"date":"2025-08-24","fajr":"04:54","sunrise":"06:09","dhuhr":"12:31","asr":"15:47","maghrib":"18:48","isha":"19:58"},
+            {"date":"2025-08-25","fajr":"04:55","sunrise":"06:09","dhuhr":"12:31","asr":"15:47","maghrib":"18:48","isha":"19:57"},
+            {"date":"2025-08-26","fajr":"04:55","sunrise":"06:09","dhuhr":"12:31","asr":"15:47","maghrib":"18:47","isha":"19:56"},
+            {"date":"2025-08-27","fajr":"04:55","sunrise":"06:09","dhuhr":"12:30","asr":"15:47","maghrib":"18:46","isha":"19:55"},
+            {"date":"2025-08-28","fajr":"04:56","sunrise":"06:09","dhuhr":"12:30","asr":"15:47","maghrib":"18:46","isha":"19:54"},
+            {"date":"2025-08-29","fajr":"04:56","sunrise":"06:10","dhuhr":"12:30","asr":"15:47","maghrib":"18:45","isha":"19:54"},
+            {"date":"2025-08-30","fajr":"04:56","sunrise":"06:10","dhuhr":"12:29","asr":"15:47","maghrib":"18:44","isha":"19:53"},
+            {"date":"2025-08-31","fajr":"04:56","sunrise":"06:10","dhuhr":"12:29","asr":"15:47","maghrib":"18:43","isha":"19:52"},
+            {"date":"2025-09-01","fajr":"04:57","sunrise":"06:10","dhuhr":"12:29","asr":"15:47","maghrib":"18:42","isha":"19:51"},
+            {"date":"2025-09-02","fajr":"04:57","sunrise":"06:10","dhuhr":"12:28","asr":"15:47","maghrib":"18:42","isha":"19:50"},
+            {"date":"2025-09-03","fajr":"04:57","sunrise":"06:10","dhuhr":"12:28","asr":"15:47","maghrib":"18:41","isha":"19:49"},
+            {"date":"2025-09-04","fajr":"04:57","sunrise":"06:10","dhuhr":"12:28","asr":"15:47","maghrib":"18:40","isha":"19:48"},
+            {"date":"2025-09-05","fajr":"04:58","sunrise":"06:11","dhuhr":"12:27","asr":"15:47","maghrib":"18:39","isha":"19:47"},
+            {"date":"2025-09-06","fajr":"04:58","sunrise":"06:11","dhuhr":"12:27","asr":"15:47","maghrib":"18:39","isha":"19:46"},
+            {"date":"2025-09-07","fajr":"04:58","sunrise":"06:11","dhuhr":"12:27","asr":"15:47","maghrib":"18:38","isha":"19:46"},
+            {"date":"2025-09-08","fajr":"04:58","sunrise":"06:11","dhuhr":"12:26","asr":"15:47","maghrib":"18:37","isha":"19:45"},
+            {"date":"2025-09-09","fajr":"04:58","sunrise":"06:11","dhuhr":"12:26","asr":"15:46","maghrib":"18:36","isha":"19:44"},
+            {"date":"2025-09-10","fajr":"04:59","sunrise":"06:11","dhuhr":"12:26","asr":"15:46","maghrib":"18:35","isha":"19:43"},
+            {"date":"2025-09-11","fajr":"04:59","sunrise":"06:11","dhuhr":"12:25","asr":"15:46","maghrib":"18:34","isha":"19:42"},
+            {"date":"2025-09-12","fajr":"04:59","sunrise":"06:11","dhuhr":"12:25","asr":"15:46","maghrib":"18:34","isha":"19:41"},
+            {"date":"2025-09-13","fajr":"04:59","sunrise":"06:12","dhuhr":"12:25","asr":"15:46","maghrib":"18:33","isha":"19:40"},
+            {"date":"2025-09-14","fajr":"04:59","sunrise":"06:12","dhuhr":"12:24","asr":"15:46","maghrib":"18:32","isha":"19:39"},
+            {"date":"2025-09-15","fajr":"05:00","sunrise":"06:12","dhuhr":"12:24","asr":"15:45","maghrib":"18:31","isha":"19:38"},
+            {"date":"2025-09-16","fajr":"05:00","sunrise":"06:12","dhuhr":"12:24","asr":"15:45","maghrib":"18:30","isha":"19:38"},
+            {"date":"2025-09-17","fajr":"05:00","sunrise":"06:12","dhuhr":"12:23","asr":"15:45","maghrib":"18:29","isha":"19:37"},
+            {"date":"2025-09-18","fajr":"05:00","sunrise":"06:12","dhuhr":"12:23","asr":"15:45","maghrib":"18:29","isha":"19:36"},
+            {"date":"2025-09-19","fajr":"05:00","sunrise":"06:12","dhuhr":"12:23","asr":"15:44","maghrib":"18:28","isha":"19:35"},
+            {"date":"2025-09-20","fajr":"05:00","sunrise":"06:12","dhuhr":"12:22","asr":"15:44","maghrib":"18:27","isha":"19:34"},
+            {"date":"2025-09-21","fajr":"05:01","sunrise":"06:13","dhuhr":"12:22","asr":"15:44","maghrib":"18:26","isha":"19:33"},
+            {"date":"2025-09-22","fajr":"05:01","sunrise":"06:13","dhuhr":"12:22","asr":"15:44","maghrib":"18:25","isha":"19:32"},
+            {"date":"2025-09-23","fajr":"05:01","sunrise":"06:13","dhuhr":"12:21","asr":"15:43","maghrib":"18:25","isha":"19:31"},
+            {"date":"2025-09-24","fajr":"05:01","sunrise":"06:13","dhuhr":"12:21","asr":"15:43","maghrib":"18:24","isha":"19:31"},
+            {"date":"2025-09-25","fajr":"05:01","sunrise":"06:13","dhuhr":"12:20","asr":"15:43","maghrib":"18:23","isha":"19:30"},
+            {"date":"2025-09-26","fajr":"05:01","sunrise":"06:13","dhuhr":"12:20","asr":"15:42","maghrib":"18:22","isha":"19:29"},
+            {"date":"2025-09-27","fajr":"05:01","sunrise":"06:13","dhuhr":"12:20","asr":"15:42","maghrib":"18:21","isha":"19:28"},
+        ];
+        function loadPrayerTimes() {
+            const today = new Date().toISOString().split('T')[0];
+            const data = prayerTimes.find(p => p.date === today);
+            if (data) {
+                appState.prayerTimes = { ...appState.prayerTimes, Fajr: data.fajr, Dhuhr: data.dhuhr, Asr: data.asr, Maghrib: data.maghrib, Isha: data.isha };
+                prayerTimesContainer.innerHTML = '';
+                const prayerOrder = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+                const prayerNames = { Fajr: 'الفجر', Dhuhr: 'الظهر', Asr: 'العصر', Maghrib: 'المغرب', Isha: 'العشاء' };
+                const iqamaOffsets = { Fajr: 25, Dhuhr: 20, Asr: 20, Maghrib: 5, Isha: 20 };
+                prayerOrder.forEach(key => {
+                    const item = document.createElement('div');
+                    item.className = 'prayer-time-item navigable grid-item';
+                    item.tabIndex = 0;
+                    const time = data[key.toLowerCase()];
+                    item.innerHTML = `<span class="prayer-name">${prayerNames[key]}</span><span class="prayer-time">${time}</span><span class="prayer-iqama text-xs text-white/50">الإقامة: ${addMinutes(time, iqamaOffsets[key])}</span>`;
+                    prayerTimesContainer.appendChild(item);
+                });
+                determineNextPrayer();
+                updateDigitalClock();
+            } else {
+                prayerTimesContainer.innerHTML = `<p class="text-white/70 col-span-full">لا توجد أوقات صلاة لهذا اليوم.</p>`;
             }
         }
-
         function addMinutes(time, min) { const [h, m] = time.split(':').map(Number); const d = new Date(); d.setHours(h, m + min, 0, 0); return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }); }
         function timeToDate(time) { const [h, m] = time.split(':').map(Number); const d = new Date(); d.setHours(h, m, 0, 0); return d; }
-
-        function determineNextPrayer() {
-            const now = new Date();
-            const todayTimings = appState.prayerTimes;
-            if (!todayTimings.Fajr || todayTimings.Fajr === '--:--') return;
-
-            const prayers = [
-                { n: "الفجر", t: todayTimings.Fajr, o: 25, g: 5 }, { n: "الظهر", t: todayTimings.Dhuhr, o: 20, g: 5 },
-                { n: "العصر", t: todayTimings.Asr, o: 20, g: 10 }, { n: "المغرب", t: todayTimings.Maghrib, o: 5, g: 5 },
-                { n: "العشاء", t: todayTimings.Isha, o: 20, g: 25 }
-            ];
-            
-            let found = false;
-            appState.prayerTimes.currentPrayer = null;
-            appState.prayerTimes.nextPrayer = null;
-            appState.prayerTimes.nextPrayerIqamaTime = null;
-
-            for (const p of prayers) {
-                const pTime = timeToDate(p.t);
-                const iqamaTime = timeToDate(addMinutes(p.t, p.o));
-                const graceEnd = new Date(iqamaTime.getTime() + p.g * 60000);
-
-                if (now >= pTime && now < graceEnd) {
-                    appState.prayerTimes.currentPrayer = p.n;
-                    appState.prayerTimes.nextPrayer = p.n;
-                    appState.prayerTimes.nextPrayerIqamaTime = (now < iqamaTime) ? iqamaTime : graceEnd;
-                    found = true;
-                    break;
-                }
-                if (now < pTime && !found) {
-                    appState.prayerTimes.nextPrayer = p.n;
-                    appState.prayerTimes.nextPrayerIqamaTime = pTime;
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) { // After Isha
-                appState.prayerTimes.nextPrayer = "الفجر (غدًا)";
-                appState.prayerTimes.nextPrayerIqamaTime = null; // We don't have tomorrow's time yet
-            }
-            renderPrayerTimesHighlights();
-        }
-
-        function renderPrayerTimesHighlights() {
-            if (!prayerTimesContainer) return;
-            document.querySelectorAll('.prayer-time-item').forEach(i => i.classList.remove('current-prayer', 'next-prayer'));
-            
-            if (appState.prayerTimes.currentPrayer) {
-                const item = Array.from(prayerTimesContainer.querySelectorAll('.prayer-name')).find(s => s.textContent === appState.prayerTimes.currentPrayer)?.parentElement;
-                if (item) item.classList.add('current-prayer');
-            }
-            if (appState.prayerTimes.nextPrayer && appState.prayerTimes.nextPrayer !== appState.prayerTimes.currentPrayer) {
-                const nextPrayerName = appState.prayerTimes.nextPrayer.replace(' (غدًا)', '');
-                const item = Array.from(prayerTimesContainer.querySelectorAll('.prayer-name')).find(s => s.textContent === nextPrayerName)?.parentElement;
-                if (item && !item.classList.contains('current-prayer')) item.classList.add('next-prayer');
-            }
-        }
+        function determineNextPrayer() { const now = new Date(); const todayTimings = appState.prayerTimes; if (!todayTimings.Fajr || todayTimings.Fajr === '--:--') return; const prayers = [ { n: "الفجر", t: todayTimings.Fajr, o: 25, g: 5 }, { n: "الظهر", t: todayTimings.Dhuhr, o: 20, g: 5 }, { n: "العصر", t: todayTimings.Asr, o: 20, g: 10 }, { n: "المغرب", t: todayTimings.Maghrib, o: 5, g: 5 }, { n: "العشاء", t: todayTimings.Isha, o: 20, g: 25 } ]; let found = false; appState.prayerTimes.currentPrayer = null; appState.prayerTimes.nextPrayer = null; appState.prayerTimes.nextPrayerIqamaTime = null; for (const p of prayers) { const pTime = timeToDate(p.t); const iqamaTime = timeToDate(addMinutes(p.t, p.o)); const graceEnd = new Date(iqamaTime.getTime() + p.g * 60000); if (now >= pTime && now < graceEnd) { appState.prayerTimes.currentPrayer = p.n; appState.prayerTimes.nextPrayer = p.n; appState.prayerTimes.nextPrayerIqamaTime = (now < iqamaTime) ? iqamaTime : graceEnd; found = true; break; } if (now < pTime && !found) { appState.prayerTimes.nextPrayer = p.n; appState.prayerTimes.nextPrayerIqamaTime = pTime; found = true; break; } } if (!found) { appState.prayerTimes.nextPrayer = "الفجر (غدًا)"; appState.prayerTimes.nextPrayerIqamaTime = null; } renderPrayerTimesHighlights(); }
+        function renderPrayerTimesHighlights() { if (!prayerTimesContainer) return; document.querySelectorAll('.prayer-time-item').forEach(i => i.classList.remove('current-prayer', 'next-prayer')); if (appState.prayerTimes.currentPrayer) { const item = Array.from(prayerTimesContainer.querySelectorAll('.prayer-name')).find(s => s.textContent === appState.prayerTimes.currentPrayer)?.parentElement; if (item) item.classList.add('current-prayer'); } if (appState.prayerTimes.nextPrayer && appState.prayerTimes.nextPrayer !== appState.prayerTimes.currentPrayer) { const nextPrayerName = appState.prayerTimes.nextPrayer.replace(' (غدًا)', ''); const item = Array.from(prayerTimesContainer.querySelectorAll('.prayer-name')).find(s => s.textContent === nextPrayerName)?.parentElement; if (item && !item.classList.contains('current-prayer')) item.classList.add('next-prayer'); } }
         
         // --- Digital Clock ---
-        function updateDigitalClock() {
-            const now = new Date();
-            const h = now.getHours();
-            const m = now.getMinutes();
-            const s = now.getSeconds();
-
-            digitalHoursSpan.textContent = h.toString().padStart(2, '0');
-            digitalMinutesSpan.textContent = m.toString().padStart(2, '0');
-            digitalSecondsSpan.textContent = s.toString().padStart(2, '0');
-
-            digitalDateLine1.classList.remove('countdown-highlight', 'countdown-medium-highlight');
-            digitalDateLine2.classList.remove('countdown-highlight', 'countdown-medium-highlight');
-
-            if (appState.prayerTimes.nextPrayerIqamaTime) {
-                const diff = appState.prayerTimes.nextPrayerIqamaTime - now;
-                const totalSecs = Math.floor(diff / 1000);
-                const secs = totalSecs % 60;
-                const mins = Math.floor((totalSecs / 60) % 60);
-                const hrs = Math.floor(totalSecs / 3600);
-
-                const currentPrayerData = appState.prayerTimes.currentPrayer ? [{ n: "الفجر", t: appState.prayerTimes.Fajr, o: 25 }, { n: "الظهر", t: appState.prayerTimes.Dhuhr, o: 20 }, { n: "العصر", t: appState.prayerTimes.Asr, o: 20 }, { n: "المغرب", t: appState.prayerTimes.Maghrib, o: 5 }, { n: "العشاء", t: appState.prayerTimes.Isha, o: 20 }].find(p => p.n === appState.prayerTimes.currentPrayer) : null;
-                const isAfterAzan = currentPrayerData && now >= timeToDate(currentPrayerData.t) && now < timeToDate(addMinutes(currentPrayerData.t, currentPrayerData.o));
-
-                if (isAfterAzan) {
-                    digitalDateLine1.textContent = `إقامة صلاة ${appState.prayerTimes.currentPrayer} في:`;
-                    digitalDateLine2.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-                    if (totalSecs < 1200) { // Highlight under 20 mins
-                         digitalDateLine1.classList.add('countdown-highlight');
-                         digitalDateLine2.classList.add('countdown-highlight');
-                    }
-                } else {
-                    digitalDateLine1.textContent = `الأذان القادم: ${appState.prayerTimes.nextPrayer}`;
-                    digitalDateLine2.textContent = hrs > 0 ? `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}` : `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-                    if (totalSecs < 1200) { // Highlight under 20 mins
-                         digitalDateLine1.classList.add('countdown-highlight');
-                         digitalDateLine2.classList.add('countdown-highlight');
-                    } else if (totalSecs < 3600) { // Highlight under 1 hour
-                         digitalDateLine1.classList.add('countdown-medium-highlight');
-                         digitalDateLine2.classList.add('countdown-medium-highlight');
-                    }
-                }
-            } else if (appState.prayerTimes.nextPrayer) { // Case for Fajr tomorrow
-                digitalDateLine1.textContent = `الأذان القادم: ${appState.prayerTimes.nextPrayer}`;
-                digitalDateLine2.textContent = '';
-            } else {
-                digitalDateLine1.textContent = 'جاري تحميل أوقات الصلاة...';
-                digitalDateLine2.textContent = '';
-            }
-        }
+        function updateDigitalClock() { const now = new Date(); const h = now.getHours(); const m = now.getMinutes(); const s = now.getSeconds(); digitalHoursSpan.textContent = h.toString().padStart(2, '0'); digitalMinutesSpan.textContent = m.toString().padStart(2, '0'); digitalSecondsSpan.textContent = s.toString().padStart(2, '0'); digitalDateLine1.classList.remove('countdown-highlight', 'countdown-medium-highlight'); digitalDateLine2.classList.remove('countdown-highlight', 'countdown-medium-highlight'); if (appState.prayerTimes.nextPrayerIqamaTime) { const diff = appState.prayerTimes.nextPrayerIqamaTime - now; const totalSecs = Math.floor(diff / 1000); const secs = totalSecs % 60; const mins = Math.floor((totalSecs / 60) % 60); const hrs = Math.floor(totalSecs / 3600); const currentPrayerData = appState.prayerTimes.currentPrayer ? [{ n: "الفجر", t: appState.prayerTimes.Fajr, o: 25 }, { n: "الظهر", t: appState.prayerTimes.Dhuhr, o: 20 }, { n: "العصر", t: appState.prayerTimes.Asr, o: 20 }, { n: "المغرب", t: appState.prayerTimes.Maghrib, o: 5 }, { n: "العشاء", t: appState.prayerTimes.Isha, o: 20 }].find(p => p.n === appState.prayerTimes.currentPrayer) : null; const isAfterAzan = currentPrayerData && now >= timeToDate(currentPrayerData.t) && now < timeToDate(addMinutes(currentPrayerData.t, currentPrayerData.o)); if (isAfterAzan) { digitalDateLine1.textContent = `إقامة صلاة ${appState.prayerTimes.currentPrayer} في:`; digitalDateLine2.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`; if (totalSecs < 1200) { digitalDateLine1.classList.add('countdown-highlight'); digitalDateLine2.classList.add('countdown-highlight'); } } else { digitalDateLine1.textContent = `الأذان القادم: ${appState.prayerTimes.nextPrayer}`; digitalDateLine2.textContent = hrs > 0 ? `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}` : `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`; if (totalSecs < 1200) { digitalDateLine1.classList.add('countdown-highlight'); digitalDateLine2.classList.add('countdown-highlight'); } else if (totalSecs < 3600) { digitalDateLine1.classList.add('countdown-medium-highlight'); digitalDateLine2.classList.add('countdown-medium-highlight'); } } } else if (appState.prayerTimes.nextPrayer) { digitalDateLine1.textContent = `الأذان القادم: ${appState.prayerTimes.nextPrayer}`; digitalDateLine2.textContent = ''; } else { digitalDateLine1.textContent = 'جاري تحميل أوقات الصلاة...'; digitalDateLine2.textContent = ''; } }
 
         // --- 360 Camera ---
         function handleImageUpload(e) { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = (ev) => { appState.custom360Image = ev.target.result; localStorage.setItem('custom360Image', ev.target.result); updateUI(); }; reader.readAsDataURL(file); } }
@@ -1996,12 +1770,11 @@
             youtubeSearchButton.addEventListener('click', () => { const query = youtubeSearchInput.value.trim(); if (query) searchYouTubeVideos(query); else showMessageBox('الرجاء إدخال كلمة للبحث.'); });
             
             // Gemini Feature Listeners
-            geminiWeatherSummaryButton?.addEventListener('click', getWeatherSummary);
             geminiTripSuggesterButton?.addEventListener('click', getTripSuggestions);
 
             // Initial Calls
             fetchWeatherData(); 
-            fetchAndLoadPrayerTimes();
+            loadPrayerTimes();
             setInterval(fetchWeatherData, 300000); 
             setInterval(updateDigitalClock, 1000); 
             setInterval(updateTopBarTime, 1000);
