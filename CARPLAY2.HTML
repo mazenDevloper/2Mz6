@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+    <link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#000000">
+
+<!-- لتغطية الشاشة بالكامل مع حواف النوتش -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -13,6 +18,12 @@
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBRqAHJ2elbE_Z7NXXYC50XZpqi6HbG6Rk&libraries=places&callback=initMap"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://www.youtube.com/iframe_api"></script>
+    <script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js");
+}
+</script>
+
     <style>
         /* Import Inter font for a modern, clean look */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
