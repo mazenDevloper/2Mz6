@@ -1,6 +1,6 @@
 {
-  "name": "My App",
-  "short_name": "MyApp",
+  "name": "LXCP",
+  "short_name": "Lexus",
   "start_url": "/carplay",
   "scope": "/",
   "display": "standalone",
