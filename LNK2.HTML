@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة معلومات التكامل لمحافظة ظفار</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        .max-h-24 {
+            max-height: 9rem!IMPORTANT;
+        }
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(-45deg, #020024, #090979, #4b0082, #00ced1);
+            background-size: 400% 400%;
+            animation: gradientAnimation 15s ease infinite;
+        }
+        
+        .logo-card {
+            position: relative;
+            z-index: 1;
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            overflow: hidden;
+        }
+
+        .logo-card img[src$=".svg"],
+        .logo-card img[src$=".png"] {
+            filter: brightness(0) invert(1);
+        }
+        .modal-overlay {
+            transition: opacity 0.3s ease;
+        }
+        
+        /* --- Modal Styling --- */
+        .modal-content {
+            background-color: rgba(0, 0, 0, 0.3); /* Darker glass effect */
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .modal-content h2, .modal-content #modal-subtitle {
+             color: white;
+        }
+        .modal-content h3 {
+            color: rgb(185 255 223);
+            font-weight: 700; /* bold */
+        }
+        .modal-content p {
+            font-weight: 700; /* bold */
+            color: white; /* White content text */
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 500;
+            font-size: 0.75rem;
+        }
+        .status-completed { background-color: #d1fae5; color: #065f46; }
+        .status-inprogress { background-color: #fef3c7; color: #92400e; }
+        .status-planned { background-color: #dbeafe; color: #1e40af; }
+        .logo-img-fallback {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #ffffff;
+            height: 100%;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 0.375rem;
+            text-align: center;
+            padding: 0.5rem;
+        }
+        .section-title {
+            color: white;
+            font-size: 1.75rem;
+            font-weight: 700;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            margin-bottom: 1.5rem;
+            margin-top: 2.5rem;
+        }
+        .text-emerald-200 {
+            --tw-text-opacity: 1;
+            color: rgb(185 255 223) !important;
+        }
+        /* --- Tab Styling --- */
+        .tab-button {
+            padding: 0.75rem 1.5rem;
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.6);
+            background-color: transparent;
+            border-bottom: 3px solid transparent;
+            transition: color 0.3s, border-color 0.3s;
+            cursor: pointer;
+        }
+        .tab-button.active {
+            color: white;
+            border-bottom-color: rgb(185 255 223);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="text-white">
+
+    <div class="container mx-auto p-4 sm:p-6 md:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold">خطة التكامل الرقمي لمحافظة ظفار</h1>
+            <p class="text-gray-300 mt-2">الجهات والمنصات الحكومية المرتبطة مع البلدية</p>
+        </header>
+
+        <!-- Tab Buttons -->
+        <div class="flex justify-center border-b border-white/20 mb-8">
+            <button class="tab-button active" data-tab="integrations">التكامل مع الجهات</button>
+            <button class="tab-button" data-tab="municipality">أنظمة بلدية ظفار</button>
+        </div>
+
+        <!-- Tab Content -->
+        <div id="integrations" class="tab-content active">
+            <!-- Section for Completed Integrations -->
+            <div>
+                <h2 class="section-title">الجهات التي تم الربط معها</h2>
+                <div id="completed-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+                    <!-- Completed integration cards will be injected here -->
+                </div>
+            </div>
+
+            <!-- Section for Planned Integrations -->
+            <div>
+                <h2 class="section-title">جهات تنوي المحافظة الربط معها</h2>
+                <div id="planned-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+                    <!-- Planned integration cards will be injected here -->
+                </div>
+            </div>
+        </div>
+        
+        <div id="municipality" class="tab-content">
+            <!-- Section for Dhofar Municipality Systems -->
+            <div>
+                <h2 class="section-title">أنظمة بلدية ظفار</h2>
+                <div id="municipality-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+                    <!-- Municipality systems cards will be injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Structure -->
+    <div id="info-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50 hidden modal-overlay opacity-0">
+        <div class="rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto modal-content transform scale-95 opacity-0">
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-5">
+                    <div class="flex items-center gap-4">
+                        <div id="modal-logo-container" class="w-24 h-24 flex-shrink-0 bg-white/80 rounded-md flex items-center justify-center p-2">
+                            <img id="modal-logo" src="" alt="شعار الجهة" class="h-full w-full object-contain">
+                        </div>
+                        <div>
+                            <h2 id="modal-title" class="text-2xl font-bold"></h2>
+                             <p id="modal-subtitle" class="text-gray-300 mt-1"></p>
+                            <div class="mt-2">
+                                <span id="modal-status" class="status-badge"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="close-modal" class="text-gray-400 hover:text-white transition-colors">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                <div class="space-y-5">
+                    <div class="border-t border-white/20 pt-4">
+                        <h3 class="text-lg mb-2">الغرض من الربط والتكامل</h3>
+                        <p id="modal-purpose" class="leading-relaxed"></p>
+                    </div>
+                    <div class="border-t border-white/20 pt-4">
+                        <h3 class="text-lg mb-2">البيانات / الحقول المطلوبة</h3>
+                        <p id="modal-data" class="leading-relaxed"></p>
+                    </div>
+                    <div class="border-t border-white/20 pt-4">
+                        <h3 class="text-lg mb-2">التاريخ المخطط</h3>
+                        <p id="modal-date" class="leading-relaxed"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const integrationData = [
+                {
+                    name: "بوابة استثمر بسهولة",
+                    owner: "وزارة التجارة والصناعة وترويج الاستثمار",
+                    logo: "https://dmusera.netlify.app/SVG/BUSN.svg",
+                    status: "تم التكامل",
+                    purpose: "الحصول على بيانات المؤسسات والشركات لخدمة منظومة التراخيص البلدية، معرفة الأفرع والأنشطة، وتمكين المفوضين من تقديم الطلبات.",
+                    data: "بيانات الشركات (الاسم، حالة التسجيل، الأفرع، الأنشطة، الملاك، الشركاء، المفوضين)، سجل الالتزامات.",
+                    date: "منجز"
+                },
+                {
+                    name: "منظومة إدارة الموارد البشرية (مورد بلس)",
+                    owner: "وزارة العمل",
+                    logo: "https://dmusera.netlify.app/SVG/JOB_1.svg",
+                    status: "قيد التنفيذ",
+                    purpose: "ربط نظام الموارد البشرية بالمحافظة مع النظام المركزي لوزارة العمل.",
+                    data: "بيانات الموظفين، الحضور والانصراف، الإجازات.",
+                    date: "جاري العمل عليه"
+                },
+                {
+                    name: "النظام المالي الموحد",
+                    owner: "وزارة المالية",
+                    logo: "https://dmusera.netlify.app/SVG/mal.svg",
+                    status: "تم التكامل",
+                    purpose: "توحيد الإجراءات المالية وإصدار التقارير المالية بشكل مركزي.",
+                    data: "بيانات الميزانية، المصروفات، الإيرادات.",
+                    date: "منجز"
+                },
+                {
+                    name: "منظومة إدارة المستندات (وصول)",
+                    owner: "هيئة الوثائق والمحفوظات الوطنية",
+                    logo: "https://dmusera.netlify.app/SVG/doc.png",
+                    status: "قيد التنفيذ",
+                    purpose: "تنفيذ مشروع 'وصول' لأرشفة وإدارة المستندات إلكترونياً في محافظة ظفار.",
+                    data: "المستندات والوثائق الرسمية، معاملات الأرشفة.",
+                    date: "تم تشكيل فريق عمل"
+                },
+                {
+                    name: "منظومة إدارة المناقصات (إسناد)",
+                    owner: "الأمانة العامة لمجلس المناقصات",
+                    logo: "https://dmusera.netlify.app/amana.png",
+                    status: "تم الربط",
+                    purpose: "إدارة وطرح المناقصات الحكومية بشكل إلكتروني.",
+                    data: "بيانات المناقصات، العروض، الشركات المتقدمة.",
+                    date: "منجز"
+                },
+                {
+                    name: " منصة المقترحات والشكاوى- تجاوب",
+                    owner: "وحدة متابعة تنفيذ رؤية عمان 2040",
+                    logo: "https://dmusera.netlify.app/SVG/om2040.svg",
+                    status: "تم التكامل",
+                    purpose: "الحصول على بيانات معاملات أنظمة العقود وتراخيص البناء وتصاريح الحفر.",
+                    data: "بيانات مقدم الطلب، بيانات الشركة المنفذة، بيانات المعاملة، مدة تنفيذ المعاملة (SLA).",
+                    date: "منجز"
+                },
+                {
+                    name: "المنصة الرقمية للأحوال المدنية",
+                    owner: "شرطة عمان السلطانية",
+                    logo: "https://www.2oman.net/wp-content/uploads/2024/10/rop2-01.svg",
+                    status: "مخطط له",
+                    purpose: "التحقق من بيانات الأفراد والمقيمين بشكل مباشر وآني.",
+                    data: "تفاصيل بطاقة الأحوال المدنية.",
+                    date: "الربع الرابع 2025"
+                },
+                {
+                    name: "بوابة الدفع الالكتروني",
+                    owner: "عمانتل",
+                    logo: "https://www.2oman.net/wp-content/uploads/2024/10/Omantel-01.svg",
+                    status: "تم التكامل",
+                    purpose: "تسهيل عمليات الدفع الإلكتروني للخدمات البلدية.",
+                    data: "معلومات الدفع، الفواتير.",
+                    date: "منجز"
+                },
+                {
+                    name: "التصديق الإلكتروني (PKI)",
+                    owner: "وزارة النقل والاتصالات وتقنية المعلومات",
+                    logo: "https://dmusera.netlify.app/SVG/MOI.svg",
+                    status: "تم التكامل",
+                    purpose: "التحقق من هوية المستخدمين للخدمات الإلكترونية وتفعيل خدمة التوقيع الإلكتروني.",
+                    data: "تفاصيل بطاقة الأحوال، شهادات التصديق الرقمي.",
+                    date: "منجز"
+                },
+                {
+                    name: "نظام / تطبيق تنمية للمجالس البلدية",
+                    owner: "وزارة الداخلية",
+                    logo: "https://dmusera.netlify.app/SVG/inror.svg",
+                    status: "تم التكامل",
+                    purpose: "إدارة شؤون المجالس البلدية ومتابعة المشاريع التنموية.",
+                    data: "بيانات المشاريع، محاضر الاجتماعات، قرارات المجلس.",
+                    date: "منجز"
+                },
+                {
+                    name: "غرفة تجارة وصناعة عمان",
+                    owner: "غرفة تجارة وصناعة عمان",
+                    logo: "https://www.2oman.net/wp-content/uploads/2024/10/Oman-Chamber-of-Commerce-Industry-2.svg",
+                    status: "تم الربط",
+                    purpose: "التحقق من بيانات تسجيل المؤسسات والشركات ودرجة تسجيلها في الغرفة.",
+                    data: "حالة تسجيل الشركة في الغرفة، درجة التسجيل.",
+                    date: "منجز"
+                },
+                {
+                    name: "جهاز الضرائب",
+                    owner: "جهاز الضرائب",
+                    logo: "https://dmusera.netlify.app/SVG/tax.svg",
+                    status: "تم الربط",
+                    purpose: "الحصول على الرقم الضريبي للشركات والمؤسسات.",
+                    data: "الرقم الضريبي.",
+                    date: "منجز"
+                },
+                {
+                    name: "وزارة الأوقاف والشؤون الدينية",
+                    owner: "وزارة الأوقاف والشؤون الدينية",
+                    logo: "https://dmusera.netlify.app/SVG/awq.svg",
+                    status: "مخطط له",
+                    purpose: "الحصول على الخرائط المعتمدة ورسائل عدم الممانعة للمشاريع.",
+                    data: "بيانات المفوض، الخرائط المعتمدة، إشعار عدم الممانعة.",
+                    date: "الربع الثالث 2025"
+                },
+                {
+                    name: "وزارة الثروة الزراعية والسمكية وموارد المياه",
+                    owner: "وزارة الثروة الزراعية والسمكية وموارد المياه",
+                    logo: "https://dmusera.netlify.app/SVG/zra.svg",
+                    status: "مخطط له",
+                    purpose: "الحصول على بيانات عقود الإيجار وإباحات البناء المتعلقة بالأراضي الزراعية والمائية.",
+                    data: "بيانات عقود الإيجار، بيانات إباحة البناء.",
+                    date: "الربع الثالث 2025"
+                },
+                {
+                    name: "وزارة الإسكان والتخطيط العمراني",
+                    owner: "وزارة الإسكان والتخطيط العمراني",
+                    logo: "https://dmusera.netlify.app/SVG/iskan.svg",
+                    status: "مخطط له",
+                    purpose: "الحصول على بيانات الرسم المساحي (الكروكي) وبيانات الملكية للعقارات.",
+                    data: "بيانات الرسم المساحي، بيانات الملكية.",
+                    date: "الربع الرابع 2025"
+                }
+            ];
+            
+            const municipalitySystemsData = [
+                {
+                    name: "نظام التراخيص البلدية",
+                    owner: "بلدية ظفار",
+                    logo: "https://dmusera.netlify.app/SVG/lic.svg",
+                    status: "قائم",
+                    purpose: "إصدار ومتابعة جميع أنواع التراخيص البلدية (بناء، تجارية، صحية).",
+                    data: "بيانات المالك، بيانات الموقع، نوع الترخيص، المستندات المطلوبة.",
+                    date: "يعمل حالياً"
+                },
+                {
+                    name: "نظام إدارة العقود",
+                    owner: "بلدية ظفار",
+                    logo: "https://dmusera.netlify.app/SVG/aqd.svg",
+                    status: "قائم",
+                    purpose: "إدارة عقود الإيجار والاستثمار الخاصة بأملاك البلدية.",
+                    data: "بيانات المستأجر، تفاصيل العقد، الدفعات المالية، مدة العقد.",
+                    date: "يعمل حالياً"
+                },
+                {
+                    name: "منصة الشكاوى والبلاغات",
+                    owner: "بلدية ظفار",
+                    logo: "https://dmusera.netlify.app/SVG/call.svg",
+                    status: "قائم",
+                    purpose: "استقبال ومتابعة شكاوى وبلاغات المواطنين والمقيمين.",
+                    data: "بيانات المبلغ، نوع البلاغ، الموقع، الصور المرفقة.",
+                    date: "يعمل حالياً"
+                },
+                {
+                    name: "نظام الرقابة والتفتيش",
+                    owner: "بلدية ظفار",
+                    logo: "https://dmusera.netlify.app/SVG/search.svg",
+                    status: "قائم",
+                    purpose: "تنظيم وأتمتة عمليات التفتيش الميداني على المحلات والمنشآت.",
+                    data: "جدول الزيارات، تقارير التفتيش، المخالفات، الإجراءات المتخذة.",
+                    date: "يعمل حالياً"
+                },
+                 {
+                    name: "نظام إدارة المشاريع",
+                    owner: "بلدية ظفار",
+                    logo: "https://dmusera.netlify.app/SVG/proj.svg",
+                    status: "قائم",
+                    purpose: "متابعة سير العمل في المشاريع التنموية والخدمية للبلدية.",
+                    data: "خطة المشروع، نسبة الإنجاز، الميزانية، التقارير الدورية.",
+                    date: "يعمل حالياً"
+                }
+            ];
+
+            const completedGrid = document.getElementById('completed-grid');
+            const plannedGrid = document.getElementById('planned-grid');
+            const municipalityGrid = document.getElementById('municipality-grid');
+            const modal = document.getElementById('info-modal');
+            const modalOverlay = document.querySelector('.modal-overlay');
+            const modalContent = document.querySelector('.modal-content');
+            const closeModalBtn = document.getElementById('close-modal');
+
+            const getPriority = (owner) => {
+                if (owner.includes('وزارة')) return 1;
+                if (owner.includes('جهاز') || owner.includes('شرطة')) return 2;
+                if (owner.includes('أمانة')) return 3;
+                if (owner.includes('وحدة')) return 4;
+                if (owner.includes('غرفة')) return 5;
+                if (owner.includes('هيئة')) return 6;
+                if (owner.includes('عمانتل')) return 7;
+                return 8;
+            };
+
+            integrationData.sort((a, b) => getPriority(a.owner) - getPriority(b.owner));
+
+            const handleImageError = (imgElement, ownerName) => {
+                const fallback = document.createElement('div');
+                fallback.className = 'logo-img-fallback';
+                fallback.textContent = ownerName;
+                imgElement.parentNode.replaceChild(fallback, imgElement);
+            };
+            
+            const createCard = (item) => {
+                const card = document.createElement('div');
+                card.className = 'logo-card rounded-2xl p-4 flex flex-col items-center justify-between text-center cursor-pointer';
+                card.style.minHeight = '200px'; 
+
+                const logoContainer = document.createElement('div');
+                logoContainer.className = 'h-28 flex items-center justify-center w-full';
+
+                const img = document.createElement('img');
+                img.src = item.logo;
+                img.alt = `شعار ${item.owner}`;
+                img.className = 'max-h-24 max-w-full object-contain';
+                img.onerror = () => handleImageError(img, item.name);
+
+                logoContainer.appendChild(img);
+
+                const textContainer = document.createElement('div');
+                
+                const platformName = document.createElement('p');
+                platformName.className = 'mt-2 font-semibold text-emerald-200 text-sm leading-tight';
+                platformName.textContent = item.name;
+
+                textContainer.appendChild(platformName);
+
+                card.appendChild(logoContainer);
+                card.appendChild(textContainer);
+
+                card.addEventListener('click', () => openModal(item));
+                return card;
+            };
+
+            integrationData.forEach(item => {
+                const card = createCard(item);
+                if (item.status === 'تم التكامل' || item.status === 'تم الربط') {
+                    completedGrid.appendChild(card);
+                } else {
+                    plannedGrid.appendChild(card);
+                }
+            });
+            
+            municipalitySystemsData.forEach(item => {
+                const card = createCard(item);
+                municipalityGrid.appendChild(card);
+            });
+
+            function openModal(item) {
+                const modalLogoContainer = document.getElementById('modal-logo-container');
+                modalLogoContainer.innerHTML = ''; 
+                const modalImg = document.createElement('img');
+                modalImg.id = 'modal-logo';
+                modalImg.src = item.logo;
+                modalImg.alt = `شعار ${item.owner}`;
+                modalImg.className = 'h-full w-full object-contain';
+                modalImg.onerror = () => {
+                    modalLogoContainer.innerHTML = ''; 
+                    const fallback = document.createElement('div');
+                    fallback.className = 'logo-img-fallback text-gray-500 bg-gray-200';
+                    fallback.textContent = item.owner;
+                    modalLogoContainer.appendChild(fallback);
+                };
+                modalLogoContainer.appendChild(modalImg);
+                
+                document.getElementById('modal-title').textContent = item.name;
+                document.getElementById('modal-subtitle').textContent = item.owner;
+                document.getElementById('modal-purpose').textContent = item.purpose || 'لا تتوفر تفاصيل.';
+                document.getElementById('modal-data').textContent = item.data || 'لا تتوفر تفاصيل.';
+                document.getElementById('modal-date').textContent = item.date || 'غير محدد.';
+
+                const statusBadge = document.getElementById('modal-status');
+                statusBadge.textContent = item.status;
+                statusBadge.className = 'status-badge'; 
+                if (item.status.includes('تم') || item.status.includes('قائم')) {
+                    statusBadge.classList.add('status-completed');
+                } else if (item.status.includes('قيد')) {
+                    statusBadge.classList.add('status-inprogress');
+                } else if (item.status.includes('مخطط')) {
+                    statusBadge.classList.add('status-planned');
+                }
+
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    modalOverlay.classList.remove('opacity-0'); 
+                    modalContent.classList.remove('scale-95', 'opacity-0');
+                }, 10);
+            }
+
+            function closeModal() {
+                modalOverlay.classList.add('opacity-0');
+                modalContent.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 300);
+            }
+
+            closeModalBtn.addEventListener('click', closeModal);
+            modalOverlay.addEventListener('click', (event) => {
+                if (event.target === modalOverlay) {
+                    closeModal();
+                }
+            });
+            
+            // Tab switching logic
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+
+                    const tabId = button.dataset.tab;
+                    tabContents.forEach(content => {
+                        if (content.id === tabId) {
+                            content.classList.add('active');
+                        } else {
+                            content.classList.remove('active');
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
