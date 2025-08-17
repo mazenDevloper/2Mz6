@@ -701,8 +701,9 @@ if ("serviceWorker" in navigator) {
         }
         /* Count-up after Iqama */
         .countdown-up {
-            color: lightmint !important;
+            color: #98FB98 !important; /* PaleGreen, close to lightmint */
         }
+
 
         /* Settings Range Input Styling */
         input[type="range"] {
@@ -1181,7 +1182,7 @@ if ("serviceWorker" in navigator) {
                 
                 <!-- Radio Screen -->
                 <section id="screen-Radio" class="app-screen items-center justify-center h-full w-full p-4 md:p-6">
-                   <iframe class="full-iframe" style="zoom: 0.6;" title="Quran Reciters" src="https://quran.com/radio" allow="geolocation"></iframe>
+                   <iframe class="full-iframe" style="zoom: 0.5;" title="Quran Reciters" src="https://quran.com/radio" allow="geolocation"></iframe>
                 </section>
 
                 <!-- Reciters Screen -->
@@ -1770,10 +1771,12 @@ if ("serviceWorker" in navigator) {
         // --- Welcome Voice Message ---
         function playWelcomeMessage() {
             const today = new Date();
+            const currentHour = today.getHours();
             const gregorianDate = new Intl.DateTimeFormat('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(today);
             const hijriDate = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', { year: 'numeric', month: 'long', day: 'numeric' }).format(today);
 
-            const welcomeText = `مرحبا تاريخ اليوم ${gregorianDate} ميلادي الموافق ${hijriDate} هجريا`;
+            let welcomeText = '';
+            let weatherText = '';
 
             const speak = (textToSpeak) => {
                 if ('speechSynthesis' in window) {
@@ -1791,13 +1794,38 @@ if ("serviceWorker" in navigator) {
                 }
             };
 
-            if (window.speechSynthesis.getVoices().length === 0) {
-                window.speechSynthesis.onvoiceschanged = () => {
-                    speak(welcomeText);
-                };
-            } else {
-                speak(welcomeText);
+            const speakWithVoicesReady = (text) => {
+                 if (window.speechSynthesis.getVoices().length === 0) {
+                    window.speechSynthesis.onvoiceschanged = () => {
+                        speak(text);
+                    };
+                } else {
+                    speak(text);
+                }
             }
+
+            // Check if weather data is ready before proceeding
+            const checkWeatherAndSpeak = () => {
+                if (appState.weather.temperature !== null) {
+                    if (currentHour < 12) { // Morning (before 12 PM)
+                        welcomeText = `مرحبا تاريخ اليوم ${gregorianDate} ميلادي الموافق ${hijriDate} هجريا`;
+                        speakWithVoicesReady(welcomeText);
+
+                        setTimeout(() => {
+                            weatherText = `حالة الطقس الان ${appState.weather.temperature} درجة مئوية`;
+                            speakWithVoicesReady(weatherText);
+                        }, 4000); 
+                    } else { // Evening (12 PM onwards)
+                        welcomeText = `الطقس الان ${appState.weather.temperature} درجة مئوية, ${hijriDate} لسلطنة عمان`;
+                        speakWithVoicesReady(welcomeText);
+                    }
+                } else {
+                    // If weather data isn't ready, wait and try again.
+                    setTimeout(checkWeatherAndSpeak, 500);
+                }
+            };
+
+            checkWeatherAndSpeak();
         }
 
         // --- Fullscreen Toggle ---
