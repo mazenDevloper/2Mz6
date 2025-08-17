@@ -34,7 +34,8 @@
             overflow: hidden;
         }
 
-        .logo-card img[src$=".svg"] {
+        .logo-card img[src$=".svg"],
+        .logo-card img[src$=".png"] {
             filter: brightness(0) invert(1);
         }
         /* Do not apply white filter to app icons and specific logos */
@@ -372,7 +373,7 @@
                         {
                             name: "Digital Twins GIS",
                             owner: "بلدية ظفار",
-                            logo: "https://dmusera.netlify.app/SVG/gis.svg",
+                            logo: "https://www.svgrepo.com/show/532930/cube.svg",
                             status: "قائم",
                             purpose: "استخدام تقنية التوائم الرقمية في نظم المعلومات الجغرافية لمحاكاة وتخطيط المدينة.",
                             data: "بيانات جغرافية، نماذج ثلاثية الأبعاد، تحليلات حضرية.",
@@ -381,7 +382,7 @@
                         {
                             name: "مركز الاتصال الافتراضي",
                             owner: "بلدية ظفار",
-                            logo: "https://dmusera.netlify.app/SVG/call-center.svg",
+                            logo: "https://dmusera.netlify.app/SVG/call-center-corrected.svg",
                             status: "قائم",
                             purpose: "محادثة ذكية لمركز الاتصال لتقديم دعم فوري ومتكامل للمتعاملين.",
                             data: "تسجيل البلاغات، متابعة المعاملات، استفسارات عامة.",
@@ -390,7 +391,7 @@
                         {
                             name: "مراقبة حركة المرور بالذكاء الاصطناعي",
                             owner: "بلدية ظفار",
-                            logo: "https://dmusera.netlify.app/SVG/traffic.svg",
+                            logo: "https://www.svgrepo.com/show/435217/traffic-light.svg",
                             status: "قائم",
                             purpose: "نظام ذكي لمراقبة وتحليل حركة المرور لتحسين الانسيابية وتقليل الازدحام.",
                             data: "بيانات حية لحركة السير، تحليلات، تقارير.",
@@ -399,7 +400,7 @@
                         {
                             name: "الخدمات الاستباقية",
                             owner: "بلدية ظفار",
-                            logo: "https://dmusera.netlify.app/SVG/proactive.svg",
+                            logo: "https://dmusera.netlify.app/SVG/proactive-corrected.svg",
                             status: "قائم",
                             purpose: "تقديم خدمات للمتعاملين بشكل استباقي قبل طلبها بناءً على بياناتهم.",
                             data: "تجديد التراخيص، إشعارات مهمة، توصيات شخصية.",
@@ -561,11 +562,7 @@
                 if (item.status === 'تطبيق جوال' || item.logo.includes('salalah-smart-city') || item.logo.includes('dm-metaverse') || item.logo.includes('sahalah-icon') || item.logo.includes('cropped-whitelabel')) {
                     card.classList.add('app-icon-card');
                 }
-                 if(item.logo.includes('amana.png') || item.logo.includes('doc.png')) {
-                    card.classList.add('no-filter');
-                }
-
-
+                
                 const logoContainer = document.createElement('div');
                 logoContainer.className = 'h-28 flex items-center justify-center w-full';
 
