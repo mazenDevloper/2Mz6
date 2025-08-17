@@ -1833,7 +1833,7 @@ if ("serviceWorker" in navigator) {
             const checkWeatherAndSpeak = () => {
                 if (appState.weather.temperature !== null) {
                     if (currentHour < 12) { // Morning (before 12 PM)
-                        welcomeText = `مرحبا تاريخ اليوم ${gregorianDate} ميلادي الموافق ${hijriDate} هجريا`;
+                        welcomeText = `مرحبا تاريخ اليوم  ${hijriDate} `;
                         speakWithVoicesReady(welcomeText);
 
                         setTimeout(() => {
