@@ -34,9 +34,15 @@
             overflow: hidden;
         }
 
-        .logo-card img[src$=".svg"],
-        .logo-card img[src$=".png"] {
+        .logo-card img[src$=".svg"] {
             filter: brightness(0) invert(1);
+        }
+        /* Do not apply white filter to app icons and specific logos */
+        .app-icon-card img, .no-filter img {
+            filter: none !important;
+        }
+        .app-icon-card img {
+             border-radius: 1.5rem; /* Rounded corners for app icons */
         }
         .modal-overlay {
             transition: opacity 0.3s ease;
@@ -117,6 +123,10 @@
         .tab-content.active {
             display: block;
         }
+        .download-button img {
+            height: 40px;
+            width: auto;
+        }
     </style>
 </head>
 <body class="text-white">
@@ -130,7 +140,7 @@
         <!-- Tab Buttons -->
         <div class="flex justify-center border-b border-white/20 mb-8">
             <button class="tab-button active" data-tab="integrations">التكامل مع الجهات</button>
-            <button class="tab-button" data-tab="municipality">أنظمة بلدية ظفار</button>
+            <button class="tab-button" data-tab="municipality">أنظمة وتطبيقات البلدية</button>
         </div>
 
         <!-- Tab Content -->
@@ -153,12 +163,8 @@
         </div>
         
         <div id="municipality" class="tab-content">
-            <!-- Section for Dhofar Municipality Systems -->
-            <div>
-                <h2 class="section-title">أنظمة بلدية ظفار</h2>
-                <div id="municipality-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-                    <!-- Municipality systems cards will be injected here -->
-                </div>
+            <div id="municipality-content">
+                <!-- Municipality systems categories and cards will be injected here -->
             </div>
         </div>
     </div>
@@ -184,7 +190,7 @@
                         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
-                <div class="space-y-5">
+                <div id="modal-info-section" class="space-y-5">
                     <div class="border-t border-white/20 pt-4">
                         <h3 class="text-lg mb-2">الغرض من الربط والتكامل</h3>
                         <p id="modal-purpose" class="leading-relaxed"></p>
@@ -196,6 +202,14 @@
                     <div class="border-t border-white/20 pt-4">
                         <h3 class="text-lg mb-2">التاريخ المخطط</h3>
                         <p id="modal-date" class="leading-relaxed"></p>
+                    </div>
+                </div>
+                 <div id="modal-app-section" class="hidden">
+                    <div class="border-t border-white/20 pt-4">
+                        <h3 class="text-lg mb-2">روابط التحميل</h3>
+                        <div id="modal-downloads" class="flex flex-col sm:flex-row gap-4 mt-2">
+                            <!-- Download buttons will be injected here -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -342,57 +356,179 @@
                 }
             ];
             
-            const municipalitySystemsData = [
+            const municipalityCategories = [
                 {
-                    name: "نظام التراخيص البلدية",
-                    owner: "بلدية ظفار",
-                    logo: "https://dmusera.netlify.app/SVG/lic.svg",
-                    status: "قائم",
-                    purpose: "إصدار ومتابعة جميع أنواع التراخيص البلدية (بناء، تجارية، صحية).",
-                    data: "بيانات المالك، بيانات الموقع، نوع الترخيص، المستندات المطلوبة.",
-                    date: "يعمل حالياً"
+                    title: "التقنيات الحديثة",
+                    items: [
+                        {
+                            name: "الدردشة الذكية (سهالة)",
+                            owner: "بلدية ظفار",
+                            logo: "https://edm.gov.om/wp-content/uploads/2025/07/sahalah-icon.png",
+                            status: "قائم",
+                            purpose: "مساعد افتراضي للرد على استفسارات المتعاملين بشكل فوري.",
+                            data: "الأسئلة الشائعة، معلومات الخدمات، توجيه المستخدمين.",
+                            date: "يعمل حالياً"
+                        },
+                        {
+                            name: "Digital Twins GIS",
+                            owner: "بلدية ظفار",
+                            logo: "https://dmusera.netlify.app/SVG/gis.svg",
+                            status: "قائم",
+                            purpose: "استخدام تقنية التوائم الرقمية في نظم المعلومات الجغرافية لمحاكاة وتخطيط المدينة.",
+                            data: "بيانات جغرافية، نماذج ثلاثية الأبعاد، تحليلات حضرية.",
+                            date: "يعمل حالياً"
+                        },
+                        {
+                            name: "مركز الاتصال الافتراضي",
+                            owner: "بلدية ظفار",
+                            logo: "https://dmusera.netlify.app/SVG/call-center.svg",
+                            status: "قائم",
+                            purpose: "محادثة ذكية لمركز الاتصال لتقديم دعم فوري ومتكامل للمتعاملين.",
+                            data: "تسجيل البلاغات، متابعة المعاملات، استفسارات عامة.",
+                            date: "يعمل حالياً"
+                        },
+                        {
+                            name: "مراقبة حركة المرور بالذكاء الاصطناعي",
+                            owner: "بلدية ظفار",
+                            logo: "https://dmusera.netlify.app/SVG/traffic.svg",
+                            status: "قائم",
+                            purpose: "نظام ذكي لمراقبة وتحليل حركة المرور لتحسين الانسيابية وتقليل الازدحام.",
+                            data: "بيانات حية لحركة السير، تحليلات، تقارير.",
+                            date: "يعمل حالياً"
+                        },
+                        {
+                            name: "الخدمات الاستباقية",
+                            owner: "بلدية ظفار",
+                            logo: "https://dmusera.netlify.app/SVG/proactive.svg",
+                            status: "قائم",
+                            purpose: "تقديم خدمات للمتعاملين بشكل استباقي قبل طلبها بناءً على بياناتهم.",
+                            data: "تجديد التراخيص، إشعارات مهمة، توصيات شخصية.",
+                            date: "يعمل حالياً"
+                        }
+                    ]
                 },
                 {
-                    name: "نظام إدارة العقود",
-                    owner: "بلدية ظفار",
-                    logo: "https://dmusera.netlify.app/SVG/aqd.svg",
-                    status: "قائم",
-                    purpose: "إدارة عقود الإيجار والاستثمار الخاصة بأملاك البلدية.",
-                    data: "بيانات المستأجر، تفاصيل العقد، الدفعات المالية، مدة العقد.",
-                    date: "يعمل حالياً"
+                    title: "التطبيقات",
+                    items: [
+                        {
+                            name: "تطبيق مواسم ظفار",
+                            owner: "بلدية ظفار",
+                            logo: "https://edm.gov.om/wp-content/uploads/2024/11/مواسم-ظقار.png",
+                            status: "تطبيق جوال",
+                            googlePlay: "https://play.google.com/store/search?q=%D9%85%D9%88%D8%A7%D8%B3%D9%85+%D8%B8%D9%81%D8%A7%D8%B1&c=apps&androidId=112428753415760752978",
+                            appStore: "https://apps.apple.com/om/app/dhofar-seasons/id1636104586"
+                        },
+                        {
+                            name: "تطبيق أبشر",
+                            owner: "بلدية ظفار",
+                            logo: "https://edm.gov.om/wp-content/uploads/2025/05/absher-icon.png",
+                            status: "تطبيق جوال",
+                            googlePlay: "https://play.google.com/store/apps/details?id=dhofar.municipality.support",
+                            appStore: "https://apps.apple.com/om/app/absher-%D8%A3%D8%A8%D8%B4%D8%B1/id1632896398"
+                        }
+                    ]
                 },
                 {
-                    name: "منصة الشكاوى والبلاغات",
-                    owner: "بلدية ظفار",
-                    logo: "https://dmusera.netlify.app/SVG/call.svg",
-                    status: "قائم",
-                    purpose: "استقبال ومتابعة شكاوى وبلاغات المواطنين والمقيمين.",
-                    data: "بيانات المبلغ، نوع البلاغ، الموقع، الصور المرفقة.",
-                    date: "يعمل حالياً"
+                    title: "بوابة خدمات بلدية ظفار",
+                    items: [
+                         {
+                            name: "مصادقات مسارات تمديدات الخدمة",
+                            owner: "بلدية ظفار",
+                            logo: "https://edm.gov.om/wp-content/uploads/2021/05/مصادقات-مسارات-تمديدات-الخدمات-3.svg",
+                            status: "قائم",
+                            purpose: "خدمة لطلب المصادقة على مسارات تمديدات الخدمات (كهرباء، ماء، اتصالات).",
+                            data: "مخططات المسار، إحداثيات، نوع الخدمة.",
+                            date: "يعمل حالياً"
+                        },
+                        {
+                            name: "عقود الايجار والتراخيص المؤقتة",
+                            owner: "بلدية ظفار",
+                            logo: "https://edm.gov.om/wp-content/uploads/2021/05/%D8%B9%D9%82%D9%88%D8%AF-%D8%A7%D9%84%D8%A7%D9%8A%D8%AC%D8%A7%D8%B1-2.svg",
+                            status: "قائم",
+                            purpose: "إدارة عقود الإيجار والاستثمار الخاصة بأملاك البلدية وإصدار التراخيص المؤقتة.",
+                            data: "بيانات المستأجر، تفاصيل العقد، الدفعات المالية، مدة العقد.",
+                            date: "يعمل حالياً"
+                        },
+                        {
+                            name: "الترخيص البلدي",
+                            owner: "بلدية ظفار",
+                            logo: "https://edm.gov.om/wp-content/uploads/2021/05/%D8%A7%D9%84%D8%AA%D8%B1%D8%AE%D9%8A%D8%B5-%D8%A7%D9%84%D8%A8%D9%84%D8%AF%D9%8A-2.svg",
+                            status: "قائم",
+                            purpose: "إصدار ومتابعة جميع أنواع التراخيص البلدية العامة.",
+                            data: "بيانات المالك، بيانات الموقع، نوع الترخيص، المستندات المطلوبة.",
+                            date: "يعمل حالياً"
+                        },
+                        {
+                            name: "تراخيص اباحة ورقابة البناء",
+                            owner: "بلدية ظفار",
+                            logo: "https://edm.gov.om/wp-content/uploads/2021/05/تراخيص-اباحة-ورقابة-البناء-2.svg",
+                            status: "قائم",
+                            purpose: "تقديم وإدارة طلبات تراخيص البناء ومتابعة مراحلها.",
+                            data: "خرائط، مستندات ملكية، موافقات هندسية.",
+                            date: "يعمل حالياً"
+                        }
+                    ]
                 },
                 {
-                    name: "نظام الرقابة والتفتيش",
-                    owner: "بلدية ظفار",
-                    logo: "https://dmusera.netlify.app/SVG/search.svg",
-                    status: "قائم",
-                    purpose: "تنظيم وأتمتة عمليات التفتيش الميداني على المحلات والمنشآت.",
-                    data: "جدول الزيارات، تقارير التفتيش، المخالفات، الإجراءات المتخذة.",
-                    date: "يعمل حالياً"
+                    title: "منصة موظفي بلدية ظفار \"كفاءة\"",
+                    items: [
+                        {
+                            name: "منصة الاستثمار",
+                            owner: "بلدية ظفار",
+                            logo: "https://edm.gov.om/wp-content/uploads/2024/07/ESTETHMAR.svg",
+                            status: "قائم",
+                            purpose: "عرض وإدارة الفرص الاستثمارية التابعة لبلدية ظفار.",
+                            data: "تفاصيل الفرصة، الشروط، نماذج التقديم.",
+                            date: "يعمل حالياً"
+                        },
+                        {
+                            name: "نظام إدارة المشاريع",
+                            owner: "بلدية ظفار",
+                            logo: "https://edm.gov.om/wp-content/uploads/2024/07/MASHAREE.svg",
+                            status: "قائم",
+                            purpose: "متابعة سير العمل في المشاريع التنموية والخدمية للبلدية.",
+                            data: "خطة المشروع، نسبة الإنجاز، الميزانية، التقارير الدورية.",
+                            date: "يعمل حالياً"
+                        },
+                        {
+                            name: "نظام الرقابة والتفتيش",
+                            owner: "بلدية ظفار",
+                            logo: "https://dmusera.netlify.app/SVG/search.svg",
+                            status: "قائم",
+                            purpose: "تنظيم وأتمتة عمليات التفتيش الميداني على المحلات والمنشآت.",
+                            data: "جدول الزيارات، تقارير التفتيش، المخالفات، الإجراءات المتخذة.",
+                            date: "يعمل حالياً"
+                        }
+                    ]
                 },
-                 {
-                    name: "نظام إدارة المشاريع",
-                    owner: "بلدية ظفار",
-                    logo: "https://dmusera.netlify.app/SVG/proj.svg",
-                    status: "قائم",
-                    purpose: "متابعة سير العمل في المشاريع التنموية والخدمية للبلدية.",
-                    data: "خطة المشروع، نسبة الإنجاز، الميزانية، التقارير الدورية.",
-                    date: "يعمل حالياً"
+                {
+                    title: "المنصات",
+                    items: [
+                        {
+                            name: "منصة صلالة الذكية",
+                            owner: "بلدية ظفار",
+                            logo: "https://edm.gov.om/wp-content/uploads/2025/07/salalah-smart-city-logo-1.png",
+                            status: "قائم",
+                            purpose: "منصة متكاملة لخدمات المدن الذكية في صلالة.",
+                            data: "بيانات المرور، الخدمات العامة، الفعاليات.",
+                            date: "يعمل حالياً"
+                        },
+                        {
+                            name: "ميتافيرس الخدمات ببلدية ظفار",
+                            owner: "بلدية ظفار",
+                            logo: "https://edm.gov.om/wp-content/uploads/2025/07/dm-metaverse-1.png",
+                            status: "قائم",
+                            purpose: "تقديم خدمات العملاء في بيئة افتراضية تفاعلية.",
+                            data: "الاستفسارات، حجز المواعيد، جولات افتراضية.",
+                            date: "يعمل حالياً"
+                        }
+                    ]
                 }
             ];
 
             const completedGrid = document.getElementById('completed-grid');
             const plannedGrid = document.getElementById('planned-grid');
-            const municipalityGrid = document.getElementById('municipality-grid');
+            const municipalityContent = document.getElementById('municipality-content');
             const modal = document.getElementById('info-modal');
             const modalOverlay = document.querySelector('.modal-overlay');
             const modalContent = document.querySelector('.modal-content');
@@ -422,6 +558,13 @@
                 const card = document.createElement('div');
                 card.className = 'logo-card rounded-2xl p-4 flex flex-col items-center justify-between text-center cursor-pointer';
                 card.style.minHeight = '200px'; 
+                if (item.status === 'تطبيق جوال' || item.logo.includes('salalah-smart-city') || item.logo.includes('dm-metaverse') || item.logo.includes('sahalah-icon') || item.logo.includes('cropped-whitelabel')) {
+                    card.classList.add('app-icon-card');
+                }
+                 if(item.logo.includes('amana.png') || item.logo.includes('doc.png')) {
+                    card.classList.add('no-filter');
+                }
+
 
                 const logoContainer = document.createElement('div');
                 logoContainer.className = 'h-28 flex items-center justify-center w-full';
@@ -458,12 +601,47 @@
                 }
             });
             
-            municipalitySystemsData.forEach(item => {
-                const card = createCard(item);
-                municipalityGrid.appendChild(card);
+            municipalityCategories.forEach(category => {
+                const title = document.createElement('h2');
+                title.className = 'section-title';
+                title.textContent = category.title;
+                municipalityContent.appendChild(title);
+
+                const grid = document.createElement('div');
+                grid.className = 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6';
+                
+                category.items.forEach(item => {
+                    const card = createCard(item);
+                    grid.appendChild(card);
+                });
+                
+                municipalityContent.appendChild(grid);
             });
 
             function openModal(item) {
+                const modalInfoSection = document.getElementById('modal-info-section');
+                const modalAppSection = document.getElementById('modal-app-section');
+                const modalDownloads = document.getElementById('modal-downloads');
+                
+                if (item.status === 'تطبيق جوال') {
+                    modalInfoSection.classList.add('hidden');
+                    modalAppSection.classList.remove('hidden');
+                    modalDownloads.innerHTML = `
+                        <a href="${item.googlePlay}" target="_blank" class="download-button">
+                            <img src="https://edm.gov.om/wp-content/uploads/2025/05/googleplay.svg" alt="Google Play">
+                        </a>
+                        <a href="${item.appStore}" target="_blank" class="download-button">
+                            <img src="https://edm.gov.om/wp-content/uploads/2025/05/Download-on-the-App-Store-01-1.svg" alt="App Store">
+                        </a>
+                    `;
+                } else {
+                    modalInfoSection.classList.remove('hidden');
+                    modalAppSection.classList.add('hidden');
+                    document.getElementById('modal-purpose').textContent = item.purpose || 'لا تتوفر تفاصيل.';
+                    document.getElementById('modal-data').textContent = item.data || 'لا تتوفر تفاصيل.';
+                    document.getElementById('modal-date').textContent = item.date || 'غير محدد.';
+                }
+
                 const modalLogoContainer = document.getElementById('modal-logo-container');
                 modalLogoContainer.innerHTML = ''; 
                 const modalImg = document.createElement('img');
@@ -471,6 +649,9 @@
                 modalImg.src = item.logo;
                 modalImg.alt = `شعار ${item.owner}`;
                 modalImg.className = 'h-full w-full object-contain';
+                 if (item.status === 'تطبيق جوال') {
+                    modalImg.style.borderRadius = '1.5rem';
+                }
                 modalImg.onerror = () => {
                     modalLogoContainer.innerHTML = ''; 
                     const fallback = document.createElement('div');
@@ -482,14 +663,11 @@
                 
                 document.getElementById('modal-title').textContent = item.name;
                 document.getElementById('modal-subtitle').textContent = item.owner;
-                document.getElementById('modal-purpose').textContent = item.purpose || 'لا تتوفر تفاصيل.';
-                document.getElementById('modal-data').textContent = item.data || 'لا تتوفر تفاصيل.';
-                document.getElementById('modal-date').textContent = item.date || 'غير محدد.';
 
                 const statusBadge = document.getElementById('modal-status');
                 statusBadge.textContent = item.status;
                 statusBadge.className = 'status-badge'; 
-                if (item.status.includes('تم') || item.status.includes('قائم')) {
+                if (item.status.includes('تم') || item.status.includes('قائم') || item.status.includes('تطبيق')) {
                     statusBadge.classList.add('status-completed');
                 } else if (item.status.includes('قيد')) {
                     statusBadge.classList.add('status-inprogress');
