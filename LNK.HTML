@@ -24,13 +24,20 @@
             animation: gradientAnimation 15s ease infinite;
         }
         .logo-card {
-            background-color: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(4px);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            /* Glassmorphism Effect */
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, background-color 0.3s ease;
         }
         .logo-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        /* Convert SVGs and PNGs to white */
+        .logo-card img[src$=".svg"],
+        .logo-card img[src$=".png"] {
+            filter: brightness(0) invert(1);
         }
         .modal-overlay {
             transition: opacity 0.3s ease;
@@ -53,10 +60,10 @@
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            color: #4a5568;
+            color: #ffffff; /* White text for fallback */
             height: 100%;
             width: 100%;
-            background-color: #edf2f7;
+            background-color: rgba(0, 0, 0, 0.2); /* Darker fallback bg */
             border-radius: 0.375rem;
             text-align: center;
             padding: 0.5rem;
@@ -103,7 +110,7 @@
             <div class="p-6">
                 <div class="flex justify-between items-start mb-5">
                     <div class="flex items-center gap-4">
-                        <div id="modal-logo-container" class="w-24 h-24 flex-shrink-0 bg-white rounded-md flex items-center justify-center">
+                        <div id="modal-logo-container" class="w-24 h-24 flex-shrink-0 bg-gray-100 rounded-md flex items-center justify-center p-2">
                             <img id="modal-logo" src="" alt="شعار الجهة" class="h-full w-full object-contain">
                         </div>
                         <div>
@@ -330,7 +337,7 @@
                 const textContainer = document.createElement('div');
                 
                 const platformName = document.createElement('p');
-                platformName.className = 'mt-2 font-semibold text-gray-800 text-sm leading-tight';
+                platformName.className = 'mt-2 font-semibold text-emerald-200 text-sm leading-tight'; // Text color changed to light green mint
                 platformName.textContent = item.name; // Display platform name instead of owner
 
                 textContainer.appendChild(platformName);
@@ -364,7 +371,7 @@
                 modalImg.onerror = () => {
                     modalLogoContainer.innerHTML = ''; 
                     const fallback = document.createElement('div');
-                    fallback.className = 'logo-img-fallback';
+                    fallback.className = 'logo-img-fallback text-gray-500 bg-gray-200'; // Modal fallback has different style
                     fallback.textContent = item.owner;
                     modalLogoContainer.appendChild(fallback);
                 };
