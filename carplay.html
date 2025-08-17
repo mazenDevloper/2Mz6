@@ -20,7 +20,7 @@
     <!-- Font Awesome for additional icons (e.g., Trip log) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <!-- Google Maps API script -->
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBRqAHJ2elbE_Z7NXXYC50XZpqi6HbG6Rk&libraries=places&callback=initMap"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBRqAHJ2elbE_Z7NXXYC50XZpqi6HbG6Rk&libraries=places&callback=onGoogleMapsApiLoaded"></script>
     <!-- Chart.js for the new weekly forecast chart -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- YouTube Iframe API -->
@@ -1496,7 +1496,28 @@ if ("serviceWorker" in navigator) {
         function navigateBackToPlaylists() { youtubePlaylistView.classList.remove('hidden'); youtubeVideoListView.classList.add('hidden'); youtubeSearchResultsView.classList.add('hidden'); youtubeSuggestionsDiv.classList.remove('hidden'); activeMediaView = 'playlist'; currentPlayingPlaylistId = ''; backToPlaylistsBottomButton.style.display = 'none'; backToPlaylistsBottomButtonSearch.style.display = 'none'; resetYoutubeSearchUI(); setTimeout(() => { const firstPlaylistItem = youtubePlaylistView.querySelector('.grid-item'); if (firstPlaylistItem) setFocus(firstPlaylistItem); }, 100); }
 
         // --- Google Map and Geolocation ---
-        function initMap() { const mapOpts = { center: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon }, zoom: appState.mapLocation.zoom, disableDefaultUI: true, zoomControl: true }; dashboardGoogleMap = new google.maps.Map(document.getElementById('dashboard-google-map'), mapOpts); dashboardGoogleMarker = new google.maps.Marker({ position: mapOpts.center, map: dashboardGoogleMap, icon: { url: 'https://dmusera.netlify.app/3606.png', scaledSize: new google.maps.Size(90, 100) } }); trafficLayerDashboard = new google.maps.TrafficLayer(); trafficLayerDashboard.setMap(dashboardGoogleMap); dashboardGoogleMap.addListener('zoom_changed', () => { if (dashboardGoogleMap.getZoom() !== appState.mapLocation.zoom) appState.mapZoomChangedByUser = true; }); startContinuousLocationTracking(); }
+        let isGoogleMapsApiReady = false;
+        let mapsInitialized = false;
+
+        function onGoogleMapsApiLoaded() {
+            isGoogleMapsApiReady = true;
+            initMap();
+        }
+
+        function initMap() {
+            if (mapsInitialized || !isGoogleMapsApiReady) return;
+            mapsInitialized = true;
+
+            const mapOpts = { center: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon }, zoom: appState.mapLocation.zoom, disableDefaultUI: true, zoomControl: true }; 
+            dashboardGoogleMap = new google.maps.Map(document.getElementById('dashboard-google-map'), mapOpts); 
+            dashboardGoogleMarker = new google.maps.Marker({ position: mapOpts.center, map: dashboardGoogleMap, icon: { url: 'https://dmusera.netlify.app/3606.png', scaledSize: new google.maps.Size(90, 100) } }); 
+            trafficLayerDashboard = new google.maps.TrafficLayer(); 
+            trafficLayerDashboard.setMap(dashboardGoogleMap); 
+            dashboardGoogleMap.addListener('zoom_changed', () => { if (dashboardGoogleMap.getZoom() !== appState.mapLocation.zoom) appState.mapZoomChangedByUser = true; }); 
+            
+            startContinuousLocationTracking(); 
+        }
+
         function updateGoogleMapLocation(pos) { const { latitude: lat, longitude: lng, heading } = pos.coords; appState.currentLocation = { lat, lng }; const newLatLng = { lat, lng }; if (dashboardGoogleMap && dashboardGoogleMarker) { dashboardGoogleMarker.setPosition(newLatLng); if (!appState.mapZoomChangedByUser) { dashboardGoogleMap.setCenter(newLatLng); dashboardGoogleMap.setZoom(appState.mapLocation.zoom); } } if (fullGoogleMap && fullGoogleMarker) { fullGoogleMarker.setPosition(newLatLng); fullGoogleMap.setCenter(newLatLng); } if (typeof heading === 'number' && !isNaN(heading)) { if (dashboardGoogleMap) dashboardGoogleMap.setHeading(heading); if (fullGoogleMap) fullGoogleMap.setHeading(heading); } }
         function startContinuousLocationTracking() { if (navigator.geolocation) { watchId = navigator.geolocation.watchPosition((pos) => { updateGoogleMapLocation(pos); appState.hasShownGeolocationError = false; }, (err) => { if (!appState.hasShownGeolocationError) { let msg = 'تعذر تتبع موقعك. يرجى التحقق من أذونات الموقع.'; if (err.code === 1) msg += ' إذا كان التطبيق في iframe، تأكد من وجود `allow="geolocation"`.'; showMessageBox(msg); appState.hasShownGeolocationError = true; } }, { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }); } else { showMessageBox('الموقع الجغرافي غير مدعوم.'); } }
         function centerMapOnUserLocation() { if (navigator.geolocation) { navigator.geolocation.getCurrentPosition((pos) => { updateGoogleMapLocation(pos); showMessageBox(`تم تحديث الخريطة.`); }, () => showMessageBox('تعذر الحصول على موقعك الحالي.'), { enableHighAccuracy: true }); } }
@@ -1772,7 +1793,7 @@ if ("serviceWorker" in navigator) {
         function playWelcomeMessage() {
             const today = new Date();
             const currentHour = today.getHours();
-            const gregorianDate = new Intl.DateTimeFormat('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(today);
+            const gregorianDate = new Intl.DateTimeFormat('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(today);
             const hijriDate = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', { year: 'numeric', month: 'long', day: 'numeric' }).format(today);
 
             let welcomeText = '';
