@@ -64,6 +64,14 @@
             height: 98%;
             max-width: none;
             max-height: none;
+            display: flex;
+            flex-direction: column;
+        }
+         .modal-content.large > .p-6 {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            min-height: 0;
         }
         .modal-content h2, .modal-content #modal-subtitle {
              color: white;
@@ -157,6 +165,17 @@
             z-index: 60;
         }
         /* --- Screenshot Gallery --- */
+        #modal-app-section {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+        .screenshot-gallery-container {
+             flex-grow: 1;
+             min-height: 0;
+             height: 80%;
+        }
         .screenshot-gallery {
             display: flex;
             overflow-x: auto;
@@ -164,7 +183,7 @@
             padding-bottom: 0.75rem;
             scrollbar-width: thin;
             scrollbar-color: rgba(185, 255, 223, 0.5) transparent;
-            height: 70vh; /* Set gallery height to 70% of viewport height */
+            height: 100%;
         }
         .screenshot-gallery::-webkit-scrollbar {
             height: 8px;
@@ -269,7 +288,7 @@
                     </div>
                 </div>
                  <div id="modal-app-section" class="hidden">
-                    <div class="border-t border-white/20 pt-4 mb-4">
+                    <div class="screenshot-gallery-container border-t border-white/20 pt-4 mb-4">
                         <div id="modal-screenshot-gallery" class="screenshot-gallery">
                             <!-- Screenshots will be injected here -->
                         </div>
