@@ -133,6 +133,20 @@
             width: auto;
             /* filter is handled by the 'no-filter' class */
         }
+        /* --- Iframe Modal --- */
+        #iframe-modal {
+            background-color: rgba(0,0,0,0.8);
+        }
+        #iframe-modal-content {
+            width: 99%;
+            height: 98%;
+        }
+        #iframe-close-button {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            z-index: 60;
+        }
     </style>
 </head>
 <body class="text-white">
@@ -175,7 +189,7 @@
         </div>
     </div>
 
-    <!-- Modal Structure -->
+    <!-- Info Modal Structure -->
     <div id="info-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50 hidden modal-overlay opacity-0">
         <div class="rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto modal-content transform scale-95 opacity-0">
             <div class="p-6">
@@ -227,6 +241,16 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Iframe Modal Structure -->
+    <div id="iframe-modal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
+        <button id="iframe-close-button" class="text-white bg-red-600 rounded-full p-2 hover:bg-red-700 transition-colors">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+        <div id="iframe-modal-content" class="bg-white rounded-lg shadow-2xl overflow-hidden">
+            <iframe id="iframe-element" src="" class="w-full h-full border-0"></iframe>
         </div>
     </div>
 
@@ -517,36 +541,28 @@
                             owner: "بلدية ظفار",
                             logo: "https://edm.gov.om/wp-content/uploads/2021/05/مصادقات-مسارات-تمديدات-الخدمات-3.svg",
                             status: "قائم",
-                            purpose: "خدمة لطلب المصادقة على مسارات تمديدات الخدمات (كهرباء، ماء، اتصالات).",
-                            data: "مخططات المسار، إحداثيات، نوع الخدمة.",
-                            date: "يعمل حالياً"
+                            link: "https://edm.gov.om"
                         },
                         {
                             name: "عقود الايجار والتراخيص المؤقتة",
                             owner: "بلدية ظفار",
                             logo: "https://edm.gov.om/wp-content/uploads/2021/05/%D8%B9%D9%82%D9%88%D8%AF-%D8%A7%D9%84%D8%A7%D9%8A%D8%AC%D8%A7%D8%B1-2.svg",
                             status: "قائم",
-                            purpose: "إدارة عقود الإيجار والاستثمار الخاصة بأملاك البلدية وإصدار التراخيص المؤقتة.",
-                            data: "بيانات المستأجر، تفاصيل العقد، الدفعات المالية، مدة العقد.",
-                            date: "يعمل حالياً"
+                            link: "https://edm.gov.om"
                         },
                         {
                             name: "الترخيص البلدي",
                             owner: "بلدية ظفار",
                             logo: "https://edm.gov.om/wp-content/uploads/2021/05/%D8%A7%D9%84%D8%AA%D8%B1%D8%AE%D9%8A%D8%B5-%D8%A7%D9%84%D8%A8%D9%84%D8%AF%D9%8A-2.svg",
                             status: "قائم",
-                            purpose: "إصدار ومتابعة جميع أنواع التراخيص البلدية العامة.",
-                            data: "بيانات المالك، بيانات الموقع، نوع الترخيص، المستندات المطلوبة.",
-                            date: "يعمل حالياً"
+                            link: "https://edm.gov.om"
                         },
                         {
                             name: "تراخيص اباحة ورقابة البناء",
                             owner: "بلدية ظفار",
                             logo: "https://edm.gov.om/wp-content/uploads/2021/05/تراخيص-اباحة-ورقابة-البناء-2.svg",
                             status: "قائم",
-                            purpose: "تقديم وإدارة طلبات تراخيص البناء ومتابعة مراحلها.",
-                            data: "خرائط، مستندات ملكية، موافقات هندسية.",
-                            date: "يعمل حالياً"
+                            link: "https://edm.gov.om"
                         }
                     ]
                 },
@@ -558,27 +574,21 @@
                             owner: "بلدية ظفار",
                             logo: "https://edm.gov.om/wp-content/uploads/2024/07/ESTETHMAR.svg",
                             status: "قائم",
-                            purpose: "عرض وإدارة الفرص الاستثمارية التابعة لبلدية ظفار.",
-                            data: "تفاصيل الفرصة، الشروط، نماذج التقديم.",
-                            date: "يعمل حالياً"
+                            link: "https://edm.gov.om/EMP"
                         },
                         {
                             name: "نظام إدارة المشاريع",
                             owner: "بلدية ظفار",
                             logo: "https://edm.gov.om/wp-content/uploads/2024/07/MASHAREE.svg",
                             status: "قائم",
-                            purpose: "متابعة سير العمل في المشاريع التنموية والخدمية للبلدية.",
-                            data: "خطة المشروع، نسبة الإنجاز، الميزانية، التقارير الدورية.",
-                            date: "يعمل حالياً"
+                            link: "https://edm.gov.om/EMP"
                         },
                         {
                             name: "نظام الرقابة والتفتيش",
                             owner: "بلدية ظفار",
                             logo: "https://dmusera.netlify.app/SVG/search.svg",
                             status: "قائم",
-                            purpose: "تنظيم وأتمتة عمليات التفتيش الميداني على المحلات والمنشآت.",
-                            data: "جدول الزيارات، تقارير التفتيش، المخالفات، الإجراءات المتخذة.",
-                            date: "يعمل حالياً"
+                            link: "https://edm.gov.om/EMP"
                         }
                     ]
                 },
@@ -614,6 +624,9 @@
             const modalOverlay = document.querySelector('.modal-overlay');
             const modalContent = document.querySelector('.modal-content');
             const closeModalBtn = document.getElementById('close-modal');
+            const iframeModal = document.getElementById('iframe-modal');
+            const iframeElement = document.getElementById('iframe-element');
+            const iframeCloseBtn = document.getElementById('iframe-close-button');
 
             const logoMap = {
                 "وزارة التجارة والصناعة وترويج الاستثمار": "https://dmusera.netlify.app/SVG/BUSN.svg",
@@ -690,7 +703,13 @@
                 card.appendChild(logoContainer);
                 card.appendChild(textContainer);
 
-                card.addEventListener('click', () => openModal(item));
+                card.addEventListener('click', () => {
+                    if (item.link) {
+                        openIframeModal(item.link);
+                    } else {
+                        openModal(item);
+                    }
+                });
                 return card;
             };
 
@@ -817,8 +836,19 @@
                     modal.classList.add('hidden');
                 }, 300);
             }
+            
+            function openIframeModal(url) {
+                iframeElement.src = url;
+                iframeModal.classList.remove('hidden');
+            }
+
+            function closeIframeModal() {
+                iframeElement.src = 'about:blank';
+                iframeModal.classList.add('hidden');
+            }
 
             closeModalBtn.addEventListener('click', closeModal);
+            iframeCloseBtn.addEventListener('click', closeIframeModal);
             modalOverlay.addEventListener('click', (event) => {
                 if (event.target === modalOverlay) {
                     closeModal();
