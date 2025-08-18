@@ -128,6 +128,11 @@
             height: 40px;
             width: auto;
         }
+        .related-system-item img {
+            height: 60px;
+            width: auto;
+            /* filter is handled by the 'no-filter' class */
+        }
     </style>
 </head>
 <body class="text-white">
@@ -191,6 +196,14 @@
                         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
+                <div id="modal-related-systems-section" class="hidden">
+                    <div class="border-t border-white/20 pt-4">
+                        <h3 class="text-lg mb-2">الأنظمة والمشاريع المرتبطة</h3>
+                        <div id="modal-related-systems" class="flex flex-wrap gap-4 mt-2">
+                            <!-- Related systems will be injected here -->
+                        </div>
+                    </div>
+                </div>
                 <div id="modal-info-section" class="space-y-5">
                     <div class="border-t border-white/20 pt-4">
                         <h3 class="text-lg mb-2">الغرض من الربط والتكامل</h3>
@@ -226,7 +239,10 @@
                     status: "تم التكامل",
                     purpose: "الحصول على بيانات المؤسسات والشركات لخدمة منظومة التراخيص البلدية، معرفة الأفرع والأنشطة، وتمكين المفوضين من تقديم الطلبات.",
                     data: "بيانات الشركات (الاسم، حالة التسجيل، الأفرع، الأنشطة، الملاك، الشركاء، المفوضين)، سجل الالتزامات.",
-                    date: "منجز"
+                    date: "منجز",
+                    relatedSystems: [
+                        { name: "استثمر بسهولة", logo: "https://www.business.gov.om/ieasy/wp-content/uploads/2023/11/logo.svg" }
+                    ]
                 },
                 {
                     name: "منظومة إدارة الموارد البشرية (مورد بلس)",
@@ -242,7 +258,10 @@
                     status: "تم التكامل",
                     purpose: "ربط نظام الأداء الفردي للموظفين بالنظام المركزي.",
                     data: "بيانات الأداء، تقييمات، أهداف وظيفية.",
-                    date: "منجز"
+                    date: "منجز",
+                    relatedSystems: [
+                        { name: "إجادة", logo: "https://edm.gov.om/wp-content/uploads/2023/07/ejada.png" }
+                    ]
                 },
                 {
                     name: "النظام المالي الموحد",
@@ -258,7 +277,10 @@
                     status: "تم التكامل",
                     purpose: "تسجيل ومتابعة جميع الأصول الحكومية بشكل مركزي.",
                     data: "بيانات الأصول، المواقع، الحالة.",
-                    date: "منجز"
+                    date: "منجز",
+                    relatedSystems: [
+                        { name: "أصول", logo: "https://edm.gov.om/wp-content/uploads/2024/11/asol-1.svg" }
+                    ]
                 },
                 {
                     name: "منظومة إدارة المستندات (وصول)",
@@ -266,7 +288,10 @@
                     status: "قيد التنفيذ",
                     purpose: "تنفيذ مشروع 'وصول' لأرشفة وإدارة المستندات إلكترونياً في محافظة ظفار.",
                     data: "المستندات والوثائق الرسمية، معاملات الأرشفة.",
-                    date: "تم تشكيل فريق عمل"
+                    date: "تم تشكيل فريق عمل",
+                     relatedSystems: [
+                        { name: "وصول", logo: "https://www.nraa.gov.om/wp-content/uploads/2021/05/logo-nraa.png" }
+                    ]
                 },
                 {
                     name: "منظومة إدارة المناقصات (إسناد)",
@@ -274,7 +299,10 @@
                     status: "تم الربط",
                     purpose: "إدارة وطرح المناقصات الحكومية بشكل إلكتروني.",
                     data: "بيانات المناقصات، العروض، الشركات المتقدمة.",
-                    date: "منجز"
+                    date: "منجز",
+                    relatedSystems: [
+                        { name: "إسناد", logo: "https://etendering.tenderboard.gov.om/product/images/dashboard/NewHomeImg/right-logo.png" }
+                    ]
                 },
                 {
                     name: " منصة المقترحات والشكاوى- تجاوب",
@@ -282,7 +310,10 @@
                     status: "تم التكامل",
                     purpose: "الحصول على بيانات معاملات أنظمة العقود وتراخيص البناء وتصاريح الحفر.",
                     data: "بيانات مقدم الطلب، بيانات الشركة المنفذة، بيانات المعاملة، مدة تنفيذ المعاملة (SLA).",
-                    date: "منجز"
+                    date: "منجز",
+                    relatedSystems: [
+                        { name: "تجاوب", logo: "https://edm.gov.om/wp-content/uploads/2025/02/tajawob2.svg" }
+                    ]
                 },
                 {
                     name: "المنصة الرقمية للأحوال المدنية",
@@ -588,7 +619,7 @@
                 "وزارة التجارة والصناعة وترويج الاستثمار": "https://dmusera.netlify.app/SVG/BUSN.svg",
                 "وزارة العمل": "https://dmusera.netlify.app/SVG/JOB_1.svg",
                 "وزارة المالية": "https://dmusera.netlify.app/SVG/mal.svg",
-                "هيئة الوثائق والمحفوظات الوطنية": "https://dmusera.netlify.app/SVG/doc.png",
+                "هيئة الوثائق والمحفوظات الوطنية": "https://www.nraa.gov.om/wp-content/uploads/2021/05/logo-nraa.png",
                 "الأمانة العامة لمجلس المناقصات": "https://dmusera.netlify.app/amana.png",
                 "وحدة متابعة تنفيذ رؤية عمان 2040": "https://dmusera.netlify.app/SVG/om2040.svg",
                 "شرطة عمان السلطانية": "https://www.2oman.net/wp-content/uploads/2024/10/rop2-01.svg",
@@ -692,11 +723,22 @@
             function openModal(item) {
                 const modalInfoSection = document.getElementById('modal-info-section');
                 const modalAppSection = document.getElementById('modal-app-section');
-                const modalDownloads = document.getElementById('modal-downloads');
-                
+                const modalRelatedSystemsSection = document.getElementById('modal-related-systems-section');
+
+                // Show the main info section for all items except apps
+                if (item.status !== 'تطبيق جوال') {
+                    modalInfoSection.classList.remove('hidden');
+                    document.getElementById('modal-purpose').textContent = item.purpose || 'لا تتوفر تفاصيل.';
+                    document.getElementById('modal-data').textContent = item.data || 'لا تتوفر تفاصيل.';
+                    document.getElementById('modal-date').textContent = item.date || 'غير محدد.';
+                } else {
+                     modalInfoSection.classList.add('hidden');
+                }
+
+                // Show app section only for apps
                 if (item.status === 'تطبيق جوال') {
-                    modalInfoSection.classList.add('hidden');
                     modalAppSection.classList.remove('hidden');
+                    const modalDownloads = document.getElementById('modal-downloads');
                     modalDownloads.innerHTML = `
                         <a href="${item.googlePlay}" target="_blank" class="download-button">
                             <img src="https://edm.gov.om/wp-content/uploads/2025/05/googleplay.svg" alt="Google Play">
@@ -706,12 +748,27 @@
                         </a>
                     `;
                 } else {
-                    modalInfoSection.classList.remove('hidden');
                     modalAppSection.classList.add('hidden');
-                    document.getElementById('modal-purpose').textContent = item.purpose || 'لا تتوفر تفاصيل.';
-                    document.getElementById('modal-data').textContent = item.data || 'لا تتوفر تفاصيل.';
-                    document.getElementById('modal-date').textContent = item.date || 'غير محدد.';
                 }
+
+                // Show related systems section if it exists
+                if (item.relatedSystems && item.relatedSystems.length > 0) {
+                     modalRelatedSystemsSection.classList.remove('hidden');
+                     const modalRelatedSystems = document.getElementById('modal-related-systems');
+                     modalRelatedSystems.innerHTML = ''; // Clear previous
+                     item.relatedSystems.forEach(system => {
+                         const systemEl = document.createElement('div');
+                         systemEl.className = 'related-system-item text-center no-filter';
+                         systemEl.innerHTML = `
+                            <img src="${system.logo}" alt="${system.name}" class="mx-auto">
+                            <p class="mt-2">${system.name}</p>
+                         `;
+                         modalRelatedSystems.appendChild(systemEl);
+                     });
+                } else {
+                    modalRelatedSystemsSection.classList.add('hidden');
+                }
+
 
                 const modalLogoContainer = document.getElementById('modal-logo-container');
                 modalLogoContainer.innerHTML = ''; 
