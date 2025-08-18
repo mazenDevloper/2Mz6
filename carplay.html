@@ -1792,8 +1792,9 @@ if ("serviceWorker" in navigator) {
         // --- Welcome Voice Message ---
         function playWelcomeMessage() {
             const today = new Date();
-            const currentHour = today.getHours();
-            const gregorianDate = new Intl.DateTimeFormat('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(today);
+            today.setFullYear(2025); // Set the year to 2025
+            const currentHour = new Date().getHours(); // Use current hour for morning/evening logic
+            const gregorianDate = new Intl.DateTimeFormat('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(today);
             const hijriDate = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', { year: 'numeric', month: 'long', day: 'numeric' }).format(today);
 
             let welcomeText = '';
@@ -1803,7 +1804,6 @@ if ("serviceWorker" in navigator) {
                 if ('speechSynthesis' in window) {
                     const utterance = new SpeechSynthesisUtterance(textToSpeak);
                     const voices = window.speechSynthesis.getVoices();
-                    // Try to find a male Arabic voice, fallback to any Arabic voice
                     let arabicVoice = voices.find(voice => voice.lang.startsWith('ar') && voice.name.includes('Male'));
                     if (!arabicVoice) {
                         arabicVoice = voices.find(voice => voice.lang.startsWith('ar'));
@@ -1829,23 +1829,16 @@ if ("serviceWorker" in navigator) {
                 }
             }
 
-            // Check if weather data is ready before proceeding
             const checkWeatherAndSpeak = () => {
                 if (appState.weather.temperature !== null) {
-                    if (currentHour < 12) { // Morning (before 12 PM)
-                        welcomeText = `مرحبا تاريخ اليوم  ${hijriDate} `;
-                        speakWithVoicesReady(welcomeText);
+                    welcomeText = `مرحبا تاريخ اليوم ${gregorianDate} ميلادي الموافق ${hijriDate} هجريا`;
+                    speakWithVoicesReady(welcomeText);
 
-                        setTimeout(() => {
-                            welcomeText = `مرحبا تاريخ اليوم  ${hijriDate} `;
-                        speakWithVoicesReady(welcomeText);
-                        }, 3000); 
-                    } else { // Evening (12 PM onwards)
-                        welcomeText = `الطقس الان ${appState.weather.temperature} درجة مئوية, ${hijriDate} `;
-                        speakWithVoicesReady(welcomeText);
-                    }
+                    setTimeout(() => {
+                        weatherText = `حالة الطقس الان ${appState.weather.temperature} درجة مئوية`;
+                        speakWithVoicesReady(weatherText);
+                    }, 4000); 
                 } else {
-                    // If weather data isn't ready, wait and try again.
                     setTimeout(checkWeatherAndSpeak, 500);
                 }
             };
