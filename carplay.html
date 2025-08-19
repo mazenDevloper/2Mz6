@@ -1831,7 +1831,7 @@ if ("serviceWorker" in navigator) {
 
             const checkWeatherAndSpeak = () => {
                 if (appState.weather.temperature !== null) {
-                    welcomeText = `مرحبا تاريخ اليوم ${gregorianDate} ميلادي الموافق ${hijriDate} هجريا`;
+                    welcomeText = `مرحبا تاريخ اليوم ${gregorianDate}  الموافق `;
                     speakWithVoicesReady(welcomeText);
 
                     setTimeout(() => {
