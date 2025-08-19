@@ -1811,7 +1811,7 @@ if ("serviceWorker" in navigator) {
                     if (arabicVoice) {
                         utterance.voice = arabicVoice;
                     }
-                    utterance.lang = 'ar-SA';
+                    utterance.lang = 'ar-OM';
                     utterance.rate = 0.9;
                     window.speechSynthesis.speak(utterance);
                 } else {
@@ -1831,7 +1831,7 @@ if ("serviceWorker" in navigator) {
 
             const checkWeatherAndSpeak = () => {
                 if (appState.weather.temperature !== null) {
-                    welcomeText = `مرحبا تاريخ اليوم ${gregorianDate}  الموافق `;
+                    welcomeText = `مرحبا تاريخ اليوم ${gregorianDate} `;
                     speakWithVoicesReady(welcomeText);
 
                     setTimeout(() => {
