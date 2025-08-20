@@ -315,15 +315,15 @@ if ("serviceWorker" in navigator) {
 
         /* Main CarPlay interface container adjustments */
         #carplay-main-interface {
-            position: fixed; /* Changed to fixed for default 90% fullscreen */
-            top: 4%; /* Centered vertically */
-            left: 4%; /* Centered horizontally */
-            width: 98vw; /* 90% of viewport width */
-            height: 98vh; /* 90% of viewport height */
-            transition: all 0.5s ease-in-out; /* Smooth transition for pseudo-fullscreen */
-            max-width: 1280px; /* Max width for desktop */
-            border-radius: 2rem; /* Increased rounded corners for main interface */
-        }
+    position: fixed;
+    top: 0%;
+    left: 0%;
+    width: 100vw;
+    height: 100vh;
+    transition: all 0.5s ease-in-out;
+    max-width: 1280px;
+    border-radius: 2rem;
+}
 
         /* Pseudo-fullscreen class for the CarPlay interface */
         #carplay-main-interface.carplay-pseudo-fullscreen {
@@ -452,25 +452,49 @@ if ("serviceWorker" in navigator) {
             background-color: rgba(255, 255, 255, 0.1);
             transform: translateY(-2px);
         }
-        .youtube-video-card img, .youtube-search-card img {
-            width: 100px;
-            height: 56.25px;
+        .youtube-video-card .thumbnail-container {
+            position: relative;
+            width: 120px;
+            height: 68px;
+            flex-shrink: 0;
+            margin-left: 0.75rem;
+        }
+        .youtube-video-card img {
+            width: 100%;
+            height: 100%;
             object-fit: cover;
             border-radius: 0.5rem;
-            margin-left: 0.75rem; /* Margin left for RTL */
-            flex-shrink: 0;
         }
-        .youtube-video-card h3, .youtube-search-card h3 {
+        .video-duration {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            font-size: 0.75rem;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        .video-details {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            overflow: hidden;
+        }
+        .video-title {
             font-size: 0.9rem;
-            font-weight: 500;
+            font-weight: 600;
             color: white;
             line-height: 1.3;
-            flex-grow: 1;
             overflow: hidden;
             text-overflow: ellipsis;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
+        }
+        .video-meta {
+            font-size: 0.8rem;
+            color: #aaa;
         }
 
         /* YouTube Reader Card Styling (Suggestions) */
@@ -1387,32 +1411,96 @@ if ("serviceWorker" in navigator) {
         // --- YouTube/Media Functions (REFACTORED) ---
         function onYouTubeIframeAPIReady() { isYouTubeApiReady = true; }
         
-        function createVideoCard(videoId, title, thumb) {
+        function createVideoCard(video) {
             const card = document.createElement('div');
             card.className = 'glass-surface glass-surface--svg youtube-video-card navigable grid-item';
             card.tabIndex = 0;
-            card.dataset.videoId = videoId;
+            card.dataset.videoId = video.id;
             card.innerHTML = `
-                <img src="${thumb}" alt="${title}" class="w-[100px] h-[56.25px] object-cover rounded-md ml-4 flex-shrink-0" onerror="this.onerror=null;this.src='https://placehold.co/100x56';">
-                <h3 class="font-medium text-white flex-grow overflow-hidden text-ellipsis line-clamp-2">${title}</h3>
+                <div class="thumbnail-container">
+                    <img src="${video.thumbnail}" alt="${video.title}" onerror="this.onerror=null;this.src='https://placehold.co/120x68';">
+                    <span class="video-duration">${video.duration}</span>
+                </div>
+                <div class="video-details">
+                    <h3 class="video-title">${video.title}</h3>
+                    <div class="video-meta">
+                        <span>${video.channelTitle}</span>
+                        <br>
+                        <span>${video.viewCount} مشاهدة • ${video.publishedAt}</span>
+                    </div>
+                </div>
             `;
-            card.addEventListener('click', () => showVideoPopup(videoId));
+            card.addEventListener('click', () => showVideoPopup(video.id));
             return card;
+        }
+
+        async function fetchVideosDetails(videoIds) {
+            const response = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${videoIds.join(',')}&key=${YOUTUBE_API_KEY}`);
+            const data = await response.json();
+            return data.items;
+        }
+
+        function formatDuration(isoDuration) {
+            const regex = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/;
+            const matches = isoDuration.match(regex);
+            const hours = matches[1] ? parseInt(matches[1]) : 0;
+            const minutes = matches[2] ? parseInt(matches[2]) : 0;
+            const seconds = matches[3] ? parseInt(matches[3]) : 0;
+            if (hours > 0) {
+                return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function formatViewCount(views) {
+            if (views >= 1000000) return `${(views / 1000000).toFixed(1)} مليون`;
+            if (views >= 1000) return `${(views / 1000).toFixed(0)} ألف`;
+            return views;
+        }
+
+        function formatTimeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const seconds = Math.floor((now - date) / 1000);
+            let interval = seconds / 31536000;
+            if (interval > 1) return `قبل ${Math.floor(interval)} سنوات`;
+            interval = seconds / 2592000;
+            if (interval > 1) return `قبل ${Math.floor(interval)} أشهر`;
+            interval = seconds / 86400;
+            if (interval > 1) return `قبل ${Math.floor(interval)} أيام`;
+            interval = seconds / 3600;
+            if (interval > 1) return `قبل ${Math.floor(interval)} ساعات`;
+            interval = seconds / 60;
+            if (interval > 1) return `قبل ${Math.floor(interval)} دقائق`;
+            return `قبل ${Math.floor(seconds)} ثوان`;
         }
 
         async function fetchPlaylistVideos(playlistId) {
             if (YOUTUBE_API_KEY.startsWith('YOUR_')) return showMessageBox('خطأ: لم يتم تعيين مفتاح YouTube API.');
             try {
-                const res = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&key=${YOUTUBE_API_KEY}&maxResults=20`);
+                const res = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&key=${YOUTUBE_API_KEY}&maxResults=50`);
                 const data = await res.json();
                 if (data.items && data.items.length > 0) {
+                    const videoIds = data.items.map(item => item.snippet.resourceId.videoId);
+                    const videoDetails = await fetchVideosDetails(videoIds);
+                    
                     videoListContainer.innerHTML = '';
-                    data.items.forEach(item => {
-                        const videoId = item.snippet.resourceId.videoId;
-                        const title = item.snippet.title;
-                        const thumb = item.snippet.thumbnails.medium ? item.snippet.thumbnails.medium.url : 'https://placehold.co/120x90';
-                        videoListContainer.appendChild(createVideoCard(videoId, title, thumb));
+                    videoDetails.forEach(video => {
+                        const durationSeconds = video.contentDetails.duration.match(/\d+/g).map(Number).reduce((acc, time, i, arr) => acc + time * (arr.length === 3 ? [3600, 60, 1][i] : (arr.length === 2 ? [60, 1][i] : 1)), 0);
+                        if (durationSeconds <= 61) return;
+
+                        const videoData = {
+                            id: video.id,
+                            title: video.snippet.title,
+                            thumbnail: video.snippet.thumbnails.medium.url,
+                            channelTitle: video.snippet.channelTitle,
+                            viewCount: formatViewCount(video.statistics.viewCount),
+                            publishedAt: formatTimeAgo(video.snippet.publishedAt),
+                            duration: formatDuration(video.contentDetails.duration)
+                        };
+                        videoListContainer.appendChild(createVideoCard(videoData));
                     });
+
                     youtubePlaylistView.classList.add('hidden');
                     youtubeVideoListView.classList.remove('hidden');
                     youtubeSearchResultsView.classList.add('hidden');
@@ -1432,16 +1520,29 @@ if ("serviceWorker" in navigator) {
         async function searchYouTubeVideos(query) {
             if (YOUTUBE_API_KEY.startsWith('YOUR_')) return showMessageBox('خطأ: لم يتم تعيين مفتاح YouTube API.');
             try {
-                const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&key=${YOUTUBE_API_KEY}&maxResults=20`);
+                const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&key=${YOUTUBE_API_KEY}&maxResults=50`);
                 const data = await res.json();
                 if (data.items && data.items.length > 0) {
+                    const videoIds = data.items.map(item => item.id.videoId);
+                    const videoDetails = await fetchVideosDetails(videoIds);
+                    
                     searchResultsContainer.innerHTML = '';
-                    data.items.forEach(item => {
-                        const videoId = item.id.videoId;
-                        const title = item.snippet.title;
-                        const thumb = item.snippet.thumbnails.medium ? item.snippet.thumbnails.medium.url : 'https://placehold.co/120x90';
-                        searchResultsContainer.appendChild(createVideoCard(videoId, title, thumb));
+                    videoDetails.forEach(video => {
+                        const durationSeconds = video.contentDetails.duration.match(/\d+/g).map(Number).reduce((acc, time, i, arr) => acc + time * (arr.length === 3 ? [3600, 60, 1][i] : (arr.length === 2 ? [60, 1][i] : 1)), 0);
+                        if (durationSeconds <= 61) return;
+
+                        const videoData = {
+                            id: video.id,
+                            title: video.snippet.title,
+                            thumbnail: video.snippet.thumbnails.medium.url,
+                            channelTitle: video.snippet.channelTitle,
+                            viewCount: formatViewCount(video.statistics.viewCount),
+                            publishedAt: formatTimeAgo(video.snippet.publishedAt),
+                            duration: formatDuration(video.contentDetails.duration)
+                        };
+                        searchResultsContainer.appendChild(createVideoCard(videoData));
                     });
+
                     youtubePlaylistView.classList.add('hidden');
                     youtubeVideoListView.classList.add('hidden');
                     youtubeSearchResultsView.classList.remove('hidden');
@@ -1804,6 +1905,7 @@ if ("serviceWorker" in navigator) {
                 if ('speechSynthesis' in window) {
                     const utterance = new SpeechSynthesisUtterance(textToSpeak);
                     const voices = window.speechSynthesis.getVoices();
+                    // Try to find a male Arabic voice, fallback to any Arabic voice
                     let arabicVoice = voices.find(voice => voice.lang.startsWith('ar') && voice.name.includes('Male'));
                     if (!arabicVoice) {
                         arabicVoice = voices.find(voice => voice.lang.startsWith('ar'));
@@ -1811,7 +1913,7 @@ if ("serviceWorker" in navigator) {
                     if (arabicVoice) {
                         utterance.voice = arabicVoice;
                     }
-                    utterance.lang = 'ar-OM';
+                    utterance.lang = 'ar-SA';
                     utterance.rate = 0.9;
                     window.speechSynthesis.speak(utterance);
                 } else {
@@ -1829,9 +1931,10 @@ if ("serviceWorker" in navigator) {
                 }
             }
 
+            // Check if weather data is ready before proceeding
             const checkWeatherAndSpeak = () => {
                 if (appState.weather.temperature !== null) {
-                    welcomeText = `مرحبا تاريخ اليوم ${gregorianDate} `;
+                    welcomeText = `مرحبا تاريخ اليوم ${gregorianDate} ميلادي الموافق ${hijriDate} هجريا`;
                     speakWithVoicesReady(welcomeText);
 
                     setTimeout(() => {
@@ -1839,6 +1942,7 @@ if ("serviceWorker" in navigator) {
                         speakWithVoicesReady(weatherText);
                     }, 4000); 
                 } else {
+                    // If weather data isn't ready, wait and try again.
                     setTimeout(checkWeatherAndSpeak, 500);
                 }
             };
