@@ -1897,8 +1897,8 @@ if ("serviceWorker" in navigator) {
         function playWelcomeMessage() {
             const today = new Date();
             today.setFullYear(2025);
-            const gregorianDate = new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'long', day: 'numeric' }).format(today);
-            const hijriDate = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(today);
+            const gregorianDate = new Intl.DateTimeFormat('en-UK', {  year: 'numeric', month: 'long', day: 'numeric' }).format(today);
+            const hijriDate = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', { weekday: 'long', month: 'long', day: 'numeric' }).format(today);
 
             let welcomeText = '';
             let weatherText = '';
@@ -1907,6 +1907,7 @@ if ("serviceWorker" in navigator) {
                 if ('speechSynthesis' in window) {
                     const utterance = new SpeechSynthesisUtterance(textToSpeak);
                     const voices = window.speechSynthesis.getVoices();
+                    // Try to find a male Arabic voice, fallback to any Arabic voice
                     let arabicVoice = voices.find(voice => voice.lang.startsWith('ar') && voice.name.includes('Male'));
                     if (!arabicVoice) {
                         arabicVoice = voices.find(voice => voice.lang.startsWith('ar'));
@@ -1932,9 +1933,10 @@ if ("serviceWorker" in navigator) {
                 }
             }
 
+            // Check if weather data is ready before proceeding
             const checkWeatherAndSpeak = () => {
                 if (appState.weather.temperature !== null) {
-                    welcomeText = `مرحبا تاريخ اليوم ${gregorianDate}  الموافق ${hijriDate} `;
+                    welcomeText = `مرحبا تاريخ اليوم ${gregorianDate} ميلادي الموافق ${hijriDate} هجريا`;
                     speakWithVoicesReady(welcomeText);
 
                     setTimeout(() => {
@@ -1942,6 +1944,7 @@ if ("serviceWorker" in navigator) {
                         speakWithVoicesReady(weatherText);
                     }, 8000); 
                 } else {
+                    // If weather data isn't ready, wait and try again.
                     setTimeout(checkWeatherAndSpeak, 500);
                 }
             };
