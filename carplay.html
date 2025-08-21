@@ -19,8 +19,6 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Font Awesome for additional icons (e.g., Trip log) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-    <!-- Google Maps API script -->
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBRqAHJ2elbE_Z7NXXYC50XZpqi6HbG6Rk&libraries=places&callback=onGoogleMapsApiLoaded"></script>
     <!-- Chart.js for the new weekly forecast chart -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- YouTube Iframe API -->
@@ -1331,6 +1329,7 @@ if ("serviceWorker" in navigator) {
             currentLocation: null,
             destinationSet: false
         };
+        let googleMapsPromise = null; // NEW: For robust map loading
 
         // --- DOM Element References ---
         const timeElement = document.getElementById('current-time');
@@ -1405,9 +1404,74 @@ if ("serviceWorker" in navigator) {
             }
         }
 
-        // --- App Switching Logic ---
-        function switchApp(appName) { appScreens.forEach(s => s.classList.remove('active')); sidebarIcons.forEach(i => i.classList.remove('active')); const screen = document.getElementById(`screen-${appName}`); if (screen) screen.classList.add('active'); const icon = document.querySelector(`.app-icon[data-app="${appName}"]`); if (icon) icon.classList.add('active'); if (appName === 'Dashboard' && appState.mapZoomChangedByUser) { appState.dashboardReturnCounter++; if (appState.dashboardReturnCounter >= 2 && dashboardGoogleMap) { dashboardGoogleMap.setZoom(appState.mapLocation.zoom); appState.mapZoomChangedByUser = false; appState.dashboardReturnCounter = 0; showMessageBox('تم إعادة تعيين تكبير الخريطة إلى الافتراضي.'); } } else if (appName !== 'Dashboard' && !appState.mapZoomChangedByUser) { appState.dashboardReturnCounter = 0; } handleMediaViewSwitch(appName); quranQuickAccess.style.display = (appName === 'Quran') ? 'flex' : 'none'; startTripFloatingButton.style.display = (appName === 'Map' && appState.destinationSet) ? 'flex' : 'none'; if (document.activeElement && document.activeElement.closest('nav')) { setTimeout(() => { const firstItem = screen.querySelector('.grid-item'); if (firstItem) setFocus(firstItem); }, 100); } }
-        function handleMediaViewSwitch(appName) { floatingMediaButton.style.display = (appName === 'Media') ? 'none' : 'flex'; floatingKeyboardButton.style.display = (appName === 'Media') ? 'flex' : 'none'; clearSearchButton.style.display = (appName === 'Media') ? 'flex' : 'none'; youtubeSuggestionsDiv.style.display = (appName !== 'Media') ? 'none' : ''; if (appName === 'Media') { floatingKeyboardButton.classList.toggle('active-keyboard', !youtubeSearchInput.readOnly); floatingKeyboardButton.classList.toggle('inactive-keyboard', youtubeSearchInput.readOnly); youtubePlaylistView.classList.add('hidden'); youtubeVideoListView.classList.add('hidden'); youtubeSearchResultsView.classList.add('hidden'); youtubeSuggestionsDiv.classList.remove('hidden'); if (activeMediaView === 'videoList' && currentPlayingPlaylistId) youtubeVideoListView.classList.remove('hidden'); else if (activeMediaView === 'searchResults') youtubeSearchResultsView.classList.remove('hidden'); else { youtubePlaylistView.classList.remove('hidden'); resetYoutubeSearchUI(); } } }
+        // --- App Switching and Navigation Logic ---
+        const appOrder = ['Dashboard', 'Media', 'Radio', 'Reciters', 'Weather', 'Map', 'Quran'];
+        let currentAppIndex = 0;
+
+        function switchApp(appName) {
+            const newIndex = appOrder.indexOf(appName);
+            if (newIndex === -1) return;
+            currentAppIndex = newIndex;
+
+            appScreens.forEach(s => s.classList.remove('active'));
+            sidebarIcons.forEach(i => i.classList.remove('active'));
+            const screen = document.getElementById(`screen-${appName}`);
+            if (screen) screen.classList.add('active');
+            const icon = document.querySelector(`.app-icon[data-app="${appName}"]`);
+            if (icon) icon.classList.add('active');
+
+            if (appName === 'Dashboard' && appState.mapZoomChangedByUser) {
+                appState.dashboardReturnCounter++;
+                if (appState.dashboardReturnCounter >= 2 && dashboardGoogleMap) {
+                    dashboardGoogleMap.setZoom(appState.mapLocation.zoom);
+                    appState.mapZoomChangedByUser = false;
+                    appState.dashboardReturnCounter = 0;
+                    showMessageBox('تم إعادة تعيين تكبير الخريطة إلى الافتراضي.');
+                }
+            } else if (appName !== 'Dashboard' && !appState.mapZoomChangedByUser) {
+                appState.dashboardReturnCounter = 0;
+            }
+            handleMediaViewSwitch(appName);
+            quranQuickAccess.style.display = (appName === 'Quran') ? 'flex' : 'none';
+            startTripFloatingButton.style.display = (appName === 'Map' && appState.destinationSet) ? 'flex' : 'none';
+            if (document.activeElement && document.activeElement.closest('nav')) {
+                setTimeout(() => {
+                    const firstItem = screen.querySelector('.grid-item');
+                    if (firstItem) setFocus(firstItem);
+                }, 100);
+            }
+        }
+
+        function navigateToNextApp() {
+            currentAppIndex = (currentAppIndex + 1) % appOrder.length;
+            switchApp(appOrder[currentAppIndex]);
+        }
+
+        function navigateToPrevApp() {
+            currentAppIndex = (currentAppIndex - 1 + appOrder.length) % appOrder.length;
+            switchApp(appOrder[currentAppIndex]);
+        }
+
+        function handleMediaViewSwitch(appName) {
+            floatingMediaButton.style.display = (appName === 'Media') ? 'none' : 'flex';
+            floatingKeyboardButton.style.display = (appName === 'Media') ? 'flex' : 'none';
+            clearSearchButton.style.display = (appName === 'Media') ? 'flex' : 'none';
+            youtubeSuggestionsDiv.style.display = (appName !== 'Media') ? 'none' : '';
+            if (appName === 'Media') {
+                floatingKeyboardButton.classList.toggle('active-keyboard', !youtubeSearchInput.readOnly);
+                floatingKeyboardButton.classList.toggle('inactive-keyboard', youtubeSearchInput.readOnly);
+                youtubePlaylistView.classList.add('hidden');
+                youtubeVideoListView.classList.add('hidden');
+                youtubeSearchResultsView.classList.add('hidden');
+                youtubeSuggestionsDiv.classList.remove('hidden');
+                if (activeMediaView === 'videoList' && currentPlayingPlaylistId) youtubeVideoListView.classList.remove('hidden');
+                else if (activeMediaView === 'searchResults') youtubeSearchResultsView.classList.remove('hidden');
+                else {
+                    youtubePlaylistView.classList.remove('hidden');
+                    resetYoutubeSearchUI();
+                }
+            }
+        }
         appButtons.forEach(b => b.addEventListener('click', () => switchApp(b.dataset.app)));
         sidebarIcons.forEach(el => el.classList.add('w-16', 'h-16', 'rounded-2xl', 'flex', 'items-center', 'justify-center', 'transition-all', 'duration-300', 'ease-in-out'));
         
@@ -1598,27 +1662,50 @@ if ("serviceWorker" in navigator) {
         function showSurahSuggestions() { const existing = document.getElementById('youtube-surah-section'); if (existing) existing.remove(); const surahSection = document.createElement('div'); surahSection.id = 'youtube-surah-section'; surahSection.className = 'flex flex-col gap-2 p-3 rounded-xl glass-surface glass-surface--svg w-full mt-4 grid-container'; surahSection.innerHTML = '<span class="youtube-suggestion-category-tag bg-green-600">اختر السورة</span>'; const surahButtonsContainer = document.createElement('div'); surahButtonsContainer.className = 'grid grid-cols-9 gap-2 w-full'; youtubeSurahSuggestions.forEach(name => { const button = document.createElement('button'); button.className = 'youtube-suggestion-button navigable grid-item'; button.tabIndex = 0; button.textContent = name; button.style.backgroundImage = juzColors[(surahToJuzMap[name] || 1) - 1]; button.addEventListener('click', () => { const query = selectedReaderName + ' سورة ' + name; youtubeSearchInput.value = query; searchYouTubeVideos(query); }); surahButtonsContainer.appendChild(button); }); surahSection.appendChild(surahButtonsContainer); youtubeSuggestionsDiv.appendChild(surahSection); }
         function navigateBackToPlaylists() { youtubePlaylistView.classList.remove('hidden'); youtubeVideoListView.classList.add('hidden'); youtubeSearchResultsView.classList.add('hidden'); youtubeSuggestionsDiv.classList.remove('hidden'); activeMediaView = 'playlist'; currentPlayingPlaylistId = ''; backToPlaylistsBottomButton.style.display = 'none'; backToPlaylistsBottomButtonSearch.style.display = 'none'; resetYoutubeSearchUI(); setTimeout(() => { const firstPlaylistItem = youtubePlaylistView.querySelector('.grid-item'); if (firstPlaylistItem) setFocus(firstPlaylistItem); }, 100); }
 
-        // --- Google Map and Geolocation ---
-        let isGoogleMapsApiReady = false;
+        // --- Google Map and Geolocation (REFACTORED FOR RELIABILITY) ---
         let mapsInitialized = false;
 
-        function onGoogleMapsApiLoaded() {
-            isGoogleMapsApiReady = true;
-            initMap();
+        function loadGoogleMaps() {
+            if (googleMapsPromise) {
+                return googleMapsPromise;
+            }
+            googleMapsPromise = new Promise((resolve, reject) => {
+                if (window.google && window.google.maps) {
+                    console.log("Google Maps API already available.");
+                    return resolve(window.google.maps);
+                }
+                window.resolveGoogleMapsApi = () => {
+                    console.log("Google Maps API loaded successfully.");
+                    resolve(window.google.maps);
+                    delete window.resolveGoogleMapsApi;
+                };
+                const script = document.createElement('script');
+                script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places&callback=resolveGoogleMapsApi`;
+                script.onerror = () => {
+                    reject(new Error('Google Maps script failed to load.'));
+                    delete window.resolveGoogleMapsApi;
+                };
+                document.head.appendChild(script);
+            });
+            return googleMapsPromise;
         }
 
-        function initMap() {
-            if (mapsInitialized || !isGoogleMapsApiReady) return;
-            mapsInitialized = true;
-
-            const mapOpts = { center: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon }, zoom: appState.mapLocation.zoom, disableDefaultUI: true, zoomControl: true }; 
-            dashboardGoogleMap = new google.maps.Map(document.getElementById('dashboard-google-map'), mapOpts); 
-            dashboardGoogleMarker = new google.maps.Marker({ position: mapOpts.center, map: dashboardGoogleMap, icon: { url: 'https://dmusera.netlify.app/3606.png', scaledSize: new google.maps.Size(90, 100) } }); 
-            trafficLayerDashboard = new google.maps.TrafficLayer(); 
-            trafficLayerDashboard.setMap(dashboardGoogleMap); 
-            dashboardGoogleMap.addListener('zoom_changed', () => { if (dashboardGoogleMap.getZoom() !== appState.mapLocation.zoom) appState.mapZoomChangedByUser = true; }); 
-            
-            startContinuousLocationTracking(); 
+        async function initMap() {
+            if (mapsInitialized) return;
+            try {
+                await loadGoogleMaps();
+                mapsInitialized = true;
+                const mapOpts = { center: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon }, zoom: appState.mapLocation.zoom, disableDefaultUI: true, zoomControl: true }; 
+                dashboardGoogleMap = new google.maps.Map(document.getElementById('dashboard-google-map'), mapOpts); 
+                dashboardGoogleMarker = new google.maps.Marker({ position: mapOpts.center, map: dashboardGoogleMap, icon: { url: 'https://dmusera.netlify.app/3606.png', scaledSize: new google.maps.Size(90, 100) } }); 
+                trafficLayerDashboard = new google.maps.TrafficLayer(); 
+                trafficLayerDashboard.setMap(dashboardGoogleMap); 
+                dashboardGoogleMap.addListener('zoom_changed', () => { if (dashboardGoogleMap.getZoom() !== appState.mapLocation.zoom) appState.mapZoomChangedByUser = true; }); 
+                startContinuousLocationTracking();
+            } catch (error) {
+                console.error("Failed to initialize map due to API load error:", error);
+                showMessageBox("تعذر تحميل خرائط جوجل. يرجى التحقق من اتصالك بالإنترنت.");
+            }
         }
 
         function updateGoogleMapLocation(pos) { const { latitude: lat, longitude: lng, heading } = pos.coords; appState.currentLocation = { lat, lng }; const newLatLng = { lat, lng }; if (dashboardGoogleMap && dashboardGoogleMarker) { dashboardGoogleMarker.setPosition(newLatLng); if (!appState.mapZoomChangedByUser) { dashboardGoogleMap.setCenter(newLatLng); dashboardGoogleMap.setZoom(appState.mapLocation.zoom); } } if (fullGoogleMap && fullGoogleMarker) { fullGoogleMarker.setPosition(newLatLng); fullGoogleMap.setCenter(newLatLng); } if (typeof heading === 'number' && !isNaN(heading)) { if (dashboardGoogleMap) dashboardGoogleMap.setHeading(heading); if (fullGoogleMap) fullGoogleMap.setHeading(heading); } }
@@ -1640,14 +1727,8 @@ if ("serviceWorker" in navigator) {
 
         // --- Prayer Times Integration ---
         const prayerTimes = [
-            {"date":"2025-08-14","fajr":"04:51","sunrise":"06:07","dhuhr":"12:33","asr":"15:46","maghrib":"18:55","isha":"20:06"},
-            {"date":"2025-08-15","fajr":"04:51","sunrise":"06:07","dhuhr":"12:33","asr":"15:46","maghrib":"18:54","isha":"20:05"},
-            {"date":"2025-08-16","fajr":"04:52","sunrise":"06:07","dhuhr":"12:33","asr":"15:46","maghrib":"18:54","isha":"20:04"},
-            {"date":"2025-08-17","fajr":"04:52","sunrise":"06:07","dhuhr":"12:33","asr":"15:47","maghrib":"18:53","isha":"20:03"},
-            {"date":"2025-08-18","fajr":"04:53","sunrise":"06:08","dhuhr":"12:33","asr":"15:47","maghrib":"18:53","isha":"20:03"},
-            {"date":"2025-08-19","fajr":"04:53","sunrise":"06:08","dhuhr":"12:32","asr":"15:47","maghrib":"18:52","isha":"20:02"},
-            {"date":"2025-08-20","fajr":"04:53","sunrise":"06:08","dhuhr":"12:32","asr":"15:47","maghrib":"18:51","isha":"20:01"},
-            {"date":"2025-08-21","fajr":"04:54","sunrise":"06:08","dhuhr":"12:32","asr":"15:47","maghrib":"18:51","isha":"20:00"},
+            
+         {"date":"2025-08-21","fajr":"04:54","sunrise":"06:08","dhuhr":"12:32","asr":"15:47","maghrib":"18:51","isha":"20:00"},
             {"date":"2025-08-22","fajr":"04:54","sunrise":"06:08","dhuhr":"12:32","asr":"15:47","maghrib":"18:50","isha":"19:59"},
             {"date":"2025-08-23","fajr":"04:54","sunrise":"06:09","dhuhr":"12:31","asr":"15:47","maghrib":"18:49","isha":"19:59"},
             {"date":"2025-08-24","fajr":"04:54","sunrise":"06:09","dhuhr":"12:31","asr":"15:47","maghrib":"18:48","isha":"19:58"},
@@ -1746,6 +1827,35 @@ if ("serviceWorker" in navigator) {
             videoPopupContainer.style.cursor = 'grab';
             videoPopupPlayerContainer.style.pointerEvents = 'auto';
         });
+
+        // --- Swipe Gesture Handling (NEW) ---
+        function setupSwipeNavigation() {
+            const mainContainer = document.querySelector('main');
+            let touchstartX = 0;
+            let touchendX = 0;
+
+            function handleGesture() {
+                const swipeThreshold = 50; // Minimum distance for a swipe in pixels
+                const swipedDistance = touchendX - touchstartX;
+                // Since the layout is RTL, a swipe to the left (negative distance) should go to the next item.
+                if (swipedDistance < -swipeThreshold) {
+                    navigateToNextApp();
+                }
+                // A swipe to the right (positive distance) should go to the previous item.
+                if (swipedDistance > swipeThreshold) {
+                    navigateToPrevApp();
+                }
+            }
+
+            mainContainer.addEventListener('touchstart', e => {
+                touchstartX = e.changedTouches[0].screenX;
+            }, { passive: true });
+
+            mainContainer.addEventListener('touchend', e => {
+                touchendX = e.changedTouches[0].screenX;
+                handleGesture();
+            });
+        }
 
         // --- TV Remote / Keyboard Navigation ---
         let currentFocus = null;
@@ -2003,6 +2113,8 @@ if ("serviceWorker" in navigator) {
             geminiTripSuggesterButton?.addEventListener('click', getTripSuggestions);
 
             // Initial Calls
+            setupSwipeNavigation(); // NEW: Initialize swipe gestures
+            loadGoogleMaps().then(initMap); // NEW: Pre-load and initialize map robustly
             fetchWeatherData(); 
             loadPrayerTimes();
             setInterval(fetchWeatherData, 300000); 
