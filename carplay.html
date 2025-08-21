@@ -2049,7 +2049,7 @@ if ("serviceWorker" in navigator) {
                     speakWithVoicesReady(welcomeText);
 
                     setTimeout(() => {
-                        weatherText = `حالة الطقس الان ${appState.weather.temperature} ${appState.weather.description} درجة مئوية`;
+                        weatherText = `حالة الطقس الان ${appState.weather.temperature} درجة مئوية    والجو     ${appState.weather.description} `;
                         speakWithVoicesReady(weatherText);
                     }, 8000); 
                 } else {
