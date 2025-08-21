@@ -1242,7 +1242,6 @@ if ("serviceWorker" in navigator) {
                 <section id="screen-Map" class="app-screen p-4 md:p-6 flex-col h-full items-center justify-center">
                     <div class="w-full h-full bg-black2 rounded-3xl flex items-center justify-center p-1 overflow-hidden">
 <iframe title="LEXSUS ES" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share WIDTH="100%" HEIGHT="100%" src="https://sketchfab.com/models/17ed331fd31f491fa3907156f0b0b55e/embed?autostart=1&preload=1&annotation=1&annotation_cycle=6&transparent=1&ui_theme=dark"> </iframe>                    </div>
-                    </div>
                 </section>
 
                 <!-- Electronic Quran App Screen -->
@@ -2049,7 +2048,7 @@ if ("serviceWorker" in navigator) {
                     speakWithVoicesReady(welcomeText);
 
                     setTimeout(() => {
-                        weatherText = `حالة الطقس الان ${appState.weather.temperature} درجة مئوية    والجو     ${appState.weather.description} `;
+                        weatherText = `حالة الطقس الان ${appState.weather.temperature} ${appState.weather.temperature} درجة مئوية`;
                         speakWithVoicesReady(weatherText);
                     }, 8000); 
                 } else {
