@@ -1240,8 +1240,8 @@ if ("serviceWorker" in navigator) {
 
                 <!-- Map Screen (MODIFIED) -->
                 <section id="screen-Map" class="app-screen p-4 md:p-6 flex-col h-full items-center justify-center">
-                    <div class="w-full h-full bg-black2 rounded-3xl flex items-center justify-center p-4">
-                        <img src="https://dmusera.netlify.app/eshome.png" alt="صورة السيارة" class="max-w-full max-h-full object-contain">
+                    <div class="w-full h-full bg-black2 rounded-3xl flex items-center justify-center p-1 overflow-hidden">
+                        <iframe title="Lexus ES Hybrid" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share style="width: 100%; height: 100%;" src="https://sketchfab.com/models/b4edfa2fd5cc48ada679352215e0105e/embed?autostart=1&ui_theme=dark&ui_infos=0&ui_controls=0"> </iframe>
                     </div>
                 </section>
 
@@ -2007,7 +2007,7 @@ if ("serviceWorker" in navigator) {
             const today = new Date();
             today.setFullYear(2025);
             const gregorianDate = new Intl.DateTimeFormat('en-UK', {  year: 'numeric', month: 'long', day: 'numeric' }).format(today);
-            const hijriDate = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', { weekday: 'long'}).format(today);
+            const hijriDate = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', { weekday: 'long', month: 'long', day: 'numeric' }).format(today);
 
             let welcomeText = '';
             let weatherText = '';
