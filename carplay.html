@@ -12,7 +12,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <title>واجهة CarPlay - تصميم زجاجي منسدل تفاعلي</title>
+    <title>تطبيق الطقس - واجهة CarPlay</title>
     <!-- Tailwind CSS CDN for utility classes -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons for modern, customizable SVG icons -->
@@ -108,6 +108,12 @@ if ("serviceWorker" in navigator) {
             opacity: 0;
             z-index: -1;
         }
+
+}
+.glass-surface.glass-surface--svg.youtube-video-card.navigable.grid-item {
+    direction: ltr!important;
+}
+
         .glass-surface__content {
             width: 100%;
             height: 100%;
@@ -1052,7 +1058,7 @@ if ("serviceWorker" in navigator) {
         <defs>
             <filter id="glass-filter" colorInterpolationFilters="sRGB" x="0%" y="0%" width="100%" height="100%">
                 <feImage x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="map" 
-                    href="data:image/svg+xml,%3Csvg viewBox='0 0 400 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='red-grad' x1='100%25' y1='0%25' x2='0%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%230000'/%3E%3Cstop offset='100%25' stop-color='red'/%3E%3C/linearGradient%3E%3ClinearGradient id='blue-grad' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230000'/%3E%3Cstop offset='100%25' stop-color='blue'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='0' y='0' width='400' height='200' fill='black'/%3E%3Crect x='0' y='0' width='400' height='200' rx='20' fill='url(%23red-grad)'/%3E%3Crect x='0' y='0' width='400' height='200' rx='20' fill='url(%23blue-grad)' style='mix-blend-mode: difference'/%3E%3Crect x='1.4' y='1.4' width='397.2' height='197.2' rx='20' fill='hsl(0 0% 50% / 0.93)' style='filter:blur(11px)'/%3E%3C/svg%3E"/>
+                    href="data:image/svg+xml,%3Csvg viewBox='0 0 400 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='red-grad' x1='100%25' y1='0%25' x2='0%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%230000'/%3E%3Cstop offset='100%25' stop-color='red'/%3E%3C/linearGradient%3E%3ClinearGradient id='blue-grad' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230000'/%3E%3Cstop offset='100%25' stop-color='blue'/%3E%3C/defs%3E%3Crect x='0' y='0' width='400' height='200' fill='black'/%3E%3Crect x='0' y='0' width='400' height='200' rx='20' fill='url(%23red-grad)'/%3E%3Crect x='0' y='0' width='400' height='200' rx='20' fill='url(%23blue-grad)' style='mix-blend-mode: difference'/%3E%3Crect x='1.4' y='1.4' width='397.2' height='197.2' rx='20' fill='hsl(0 0% 50% / 0.93)' style='filter:blur(11px)'/%3E%3C/svg%3E"/>
                 
                 <feDisplacementMap in="SourceGraphic" in2="map" id="redchannel" scale="300" xChannelSelector="R" yChannelSelector="G" result="dispRed" />
                 <feColorMatrix in="dispRed" type="matrix" values="1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0" result="red" />
@@ -1098,9 +1104,17 @@ if ("serviceWorker" in navigator) {
                         <!-- Map Widget (Now first) -->
                         <div class="rounded-3xl relative overflow-hidden flex items-center justify-center glass-surface glass-surface--svg p-1 col-span-1 row-start-1 navigable grid-item" tabindex="0">
                             <div id="dashboard-google-map" class="full-iframe"></div>
-                            <button id="get-my-location-button-dashboard" class="absolute bottom-4 left-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm navigable grid-item" tabindex="0">
-                                <i data-lucide="map-pin" class="w-6 h-6"></i> تحديث الموقع
-                            </button>
+                            <div class="absolute bottom-4 left-4 flex gap-2">
+                                <button id="get-my-location-button-dashboard" class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center text-sm navigable grid-item" tabindex="0" title="تحديث الموقع">
+                                    <i data-lucide="map-pin" class="w-5 h-5"></i>
+                                </button>
+                                <button id="go-to-home-1-button" class="bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center text-sm navigable grid-item" tabindex="0" title="الذهاب الى المنزل 1">
+                                    <i data-lucide="home" class="w-5 h-5"></i>
+                                </button>
+                                <button id="go-to-home-2-button" class="bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center text-sm navigable grid-item" tabindex="0" title="الذهاب الى المنزل 2">
+                                    <i data-lucide="building-2" class="w-5 h-5"></i>
+                                </button>
+                            </div>
                         </div>
 
                         <!-- 360 Camera View (Stays in middle) -->
@@ -1238,10 +1252,15 @@ if ("serviceWorker" in navigator) {
                     </div>
                 </section>
 
-                <!-- Map Screen (MODIFIED) -->
-                <section id="screen-Map" class="app-screen p-4 md:p-6 flex-col h-full items-center justify-center">
+                <!-- 3D Screen (Formerly Map Screen) -->
+                <section id="screen-Map" class="app-screen p-4 md:p-6 flex-col h-full items-center justify-center relative">
                     <div class="w-full h-full bg-black2 rounded-3xl flex items-center justify-center p-1 overflow-hidden">
-<iframe title="LEXSUS ES" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share WIDTH="100%" HEIGHT="100%" src="https://sketchfab.com/models/17ed331fd31f491fa3907156f0b0b55e/embed?autostart=1&preload=1&annotation=1&annotation_cycle=6&transparent=1&ui_theme=dark"> </iframe>                    </div>
+                        <iframe title="LEXSUS ES" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share WIDTH="100%" HEIGHT="100%" src="https://sketchfab.com/models/17ed331fd31f491fa3907156f0b0b55e/embed?autostart=1&preload=1&annotation=1&annotation_cycle=6&transparent=1&ui_theme=dark"> </iframe>
+                    </div>
+                    <div id="3d-screen-weather-widget" class="absolute top-8 right-8 glass-surface glass-surface--svg p-4 rounded-2xl text-center flex items-center gap-3 z-10 navigable grid-item" tabindex="0">
+                        <i data-lucide="thermometer" class="w-8 h-8 text-red-400"></i>
+                        <span class="text-3xl font-bold" id="3d-screen-weather-temp">--°C</span>
+                    </div>
                 </section>
 
                 <!-- Electronic Quran App Screen -->
@@ -1328,7 +1347,11 @@ if ("serviceWorker" in navigator) {
             currentLocation: null,
             destinationSet: false
         };
-        let googleMapsPromise = null; // NEW: For robust map loading
+        let googleMapsPromise = null;
+
+        // --- Home Locations ---
+        const HOME1_COORDS = { lat: 17.035, lng: 54.105 }; // Placeholder for Home 1 in Salalah
+        const HOME2_COORDS = { lat: 17.017, lng: 54.080 }; // Placeholder for Home 2 in Salalah
 
         // --- DOM Element References ---
         const timeElement = document.getElementById('current-time');
@@ -1361,23 +1384,17 @@ if ("serviceWorker" in navigator) {
         const digitalSecondsSpan = document.querySelector('#digital-time .seconds');
         const digitalDateLine1 = document.getElementById('digital-date-line1');
         const digitalDateLine2 = document.getElementById('digital-date-line2');
-        let dashboardGoogleMap, fullGoogleMap, dashboardGoogleMarker, fullGoogleMarker;
-        let trafficLayerDashboard, trafficLayerFullMap, directionsService, directionsRenderer, autocomplete, watchId;
-        const destinationInput = document.getElementById('destination-input');
-        const startDirectionsButton = document.getElementById('start-directions-button');
-        const etaDisplay = document.getElementById('eta-display');
-        const distanceDisplay = document.getElementById('distance-display');
-        const getMyLocationButtonFullMap = document.getElementById('get-my-location-button-full-map');
-        const toggleTrafficButton = document.getElementById('toggle-traffic-button');
-        let isTrafficLayerEnabled = true;
+        let dashboardGoogleMap, dashboardGoogleMarker, directionsService, directionsRenderer;
+        let watchId;
+        const getMyLocationButtonDashboard = document.getElementById('get-my-location-button-dashboard');
+        const goToHome1Button = document.getElementById('go-to-home-1-button');
+        const goToHome2Button = document.getElementById('go-to-home-2-button');
         const car360Image = document.getElementById('car-360-image');
         const upload360ImageInput = document.getElementById('upload-360-image-input');
         const upload360ImageButton = document.getElementById('upload-360-image-button');
         const reset360ImageButton = document.getElementById('reset-360-image-button');
         const default360ImageSrc = "https://dmusera.netlify.app/es350gb.png";
         let currentPlayingPlaylistId = '', activeMediaView = 'playlist', currentPlayingVideoId = '', selectedReaderName = '', popupPlayer, isYouTubeApiReady = false;
-        const geminiTripSuggesterButton = document.getElementById('gemini-trip-suggester-button');
-        const tripSuggestionsContainer = document.getElementById('trip-suggestions-container');
 
         // --- Utility Functions ---
         function updateTopBarTime() {
@@ -1394,13 +1411,11 @@ if ("serviceWorker" in navigator) {
             document.getElementById('dashboard-weather-icon').src = appState.weather.iconUrl || 'https://placehold.co/64x64/000000/FFFFFF?text=X'; 
             document.getElementById('dashboard-weather-location').textContent = appState.weather.location; 
             document.getElementById('weather-temp-card').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature}°C` : '--°C'; 
+            document.getElementById('3d-screen-weather-temp').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature}°C` : '--°C';
             const uvEl = document.getElementById('weather-uv'); 
             if (uvEl) { uvEl.textContent = appState.weather.uvIndex !== null ? appState.weather.uvIndex : '--'; uvEl.style.color = getUvIndexColor(appState.weather.uvIndex); } 
             car360Image.src = appState.custom360Image || default360ImageSrc; 
             startTripFloatingButton.style.display = appState.destinationSet ? 'flex' : 'none'; 
-            if(geminiTripSuggesterButton) {
-                geminiTripSuggesterButton.classList.toggle('hidden', !appState.destinationSet); 
-            }
         }
 
         // --- App Switching and Navigation Logic ---
@@ -1483,16 +1498,17 @@ if ("serviceWorker" in navigator) {
             card.tabIndex = 0;
             card.dataset.videoId = video.id;
             card.innerHTML = `
-                <div class="thumbnail-container">
-                    <img src="${video.thumbnail}" alt="${video.title}" class="w-[100px] h-[56.25px] object-cover rounded-md ml-4 flex-shrink-0" onerror="this.onerror=null;this.src='https://placehold.co/100x56';">
-                    <span class="video-duration">${video.duration}</span>
-                </div>
+                
                 <div class="video-details">
                     <h3 class="video-title">${video.title}</h3>
                     <div class="video-meta">
                         <span>${video.channelTitle}</span>
                         <span>${video.viewCount} مشاهدة • ${video.publishedAt}</span>
                     </div>
+                </div>
+                <div class="thumbnail-container">
+                    <img src="${video.thumbnail}" alt="${video.title}" class="w-[100px] h-[56.25px] object-cover rounded-md ml-4 flex-shrink-0" onerror="this.onerror=null;this.src='https://placehold.co/100x56';">
+                    <span class="video-duration">${video.duration}</span>
                 </div>
             `;
             card.addEventListener('click', () => showVideoPopup(video.id));
@@ -1697,8 +1713,14 @@ if ("serviceWorker" in navigator) {
                 const mapOpts = { center: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon }, zoom: appState.mapLocation.zoom, disableDefaultUI: true, zoomControl: true }; 
                 dashboardGoogleMap = new google.maps.Map(document.getElementById('dashboard-google-map'), mapOpts); 
                 dashboardGoogleMarker = new google.maps.Marker({ position: mapOpts.center, map: dashboardGoogleMap, icon: { url: 'https://dmusera.netlify.app/3606.png', scaledSize: new google.maps.Size(90, 100) } }); 
-                trafficLayerDashboard = new google.maps.TrafficLayer(); 
-                trafficLayerDashboard.setMap(dashboardGoogleMap); 
+                
+                // Initialize Directions Service and Renderer
+                directionsService = new google.maps.DirectionsService();
+                directionsRenderer = new google.maps.DirectionsRenderer({
+                    map: dashboardGoogleMap,
+                    suppressMarkers: true // We use our custom marker
+                });
+
                 dashboardGoogleMap.addListener('zoom_changed', () => { if (dashboardGoogleMap.getZoom() !== appState.mapLocation.zoom) appState.mapZoomChangedByUser = true; }); 
                 startContinuousLocationTracking();
             } catch (error) {
@@ -1707,13 +1729,55 @@ if ("serviceWorker" in navigator) {
             }
         }
 
-        function updateGoogleMapLocation(pos) { const { latitude: lat, longitude: lng, heading } = pos.coords; appState.currentLocation = { lat, lng }; const newLatLng = { lat, lng }; if (dashboardGoogleMap && dashboardGoogleMarker) { dashboardGoogleMarker.setPosition(newLatLng); if (!appState.mapZoomChangedByUser) { dashboardGoogleMap.setCenter(newLatLng); dashboardGoogleMap.setZoom(appState.mapLocation.zoom); } } if (fullGoogleMap && fullGoogleMarker) { fullGoogleMarker.setPosition(newLatLng); fullGoogleMap.setCenter(newLatLng); } if (typeof heading === 'number' && !isNaN(heading)) { if (dashboardGoogleMap) dashboardGoogleMap.setHeading(heading); if (fullGoogleMap) fullGoogleMap.setHeading(heading); } }
+        function updateGoogleMapLocation(pos) { 
+            const { latitude: lat, longitude: lng, heading } = pos.coords; 
+            appState.currentLocation = { lat, lng }; 
+            const newLatLng = { lat, lng }; 
+            if (dashboardGoogleMap && dashboardGoogleMarker) { 
+                dashboardGoogleMarker.setPosition(newLatLng); 
+                if (!appState.mapZoomChangedByUser) { 
+                    dashboardGoogleMap.setCenter(newLatLng); 
+                    dashboardGoogleMap.setZoom(appState.mapLocation.zoom); 
+                } 
+            } 
+            if (typeof heading === 'number' && !isNaN(heading)) { 
+                if (dashboardGoogleMap) dashboardGoogleMap.setHeading(heading); 
+            } 
+        }
         function startContinuousLocationTracking() { if (navigator.geolocation) { watchId = navigator.geolocation.watchPosition((pos) => { updateGoogleMapLocation(pos); appState.hasShownGeolocationError = false; }, (err) => { if (!appState.hasShownGeolocationError) { let msg = 'تعذر تتبع موقعك. يرجى التحقق من أذونات الموقع.'; if (err.code === 1) msg += ' إذا كان التطبيق في iframe، تأكد من وجود `allow="geolocation"`.'; showMessageBox(msg); appState.hasShownGeolocationError = true; } }, { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }); } else { showMessageBox('الموقع الجغرافي غير مدعوم.'); } }
         function centerMapOnUserLocation() { if (navigator.geolocation) { navigator.geolocation.getCurrentPosition((pos) => { updateGoogleMapLocation(pos); showMessageBox(`تم تحديث الخريطة.`); }, () => showMessageBox('تعذر الحصول على موقعك الحالي.'), { enableHighAccuracy: true }); } }
-        function parseGoogleMapsUrl(url) { try { const urlObj = new URL(url); const path = urlObj.pathname; const coordMatch = path.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/); if (coordMatch) return { lat: parseFloat(coordMatch[1]), lng: parseFloat(coordMatch[2]) }; if (path.startsWith('/search') && urlObj.searchParams.has('q')) return { query: urlObj.searchParams.get('q') }; } catch (e) {} return null; }
-        async function calculateAndDisplayRoute() { const destVal = destinationInput.value.trim(); if (!destVal)  return showMessageBox('الرجاء إدخال وجهة.'); let destination = destVal; const parsed = parseGoogleMapsUrl(destVal); if (parsed) { if (parsed.lat && parsed.lng) destination = new google.maps.LatLng(parsed.lat, parsed.lng); else if (parsed.query) destination = parsed.query; destinationInput.value = destination.toString(); } let origin = appState.currentLocation || { lat: 17.0151, lng: 54.0924 }; try { const res = await directionsService.route({ origin, destination, travelMode: 'DRIVING' }); if (res.status === 'OK') { directionsRenderer.setDirections(res); appState.destinationSet = true; const route = res.routes[0].legs[0]; etaDisplay.textContent = route.duration.text; distanceDisplay.textContent = route.distance.text; } else { showMessageBox('تعذر العثور على اتجاهات: ' + res.status); appState.destinationSet = false; } updateUI(); } catch (err) { console.error('Error calculating directions:', err); showMessageBox('حدث خطأ أثناء حساب الاتجاهات.'); appState.destinationSet = false; updateUI(); } }
-        function toggleTrafficLayer() { if (trafficLayerFullMap) { isTrafficLayerEnabled = !isTrafficLayerEnabled; trafficLayerFullMap.setMap(isTrafficLayerEnabled ? fullGoogleMap : null); toggleTrafficButton.innerHTML = `<i data-lucide="traffic-cone" class="w-5 h-5"></i> ${isTrafficLayerEnabled ? 'إخفاء' : 'إظهار'} حركة المرور`; lucide.createIcons(); } }
         
+        async function calculateAndDisplayRouteTo(destinationCoords) {
+            if (!appState.currentLocation) {
+                showMessageBox('لم يتم تحديد موقعك الحالي بعد. يرجى الانتظار أو تحديث الموقع.');
+                return;
+            }
+            if (!directionsService || !directionsRenderer) {
+                showMessageBox('خدمة التوجيهات غير جاهزة.');
+                return;
+            }
+            
+            const request = {
+                origin: appState.currentLocation,
+                destination: destinationCoords,
+                travelMode: 'DRIVING'
+            };
+
+            try {
+                const response = await directionsService.route(request);
+                if (response.status === 'OK') {
+                    directionsRenderer.setDirections(response);
+                    const route = response.routes[0].legs[0];
+                    showMessageBox(`الطريق إلى وجهتك: ${route.distance.text}, الوقت المقدر: ${route.duration.text}`);
+                } else {
+                    showMessageBox('تعذر العثور على اتجاهات: ' + response.status);
+                }
+            } catch (err) {
+                console.error('Error calculating directions:', err);
+                showMessageBox('حدث خطأ أثناء حساب الاتجاهات.');
+            }
+        }
+
         // --- Weather API Integration ---
         let hourlyForecastChart = null;
         async function fetchWeatherData() { if (WEATHER_API_KEY.startsWith('YOUR_')) return showMessageBox('خطأ: لم يتم تعيين مفتاح WeatherAPI.'); try { const res = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=${WEATHER_API_KEY}&q=${appState.weather.location.split(',')[0].trim()}&days=2&aqi=no&alerts=no&lang=ar`); if (!res.ok) throw new Error(`خطأ HTTP! الحالة: ${res.status}`); const data = await res.json(); appState.weather.temperature = data.current.temp_c; appState.weather.description = data.current.condition.text; appState.weather.uvIndex = data.current.uv; appState.weather.iconUrl = `https:${data.current.condition.icon}`; appState.weather.location = `${data.location.name}, ${data.location.country}`; const hourlyData = [...data.forecast.forecastday[0].hour, ...data.forecast.forecastday[1]?.hour || []]; const now = new Date(); const upcomingHours = hourlyData.filter(h => new Date(h.time_epoch * 1000) >= now).slice(0, 12); renderHourlyForecastChart(upcomingHours); updateUI(); } catch (err) { console.error('Error fetching weather data:', err); showMessageBox(`تعذر جلب بيانات الطقس: ${err.message}.`); } }
@@ -2087,11 +2151,10 @@ if ("serviceWorker" in navigator) {
         // --- Initial Setup ---
         document.addEventListener('DOMContentLoaded', () => { 
             // Standard Listeners
-            document.getElementById('get-my-location-button-dashboard')?.addEventListener('click', centerMapOnUserLocation); 
+            getMyLocationButtonDashboard?.addEventListener('click', centerMapOnUserLocation);
+            goToHome1Button?.addEventListener('click', () => calculateAndDisplayRouteTo(HOME1_COORDS));
+            goToHome2Button?.addEventListener('click', () => calculateAndDisplayRouteTo(HOME2_COORDS));
             floatingMediaButton?.addEventListener('click', () => switchApp('Media')); 
-            startDirectionsButton?.addEventListener('click', calculateAndDisplayRoute); 
-            getMyLocationButtonFullMap?.addEventListener('click', centerMapOnUserLocation); 
-            toggleTrafficButton?.addEventListener('click', toggleTrafficLayer); 
             startTripFloatingButton?.addEventListener('click', () => { if (appState.destinationSet) calculateAndDisplayRoute(); else showMessageBox('الرجاء تحديد وجهة أولاً.'); }); 
             upload360ImageButton?.addEventListener('click', () => upload360ImageInput.click()); 
             upload360ImageInput?.addEventListener('change', handleImageUpload); 
@@ -2108,12 +2171,9 @@ if ("serviceWorker" in navigator) {
             youtubeSearchInput.addEventListener('focus', () => { if (youtubeSearchInput.value.trim() === '') { youtubeSuggestionsDiv.classList.remove('hidden'); resetYoutubeSearchUI(); } });
             youtubeSearchButton.addEventListener('click', () => { const query = youtubeSearchInput.value.trim(); if (query) searchYouTubeVideos(query); else showMessageBox('الرجاء إدخال كلمة للبحث.'); });
             
-            // Gemini Feature Listeners
-            geminiTripSuggesterButton?.addEventListener('click', getTripSuggestions);
-
             // Initial Calls
-            setupSwipeNavigation(); // NEW: Initialize swipe gestures
-            loadGoogleMaps().then(initMap); // NEW: Pre-load and initialize map robustly
+            setupSwipeNavigation();
+            loadGoogleMaps().then(initMap);
             fetchWeatherData(); 
             loadPrayerTimes();
             setInterval(fetchWeatherData, 300000); 
