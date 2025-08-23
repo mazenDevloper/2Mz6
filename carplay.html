@@ -30,8 +30,9 @@ if ("serviceWorker" in navigator) {
 </script>
     <style>
         
-div#youtube-readers-section {
-    zoom: 70%;
+button#back-to-playlists-bottom-button-search {
+    position: sticky;
+    justify-self: anchor-center;
 }
         /* Import Inter font for a modern, clean look */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -57,7 +58,7 @@ div#youtube-readers-section {
     mix-blend-mode: hard-light;
 }
         /* Ensure RTL direction for specific elements if needed */
-        div#youtube-playlist-view, div#youtube-video-list-view, div#youtube-search-results-view {
+        div#youtube-video-list-view, div#youtube-search-results-view {
             direction: rtl;
         }
         div#youtube-readers-section {
@@ -405,43 +406,7 @@ div#youtube-readers-section {
             background-color: rgba(255, 255, 255, 0.2);
             box-shadow: inset 0 1px 3px rgba(0,0,0,0.4), 0 0 0 2px rgba(147, 51, 234, 0.5);
         }
-
-        /* YouTube Channel Card Styling (Playlist View) - Smaller and more responsive */
-        .youtube-channel-card {
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 0.4rem; /* Reduced padding for smaller card */
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-            aspect-ratio: 1 / 1; /* Make the card square */
-            width: 100%; /* Ensure it takes full grid cell width */
-            box-sizing: border-box; /* Include padding and border in the element's total width and height */
-        }
-        .youtube-channel-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-        .youtube-channel-card img {
-            width: 85%;
-            height: 85%;
-            object-fit: cover;
-            border-radius: 1rem;
-            margin-bottom: 0.4rem;
-            border: 2px solid rgba(255,255,255,0.3);
-        }
-        .youtube-channel-card h2 {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: white;
-            text-align: center;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 95%;
-        }
-
+        
         /* YouTube Video Card Styling (List View and Search Results) - UPDATED */
         .youtube-video-card, .youtube-search-card {
             display: flex;
@@ -659,15 +624,14 @@ div#youtube-readers-section {
             font-weight: bold;
             color: #10b981;
         }
-.glass-surface.glass-surface--svg.youtube-channel-card.navigable.grid-item {
-    height: 52px;
-}
 
-
-
-div#youtube-suggestions {
-    height: 72%;
-}
+        div#youtube-suggestions {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
 
 .glass-surface.glass-surface--svg.p-3.rounded-2x1.text-center.flex.items-center.gap-3.navigable.grid-item {
     height: 122px;
@@ -677,13 +641,20 @@ div#\33 d-screen-gear {
     font-size: 2.7rem;
 }
 
+/* NEW: Style for direction indicator */
+div#\33 d-screen-dir {
+    font-size: 2.7rem;
+}
 
 
 div#youtube-readers-section {
     height: 100%;
 }
 
-.reader-container {max-width: 100%!important;}
+.reader-container {
+    max-width: 100% !important;
+    max-height: 100% !important;
+} 
 
 section#screen-Media {
     height: 101%!important;
@@ -959,19 +930,6 @@ section#screen-Media {
             .car-cam-360-container {
                 height: 200px;
             }
-        
-            .youtube-channel-card {
-                padding: 0.2rem;
-                border-radius: 0.75rem;
-            }
-            .youtube-channel-card img {
-                width: 70%;
-                height: 70%;
-                border-radius: 0.75rem;
-            }
-            .youtube-channel-card h2 {
-                font-size: 0.7rem;
-            }
 
             .youtube-video-card img, .youtube-search-card img {
                 width: 90px;
@@ -1203,9 +1161,9 @@ section#screen-Media {
 
                 <!-- Media (YouTube) Screen -->
                 <section id="screen-Media" class="app-screen p-4 md:p-6 flex-col items-center h-full relative">
-                    <div class="w-full flex flex-col gap-4">
+                    <div class="w-full flex flex-col gap-4 h-full">
                         <!-- Search Row -->
-                        <div class="w-full flex flex-row items-center gap-2 grid-container">
+                        <div class="w-full flex flex-row items-center gap-2 grid-container flex-shrink-0">
                             <button id="youtube-search-button" class="bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center navigable grid-item" tabindex="0">
                                 <i data-lucide="search"></i>
                             </button>
@@ -1215,43 +1173,28 @@ section#screen-Media {
                             <input type="text" id="youtube-search-input" placeholder="ابحث في يوتيوب..." class="flex-grow p-3 rounded-full bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 navigable grid-item" tabindex="0" onkeypress="if(event.key === 'Enter') document.getElementById('youtube-search-button').click();" readonly="true" />
                         </div>
                         
-                        <!-- Suggestions Container -->
-                        <div id="youtube-suggestions" class="w-full hidden"></div>
-                        
-                        <!-- Playlist View -->
-                        <div id="youtube-playlist-view" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 w-full flex-grow overflow-y-auto grid-container">
-                            <div class="glass-surface glass-surface--svg youtube-channel-card navigable grid-item" tabindex="0" data-playlist-id="UUlncV9OLPto_MinRzGfjr2g" data-channel-id="UClncV9OLPto_MinRzGfjr2g">
-                                <!--<img src="https://yt3.googleusercontent.com/ZpoYv5FstgResXDeuqEhkce079N0fM3UC5cmjGFBbKSPQI7tDXfl5W_vib_X2Q_hy5ipbZl4Fw=s160-c-k-c0x00ffffff-no-rj" alt="صورة الشيخ ياسر الدوسري" />
-                                --><h2>تلاوات ياسر الدوسري</h2>
-                            </div>
-                            <div class="glass-surface glass-surface--svg youtube-channel-card navigable grid-item" tabindex="0" data-playlist-id="UUFPqvE8BYiiUeN1AUXa3lbA" data-channel-id="UCFPqvE8BYiiUeN1AUXa3lbA">
-                                 <!--<img src="https://imgs.search.brave.com/-WtPBvI7AmvUdQ2X1oZpk6wlNV-PlUSktoA9JVVQL3o/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9zdGF0/aWMuc3VyYXRtcDMu/Y29tL3BpY3MvcmVj/aXRlcnMvdGh1bWJz/LzM3XzE2MF8xNjAu/anBn" alt="صورة الشيخ محمد ايوب" />
-                               --> <h2>الشيخ محمد ايوب</h2>
-                            </div>
-                            <div class="glass-surface glass-surface--svg youtube-channel-card navigable grid-item" tabindex="0" data-playlist-id="UUy0WYogELm9hEjulWPeYOJg" data-channel-id="UCy0WYogELm9hEjulWPeYOJg">
-                                <!-- <img src="https://yt3.googleusercontent.com/jE4NSU3a46l5ZI5rTvaq2Jvk_TWWS3GtPhs4qchBQagGTeypLWC1V3ewrcE1xbMOgkZaHGGNWA=s160-c-k-c0x00ffffff-no-rj" alt="صورة مزامير القرآن" />
-                               --> <h2>مزامير القرآن</h2>
-                            </div>
-                            
+                        <!-- Suggestions Container (Now takes full height) -->
+                        <div id="youtube-suggestions" class="w-full h-full flex-grow overflow-y-auto">
+                            <!-- Content will be populated by JS -->
                         </div>
                     </div>
 
-                    <div id="youtube-video-list-view" class="hidden flex-col items-center justify-center h-full w-full relative p-4 overflow-y-auto gap-4 flex-grow">
-                        <button id="back-to-playlists-from-videos" class="absolute top-4 left-4 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm navigable grid-item" tabindex="0">
-                            <i data-lucide="arrow-left" class="w-4 h-4"></i> العودة لقوائم التشغيل
+                    <div id="youtube-video-list-view" class="hidden flex-col items-center justify-center h-full w-full absolute top-0 left-0 p-4 overflow-y-auto gap-4 flex-grow bg-black/50 backdrop-blur-sm">
+                        <button id="back-to-playlists-from-videos" class="absolute top-4 left-4 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm navigable grid-item z-10" tabindex="0">
+                            <i data-lucide="arrow-left" class="w-4 h-4"></i> العودة
                         </button>
-                        <h2 class="text-3xl font-bold mb-4 text-center w-full">فيديوهات قائمة التشغيل</h2>
+                        <h2 class="text-3xl font-bold mb-4 text-center w-full pt-12">فيديوهات قائمة التشغيل</h2>
                         <div id="video-list-container" class="flex flex-col gap-4 w-full grid-container"></div>
                         <button id="back-to-playlists-bottom-button" class="mt-4 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-full transition-colors duration-200 flex items-center justify-center gap-2 text-base navigable grid-item" tabindex="0">
-                            <i data-lucide="arrow-left" class="w-5 h-5"></i> العودة إلى قوائم التشغيل الرئيسية
+                            <i data-lucide="arrow-left" class="w-5 h-5"></i> العودة إلى البحث
                         </button>
                     </div> 
 
-                    <div id="youtube-search-results-view" class="hidden flex-col items-center justify-center h-full w-full relative p-4 overflow-y-auto gap-4 flex-grow">
-                        <h2 class="text-3xl font-bold mb-4 text-center w-full">نتائج البحث</h2>
+                    <div id="youtube-search-results-view" class="hidden flex-col items-center justify-center h-full w-full absolute top-0 left-0 p-4 overflow-y-auto gap-4 flex-grow bg-black/50 backdrop-blur-sm">
+                      
                         <div id="search-results-container" class="flex flex-col gap-4 w-full grid-container"></div>
                         <button id="back-to-playlists-bottom-button-search" class="mt-4 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-full transition-colors duration-200 flex items-center justify-center gap-2 text-base navigable grid-item" tabindex="0">
-                            <i data-lucide="arrow-left" class="w-5 h-5"></i> العودة إلى قوائم التشغيل الرئيسية
+                            <i data-lucide="arrow-left" class="w-5 h-5"></i> العودة إلى البحث
                         </button>
                     </div>
                 </section>
@@ -1296,7 +1239,8 @@ section#screen-Media {
                     </div>
                     <!-- Right side widget -->
                     <div id="3d-screen-weather-widget" class="absolute top-8 right-8 glass-surface glass-surface--svg p-4 rounded-2xl text-center flex items-center gap-3 z-10 navigable grid-item" tabindex="0">
-                        <i data-lucide="thermometer" class="w-8 h-8 text-red-400"></i>
+                        <!-- MODIFIED: Replaced icon with user-provided SVG -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="thermometer" class="lucide lucide-thermometer w-8 h-8 text-red-400"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path></svg>
                         <span class="text-3xl font-bold" id="3d-screen-weather-temp">--°C</span>
                     </div>
                     <!-- NEW: Left side widgets -->
@@ -1322,6 +1266,26 @@ section#screen-Media {
                                 <div class="text-xl font-bold" id="3d-screen-gear">--</div>
                             </div>
                         </div>
+                        <!-- NEW: Direction Widget -->
+                        <div class="glass-surface glass-surface--svg p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
+                            <i data-lucide="compass" class="w-7 h-7 text-blue-300"></i>
+                            <div>
+                                <div class="text-sm text-white/70">الاتجاه</div>
+                                <div class="text-xl font-bold" id="3d-screen-dir">--</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- NEW: Sticky Directional Controls -->
+                    <div id="direction-controls-3d" class="absolute top-1/2 -translate-y-1/2 right-8 grid grid-cols-3 gap-2 w-[120px] z-10">
+                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">NW</button>
+                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">N</button>
+                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">NE</button>
+                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">W</button>
+                        <div class="w-10 h-10"></div> <!-- Spacer -->
+                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">E</button>
+                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">SW</button>
+                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">S</button>
+                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">SE</button>
                     </div>
                 </section>
 
@@ -1400,7 +1364,7 @@ section#screen-Media {
             currentTime: '',
             mapLocation: { lat: 17.0151, lon: 54.0924, zoom: 17 },
             weather: { temperature: null, description: null, uvIndex: null, iconUrl: '', location: 'Salalah, Oman' },
-            car: { speed: 0, rpm: 0, fuel: 0, temp: 0, gear: 'P' },
+            car: { speed: 0, rpm: 0, fuel: 0, temp: 0, gear: 'P', direction: '--' }, // Added direction
             prayerTimes: { Fajr: '--:--', Dhuhr: '--:--', Asr: '--:--', Maghrib: '--:--', Isha: '--:--', nextPrayer: null, nextPrayerIqamaTime: null, currentPrayer: null },
             hasShownGeolocationError: false,
             mapZoomChangedByUser: false,
@@ -1426,7 +1390,6 @@ section#screen-Media {
         const youtubeSearchInput = document.getElementById('youtube-search-input');
         const youtubeSearchButton = document.getElementById('youtube-search-button');
         const youtubeSuggestionsDiv = document.getElementById('youtube-suggestions');
-        const youtubePlaylistView = document.getElementById('youtube-playlist-view');
         const youtubeVideoListView = document.getElementById('youtube-video-list-view'); 
         const videoListContainer = document.getElementById('video-list-container'); 
         const youtubeSearchResultsView = document.getElementById('youtube-search-results-view');
@@ -1458,7 +1421,7 @@ section#screen-Media {
         const upload360ImageButton = document.getElementById('upload-360-image-button');
         const reset360ImageButton = document.getElementById('reset-360-image-button');
         const default360ImageSrc = "https://dmusera.netlify.app/es350gb.png";
-        let currentPlayingPlaylistId = '', activeMediaView = 'playlist', currentPlayingVideoId = '', selectedReaderName = '', popupPlayer, isYouTubeApiReady = false;
+        let currentPlayingPlaylistId = '', activeMediaView = 'suggestions', currentPlayingVideoId = '', selectedReaderName = '', popupPlayer, isYouTubeApiReady = false;
 
         // --- Utility Functions ---
         function updateTopBarTime() {
@@ -1534,20 +1497,26 @@ section#screen-Media {
             floatingMediaButton.style.display = (appName === 'Media') ? 'none' : 'flex';
             floatingKeyboardButton.style.display = (appName === 'Media') ? 'flex' : 'none';
             clearSearchButton.style.display = (appName === 'Media') ? 'flex' : 'none';
-            youtubeSuggestionsDiv.style.display = (appName !== 'Media') ? 'none' : '';
+            
             if (appName === 'Media') {
                 floatingKeyboardButton.classList.toggle('active-keyboard', !youtubeSearchInput.readOnly);
                 floatingKeyboardButton.classList.toggle('inactive-keyboard', youtubeSearchInput.readOnly);
-                youtubePlaylistView.classList.add('hidden');
+                
+                // Logic to show the correct view
                 youtubeVideoListView.classList.add('hidden');
                 youtubeSearchResultsView.classList.add('hidden');
-                youtubeSuggestionsDiv.classList.remove('hidden');
-                if (activeMediaView === 'videoList' && currentPlayingPlaylistId) youtubeVideoListView.classList.remove('hidden');
-                else if (activeMediaView === 'searchResults') youtubeSearchResultsView.classList.remove('hidden');
-                else {
-                    youtubePlaylistView.classList.remove('hidden');
+                youtubeSuggestionsDiv.style.display = 'flex'; // Make suggestions visible
+
+                if (activeMediaView === 'videoList' && currentPlayingPlaylistId) {
+                    youtubeVideoListView.classList.remove('hidden');
+                } else if (activeMediaView === 'searchResults') {
+                    youtubeSearchResultsView.classList.remove('hidden');
+                } else {
+                    // Default to suggestions view
                     resetYoutubeSearchUI();
                 }
+            } else {
+                 youtubeSuggestionsDiv.style.display = 'none';
             }
         }
         appButtons.forEach(b => b.addEventListener('click', () => switchApp(b.dataset.app)));
@@ -1619,49 +1588,7 @@ section#screen-Media {
             if (interval > 1) return `قبل ${Math.floor(interval)} دقائق`;
             return `قبل ${Math.floor(seconds)} ثوان`;
         }
-
-        async function fetchPlaylistVideos(playlistId) {
-            if (YOUTUBE_API_KEY.startsWith('YOUR_')) return showMessageBox('خطأ: لم يتم تعيين مفتاح YouTube API.');
-            try {
-                const res = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&key=${YOUTUBE_API_KEY}&maxResults=50`);
-                const data = await res.json();
-                if (data.items && data.items.length > 0) {
-                    const videoIds = data.items.map(item => item.snippet.resourceId.videoId);
-                    const videoDetails = await fetchVideosDetails(videoIds);
-                    
-                    videoListContainer.innerHTML = '';
-                    videoDetails.forEach(video => {
-                        const durationSeconds = video.contentDetails.duration.match(/\d+/g).map(Number).reduce((acc, time, i, arr) => acc + time * (arr.length === 3 ? [3600, 60, 1][i] : (arr.length === 2 ? [60, 1][i] : 1)), 0);
-                        if (durationSeconds <= 61) return;
-
-                        const videoData = {
-                            id: video.id,
-                            title: video.snippet.title,
-                            thumbnail: video.snippet.thumbnails.medium.url,
-                            channelTitle: video.snippet.channelTitle,
-                            viewCount: formatViewCount(video.statistics.viewCount),
-                            publishedAt: formatTimeAgo(video.snippet.publishedAt),
-                            duration: formatDuration(video.contentDetails.duration)
-                        };
-                        videoListContainer.appendChild(createVideoCard(videoData));
-                    });
-
-                    youtubePlaylistView.classList.add('hidden');
-                    youtubeVideoListView.classList.remove('hidden');
-                    youtubeSearchResultsView.classList.add('hidden');
-                    youtubeSuggestionsDiv.classList.add('hidden');
-                    activeMediaView = 'videoList';
-                    backToPlaylistsBottomButton.style.display = 'flex';
-                    backToPlaylistsBottomButtonSearch.style.display = 'none';
-                } else {
-                    showMessageBox('لم يتم العثور على فيديوهات في قائمة التشغيل هذه.');
-                }
-            } catch (err) {
-                console.error('Error fetching YouTube playlist videos:', err);
-                showMessageBox('حدث خطأ أثناء جلب فيديوهات قائمة التشغيل.');
-            }
-        }
-
+        
         async function searchYouTubeVideos(query) {
             if (YOUTUBE_API_KEY.startsWith('YOUR_')) return showMessageBox('خطأ: لم يتم تعيين مفتاح YouTube API.');
             try {
@@ -1687,11 +1614,10 @@ section#screen-Media {
                         };
                         searchResultsContainer.appendChild(createVideoCard(videoData));
                     });
-
-                    youtubePlaylistView.classList.add('hidden');
+                    
+                    youtubeSuggestionsDiv.style.display = 'none';
                     youtubeVideoListView.classList.add('hidden');
                     youtubeSearchResultsView.classList.remove('hidden');
-                    youtubeSuggestionsDiv.classList.add('hidden');
                     activeMediaView = 'searchResults';
                     backToPlaylistsBottomButton.style.display = 'none';
                     backToPlaylistsBottomButtonSearch.style.display = 'flex';
@@ -1736,10 +1662,20 @@ section#screen-Media {
         const youtubeSurahSuggestions = ["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","جزء عم"];
         const surahToJuzMap = {"الفاتحة":1,"البقرة":1,"آل عمران":3,"النساء":4,"المائدة":6,"الأنعام":7,"الأعراف":8,"الأنفال":9,"التوبة":10,"يونس":11,"هود":11,"يوسف":12,"الرعد":13,"إبراهيم":13,"الحجر":14,"النحل":14,"الإسراء":15,"الكهف":15,"مريم":16,"طه":16,"الأنبياء":17,"الحج":17,"المؤمنون":18,"النور":18,"الفرقان":18,"الشعراء":19,"النمل":19,"القصص":20,"العنكبوت":20,"الروم":21,"لقمان":21,"السجدة":21,"الأحزاب":21,"سبأ":22,"فاطر":22,"يس":22,"الصافات":23,"ص":23,"الزمر":23,"غافر":24,"فصلت":24,"الشورى":25,"الزخرف":25,"الدخان":25,"الجاثية":25,"الأحقاف":26,"محمد":26,"الفتح":26,"الحجرات":26,"ق":26,"الذاريات":27,"الطور":27,"النجم":27,"القمر":27,"الرحمن":27,"الواقعة":27,"الحديد":27,"المجادلة":28,"الحشر":28,"الممتحنة":28,"الصف":28,"الجمعة":28,"المنافقون":28,"التغابن":28,"الطلاق":28,"التحريم":28,"الملك":29,"القلم":29,"الحاقة":29,"المعارج":29,"نوح":29,"الجن":29,"المزمل":29,"المدثر":29,"القيامة":29,"الإنسان":29,"المرسلات":29,"جزء عم":30};
         const juzColors = Array.from({length:30},(_,i)=>`radial-gradient(circle, hsla(${(i*360/30)%360}, 80%, 60%, 0.4) 0%, hsla(${(i*360/30)%360}, 85%, 45%, 0.8) 100%)`);
-        function resetYoutubeSearchUI() { youtubeSuggestionsDiv.innerHTML = ''; youtubeSuggestionsDiv.classList.remove('hidden'); selectedReaderName = ''; youtubeSearchInput.value = ''; populateYoutubeSuggestions(); }
-        function populateYoutubeSuggestions() { youtubeSuggestionsDiv.innerHTML = ''; youtubeSuggestionsDiv.className = 'flex flex-col gap-4 w-full'; const readersSection = document.createElement('div'); readersSection.id = 'youtube-readers-section'; readersSection.className = 'flex flex-col gap-2 p-3 rounded-xl glass-surface glass-surface--svg w-full'; readersSection.innerHTML = '<span class="youtube-suggestion-category-tag bg-blue-600" style="line-height: 1.4; padding: 0.5rem 0.8rem;">اختر<br>القارئ</span>'; const readerButtonsContainer = document.createElement('div'); readerButtonsContainer.className = 'reader-container'; youtubeReaderSuggestions.forEach(reader => { const card = document.createElement('div'); card.className = 'youtube-reader-card navigable grid-item'; card.tabIndex = 0; card.innerHTML = `<img src="${reader.image}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';"><h3>${reader.name}</h3>`; card.addEventListener('click', (e) => { document.querySelectorAll('#youtube-readers-section .youtube-reader-card').forEach(c => c.classList.remove('selected')); e.currentTarget.classList.add('selected'); selectedReaderName = reader.name; youtubeSearchInput.value = reader.name + ' '; readersSection.style.display = 'none'; showSurahSuggestions(); setTimeout(() => { const firstSurahButton = document.querySelector('#youtube-surah-section .grid-item'); if (firstSurahButton) setFocus(firstSurahButton); }, 100); }); readerButtonsContainer.appendChild(card); }); readersSection.appendChild(readerButtonsContainer); youtubeSuggestionsDiv.appendChild(readersSection); }
+        function resetYoutubeSearchUI() { youtubeSuggestionsDiv.innerHTML = ''; youtubeSuggestionsDiv.style.display = 'flex'; selectedReaderName = ''; youtubeSearchInput.value = ''; populateYoutubeSuggestions(); }
+        function populateYoutubeSuggestions() { youtubeSuggestionsDiv.innerHTML = ''; youtubeSuggestionsDiv.className = 'flex flex-col gap-4 w-full h-full overflow-y-auto'; const readersSection = document.createElement('div'); readersSection.id = 'youtube-readers-section'; readersSection.className = 'flex flex-col gap-2 p-3 rounded-xl glass-surface glass-surface--svg w-full'; readersSection.innerHTML = '<span class="youtube-suggestion-category-tag bg-blue-600" style="line-height: 1.4; padding: 0.5rem 0.8rem;">اختر<br>القارئ</span>'; const readerButtonsContainer = document.createElement('div'); readerButtonsContainer.className = 'reader-container'; youtubeReaderSuggestions.forEach(reader => { const card = document.createElement('div'); card.className = 'youtube-reader-card navigable grid-item'; card.tabIndex = 0; card.innerHTML = `<img src="${reader.image}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';"><h3>${reader.name}</h3>`; card.addEventListener('click', (e) => { document.querySelectorAll('#youtube-readers-section .youtube-reader-card').forEach(c => c.classList.remove('selected')); e.currentTarget.classList.add('selected'); selectedReaderName = reader.name; youtubeSearchInput.value = reader.name + ' '; readersSection.style.display = 'none'; showSurahSuggestions(); setTimeout(() => { const firstSurahButton = document.querySelector('#youtube-surah-section .grid-item'); if (firstSurahButton) setFocus(firstSurahButton); }, 100); }); readerButtonsContainer.appendChild(card); }); readersSection.appendChild(readerButtonsContainer); youtubeSuggestionsDiv.appendChild(readersSection); }
         function showSurahSuggestions() { const existing = document.getElementById('youtube-surah-section'); if (existing) existing.remove(); const surahSection = document.createElement('div'); surahSection.id = 'youtube-surah-section'; surahSection.className = 'flex flex-col gap-2 p-3 rounded-xl glass-surface glass-surface--svg w-full mt-4 grid-container'; surahSection.innerHTML = '<span class="youtube-suggestion-category-tag bg-green-600">اختر السورة</span>'; const surahButtonsContainer = document.createElement('div'); surahButtonsContainer.className = 'grid grid-cols-9 gap-2 w-full'; youtubeSurahSuggestions.forEach(name => { const button = document.createElement('button'); button.className = 'youtube-suggestion-button navigable grid-item'; button.tabIndex = 0; button.textContent = name; button.style.backgroundImage = juzColors[(surahToJuzMap[name] || 1) - 1]; button.addEventListener('click', () => { const query = selectedReaderName + ' سورة ' + name; youtubeSearchInput.value = query; searchYouTubeVideos(query); }); surahButtonsContainer.appendChild(button); }); surahSection.appendChild(surahButtonsContainer); youtubeSuggestionsDiv.appendChild(surahSection); }
-        function navigateBackToPlaylists() { youtubePlaylistView.classList.remove('hidden'); youtubeVideoListView.classList.add('hidden'); youtubeSearchResultsView.classList.add('hidden'); youtubeSuggestionsDiv.classList.remove('hidden'); activeMediaView = 'playlist'; currentPlayingPlaylistId = ''; backToPlaylistsBottomButton.style.display = 'none'; backToPlaylistsBottomButtonSearch.style.display = 'none'; resetYoutubeSearchUI(); setTimeout(() => { const firstPlaylistItem = youtubePlaylistView.querySelector('.grid-item'); if (firstPlaylistItem) setFocus(firstPlaylistItem); }, 100); }
+        function navigateBackToMainSearch() { 
+            youtubeVideoListView.classList.add('hidden'); 
+            youtubeSearchResultsView.classList.add('hidden'); 
+            youtubeSuggestionsDiv.style.display = 'flex'; 
+            activeMediaView = 'suggestions'; 
+            currentPlayingPlaylistId = ''; 
+            backToPlaylistsBottomButton.style.display = 'none'; 
+            backToPlaylistsBottomButtonSearch.style.display = 'none'; 
+            resetYoutubeSearchUI(); 
+            setTimeout(() => { const firstReader = youtubeSuggestionsDiv.querySelector('.grid-item'); if (firstReader) setFocus(firstReader); }, 100); 
+        }
 
         // --- Google Map and Geolocation (REFACTORED FOR RELIABILITY) ---
         let mapsInitialized = false;
@@ -1805,30 +1741,37 @@ section#screen-Media {
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
             return R * c * 1000; // in meters
         }
+        
+        // NEW: Helper function to convert bearing to direction
+        function bearingToDirection(bearing) {
+            if (typeof bearing !== 'number' || isNaN(bearing)) return '--';
+            const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+            const index = Math.round((bearing % 360) / 45) % 8;
+            return directions[index];
+        }
 
         function updateGoogleMapLocation(pos) {
             const { latitude: lat, longitude: lng, heading } = pos.coords;
             appState.currentLocation = { lat, lng };
             const newLatLng = { lat, lng };
 
-            // Logic for speed and gear based on movement
+            // Logic for speed, gear, and direction based on movement
             if (appState.previousLocation) {
                 const distance = haversineDistance(appState.previousLocation, newLatLng);
-                // If moved more than 2 meters, consider it as moving
                 if (distance > 2) {
                     appState.car.gear = 'D';
-                    appState.car.speed = (Math.random() * 60 + 40).toFixed(0); // Speed between 40 and 100
+                    appState.car.speed = (Math.random() * 60 + 40).toFixed(0);
                 } else {
                     appState.car.gear = 'P';
                     appState.car.speed = 0;
                 }
             } else {
-                // First time getting location, assume parked
                 appState.car.gear = 'P';
                 appState.car.speed = 0;
             }
-            appState.previousLocation = newLatLng; // Update previous location
-            update3dScreenWidgets(); // Update UI
+            appState.previousLocation = newLatLng;
+            appState.car.direction = bearingToDirection(heading); // Update direction
+            update3dScreenWidgets(); // Update UI immediately
 
             if (dashboardGoogleMap && dashboardGoogleMarker) {
                 dashboardGoogleMarker.setPosition(newLatLng);
@@ -1887,7 +1830,6 @@ section#screen-Media {
             appState.car.rpm = (Math.random() * 4200 + 800).toFixed(0); 
             appState.car.fuel = (Math.random() * 100).toFixed(0); 
             appState.car.temp = (Math.random() * 30 + 70).toFixed(1); 
-            // Gear and speed are now handled by updateGoogleMapLocation
             update3dScreenWidgets(); 
         }
 
@@ -1973,10 +1915,12 @@ section#screen-Media {
             const nextPrayerEl = document.getElementById('3d-screen-next-prayer');
             const speedEl = document.getElementById('3d-screen-speed');
             const gearEl = document.getElementById('3d-screen-gear');
+            const dirEl = document.getElementById('3d-screen-dir');
 
             if (nextPrayerEl) nextPrayerEl.textContent = appState.prayerTimes.nextPrayer || '--';
             if (speedEl) speedEl.textContent = `${appState.car.speed} km/h`;
             if (gearEl) gearEl.textContent = appState.car.gear;
+            if (dirEl) dirEl.textContent = appState.car.direction;
         }
 
         // --- Draggable/Resizable Popup Logic ---
@@ -2105,14 +2049,13 @@ section#screen-Media {
             const searchRow = document.querySelector('#screen-Media .flex.flex-row.items-center.gap-2.grid-container');
             const readersContainer = document.querySelector('.reader-container');
             const surahContainer = document.querySelector('#youtube-surah-section');
-            const playlistContainer = document.querySelector('#youtube-playlist-view');
             const videoListContainer = document.querySelector('#video-list-container');
             const searchResultsContainer = document.querySelector('#search-results-container');
             const inSearchRow = activeEl.closest('.flex.flex-row.items-center.gap-2.grid-container');
             const inReaders = activeEl.closest('.reader-container');
             if (e.key.toLowerCase() === 'arrowdown') {
                 if (inSearchRow) {
-                    const nextVisibleContainer = [readersContainer, surahContainer, playlistContainer, videoListContainer, searchResultsContainer].find(c => c && c.offsetParent !== null);
+                    const nextVisibleContainer = [readersContainer, surahContainer, videoListContainer, searchResultsContainer].find(c => c && c.offsetParent !== null);
                     if (nextVisibleContainer) {
                         const firstItem = nextVisibleContainer.querySelector('.grid-item');
                         if (firstItem) { setFocus(firstItem); return; }
@@ -2276,25 +2219,18 @@ section#screen-Media {
             document.addEventListener('keydown', handleNavigation);
             
             videoPopupCloseButton.addEventListener('click', hideVideoPopup);
-            document.querySelectorAll('.youtube-channel-card').forEach(c => c.addEventListener('click', () => { currentPlayingPlaylistId = c.dataset.playlistId; fetchPlaylistVideos(currentPlayingPlaylistId); }));
-            backToPlaylistsFromVideosButton.addEventListener('click', navigateBackToPlaylists);
-            backToPlaylistsBottomButton.addEventListener('click', navigateBackToPlaylists);
-            backToPlaylistsBottomButtonSearch.addEventListener('click', navigateBackToPlaylists);
+            backToPlaylistsFromVideosButton.addEventListener('click', navigateBackToMainSearch);
+            backToPlaylistsBottomButton.addEventListener('click', navigateBackToMainSearch);
+            backToPlaylistsBottomButtonSearch.addEventListener('click', navigateBackToMainSearch);
             floatingKeyboardButton.addEventListener('click', () => { youtubeSearchInput.readOnly = !youtubeSearchInput.readOnly; if (!youtubeSearchInput.readOnly) youtubeSearchInput.focus(); else youtubeSearchInput.blur(); floatingKeyboardButton.classList.toggle('active-keyboard', !youtubeSearchInput.readOnly); floatingKeyboardButton.classList.toggle('inactive-keyboard', youtubeSearchInput.readOnly); });
             
             // UPDATED: Clear button logic
             clearSearchButton.addEventListener('click', () => {
                 youtubeSearchInput.value = ''; // Clear input immediately
-                if (youtubeSearchResultsView.classList.contains('hidden') && youtubeVideoListView.classList.contains('hidden')) {
-                    // We are in the suggestion view (e.g., after picking a reader), just reset it to the reader selection.
-                    resetYoutubeSearchUI();
-                } else {
-                    // We are in search results or a video list, navigate all the way back to the main playlist grid.
-                    navigateBackToPlaylists();
-                }
+                navigateBackToMainSearch();
             });
 
-            youtubeSearchInput.addEventListener('focus', () => { if (youtubeSearchInput.value.trim() === '') { youtubeSuggestionsDiv.classList.remove('hidden'); resetYoutubeSearchUI(); } });
+            youtubeSearchInput.addEventListener('focus', () => { if (youtubeSearchInput.value.trim() === '') { resetYoutubeSearchUI(); } });
             youtubeSearchButton.addEventListener('click', () => { const query = youtubeSearchInput.value.trim(); if (query) searchYouTubeVideos(query); else showMessageBox('الرجاء إدخال كلمة للبحث.'); });
             
             // Initial Calls
@@ -2315,4 +2251,3 @@ section#screen-Media {
     </script>
 </body> 
 </html>
- 
