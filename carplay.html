@@ -500,22 +500,22 @@ if ("serviceWorker" in navigator) {
         .video-meta {
             display: flex;
             flex-direction: column;
-            font-size: 0.8rem;
-            color: #aaa;
+            font-size: 1.2rem;
+            color: #8dffd8;
+            font-weight: bold;
         }
 
-        /* YouTube Reader Card Styling (Suggestions) */
+        /* YouTube Reader Card Styling (Suggestions) - UPDATED */
         .youtube-reader-card {
             cursor: pointer;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 0.5rem;
+            padding: 0.75rem;
             transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
-            border-radius: 1rem;
+            border-radius: 1.25rem;
             background-color: rgba(255, 255, 255, 0.05);
-            flex-shrink: 0; /* Prevent shrinking in flex container */
         }
         .youtube-reader-card:hover {
             transform: translateY(-5px);
@@ -523,15 +523,15 @@ if ("serviceWorker" in navigator) {
             background-color: rgba(255, 255, 255, 0.1);
         }
         .youtube-reader-card img {
-            width: 64px;
-            height: 64px;
+            width: 100px; /* MODIFIED: Increased size */
+            height: 100px; /* MODIFIED: Increased size */
             object-fit: cover;
             border-radius: 50%;
-            margin-bottom: 0.5rem;
+            margin-bottom: 1rem; /* MODIFIED: Increased margin */
             border: 2px solid rgba(255,255,255,0.3);
         }
         .youtube-reader-card h3 {
-            font-size: 0.8rem;
+            font-size: 1.1rem; /* MODIFIED: Increased font size */
             font-weight: 600;
             color: white;
             text-align: center;
@@ -545,17 +545,19 @@ if ("serviceWorker" in navigator) {
             box-shadow: 0 0 15px rgba(147, 51, 234, 0.8);
             transform: translateY(-5px) scale(1.05);
         }
-        /* NEW: Horizontal scroll container for readers */
+        /* UPDATED: Reader container is now a grid */
         .reader-container {
-            display: flex;
-            flex-wrap: nowrap;
-            overflow-x: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); /* MODIFIED: Responsive columns */
+            overflow-y: auto;
             padding-bottom: 1rem;
-            gap: 0.75rem;
-            direction: ltr; /* Force LTR for intuitive arrow key navigation */
+            gap: 1.25rem; /* MODIFIED: Increased gap */
+            direction: ltr;
+            max-height: 45vh; /* MODIFIED: Increased height */
+            width: 100%; /* MODIFIED: Ensure full width */
         }
-        .reader-container::-webkit-scrollbar { display: none; }
-        .reader-container { -ms-overflow-style: none; scrollbar-width: none; }
+        .reader-container::-webkit-scrollbar { display: block; }
+        .reader-container { -ms-overflow-style: auto; scrollbar-width: thin; }
 
 
         /* YouTube Suggestion Buttons (for Surahs) */
@@ -1196,6 +1198,10 @@ if ("serviceWorker" in navigator) {
                                 <img src="https://yt3.googleusercontent.com/jE4NSU3a46l5ZI5rTvaq2Jvk_TWWS3GtPhs4qchBQagGTeypLWC1V3ewrcE1xbMOgkZaHGGNWA=s160-c-k-c0x00ffffff-no-rj" alt="صورة مزامير القرآن" />
                                 <h2>مزامير القرآن</h2>
                             </div>
+                             <div class="glass-surface glass-surface--svg youtube-channel-card navigable grid-item" tabindex="0" data-playlist-id="PL314039132484C22F" data-channel-id="UC-W4kYtLhJjL9Q_a-2hF3bQ">
+                                <img src="https://yt3.googleusercontent.com/mHTg3RIX-a3NAR22lAnOvSq3-U_KBcL_Ax4FTNirc3flsb5OU8RWksKu6X8Ush9JhO0EOxxAwQY=s160-c-k-c0x00ffffff-no-rj" alt="صورة عبدالله القرافي" />
+                                <h2>عبدالله القرافي</h2>
+                            </div>
                         </div>
                     </div>
 
@@ -1248,18 +1254,43 @@ if ("serviceWorker" in navigator) {
                         </div>
                         <div class="glass-surface glass-surface--svg p-4 rounded-3xl mt-4 w-full col-span-full flex-grow navigable grid-item" tabindex="0">
                             <canvas id="hourly-forecast-chart"></canvas>
-                        </div>
+                        </div> 
                     </div>
                 </section>
 
                 <!-- 3D Screen (Formerly Map Screen) -->
                 <section id="screen-Map" class="app-screen p-4 md:p-6 flex-col h-full items-center justify-center relative">
                     <div class="w-full h-full bg-black2 rounded-3xl flex items-center justify-center p-1 overflow-hidden">
-                        <iframe title="LEXSUS ES" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share WIDTH="100%" HEIGHT="100%" src="https://sketchfab.com/models/17ed331fd31f491fa3907156f0b0b55e/embed?autostart=1&preload=1&annotation=1&annotation_cycle=6&transparent=1&ui_theme=dark"> </iframe>
+                        <iframe title="LEXSUS ES" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share WIDTH="100%" HEIGHT="100%" src="https://sketchfab.com/models/17ed331fd31f491fa3907156f0b0b55e/embed?autostart=1&preload=1&annotations_visible=0&annotation=0&annotation_cycle=6&transparent=1&ui_theme=dark"> </iframe>
                     </div>
+                    <!-- Right side widget -->
                     <div id="3d-screen-weather-widget" class="absolute top-8 right-8 glass-surface glass-surface--svg p-4 rounded-2xl text-center flex items-center gap-3 z-10 navigable grid-item" tabindex="0">
                         <i data-lucide="thermometer" class="w-8 h-8 text-red-400"></i>
                         <span class="text-3xl font-bold" id="3d-screen-weather-temp">--°C</span>
+                    </div>
+                    <!-- NEW: Left side widgets -->
+                    <div id="3d-screen-info-widgets" class="absolute top-8 left-8 flex flex-col gap-3 z-10">
+                        <div class="glass-surface glass-surface--svg p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
+                            <i data-lucide="moon" class="w-7 h-7 text-cyan-300"></i>
+                            <div>
+                                <div class="text-sm text-white/70">الصلاة القادمة</div>
+                                <div class="text-xl font-bold" id="3d-screen-next-prayer">--</div>
+                            </div>
+                        </div>
+                        <div class="glass-surface glass-surface--svg p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
+                            <i data-lucide="gauge-circle" class="w-7 h-7 text-green-400"></i>
+                            <div>
+                                <div class="text-sm text-white/70">السرعة</div>
+                                <div class="text-xl font-bold" id="3d-screen-speed">-- km/h</div>
+                            </div>
+                        </div>
+                         <div class="glass-surface glass-surface--svg p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
+                            <i data-lucide="parking-circle" class="w-7 h-7 text-orange-400"></i>
+                            <div>
+                                <div class="text-sm text-white/70">القير</div>
+                                <div class="text-xl font-bold" id="3d-screen-gear">--</div>
+                            </div>
+                        </div>
                     </div>
                 </section>
 
@@ -1345,6 +1376,7 @@ if ("serviceWorker" in navigator) {
             dashboardReturnCounter: 0,
             custom360Image: localStorage.getItem('custom360Image') || null,
             currentLocation: null,
+            previousLocation: null, // For tracking movement
             destinationSet: false
         };
         let googleMapsPromise = null;
@@ -1669,12 +1701,12 @@ if ("serviceWorker" in navigator) {
             }
         }
         
-        const youtubeReaderSuggestions = [{"name":"محمد ايوب","image":"https://dmusera.netlify.app/512px-Muhammad_Ayyub.webp"},{"name":"فارس عنتر","image":"https://dmusera.netlify.app/faresantar.jpg"},{"name":"علي جابر","image":"https://dmusera.netlify.app/ali-jaber.webp"},{"name":"عبد الباسط عبد الصمد","image":"https://dmusera.netlify.app/abdulbaset-abdulsamad.jpeg"},{"name":"مشاري العفاسي","image":"https://dmusera.netlify.app/512px-%D0%9C%D0%B8%D1%88%D0%B0%D1%80%D0%B8_%D0%A0%D0%B0%D1%88%D0%B8%D0%B4.webp"},{"name":"احمد النفيس","image":"https://dmusera.netlify.app/ahmednafes.jpg"},{"name":"ياسر الدوسري","image":"https://dmusera.netlify.app/Yasser_Al-Dosari.jpg"}];
+        const youtubeReaderSuggestions = [{"name":"محمد ايوب","image":"https://dmusera.netlify.app/512px-Muhammad_Ayyub.webp"},{"name":"فارس عنتر","image":"https://dmusera.netlify.app/faresantar.jpg"},{"name":"علي جابر","image":"https://dmusera.netlify.app/ali-jaber.webp"},{"name":"عبدالله القرافي","image":"https://yt3.googleusercontent.com/mHTg3RIX-a3NAR22lAnOvSq3-U_KBcL_Ax4FTNirc3flsb5OU8RWksKu6X8Ush9JhO0EOxxAwQY=s160-c-k-c0x00ffffff-no-rj"},{"name":"عبد الباسط عبد الصمد","image":"https://dmusera.netlify.app/abdulbaset-abdulsamad.jpeg"},{"name":"مشاري العفاسي","image":"https://dmusera.netlify.app/512px-%D0%9C%D0%B8%D1%88%D0%B0%D1%80%D0%B8_%D0%A0%D0%B0%D1%88%D0%B8%D0%B4.webp"},{"name":"احمد النفيس","image":"https://dmusera.netlify.app/ahmednafes.jpg"},{"name":"ياسر الدوسري","image":"https://dmusera.netlify.app/Yasser_Al-Dosari.jpg"}];
         const youtubeSurahSuggestions = ["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","جزء عم"];
         const surahToJuzMap = {"الفاتحة":1,"البقرة":1,"آل عمران":3,"النساء":4,"المائدة":6,"الأنعام":7,"الأعراف":8,"الأنفال":9,"التوبة":10,"يونس":11,"هود":11,"يوسف":12,"الرعد":13,"إبراهيم":13,"الحجر":14,"النحل":14,"الإسراء":15,"الكهف":15,"مريم":16,"طه":16,"الأنبياء":17,"الحج":17,"المؤمنون":18,"النور":18,"الفرقان":18,"الشعراء":19,"النمل":19,"القصص":20,"العنكبوت":20,"الروم":21,"لقمان":21,"السجدة":21,"الأحزاب":21,"سبأ":22,"فاطر":22,"يس":22,"الصافات":23,"ص":23,"الزمر":23,"غافر":24,"فصلت":24,"الشورى":25,"الزخرف":25,"الدخان":25,"الجاثية":25,"الأحقاف":26,"محمد":26,"الفتح":26,"الحجرات":26,"ق":26,"الذاريات":27,"الطور":27,"النجم":27,"القمر":27,"الرحمن":27,"الواقعة":27,"الحديد":27,"المجادلة":28,"الحشر":28,"الممتحنة":28,"الصف":28,"الجمعة":28,"المنافقون":28,"التغابن":28,"الطلاق":28,"التحريم":28,"الملك":29,"القلم":29,"الحاقة":29,"المعارج":29,"نوح":29,"الجن":29,"المزمل":29,"المدثر":29,"القيامة":29,"الإنسان":29,"المرسلات":29,"جزء عم":30};
         const juzColors = Array.from({length:30},(_,i)=>`radial-gradient(circle, hsla(${(i*360/30)%360}, 80%, 60%, 0.4) 0%, hsla(${(i*360/30)%360}, 85%, 45%, 0.8) 100%)`);
         function resetYoutubeSearchUI() { youtubeSuggestionsDiv.innerHTML = ''; youtubeSuggestionsDiv.classList.remove('hidden'); selectedReaderName = ''; youtubeSearchInput.value = ''; populateYoutubeSuggestions(); }
-        function populateYoutubeSuggestions() { youtubeSuggestionsDiv.innerHTML = ''; youtubeSuggestionsDiv.className = 'flex flex-col gap-4 w-full'; const readersSection = document.createElement('div'); readersSection.id = 'youtube-readers-section'; readersSection.className = 'flex flex-col gap-2 p-3 rounded-xl glass-surface glass-surface--svg w-full'; readersSection.innerHTML = '<span class="youtube-suggestion-category-tag bg-blue-600">اختر القارئ</span>'; const readerButtonsContainer = document.createElement('div'); readerButtonsContainer.className = 'reader-container'; youtubeReaderSuggestions.forEach(reader => { const card = document.createElement('div'); card.className = 'youtube-reader-card navigable grid-item'; card.tabIndex = 0; card.innerHTML = `<img src="${reader.image}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';"><h3>${reader.name}</h3>`; card.addEventListener('click', (e) => { document.querySelectorAll('#youtube-readers-section .youtube-reader-card').forEach(c => c.classList.remove('selected')); e.currentTarget.classList.add('selected'); selectedReaderName = reader.name; youtubeSearchInput.value = reader.name + ' '; readersSection.style.display = 'none'; showSurahSuggestions(); setTimeout(() => { const firstSurahButton = document.querySelector('#youtube-surah-section .grid-item'); if (firstSurahButton) setFocus(firstSurahButton); }, 100); }); readerButtonsContainer.appendChild(card); }); readersSection.appendChild(readerButtonsContainer); youtubeSuggestionsDiv.appendChild(readersSection); }
+        function populateYoutubeSuggestions() { youtubeSuggestionsDiv.innerHTML = ''; youtubeSuggestionsDiv.className = 'flex flex-col gap-4 w-full'; const readersSection = document.createElement('div'); readersSection.id = 'youtube-readers-section'; readersSection.className = 'flex flex-col gap-2 p-3 rounded-xl glass-surface glass-surface--svg w-full'; readersSection.innerHTML = '<span class="youtube-suggestion-category-tag bg-blue-600" style="line-height: 1.4; padding: 0.5rem 0.8rem;">اختر<br>القارئ</span>'; const readerButtonsContainer = document.createElement('div'); readerButtonsContainer.className = 'reader-container'; youtubeReaderSuggestions.forEach(reader => { const card = document.createElement('div'); card.className = 'youtube-reader-card navigable grid-item'; card.tabIndex = 0; card.innerHTML = `<img src="${reader.image}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';"><h3>${reader.name}</h3>`; card.addEventListener('click', (e) => { document.querySelectorAll('#youtube-readers-section .youtube-reader-card').forEach(c => c.classList.remove('selected')); e.currentTarget.classList.add('selected'); selectedReaderName = reader.name; youtubeSearchInput.value = reader.name + ' '; readersSection.style.display = 'none'; showSurahSuggestions(); setTimeout(() => { const firstSurahButton = document.querySelector('#youtube-surah-section .grid-item'); if (firstSurahButton) setFocus(firstSurahButton); }, 100); }); readerButtonsContainer.appendChild(card); }); readersSection.appendChild(readerButtonsContainer); youtubeSuggestionsDiv.appendChild(readersSection); }
         function showSurahSuggestions() { const existing = document.getElementById('youtube-surah-section'); if (existing) existing.remove(); const surahSection = document.createElement('div'); surahSection.id = 'youtube-surah-section'; surahSection.className = 'flex flex-col gap-2 p-3 rounded-xl glass-surface glass-surface--svg w-full mt-4 grid-container'; surahSection.innerHTML = '<span class="youtube-suggestion-category-tag bg-green-600">اختر السورة</span>'; const surahButtonsContainer = document.createElement('div'); surahButtonsContainer.className = 'grid grid-cols-9 gap-2 w-full'; youtubeSurahSuggestions.forEach(name => { const button = document.createElement('button'); button.className = 'youtube-suggestion-button navigable grid-item'; button.tabIndex = 0; button.textContent = name; button.style.backgroundImage = juzColors[(surahToJuzMap[name] || 1) - 1]; button.addEventListener('click', () => { const query = selectedReaderName + ' سورة ' + name; youtubeSearchInput.value = query; searchYouTubeVideos(query); }); surahButtonsContainer.appendChild(button); }); surahSection.appendChild(surahButtonsContainer); youtubeSuggestionsDiv.appendChild(surahSection); }
         function navigateBackToPlaylists() { youtubePlaylistView.classList.remove('hidden'); youtubeVideoListView.classList.add('hidden'); youtubeSearchResultsView.classList.add('hidden'); youtubeSuggestionsDiv.classList.remove('hidden'); activeMediaView = 'playlist'; currentPlayingPlaylistId = ''; backToPlaylistsBottomButton.style.display = 'none'; backToPlaylistsBottomButtonSearch.style.display = 'none'; resetYoutubeSearchUI(); setTimeout(() => { const firstPlaylistItem = youtubePlaylistView.querySelector('.grid-item'); if (firstPlaylistItem) setFocus(firstPlaylistItem); }, 100); }
 
@@ -1730,20 +1762,53 @@ if ("serviceWorker" in navigator) {
             }
         }
 
-        function updateGoogleMapLocation(pos) { 
-            const { latitude: lat, longitude: lng, heading } = pos.coords; 
-            appState.currentLocation = { lat, lng }; 
-            const newLatLng = { lat, lng }; 
-            if (dashboardGoogleMap && dashboardGoogleMarker) { 
-                dashboardGoogleMarker.setPosition(newLatLng); 
-                if (!appState.mapZoomChangedByUser) { 
-                    dashboardGoogleMap.setCenter(newLatLng); 
-                    dashboardGoogleMap.setZoom(appState.mapLocation.zoom); 
-                } 
-            } 
-            if (typeof heading === 'number' && !isNaN(heading)) { 
-                if (dashboardGoogleMap) dashboardGoogleMap.setHeading(heading); 
-            } 
+        // Helper function to calculate distance between two lat/lng points
+        function haversineDistance(coords1, coords2) {
+            function toRad(x) { return x * Math.PI / 180; }
+            const R = 6371; // km
+            const dLat = toRad(coords2.lat - coords1.lat);
+            const dLon = toRad(coords2.lng - coords1.lng);
+            const lat1 = toRad(coords1.lat);
+            const lat2 = toRad(coords2.lat);
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c * 1000; // in meters
+        }
+
+        function updateGoogleMapLocation(pos) {
+            const { latitude: lat, longitude: lng, heading } = pos.coords;
+            appState.currentLocation = { lat, lng };
+            const newLatLng = { lat, lng };
+
+            // Logic for speed and gear based on movement
+            if (appState.previousLocation) {
+                const distance = haversineDistance(appState.previousLocation, newLatLng);
+                // If moved more than 2 meters, consider it as moving
+                if (distance > 2) {
+                    appState.car.gear = 'D';
+                    appState.car.speed = (Math.random() * 60 + 40).toFixed(0); // Speed between 40 and 100
+                } else {
+                    appState.car.gear = 'P';
+                    appState.car.speed = 0;
+                }
+            } else {
+                // First time getting location, assume parked
+                appState.car.gear = 'P';
+                appState.car.speed = 0;
+            }
+            appState.previousLocation = newLatLng; // Update previous location
+            update3dScreenWidgets(); // Update UI
+
+            if (dashboardGoogleMap && dashboardGoogleMarker) {
+                dashboardGoogleMarker.setPosition(newLatLng);
+                if (!appState.mapZoomChangedByUser) {
+                    dashboardGoogleMap.setCenter(newLatLng);
+                    dashboardGoogleMap.setZoom(appState.mapLocation.zoom);
+                }
+            }
+            if (typeof heading === 'number' && !isNaN(heading)) {
+                if (dashboardGoogleMap) dashboardGoogleMap.setHeading(heading);
+            }
         }
         function startContinuousLocationTracking() { if (navigator.geolocation) { watchId = navigator.geolocation.watchPosition((pos) => { updateGoogleMapLocation(pos); appState.hasShownGeolocationError = false; }, (err) => { if (!appState.hasShownGeolocationError) { let msg = 'تعذر تتبع موقعك. يرجى التحقق من أذونات الموقع.'; if (err.code === 1) msg += ' إذا كان التطبيق في iframe، تأكد من وجود `allow="geolocation"`.'; showMessageBox(msg); appState.hasShownGeolocationError = true; } }, { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }); } else { showMessageBox('الموقع الجغرافي غير مدعوم.'); } }
         function centerMapOnUserLocation() { if (navigator.geolocation) { navigator.geolocation.getCurrentPosition((pos) => { updateGoogleMapLocation(pos); showMessageBox(`تم تحديث الخريطة.`); }, () => showMessageBox('تعذر الحصول على موقعك الحالي.'), { enableHighAccuracy: true }); } }
@@ -1787,7 +1852,13 @@ if ("serviceWorker" in navigator) {
         function getUvIndexColor(uv) { if (uv <= 2) return '#4ade80'; if (uv <= 5) return '#facc15'; if (uv <= 7) return '#fb923c'; if (uv <= 10) return '#f87171'; return '#c084fc'; }
 
         // --- Simulated Car Data ---
-        function simulateCarData() { appState.car.speed = (Math.random() * 120).toFixed(0); appState.car.rpm = (Math.random() * 4200 + 800).toFixed(0); appState.car.fuel = (Math.random() * 100).toFixed(0); appState.car.temp = (Math.random() * 30 + 70).toFixed(1); appState.car.gear = ['P', 'R', 'N', 'D'][Math.floor(Math.random() * 4)]; }
+        function simulateOtherCarData() { 
+            appState.car.rpm = (Math.random() * 4200 + 800).toFixed(0); 
+            appState.car.fuel = (Math.random() * 100).toFixed(0); 
+            appState.car.temp = (Math.random() * 30 + 70).toFixed(1); 
+            // Gear and speed are now handled by updateGoogleMapLocation
+            update3dScreenWidgets(); 
+        }
 
         // --- Prayer Times Integration ---
         const prayerTimes = [
@@ -1865,6 +1936,17 @@ if ("serviceWorker" in navigator) {
         // --- 360 Camera ---
         function handleImageUpload(e) { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = (ev) => { appState.custom360Image = ev.target.result; localStorage.setItem('custom360Image', ev.target.result); updateUI(); }; reader.readAsDataURL(file); } }
         function resetImageToDefault() { appState.custom360Image = null; localStorage.removeItem('custom360Image'); updateUI(); }
+
+        // --- NEW: 3D Screen Widgets Update ---
+        function update3dScreenWidgets() {
+            const nextPrayerEl = document.getElementById('3d-screen-next-prayer');
+            const speedEl = document.getElementById('3d-screen-speed');
+            const gearEl = document.getElementById('3d-screen-gear');
+
+            if (nextPrayerEl) nextPrayerEl.textContent = appState.prayerTimes.nextPrayer || '--';
+            if (speedEl) speedEl.textContent = `${appState.car.speed} km/h`;
+            if (gearEl) gearEl.textContent = appState.car.gear;
+        }
 
         // --- Draggable/Resizable Popup Logic ---
         let isDragging = false;
@@ -2168,7 +2250,19 @@ if ("serviceWorker" in navigator) {
             backToPlaylistsBottomButton.addEventListener('click', navigateBackToPlaylists);
             backToPlaylistsBottomButtonSearch.addEventListener('click', navigateBackToPlaylists);
             floatingKeyboardButton.addEventListener('click', () => { youtubeSearchInput.readOnly = !youtubeSearchInput.readOnly; if (!youtubeSearchInput.readOnly) youtubeSearchInput.focus(); else youtubeSearchInput.blur(); floatingKeyboardButton.classList.toggle('active-keyboard', !youtubeSearchInput.readOnly); floatingKeyboardButton.classList.toggle('inactive-keyboard', youtubeSearchInput.readOnly); });
-            clearSearchButton.addEventListener('click', () => { youtubeSearchInput.value = ''; youtubeSearchInput.readOnly = true; floatingKeyboardButton.classList.add('inactive-keyboard'); floatingKeyboardButton.classList.remove('active-keyboard'); navigateBackToPlaylists(); });
+            
+            // UPDATED: Clear button logic
+            clearSearchButton.addEventListener('click', () => {
+                youtubeSearchInput.value = ''; // Clear input immediately
+                if (youtubeSearchResultsView.classList.contains('hidden') && youtubeVideoListView.classList.contains('hidden')) {
+                    // We are in the suggestion view (e.g., after picking a reader), just reset it to the reader selection.
+                    resetYoutubeSearchUI();
+                } else {
+                    // We are in search results or a video list, navigate all the way back to the main playlist grid.
+                    navigateBackToPlaylists();
+                }
+            });
+
             youtubeSearchInput.addEventListener('focus', () => { if (youtubeSearchInput.value.trim() === '') { youtubeSuggestionsDiv.classList.remove('hidden'); resetYoutubeSearchUI(); } });
             youtubeSearchButton.addEventListener('click', () => { const query = youtubeSearchInput.value.trim(); if (query) searchYouTubeVideos(query); else showMessageBox('الرجاء إدخال كلمة للبحث.'); });
             
@@ -2181,12 +2275,13 @@ if ("serviceWorker" in navigator) {
             setInterval(updateDigitalClock, 1000); 
             setInterval(updateTopBarTime, 1000);
             setInterval(determineNextPrayer, 60000);
-            setInterval(simulateCarData, 5000); 
+            setInterval(simulateOtherCarData, 2000); // Call the modified simulation
             switchApp('Dashboard'); 
             
             // Play welcome message once after a short delay
             setTimeout(playWelcomeMessage, 1500);
         });
     </script>
-</body>
+</body> 
 </html>
+ 
