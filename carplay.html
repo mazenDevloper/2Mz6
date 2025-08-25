@@ -130,6 +130,14 @@ button#back-to-playlists-bottom-button-search {
             position: relative;
             z-index: 1;
         }
+        div#geares {
+    height: 114px;
+}
+
+div#\33 d-screen-weather-widget {
+    height: 115px;
+    width: 116px;
+}
         .glass-surface--svg {
             /* Adjusted background for a more pronounced "drop" effect */
             background: light-dark(hsl(0 0% 100% / var(--glass-frost, 0.1)), /* Slightly more opaque background */
@@ -975,6 +983,78 @@ section#screen-Media {
             }
         }
 
+        /* UPDATED: Media Query for 16:9 aspect ratio screens in portrait mode (e.g., 1080x1920) */
+        @media screen and (aspect-ratio: 9/16) and (orientation: portrait) {
+            body {
+                justify-content: flex-start; /* Align content to the top */
+                padding-top: 4rem; /* Add padding to avoid notch/top bar */
+                overflow-y: auto; /* Allow scrolling on tall screens */
+            }
+
+            #carplay-main-interface {
+                height: auto; /* Allow content to determine height */
+                min-height: 95vh;
+                width: 98vw;
+                top: 1rem;
+                left: 1%;
+                flex-direction: column; /* Stack sidebar and main content */
+            }
+            
+            nav {
+                flex-direction: row;
+                width: 100%;
+                height: auto;
+                justify-content: center;
+                gap: 0.5rem;
+                padding-top: 0.5rem;
+                padding-bottom: 0.5rem;
+                order: 2; /* Move nav to bottom */
+            }
+            
+            main {
+                order: 1; /* Move main content to top */
+            }
+
+            .dashboard-main-grid {
+                grid-template-columns: 1fr; /* Force single column */
+                grid-template-rows: 1fr 1fr 1fr auto; /* Adjust rows for vertical layout */
+                gap: 1rem;
+            }
+
+            /* Ensure all grid items in dashboard are visible and take full width */
+            .dashboard-main-grid > div {
+                grid-column: 1 / -1 !important;
+                grid-row: auto !important;
+            }
+
+            .flex.flex-col.gap-4.md\:gap-6.col-span-1.row-start-1.grid-container {
+                flex-direction: row; /* Side-by-side clock and weather */
+                gap: 1rem;
+            }
+            .flex.flex-col.gap-4.md\:gap-6.col-span-1.row-start-1.grid-container > div {
+                flex-grow: 1;
+            }
+
+            #screen-Media {
+                padding: 1rem;
+            }
+
+            .reader-container {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                max-height: 60vh; /* Allow more vertical scroll */
+            }
+
+            .youtube-suggestion-button {
+                font-size: 0.8rem;
+                padding: 0.4rem 0.8rem;
+            }
+
+            #youtube-surah-section .grid {
+                grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            }
+        }
+
+
         img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
             position: fixed;
         }
@@ -1235,7 +1315,7 @@ section#screen-Media {
                 <!-- 3D Screen (Formerly Map Screen) -->
                 <section id="screen-Map" class="app-screen p-4 md:p-6 flex-col h-full items-center justify-center relative">
                     <div class="w-full h-full bg-black2 rounded-3xl flex items-center justify-center p-1 overflow-hidden">
-                        <iframe title="LEXSUS ES" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share WIDTH="100%" HEIGHT="100%" src="https://sketchfab.com/models/17ed331fd31f491fa3907156f0b0b55e/embed?autostart=1&preload=1&annotations_visible=0&annotation=0&annotation_cycle=6&transparent=1&ui_theme=dark"> </iframe>
+                        <iframe title="LEXSUS ES" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share WIDTH="80%" HEIGHT="80%" src="https://sketchfab.com/models/17ed331fd31f491fa3907156f0b0b55e/embed?autostart=1&preload=1&annotations_visible=0&annotation=0&annotation_cycle=6&transparent=1&ui_theme=dark"> </iframe>
                     </div>
                     <!-- Right side widget -->
                     <div id="3d-screen-weather-widget" class="absolute top-8 right-8 glass-surface glass-surface--svg p-4 rounded-2xl text-center flex items-center gap-3 z-10 navigable grid-item" tabindex="0">
@@ -1259,7 +1339,7 @@ section#screen-Media {
                                 <div class="text-xl font-bold" id="3d-screen-speed">-- km/h</div>
                             </div>
                         </div>
-                         <div class="glass-surface glass-surface--svg p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
+                         <div id="geares" class="glass-surface glass-surface--svg p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
                             <i data-lucide="parking-circle" class="w-7 h-7 text-orange-400"></i>
                             <div>
                                 <div class="text-sm text-white/70">القير</div>
