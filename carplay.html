@@ -1156,10 +1156,9 @@ section#screen-Media {
         <!-- Top Bar: Wifi, 5G, Current Time -->
         <div class="w-full max-w-7xl flex justify-between items-center text-white/80 text-sm px-4 py-2 absolute top-4 left-1/2 -translate-x-1/2 z-10 top-bar">
             <div class="flex items-center gap-2">
-                <i data-lucide="wifi"></i>
-                <span>5G</span>
+              
             </div>
-            <div id="current-time">00:00</div>
+           
         </div>
 
         <!-- Lexus Logo Fixed at Top Center -->
@@ -1318,28 +1317,28 @@ section#screen-Media {
                         <iframe title="LEXSUS ES" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share WIDTH="80%" HEIGHT="80%" src="https://sketchfab.com/models/17ed331fd31f491fa3907156f0b0b55e/embed?autostart=1&preload=1&annotations_visible=0&annotation=0&annotation_cycle=6&transparent=1&ui_theme=dark"> </iframe>
                     </div>
                     <!-- Right side widget -->
-                    <div id="3d-screen-weather-widget" class="absolute top-8 right-8 glass-surface glass-surface--svg p-4 rounded-2xl text-center flex items-center gap-3 z-10 navigable grid-item" tabindex="0">
+                    <div id="3d-screen-weather-widget" class="absolute top-8 right-8 p-4 rounded-2xl text-center flex items-center gap-3 z-10 navigable grid-item" tabindex="0">
                         <!-- MODIFIED: Replaced icon with user-provided SVG -->
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="thermometer" class="lucide lucide-thermometer w-8 h-8 text-red-400"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path></svg>
                         <span class="text-3xl font-bold" id="3d-screen-weather-temp">--°C</span>
                     </div>
                     <!-- NEW: Left side widgets -->
                     <div id="3d-screen-info-widgets" class="absolute top-8 left-8 flex flex-col gap-3 z-10">
-                        <div class="glass-surface glass-surface--svg p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
+                        <div class="p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
                             <i data-lucide="moon" class="w-7 h-7 text-cyan-300"></i>
                             <div>
                                 <div class="text-sm text-white/70">الصلاة القادمة</div>
                                 <div class="text-xl font-bold" id="3d-screen-next-prayer">--</div>
                             </div>
                         </div>
-                        <div class="glass-surface glass-surface--svg p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
+                        <div class="p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
                             <i data-lucide="gauge-circle" class="w-7 h-7 text-green-400"></i>
                             <div>
                                 <div class="text-sm text-white/70">السرعة</div>
                                 <div class="text-xl font-bold" id="3d-screen-speed">-- km/h</div>
                             </div>
                         </div>
-                         <div id="geares" class="glass-surface glass-surface--svg p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
+                         <div id="geares" class="p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
                             <i data-lucide="parking-circle" class="w-7 h-7 text-orange-400"></i>
                             <div>
                                 <div class="text-sm text-white/70">القير</div>
@@ -1347,7 +1346,7 @@ section#screen-Media {
                             </div>
                         </div>
                         <!-- NEW: Direction Widget -->
-                        <div class="glass-surface glass-surface--svg p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
+                        <div class="p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
                             <i data-lucide="compass" class="w-7 h-7 text-blue-300"></i>
                             <div>
                                 <div class="text-sm text-white/70">الاتجاه</div>
@@ -2109,13 +2108,178 @@ section#screen-Media {
 
         // --- TV Remote / Keyboard Navigation ---
         let currentFocus = null;
-        function setFocus(el) { if (currentFocus) currentFocus.classList.remove('tv-focus'); if (el) { el.classList.add('tv-focus'); el.focus({ preventScroll: true }); currentFocus = el; el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' }); } }
+        function setFocus(el) { if (currentFocus) currentFocus.classList.remove('tv-focus'); if (el) { el.classList.add('tv-focus'); el.focus({ preventScroll: true }); currentFocus = el; el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' }); } else { if (currentFocus) currentFocus.classList.remove('tv-focus'); currentFocus = null; } }
         
+        function handleVideoPopupNavigation(e) {
+            if (!popupPlayer) return;
+
+            const key = e.key.toLowerCase();
+            const activeEl = document.activeElement;
+            const isControlFocused = activeEl && activeEl.closest('.video-popup-controls');
+
+            // Play/Pause on OK, Enter, or 'p'
+            if (key === 'enter' || key === 'ok' || key === 'p') {
+                e.preventDefault();
+                if (isControlFocused) {
+                    activeEl.click();
+                } else {
+                    const playerState = popupPlayer.getPlayerState();
+                    if (playerState === YT.PlayerState.PLAYING) {
+                        popupPlayer.pauseVideo();
+                    } else {
+                        popupPlayer.playVideo();
+                    }
+                }
+                return;
+            }
+
+            // Close player on 'b' or 'stop'
+            if (key === 'b' || key === 'stop') {
+                e.preventDefault();
+                hideVideoPopup();
+                return;
+            }
+
+            if (isControlFocused) {
+                if (key === 'arrowdown') {
+                    e.preventDefault();
+                    setFocus(null); // Unfocus the button to return control to player
+                }
+            } else {
+                e.preventDefault();
+                const currentTime = popupPlayer.getCurrentTime();
+                const currentVolume = popupPlayer.getVolume();
+                switch(key) {
+                    case 'arrowright':
+                        popupPlayer.seekTo(currentTime + 10, true);
+                        break;
+                    case 'arrowleft':
+                        popupPlayer.seekTo(currentTime - 10, true);
+                        break;
+                    case 'arrowup':
+                        popupPlayer.setVolume(Math.min(currentVolume + 10, 100));
+                        showMessageBox(`الصوت: ${Math.min(currentVolume + 10, 100)}%`);
+                        break;
+                    case 'arrowdown':
+                         popupPlayer.setVolume(Math.max(currentVolume - 10, 0));
+                         showMessageBox(`الصوت: ${Math.max(currentVolume - 10, 0)}%`);
+                        break;
+                    // Move focus to close button when seeking is not desired
+                    case 'end': // Example key, can be changed
+                        setFocus(videoPopupCloseButton);
+                        break;
+                }
+            }
+        }
+
+        // NEW MASTER KEY HANDLER
+        function handleRemoteControlInput(e) {
+            const key = e.key.toLowerCase();
+            const activeEl = document.activeElement;
+
+            // --- Priority 1: Video Player is Active ---
+            if (videoPopupContainer.classList.contains('active')) {
+                handleVideoPopupNavigation(e);
+                return; 
+            }
+
+            // --- Priority 2: Typing in Search Bar ---
+            const isTyping = !youtubeSearchInput.readOnly && activeEl === youtubeSearchInput;
+            if (isTyping) {
+                if (key.length === 1 && (key.match(/[a-z0-9\s]/i) || key.match(/[\u0600-\u06FF]/))) { // Allow letters, numbers, space, and Arabic characters
+                    // Allow default typing behavior
+                } else if (key === 'backspace') {
+                    // Allow default backspace behavior
+                } else {
+                     // For other keys like arrows, handle navigation
+                     handleNavigation(e);
+                }
+                return; // Stop further processing if typing
+            }
+
+            // --- Priority 3: Global Shortcuts ---
+            if (handleGlobalShortcuts(e)) {
+                return;
+            }
+            
+            // --- Priority 4: Standard Arrow/OK Navigation ---
+            handleNavigation(e);
+        }
+
+        // NEW: Global Shortcut Handler
+        function handleGlobalShortcuts(e) {
+            const key = e.key.toLowerCase();
+
+            // App Switching (1-7)
+            if (key >= '1' && key <= '7' && appOrder[parseInt(key) - 1]) {
+                e.preventDefault();
+                switchApp(appOrder[parseInt(key) - 1]);
+                return true;
+            }
+
+            switch(key) {
+                case '0':
+                    e.preventDefault();
+                    playWelcomeMessage();
+                    return true;
+                case '9':
+                    e.preventDefault();
+                    if (popupPlayer) {
+                        if (popupPlayer.isMuted()) {
+                            popupPlayer.unMute();
+                            showMessageBox('تم إلغاء كتم الصوت');
+                        } else {
+                            popupPlayer.mute();
+                            showMessageBox('تم كتم الصوت');
+                        }
+                    }
+                    return true;
+                case 'h':
+                    e.preventDefault();
+                    switchApp('Dashboard');
+                    return true;
+                case 'f':
+                    e.preventDefault();
+                    toggleFullScreen();
+                    return true;
+                case 's':
+                    e.preventDefault();
+                    switchApp('Media');
+                    // Activate keyboard for typing
+                    youtubeSearchInput.readOnly = false;
+                    youtubeSearchInput.focus();
+                    floatingKeyboardButton.classList.add('active-keyboard');
+                    floatingKeyboardButton.classList.remove('inactive-keyboard');
+                    return true;
+            }
+            
+            // Context-specific global keys
+            const activeScreenId = document.querySelector('.app-screen.active')?.id;
+            if (activeScreenId === 'screen-Dashboard') {
+                 switch(key) {
+                    case 'l':
+                        e.preventDefault();
+                        centerMapOnUserLocation();
+                        return true;
+                    case 'home':
+                        e.preventDefault();
+                        calculateAndDisplayRouteTo(HOME1_COORDS);
+                        return true;
+                    case 'end':
+                        e.preventDefault();
+                        calculateAndDisplayRouteTo(HOME2_COORDS);
+                        return true;
+                 }
+            }
+
+            return false; // No global shortcut was handled
+        }
+
         function handleNavigation(e) {
             const key = e.key.toLowerCase();
-            if (key === 'f') {
-                e.preventDefault();
-                toggleFullScreen();
+            
+            if (videoPopupContainer.classList.contains('active')) {
+                // This is now handled earlier, but kept as a safeguard
                 return;
             }
 
@@ -2345,13 +2509,25 @@ section#screen-Media {
             upload360ImageButton?.addEventListener('click', () => upload360ImageInput.click()); 
             upload360ImageInput?.addEventListener('change', handleImageUpload); 
             reset360ImageButton?.addEventListener('click', resetImageToDefault); 
-            document.addEventListener('keydown', handleNavigation);
+            // UPDATED: Changed to the new master handler
+            document.addEventListener('keydown', handleRemoteControlInput);
             
             videoPopupCloseButton.addEventListener('click', hideVideoPopup);
             backToPlaylistsFromVideosButton.addEventListener('click', navigateBackToMainSearch);
             backToPlaylistsBottomButton.addEventListener('click', navigateBackToMainSearch);
             backToPlaylistsBottomButtonSearch.addEventListener('click', navigateBackToMainSearch);
-            floatingKeyboardButton.addEventListener('click', () => { youtubeSearchInput.readOnly = !youtubeSearchInput.readOnly; if (!youtubeSearchInput.readOnly) youtubeSearchInput.focus(); else youtubeSearchInput.blur(); floatingKeyboardButton.classList.toggle('active-keyboard', !youtubeSearchInput.readOnly); floatingKeyboardButton.classList.toggle('inactive-keyboard', youtubeSearchInput.readOnly); });
+            floatingKeyboardButton.addEventListener('click', () => { 
+                youtubeSearchInput.readOnly = !youtubeSearchInput.readOnly; 
+                if (!youtubeSearchInput.readOnly) {
+                    youtubeSearchInput.focus(); 
+                } else {
+                    youtubeSearchInput.blur();
+                    // Return focus to the search button after disabling keyboard
+                    setFocus(youtubeSearchButton);
+                }
+                floatingKeyboardButton.classList.toggle('active-keyboard', !youtubeSearchInput.readOnly); 
+                floatingKeyboardButton.classList.toggle('inactive-keyboard', youtubeSearchInput.readOnly); 
+            });
             
             // UPDATED: Clear button logic
             clearSearchButton.addEventListener('click', () => {
@@ -2380,3 +2556,5 @@ section#screen-Media {
     </script>
 </body> 
 </html>
+
+
