@@ -324,6 +324,35 @@ div#\33 d-screen-weather-widget {
             display: none; /* Hidden by default */
         }
 
+        /* NEW: Style for the minimized video player button */
+        #floating-minimized-video-button {
+            position: fixed;
+            bottom: 1rem;
+            left: 1rem;
+            background-color: rgba(245, 158, 11, 0.7); /* Amber/Yellow color */
+            color: white;
+            padding: 0.75rem 1.25rem;
+            border-radius: 9999px; /* Pill shape */
+            display: none; /* Hidden by default */
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            z-index: 105;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 250px; /* Prevent it from getting too wide */
+        }
+        #floating-minimized-video-button .minimized-title {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+
         /* Top bar positioning and transition */
         .top-bar {
             top: 1rem;
@@ -952,12 +981,14 @@ section#screen-Media {
             #back-to-playlists-bottom-button,
             #back-to-playlists-bottom-button-search,
             #floating-keyboard-button,
+            #floating-fullscreen-button,
             #start-trip-floating-button {
                 padding: 0.75rem 1rem;
                 font-size: 0.8rem;
                 gap: 0.25rem;
             }
             #floating-media-button { right: 1rem; }
+            #floating-fullscreen-button { left: 1rem; }
             #floating-keyboard-button {
                 right: 5.5rem;
             }
@@ -1124,6 +1155,16 @@ section#screen-Media {
             font-size: 0.8rem;
             color: rgba(255, 255, 255, 0.6);
         }
+
+        /* NEW: Direction Controls Active State */
+        #direction-controls-3d button {
+            transition: filter 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+        }
+        #direction-controls-3d button.active-direction {
+            filter: brightness(1.5) saturate(1.2);
+            box-shadow: 0 0 15px rgba(10, 210, 255, 0.7) !important;
+            transform: scale(1.1);
+        }
     </style>
 </head>
 <body class="animated-bg text-white overflow-hidden theme-gradient-1">
@@ -1156,9 +1197,10 @@ section#screen-Media {
         <!-- Top Bar: Wifi, 5G, Current Time -->
         <div class="w-full max-w-7xl flex justify-between items-center text-white/80 text-sm px-4 py-2 absolute top-4 left-1/2 -translate-x-1/2 z-10 top-bar">
             <div class="flex items-center gap-2">
-              
+                <i data-lucide="wifi"></i>
+                <span>5G</span>
             </div>
-           
+            <div id="current-time">00:00</div>
         </div>
 
         <!-- Lexus Logo Fixed at Top Center -->
@@ -1317,28 +1359,28 @@ section#screen-Media {
                         <iframe title="LEXSUS ES" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share WIDTH="80%" HEIGHT="80%" src="https://sketchfab.com/models/17ed331fd31f491fa3907156f0b0b55e/embed?autostart=1&preload=1&annotations_visible=0&annotation=0&annotation_cycle=6&transparent=1&ui_theme=dark"> </iframe>
                     </div>
                     <!-- Right side widget -->
-                    <div id="3d-screen-weather-widget" class="absolute top-8 right-8 p-4 rounded-2xl text-center flex items-center gap-3 z-10 navigable grid-item" tabindex="0">
+                    <div id="3d-screen-weather-widget" class="absolute top-8 right-8 glass-surface glass-surface--svg p-4 rounded-2xl text-center flex items-center gap-3 z-10 navigable grid-item" tabindex="0">
                         <!-- MODIFIED: Replaced icon with user-provided SVG -->
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="thermometer" class="lucide lucide-thermometer w-8 h-8 text-red-400"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path></svg>
                         <span class="text-3xl font-bold" id="3d-screen-weather-temp">--°C</span>
                     </div>
                     <!-- NEW: Left side widgets -->
                     <div id="3d-screen-info-widgets" class="absolute top-8 left-8 flex flex-col gap-3 z-10">
-                        <div class="p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
+                        <div class="glass-surface glass-surface--svg p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
                             <i data-lucide="moon" class="w-7 h-7 text-cyan-300"></i>
                             <div>
                                 <div class="text-sm text-white/70">الصلاة القادمة</div>
                                 <div class="text-xl font-bold" id="3d-screen-next-prayer">--</div>
                             </div>
                         </div>
-                        <div class="p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
+                        <div class="glass-surface glass-surface--svg p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
                             <i data-lucide="gauge-circle" class="w-7 h-7 text-green-400"></i>
                             <div>
                                 <div class="text-sm text-white/70">السرعة</div>
                                 <div class="text-xl font-bold" id="3d-screen-speed">-- km/h</div>
                             </div>
                         </div>
-                         <div id="geares" class="p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
+                         <div id="geares" class="glass-surface glass-surface--svg p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
                             <i data-lucide="parking-circle" class="w-7 h-7 text-orange-400"></i>
                             <div>
                                 <div class="text-sm text-white/70">القير</div>
@@ -1346,7 +1388,7 @@ section#screen-Media {
                             </div>
                         </div>
                         <!-- NEW: Direction Widget -->
-                        <div class="p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
+                        <div class="glass-surface glass-surface--svg p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
                             <i data-lucide="compass" class="w-7 h-7 text-blue-300"></i>
                             <div>
                                 <div class="text-sm text-white/70">الاتجاه</div>
@@ -1356,15 +1398,15 @@ section#screen-Media {
                     </div>
                     <!-- NEW: Sticky Directional Controls -->
                     <div id="direction-controls-3d" class="absolute top-1/2 -translate-y-1/2 right-8 grid grid-cols-3 gap-2 w-[120px] z-10">
-                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">NW</button>
-                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">N</button>
-                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">NE</button>
-                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">W</button>
+                        <button data-direction="NW" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">NW</button>
+                        <button data-direction="N" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">N</button>
+                        <button data-direction="NE" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">NE</button>
+                        <button data-direction="W" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">W</button>
                         <div class="w-10 h-10"></div> <!-- Spacer -->
-                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">E</button>
-                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">SW</button>
-                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">S</button>
-                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">SE</button>
+                        <button data-direction="E" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">E</button>
+                        <button data-direction="SW" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">SW</button>
+                        <button data-direction="S" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">S</button>
+                        <button data-direction="SE" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">SE</button>
                     </div>
                 </section>
 
@@ -1416,6 +1458,10 @@ section#screen-Media {
     </button>
     <button id="start-trip-floating-button" class="glass-surface glass-surface--svg rounded-full navigable grid-item" tabindex="0">
         <i data-lucide="map-pin" class="w-6 h-6"></i> بدء الرحلة
+    </button>
+    <!-- NEW: Fullscreen Button -->
+    <button id="floating-fullscreen-button" class="glass-surface glass-surface--svg rounded-full navigable grid-item" tabindex="0">
+        <i data-lucide="maximize" class="w-6 h-6"></i>
     </button>
 
     <!-- Video Pop-up Container -->
@@ -1482,6 +1528,7 @@ section#screen-Media {
         const quranIframe = document.getElementById('quran-iframe');
         const floatingMediaButton = document.getElementById('floating-media-button');
         const floatingKeyboardButton = document.getElementById('floating-keyboard-button');
+        const floatingFullscreenButton = document.getElementById('floating-fullscreen-button');
         const clearSearchButton = document.getElementById('clear-search-button');
         const startTripFloatingButton = document.getElementById('start-trip-floating-button');
         const prayerTimesContainer = document.getElementById('prayer-times-container');
@@ -2028,7 +2075,7 @@ section#screen-Media {
         }
         function addMinutes(time, min) { const [h, m] = time.split(':').map(Number); const d = new Date(); d.setHours(h, m + min, 0, 0); return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }); }
         function timeToDate(time) { const [h, m] = time.split(':').map(Number); const d = new Date(); d.setHours(h, m, 0, 0); return d; }
-        function determineNextPrayer() { const now = new Date(); const todayTimings = appState.prayerTimes; if (!todayTimings.Fajr || todayTimings.Fajr === '--:--') return; const prayers = [ { n: "الفجر", t: todayTimings.Fajr, o: 25, g: 5 }, { n: "الظهر", t: todayTimings.Dhuhr, o: 20, g: 5 }, { n: "العصر", t: todayTimings.Asr, o: 20, g: 10 }, { n: "المغرب", t: todayTimings.Maghrib, o: 5, g: 5 }, { n: "العشاء", t: todayTimings.Isha, o: 20, g: 5 } ]; let found = false; appState.prayerTimes.currentPrayer = null; appState.prayerTimes.nextPrayer = null; appState.prayerTimes.nextPrayerIqamaTime = null; for (const p of prayers) { const pTime = timeToDate(p.t); const iqamaTime = timeToDate(addMinutes(p.t, p.o)); const graceEnd = new Date(iqamaTime.getTime() + p.g * 60000); if (now >= pTime && now < graceEnd) { appState.prayerTimes.currentPrayer = p.n; appState.prayerTimes.nextPrayer = p.n; appState.prayerTimes.nextPrayerIqamaTime = (now < iqamaTime) ? iqamaTime : graceEnd; found = true; break; } if (now < pTime && !found) { appState.prayerTimes.nextPrayer = p.n; appState.prayerTimes.nextPrayerIqamaTime = pTime; found = true; break; } } if (!found) { appState.prayerTimes.nextPrayer = "الفجر (غدًا)"; appState.prayerTimes.nextPrayerIqamaTime = null; } renderPrayerTimesHighlights(); }
+        function determineNextPrayer() { const now = new Date(); const todayTimings = appState.prayerTimes; if (!todayTimings.Fajr || todayTimings.Fajr === '--:--') return; const prayers = [ { n: "الفجر", t: todayTimings.Fajr, o: 25, g: 5 }, { n: "الظهر", t: todayTimings.Dhuhr, o: 20, g: 5 }, { n: "العصر", t: todayTimings.Asr, o: 20, g: 10 }, { n: "المغرب", t: todayTimings.Maghrib, o: 5, g: 5 }, { n: "العشاء", t: todayTimings.Isha, o: 20, g: 5 } ]; let found = false; appState.prayerTimes.currentPrayer = null; appState.prayerTimes.nextPrayer = null; appState.prayerTimes.nextPrayerIqamaTime = null; for (const p of prayers) { const pTime = timeToDate(p.t); const iqamaTime = timeToDate(addMinutes(p.t, o)); const graceEnd = new Date(iqamaTime.getTime() + p.g * 60000); if (now >= pTime && now < graceEnd) { appState.prayerTimes.currentPrayer = p.n; appState.prayerTimes.nextPrayer = p.n; appState.prayerTimes.nextPrayerIqamaTime = (now < iqamaTime) ? iqamaTime : graceEnd; found = true; break; } if (now < pTime && !found) { appState.prayerTimes.nextPrayer = p.n; appState.prayerTimes.nextPrayerIqamaTime = pTime; found = true; break; } } if (!found) { appState.prayerTimes.nextPrayer = "الفجر (غدًا)"; appState.prayerTimes.nextPrayerIqamaTime = null; } renderPrayerTimesHighlights(); }
         function renderPrayerTimesHighlights() { if (!prayerTimesContainer) return; document.querySelectorAll('.prayer-time-item').forEach(i => i.classList.remove('current-prayer', 'next-prayer')); if (appState.prayerTimes.currentPrayer) { const item = Array.from(prayerTimesContainer.querySelectorAll('.prayer-name')).find(s => s.textContent === appState.prayerTimes.currentPrayer)?.parentElement; if (item) item.classList.add('current-prayer'); } if (appState.prayerTimes.nextPrayer && appState.prayerTimes.nextPrayer !== appState.prayerTimes.currentPrayer) { const nextPrayerName = appState.prayerTimes.nextPrayer.replace(' (غدًا)', ''); const item = Array.from(prayerTimesContainer.querySelectorAll('.prayer-name')).find(s => s.textContent === nextPrayerName)?.parentElement; if (item && !item.classList.contains('current-prayer')) item.classList.add('next-prayer'); } }
         
         // --- Digital Clock ---
@@ -2049,6 +2096,16 @@ section#screen-Media {
             if (speedEl) speedEl.textContent = `${appState.car.speed} km/h`;
             if (gearEl) gearEl.textContent = appState.car.gear;
             if (dirEl) dirEl.textContent = appState.car.direction;
+
+            // NEW: Update direction controls brightness
+            const directionButtons = document.querySelectorAll('#direction-controls-3d button');
+            directionButtons.forEach(btn => {
+                if (btn.dataset.direction === appState.car.direction) {
+                    btn.classList.add('active-direction');
+                } else {
+                    btn.classList.remove('active-direction');
+                }
+            });
         }
 
         // --- Draggable/Resizable Popup Logic ---
@@ -2108,178 +2165,13 @@ section#screen-Media {
 
         // --- TV Remote / Keyboard Navigation ---
         let currentFocus = null;
-        function setFocus(el) { if (currentFocus) currentFocus.classList.remove('tv-focus'); if (el) { el.classList.add('tv-focus'); el.focus({ preventScroll: true }); currentFocus = el; el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' }); } else { if (currentFocus) currentFocus.classList.remove('tv-focus'); currentFocus = null; } }
+        function setFocus(el) { if (currentFocus) currentFocus.classList.remove('tv-focus'); if (el) { el.classList.add('tv-focus'); el.focus({ preventScroll: true }); currentFocus = el; el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' }); } }
         
-        function handleVideoPopupNavigation(e) {
-            if (!popupPlayer) return;
-
-            const key = e.key.toLowerCase();
-            const activeEl = document.activeElement;
-            const isControlFocused = activeEl && activeEl.closest('.video-popup-controls');
-
-            // Play/Pause on OK, Enter, or 'p'
-            if (key === 'enter' || key === 'ok' || key === 'p') {
-                e.preventDefault();
-                if (isControlFocused) {
-                    activeEl.click();
-                } else {
-                    const playerState = popupPlayer.getPlayerState();
-                    if (playerState === YT.PlayerState.PLAYING) {
-                        popupPlayer.pauseVideo();
-                    } else {
-                        popupPlayer.playVideo();
-                    }
-                }
-                return;
-            }
-
-            // Close player on 'b' or 'stop'
-            if (key === 'b' || key === 'stop') {
-                e.preventDefault();
-                hideVideoPopup();
-                return;
-            }
-
-            if (isControlFocused) {
-                if (key === 'arrowdown') {
-                    e.preventDefault();
-                    setFocus(null); // Unfocus the button to return control to player
-                }
-            } else {
-                e.preventDefault();
-                const currentTime = popupPlayer.getCurrentTime();
-                const currentVolume = popupPlayer.getVolume();
-                switch(key) {
-                    case 'arrowright':
-                        popupPlayer.seekTo(currentTime + 10, true);
-                        break;
-                    case 'arrowleft':
-                        popupPlayer.seekTo(currentTime - 10, true);
-                        break;
-                    case 'arrowup':
-                        popupPlayer.setVolume(Math.min(currentVolume + 10, 100));
-                        showMessageBox(`الصوت: ${Math.min(currentVolume + 10, 100)}%`);
-                        break;
-                    case 'arrowdown':
-                         popupPlayer.setVolume(Math.max(currentVolume - 10, 0));
-                         showMessageBox(`الصوت: ${Math.max(currentVolume - 10, 0)}%`);
-                        break;
-                    // Move focus to close button when seeking is not desired
-                    case 'end': // Example key, can be changed
-                        setFocus(videoPopupCloseButton);
-                        break;
-                }
-            }
-        }
-
-        // NEW MASTER KEY HANDLER
-        function handleRemoteControlInput(e) {
-            const key = e.key.toLowerCase();
-            const activeEl = document.activeElement;
-
-            // --- Priority 1: Video Player is Active ---
-            if (videoPopupContainer.classList.contains('active')) {
-                handleVideoPopupNavigation(e);
-                return; 
-            }
-
-            // --- Priority 2: Typing in Search Bar ---
-            const isTyping = !youtubeSearchInput.readOnly && activeEl === youtubeSearchInput;
-            if (isTyping) {
-                if (key.length === 1 && (key.match(/[a-z0-9\s]/i) || key.match(/[\u0600-\u06FF]/))) { // Allow letters, numbers, space, and Arabic characters
-                    // Allow default typing behavior
-                } else if (key === 'backspace') {
-                    // Allow default backspace behavior
-                } else {
-                     // For other keys like arrows, handle navigation
-                     handleNavigation(e);
-                }
-                return; // Stop further processing if typing
-            }
-
-            // --- Priority 3: Global Shortcuts ---
-            if (handleGlobalShortcuts(e)) {
-                return;
-            }
-            
-            // --- Priority 4: Standard Arrow/OK Navigation ---
-            handleNavigation(e);
-        }
-
-        // NEW: Global Shortcut Handler
-        function handleGlobalShortcuts(e) {
-            const key = e.key.toLowerCase();
-
-            // App Switching (1-7)
-            if (key >= '1' && key <= '7' && appOrder[parseInt(key) - 1]) {
-                e.preventDefault();
-                switchApp(appOrder[parseInt(key) - 1]);
-                return true;
-            }
-
-            switch(key) {
-                case '0':
-                    e.preventDefault();
-                    playWelcomeMessage();
-                    return true;
-                case '9':
-                    e.preventDefault();
-                    if (popupPlayer) {
-                        if (popupPlayer.isMuted()) {
-                            popupPlayer.unMute();
-                            showMessageBox('تم إلغاء كتم الصوت');
-                        } else {
-                            popupPlayer.mute();
-                            showMessageBox('تم كتم الصوت');
-                        }
-                    }
-                    return true;
-                case 'h':
-                    e.preventDefault();
-                    switchApp('Dashboard');
-                    return true;
-                case 'f':
-                    e.preventDefault();
-                    toggleFullScreen();
-                    return true;
-                case 's':
-                    e.preventDefault();
-                    switchApp('Media');
-                    // Activate keyboard for typing
-                    youtubeSearchInput.readOnly = false;
-                    youtubeSearchInput.focus();
-                    floatingKeyboardButton.classList.add('active-keyboard');
-                    floatingKeyboardButton.classList.remove('inactive-keyboard');
-                    return true;
-            }
-            
-            // Context-specific global keys
-            const activeScreenId = document.querySelector('.app-screen.active')?.id;
-            if (activeScreenId === 'screen-Dashboard') {
-                 switch(key) {
-                    case 'l':
-                        e.preventDefault();
-                        centerMapOnUserLocation();
-                        return true;
-                    case 'home':
-                        e.preventDefault();
-                        calculateAndDisplayRouteTo(HOME1_COORDS);
-                        return true;
-                    case 'end':
-                        e.preventDefault();
-                        calculateAndDisplayRouteTo(HOME2_COORDS);
-                        return true;
-                 }
-            }
-
-            return false; // No global shortcut was handled
-        }
-
         function handleNavigation(e) {
             const key = e.key.toLowerCase();
-            
-            if (videoPopupContainer.classList.contains('active')) {
-                // This is now handled earlier, but kept as a safeguard
+            if (key === 'f') {
+                e.preventDefault();
+                toggleAppFullScreen();
                 return;
             }
 
@@ -2474,29 +2366,34 @@ section#screen-Media {
             checkWeatherAndSpeak();
         }
 
-        // --- Fullscreen Toggle ---
-        function toggleFullScreen() {
-            let elem;
-            if (videoPopupContainer.classList.contains('active')) {
-                elem = popupPlayer.getIframe();
-            } else {
-                elem = document.documentElement;
-            }
-
+        // --- Fullscreen Toggle (NEW & IMPROVED) ---
+        function toggleAppFullScreen() {
             if (!document.fullscreenElement) {
-                if (elem.requestFullscreen) {
-                    elem.requestFullscreen();
-                } else if (elem.webkitRequestFullscreen) { /* Safari */
-                    elem.webkitRequestFullscreen();
-                } else if (elem.msRequestFullscreen) { /* IE11 */
-                    elem.msRequestFullscreen();
+                // Find the active screen and request fullscreen for it
+                const activeScreen = document.querySelector('.app-screen.active');
+                if (activeScreen) {
+                    activeScreen.requestFullscreen().catch(err => {
+                        console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+                    });
                 }
             } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
+                document.exitFullscreen();
             }
         }
+
+        function handleFullscreenChange() {
+            const icon = floatingFullscreenButton.querySelector('i');
+            if (document.fullscreenElement) {
+                // Entered fullscreen
+                icon.setAttribute('data-lucide', 'minimize');
+            } else {
+                // Exited fullscreen
+                icon.setAttribute('data-lucide', 'maximize');
+            }
+            // Re-render the icons
+            lucide.createIcons();
+        }
+
 
         // --- Initial Setup ---
         document.addEventListener('DOMContentLoaded', () => { 
@@ -2505,29 +2402,19 @@ section#screen-Media {
             goToHome1Button?.addEventListener('click', () => calculateAndDisplayRouteTo(HOME1_COORDS));
             goToHome2Button?.addEventListener('click', () => calculateAndDisplayRouteTo(HOME2_COORDS));
             floatingMediaButton?.addEventListener('click', () => switchApp('Media')); 
+            floatingFullscreenButton?.addEventListener('click', toggleAppFullScreen);
+            document.addEventListener('fullscreenchange', handleFullscreenChange);
             startTripFloatingButton?.addEventListener('click', () => { if (appState.destinationSet) calculateAndDisplayRoute(); else showMessageBox('الرجاء تحديد وجهة أولاً.'); }); 
             upload360ImageButton?.addEventListener('click', () => upload360ImageInput.click()); 
             upload360ImageInput?.addEventListener('change', handleImageUpload); 
             reset360ImageButton?.addEventListener('click', resetImageToDefault); 
-            // UPDATED: Changed to the new master handler
-            document.addEventListener('keydown', handleRemoteControlInput);
+            document.addEventListener('keydown', handleNavigation);
             
             videoPopupCloseButton.addEventListener('click', hideVideoPopup);
             backToPlaylistsFromVideosButton.addEventListener('click', navigateBackToMainSearch);
             backToPlaylistsBottomButton.addEventListener('click', navigateBackToMainSearch);
             backToPlaylistsBottomButtonSearch.addEventListener('click', navigateBackToMainSearch);
-            floatingKeyboardButton.addEventListener('click', () => { 
-                youtubeSearchInput.readOnly = !youtubeSearchInput.readOnly; 
-                if (!youtubeSearchInput.readOnly) {
-                    youtubeSearchInput.focus(); 
-                } else {
-                    youtubeSearchInput.blur();
-                    // Return focus to the search button after disabling keyboard
-                    setFocus(youtubeSearchButton);
-                }
-                floatingKeyboardButton.classList.toggle('active-keyboard', !youtubeSearchInput.readOnly); 
-                floatingKeyboardButton.classList.toggle('inactive-keyboard', youtubeSearchInput.readOnly); 
-            });
+            floatingKeyboardButton.addEventListener('click', () => { youtubeSearchInput.readOnly = !youtubeSearchInput.readOnly; if (!youtubeSearchInput.readOnly) youtubeSearchInput.focus(); else youtubeSearchInput.blur(); floatingKeyboardButton.classList.toggle('active-keyboard', !youtubeSearchInput.readOnly); floatingKeyboardButton.classList.toggle('inactive-keyboard', youtubeSearchInput.readOnly); });
             
             // UPDATED: Clear button logic
             clearSearchButton.addEventListener('click', () => {
@@ -2539,7 +2426,7 @@ section#screen-Media {
             youtubeSearchButton.addEventListener('click', () => { const query = youtubeSearchInput.value.trim(); if (query) searchYouTubeVideos(query); else showMessageBox('الرجاء إدخال كلمة للبحث.'); });
             
             // Initial Calls
-            setupSwipeNavigation();
+            setupSwipeNavigation(); 
             loadGoogleMaps().then(initMap);
             fetchWeatherData(); 
             loadPrayerTimes();
@@ -2556,5 +2443,4 @@ section#screen-Media {
     </script>
 </body> 
 </html>
-
 
