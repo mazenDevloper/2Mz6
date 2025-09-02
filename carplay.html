@@ -114,7 +114,6 @@ button#back-to-playlists-bottom-button-search {
             z-index: -1;
         }
 
-}
 .glass-surface.glass-surface--svg.youtube-video-card.navigable.grid-item {
     direction: ltr!important;
 }
@@ -2179,81 +2178,67 @@ section#screen-Media {
         let currentFocus = null;
         function setFocus(el) { if (currentFocus) currentFocus.classList.remove('tv-focus'); if (el) { el.classList.add('tv-focus'); el.focus({ preventScroll: true }); currentFocus = el; el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' }); } else { if (currentFocus) currentFocus.classList.remove('tv-focus'); currentFocus = null; } }
         
-        function handleVideoPopupNavigation(e) {
-            if (!popupPlayer) return;
-
-            const key = e.key.toLowerCase();
-            const activeEl = document.activeElement;
-            const isControlFocused = activeEl && activeEl.closest('.video-popup-controls');
-
-            // Play/Pause on OK, Enter, or 'p'
-            if (key === 'enter' || key === 'ok' || key === 'p') {
-                e.preventDefault();
-                if (isControlFocused) {
-                    activeEl.click();
-                } else {
-                    const playerState = popupPlayer.getPlayerState();
-                    if (playerState === YT.PlayerState.PLAYING) {
-                        popupPlayer.pauseVideo();
-                    } else {
-                        popupPlayer.playVideo();
-                    }
-                }
-                return;
-            }
-
-            // Close player on 'b' or 'stop'
-            if (key === 'b' || key === 'stop') {
-                e.preventDefault();
-                hideVideoPopup();
-                return;
-            }
-
-            if (isControlFocused) {
-                if (key === 'arrowdown') {
-                    e.preventDefault();
-                    setFocus(null); // Unfocus the button to return control to player
-                }
-            } else {
-                e.preventDefault();
-                const currentTime = popupPlayer.getCurrentTime();
-                const currentVolume = popupPlayer.getVolume();
-                switch(key) {
-                    case 'arrowright':
-                        popupPlayer.seekTo(currentTime + 10, true);
-                        break;
-                    case 'arrowleft':
-                        popupPlayer.seekTo(currentTime - 10, true);
-                        break;
-                    case 'arrowup':
-                        popupPlayer.setVolume(Math.min(currentVolume + 10, 100));
-                        showMessageBox(`الصوت: ${Math.min(currentVolume + 10, 100)}%`);
-                        break;
-                    case 'arrowdown':
-                         popupPlayer.setVolume(Math.max(currentVolume - 10, 0));
-                         showMessageBox(`الصوت: ${Math.max(currentVolume - 10, 0)}%`);
-                        break;
-                    // Move focus to close button when seeking is not desired
-                    case 'end': // Example key, can be changed
-                        setFocus(videoPopupCloseButton);
-                        break;
-                }
-            }
-        }
-
-        // NEW MASTER KEY HANDLER
+        // --- MASTER KEY HANDLER (REFACTORED) ---
         function handleRemoteControlInput(e) {
             const key = e.key.toLowerCase();
             const activeEl = document.activeElement;
 
             // --- Priority 1: Video Player is Active ---
-            if (videoPopupContainer.classList.contains('active')) {
-                // Let YouTube's default shortcuts handle keys like 'f', 'm', 'k' etc.
-                // We only override specific keys for a better experience.
-                if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'enter', 'ok', 'p', 'b', 'stop', 'end'].includes(key) || key.startsWith('colorf')) {
-                    handleVideoPopupNavigation(e);
+            if (videoPopupContainer.classList.contains('active') || appState.isVideoPlayerMinimized) {
+                const customHandledKeys = [
+                    'arrowup', 'arrowdown', 'arrowleft', 'arrowright',
+                    'enter', 'ok', 'p',
+                    'b', 'stop', 'red', 'colorf0red', 'x',
+                    'yellow', 'colorf2yellow', '8',
+                    '9' // Added for fullscreen
+                ];
+
+                if (customHandledKeys.includes(key)) {
+                    e.preventDefault();
+
+                    if (key === 'yellow' || key === 'colorf2yellow' || key === '8') {
+                        if (appState.isVideoPlayerMinimized) restoreVideoPopup();
+                        else minimizeVideoPopup();
+                        return;
+                    }
+                    if (key === 'b' || key === 'stop' || key === 'red' || key === 'colorf0red' || key === 'x') {
+                        hideVideoPopup();
+                        return;
+                    }
+                    if (key === 'enter' || key === 'ok' || key === 'p') {
+                        const playerState = popupPlayer.getPlayerState();
+                        if (playerState === YT.PlayerState.PLAYING) popupPlayer.pauseVideo();
+                        else popupPlayer.playVideo();
+                        return;
+                    }
+                    if (key === '9') {
+                        toggleFullScreen();
+                        return;
+                    }
+                    
+                    const currentTime = popupPlayer.getCurrentTime();
+                    const currentVolume = popupPlayer.getVolume();
+                    switch (key) {
+                        case 'arrowright':
+                            popupPlayer.seekTo(currentTime + 10, true);
+                            break;
+                        case 'arrowleft':
+                            popupPlayer.seekTo(currentTime - 10, true);
+                            break;
+                        case 'arrowup':
+                            const newVolUp = Math.min(currentVolume + 10, 100);
+                            popupPlayer.setVolume(newVolUp);
+                            showMessageBox(`الصوت: ${newVolUp}%`);
+                            break;
+                        case 'arrowdown':
+                            const newVolDown = Math.max(currentVolume - 10, 0);
+                            popupPlayer.setVolume(newVolDown);
+                            showMessageBox(`الصوت: ${newVolDown}%`);
+                            break;
+                    }
                 }
-                return; 
+                // For other keys (like 'f', 'm', spacebar), do nothing and let the event bubble up.
+                return;
             }
 
             // --- Priority 2: Typing in Search Bar ---
@@ -2262,142 +2247,30 @@ section#screen-Media {
                 if (key === 'enter' || key === 'ok') {
                     e.preventDefault();
                     youtubeSearchButton.click();
-                } else if (key.length === 1 && (key.match(/[a-z0-9\s]/i) || key.match(/[\u0600-\u06FF]/))) { // Allow letters, numbers, space, and Arabic characters
-                    // Allow default typing behavior
+                } else if (key.length === 1 && (key.match(/[a-z0-9\s]/i) || key.match(/[\u0600-\u06FF]/))) {
+                    // Allow default typing
                 } else if (key === 'backspace') {
-                    // Allow default backspace behavior
+                    // Allow default backspace
                 } else {
-                     // For other keys like arrows, handle navigation
-                     handleNavigation(e);
+                    handleNavigation(e);
                 }
-                return; // Stop further processing if typing
-            }
-
-            // --- Priority 3: Global Shortcuts ---
-            if (handleGlobalShortcuts(e)) {
                 return;
             }
-            
-            // --- Priority 4: Standard Arrow/OK Navigation ---
+
+            // --- Priority 3: Standard Arrow/OK Navigation ---
             handleNavigation(e);
-        }
-
-        // NEW: Global Shortcut Handler - Refactored to use if/else if statements
-        function handleGlobalShortcuts(e) {
-            const key = e.key.toLowerCase();
-            const activeScreenId = document.querySelector('.app-screen.active')?.id;
-
-            // App Switching (1-7)
-            if (key >= '1' && key <= '7' && appOrder[parseInt(key) - 1]) {
-                e.preventDefault();
-                switchApp(appOrder[parseInt(key) - 1]);
-                return true;
-            }
-
-            // --- Color Buttons & New Shortcuts ---
-            // Red / X Key: Close video popup
-            if (key === 'red' || key === 'colorf0red' || key === 'x') {
-                if (videoPopupContainer.classList.contains('active')) {
-                    e.preventDefault();
-                    hideVideoPopup();
-                    return true;
-                }
-            }
-            // Yellow Key: Minimize/Restore video
-            else if (key === 'yellow' || key === 'colorf2yellow'|| key === 'w') {
-                if (appState.isVideoPlayerMinimized) {
-                    e.preventDefault();
-                    restoreVideoPopup();
-                    return true;
-                } else if (videoPopupContainer.classList.contains('active')) {
-                    e.preventDefault();
-                    minimizeVideoPopup();
-                    return true;
-                }
-            }
-            // Blue / Space Key: Direct Surah Search
-            else if (key === 'blue' || key === 'colorf3blue' || key === ' ') {
-                if (activeScreenId === 'screen-Media') {
-                    e.preventDefault();
-                    switchApp('Media');
-                    selectedReaderName = "الكلمات الصعبة في"; // Default reader
-                    youtubeSearchInput.value = selectedReaderName + ' ';
-                    const readersSection = document.getElementById('youtube-readers-section');
-                    if(readersSection) readersSection.style.display = 'none';
-                    showSurahSuggestions();
-                    setTimeout(() => {
-                        const firstSurah = document.querySelector('#youtube-surah-section .grid-item');
-                        if(firstSurah) setFocus(firstSurah);
-                    }, 100);
-                    return true;
-                }
-            }
-
-            // --- Other Global Keys ---
-            // 0 Key: Contextual action
-            if (key === '0') {
-                e.preventDefault();
-                if (activeScreenId === 'screen-Media') {
-                    youtubeSearchButton.click();
-                } else {
-                    playWelcomeMessage();
-                }
-                return true;
-            }
-            // F Key: Toggle Fullscreen (Only if not in video player)
-            else if (key === 'f') {
-                e.preventDefault();
-                toggleFullScreen();
-                return true;
-            }
-            // S Key: Quick Search
-            else if (key === 's') {
-                e.preventDefault();
-                switchApp('Media');
-                youtubeSearchInput.readOnly = false;
-                youtubeSearchInput.focus();
-                floatingKeyboardButton.classList.add('active-keyboard');
-                floatingKeyboardButton.classList.remove('inactive-keyboard');
-                return true;
-            }
-            
-            // --- Context-specific Global Keys (Dashboard) ---
-            if (activeScreenId === 'screen-Dashboard') {
-                if (key === 'l') {
-                    e.preventDefault();
-                    centerMapOnUserLocation();
-                    return true;
-                } else if (key === 'home') {
-                    e.preventDefault();
-                    calculateAndDisplayRouteTo(HOME1_COORDS);
-                    return true;
-                } else if (key === 'end') {
-                    e.preventDefault();
-                    calculateAndDisplayRouteTo(HOME2_COORDS);
-                    return true;
-                }
-            }
-
-            return false; // No global shortcut was handled
         }
 
         function handleNavigation(e) {
             const key = e.key.toLowerCase();
-            
-            if (videoPopupContainer.classList.contains('active')) {
-                // This is now handled earlier, but kept as a safeguard
-                return;
-            }
-
             if (!['arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'enter', 'ok'].includes(key)) return;
+            
+            e.preventDefault(); // Prevent default scroll for navigation keys
 
             const activeEl = document.activeElement;
             if (!activeEl || activeEl === document.body) {
                 const firstIcon = document.querySelector('nav .app-icon');
-                if (firstIcon) {
-                    e.preventDefault();
-                    setFocus(firstIcon);
-                }
+                if (firstIcon) setFocus(firstIcon);
                 return;
             }
 
@@ -2417,7 +2290,6 @@ section#screen-Media {
         }
 
         function handleNavSidebarNavigation(e, activeEl) {
-            e.preventDefault();
             const icons = Array.from(document.querySelectorAll('nav .app-icon'));
             const idx = icons.indexOf(activeEl);
             let nextIdx = -1;
@@ -2435,8 +2307,7 @@ section#screen-Media {
                         if (firstItem) setFocus(firstItem);
                     }
                     return;
-                case 'enter':
-                case 'ok':
+                case 'enter': case 'ok':
                     activeEl.click();
                     return;
             }
@@ -2444,7 +2315,6 @@ section#screen-Media {
         }
         
         function handleMediaScreenNavigation(e, activeEl) {
-            e.preventDefault();
             const searchRow = document.querySelector('#screen-Media .flex.flex-row.items-center.gap-2.grid-container');
             const readersContainer = document.querySelector('.reader-container');
             const surahContainer = document.querySelector('#youtube-surah-section');
@@ -2452,6 +2322,7 @@ section#screen-Media {
             const searchResultsContainer = document.querySelector('#search-results-container');
             const inSearchRow = activeEl.closest('.flex.flex-row.items-center.gap-2.grid-container');
             const inReaders = activeEl.closest('.reader-container');
+
             if (e.key.toLowerCase() === 'arrowdown') {
                 if (inSearchRow) {
                     const nextVisibleContainer = [readersContainer, surahContainer, videoListContainer, searchResultsContainer].find(c => c && c.offsetParent !== null);
@@ -2495,7 +2366,6 @@ section#screen-Media {
         }
 
         function handleGenericGridNavigation(e, activeEl, container) {
-            e.preventDefault();
             const items = Array.from(container.querySelectorAll('.grid-item:not([style*="display: none"])')).filter(el => el.offsetParent !== null);
             if (items.length === 0) return;
             const idx = items.indexOf(activeEl);
@@ -2616,7 +2486,6 @@ section#screen-Media {
             upload360ImageButton?.addEventListener('click', () => upload360ImageInput.click()); 
             upload360ImageInput?.addEventListener('change', handleImageUpload); 
             reset360ImageButton?.addEventListener('click', resetImageToDefault); 
-            // UPDATED: Changed to the new master handler
             document.addEventListener('keydown', handleRemoteControlInput);
             
             videoPopupCloseButton.addEventListener('click', hideVideoPopup);
@@ -2663,10 +2532,4 @@ section#screen-Media {
     </script>
 </body> 
 </html>
-
-
-
-
-
-
 
