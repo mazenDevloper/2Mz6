@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنفوجرافيك أفقي متقدم: مشاريع التحول الرقمي لمحافظة ظفار</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Import Tajawal font from Google Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@700&display=swap');
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f0f4f8; /* Lighter cool gray background */
+            font-weight: bold; /* Ensure all text is bold */
+        }
+        /* Make all text bold by default, overriding Tailwind's default font-weight */
+        body, p, h1, h2, h3, h4, h5, h6, span, li, div, button {
+            font-weight: bold;
+        }
+
+        .achievement-item {
+            display: flex;
+            align-items: center;
+        }
+        .stats-item {
+            display: flex;
+            align-items: center;
+            margin-top: 0.5rem;
+            font-size: 0.875rem; /* text-sm */
+        }
+        /* Hide scrollbar for the main timeline container */
+        .timeline-horizontal::-webkit-scrollbar {
+            height: 0px;
+            width: 0px;
+            background: transparent;
+        }
+        .timeline-horizontal {
+            -ms-overflow-style: none; /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+
+        /* Styles for the navigation dots container, now acting as the scrollbar */
+        .timeline-dots-container {
+            display: flex;
+            justify-content: space-between; /* Distribute dots evenly */
+            align-items: center;
+            margin-top: 1rem; /* Reduced margin-top */
+            position: relative;
+            padding: 0.5rem 2rem; /* Vertical padding for easier dragging */
+            /* Changed background to gradient white */
+            background-image: linear-gradient(to right, rgba(255,255,255,0.9), rgba(255,255,255,1));
+            border-radius: 9999px; /* Pill shape */
+            overflow-x: auto; /* Make it horizontally scrollable */
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+            /* Hide its own scrollbar */
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none;  /* IE and Edge */
+
+            /* Updated width to 85% for all views */
+            width: 85%; /* Set fixed width */
+            margin-left: auto; /* Center horizontally */
+            margin-right: auto; /* Center horizontally */
+        }
+        .timeline-dots-container::-webkit-scrollbar {
+            height: 0px;
+            width: 0px;
+            background: transparent;
+        }
+
+        .timeline-dot-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0; /* Prevent dot wrappers from shrinking */
+            cursor: pointer; /* Indicate clickable/draggable */
+            padding: 0 0.25rem; /* Small padding around dot and label */
+            position: relative; /* For tooltip positioning */
+        }
+
+        .timeline-dot {
+            width: 1.25rem; /* Slightly larger for easier interaction */
+            height: 1.25rem;
+            background-color: #a78bfa; /* purple-400 for inactive dots */
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            margin-bottom: 0.5rem; /* Space between dot and label */
+            z-index: 10; /* Ensure dots are above the line */
+        }
+        .timeline-dot:hover {
+            transform: scale(1.1);
+            background-color: #8b5cf6; /* purple-500 on hover */
+        }
+        .timeline-dot-wrapper.active .timeline-dot {
+            background: #10b981; /* Emerald-500 for active dot */
+            transform: scale(1.5); /* More pronounced active state */
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.3), 0 4px 10px rgba(0,0,0,0.3); /* Green shadow */
+        }
+
+        .timeline-dot-label {
+            font-size: 0.75rem; /* text-xs */
+            white-space: nowrap; /* Prevent text wrapping */
+            text-align: center;
+        }
+
+        .timeline-dot-line {
+            height: 4px;
+            background-color: #a78bfa; /* purple-400 for the line */
+            position: absolute;
+            top: calc(50% - 0.625rem - 0.25rem); /* Adjust to be behind the dot circle, considering dot-label margin */
+            left: 0;
+            right: 0;
+            z-index: 5; /* Ensure line is behind dots */
+            width: 100%; /* Make it span the full width of its parent */
+        }
+
+        .card-icon-bg {
+            background-image: linear-gradient(to bottom right, #14b8a6, #06b6d4); /* Teal to Cyan */
+        }
+        .year-badge-gradient {
+            background-image: linear-gradient(to right, #14b8a6, #06b6d4); /* Teal to Cyan */
+        }
+        .future-vision-card {
+            background-color: #e0f2fe; /* Light blue background */
+            border: 2px solid #90cdf4; /* Light blue border */
+            color: #1e3a8a; /* Dark blue text */
+        }
+        .awards-card {
+            background-color: #fffbe6; /* Light yellow background */
+            border: 2px solid #fcd34d; /* Yellow border */
+            color: #78350f; /* Dark brown text */
+        }
+
+        /* Navigation Buttons */
+        .nav-button {
+            /* Updated gradient: Rose-500, Purple-600, Indigo-700 */
+            background-image: linear-gradient(to bottom right, #f43f5e, #9333ea, #4338ca);
+            color: white;
+            width: 3rem; /* 48px */
+            height: 3rem; /* 48px */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            z-index: 20; /* Ensure buttons are on top */
+            /* Added min-width and padding for text buttons */
+            min-width: 4rem; /* Adjust as needed for text */
+            padding: 0 1rem;
+            border-radius: 9999px; /* Make them pill-shaped for text */
+        }
+        .nav-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+        }
+        .nav-button:disabled {
+            background-image: none;
+            background-color: #9ca3af; /* gray-400 */
+            cursor: not-allowed;
+            opacity: 0.6;
+            transform: scale(1);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+        .scroll-to-start-button {
+            min-width: unset;
+            padding: unset;
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+        }
+
+        /* Desktop specific styles */
+        @media (min-width: 1024px) {
+            .timeline-dot-label {
+                font-size: 1.8rem;
+            }
+            .timeline-dot-line {
+                display: none; /* Hide the line in desktop view */
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-100">
+    <div class="container mx-auto px-2 sm:px-4 py-8">
+        <header class="text-center mb-0 sm:mb-0"> <!-- Removed bottom margin -->
+            <h1 class="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-purple-600 to-indigo-700 pb-2">
+                مشاريع التحول الرقمي لمحافظة ظفار
+            </h1>
+             </header>
+
+            <!-- Navigation Dots/Path (now the interactive scrollbar) -->
+        <div id="timelineDotsContainer" class="timeline-dots-container">
+            <div class="timeline-dot-line"></div>
+            <!-- Dots and labels will be dynamically generated here by JavaScript -->
+        </div>
+
+        
+        <div class="relative">
+            <!-- Navigation Buttons - Positioned outside the main timeline for clarity -->
+            <button id="nextButton" class="nav-button absolute top-1/2 -translate-y-1/2 left-0 sm:left-1 md:left-2 transform focus:outline-none text-base font-bold" title="التالي">
+                التالي
+            </button>
+            <button id="prevButton" class="nav-button absolute top-1/2 -translate-y-1/2 right-0 sm:right-1 md:right-2 transform focus:outline-none text-base font-bold" title="السابق">
+                السابق
+            </button>
+            <button id="scrollToStartButton" class="nav-button scroll-to-start-button absolute top-full mt-4 right-1/2 translate-x-1/2 sm:right-4 sm:translate-x-0 sm:top-1/2 sm:-translate-y-1/2 sm:mt-0 sm:mr-16 md:mr-20" title="العودة للبداية">
+                <i class="fas fa-flag"></i>
+            </button>
+
+            <!-- Timeline Container (main content) -->
+            <div id="timelineContainer" class="timeline-horizontal flex flex-row items-stretch space-x-4 md:space-x-6 p-4 pb-8 sm:p-8 sm:pb-12 overflow-x-auto mx-auto scroll-smooth">
+                <!-- Dummy card for right padding (RTL start) to allow centering of the first actual card -->
+                <div class="dummy-spacer-card w-72 sm:w-80 md:w-96 flex-shrink-0 opacity-0 pointer-events-none"></div>
+
+                <!-- 2020 Card -->
+                <div class="bg-white rounded-xl shadow-2xl p-5 sm:p-6 w-72 sm:w-80 md:w-96 flex-shrink-0 flex flex-col transition-all duration-300 hover:shadow-3xl transform hover:-translate-y-1">
+                    <div class="flex items-center mb-3 sm:mb-4">
+                        <div class="p-2 sm:p-3 card-icon-bg text-white rounded-full shadow-md mr-0 ml-2 sm:ml-3">
+                            <i class="fas fa-cogs text-lg sm:text-xl md:text-2xl"></i>
+                        </div>
+                        <span class="year-badge-gradient text-white text-lg sm:text-xl font-bold px-3 sm:px-4 py-1 rounded-lg shadow">2020</span>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-indigo-800 mb-2">التأسيس والتغلب على التحديات</h3>
+                    <p class="text-slate-600 text-xs sm:text-sm mb-2">
+                        واجهت المحافظة تحديات أولية في مسيرة التحول الرقمي:
+                    </p>
+                  
+                    <h4 class="text-md sm:text-lg font-semibold text-indigo-700 mb-1">التحديات:</h4>
+                    <ul class="space-y-0.5 sm:space-y-0.5 text-xs sm:text-sm mb-3">
+                        <li class="achievement-item"><i class="fas fa-exclamation-triangle fa-fw text-rose-600 mr-0 ml-2"></i> نقص قاعدة البيانات.</li>
+                        <li class="achievement-item"><i class="fas fa-hand-paper fa-fw text-rose-600 mr-0 ml-2"></i> مقاومة التغيير.</li>
+                        <li class="achievement-item"><i class="fas fa-virus fa-fw text-rose-600 mr-0 ml-2"></i> ظروف جائحة كوفيد-19.</li>
+                    </ul>
+                
+                    <h4 class="text-md sm:text-lg font-semibold text-indigo-700 mb-1 mt-4">المخرجات:</h4>
+                    <ul class="space-y-0.5 sm:space-y-0.5 text-xs sm:text-sm">
+                        <li class="achievement-item"><i class="fas fa-users fa-fw text-emerald-500 mr-0 ml-2"></i> تشكيل فرق عمل متخصصة.</li>
+                        <li class="achievement-item"><i class="fas fa-database fa-fw text-emerald-500 mr-0 ml-2"></i> إنشاء قاعدة بيانات أساسية.</li>
+                        <li class="achievement-item"><i class="fas fa-globe fa-fw text-emerald-500 mr-0 ml-2"></i> إطلاق بوابة الخدمات الإلكترونية (منذ 15-12-2020).</li>
+                        <li class="achievement-item"><i class="fas fa-file-signature fa-fw text-emerald-500 mr-0 ml-2"></i> إطلاق خدمات (التراخيص، عقود الإيجار، الدفع الإلكتروني).</li>
+                        <li class="achievement-item"><i class="fab fa-whatsapp fa-fw text-emerald-500 mr-0 ml-2"></i> توفير دعم فني عبر واتساب.</li>
+                    </ul>
+                        <!-- Logos for 2020 -->
+                    <div class="mt-4 pt-2 flex justify-center space-x-2">
+                        <img src="https://edm.gov.om/wp-content/uploads/2021/03/cropped-whitelabel.png" alt="شعار بلدية ظفار" class="h-12 object-contain">
+                        <img src="https://imgs.search.brave.com/EM95ersY39creh01OLBc5r4Yb5hlOQDRD28qTbs_xoA/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pMC53/cC5jb20va3NhbG9n/by5jb20vd3AtY29u/dGVudC91cGxvYWRz/LzIwMjUvMDEvV2hh/dHNhcHAtMDIucG5n/P2ZpdD0xMDAwLDEw/MDAmc3NsPTE" alt="شعار واتساب" class="h-12 object-contain">
+                        <img src="https://edm.gov.om/wp-content/uploads/2021/05/%D8%A7%D9%84%D8%AA%D8%B1%D8%AE%D9%8A%D8%B5-%D8%A7%D9%84%D8%A8%D9%84%D8%AF%D9%8A-2.svg" alt="شعار الترخيص البلدي" class="h-12 object-contain">
+                        <img src="https://edm.gov.om/wp-content/uploads/2021/05/%D8%B9%D9%82%D9%88%D8%AF-%D8%A7%D9%84%D8%A7%D9%8A%D8%AC%D8%A7%D8%B1-2.svg" alt="شعار عقود الإيجار" class="h-12 object-contain">
+                    </div>
+                </div>
+
+                <!-- Arrow Separator (can be removed if not needed visually) -->
+                <div class="hidden md:flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-long-arrow-alt-left text-indigo-700 text-2xl sm:text-3xl md:text-4xl opacity-50"></i>
+                </div>
+
+                <!-- 2021 Card -->
+                <div class="bg-white rounded-xl shadow-2xl p-5 sm:p-6 w-72 sm:w-80 md:w-96 flex-shrink-0 flex flex-col transition-all duration-300 hover:shadow-3xl transform hover:-translate-y-1">
+                    <div class="flex items-center mb-3 sm:mb-4">
+                        <div class="p-2 sm:p-3 card-icon-bg text-white rounded-full shadow-md mr-0 ml-2 sm:ml-3">
+                            <i class="fas fa-chart-line text-lg sm:text-xl md:text-2xl"></i>
+                        </div>
+                        <span class="year-badge-gradient text-white text-lg sm:text-xl font-bold px-3 sm:px-4 py-1 rounded-lg shadow">2021</span>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-indigo-800 mb-2">تطوير وتوسيع الخدمات</h3>
+                    <p class="text-slate-600 text-xs sm:text-sm mb-2 flex-grow">
+                        تركيز على تطوير البوابة، إنشاء مراكز خدمة خارجية، وإطلاق خدمات مبتكرة.
+                    </p>
+                    
+                    <h4 class="text-md sm:text-lg font-semibold text-indigo-700 mb-1">الإنجازات:</h4>
+                    <ul class="space-y-0.5 sm:space-y-0.5 text-xs sm:text-sm">
+                        <li class="achievement-item"><i class="fas fa-laptop-code fa-fw text-emerald-500 mr-0 ml-2"></i> تطوير البوابة الإلكترونية.</li>
+                        <li class="achievement-item"><i class="fas fa-building fa-fw text-emerald-500 mr-0 ml-2"></i> إنشاء مراكز خدمة خارجية.</li>
+                        <li class="achievement-item"><i class="fas fa-robot fa-fw text-emerald-500 mr-0 ml-2"></i> إطلاق برنامج المحادثة "سهالة" تشات بوت (1 ابريل).</li>
+                        <li class="achievement-item"><i class="fas fa-cloud fa-fw text-emerald-500 mr-0 ml-2"></i> الانتقال للخدمات السحابية (1 أبريل).</li>
+                        <li class="achievement-item"><i class="fas fa-hard-hat fa-fw text-emerald-500 mr-0 ml-2"></i> إطلاق تراخيص البناء ورقابة البناء (15 أغسطس).</li>
+                        <li class="achievement-item"><i class="fas fa-route fa-fw text-emerald-500 mr-0 ml-2"></i> إطلاق مصادقات مسارات تمديدات الخدمة (يونيو).</li>
+                    </ul>
+                    <!-- Original Logo after Achievements for 2021 -->
+                    <div class="mt-4 pt-2 flex justify-center space-x-2">
+                        <img src="https://edm.gov.om/wp-content/uploads/2021/03/cropped-whitelabel.png" alt="شعار بلدية ظفار" class="h-12 object-contain">
+                        <img src="https://edm.gov.om/wp-content/uploads/2021/05/%D8%AA%D8%B1%D8%A7%D8%AE%D9%8A%D8%B5-%D8%A7%D8%A8%D8%A7%D8%AD%D8%A9-%D9%88%D8%B1%D9%82%D8%A7%D8%A8%D8%A9-%D8%A7%D9%84%D8%A8%D9%86%D8%A7%D8%A1-2.svg" alt="شعار تراخيص اباحة ورقابة البناء" class="h-12 object-contain">
+                        <img src="https://edm.gov.om/wp-content/uploads/2021/04/%D8%B4%D8%AE%D8%B5%D9%8A%D8%A9-%D8%A7%D9%84%D8%A8%D9%88%D8%A7%D8%A8%D8%A9-1.svg" alt="شعار شخصية البوابة" class="h-12 object-contain">
+                        <img src="https://edm.gov.om/wp-content/uploads/2021/05/%D9%85%D8%B5%D8%A7%D8%AF%D9%82%D8%A7%D8%AA-%D9%85%D8%B3%D8%A7%D8%B1%D8%A7%D8%AA-%D8%AA%D9%85%D8%AF%D9%8A%D8%AF%D8%A7%D8%AA-%D8%A7%D9%84%D8%AE%D8%AF%D9%85%D8%A7%D8%AA-3.svg" alt="شعار مصادقات مسارات تمديدات الخدمات" class="h-12 object-contain">
+                    </div>
+                    <div class="mt-auto pt-2 sm:pt-3">
+                        <h4 class="text-md sm:text-lg font-semibold text-indigo-700 mb-2">الإحصائيات:</h4>
+                        <div class="stats-item text-slate-700"><i class="fas fa-eye fa-fw text-purple-600 mr-0 ml-1.5"></i> 364,851 زيارة للبوابة.</div>
+                        <div class="stats-item text-slate-700"><i class="fas fa-cogs fa-fw text-purple-600 mr-0 ml-1.5"></i> 52,124 عدد المعاملات في منافذ بلدية ظفار الرقمية.</div>
+                    </div>
+                </div>
+
+                <!-- Arrow Separator -->
+                <div class="hidden md:flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-long-arrow-alt-left text-indigo-700 text-2xl sm:text-3xl md:text-4xl opacity-50"></i>
+                </div>
+
+                <!-- 2022 Card -->
+                <div class="bg-white rounded-xl shadow-2xl p-5 sm:p-6 w-72 sm:w-80 md:w-96 flex-shrink-0 flex flex-col transition-all duration-300 hover:shadow-3xl transform hover:-translate-y-1">
+                    <div class="flex items-center mb-3 sm:mb-4">
+                        <div class="p-2 sm:p-3 card-icon-bg text-white rounded-full shadow-md mr-0 ml-2 sm:ml-3">
+                            <i class="fas fa-cloud-upload-alt text-lg sm:text-xl md:text-2xl"></i>
+                        </div>
+                        <span class="year-badge-gradient text-white text-lg sm:text-xl font-bold px-3 sm:px-4 py-1 rounded-lg shadow">2022</span>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-indigo-800 mb-2">التحول السحابي الكامل والرقمنة</h3>
+                    <p class="text-slate-600 text-xs sm:text-sm mb-2 flex-grow">
+                        استكمال التحول للخدمات السحابية، وتطويرات إضافية تشمل الرقمنة وإطلاق تطبيقات متخصصة.
+                    </p>
+                    
+                    <h4 class="text-md sm:text-lg font-semibold text-indigo-700 mb-1">الإنجازات:</h4>
+                    <ul class="space-y-0.5 sm:space-y-0.5 text-xs sm:text-sm">
+                        <li class="achievement-item"><i class="fas fa-cloud-upload-alt fa-fw text-emerald-500 mr-0 ml-2"></i> التحول الكامل للخدمات السحابية.</li>
+                        <li class="achievement-item"><i class="fas fa-qrcode fa-fw text-emerald-500 mr-0 ml-2"></i> إضافة رموز QR للعقود الإلكترونية.</li>
+                        <li class="achievement-item"><i class="fas fa-file-archive fa-fw text-emerald-500 mr-0 ml-2"></i> بدء تفعيل مشروع تحويل الملفات الورقية إلى رقمية.</li>
+                        <li class="achievement-item"><i class="fas fa-mobile-alt fa-fw text-emerald-500 mr-0 ml-2"></i> إطلاق تطبيق "خريف ظفار" (14 أغسطس).</li>
+                    </ul>
+                    <!-- Original Logos after Achievements for 2022 -->
+                    <div class="mt-4 pt-2 flex justify-center space-x-2">
+                        <img src="https://edm.gov.om/wp-content/uploads/2021/03/cropped-whitelabel.png" alt="شعار بلدية ظفار" class="h-12 object-contain">
+                        <img src="https://edm.gov.om/wp-content/uploads/2024/11/مواسم-ظقار.png" alt="شعار مواسم ظفار" class="h-12 object-contain">
+                    </div>
+                    <div class="mt-auto pt-2 sm:pt-3">
+                        <h4 class="text-md sm:text-lg font-semibold text-indigo-700 mb-2">الإحصائيات:</h4>
+                        <div class="stats-item text-slate-700"><i class="fas fa-eye fa-fw text-purple-600 mr-0 ml-1.5"></i> 1,165,138 زيارة للبوابة.</div>
+                        <div class="stats-item text-slate-700"><i class="fas fa-cogs fa-fw text-purple-600 mr-0 ml-1.5"></i> 42,763 عدد المعاملات في منافذ بلدية ظفار الرقمية.</div>
+                    </div>
+                </div>
+
+                <!-- Arrow Separator -->
+                <div class="hidden md:flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-long-arrow-alt-left text-indigo-700 text-2xl sm:text-3xl md:text-4xl opacity-50"></i>
+                </div>
+
+                <!-- 2023 Card -->
+                <div class="bg-white rounded-xl shadow-2xl p-5 sm:p-6 w-72 sm:w-80 md:w-96 flex-shrink-0 flex flex-col transition-all duration-300 hover:shadow-3xl transform hover:-translate-y-1">
+                    <div class="flex items-center mb-3 sm:mb-4">
+                        <div class="p-2 sm:p-3 card-icon-bg text-white rounded-full shadow-md mr-0 ml-2 sm:ml-3">
+                            <i class="fas fa-lightbulb text-lg sm:text-xl md:text-2xl"></i>
+                        </div>
+                        <span class="year-badge-gradient text-white text-lg sm:text-xl font-bold px-3 sm:px-4 py-1 rounded-lg shadow">2023</span>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-indigo-800 mb-2">تطبيقات مبتكرة وبيانات مفتوحة</h3>
+                    <p class="text-slate-600 text-xs sm:text-sm mb-2 flex-grow">
+                        إطلاق تطبيقات جديدة، إتاحة البيانات المفتوحة، وتوظيف الذكاء الاصطناعي.
+                    </p>
+                    
+                    <h4 class="text-md sm:text-lg font-semibold text-indigo-700 mb-1">الإنجازات:</h4>
+                    <ul class="space-y-0.5 sm:space-y-0.5 text-xs sm:text-sm">
+                        <li class="achievement-item"><i class="fas fa-calendar-alt fa-fw text-emerald-500 mr-0 ml-2"></i> تطوير تطبيق "خريف ظفار" إلى "مواسم ظفار" (1 يونيو).</li>
+                        <li class="achievement-item"><i class="fas fa-thumbs-up fa-fw text-emerald-500 mr-0 ml-2"></i> إطلاق تطبيق "أبشر" (1 يونيو).</li>
+                        <li class="achievement-item"><i class="fas fa-database fa-fw text-emerald-500 mr-0 ml-2"></i> إتاحة البيانات المفتوحة للخدمات البلدية.</li>
+                        <li class="achievement-item"><i class="fas fa-brain fa-fw text-emerald-500 mr-0 ml-2"></i> تطوير نظام المعلومات الجغرافية (GIS) بالذكاء الاصطناعي.</li>
+                        <li class="achievement-item"><i class="fas fa-medal fa-fw text-emerald-500 mr-0 ml-2"></i> أول مشاركة لمحافظة ظفار في كومكس.</li>
+                    </ul>
+                    <!-- Original Logos after Achievements for 2023 -->
+                    <div class="mt-4 pt-2 flex justify-center space-x-2">
+                        <img src="https://edm.gov.om/wp-content/uploads/2021/03/cropped-whitelabel.png" alt="شعار بلدية ظفار" class="h-12 object-contain">
+                        <img src="https://edm.gov.om/wp-content/uploads/2024/11/مواسم-ظقار.png" alt="شعار مواسم ظفار" class="h-12 object-contain">
+                         <img src="https://edm.gov.om/wp-content/uploads/2025/05/absher-icon.png" alt="شعار أبشر" class="h-12 object-contain">
+                        <img src="https://edm.gov.om/wp-content/uploads/2022/02/open-data.svg" alt="شعار البيانات المفتوحة" class="h-12 object-contain">
+                    </div>
+                    <div class="mt-auto pt-2 sm:pt-3">
+                        <h4 class="text-md sm:text-lg font-semibold text-indigo-700 mb-2">الإحصائيات:</h4>
+                        <div class="stats-item text-slate-700"><i class="fas fa-eye fa-fw text-purple-600 mr-0 ml-1.5"></i> 1,456,112 زيارة للبوابة.</div>
+                        <div class="stats-item text-slate-700"><i class="fas fa-cogs fa-fw text-purple-600 mr-0 ml-1.5"></i> 45,417 عدد المعاملات في منافذ بلدية ظفار الرقمية.</div>
+                    </div>
+                </div>
+
+                <!-- Arrow Separator -->
+                <div class="hidden md:flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-long-arrow-alt-left text-indigo-700 text-2xl sm:text-3xl md:text-4xl opacity-50"></i>
+                </div>
+
+                <!-- 2024 Card -->
+                <div class="bg-white rounded-xl shadow-2xl p-5 sm:p-6 w-72 sm:w-80 md:w-96 flex-shrink-0 flex flex-col transition-all duration-300 hover:shadow-3xl transform hover:-translate-y-1">
+                    <div class="flex items-center mb-3 sm:mb-4">
+                        <div class="p-2 sm:p-3 card-icon-bg text-white rounded-full shadow-md mr-0 ml-2 sm:ml-3">
+                            <i class="fas fa-rocket text-lg sm:text-xl md:text-2xl"></i>
+                        </div>
+                        <span class="year-badge-gradient text-white text-lg sm:text-xl font-bold px-3 sm:px-4 py-1 rounded-lg shadow">2024</span>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-indigo-800 mb-2">تقنيات متقدمة ومبادرات مجتمعية</h3>
+                    <p class="text-slate-600 text-xs sm:text-sm mb-2 flex-grow">
+                        التركيز على توظيف أحدث التقنيات والمبادرات التي تعزز المشاركة المجتمعية.
+                    </p>
+                   
+                    <h4 class="text-md sm:text-lg font-semibold text-indigo-700 mb-1">الإنجازات:</h4>
+                    <ul class="space-y-0.5 sm:space-y-0.5 text-xs sm:text-sm">
+                        <li class="achievement-item"><i class="fas fa-vr-cardboard fa-fw text-emerald-500 mr-0 ml-2"></i> تدشين خدمة العملاء بتقنية الميتافيرس (27 مايو).</li>
+                        <li class="achievement-item"><i class="fas fa-city fa-fw text-emerald-500 mr-0 ml-2"></i> إطلاق منصة صلالة الذكية (27 مايو).</li>
+                        <li class="achievement-item"><i class="fas fa-camera-retro fa-fw text-emerald-500 mr-0 ml-2"></i> تركيب كاميرات ذكاء اصطناعي في المناطق الحيوية.</li>
+                        <li class="achievement-item"><i class="fas fa-hand-pointer fa-fw text-emerald-500 mr-0 ml-2"></i> تطبيق "ضع بصمتك".</li>
+                        <li class="achievement-item"><i class="fas fa-chart-pie fa-fw text-emerald-500 mr-0 ml-2"></i> منصة بلدية ظفار للاستثمار.</li>
+                    </ul>
+                    <!-- Logos for 2024 -->
+                    <div class="mt-4 pt-2 flex justify-center space-x-2">
+                        <img src="https://edm.gov.om/wp-content/uploads/2024/07/ESTETHMAR.svg" alt="شعار منصة بلدية ظفار للاستثمار" class="h-12 object-contain">
+                        <img src="https://edm.gov.om/wp-content/uploads/2025/07/salalah-smart-city-logo-1.png" alt="شعار مدينة صلالة الذكية" class="h-12 object-contain">
+                        <img src="https://edm.gov.om/wp-content/uploads/2025/07/dm-metaverse-1.png" alt="شعار الميتافيرس" class="h-12 object-contain">
+                    </div>
+                    <div class="mt-auto pt-2 sm:pt-3">
+                        <h4 class="text-md sm:text-lg font-semibold text-indigo-700 mb-2">الإحصائيات:</h4>
+                        <div class="stats-item text-slate-700"><i class="fas fa-eye fa-fw text-purple-600 mr-0 ml-1.5"></i> 1,013,899 زيارة للبوابة.</div>
+                        <div class="stats-item text-slate-700"><i class="fas fa-cogs fa-fw text-purple-600 mr-0 ml-1.5"></i> 154,979 عدد المعاملات في منافذ بلدية ظفار الرقمية.</div>
+                    </div>
+                </div>
+
+                <!-- Arrow Separator -->
+                <div class="hidden md:flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-long-arrow-alt-left text-indigo-700 text-2xl sm:text-3xl md:text-4xl opacity-50"></i>
+                </div>
+
+                <!-- 2025 Card (New) -->
+                <div class="bg-white rounded-xl shadow-2xl p-5 sm:p-6 w-72 sm:w-80 md:w-96 flex-shrink-0 flex flex-col transition-all duration-300 hover:shadow-3xl transform hover:-translate-y-1">
+                    <div class="flex items-center mb-3 sm:mb-4">
+                        <div class="p-2 sm:p-3 card-icon-bg text-white rounded-full shadow-md mr-0 ml-2 sm:ml-3">
+                            <i class="fas fa-robot text-lg sm:text-xl md:text-2xl"></i>
+                        </div>
+                        <span class="year-badge-gradient text-white text-lg sm:text-xl font-bold px-3 sm:px-4 py-1 rounded-lg shadow">2025</span>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-indigo-800 mb-2">خدمات استباقية وذكاء اصطناعي متقدم</h3>
+                    <p class="text-slate-600 text-xs sm:text-sm mb-2 flex-grow">
+                        التركيز على تقديم خدمات استباقية للمستخدمين وتوظيف أحدث تقنيات الذكاء الاصطناعي.
+                    </p>
+                    
+                    <h4 class="text-md sm:text-lg font-semibold text-indigo-700 mb-1">الإنجازات:</h4>
+                    <ul class="space-y-0.5 sm:space-y-0.5 text-xs sm:text-sm">
+                        <li class="achievement-item"><i class="fas fa-magic fa-fw text-emerald-500 mr-0 ml-2"></i> إطلاق خدمات استباقية.</li>
+                        <li class="achievement-item"><i class="fas fa-traffic-light fa-fw text-emerald-500 mr-0 ml-2"></i> تطوير نظام مراقبة حركة المرور بالذكاء الاصطناعي.</li>
+                        <li class="achievement-item"><i class="fas fa-comments fa-fw text-emerald-500 mr-0 ml-2"></i> محادثة ذكية لمركز الاتصال الافتراضي.</li>
+                        <li class="achievement-item"><i class="fas fa-robot fa-fw text-emerald-500 mr-0 ml-2"></i> الدردشة الذكية بالذكاء الاصطناعي.</li>
+                        <li class="achievement-item"><i class="fas fa-cubes fa-fw text-emerald-500 mr-0 ml-2"></i> تقنية digital twins GIS</li>
+                        <li class="achievement-item"><i class="fas fa-robot fa-fw text-emerald-500 mr-0 ml-2"></i> روبوت خدمات البلدية</li>
+                        <li class="achievement-item"><i class="fas fa-recycle fa-fw text-emerald-500 mr-0 ml-2"></i> روبوت الإصحاح البيئي</li>
+                    </ul>
+                    <!-- Original Logo after Achievements for 2025 -->
+                    <div class="mt-4 pt-2 flex justify-center">
+                        <img src="https://edm.gov.om/wp-content/uploads/2025/07/sahalah-icon.png" alt="شعار بلدية ظفار" class="h-12 object-contain">
+                    </div>
+                    <div class="mt-auto pt-2 sm:pt-3">
+                        <h4 class="text-md sm:text-lg font-semibold text-indigo-700 mb-2">الإحصائيات (النصف الأول):</h4>
+                        <div class="stats-item text-slate-700"><i class="fas fa-eye fa-fw text-purple-600 mr-0 ml-1.5"></i> 793,979 زيارة للبوابة.</div>
+                        <div class="stats-item text-slate-700"><i class="fas fa-cogs fa-fw text-purple-600 mr-0 ml-1.5"></i> 25,784 عدد المعاملات في منافذ بلدية ظفار الرقمية.</div>
+                    </div>
+                </div>
+
+                <!-- Arrow Separator -->
+                <div class="hidden md:flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-long-arrow-alt-left text-indigo-700 text-2xl sm:text-3xl md:text-4xl opacity-50"></i>
+                </div>
+
+                <!-- Awards Card (New) -->
+                <div class="awards-card rounded-xl shadow-2xl p-5 sm:p-6 w-72 sm:w-80 md:w-96 flex-shrink-0 flex flex-col transition-all duration-300 hover:shadow-3xl transform hover:-translate-y-1">
+                    <div class="flex items-center mb-3 sm:mb-4">
+                        <div class="p-2 sm:p-3 card-icon-bg text-white rounded-full shadow-md mr-0 ml-2 sm:ml-3">
+                            <!-- Replaced with the new AWARDS.png image -->
+                            <img src="https://edm.gov.om/wp-content/uploads/2025/07/AWARDS.png" alt="شعار جوائز" class="h-6 w-6 object-contain">
+                        </div>
+                        <span class="year-badge-gradient text-white text-lg sm:text-xl font-bold px-3 sm:px-4 py-1 rounded-lg shadow">الجوائز والإنجازات</span>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-indigo-800 mb-2">تكريم للتميز في التحول الرقمي</h3>
+                    <p class="text-slate-600 text-xs sm:text-sm mb-2 flex-grow">
+                        رحلة بلدية ظفار في التحول الرقمي تكللت بالعديد من الجوائز المرموقة محليًا وعالميًا، مما يعكس التزامها بالابتكار والتميز في تقديم الخدمات الحكومية.
+                    </p>
+                    <!-- Logos for Awards Card -->
+                    <div class="mt-4 pt-2 flex justify-center">
+                        <img src="https://edm.gov.om/wp-content/uploads/2025/07/AWARDS-1.png" alt="شعار بلدية ظفار" class="h-12 object-contain">
+                    </div>
+                    <h4 class="text-md sm:text-lg font-semibold text-indigo-700 mb-1">الجوائز:</h4>
+                    <ul class="space-y-0.5 sm:space-y-0.5 text-xs sm:text-sm">
+                        <li class="achievement-item">
+                            <img src="https://edm.gov.om/wp-content/uploads/2025/07/SAG.png" alt="شعار جائزة SAG GIS" class="h-6 w-6 object-contain mr-0 ml-2">
+                            حصد جائزة الإنجاز المتميز (SAG GIS Award) العالمية في استخدام الذكاء الاصطناعي بنظم المعلومات الجغرافية (2022).
+                        </li>
+                        <li class="achievement-item">
+                            <img src="https://edm.gov.om/wp-content/uploads/2025/07/certificate.png" alt="شعار شهادة" class="h-6 w-6 object-contain mr-0 ml-2">
+                            حصول بلدية ظفار على أفضل منافذ تقديم الخدمة في المحافظات (2023).
+                        </li>
+                        <li class="achievement-item">
+                            <img src="https://edm.gov.om/wp-content/uploads/2025/07/digitr.png" alt="شعار التحول الرقمي" class="h-6 w-6 object-contain mr-0 ml-2">
+                            فوز رئيس بلدية ظفار بجائزة أفضل قائد للتغيير الرقمي (2024).
+                        </li>
+                        <li class="achievement-item">
+                            <img src="https://edm.gov.om/wp-content/uploads/2025/07/digitr.png" alt="شعار التحول الرقمي" class="h-6 w-6 object-contain mr-0 ml-2">
+                            فوز فريق التحول الرقمي بمحافظة ظفار بجائزة أفضل فريق للتحول الرقمي الحكومي (2024).
+                        </li>
+                        <li class="achievement-item">
+                            <img src="https://edm.gov.om/wp-content/uploads/2025/07/certificate.png" alt="شعار شهادة" class="h-6 w-6 object-contain mr-0 ml-2">
+                            فوز بلدية ظفار بأفضل المؤسسات الحكومية التي طبقت مبدأ سياسات البيانات المفتوحة (2024).
+                        </li>
+                        <li class="achievement-item">
+                            <img src="https://edm.gov.om/wp-content/uploads/2025/07/comexp.png" alt="شعار كومكس" class="h-6 w-6 object-contain mr-0 ml-2">
+                            فوز محافظة ظفار بجائزة المدن الذكية بكومكس (2024).
+                        </li>
+                    </ul>
+                    
+                </div>
+
+                <!-- Dummy card for left padding (RTL end) to allow centering of the last actual card -->
+                <div class="dummy-spacer-card w-72 sm:w-80 md:w-96 flex-shrink-0 opacity-0 pointer-events-none"></div>
+
+            </div>
+        </div>
+
+    
+
+        <footer class="text-center mt-8 sm:mt-12 py-6 border-t border-slate-300">
+            <p class="text-slate-600 text-sm">&copy; 2024 بلدية ظفار - جميع الحقوق محفوظة (تصميم إنفوجرافيك توضيحي أفقي)</p>
+        </footer>
+    </div>
+
+    <script>
+        const timelineContainer = document.getElementById('timelineContainer');
+        const timelineDotsContainer = document.getElementById('timelineDotsContainer');
+        const nextButton = document.getElementById('nextButton');
+        const prevButton = document.getElementById('prevButton');
+        const scrollToStartButton = document.getElementById('scrollToStartButton');
+
+
+        // Flag to prevent infinite scroll loops between the two containers
+        let isScrollingByScript = false;
+
+        // Modified to exclude dummy cards
+        const getCardElements = () => Array.from(timelineContainer.querySelectorAll('div.bg-white.rounded-xl.shadow-2xl[class*="w-"], div.awards-card'));
+
+        /**
+         * Generates the navigation dots dynamically based on the number of cards.
+         * Each dot will have a title for tooltip and a label below it.
+         */
+        function generateNavigationDots() {
+            timelineDotsContainer.innerHTML = '<div class="timeline-dot-line"></div>'; // Clear existing dots and re-add line
+            const cards = getCardElements();
+            const dotLabels = ["2020", "2021", "2022", "2023", "2024", "2025", "الجوائز"];
+            // Tailwind classes for specific colors - Swapped first and last colors
+            const dotLabelColors = ["text-red-700", "text-fuchsia-700", "text-teal-700", "text-orange-700", "text-indigo-700", "text-pink-700", "text-amber-700"];
+
+
+            cards.forEach((card, index) => {
+                const dotWrapper = document.createElement('div');
+                dotWrapper.classList.add('timeline-dot-wrapper'); // Custom class for wrapper
+
+                const dot = document.createElement('span');
+                dot.classList.add('timeline-dot');
+                dot.dataset.index = index;
+                dot.title = dotLabels[index]; // Set tooltip
+
+                const label = document.createElement('span');
+                label.classList.add('timeline-dot-label'); // Custom class for label
+                label.textContent = dotLabels[index];
+                label.classList.add(dotLabelColors[index]); // Add specific color class
+
+                dotWrapper.appendChild(dot);
+                dotWrapper.appendChild(label);
+
+                dotWrapper.addEventListener('click', () => {
+                    isScrollingByScript = true;
+                    card.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                    setTimeout(() => {
+                        updateDotActiveState();
+                        updateButtonStates(); // Update button states after dot click
+                        isScrollingByScript = false;
+                    }, 450);
+                });
+                timelineDotsContainer.appendChild(dotWrapper);
+            });
+
+            // Ensure active state is set after dot generation
+            setTimeout(() => {
+                updateDotActiveState();
+                updateButtonStates(); // Also update button states after initial dot generation
+            }, 100);
+        }
+
+        /**
+         * [FIXED] Updates the active state of the navigation dots based on which card is closest to the center.
+         * This is more reliable than checking visibility, especially on large screens.
+         */
+        function updateDotActiveState() {
+            const cards = getCardElements();
+            const dotWrappers = Array.from(timelineDotsContainer.querySelectorAll('.timeline-dot-wrapper'));
+            if (cards.length === 0 || dotWrappers.length === 0) return;
+
+            // Calculate the horizontal center of the timeline container
+            const containerCenter = timelineContainer.getBoundingClientRect().left + timelineContainer.getBoundingClientRect().width / 2;
+            let closestIndex = -1;
+            let minDistance = Infinity;
+
+            // Find the card whose center is closest to the container's center
+            cards.forEach((card, index) => {
+                const cardRect = card.getBoundingClientRect();
+                const cardCenter = cardRect.left + cardRect.width / 2;
+                const distance = Math.abs(containerCenter - cardCenter);
+
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestIndex = index;
+                }
+            });
+
+            // Apply the 'active' class to the closest dot and remove it from others
+            dotWrappers.forEach((wrapper, index) => {
+                if (index === closestIndex) {
+                    wrapper.classList.add('active');
+                } else {
+                    wrapper.classList.remove('active');
+                }
+            });
+        }
+
+        /**
+         * Updates the disabled state of the navigation buttons based on the current scroll position.
+         * In RTL, scrollLeft is 0 when scrolled fully to the right (start of content).
+         * It increases positively as you scroll left. Max positive value is (scrollWidth - clientWidth).
+         */
+        function updateButtonStates() {
+            if (!timelineContainer) return;
+            const cards = getCardElements();
+            if (cards.length === 0) {
+                prevButton.disabled = true;
+                nextButton.disabled = true;
+                scrollToStartButton.disabled = true;
+                return;
+            }
+
+            const scrollLeft = timelineContainer.scrollLeft;
+            const scrollWidth = timelineContainer.scrollWidth;
+            const clientWidth = timelineContainer.clientWidth;
+
+            // Define a small threshold for "being at the edge"
+            const threshold = 5; // pixels
+
+            // For RTL, scrollLeft is 0 when at the very right (start of content)
+            // We now account for the dummy card at the start
+            const firstCard = cards[0];
+            const firstCardRect = firstCard.getBoundingClientRect();
+            const containerRect = timelineContainer.getBoundingClientRect();
+            const isFirstCardCentered = Math.abs((firstCardRect.left + firstCardRect.right) / 2 - (containerRect.left + containerRect.right) / 2) < (firstCardRect.width / 4); // Within 1/4 card width of center
+            prevButton.disabled = isFirstCardCentered;
+
+
+            // For RTL, when at the very left (end of content), scrollLeft is scrollWidth - clientWidth
+            // We now account for the dummy card at the end
+            const lastCard = cards[cards.length - 1];
+            const lastCardRect = lastCard.getBoundingClientRect();
+            const isLastCardCentered = Math.abs((lastCardRect.left + lastCardRect.right) / 2 - (containerRect.left + containerRect.right) / 2) < (lastCardRect.width / 4); // Within 1/4 card width of center
+            nextButton.disabled = isLastCardCentered;
+
+            scrollToStartButton.disabled = isFirstCardCentered;
+        }
+
+        /**
+         * Synchronizes the scroll position between the main timeline and the dots container.
+         * This function will be called by both scroll event listeners.
+         * @param {HTMLElement} sourceContainer - The container that initiated the scroll.
+         * @param {HTMLElement} targetContainer - The container to synchronize.
+         */
+        function synchronizeScroll(sourceContainer, targetContainer) {
+            if (isScrollingByScript) return; // Prevent infinite loop
+
+            isScrollingByScript = true;
+
+            // Calculate scroll ratio from source
+            // We need to adjust the scrollWidth to exclude dummy cards for accurate ratio for dots
+            // The dummy cards are not part of getCardElements(), so we need to get their width separately
+            const dummySpacerWidth = document.querySelector('.dummy-spacer-card').offsetWidth;
+            const actualScrollWidth = timelineContainer.scrollWidth - (dummySpacerWidth * 2); // Subtract width of two dummy cards
+            const actualScrollLeft = timelineContainer.scrollLeft - dummySpacerWidth; // Adjust scrollLeft relative to the start of actual content
+
+            const sourceScrollRatio = actualScrollLeft / (actualScrollWidth - timelineContainer.clientWidth);
+
+            // Clamp ratio to [0, 1] to prevent issues at extreme ends
+            const clampedRatio = Math.max(0, Math.min(1, sourceScrollRatio));
+
+            // Apply ratio to target
+            const targetScrollPosition = clampedRatio * (targetContainer.scrollWidth - targetContainer.clientWidth);
+            targetContainer.scrollLeft = targetScrollPosition;
+
+            // Update active dot based on the main timeline's scroll position
+            updateDotActiveState();
+            updateButtonStates(); // Update button states on scroll
+
+            // Reset flag after a short delay to allow scroll to complete
+            setTimeout(() => { isScrollingByScript = false; }, 50);
+        }
+
+        // Event listener for main timeline container scroll
+        timelineContainer.addEventListener('scroll', () => {
+            synchronizeScroll(timelineContainer, timelineDotsContainer);
+        });
+
+        // Event listener for dots container scroll (acting as the scrollbar)
+        timelineDotsContainer.addEventListener('scroll', () => {
+            synchronizeScroll(timelineDotsContainer, timelineContainer);
+        });
+
+        // Event listener for Next button (التالي) - REVERSED
+        nextButton.addEventListener('click', () => {
+            const scrollAmount = timelineContainer.clientWidth / 2;
+            timelineContainer.scrollBy({
+                left: -scrollAmount, // Negative scrolls right (towards start in RTL)
+                behavior: 'smooth'
+            });
+        });
+
+        // Event listener for Prev button (السابق) - REVERSED
+        prevButton.addEventListener('click', () => {
+            const scrollAmount = timelineContainer.clientWidth / 2;
+            timelineContainer.scrollBy({
+                left: scrollAmount, // Positive scrolls left (towards end in RTL)
+                behavior: 'smooth'
+            });
+        });
+
+        // Event listener for Scroll to Start button (العلم)
+        scrollToStartButton.addEventListener('click', () => {
+            const cards = getCardElements();
+            if (cards.length > 0) {
+                isScrollingByScript = true;
+                cards[0].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                setTimeout(() => {
+                    updateDotActiveState();
+                    updateButtonStates();
+                    isScrollingByScript = false;
+                }, 450);
+            }
+        });
+
+        // Add keyboard navigation
+        document.addEventListener('keydown', (event) => {
+            const scrollAmount = timelineContainer.clientWidth / 2; // Scroll half a card width
+
+            if (event.key === 'ArrowLeft') {
+                // Scroll right (towards older years in RTL)
+                timelineContainer.scrollBy({
+                    left: -scrollAmount,
+                    behavior: 'smooth'
+                });
+                event.preventDefault(); // Prevent default browser scroll
+            } else if (event.key === 'ArrowRight') {
+                // Scroll left (towards newer years in RTL)
+                timelineContainer.scrollBy({
+                    left: scrollAmount,
+                    behavior: 'smooth'
+                });
+                event.preventDefault(); // Prevent default browser scroll
+            }
+        });
+
+
+        // Initial setup on load
+        window.addEventListener('load', () => {
+            generateNavigationDots();
+            // Initial synchronization to ensure dots are correctly positioned if cards are initially scrolled
+            setTimeout(() => {
+                synchronizeScroll(timelineContainer, timelineDotsContainer);
+            }, 150);
+        });
+
+        // Update on resize to regenerate dots and re-synchronize scroll
+        window.addEventListener('resize', () => {
+            generateNavigationDots();
+            // Re-synchronize after resize
+            setTimeout(() => {
+                synchronizeScroll(timelineContainer, timelineDotsContainer);
+            }, 150);
+        });
+    </script>
+    <script src="/dmacc.js"></script>
+</body>
+</html>
+
