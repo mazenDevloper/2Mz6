@@ -19,9 +19,9 @@
         }
         body {
             font-family: 'Tajawal', sans-serif;
-            background: linear-gradient(-45deg, #020024, #090979, #4b0082, #00ced1);
-            background-size: 400% 400%;
-            animation: gradientAnimation 15s ease infinite;
+            background: linear-gradient(-45deg, #090979,#020024, #20085e, #4b0082, #020024);
+            background-size: 600% 600%;
+            animation: gradientAnimation 20s ease infinite;
         }
         
         img.mx-auto.h-16.w-16.object-contain {
@@ -42,7 +42,8 @@
         }
 
         .logo-card img[src$=".svg"],
-        .logo-card img[src$=".png"] {
+        .logo-card img[src$=".png"],
+        .logo-card img[src$=".webp"] {
             filter: brightness(0) invert(1);
         }
         /* Do not apply white filter to app icons and specific logos */
@@ -215,22 +216,47 @@
             display: flex;
             justify-content: center;
         }
+        /* --- Sticky Header --- */
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            background-color: rgba(2, 0, 36, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            /* border-bottom: 1px solid rgba(255, 255, 255, 0.2); */ /* Removed for fade effect */
+            -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+            mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+        }
     </style>
 </head>
 <body class="text-white">
 
-    <div class="container mx-auto p-4 sm:p-6 md:p-8">
-        <header class="text-center mb-8">
-            <h1 class="text-3xl md:text-4xl font-bold">خطة التكامل الرقمي لمحافظة ظفار</h1>
-            <p class="text-gray-300 mt-2">الجهات والمنصات الحكومية المرتبطة مع البلدية</p>
-        </header>
+    <div class="sticky-header">
+        <div class="container mx-auto px-4 sm:px-6 md:px-8">
+            <header class="text-center py-4 relative">
+                <h1 class="text-3xl md:text-4xl font-bold">خطة التكامل الرقمي لمحافظة ظفار</h1>
+                <p class="text-gray-300 mt-2">الجهات والمنصات الحكومية المرتبطة مع البلدية</p>
+                 <button id="play-pause-btn" class="absolute top-1/2 -translate-y-1/2 left-4 bg-white/20 p-2 rounded-full text-white hover:bg-white/30 transition-colors z-20" title="تشغيل/إيقاف العرض التلقائي">
+                    <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 16 16">
+                      <path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/>
+                    </svg>
+                    <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="currentColor" viewBox="0 0 16 16">
+                      <path d="M5.5 3.5A1.5 1.5 0 0 1 7 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5m5 0A1.5 1.5 0 0 1 12 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5"/>
+                    </svg>
+                </button>
+            </header>
 
-        <!-- Tab Buttons -->
-        <div class="flex justify-center border-b border-white/20 mb-8">
-            <button class="tab-button active" data-tab="integrations">التكامل مع الجهات</button>
-            <button class="tab-button" data-tab="municipality">أنظمة وتطبيقات المحافظة</button>
+            <!-- Tab Buttons -->
+            <div class="flex justify-center">
+                <button class="tab-button active" data-tab="integrations">التكامل مع الجهات</button>
+                <button class="tab-button" data-tab="municipality">أنظمة وتطبيقات المحافظة</button>
+                <button class="tab-button" data-tab="partners" > شركاء التحول الرقمي في المحافظة</button>
+            </div>
         </div>
-
+    </div>
+    
+    <div class="container mx-auto p-4 sm:p-6 md:p-8">
         <!-- Tab Content -->
         <div id="integrations" class="tab-content active">
             <!-- Section for Completed Integrations -->
@@ -253,6 +279,90 @@
         <div id="municipality" class="tab-content">
             <div id="municipality-content">
                 <!-- Municipality systems categories and cards will be injected here -->
+            </div>
+        </div>
+
+        <div id="partners" class="tab-content">
+            <div>
+                <h2 class="section-title">شركاء التحول الرقمي في المحافظة</h2>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+                    
+                    <!-- شريك 1: الدبور الذهبي -->
+                    <div class="logo-card rounded-2xl p-4 flex flex-col items-center justify-center text-center cursor-default" style="min-height: 200px;">
+                        <div class="h-28 flex items-center justify-center w-full">
+                             <img src="https://dmusera.netlify.app/SVG/golden.png" alt="شعار شركة الدبور الذهبي" class="max-h-24 max-w-full object-contain">
+                        </div>
+                        <div class="text-container">
+                            <p class="mt-2 font-semibold text-emerald-200 text-sm leading-tight">شركة الدبور الذهبي</p>
+                        </div>
+                    </div>
+
+                    <!-- شريك 2: العنقاء -->
+                    <a href="https://ankaa.om" target="_blank" rel="noopener noreferrer" class="logo-card rounded-2xl p-4 flex flex-col items-center justify-center text-center" style="min-height: 200px;">
+                         <div class="h-28 flex items-center justify-center w-full">
+                            <img src="https://dmusera.netlify.app/SVG/anka.webp" alt="شعار شركة العنقاء" class="max-h-24 max-w-full object-contain">
+                        </div>
+                        <div class="text-container">
+                            <p class="mt-2 font-semibold text-emerald-200 text-sm leading-tight">شركة العنقاء</p>
+                            <p class="text-xs text-white/70 mt-1">ankaa.om</p>
+                        </div>
+                    </a>
+
+                    <!-- شريك 3: الحلول المتحدة -->
+                    <a href="https://unitedso.com" target="_blank" rel="noopener noreferrer" class="logo-card rounded-2xl p-4 flex flex-col items-center justify-center text-center" style="min-height: 200px;">
+                        <div class="h-28 flex items-center justify-center w-full">
+                             <img src="https://dmusera.netlify.app/SVG/us.png" alt="شعار شركة الحلول المتحدة" class="max-h-24 max-w-full object-contain">
+                        </div>
+                        <div class="text-container">
+                            <p class="mt-2 font-semibold text-emerald-200 text-sm leading-tight">شركة الحلول المتحدة</p>
+                            <p class="text-xs text-white/70 mt-1">unitedso.com</p>
+                        </div>
+                    </a>
+                    
+                    <!-- شريك 4: مصادر التكنلوجيا الحديثة -->
+                    <div class="logo-card rounded-2xl p-4 flex flex-col items-center justify-center text-center cursor-default" style="min-height: 200px;">
+                        <div class="h-28 flex items-center justify-center w-full">
+                             <img src="https://dmusera.netlify.app/SVG/modern.png" alt="شعار مصادر التكنلوجيا الحديثة" class="max-h-24 max-w-full object-contain">
+                        </div>
+                        <div class="text-container">
+                            <p class="mt-2 font-semibold text-emerald-200 text-sm leading-tight">مصادر التكنلوجيا الحديثة</p>
+                        </div>
+                    </div>
+                    
+                    <!-- شريك 5: كومكس -->
+                    <a href="https://comex-global.com" target="_blank" rel="noopener noreferrer" class="logo-card rounded-2xl p-4 flex flex-col items-center justify-center text-center" style="min-height: 200px;">
+                         <div class="h-28 flex items-center justify-center w-full">
+                            <img src="https://comex-global.com/wp-content/uploads/2024/07/COMEX-Logo.png" alt="شعار كومكس" class="max-h-24 max-w-full object-contain">
+                        </div>
+                        <div class="text-container">
+                            <p class="mt-2 font-semibold text-emerald-200 text-sm leading-tight">COMEX</p>
+                            <p class="text-xs text-white/70 mt-1">comex-global.com</p>
+                        </div>
+                    </a>
+
+                    <!-- شريك 6: عمان داتا بارك -->
+                    <a href="https://www.omandatapark.com/" target="_blank" rel="noopener noreferrer" class="logo-card rounded-2xl p-4 flex flex-col items-center justify-center text-center" style="min-height: 200px;">
+                         <div class="h-28 flex items-center justify-center w-full">
+                            <img src="https://www.omandatapark.com/wp-content/uploads/2024/09/image__10_-removebg-preview.png.webp" alt="شعار عمان داتا بارك" class="max-h-24 max-w-full object-contain">
+                        </div>
+                        <div class="text-container">
+                            <p class="mt-2 font-semibold text-emerald-200 text-sm leading-tight">عمان داتا بارك</p>
+                            <p class="text-xs text-white/70 mt-1">omandatapark.com</p>
+                        </div>
+                    </a>
+
+                    <!-- شريك 7: تكنولوجيا الذكاء الاصطناعي -->
+                    <a href="https://aitech.om" target="_blank" rel="noopener noreferrer" class="logo-card rounded-2xl p-4 flex flex-col items-center justify-center text-center" style="min-height: 200px;">
+                         <div class="h-28 flex items-center justify-center w-full">
+                            <img src="https://aitech.om/wp-content/uploads/2022/08/AItech-Logo-PNG-White.png" alt="شعار تكنولوجيا الذكاء الاصطناعي" class="max-h-24 max-w-full object-contain">
+                        </div>
+                        <div class="text-container">
+                            <p class="mt-2 font-semibold text-emerald-200 text-sm leading-tight">تكنولوجيا الذكاء الاصطناعي</p>
+                            <p class="text-xs text-white/70 mt-1">aitech.om</p>
+                        </div>
+                    </a>
+
+                </div>
             </div>
         </div>
     </div>
@@ -1029,27 +1139,104 @@
                 }
             });
             
-            // Tab switching logic
+            // --- Autoplay and Tab Logic ---
             const tabButtons = document.querySelectorAll('.tab-button');
             const tabContents = document.querySelectorAll('.tab-content');
+            const playPauseBtn = document.getElementById('play-pause-btn');
+            const playIcon = document.getElementById('play-icon');
+            const pauseIcon = document.getElementById('pause-icon');
+
+            let isPlaying = false;
+            let scrollInterval = null;
+            
+            const SCROLL_PIXELS = 1;
+            const SCROLL_INTERVAL_MS = 40;
+            const DELAY_AT_BOTTOM_MS = 9000; // 9 seconds delay at the bottom
+
+            function activateTab(buttonToActivate) {
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                buttonToActivate.classList.add('active');
+                
+                const tabId = buttonToActivate.dataset.tab;
+                tabContents.forEach(content => {
+                    content.classList.toggle('active', content.id === tabId);
+                });
+            }
+
+            function stopAutoPlay() {
+                clearInterval(scrollInterval);
+                scrollInterval = null;
+                isPlaying = false;
+                if(pauseIcon && playIcon) {
+                    pauseIcon.classList.add('hidden');
+                    playIcon.classList.remove('hidden');
+                }
+            }
+
+            function switchToNextTab() {
+                if (!isPlaying) return;
+
+                const currentActiveButton = document.querySelector('.tab-button.active');
+                let currentIndex = Array.from(tabButtons).indexOf(currentActiveButton);
+                const nextIndex = (currentIndex + 1) % tabButtons.length;
+                
+                setTimeout(() => {
+                    if (!isPlaying) return;
+                    activateTab(tabButtons[nextIndex]);
+                    startScrolling();
+                }, DELAY_AT_BOTTOM_MS);
+            }
+            
+            function startScrolling() {
+                clearInterval(scrollInterval);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                setTimeout(() => {
+                    scrollInterval = setInterval(() => {
+                        if (!isPlaying) {
+                             clearInterval(scrollInterval);
+                             return;
+                        }
+                        window.scrollBy(0, SCROLL_PIXELS);
+                        if ((window.innerHeight + window.scrollY) >= document.body.scrollHeight - 5) {
+                            clearInterval(scrollInterval);
+                            switchToNextTab();
+                        }
+                    }, SCROLL_INTERVAL_MS);
+                }, 500);
+            }
+
+            function startAutoPlay() {
+                isPlaying = true;
+                if(playIcon && pauseIcon) {
+                    playIcon.classList.add('hidden');
+                    pauseIcon.classList.remove('hidden');
+                }
+                startScrolling();
+            }
+            
+            if (playPauseBtn) {
+                playPauseBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (isPlaying) {
+                        stopAutoPlay();
+                    } else {
+                        startAutoPlay();
+                    }
+                });
+            }
 
             tabButtons.forEach(button => {
                 button.addEventListener('click', () => {
-                    tabButtons.forEach(btn => btn.classList.remove('active'));
-                    button.classList.add('active');
-
-                    const tabId = button.dataset.tab;
-                    tabContents.forEach(content => {
-                        if (content.id === tabId) {
-                            content.classList.add('active');
-                        } else {
-                            content.classList.remove('active');
-                        }
-                    });
+                    stopAutoPlay();
+                    activateTab(button);
                 });
             });
+
         });
     </script>
 </body>
 </html>
+
+
 
