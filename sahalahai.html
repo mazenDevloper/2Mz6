@@ -5,13 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>سهالة AI: معاملاتك، بلاغاتك، ومدفوعاتك في مكان واحد</title>
 
-    <!-- External Libraries & Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
     
-    <!-- Vanta.js and its dependency Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanta/0.5.24/vanta.globe.min.js"></script>
 
@@ -329,6 +327,29 @@
             .timeline-line { display: none; }
         }
 
+        /* Desktop Only: Adjust hero section for portrait-like view */
+        @media (min-width: 769px) {
+            #hero-section {
+                height: 120vh; /* Make the section taller */
+                min-height: 900px;
+            }
+            .hero-content-wrapper {
+                flex-direction: column; /* Stack the image and text vertically */
+                align-items: center;
+                justify-content: center;
+            }
+            .hero-image-container, .hero-text-container {
+                width: 100%; /* Make them full width */
+            }
+            .hero-image-container {
+                height: 60%; /* Allocate more space to the image */
+            }
+            .hero-text-container {
+                height: 40%;
+                padding-top: 2rem;
+            }
+        }
+
         .info-left {
             background: #25D366!important;
             color: white;
@@ -338,16 +359,13 @@
             background: #ffffff!important;
             font-weight: bold;
         }
-
     </style>
 </head>
 <body>
 
-    <!-- Custom Cursor Elements -->
     <div id="cursor-dot" class="cursor-dot"></div>
     <div id="cursor-splash-container"></div>
 
-    <!-- Navigation Bar -->
     <nav class="main-nav">
         <div class="nav-content">
             <a href="#" class="nav-logo">سهالة AI</a>
@@ -362,13 +380,11 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
     <section id="hero-section">
         <div class="hero-content-wrapper">
             <div class="hero-image-container">
                 <img id="hero-robot-img" src="https://edm.gov.om/wp-content/uploads/2025/07/sahalah-ai.png" alt="Sahalah AI Robot">
-                <!-- Hotspots will be injected here by JavaScript -->
-            </div>
+                </div>
             <div class="hero-text-container">
                 <h1 class="animate-pulse-slow animate-fade-in-up" style="font-size: 3rem; line-height: 1.1; font-weight: 800; margin-bottom: 1.5rem; text-shadow: 0 0 20px rgba(0,0,0,0.5); color: #f9fafb;">
                     سهالة AI: بوابتك الذكية للمعاملات الحكومية
@@ -395,7 +411,6 @@
         </div>
     </section>
 
-    <!-- Features Section -->
     <section id="features-section" style="padding: 5rem 1rem; background-color: #111827;">
         <h2 class="motion-element text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-teal-400" style="font-size: 2.25rem; font-weight: 700; text-align: center; margin-bottom: 3rem;">
             خدمات متكاملة بين يديك
@@ -403,7 +418,6 @@
         <div id="features-grid" class="features-grid motion-element"></div>
     </section>
 
-    <!-- How it Works section -->
     <section id="how-it-works-section" style="padding: 5rem 1rem; background-color: #030712;">
         <h2 class="motion-element text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-400" style="font-size: 2.25rem; font-weight: 700; text-align: center; margin-bottom: 4rem;">
             رحلة معاملتك في خطوات بسيطة
@@ -411,7 +425,6 @@
         <div id="how-it-works-container" class="how-it-works-container"></div>
     </section>
     
-    <!-- Testimonials Section -->
     <section id="testimonials-section" style="padding: 5rem 1rem; background-color: #111827;">
         <div class="motion-element" style="max-width: 72rem; margin: auto; text-align: center;">
             <h2 class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-400" style="font-size: 2.25rem; font-weight: 700; margin-bottom: 3rem;">
@@ -421,7 +434,6 @@
         </div>
     </section>
 
-    <!-- FAQ Section -->
     <section id="faq-section" style="padding: 5rem 1rem; background-color: #030712;">
         <h2 class="motion-element text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400" style="font-size: 2.25rem; font-weight: 700; text-align: center; margin-bottom: 3rem;">
             الأسئلة الشائعة
@@ -429,12 +441,10 @@
         <div id="faq-container" class="motion-element" style="max-width: 48rem; margin: auto;"></div>
     </section>
 
-    <!-- Footer -->
     <footer style="background-color: #1f2937; padding: 2rem; text-align: center; color: #9ca3af; font-size: 0.875rem;">
         <p>&copy; 2024 سهالة AI. جميع الحقوق محفوظة.</p>
     </footer>
 
-    <!-- Video Modal -->
     <div id="video-modal" class="modal-backdrop">
         <button class="modal-close-btn" aria-label="إغلاق">&times;</button>
         <div class="modal-content">
@@ -449,7 +459,7 @@
 
             // --- DATA ---
             const hotspotData = [
-                { type: 'default', top: '45%', left: '75%', info: 'مرحباً انا سهالة  AI <BR>موظف الذكاء الاصطناعي لبلدية ظفار', position: 'left', defaultOpen: true },
+                { type: 'default', top: '45%', left: '75%', info: 'مرحباً انا سهالة <BR>موظف الذكاء الاصطناعي لبلدية ظفار', position: 'left', defaultOpen: true },
                 { type: 'voice', top: '55%', left: '45%', info: '', position: 'left' },
                 { type: 'default', top: '78%', left: '20%', info: 'آمن وموثوق', position: 'right', defaultOpen: true },
                 { type: 'default', top: '85%', left: '75%', info: 'تريد تستفسر عن خدمة ', position: 'left', defaultOpen: true },
@@ -490,20 +500,22 @@
             ];
 
             // --- INITIALIZATION ---
-            initVantaBackground();
-            initSplashCursor();
-            initHotspots();
-            initDefaultHotspotClosing(); // New function for timed closing
-            initFeaturesGrid();
-            initHowItWorks();
-            initTestimonials(); 
-            initFaq();
-            initMotionOnScroll();
-            initDynamicText();
-            initSmoothScroll();
-            initVideoModal();
-            initSensorClickLogic();
-            initWhatsAppPopup();
+            function initPage() {
+                initVantaBackground();
+                initSplashCursor();
+                initHotspots();
+                initDefaultHotspotClosing();
+                initFeaturesGrid();
+                initHowItWorks();
+                initTestimonials(); 
+                initFaq();
+                initMotionOnScroll();
+                initDynamicText();
+                initSmoothScroll();
+                initVideoModal();
+                initSensorClickLogic();
+                initWhatsAppPopup();
+            }
 
             // --- VANTA.JS INTERACTIVE BACKGROUND ---
             function initVantaBackground() {
@@ -734,6 +746,8 @@
                     });
                 });
             }
+            
+            initPage();
         });
     </script>
 </body>
