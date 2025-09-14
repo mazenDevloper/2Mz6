@@ -43,13 +43,18 @@ button#back-to-playlists-bottom-button-search {
             background-size: 400% 400%;
             animation: gradient 15s ease infinite; /* Animation duration decreased to 15s */
             transition: background-image 0.5s ease; /* Smooth transition for background changes */
-            font-size: var(--base-font-size, 16px); /* Default font size, controlled by settings */
             min-height: 100vh; /* Ensure body takes full viewport height */
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             overflow: hidden; /* Prevent body scroll */
+        }
+        body.animation-paused {
+            animation-play-state: paused !important;
+        }
+        body.video-playing {
+            animation-duration: 75s !important; /* 80% slower animation */
         }
 .bg-black2 {
     background-image: linear-gradient(45deg, #000000, #6f6f6f39)!important;
@@ -212,7 +217,7 @@ div#\33 d-screen-weather-widget {
         /* Keyframe animation for the background gradient */
         @keyframes gradient {
             0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
+            50% { background-position: 100% 50%; }اوا
             100% { background-position: 0% 50%; }
         }
 
@@ -565,7 +570,7 @@ div#\33 d-screen-weather-widget {
         .reader-container { -ms-overflow-style: auto; scrollbar-width: thin; }
 
 
-        /* YouTube Suggestion Buttons (for Surahs) */
+        /* YouTube Suggestion Buttons (for Surahs) - UPDATED */
         .youtube-suggestion-button {
             color: white;
             padding: 0.5rem 1rem;
@@ -579,7 +584,8 @@ div#\33 d-screen-weather-widget {
             border: 1px solid rgba(255, 255, 255, 0.2);
             display: inline-flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between; /* Changed */
+            gap: 0.5rem; /* Added */
             cursor: pointer;
         }
         .youtube-suggestion-button:hover {
@@ -588,6 +594,22 @@ div#\33 d-screen-weather-widget {
         }
         .youtube-suggestion-button:active {
             transform: translateY(0);
+        }
+
+        /* NEW: Badge for Juz number */
+        .youtube-suggestion-button .juz-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 9999px;
+            background-color: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+            flex-shrink: 0; /* Prevent badge from shrinking */
+            line-height: 1;
         }
 
         /* YouTube Suggestion Category Tag */
@@ -828,7 +850,7 @@ section#screen-Media {
             line-height: 2.5;
             text-align: center;
             direction: rtl;
-            padding: 1rem;
+            padding: 0rem 1rem;
             background-color: rgba(0, 0, 0, 0.2);
             border-radius: 1rem;
             box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
@@ -949,7 +971,7 @@ section#screen-Media {
             }
 
             .app-screen {
-                padding: 1rem;
+                padding: 0rem 1rem;
             }
 
             .dashboard-main-grid {
@@ -1064,7 +1086,7 @@ section#screen-Media {
             }
 
             #screen-Media {
-                padding: 1rem;
+                padding: 0rem 1rem;
             }
 
             .reader-container {
@@ -1079,6 +1101,13 @@ section#screen-Media {
 
             #youtube-surah-section .grid {
                 grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            }
+        }
+        
+        /* NEW: Responsive padding toggle */
+        @media (min-width: 768px) {
+            body.small-padding .md\:p-6 {
+                padding: 0rem 1rem !important;
             }
         }
 
@@ -1452,6 +1481,24 @@ section#screen-Media {
         <span class="minimized-title">...</span>
     </button>
 
+    <!-- NEW: Bottom Left Controls -->
+    <div id="bottom-left-controls" class="fixed bottom-4 left-4 flex flex-row gap-2 z-[100] grid-container">
+        <button id="pause-animation-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="إيقاف/تشغيل الحركة">
+            <i data-lucide="pause" class="w-5 h-5"></i>
+            <i data-lucide="play" class="w-5 h-5 hidden"></i>
+        </button>
+        <button id="zoom-in-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="تكبير">
+            <i data-lucide="zoom-in" class="w-5 h-5"></i>
+        </button>
+        <button id="zoom-out-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="تصغير">
+            <i data-lucide="zoom-out" class="w-5 h-5"></i>
+        </button>
+        <button id="fullscreen-toggle-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="تبديل الحشوة">
+            <i data-lucide="maximize" class="w-5 h-5"></i>
+            <i data-lucide="minimize" class="w-5 h-5 hidden"></i>
+        </button>
+    </div>
+
     <!-- Video Pop-up Container -->
     <div id="video-popup-container">
         <div id="video-popup-player-container"></div>
@@ -1489,6 +1536,10 @@ section#screen-Media {
             isVideoPlayerMinimized: false // NEW state for minimized player
         };
         let googleMapsPromise = null;
+        let currentFontSize = 16; // Base size in pixels
+        const fontSizeStep = 1; // Change by 1px
+        const maxFontSize = 20; // Max size (125%)
+        const minFontSize = 12; // Min size (75%)
 
         // --- Home Locations ---
         // UPDATED: Coordinates for Home 1 and Home 2
@@ -1535,6 +1586,11 @@ section#screen-Media {
         const upload360ImageInput = document.getElementById('upload-360-image-input');
         const upload360ImageButton = document.getElementById('upload-360-image-button');
         const reset360ImageButton = document.getElementById('reset-360-image-button');
+        const carplayMainInterface = document.getElementById('carplay-main-interface');
+        const pauseAnimationButton = document.getElementById('pause-animation-button');
+        const zoomInButton = document.getElementById('zoom-in-button');
+        const zoomOutButton = document.getElementById('zoom-out-button');
+        const fullscreenToggleButton = document.getElementById('fullscreen-toggle-button');
         const default360ImageSrc = "https://dmusera.netlify.app/es350gb.png";
         let currentPlayingPlaylistId = '', activeMediaView = 'suggestions', currentPlayingVideoId = '', selectedReaderName = '', popupPlayer, isYouTubeApiReady = false;
 
@@ -1747,6 +1803,7 @@ section#screen-Media {
         }
         
         function showVideoPopup(videoId, start = 0) {
+            document.body.classList.add('video-playing'); // Stop background animation
             if (!isYouTubeApiReady) return setTimeout(() => showVideoPopup(videoId, start), 100);
             currentPlayingVideoId = videoId;
             videoPopupContainer.style.display = 'flex'; // Ensure it's visible
@@ -1768,6 +1825,7 @@ section#screen-Media {
         }
 
         function hideVideoPopup() {
+            document.body.classList.remove('video-playing'); // Resume background animation
             if (popupPlayer?.stopVideo) popupPlayer.stopVideo();
             videoPopupContainer.classList.remove('active');
             videoPopupContainer.style.display = 'none'; // Also hide with style
@@ -1805,9 +1863,9 @@ section#screen-Media {
             setFocus(videoPopupCloseButton);
         }
 
-        const youtubeReaderSuggestions = [{"name":"محمد ايوب","image":"https://dmusera.netlify.app/512px-Muhammad_Ayyub.webp"},{"name":"فارس عنتر","image":"https://dmusera.netlify.app/faresantar.jpg"},{"name":"علي جابر","image":"https://dmusera.netlify.app/ali-jaber.webp"},{"name":"عبدالله القرافي","image":"https://yt3.googleusercontent.com/mHTg3RIX-a3NAR22lAnOvSq3-U_KBcL_Ax4FTNirc3flsb5OU8RWksKu6X8Ush9JhO0EOxxAwQY=s160-c-k-c0x00ffffff-no-rj"},{"name":"عبد الباسط عبد الصمد","image":"https://dmusera.netlify.app/abdulbaset-abdulsamad.jpeg"},{"name":"مشاري العفاسي","image":"https://dmusera.netlify.app/512px-%D0%9C%D0%B8%D1%88%D0%B0%D1%80%D0%B8_%D0%A0%D0%B0%D1%88%D0%B8%D0%B4.webp"},{"name":"احمد النفيس","image":"https://dmusera.netlify.app/ahmednafes.jpg"},{"name":"ياسر الدوسري","image":"https://dmusera.netlify.app/Yasser_Al-Dosari.jpg"}];
-        const youtubeSurahSuggestions = ["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","جزء عم"];
-        const surahToJuzMap = {"الفاتحة":1,"البقرة":1,"آل عمران":3,"النساء":4,"المائدة":6,"الأنعام":7,"الأعراف":8,"الأنفال":9,"التوبة":10,"يونس":11,"هود":11,"يوسف":12,"الرعد":13,"إبراهيم":13,"الحجر":14,"النحل":14,"الإسراء":15,"الكهف":15,"مريم":16,"طه":16,"الأنبياء":17,"الحج":17,"المؤمنون":18,"النور":18,"الفرقان":18,"الشعراء":19,"النمل":19,"القصص":20,"العنكبوت":20,"الروم":21,"لقمان":21,"السجدة":21,"الأحزاب":21,"سبأ":22,"فاطر":22,"يس":22,"الصافات":23,"ص":23,"الزمر":23,"غافر":24,"فصلت":24,"الشورى":25,"الزخرف":25,"الدخان":25,"الجاثية":25,"الأحقاف":26,"محمد":26,"الفتح":26,"الحجرات":26,"ق":26,"الذاريات":27,"الطور":27,"النجم":27,"القمر":27,"الرحمن":27,"الواقعة":27,"الحديد":27,"المجادلة":28,"الحشر":28,"الممتحنة":28,"الصف":28,"الجمعة":28,"المنافقون":28,"التغابن":28,"الطلاق":28,"التحريم":28,"الملك":29,"القلم":29,"الحاقة":29,"المعارج":29,"نوح":29,"الجن":29,"المزمل":29,"المدثر":29,"القيامة":29,"الإنسان":29,"المرسلات":29,"جزء عم":30};
+        const youtubeReaderSuggestions = [{"name":"محمد ايوب","image":"https://dmusera.netlify.app/512px-Muhammad_Ayyub.webp"},{"name":"فارس عنتر","image":"https://dmusera.netlify.app/faresantar.jpg"},{"name":"علي جابر","image":"https://dmusera.netlify.app/ali-jaber.webp"},{"name":"عبدالله القرافي","image":"https://yt3.googleusercontent.com/mHTg3RIX-a3NAR22lAnOvSq3-U_KBcL_Ax4FTNirc3flsb5OU8RWksKu6X8Ush9JhO0EOxxAwQY=s160-c-k-c0x00ffffff-no-rj"},{"name":"عبد الباسط عبد الصمد","image":"https://dmusera.netlify.app/abdulbaset-abdulsamad.jpeg"},{"name":"مشاري العفاسي","image":"https://dmusera.netlify.app/512px-%D0%9C%D0%B8%D1%88%D0%B0%D1%80%D0%B8_%D0%A0%D0%B0%D1%88%D0%B8%D0%B4.webp"},{"name":"احمد النفيس","image":"https://dmusera.netlify.app/ahmednafes.jpg"},{"name":"ياسر الدوسري","image":"https://dmusera.netlify.app/Yasser_Al-Dosari.jpg"},{"name":"ربط الآيات","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDEzYTUgNSAwIDAgMCA3LjU0LjU0bD MtM2E1IDUgMCAwIDAtNy4wNy03LjA3bC0xLjcyIDEuNzIiLz48cGF0aCBkPSJNMTQgMTFhNSA1IDAgMCAwLTcuNTQtLjU0bC0zIDNhNSA1IDAgMCAwIDcuMDcgNy4wN2wxLjcyLTEuNzIiLz48L3N2Zz4="}];
+        const youtubeSurahSuggestions = ["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس"];
+        const surahToJuzMap = {"الفاتحة":1,"البقرة":1,"آل عمران":3,"النساء":4,"المائدة":6,"الأنعام":7,"الأعراف":8,"الأنفال":9,"التوبة":10,"يونس":11,"هود":11,"يوسف":12,"الرعد":13,"إبراهيم":13,"الحجر":14,"النحل":14,"الإسراء":15,"الكهف":15,"مريم":16,"طه":16,"الأنبياء":17,"الحج":17,"المؤمنون":18,"النور":18,"الفرقان":18,"الشعراء":19,"النمل":19,"القصص":20,"العنكبوت":20,"الروم":21,"لقمان":21,"السجدة":21,"الأحزاب":21,"سبأ":22,"فاطر":22,"يس":22,"الصافات":23,"ص":23,"الزمر":23,"غافر":24,"فصلت":24,"الشورى":25,"الزخرف":25,"الدخان":25,"الجاثية":25,"الأحقاف":26,"محمد":26,"الفتح":26,"الحجرات":26,"ق":26,"الذاريات":27,"الطور":27,"النجم":27,"القمر":27,"الرحمن":27,"الواقعة":27,"الحديد":27,"المجادلة":28,"الحشر":28,"الممتحنة":28,"الصف":28,"الجمعة":28,"المنافقون":28,"التغابن":28,"الطلاق":28,"التحريم":28,"الملك":29,"القلم":29,"الحاقة":29,"المعارج":29,"نوح":29,"الجن":29,"المزمل":29,"المدثر":29,"القيامة":29,"الإنسان":29,"المرسلات":29,"النبأ":30,"النازعات":30,"عبس":30};
         const juzColors =  [
   // 🔵 Blues
   "#2563eb", // Strong Blue
@@ -1860,7 +1918,7 @@ section#screen-Media {
 ];
         function resetYoutubeSearchUI() { youtubeSuggestionsDiv.innerHTML = ''; youtubeSuggestionsDiv.style.display = 'flex'; selectedReaderName = ''; youtubeSearchInput.value = ''; populateYoutubeSuggestions(); }
         function populateYoutubeSuggestions() { youtubeSuggestionsDiv.innerHTML = ''; youtubeSuggestionsDiv.className = 'flex flex-col gap-4 w-full h-full overflow-y-auto'; const readersSection = document.createElement('div'); readersSection.id = 'youtube-readers-section'; readersSection.className = 'flex flex-col gap-2 p-3 rounded-xl glass-surface glass-surface--svg w-full'; readersSection.innerHTML = '<span class="youtube-suggestion-category-tag bg-blue-600" style="line-height: 1.4; padding: 0.5rem 0.8rem;">اختر<br>القارئ</span>'; const readerButtonsContainer = document.createElement('div'); readerButtonsContainer.className = 'reader-container'; youtubeReaderSuggestions.forEach(reader => { const card = document.createElement('div'); card.className = 'youtube-reader-card navigable grid-item'; card.tabIndex = 0; card.innerHTML = `<img src="${reader.image}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';"><h3>${reader.name}</h3>`; card.addEventListener('click', (e) => { document.querySelectorAll('#youtube-readers-section .youtube-reader-card').forEach(c => c.classList.remove('selected')); e.currentTarget.classList.add('selected'); selectedReaderName = reader.name; youtubeSearchInput.value = reader.name + ' '; readersSection.style.display = 'none'; showSurahSuggestions(); setTimeout(() => { const firstSurahButton = document.querySelector('#youtube-surah-section .grid-item'); if (firstSurahButton) setFocus(firstSurahButton); }, 100); }); readerButtonsContainer.appendChild(card); }); readersSection.appendChild(readerButtonsContainer); youtubeSuggestionsDiv.appendChild(readersSection); }
-        function showSurahSuggestions() { const existing = document.getElementById('youtube-surah-section'); if (existing) existing.remove(); const surahSection = document.createElement('div'); surahSection.id = 'youtube-surah-section'; surahSection.className = 'flex flex-col gap-2 p-3 rounded-xl glass-surface glass-surface--svg w-full mt-4 grid-container'; surahSection.innerHTML = '<span class="youtube-suggestion-category-tag bg-green-600">اختر السورة</span>'; const surahButtonsContainer = document.createElement('div'); surahButtonsContainer.className = 'grid grid-cols-9 gap-2 w-full'; youtubeSurahSuggestions.forEach(name => { const button = document.createElement('button'); button.className = 'youtube-suggestion-button navigable grid-item'; button.tabIndex = 0; button.textContent = name; button.style.backgroundColor = juzColors[(surahToJuzMap[name] || 1) - 1]; button.addEventListener('click', () => { const query = selectedReaderName + ' سورة ' + name; youtubeSearchInput.value = query; searchYouTubeVideos(query); }); surahButtonsContainer.appendChild(button); }); surahSection.appendChild(surahButtonsContainer); youtubeSuggestionsDiv.appendChild(surahSection); }
+        function showSurahSuggestions() { const existing = document.getElementById('youtube-surah-section'); if (existing) existing.remove(); const surahSection = document.createElement('div'); surahSection.id = 'youtube-surah-section'; surahSection.className = 'flex flex-col gap-2 p-3 rounded-xl glass-surface glass-surface--svg w-full mt-4 grid-container'; surahSection.innerHTML = '<span class="youtube-suggestion-category-tag bg-green-600">اختر السورة</span>'; const surahButtonsContainer = document.createElement('div'); surahButtonsContainer.className = 'grid grid-cols-9 gap-2 w-full'; youtubeSurahSuggestions.forEach(name => { const button = document.createElement('button'); button.className = 'youtube-suggestion-button navigable grid-item'; button.tabIndex = 0; button.innerHTML = `<span>${name}</span> <span class="juz-badge">${surahToJuzMap[name] || '?'}</span>`; button.style.backgroundColor = juzColors[(surahToJuzMap[name] || 1) - 1]; button.addEventListener('click', () => { const query = selectedReaderName + ' سورة ' + name; youtubeSearchInput.value = query; searchYouTubeVideos(query); }); surahButtonsContainer.appendChild(button); }); surahSection.appendChild(surahButtonsContainer); youtubeSuggestionsDiv.appendChild(surahSection); }
         function navigateBackToMainSearch() { 
             youtubeVideoListView.classList.add('hidden'); 
             youtubeSearchResultsView.classList.add('hidden'); 
@@ -2182,6 +2240,44 @@ section#screen-Media {
         function handleRemoteControlInput(e) {
             const key = e.key.toLowerCase();
             const activeEl = document.activeElement;
+
+            // --- NEW GLOBAL SHORTCUTS for 1 and 2 ---
+            if (key === '1') {
+                e.preventDefault();
+                switchApp('Media');
+                youtubeSearchInput.value = "الكلمات الصعبة في";
+                youtubeSearchInput.readOnly = false;
+                youtubeSearchInput.focus();
+                floatingKeyboardButton.classList.add('active-keyboard');
+                floatingKeyboardButton.classList.remove('inactive-keyboard');
+                return; // Handled
+            }
+
+            if (key === '2') {
+                e.preventDefault();
+                switchApp('Media');
+                selectedReaderName = ""; // No specific reader
+                youtubeSearchInput.value = "";
+                
+                // Ensure suggestions are ready by resetting the view
+                if (youtubeSuggestionsDiv.style.display === 'none' || !document.getElementById('youtube-readers-section')) {
+                    resetYoutubeSearchUI();
+                }
+                
+                // Use timeout to allow the UI to render before manipulating it
+                setTimeout(() => {
+                    const readersSection = document.getElementById('youtube-readers-section');
+                    if (readersSection) {
+                        readersSection.style.display = 'none';
+                    }
+                    showSurahSuggestions();
+                    setTimeout(() => {
+                        const firstSurah = document.querySelector('#youtube-surah-section .grid-item');
+                        if (firstSurah) setFocus(firstSurah);
+                    }, 100);
+                }, 50);
+                return; // Handled
+            }
 
             // --- Priority 1: Video Player is Active ---
             if (videoPopupContainer.classList.contains('active') || appState.isVideoPlayerMinimized) {
@@ -2514,6 +2610,39 @@ section#screen-Media {
             youtubeSearchInput.addEventListener('focus', () => { if (youtubeSearchInput.value.trim() === '') { resetYoutubeSearchUI(); } });
             youtubeSearchButton.addEventListener('click', () => { const query = youtubeSearchInput.value.trim(); if (query) searchYouTubeVideos(query); else showMessageBox('الرجاء إدخال كلمة للبحث.'); });
             
+            // NEW Listeners for Animation and Zoom Controls
+            pauseAnimationButton.addEventListener('click', () => {
+                document.body.classList.toggle('animation-paused');
+                const isPaused = document.body.classList.contains('animation-paused');
+                const playIcon = pauseAnimationButton.querySelector('[data-lucide="play"]');
+                const pauseIcon = pauseAnimationButton.querySelector('[data-lucide="pause"]');
+                playIcon.classList.toggle('hidden', !isPaused);
+                pauseIcon.classList.toggle('hidden', isPaused);
+            });
+
+            fullscreenToggleButton.addEventListener('click', () => {
+                document.body.classList.toggle('small-padding');
+                const isSmall = document.body.classList.contains('small-padding');
+                const maximizeIcon = fullscreenToggleButton.querySelector('[data-lucide="maximize"]');
+                const minimizeIcon = fullscreenToggleButton.querySelector('[data-lucide="minimize"]');
+                maximizeIcon.classList.toggle('hidden', isSmall);
+                minimizeIcon.classList.toggle('hidden', !isSmall);
+            });
+
+            zoomInButton.addEventListener('click', () => {
+                if (currentFontSize < maxFontSize) {
+                    currentFontSize += fontSizeStep;
+                    document.documentElement.style.fontSize = `${currentFontSize}px`;
+                }
+            });
+
+            zoomOutButton.addEventListener('click', () => {
+                if (currentFontSize > minFontSize) {
+                    currentFontSize -= fontSizeStep;
+                    document.documentElement.style.fontSize = `${currentFontSize}px`;
+                }
+            });
+
             // Initial Calls
             setupSwipeNavigation();
             loadGoogleMaps().then(initMap);
