@@ -573,20 +573,20 @@ div#\33 d-screen-weather-widget {
         /* YouTube Suggestion Buttons (for Surahs) - UPDATED */
         .youtube-suggestion-button {
             color: white;
-            padding: 0.5rem 1rem;
+            padding: 0.25rem 0.75rem; /* Zoomed out padding */
             border-radius: 9999px;
-            font-size: 0.85rem;
+            font-size: 0.75rem; /* Zoomed out font */
             font-weight: bold;
             transition: background-color 0.2s ease, transform 0.1s ease;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
             border: 1px solid rgba(255, 255, 255, 0.2);
+            /* NEW: Switched to inline-flex for variable width */
             display: inline-flex;
+            width: auto;
             align-items: center;
-            justify-content: space-between; /* Changed */
-            gap: 0.5rem; /* Added */
+            gap: 0.5rem;
             cursor: pointer;
+            position: relative;
+            overflow: hidden; /* Keep overflow hidden on the button itself */
         }
         .youtube-suggestion-button:hover {
             transform: translateY(-1px) scale(1.02);
@@ -594,6 +594,14 @@ div#\33 d-screen-weather-widget {
         }
         .youtube-suggestion-button:active {
             transform: translateY(0);
+        }
+        
+        /* NEW: Style for the Surah name text to handle long names */
+        .surah-name-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: right; /* Align text to the right for RTL */
         }
 
         /* NEW: Badge for Juz number */
@@ -610,6 +618,8 @@ div#\33 d-screen-weather-widget {
             font-weight: bold;
             flex-shrink: 0; /* Prevent badge from shrinking */
             line-height: 1;
+            position: relative; /* Allow z-index */
+            z-index: 2; /* Ensure it's on top */
         }
 
         /* YouTube Suggestion Category Tag */
@@ -1234,6 +1244,12 @@ section#screen-Media {
                         <!-- Map Widget (Now first) -->
                         <div class="rounded-3xl relative overflow-hidden flex items-center justify-center glass-surface glass-surface--svg p-1 col-span-1 row-start-1 navigable grid-item" tabindex="0">
                             <div id="dashboard-google-map" class="full-iframe"></div>
+                             <!-- NEW: Geolocation Error Overlay -->
+                             <div id="geolocation-error-overlay" class="hidden absolute top-0 left-0 w-full h-full bg-black/70 text-white flex-col items-center justify-center text-center p-4 z-10 rounded-3xl">
+                                <i data-lucide="map-pin-off" class="w-12 h-12 text-red-500 mb-4"></i>
+                                <h3 class="font-bold text-lg mb-2">خدمة تحديد المواقع معطلة</h3>
+                                <p class="text-sm text-white/80">يرجى تمكين أذونات الموقع في إعدادات المتصفح لهذا الموقع للاستفادة من ميزات الخريطة.</p>
+                            </div>
                             <div class="absolute bottom-4 left-4 flex gap-2">
                                 <button id="get-my-location-button-dashboard" class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center text-sm navigable grid-item" tabindex="0" title="تحديث الموقع">
                                     <i data-lucide="map-pin" class="w-5 h-5"></i>
@@ -1817,7 +1833,12 @@ section#screen-Media {
                 videoPopupPlayerContainer.innerHTML = '<div id="video-popup-player"></div>';
                 popupPlayer = new YT.Player('video-popup-player', {
                     height: '100%', width: '100%', videoId,
-                    playerVars: { 'autoplay': 1, 'controls': 1, 'start': start },
+                    playerVars: { 
+                        'autoplay': 1, 
+                        'controls': 1, 
+                        'start': start,
+                        'origin': 'https://dmusera.netlify.app'
+                    },
                     events: { 'onReady': (e) => e.target.playVideo() }
                 });
             }
@@ -1918,7 +1939,7 @@ section#screen-Media {
 ];
         function resetYoutubeSearchUI() { youtubeSuggestionsDiv.innerHTML = ''; youtubeSuggestionsDiv.style.display = 'flex'; selectedReaderName = ''; youtubeSearchInput.value = ''; populateYoutubeSuggestions(); }
         function populateYoutubeSuggestions() { youtubeSuggestionsDiv.innerHTML = ''; youtubeSuggestionsDiv.className = 'flex flex-col gap-4 w-full h-full overflow-y-auto'; const readersSection = document.createElement('div'); readersSection.id = 'youtube-readers-section'; readersSection.className = 'flex flex-col gap-2 p-3 rounded-xl glass-surface glass-surface--svg w-full'; readersSection.innerHTML = '<span class="youtube-suggestion-category-tag bg-blue-600" style="line-height: 1.4; padding: 0.5rem 0.8rem;">اختر<br>القارئ</span>'; const readerButtonsContainer = document.createElement('div'); readerButtonsContainer.className = 'reader-container'; youtubeReaderSuggestions.forEach(reader => { const card = document.createElement('div'); card.className = 'youtube-reader-card navigable grid-item'; card.tabIndex = 0; card.innerHTML = `<img src="${reader.image}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';"><h3>${reader.name}</h3>`; card.addEventListener('click', (e) => { document.querySelectorAll('#youtube-readers-section .youtube-reader-card').forEach(c => c.classList.remove('selected')); e.currentTarget.classList.add('selected'); selectedReaderName = reader.name; youtubeSearchInput.value = reader.name + ' '; readersSection.style.display = 'none'; showSurahSuggestions(); setTimeout(() => { const firstSurahButton = document.querySelector('#youtube-surah-section .grid-item'); if (firstSurahButton) setFocus(firstSurahButton); }, 100); }); readerButtonsContainer.appendChild(card); }); readersSection.appendChild(readerButtonsContainer); youtubeSuggestionsDiv.appendChild(readersSection); }
-        function showSurahSuggestions() { const existing = document.getElementById('youtube-surah-section'); if (existing) existing.remove(); const surahSection = document.createElement('div'); surahSection.id = 'youtube-surah-section'; surahSection.className = 'flex flex-col gap-2 p-3 rounded-xl glass-surface glass-surface--svg w-full mt-4 grid-container'; surahSection.innerHTML = '<span class="youtube-suggestion-category-tag bg-green-600">اختر السورة</span>'; const surahButtonsContainer = document.createElement('div'); surahButtonsContainer.className = 'grid grid-cols-9 gap-2 w-full'; youtubeSurahSuggestions.forEach(name => { const button = document.createElement('button'); button.className = 'youtube-suggestion-button navigable grid-item'; button.tabIndex = 0; button.innerHTML = `<span>${name}</span> <span class="juz-badge">${surahToJuzMap[name] || '?'}</span>`; button.style.backgroundColor = juzColors[(surahToJuzMap[name] || 1) - 1]; button.addEventListener('click', () => { const query = selectedReaderName + ' سورة ' + name; youtubeSearchInput.value = query; searchYouTubeVideos(query); }); surahButtonsContainer.appendChild(button); }); surahSection.appendChild(surahButtonsContainer); youtubeSuggestionsDiv.appendChild(surahSection); }
+        function showSurahSuggestions() { const existing = document.getElementById('youtube-surah-section'); if (existing) existing.remove(); const surahSection = document.createElement('div'); surahSection.id = 'youtube-surah-section'; surahSection.className = 'flex flex-col gap-2 p-3 rounded-xl glass-surface glass-surface--svg w-full mt-4 grid-container'; surahSection.innerHTML = '<span class="youtube-suggestion-category-tag bg-green-600">اختر السورة</span>'; const surahButtonsContainer = document.createElement('div'); surahButtonsContainer.className = 'flex flex-wrap justify-center gap-2 w-full'; youtubeSurahSuggestions.forEach(name => { const button = document.createElement('button'); button.className = 'youtube-suggestion-button navigable grid-item'; button.tabIndex = 0; button.innerHTML = `<span class="surah-name-text">${name}</span> <span class="juz-badge">${surahToJuzMap[name] || '?'}</span>`; button.style.backgroundColor = juzColors[(surahToJuzMap[name] || 1) - 1]; button.addEventListener('click', () => { const query = selectedReaderName + ' سورة ' + name; youtubeSearchInput.value = query; searchYouTubeVideos(query); }); surahButtonsContainer.appendChild(button); }); surahSection.appendChild(surahButtonsContainer); youtubeSuggestionsDiv.appendChild(surahSection); }
         function navigateBackToMainSearch() { 
             youtubeVideoListView.classList.add('hidden'); 
             youtubeSearchResultsView.classList.add('hidden'); 
@@ -1933,6 +1954,25 @@ section#screen-Media {
 
         // --- Google Map and Geolocation (REFACTORED FOR RELIABILITY) ---
         let mapsInitialized = false;
+        
+        function showGeolocationErrorOnMap(message) {
+            const overlay = document.getElementById('geolocation-error-overlay');
+            const mapControls = document.querySelector('#dashboard-google-map ~ .absolute'); 
+
+            if (overlay) {
+                overlay.classList.remove('hidden');
+                overlay.classList.add('flex');
+                if (message) {
+                    const p = overlay.querySelector('p');
+                    if (p) p.textContent = message;
+                }
+                lucide.createIcons();
+            }
+            if (mapControls) {
+                mapControls.style.display = 'none';
+            }
+        }
+
 
         function loadGoogleMaps() {
             if (googleMapsPromise) {
@@ -1979,7 +2019,7 @@ section#screen-Media {
                 startContinuousLocationTracking();
             } catch (error) {
                 console.error("Failed to initialize map due to API load error:", error);
-                showMessageBox("تعذر تحميل خرائط جوجل. يرجى التحقق من اتصالك بالإنترنت.");
+                showGeolocationErrorOnMap("تعذر تحميل خرائط جوجل. يرجى التحقق من اتصالك بالإنترنت ومفتاح API.");
             }
         }
 
@@ -2038,8 +2078,47 @@ section#screen-Media {
                 if (dashboardGoogleMap) dashboardGoogleMap.setHeading(heading);
             }
         }
-        function startContinuousLocationTracking() { if (navigator.geolocation) { watchId = navigator.geolocation.watchPosition((pos) => { updateGoogleMapLocation(pos); appState.hasShownGeolocationError = false; }, (err) => { if (!appState.hasShownGeolocationError) { let msg = 'تعذر تتبع موقعك. يرجى التحقق من أذونات الموقع.'; if (err.code === 1) msg += ' إذا كان التطبيق في iframe، تأكد من وجود `allow="geolocation"`.'; showMessageBox(msg); appState.hasShownGeolocationError = true; } }, { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }); } else { showMessageBox('الموقع الجغرافي غير مدعوم.'); } }
-        function centerMapOnUserLocation() { if (navigator.geolocation) { navigator.geolocation.getCurrentPosition((pos) => { updateGoogleMapLocation(pos); showMessageBox(`تم تحديث الخريطة.`); }, () => showMessageBox('تعذر الحصول على موقعك الحالي.'), { enableHighAccuracy: true }); } }
+        function startContinuousLocationTracking() {
+            if (navigator.geolocation) {
+                watchId = navigator.geolocation.watchPosition(
+                    (pos) => { 
+                        const overlay = document.getElementById('geolocation-error-overlay');
+                        if (overlay) overlay.classList.add('hidden');
+                        const mapControls = document.querySelector('#dashboard-google-map ~ .absolute');
+                        if (mapControls) mapControls.style.display = 'flex';
+                        
+                        updateGoogleMapLocation(pos); 
+                        appState.hasShownGeolocationError = false; 
+                    }, 
+                    (err) => { 
+                        if (err.code === 1) { // PERMISSION_DENIED
+                            showGeolocationErrorOnMap('تم رفض إذن تحديد الموقع. يرجى تمكينه في إعدادات المتصفح.');
+                        } else if (!appState.hasShownGeolocationError) {
+                            let msg = 'تعذر تتبع موقعك. يرجى التحقق من أذونات الموقع.';
+                            showMessageBox(msg); 
+                            appState.hasShownGeolocationError = true; 
+                        }
+                    }, 
+                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+                );
+            } else {
+                showGeolocationErrorOnMap('خدمة تحديد المواقع غير مدعومة في هذا المتصفح.');
+            }
+        }
+        function centerMapOnUserLocation() { 
+            if (navigator.geolocation) { 
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => { 
+                        updateGoogleMapLocation(pos); 
+                        showMessageBox(`تم تحديث الخريطة.`); 
+                    }, 
+                    () => {
+                        showGeolocationErrorOnMap('تعذر الحصول على موقعك الحالي. يرجى التحقق من الأذونات.');
+                    }, 
+                    { enableHighAccuracy: true }
+                ); 
+            } 
+        }
         
         async function calculateAndDisplayRouteTo(destinationCoords) {
             if (!appState.currentLocation) {
@@ -2090,32 +2169,7 @@ section#screen-Media {
         // --- Prayer Times Integration ---
         const prayerTimes = [
             
-         {"date":"2025-08-21","fajr":"04:54","sunrise":"06:08","dhuhr":"12:32","asr":"15:47","maghrib":"18:51","isha":"20:00"},
-            {"date":"2025-08-22","fajr":"04:54","sunrise":"06:08","dhuhr":"12:32","asr":"15:47","maghrib":"18:50","isha":"19:59"},
-            {"date":"2025-08-23","fajr":"04:54","sunrise":"06:09","dhuhr":"12:31","asr":"15:47","maghrib":"18:49","isha":"19:59"},
-            {"date":"2025-08-24","fajr":"04:54","sunrise":"06:09","dhuhr":"12:31","asr":"15:47","maghrib":"18:48","isha":"19:58"},
-            {"date":"2025-08-25","fajr":"04:55","sunrise":"06:09","dhuhr":"12:31","asr":"15:47","maghrib":"18:48","isha":"19:57"},
-            {"date":"2025-08-26","fajr":"04:55","sunrise":"06:09","dhuhr":"12:31","asr":"15:47","maghrib":"18:47","isha":"19:56"},
-            {"date":"2025-08-27","fajr":"04:55","sunrise":"06:09","dhuhr":"12:30","asr":"15:47","maghrib":"18:46","isha":"19:55"},
-            {"date":"2025-08-28","fajr":"04:56","sunrise":"06:09","dhuhr":"12:30","asr":"15:47","maghrib":"18:46","isha":"19:54"},
-            {"date":"2025-08-29","fajr":"04:56","sunrise":"06:10","dhuhr":"12:30","asr":"15:47","maghrib":"18:45","isha":"19:54"},
-            {"date":"2025-08-30","fajr":"04:56","sunrise":"06:10","dhuhr":"12:29","asr":"15:47","maghrib":"18:44","isha":"19:53"},
-            {"date":"2025-08-31","fajr":"04:56","sunrise":"06:10","dhuhr":"12:29","asr":"15:47","maghrib":"18:43","isha":"19:52"},
-            {"date":"2025-09-01","fajr":"04:57","sunrise":"06:10","dhuhr":"12:29","asr":"15:47","maghrib":"18:42","isha":"19:51"},
-            {"date":"2025-09-02","fajr":"04:57","sunrise":"06:10","dhuhr":"12:28","asr":"15:47","maghrib":"18:42","isha":"19:50"},
-            {"date":"2025-09-03","fajr":"04:57","sunrise":"06:10","dhuhr":"12:28","asr":"15:47","maghrib":"18:41","isha":"19:49"},
-            {"date":"2025-09-04","fajr":"04:57","sunrise":"06:10","dhuhr":"12:28","asr":"15:47","maghrib":"18:40","isha":"19:48"},
-            {"date":"2025-09-05","fajr":"04:58","sunrise":"06:11","dhuhr":"12:27","asr":"15:47","maghrib":"18:39","isha":"19:47"},
-            {"date":"2025-09-06","fajr":"04:58","sunrise":"06:11","dhuhr":"12:27","asr":"15:47","maghrib":"18:39","isha":"19:46"},
-            {"date":"2025-09-07","fajr":"04:58","sunrise":"06:11","dhuhr":"12:27","asr":"15:47","maghrib":"18:38","isha":"19:46"},
-            {"date":"2025-09-08","fajr":"04:58","sunrise":"06:11","dhuhr":"12:26","asr":"15:47","maghrib":"18:37","isha":"19:45"},
-            {"date":"2025-09-09","fajr":"04:58","sunrise":"06:11","dhuhr":"12:26","asr":"15:46","maghrib":"18:36","isha":"19:44"},
-            {"date":"2025-09-10","fajr":"04:59","sunrise":"06:11","dhuhr":"12:26","asr":"15:46","maghrib":"18:35","isha":"19:43"},
-            {"date":"2025-09-11","fajr":"04:59","sunrise":"06:11","dhuhr":"12:25","asr":"15:46","maghrib":"18:34","isha":"19:42"},
-            {"date":"2025-09-12","fajr":"04:59","sunrise":"06:11","dhuhr":"12:25","asr":"15:46","maghrib":"18:34","isha":"19:41"},
-            {"date":"2025-09-13","fajr":"04:59","sunrise":"06:12","dhuhr":"12:25","asr":"15:46","maghrib":"18:33","isha":"19:40"},
-            {"date":"2025-09-14","fajr":"04:59","sunrise":"06:12","dhuhr":"12:24","asr":"15:46","maghrib":"18:32","isha":"19:39"},
-            {"date":"2025-09-15","fajr":"05:00","sunrise":"06:12","dhuhr":"12:24","asr":"15:45","maghrib":"18:31","isha":"19:38"},
+                    {"date":"2025-09-15","fajr":"05:00","sunrise":"06:12","dhuhr":"12:24","asr":"15:45","maghrib":"18:31","isha":"19:38"},
             {"date":"2025-09-16","fajr":"05:00","sunrise":"06:12","dhuhr":"12:24","asr":"15:45","maghrib":"18:30","isha":"19:38"},
             {"date":"2025-09-17","fajr":"05:00","sunrise":"06:12","dhuhr":"12:23","asr":"15:45","maghrib":"18:29","isha":"19:37"},
             {"date":"2025-09-18","fajr":"05:00","sunrise":"06:12","dhuhr":"12:23","asr":"15:45","maghrib":"18:29","isha":"19:36"},
@@ -2661,4 +2715,5 @@ section#screen-Media {
     </script>
 </body> 
 </html>
+
 
