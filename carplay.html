@@ -2489,11 +2489,11 @@ div#bottom-left-controls {
             container.innerHTML = '<p class="text-white/70 col-span-full text-center">جاري تحميل درجات الحرارة...</p>';
 
             const locations = [
-                { name: 'الموقع الحالي', query: appState.currentLocation ? `${appState.currentLocation.lat},${appState.currentLocation.lng}` : 'Salalah', isCurrent: true },
+                { name: 'الموقع الحالي', query: appState.currentLocation ? `${appState.currentLocation.lat},${appState.currentLocation.lng}` : '17.0151,54.0924', isCurrent: true },
                 { name: 'سهل اتين', query: '17.08,54.02' },
-                { name: 'طاقة', query: 'Taqah' },
-                { name: 'مرباط', query: 'Mirbat' },
-                { name: 'السعادة', query: '17.05,54.14' }
+                { name: 'طاقة', query: '17.039,54.395' },
+                { name: 'مرباط', query: '16.99,54.69' },
+                { name: 'شاطئ الحافة', query: '16.995,54.088' }
             ];
 
             const promises = locations.map(loc =>
@@ -2554,9 +2554,9 @@ div#bottom-left-controls {
                 card.className = 'glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center navigable grid-item';
                 card.tabIndex = 0;
                 card.innerHTML = `
-                    <img src="${result.icon || 'https://placehold.co/48x48/000000/FFFFFF?text=X'}" alt="weather" class="w-16 h-16 mb-2">
+                    <img src="${result.icon || 'https://placehold.co/48x48/000000/FFFFFF?text=X'}" alt="weather" class="w-14 h-14 mb-2">
                     <span class="text-3xl font-bold">${result.temp === 'N/A' ? '--' : result.temp.toFixed(1) + '°C'}</span>
-                    <span class="text-lg text-white/80">${result.desc || ''}</span>
+                    <span class="text-sm text-cyan-300 font-semibold">${result.humidity || '--'}% رطوبة</span>
                     <span class="text-sm text-white/80 mt-1 font-bold">${result.name}</span>
                 `;
                 smallCardsContainer.appendChild(card);
@@ -3152,5 +3152,6 @@ div#bottom-left-controls {
     </script>
 </body> 
 </html>
+
 
 
