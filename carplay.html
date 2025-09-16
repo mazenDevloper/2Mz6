@@ -57,6 +57,11 @@ button#back-to-playlists-bottom-button-search {
             justify-content: center;
             overflow: hidden; /* Prevent body scroll */
         }
+        
+div#hourly-forecast-container {
+    min-height: 93px;
+}
+
         body.animation-paused {
             animation-play-state: paused !important;
         }
@@ -1160,7 +1165,7 @@ section#screen-Media {
                 flex-grow: 1;
             }
 section#screen-Weather {
-    zoom: 0.75;
+    zoom: 0.6;
 }
             #screen-Media {
                 padding: 0rem 1rem;
@@ -1450,7 +1455,7 @@ div#bottom-left-controls {
 
                 <!-- 3D Screen (Formerly Map Screen) -->
                 <section id="screen-Map" class="app-screen p-4 md:p-6 flex-col h-full items-center justify-center relative">
-                    <div class="w-full h-full bg-black2 rounded-3xl flex items-center justify-center p-1 overflow-hidden">
+                    <div class="w-full h-full bg-black2 rounded-3xl flex items-center justify-center p-1 overflow:hidden">
                         <iframe title="LEXSUS ES" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share WIDTH="80%" HEIGHT="80%" src="https://sketchfab.com/models/17ed331fd31f491fa3907156f0b0b55e/embed?autostart=1&preload=1&annotations_visible=0&annotation=0&annotation_cycle=6&transparent=1&ui_theme=dark"> </iframe>
                     </div>
                     <!-- Right side widget -->
@@ -2023,6 +2028,9 @@ div#bottom-left-controls {
             if (selection === "الكلمات الصعبة في") {
                 selectedReaderName = ''; // Clear reader name
                 youtubeSearchInput.value = 'الكلمات الصعبة في ';
+            } else if (selection === "JUST_SURAH") {
+                selectedReaderName = ''; 
+                youtubeSearchInput.value = '';
             } else {
                 selectedReaderName = selection;
                 youtubeSearchInput.value = selection + ' ';
@@ -2127,13 +2135,7 @@ div#bottom-left-controls {
             surahCard.className = 'youtube-reader-card navigable grid-item';
             surahCard.tabIndex = 0;
             surahCard.innerHTML = `<div class="w-[100px] h-[100px] rounded-full mb-4 border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="book-open" class="w-12 h-12"></i></div><h3>السورة</h3>`;
-            surahCard.addEventListener('click', () => {
-                youtubeSearchInput.value = ' '; // Just add a space
-                youtubeSearchInput.readOnly = false; // Make input editable
-                youtubeSearchInput.focus();
-                floatingKeyboardButton.classList.add('active-keyboard');
-                floatingKeyboardButton.classList.remove('inactive-keyboard');
-            });
+            surahCard.addEventListener('click', () => handleReaderOrToolClick("JUST_SURAH", tabContainer, tabsContentContainer));
             toolsButtonsContainer.appendChild(surahCard);
 
 
@@ -2186,8 +2188,12 @@ div#bottom-left-controls {
                 button.style.backgroundColor = juzColors[(surahToJuzMap[name] || 1) - 1];
                 button.addEventListener('click', () => {
                     let query = '';
+                    const currentInput = youtubeSearchInput.value.trim();
+
                     if (youtubeSearchInput.value.startsWith('الكلمات الصعبة في')) {
                         query = 'الكلمات الصعبة في سورة ' + name;
+                    } else if (currentInput === '') {
+                        query = name;
                     } else {
                         query = selectedReaderName + ' سورة ' + name;
                     }
@@ -3146,11 +3152,5 @@ div#bottom-left-controls {
     </script>
 </body> 
 </html>
-
-
-
-
-
-
 
 
