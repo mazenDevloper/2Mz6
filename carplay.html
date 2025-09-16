@@ -29,10 +29,6 @@ div#geolocation-error-overlay {
     display: none !important;
 }
 
-section#screen-Weather {
-    zoom: 0.8;
-}
-
  .flex.flex-wrap.justify-center.gap-2.w-full {zoom: 0.85;}
 
  .tabs-container.flex.p-1.rounded-full.bg-black\/20.self-center {
@@ -949,6 +945,14 @@ section#screen-Media {
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
         }
 
+        /* NEW: Weather Screen Scroll Override */
+        #screen-Weather {
+            overflow-y: auto !important; /* Force scrolling */
+        }
+        #screen-Weather::-webkit-scrollbar { width: 6px; }
+        #screen-Weather::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
+        #screen-Weather::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.4); border-radius: 10px; }
+
         /* Weather section content to take full width and height */
         #screen-Weather > div {
             width: 100%;
@@ -1155,7 +1159,9 @@ section#screen-Media {
             .flex.flex-col.gap-4.md\:gap-6.col-span-1.row-start-1.grid-container > div {
                 flex-grow: 1;
             }
-
+section#screen-Weather {
+    zoom: 0.75;
+}
             #screen-Media {
                 padding: 0rem 1rem;
             }
@@ -2115,6 +2121,20 @@ div#bottom-left-controls {
             saveCard.innerHTML = `<div class="w-[100px] h-[100px] rounded-full mb-4 border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="save" class="w-12 h-12"></i></div><h3>حفظ</h3>`;
             saveCard.addEventListener('click', () => handleReaderOrToolClick("حفظ", tabContainer, tabsContentContainer));
             toolsButtonsContainer.appendChild(saveCard);
+
+            // NEW: Add "السورة" button to add a space
+            const surahCard = document.createElement('div');
+            surahCard.className = 'youtube-reader-card navigable grid-item';
+            surahCard.tabIndex = 0;
+            surahCard.innerHTML = `<div class="w-[100px] h-[100px] rounded-full mb-4 border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="book-open" class="w-12 h-12"></i></div><h3>السورة</h3>`;
+            surahCard.addEventListener('click', () => {
+                youtubeSearchInput.value = ' '; // Just add a space
+                youtubeSearchInput.readOnly = false; // Make input editable
+                youtubeSearchInput.focus();
+                floatingKeyboardButton.classList.add('active-keyboard');
+                floatingKeyboardButton.classList.remove('inactive-keyboard');
+            });
+            toolsButtonsContainer.appendChild(surahCard);
 
 
             // 4. Tab Switching Logic
@@ -3126,6 +3146,7 @@ div#bottom-left-controls {
     </script>
 </body> 
 </html>
+
 
 
 
