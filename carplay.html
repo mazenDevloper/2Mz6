@@ -483,11 +483,42 @@ div#\33 d-screen-weather-widget {
             width: 180px;  /* INCREASED */
             height: 101.25px; /* INCREASED (16:9 ratio) */
             flex-shrink: 0;
+            overflow: hidden; /* Important for progress bar */
         }
 
         .glass-surface.glass-surface--svg.p-4.rounded-3xl.text-center.flex.flex-col.items-center.justify-center.navigable.grid-item {
     height: 169px;
 }
+        /* NEW: Styles for Watched Progress Bar */
+        .watched-progress-bar-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        .watched-progress-bar {
+            height: 100%;
+            background-color: #ef4444; /* Red color */
+            border-radius: 0 2px 2px 0;
+        }
+
+        /* NEW: Style for Watched Badge */
+        .watched-badge {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
 
         .youtube-video-card img {
             width: 100%;
@@ -1676,11 +1707,45 @@ div#bottom-left-controls {
         const zoomOutButton = document.getElementById('zoom-out-button');
         const fullscreenToggleButton = document.getElementById('fullscreen-toggle-button');
         const default360ImageSrc = "https://dmusera.netlify.app/es350gb.png";
-        let currentPlayingPlaylistId = '', activeMediaView = 'suggestions', currentPlayingVideoId = '', selectedReaderName = '', popupPlayer, isYouTubeApiReady = false, searchMode = 'reciter_surah';
+        let currentPlayingPlaylistId = '', activeMediaView = 'suggestions', currentPlayingVideoId = '', selectedReaderName = '', popupPlayer, isYouTubeApiReady = false, searchMode = 'reciter_surah', progressInterval = null;
         let initialLocationFetched = false;
 
         // --- Utility Functions ---
         function showMessageBox(message) { const box = document.createElement('div'); box.style.cssText = `position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(0, 0, 0, 0.8); color: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); z-index: 1000; text-align: center; max-width: 80%; font-size: 1.1rem;`; box.innerHTML = `<p>${message}</p><button style="margin-top: 15px; padding: 8px 15px; background-color: #9333ea; border: none; border-radius: 5px; color: white; cursor: pointer;">إغلاق</button>`; document.body.appendChild(box); box.querySelector('button').addEventListener('click', () => document.body.removeChild(box)); }
+        
+        // --- NEW: Watched History Helpers ---
+        function getWatchedHistory() {
+            return JSON.parse(localStorage.getItem('youtubeWatchedHistory')) || {};
+        }
+
+        function updateVideoProgress(videoId, currentTime, duration) {
+            if (!videoId || !duration) return;
+            const history = getWatchedHistory();
+            history[videoId] = { progress: currentTime, duration: duration };
+            localStorage.setItem('youtubeWatchedHistory', JSON.stringify(history));
+        }
+
+        function markVideoAsWatched(videoId) {
+            if (!videoId) return;
+            const history = getWatchedHistory();
+            // Using a special value to indicate fully watched
+            history[videoId] = { progress: -1, duration: 1 };
+            localStorage.setItem('youtubeWatchedHistory', JSON.stringify(history));
+            // Also update the card in the UI if it's visible
+            const card = document.querySelector(`.youtube-video-card[data-video-id="${videoId}"]`);
+            if(card) {
+                // Remove progress bar if it exists
+                const progressBar = card.querySelector('.watched-progress-bar-container');
+                if(progressBar) progressBar.remove();
+                // Add watched badge if it doesn't exist
+                if(!card.querySelector('.watched-badge')) {
+                    const badge = document.createElement('div');
+                    badge.className = 'watched-badge';
+                    badge.textContent = 'تمت المشاهدة';
+                    card.querySelector('.thumbnail-container').appendChild(badge);
+                }
+            }
+        }
         
         function updateUI() { 
             document.getElementById('dashboard-weather-temp').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature.toFixed(1)}°C` : '--°C'; 
@@ -1779,8 +1844,22 @@ div#bottom-left-controls {
             card.className = 'glass-surface glass-surface--svg youtube-video-card navigable grid-item';
             card.tabIndex = 0;
             card.dataset.videoId = video.id;
+
+            // Get watched history for this video
+            const history = getWatchedHistory();
+            const watchedInfo = history[video.id];
+            let progressHTML = '';
+
+            if (watchedInfo) {
+                if (watchedInfo.progress === -1) { // Fully watched
+                    progressHTML = `<div class="watched-badge">تمت المشاهدة</div>`;
+                } else if (watchedInfo.progress > 0 && watchedInfo.duration > 0) {
+                    const progressPercent = (watchedInfo.progress / watchedInfo.duration) * 100;
+                    progressHTML = `<div class="watched-progress-bar-container"><div class="watched-progress-bar" style="width: ${progressPercent}%"></div></div>`;
+                }
+            }
+
             card.innerHTML = `
-                
                 <div class="video-details">
                     <h3 class="video-title">${video.title}</h3>
                     <div class="video-meta">
@@ -1791,6 +1870,7 @@ div#bottom-left-controls {
                 <div class="thumbnail-container">
                     <img src="${video.thumbnail}" alt="${video.title}" class="w-[100px] h-[56.25px] object-cover rounded-md ml-4 flex-shrink-0" onerror="this.onerror=null;this.src='https://placehold.co/100x56';">
                     <span class="video-duration">${video.duration}</span>
+                    ${progressHTML}
                 </div>
             `;
             card.addEventListener('click', () => showVideoPopup(video.id));
@@ -1911,6 +1991,7 @@ div#bottom-left-controls {
         }
 
         function hideVideoPopup() {
+            if (progressInterval) clearInterval(progressInterval); // Stop tracking progress
             document.body.classList.remove('video-playing'); // Resume background animation
             if (popupPlayer?.stopVideo) popupPlayer.stopVideo();
             videoPopupContainer.classList.remove('active');
@@ -1954,8 +2035,26 @@ div#bottom-left-controls {
                 // When video starts playing, set initial quality
                 const isFullScreen = document.fullscreenElement === popupPlayer.getIframe() || document.webkitFullscreenElement === popupPlayer.getIframe();
                 const quality = isFullScreen ? 'hd720' : 'large'; // large = 480p
-                popupPlayer.setPlaybackQuality(quality);
+            popupPlayer.setPlaybackQuality(quality);
+
+            // Start tracking progress
+            progressInterval = setInterval(() => {
+                const videoId = popupPlayer.getVideoData().video_id;
+                const currentTime = popupPlayer.getCurrentTime();
+                const duration = popupPlayer.getDuration();
+                updateVideoProgress(videoId, currentTime, duration);
+            }, 5000); // Save progress every 5 seconds
+
+        } else if (event.data == YT.PlayerState.ENDED) {
+            if (progressInterval) clearInterval(progressInterval);
+            const videoId = popupPlayer.getVideoData().video_id;
+            markVideoAsWatched(videoId);
+        } else {
+             if (progressInterval) {
+                clearInterval(progressInterval);
+                progressInterval = null;
             }
+        }
         }
 
         function handleFullScreenChange() {
@@ -2134,8 +2233,8 @@ div#bottom-left-controls {
             const saveCard = document.createElement('div');
             saveCard.className = 'youtube-reader-card navigable grid-item';
             saveCard.tabIndex = 0;
-            saveCard.innerHTML = `<div class="w-[100px] h-[100px] rounded-full mb-4 border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="save" class="w-12 h-12"></i></div><h3>حفظ</h3>`;
-            saveCard.addEventListener('click', () => handleReaderOrToolClick("حفظ", tabContainer, tabsContentContainer));
+            saveCard.innerHTML = `<div class="w-[100px] h-[100px] rounded-full mb-4 border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="save" class="w-12 h-12"></i></div><h3>حدر</h3>`;
+            saveCard.addEventListener('click', () => handleReaderOrToolClick("تكرار حدر", tabContainer, tabsContentContainer));
             toolsButtonsContainer.appendChild(saveCard);
 
             // NEW: Add "السورة" button to add a space
@@ -3174,6 +3273,7 @@ div#bottom-left-controls {
     </script>
 </body> 
 </html>
+
 
 
 
