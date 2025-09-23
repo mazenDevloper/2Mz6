@@ -23,13 +23,20 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- YouTube Iframe API -->
     <script src="https://www.youtube.com/iframe_api"></script>
-    <script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/sw.js");
-}
-</script>
     <style>
-        
+
+div#geolocation-error-overlay {
+    display: none !important;
+}
+
+ .flex.flex-wrap.justify-center.gap-2.w-full {zoom: 0.85;}
+
+ .tabs-container.flex.p-1.rounded-full.bg-black\/20.self-center {
+    bottom: 51px;
+    left: 99px;
+    position: fixed;
+}
+
 button#back-to-playlists-bottom-button-search {
     position: sticky;
     justify-self: anchor-center;
@@ -43,13 +50,23 @@ button#back-to-playlists-bottom-button-search {
             background-size: 400% 400%;
             animation: gradient 15s ease infinite; /* Animation duration decreased to 15s */
             transition: background-image 0.5s ease; /* Smooth transition for background changes */
-            font-size: var(--base-font-size, 16px); /* Default font size, controlled by settings */
             min-height: 100vh; /* Ensure body takes full viewport height */
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             overflow: hidden; /* Prevent body scroll */
+        }
+        
+div#hourly-forecast-container {
+    min-height: 93px;
+}
+
+        body.animation-paused {
+            animation-play-state: paused !important;
+        }
+        body.video-playing {
+            animation-duration: 75s !important; /* 80% slower animation */
         }
 .bg-black2 {
     background-image: linear-gradient(45deg, #000000, #6f6f6f39)!important;
@@ -73,7 +90,7 @@ button#back-to-playlists-bottom-button-search {
         body.theme-gradient-2 {
             background: linear-gradient(-45deg, #4CAF50, #8BC34A, #FFEB3B, #FFC107);
             background-size: 400% 400%;
-            animation: gradient 25s ease infinite reverse;
+            animation: gradient 75s ease infinite reverse;
         }
         body.theme-dark-blue {
             background-color: #1a202c; /* Dark blue-gray */
@@ -114,7 +131,6 @@ button#back-to-playlists-bottom-button-search {
             z-index: -1;
         }
 
-}
 .glass-surface.glass-surface--svg.youtube-video-card.navigable.grid-item {
     direction: ltr!important;
 }
@@ -213,7 +229,7 @@ div#\33 d-screen-weather-widget {
         /* Keyframe animation for the background gradient */
         @keyframes gradient {
             0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
+            50% { background-position: 100% 50%; }اوا
             100% { background-position: 0% 50%; }
         }
 
@@ -249,7 +265,6 @@ div#\33 d-screen-weather-widget {
         #back-to-playlists-bottom-button,
         #back-to-playlists-bottom-button-search,
         #floating-keyboard-button,
-        #floating-fullscreen-button,
         #start-trip-floating-button { 
             position: fixed;
             background-color: rgba(138, 8, 6, 0.5); /* Purple glass */
@@ -289,7 +304,6 @@ div#\33 d-screen-weather-widget {
         #back-to-playlists-bottom-button-search:hover,
         #floating-keyboard-button:hover,
         #clear-search-button:hover,
-        #floating-fullscreen-button:hover,
         #start-trip-floating-button:hover {
             transform: scale(1.05); /* Only scale, no translate */
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
@@ -297,7 +311,6 @@ div#\33 d-screen-weather-widget {
 
         /* Specific positioning for floating buttons */
         #floating-media-button { bottom: 1rem; right: 1rem; }
-        #floating-fullscreen-button { bottom: 1rem; left: 1rem; z-index: 1001; }
         #floating-keyboard-button {
             bottom: 1rem;
             right: 8rem; /* Adjusted to be next to media button */
@@ -326,6 +339,35 @@ div#\33 d-screen-weather-widget {
             background-color: #10B981; /* Green color */
             display: none; /* Hidden by default */
         }
+
+        /* NEW: Style for the minimized video player button */
+        #floating-minimized-video-button {
+            position: fixed;
+            bottom: 1rem;
+            left: 1rem;
+            background-color: rgba(245, 158, 11, 0.7); /* Amber/Yellow color */
+            color: white;
+            padding: 0.75rem 1.25rem;
+            border-radius: 9999px; /* Pill shape */
+            display: none; /* Hidden by default */
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            z-index: 105;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 250px; /* Prevent it from getting too wide */
+        }
+        #floating-minimized-video-button .minimized-title {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
 
         /* Top bar positioning and transition */
         .top-bar {
@@ -441,7 +483,43 @@ div#\33 d-screen-weather-widget {
             width: 180px;  /* INCREASED */
             height: 101.25px; /* INCREASED (16:9 ratio) */
             flex-shrink: 0;
+            overflow: hidden; /* Important for progress bar */
         }
+
+        .glass-surface.glass-surface--svg.p-4.rounded-3xl.text-center.flex.flex-col.items-center.justify-center.navigable.grid-item {
+    height: 169px;
+}
+        /* NEW: Styles for Watched Progress Bar */
+        .watched-progress-bar-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        .watched-progress-bar {
+            height: 100%;
+            background-color: #ef4444; /* Red color */
+            border-radius: 0 2px 2px 0;
+        }
+
+        /* NEW: Style for Watched Badge */
+        .watched-badge {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
         .youtube-video-card img {
             width: 100%;
             height: 100%;
@@ -540,22 +618,23 @@ div#\33 d-screen-weather-widget {
         .reader-container { -ms-overflow-style: auto; scrollbar-width: thin; }
 
 
-        /* YouTube Suggestion Buttons (for Surahs) */
+        /* YouTube Suggestion Buttons (for Surahs) - UPDATED */
         .youtube-suggestion-button {
             color: white;
-            padding: 0.5rem 1rem;
+            padding: 0.25rem 0.75rem; /* Zoomed out padding */
             border-radius: 9999px;
-            font-size: 0.85rem;
+            font-size: 0.75rem; /* Zoomed out font */
             font-weight: bold;
             transition: background-color 0.2s ease, transform 0.1s ease;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
             border: 1px solid rgba(255, 255, 255, 0.2);
+            /* NEW: Switched to inline-flex for variable width */
             display: inline-flex;
+            width: auto;
             align-items: center;
-            justify-content: center;
+            gap: 0.5rem;
             cursor: pointer;
+            position: relative;
+            overflow: hidden; /* Keep overflow hidden on the button itself */
         }
         .youtube-suggestion-button:hover {
             transform: translateY(-1px) scale(1.02);
@@ -563,6 +642,32 @@ div#\33 d-screen-weather-widget {
         }
         .youtube-suggestion-button:active {
             transform: translateY(0);
+        }
+        
+        /* NEW: Style for the Surah name text to handle long names */
+        .surah-name-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: right; /* Align text to the right for RTL */
+        }
+
+        /* NEW: Badge for Juz number */
+        .youtube-suggestion-button .juz-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 9999px;
+            background-color: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+            flex-shrink: 0; /* Prevent badge from shrinking */
+            line-height: 1;
+            position: relative; /* Allow z-index */
+            z-index: 2; /* Ensure it's on top */
         }
 
         /* YouTube Suggestion Category Tag */
@@ -576,6 +681,51 @@ div#\33 d-screen-weather-widget {
             margin-bottom: 0.5rem;
             align-self: flex-start;
         }
+        /* NEW: Surah Buttons Scrollable Container */
+        .surah-buttons-scrollable {
+            max-height: 40vh;
+            overflow-y: auto;
+            padding-right: 8px; 
+            padding-left: 8px; 
+        }
+        .surah-buttons-scrollable::-webkit-scrollbar { width: 6px; }
+        .surah-buttons-scrollable::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
+        .surah-buttons-scrollable::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.4); border-radius: 10px; }
+        
+        /* NEW: Styling for Tabs in Media Screen */
+        .tabs-container {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.25rem;
+            border-radius: 9999px; /* pill shape */
+            background-color: rgba(0, 0, 0, 0.2);
+            align-self: center; /* Center the tab bar */
+            margin-bottom: 1rem;
+        }
+        .tab-button {
+            padding: 0.5rem 1.25rem;
+            background-color: transparent;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 600;
+            font-size: 0.9rem;
+            border: none;
+            border-radius: 9999px; /* pill shape */
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .tab-button.active {
+            color: white;
+            background-color: rgba(147, 51, 234, 0.6); /* Purple */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .tab-content {
+            width: 100%;
+            height: 100%;
+        }
+        .tab-content.hidden {
+            display: none;
+        }
+
 
         /* Dashboard Logo Effect */
         .metallic-logo-effect {
@@ -803,7 +953,7 @@ section#screen-Media {
             line-height: 2.5;
             text-align: center;
             direction: rtl;
-            padding: 1rem;
+            padding: 0rem 1rem;
             background-color: rgba(0, 0, 0, 0.2);
             border-radius: 1rem;
             box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
@@ -830,6 +980,14 @@ section#screen-Media {
             transform: translateY(-2px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
         }
+
+        /* NEW: Weather Screen Scroll Override */
+        #screen-Weather {
+            overflow-y: auto !important; /* Force scrolling */
+        }
+        #screen-Weather::-webkit-scrollbar { width: 6px; }
+        #screen-Weather::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
+        #screen-Weather::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.4); border-radius: 10px; }
 
         /* Weather section content to take full width and height */
         #screen-Weather > div {
@@ -924,7 +1082,7 @@ section#screen-Media {
             }
 
             .app-screen {
-                padding: 1rem;
+                padding: 0rem 1rem;
             }
 
             .dashboard-main-grid {
@@ -955,14 +1113,12 @@ section#screen-Media {
             #back-to-playlists-bottom-button,
             #back-to-playlists-bottom-button-search,
             #floating-keyboard-button,
-            #floating-fullscreen-button,
             #start-trip-floating-button {
                 padding: 0.75rem 1rem;
                 font-size: 0.8rem;
                 gap: 0.25rem;
             }
             #floating-media-button { right: 1rem; }
-            #floating-fullscreen-button { left: 1rem; }
             #floating-keyboard-button {
                 right: 5.5rem;
             }
@@ -1039,9 +1195,11 @@ section#screen-Media {
             .flex.flex-col.gap-4.md\:gap-6.col-span-1.row-start-1.grid-container > div {
                 flex-grow: 1;
             }
-
+section#screen-Weather {
+    zoom: 0.6;
+}
             #screen-Media {
-                padding: 1rem;
+                padding: 0rem 1rem;
             }
 
             .reader-container {
@@ -1058,8 +1216,18 @@ section#screen-Media {
                 grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
             }
         }
+        
+        /* NEW: Responsive padding toggle */
+        @media (min-width: 768px) {
+            body.small-padding .md\:p-6 {
+                padding: 1.5rem !important;
+            }
+        }
 
 
+div#bottom-left-controls {
+    left: 90px!important;
+}
         img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
             position: fixed;
         }
@@ -1129,16 +1297,6 @@ section#screen-Media {
             font-size: 0.8rem;
             color: rgba(255, 255, 255, 0.6);
         }
-
-        /* NEW: Direction Controls Active State */
-        #direction-controls-3d button {
-            transition: filter 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
-        }
-        #direction-controls-3d button.active-direction {
-            filter: brightness(1.5) saturate(1.2);
-            box-shadow: 0 0 15px rgba(10, 210, 255, 0.7) !important;
-            transform: scale(1.1);
-        }
     </style>
 </head>
 <body class="animated-bg text-white overflow-hidden theme-gradient-1">
@@ -1171,10 +1329,9 @@ section#screen-Media {
         <!-- Top Bar: Wifi, 5G, Current Time -->
         <div class="w-full max-w-7xl flex justify-between items-center text-white/80 text-sm px-4 py-2 absolute top-4 left-1/2 -translate-x-1/2 z-10 top-bar">
             <div class="flex items-center gap-2">
-                <i data-lucide="wifi"></i>
-                <span>5G</span>
+              
             </div>
-            <div id="current-time">00:00</div>
+           
         </div>
 
         <!-- Lexus Logo Fixed at Top Center -->
@@ -1193,6 +1350,12 @@ section#screen-Media {
                         <!-- Map Widget (Now first) -->
                         <div class="rounded-3xl relative overflow-hidden flex items-center justify-center glass-surface glass-surface--svg p-1 col-span-1 row-start-1 navigable grid-item" tabindex="0">
                             <div id="dashboard-google-map" class="full-iframe"></div>
+                             <!-- NEW: Geolocation Error Overlay -->
+                             <div id="geolocation-error-overlay" class="hidden absolute top-0 left-0 w-full h-full bg-black/70 text-white flex-col items-center justify-center text-center p-4 z-10 rounded-3xl">
+                                <i data-lucide="map-pin-off" class="w-12 h-12 text-red-500 mb-4"></i>
+                                <h3 class="font-bold text-lg mb-2">خدمة تحديد المواقع معطلة</h3>
+                                <p class="text-sm text-white/80">يرجى تمكين أذونات الموقع في إعدادات المتصفح لهذا الموقع للاستفادة من ميزات الخريطة.</p>
+                            </div>
                             <div class="absolute bottom-4 left-4 flex gap-2">
                                 <button id="get-my-location-button-dashboard" class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center text-sm navigable grid-item" tabindex="0" title="تحديث الموقع">
                                     <i data-lucide="map-pin" class="w-5 h-5"></i>
@@ -1225,10 +1388,10 @@ section#screen-Media {
                             <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center navigable grid-item" tabindex="0">
                                 <h2 class="text-xl font-bold mb-1">الطقس</h2>
                                 <div id="weather-widget-container" class="w-full h-full flex flex-col items-center justify-center">
-                                    <img id="dashboard-weather-icon" src="" alt="Weather Icon" class="w-16 h-16 text-white mb-2" />
-                                    <p class="text-3xl font-extrabold mb-1" id="dashboard-weather-temp">--°C</p>
-                                    <p class="text-lg text-white/70 mb-2" id="dashboard-weather-desc">--</p>
-                                    <p class="text-sm text-white/50" id="dashboard-weather-location">صلالة، عمان</p>
+                                    <img id="dashboard-weather-icon" src="" alt="Weather Icon" class="w-20 h-20 text-white mb-2" />
+                                    <p class="text-5xl font-extrabold mb-1" id="dashboard-weather-temp">--°C</p>
+                                    <p class="text-xl font-semibold text-white/80 mb-2" id="dashboard-weather-desc">--</p>
+                                    <p class="text-base text-white/60" id="dashboard-weather-location">صلالة، عمان</p>
                                 </div>
                             </div>
                             <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center navigable grid-item" tabindex="0">
@@ -1265,7 +1428,7 @@ section#screen-Media {
                             <button id="clear-search-button" class="navigable grid-item" tabindex="0">
                                 <i data-lucide="x" class="w-5 h-5"></i>
                             </button>
-                            <input type="text" id="youtube-search-input" placeholder="ابحث في يوتيوب..." class="flex-grow p-3 rounded-full bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 navigable grid-item" tabindex="0" onkeypress="if(event.key === 'Enter') document.getElementById('youtube-search-button').click();" readonly="true" />
+                            <input type="text" id="youtube-search-input" placeholder="ابحث في يوتيوب..." class="flex-grow p-3 rounded-full bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 navigable grid-item" tabindex="0" readonly="true" />
                         </div>
                         
                         <!-- Suggestions Container (Now takes full height) -->
@@ -1306,55 +1469,49 @@ section#screen-Media {
 
                 <!-- Weather Screen -->
                 <section id="screen-Weather" class="app-screen p-4 md:p-6 flex-col items-center justify-start h-full">
-                    <h1 class="text-4xl font-bold mb-4">الطقس <i data-lucide="cloud-sun"></i></h1>
-                    
+                  
                     <div class="w-full h-full flex flex-col gap-4 flex-grow">
-                        <div class="grid grid-cols-2 sm:grid-cols-2 gap-4 w-full grid-container">
-                            <div class="glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center navigable grid-item" tabindex="0">
-                                <i data-lucide="thermometer" class="w-10 h-10 text-red-400 mb-2"></i>
-                                <span class="text-2xl font-bold" id="weather-temp-card">--°C</span>
-                                <span class="text-sm text-white/50">الحرارة</span>
-                            </div>
-                            <div class="glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center navigable grid-item" tabindex="0">
-                                <i data-lucide="sun" class="w-10 h-10 text-orange-300 mb-2"></i>
-                                <span class="text-2xl font-bold" id="weather-uv">--</span>
-                                <span class="text-sm text-white/50">مؤشر الأشعة فوق البنفسجية</span>
-                            </div>
+                        <!-- Hourly Forecast -->
+                        <div id="hourly-forecast-container" class="grid grid-cols-7 gap-2 w-full glass-surface glass-surface--svg p-3 rounded-3xl">
+                            <!-- JS will populate this -->
+                            <div class="text-center text-white/70 col-span-7">جاري تحميل التوقعات...</div>
                         </div>
-                        <div class="glass-surface glass-surface--svg p-4 rounded-3xl mt-4 w-full col-span-full flex-grow navigable grid-item" tabindex="0">
-                            <canvas id="hourly-forecast-chart"></canvas>
-                        </div> 
+                        <!-- Location Temperatures -->
+                        <div id="location-temps-container" class="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full flex-grow">
+                            <!-- JS will populate this -->
+                            <div class="text-center text-white/70 col-span-full">جاري تحميل درجات الحرارة...</div>
+                        </div>
                     </div>
                 </section>
 
                 <!-- 3D Screen (Formerly Map Screen) -->
                 <section id="screen-Map" class="app-screen p-4 md:p-6 flex-col h-full items-center justify-center relative">
-                    <div class="w-full h-full bg-black2 rounded-3xl flex items-center justify-center p-1 overflow-hidden">
+                    <div class="w-full h-full bg-black2 rounded-3xl flex items-center justify-center p-1 overflow:hidden">
                         <iframe title="LEXSUS ES" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share WIDTH="80%" HEIGHT="80%" src="https://sketchfab.com/models/17ed331fd31f491fa3907156f0b0b55e/embed?autostart=1&preload=1&annotations_visible=0&annotation=0&annotation_cycle=6&transparent=1&ui_theme=dark"> </iframe>
                     </div>
                     <!-- Right side widget -->
-                    <div id="3d-screen-weather-widget" class="absolute top-8 right-8 glass-surface glass-surface--svg p-4 rounded-2xl text-center flex items-center gap-3 z-10 navigable grid-item" tabindex="0">
+                    <div id="3d-screen-weather-widget" class="absolute top-8 right-8 p-4 rounded-2xl text-center flex items-center gap-3 z-10 navigable grid-item" tabindex="0">
                         <!-- MODIFIED: Replaced icon with user-provided SVG -->
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="thermometer" class="lucide lucide-thermometer w-8 h-8 text-red-400"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path></svg>
                         <span class="text-3xl font-bold" id="3d-screen-weather-temp">--°C</span>
                     </div>
                     <!-- NEW: Left side widgets -->
                     <div id="3d-screen-info-widgets" class="absolute top-8 left-8 flex flex-col gap-3 z-10">
-                        <div class="glass-surface glass-surface--svg p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
+                        <div class="p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
                             <i data-lucide="moon" class="w-7 h-7 text-cyan-300"></i>
                             <div>
                                 <div class="text-sm text-white/70">الصلاة القادمة</div>
                                 <div class="text-xl font-bold" id="3d-screen-next-prayer">--</div>
                             </div>
                         </div>
-                        <div class="glass-surface glass-surface--svg p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
+                        <div class="p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
                             <i data-lucide="gauge-circle" class="w-7 h-7 text-green-400"></i>
                             <div>
                                 <div class="text-sm text-white/70">السرعة</div>
                                 <div class="text-xl font-bold" id="3d-screen-speed">-- km/h</div>
                             </div>
                         </div>
-                         <div id="geares" class="glass-surface glass-surface--svg p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
+                         <div id="geares" class="p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
                             <i data-lucide="parking-circle" class="w-7 h-7 text-orange-400"></i>
                             <div>
                                 <div class="text-sm text-white/70">القير</div>
@@ -1362,7 +1519,7 @@ section#screen-Media {
                             </div>
                         </div>
                         <!-- NEW: Direction Widget -->
-                        <div class="glass-surface glass-surface--svg p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
+                        <div class="p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
                             <i data-lucide="compass" class="w-7 h-7 text-blue-300"></i>
                             <div>
                                 <div class="text-sm text-white/70">الاتجاه</div>
@@ -1372,15 +1529,15 @@ section#screen-Media {
                     </div>
                     <!-- NEW: Sticky Directional Controls -->
                     <div id="direction-controls-3d" class="absolute top-1/2 -translate-y-1/2 right-8 grid grid-cols-3 gap-2 w-[120px] z-10">
-                        <button data-direction="NW" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">NW</button>
-                        <button data-direction="N" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">N</button>
-                        <button data-direction="NE" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">NE</button>
-                        <button data-direction="W" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">W</button>
+                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">NW</button>
+                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">N</button>
+                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">NE</button>
+                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">W</button>
                         <div class="w-10 h-10"></div> <!-- Spacer -->
-                        <button data-direction="E" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">E</button>
-                        <button data-direction="SW" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">SW</button>
-                        <button data-direction="S" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">S</button>
-                        <button data-direction="SE" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">SE</button>
+                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">E</button>
+                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">SW</button>
+                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">S</button>
+                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">SE</button>
                     </div>
                 </section>
 
@@ -1433,10 +1590,30 @@ section#screen-Media {
     <button id="start-trip-floating-button" class="glass-surface glass-surface--svg rounded-full navigable grid-item" tabindex="0">
         <i data-lucide="map-pin" class="w-6 h-6"></i> بدء الرحلة
     </button>
-    <!-- NEW: Fullscreen Button -->
-    <button id="floating-fullscreen-button" class="glass-surface glass-surface--svg rounded-full navigable grid-item" tabindex="0">
-        <i data-lucide="maximize" class="w-6 h-6"></i>
+
+    <!-- NEW: Minimized Video Button -->
+    <button id="floating-minimized-video-button" class="navigable grid-item" tabindex="0">
+        <i data-lucide="arrow-up-right" class="w-5 h-5 flex-shrink-0"></i>
+        <span class="minimized-title">...</span>
     </button>
+
+    <!-- NEW: Bottom Left Controls -->
+    <div id="bottom-left-controls" class="fixed bottom-4 left-4 flex flex-row gap-2 z-[100] grid-container">
+        <button id="pause-animation-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="إيقاف/تشغيل الحركة">
+            <i data-lucide="pause" class="w-5 h-5"></i>
+            <i data-lucide="play" class="w-5 h-5 hidden"></i>
+        </button>
+        <button id="zoom-in-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="تكبير">
+            <i data-lucide="zoom-in" class="w-5 h-5"></i>
+        </button>
+        <button id="zoom-out-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="تصغير">
+            <i data-lucide="zoom-out" class="w-5 h-5"></i>
+        </button>
+        <button id="fullscreen-toggle-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="تبديل الحشوة">
+            <i data-lucide="maximize" class="w-5 h-5"></i>
+            <i data-lucide="minimize" class="w-5 h-5 hidden"></i>
+        </button>
+    </div>
 
     <!-- Video Pop-up Container -->
     <div id="video-popup-container">
@@ -1471,9 +1648,14 @@ section#screen-Media {
             custom360Image: localStorage.getItem('custom360Image') || null,
             currentLocation: null,
             previousLocation: null, // For tracking movement
-            destinationSet: false
+            destinationSet: false,
+            isVideoPlayerMinimized: false // NEW state for minimized player
         };
         let googleMapsPromise = null;
+        let currentFontSize = 16; // Base size in pixels
+        const fontSizeStep = 1; // Change by 1px
+        const maxFontSize = 20; // Max size (125%)
+        const minFontSize = 12; // Min size (75%)
 
         // --- Home Locations ---
         // UPDATED: Coordinates for Home 1 and Home 2
@@ -1481,7 +1663,6 @@ section#screen-Media {
         const HOME2_COORDS = { lat: 17.048560, lng: 54.159616 };
 
         // --- DOM Element References ---
-        const timeElement = document.getElementById('current-time');
         const appButtons = document.querySelectorAll('button[data-app]');
         const appScreens = document.querySelectorAll('.app-screen');
         const sidebarIcons = document.querySelectorAll('.app-icon');
@@ -1502,7 +1683,7 @@ section#screen-Media {
         const quranIframe = document.getElementById('quran-iframe');
         const floatingMediaButton = document.getElementById('floating-media-button');
         const floatingKeyboardButton = document.getElementById('floating-keyboard-button');
-        const floatingFullscreenButton = document.getElementById('floating-fullscreen-button');
+        const floatingMinimizedVideoButton = document.getElementById('floating-minimized-video-button');
         const clearSearchButton = document.getElementById('clear-search-button');
         const startTripFloatingButton = document.getElementById('start-trip-floating-button');
         const prayerTimesContainer = document.getElementById('prayer-times-container');
@@ -1520,25 +1701,62 @@ section#screen-Media {
         const upload360ImageInput = document.getElementById('upload-360-image-input');
         const upload360ImageButton = document.getElementById('upload-360-image-button');
         const reset360ImageButton = document.getElementById('reset-360-image-button');
+        const carplayMainInterface = document.getElementById('carplay-main-interface');
+        const pauseAnimationButton = document.getElementById('pause-animation-button');
+        const zoomInButton = document.getElementById('zoom-in-button');
+        const zoomOutButton = document.getElementById('zoom-out-button');
+        const fullscreenToggleButton = document.getElementById('fullscreen-toggle-button');
         const default360ImageSrc = "https://dmusera.netlify.app/es350gb.png";
-        let currentPlayingPlaylistId = '', activeMediaView = 'suggestions', currentPlayingVideoId = '', selectedReaderName = '', popupPlayer, isYouTubeApiReady = false;
+        let currentPlayingPlaylistId = '', activeMediaView = 'suggestions', currentPlayingVideoId = '', selectedReaderName = '', popupPlayer, isYouTubeApiReady = false, searchMode = 'reciter_surah', progressInterval = null;
+        let initialLocationFetched = false;
+
+        const juzArabicNames = ["الأول", "الثاني", "الثالث", "الرابع", "الخامس", "السادس", "السابع", "الثامن", "التاسع", "العاشر", "الحادي عشر", "الثاني عشر", "الثالث عشر", "الرابع عشر", "الخامس عشر", "السادس عشر", "السابع عشر", "الثامن عشر", "التاسع عشر", "العشرون", "الحادي والعشرون", "الثاني والعشرون", "الثالث والعشرون", "الرابع والعشرون", "الخامس والعشرون", "السادس والعشرون", "السابع والعشرون", "الثامن والعشرون", "التاسع والعشرون", "الثلاثون"];
 
         // --- Utility Functions ---
-        function updateTopBarTime() {
-            const now = new Date();
-            const hours = now.getHours().toString().padStart(2, '0');
-            const minutes = now.getMinutes().toString().padStart(2, '0');
-            timeElement.textContent = `${hours}:${minutes}`;
-        }
+        function showMessageBox(message) { const box = document.createElement('div'); box.style.cssText = `position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(0, 0, 0, 0.8); color: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); z-index: 1000; text-align: center; max-width: 80%; font-size: 1.1rem;`; box.innerHTML = `<p>${message}</p><button style="margin-top: 15px; padding: 8px 15px; background-color: #9333ea; border: none; border-radius: 5px; color: white; cursor: pointer;">إغلاق</button>`; document.body.appendChild(box); box.querySelector('button').addEventListener('click', () => document.body.removeChild(box)); }
+
         function showMessageBox(message) { const box = document.createElement('div'); box.style.cssText = `position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(0, 0, 0, 0.8); color: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); z-index: 1000; text-align: center; max-width: 80%; font-size: 1.1rem;`; box.innerHTML = `<p>${message}</p><button style="margin-top: 15px; padding: 8px 15px; background-color: #9333ea; border: none; border-radius: 5px; color: white; cursor: pointer;">إغلاق</button>`; document.body.appendChild(box); box.querySelector('button').addEventListener('click', () => document.body.removeChild(box)); }
         
+        // --- NEW: Watched History Helpers ---
+        function getWatchedHistory() {
+            return JSON.parse(localStorage.getItem('youtubeWatchedHistory')) || {};
+        }
+
+        function updateVideoProgress(videoId, currentTime, duration) {
+            if (!videoId || !duration) return;
+            const history = getWatchedHistory();
+            history[videoId] = { progress: currentTime, duration: duration };
+            localStorage.setItem('youtubeWatchedHistory', JSON.stringify(history));
+        }
+
+        function markVideoAsWatched(videoId) {
+            if (!videoId) return;
+            const history = getWatchedHistory();
+            // Using a special value to indicate fully watched
+            history[videoId] = { progress: -1, duration: 1 };
+            localStorage.setItem('youtubeWatchedHistory', JSON.stringify(history));
+            // Also update the card in the UI if it's visible
+            const card = document.querySelector(`.youtube-video-card[data-video-id="${videoId}"]`);
+            if(card) {
+                // Remove progress bar if it exists
+                const progressBar = card.querySelector('.watched-progress-bar-container');
+                if(progressBar) progressBar.remove();
+                // Add watched badge if it doesn't exist
+                if(!card.querySelector('.watched-badge')) {
+                    const badge = document.createElement('div');
+                    badge.className = 'watched-badge';
+                    badge.textContent = 'تمت المشاهدة';
+                    card.querySelector('.thumbnail-container').appendChild(badge);
+                }
+            }
+        }
+        
         function updateUI() { 
-            document.getElementById('dashboard-weather-temp').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature}°C` : '--°C'; 
+            document.getElementById('dashboard-weather-temp').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature.toFixed(1)}°C` : '--°C'; 
             document.getElementById('dashboard-weather-desc').textContent = appState.weather.description || '--'; 
             document.getElementById('dashboard-weather-icon').src = appState.weather.iconUrl || 'https://placehold.co/64x64/000000/FFFFFF?text=X'; 
             document.getElementById('dashboard-weather-location').textContent = appState.weather.location; 
-            document.getElementById('weather-temp-card').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature}°C` : '--°C'; 
-            document.getElementById('3d-screen-weather-temp').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature}°C` : '--°C';
+            document.getElementById('3d-screen-weather-temp').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature.toFixed(1)}°C` : '--°C';
             const uvEl = document.getElementById('weather-uv'); 
             if (uvEl) { uvEl.textContent = appState.weather.uvIndex !== null ? appState.weather.uvIndex : '--'; uvEl.style.color = getUvIndexColor(appState.weather.uvIndex); } 
             car360Image.src = appState.custom360Image || default360ImageSrc; 
@@ -1630,8 +1848,22 @@ section#screen-Media {
             card.className = 'glass-surface glass-surface--svg youtube-video-card navigable grid-item';
             card.tabIndex = 0;
             card.dataset.videoId = video.id;
+
+            // Get watched history for this video
+            const history = getWatchedHistory();
+            const watchedInfo = history[video.id];
+            let progressHTML = '';
+
+            if (watchedInfo) {
+                if (watchedInfo.progress === -1) { // Fully watched
+                    progressHTML = `<div class="watched-badge">تمت المشاهدة</div>`;
+                } else if (watchedInfo.progress > 0 && watchedInfo.duration > 0) {
+                    const progressPercent = (watchedInfo.progress / watchedInfo.duration) * 100;
+                    progressHTML = `<div class="watched-progress-bar-container"><div class="watched-progress-bar" style="width: ${progressPercent}%"></div></div>`;
+                }
+            }
+
             card.innerHTML = `
-                
                 <div class="video-details">
                     <h3 class="video-title">${video.title}</h3>
                     <div class="video-meta">
@@ -1642,6 +1874,7 @@ section#screen-Media {
                 <div class="thumbnail-container">
                     <img src="${video.thumbnail}" alt="${video.title}" class="w-[100px] h-[56.25px] object-cover rounded-md ml-4 flex-shrink-0" onerror="this.onerror=null;this.src='https://placehold.co/100x56';">
                     <span class="video-duration">${video.duration}</span>
+                    ${progressHTML}
                 </div>
             `;
             card.addEventListener('click', () => showVideoPopup(video.id));
@@ -1732,25 +1965,44 @@ section#screen-Media {
         }
         
         function showVideoPopup(videoId, start = 0) {
+            document.body.classList.add('video-playing'); // Stop background animation
             if (!isYouTubeApiReady) return setTimeout(() => showVideoPopup(videoId, start), 100);
             currentPlayingVideoId = videoId;
+            videoPopupContainer.style.display = 'flex'; // Ensure it's visible
             videoPopupContainer.classList.add('active');
+            // Hide the minimized button when showing the main player
+            floatingMinimizedVideoButton.style.display = 'none';
+            appState.isVideoPlayerMinimized = false;
             if (popupPlayer) {
                 popupPlayer.loadVideoById({ videoId, startSeconds: start });
             } else {
                 videoPopupPlayerContainer.innerHTML = '<div id="video-popup-player"></div>';
                 popupPlayer = new YT.Player('video-popup-player', {
                     height: '100%', width: '100%', videoId,
-                    playerVars: { 'autoplay': 1, 'controls': 1, 'start': start },
-                    events: { 'onReady': (e) => e.target.playVideo() }
+                    playerVars: { 
+                        'autoplay': 1, 
+                        'controls': 1, 
+                        'start': start,
+                        'origin': 'https://dmusera.netlify.app'
+                    },
+                    events: { 
+                        'onReady': (e) => e.target.playVideo(),
+                        'onStateChange': onPlayerStateChange 
+                    }
                 });
             }
             setTimeout(() => setFocus(videoPopupCloseButton), 100);
         }
 
         function hideVideoPopup() {
+            if (progressInterval) clearInterval(progressInterval); // Stop tracking progress
+            document.body.classList.remove('video-playing'); // Resume background animation
             if (popupPlayer?.stopVideo) popupPlayer.stopVideo();
             videoPopupContainer.classList.remove('active');
+            videoPopupContainer.style.display = 'none'; // Also hide with style
+            // Ensure the minimized button is also hidden when fully closing
+            floatingMinimizedVideoButton.style.display = 'none';
+            appState.isVideoPlayerMinimized = false;
             const screen = document.querySelector('.app-screen.active');
             if (screen) {
                 const item = screen.querySelector('.grid-item');
@@ -1758,9 +2010,71 @@ section#screen-Media {
             }
         }
         
-        const youtubeReaderSuggestions = [{"name":"محمد ايوب","image":"https://dmusera.netlify.app/512px-Muhammad_Ayyub.webp"},{"name":"فارس عنتر","image":"https://dmusera.netlify.app/faresantar.jpg"},{"name":"علي جابر","image":"https://dmusera.netlify.app/ali-jaber.webp"},{"name":"عبدالله القرافي","image":"https://yt3.googleusercontent.com/mHTg3RIX-a3NAR22lAnOvSq3-U_KBcL_Ax4FTNirc3flsb5OU8RWksKu6X8Ush9JhO0EOxxAwQY=s160-c-k-c0x00ffffff-no-rj"},{"name":"عبد الباسط عبد الصمد","image":"https://dmusera.netlify.app/abdulbaset-abdulsamad.jpeg"},{"name":"مشاري العفاسي","image":"https://dmusera.netlify.app/512px-%D0%9C%D0%B8%D1%88%D0%B0%D1%80%D0%B8_%D0%A0%D0%B0%D1%88%D0%B8%D0%B4.webp"},{"name":"احمد النفيس","image":"https://dmusera.netlify.app/ahmednafes.jpg"},{"name":"ياسر الدوسري","image":"https://dmusera.netlify.app/Yasser_Al-Dosari.jpg"}];
-        const youtubeSurahSuggestions = ["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","جزء عم"];
-        const surahToJuzMap = {"الفاتحة":1,"البقرة":1,"آل عمران":3,"النساء":4,"المائدة":6,"الأنعام":7,"الأعراف":8,"الأنفال":9,"التوبة":10,"يونس":11,"هود":11,"يوسف":12,"الرعد":13,"إبراهيم":13,"الحجر":14,"النحل":14,"الإسراء":15,"الكهف":15,"مريم":16,"طه":16,"الأنبياء":17,"الحج":17,"المؤمنون":18,"النور":18,"الفرقان":18,"الشعراء":19,"النمل":19,"القصص":20,"العنكبوت":20,"الروم":21,"لقمان":21,"السجدة":21,"الأحزاب":21,"سبأ":22,"فاطر":22,"يس":22,"الصافات":23,"ص":23,"الزمر":23,"غافر":24,"فصلت":24,"الشورى":25,"الزخرف":25,"الدخان":25,"الجاثية":25,"الأحقاف":26,"محمد":26,"الفتح":26,"الحجرات":26,"ق":26,"الذاريات":27,"الطور":27,"النجم":27,"القمر":27,"الرحمن":27,"الواقعة":27,"الحديد":27,"المجادلة":28,"الحشر":28,"الممتحنة":28,"الصف":28,"الجمعة":28,"المنافقون":28,"التغابن":28,"الطلاق":28,"التحريم":28,"الملك":29,"القلم":29,"الحاقة":29,"المعارج":29,"نوح":29,"الجن":29,"المزمل":29,"المدثر":29,"القيامة":29,"الإنسان":29,"المرسلات":29,"جزء عم":30};
+        // NEW: Functions to minimize and restore the video popup
+        function minimizeVideoPopup() {
+            if (!videoPopupContainer.classList.contains('active')) return;
+            videoPopupContainer.style.display = 'none';
+            floatingMinimizedVideoButton.style.display = 'flex';
+            
+            const videoData = popupPlayer.getVideoData();
+            const titleElement = floatingMinimizedVideoButton.querySelector('.minimized-title');
+            if(titleElement) titleElement.textContent = videoData.title || '...';
+
+            appState.isVideoPlayerMinimized = true;
+            // Focus the restore button for accessibility
+            setFocus(floatingMinimizedVideoButton);
+        }
+
+        function restoreVideoPopup() {
+            if (!appState.isVideoPlayerMinimized) return;
+            videoPopupContainer.style.display = 'flex';
+            floatingMinimizedVideoButton.style.display = 'none';
+            appState.isVideoPlayerMinimized = false;
+             // Return focus to the close button inside the player
+            setFocus(videoPopupCloseButton);
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data == YT.PlayerState.PLAYING) {
+                // When video starts playing, set initial quality
+                const isFullScreen = document.fullscreenElement === popupPlayer.getIframe() || document.webkitFullscreenElement === popupPlayer.getIframe();
+                const quality = isFullScreen ? 'hd720' : 'large'; // large = 480p
+            popupPlayer.setPlaybackQuality(quality);
+
+            // Start tracking progress
+            progressInterval = setInterval(() => {
+                const videoId = popupPlayer.getVideoData().video_id;
+                const currentTime = popupPlayer.getCurrentTime();
+                const duration = popupPlayer.getDuration();
+                updateVideoProgress(videoId, currentTime, duration);
+            }, 5000); // Save progress every 5 seconds
+
+        } else if (event.data == YT.PlayerState.ENDED) {
+            if (progressInterval) clearInterval(progressInterval);
+            const videoId = popupPlayer.getVideoData().video_id;
+            markVideoAsWatched(videoId);
+        } else {
+             if (progressInterval) {
+                clearInterval(progressInterval);
+                progressInterval = null;
+            }
+        }
+        }
+
+        function handleFullScreenChange() {
+            if (popupPlayer && typeof popupPlayer.getPlayerState === 'function' && popupPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
+                const isFullScreen = document.fullscreenElement === popupPlayer.getIframe() || document.webkitFullscreenElement === popupPlayer.getIframe();
+                if (isFullScreen) {
+                    popupPlayer.setPlaybackQuality('hd720');
+                } else {
+                    popupPlayer.setPlaybackQuality('large'); // 'large' for 480p
+                }
+            }
+        }
+
+        const youtubeReaderSuggestions = [{"name":"محمد ايوب","image":"https://dmusera.netlify.app/512px-Muhammad_Ayyub.webp"},{"name":"علي جابر","image":"https://dmusera.netlify.app/ali-jaber.webp"},{"name":"محمد الغزالي","image":"https://upload.wikimedia.org/wikipedia/commons/e/e0/Mohamed_al-Ghazali.png"},{"name":"مشاري العفاسي","image":"https://dmusera.netlify.app/512px-%D0%9C%D0%B8%D1%88%D0%B0%D1%80%D0%B8_%D0%A0%D0%B0%D1%88%D0%B8%D0%B4.webp"},{"name":"عبدالله القرافي","image":"https://yt3.googleusercontent.com/mHTg3RIX-a3NAR22lAnOvSq3-U_KBcL_Ax4FTNirc3flsb5OU8RWksKu6X8Ush9JhO0EOxxAwQY=s160-c-k-c0x00ffffff-no-rj"},{"name":"اسلام صبحي","image":"https://i1.sndcdn.com/avatars-000624456932-230x9g-t500x500.jpg"},{"name":"احمد النفيس","image":"https://dmusera.netlify.app/ahmednafes.jpg"},{"name":"ياسر الدوسري","image":"https://dmusera.netlify.app/Yasser_Al-Dosari.jpg"},{"name":"فارس عنتر","image":"https://dmusera.netlify.app/faresantar.jpg"},{"name":"ربط الآيات","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDEzYTUgNSAwIDAgMCA3LjU0LjU0bD MtM2E1IDUgMCAwIDAtNy4wNy03LjA3bC0xLjcyIDEuNzIiLz48cGF0aCBkPSJNMTQgMTFhNSA1IDAgMCAwLTcuNTQtLjU0bC0zIDNhNSA1IDAgMCAwIDcuMDcgNy4wN2wxLjcyLTEuNzIiLz48L3N2Zz4="}];
+        const youtubeSurahSuggestions = ["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","الانشقاق","المطففين","البروج","الطارق","الأعلى"];
+        const surahToJuzMap = {"الفاتحة":1,"البقرة":1,"آل عمران":3,"النساء":4,"المائدة":6,"الأنعام":7,"الأعراف":8,"الأنفال":9,"التوبة":10,"يونس":11,"هود":11,"يوسف":12,"الرعد":13,"إبراهيم":13,"الحجر":14,"النحل":14,"الإسراء":15,"الكهف":15,"مريم":16,"طه":16,"الأنبياء":17,"الحج":17,"المؤمنون":18,"النور":18,"الفرقان":18,"الشعراء":19,"النمل":19,"القصص":20,"العنكبوت":20,"الروم":21,"لقمان":21,"السجدة":21,"الأحزاب":21,"سبأ":22,"فاطر":22,"يس":22,"الصافات":23,"ص":23,"الزمر":23,"غافر":24,"فصلت":24,"الشورى":25,"الزخرف":25,"الدخان":25,"الجاثية":25,"الأحقاف":26,"محمد":26,"الفتح":26,"الحجرات":26,"ق":26,"الذاريات":27,"الطور":27,"النجم":27,"القمر":27,"الرحمن":27,"الواقعة":27,"الحديد":27,"المجادلة":28,"الحشر":28,"الممتحنة":28,"الصف":28,"الجمعة":28,"المنافقون":28,"التغابن":28,"الطلاق":28,"التحريم":28,"الملك":29,"القلم":29,"الحاقة":29,"المعارج":29,"نوح":29,"الجن":29,"المزمل":29,"المدثر":29,"القيامة":29,"الإنسان":29,"المرسلات":29,"النبأ":30,"النازعات":30,"عبس":30,"التكوير":30,"الانفطار":30,"الانشقاق":30,"المطففين":30,"البروج":30,"الطارق":30,"الأعلى":30};
         const juzColors =  [
   // 🔵 Blues
   "#2563eb", // Strong Blue
@@ -1812,8 +2126,295 @@ section#screen-Media {
   "#1e293b", // Slate Dark
 ];
         function resetYoutubeSearchUI() { youtubeSuggestionsDiv.innerHTML = ''; youtubeSuggestionsDiv.style.display = 'flex'; selectedReaderName = ''; youtubeSearchInput.value = ''; populateYoutubeSuggestions(); }
-        function populateYoutubeSuggestions() { youtubeSuggestionsDiv.innerHTML = ''; youtubeSuggestionsDiv.className = 'flex flex-col gap-4 w-full h-full overflow-y-auto'; const readersSection = document.createElement('div'); readersSection.id = 'youtube-readers-section'; readersSection.className = 'flex flex-col gap-2 p-3 rounded-xl glass-surface glass-surface--svg w-full'; readersSection.innerHTML = '<span class="youtube-suggestion-category-tag bg-blue-600" style="line-height: 1.4; padding: 0.5rem 0.8rem;">اختر<br>القارئ</span>'; const readerButtonsContainer = document.createElement('div'); readerButtonsContainer.className = 'reader-container'; youtubeReaderSuggestions.forEach(reader => { const card = document.createElement('div'); card.className = 'youtube-reader-card navigable grid-item'; card.tabIndex = 0; card.innerHTML = `<img src="${reader.image}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';"><h3>${reader.name}</h3>`; card.addEventListener('click', (e) => { document.querySelectorAll('#youtube-readers-section .youtube-reader-card').forEach(c => c.classList.remove('selected')); e.currentTarget.classList.add('selected'); selectedReaderName = reader.name; youtubeSearchInput.value = reader.name + ' '; readersSection.style.display = 'none'; showSurahSuggestions(); setTimeout(() => { const firstSurahButton = document.querySelector('#youtube-surah-section .grid-item'); if (firstSurahButton) setFocus(firstSurahButton); }, 100); }); readerButtonsContainer.appendChild(card); }); readersSection.appendChild(readerButtonsContainer); youtubeSuggestionsDiv.appendChild(readersSection); }
-        function showSurahSuggestions() { const existing = document.getElementById('youtube-surah-section'); if (existing) existing.remove(); const surahSection = document.createElement('div'); surahSection.id = 'youtube-surah-section'; surahSection.className = 'flex flex-col gap-2 p-3 rounded-xl glass-surface glass-surface--svg w-full mt-4 grid-container'; surahSection.innerHTML = '<span class="youtube-suggestion-category-tag bg-green-600">اختر السورة</span>'; const surahButtonsContainer = document.createElement('div'); surahButtonsContainer.className = 'grid grid-cols-9 gap-2 w-full'; youtubeSurahSuggestions.forEach(name => { const button = document.createElement('button'); button.className = 'youtube-suggestion-button navigable grid-item'; button.tabIndex = 0; button.textContent = name; button.style.backgroundColor = juzColors[(surahToJuzMap[name] || 1) - 1]; button.addEventListener('click', () => { const query = selectedReaderName + ' سورة ' + name; youtubeSearchInput.value = query; searchYouTubeVideos(query); }); surahButtonsContainer.appendChild(button); }); surahSection.appendChild(surahButtonsContainer); youtubeSuggestionsDiv.appendChild(surahSection); }
+        
+        function handleReaderOrToolClick(selection, tabContainer, tabsContentContainer) {
+            if (selection === "الكلمات الصعبة في") {
+                selectedReaderName = ''; // Clear reader name
+                youtubeSearchInput.value = 'الكلمات الصعبة في ';
+            } else if (selection === "JUST_SURAH") {
+                selectedReaderName = ''; 
+                youtubeSearchInput.value = '';
+            } else {
+                selectedReaderName = selection;
+                youtubeSearchInput.value = selection + ' ';
+            }
+
+            // Hide the tabs and show surahs
+            tabContainer.style.display = 'none';
+            tabsContentContainer.style.display = 'none';
+            showSurahSuggestions();
+            setTimeout(() => {
+                const firstSurahButton = document.querySelector('#youtube-surah-section .grid-item');
+                if (firstSurahButton) setFocus(firstSurahButton);
+            }, 100);
+        }
+
+        function populateYoutubeSuggestions() {
+            youtubeSuggestionsDiv.innerHTML = '';
+            youtubeSuggestionsDiv.className = 'flex flex-col gap-4 w-full h-full'; // Removed overflow-y-auto, it will be on the content
+
+            // 1. Create Tab Structure
+            const tabContainer = document.createElement('div');
+            tabContainer.className = 'tabs-container flex p-1 rounded-full bg-black/20 self-center';
+
+            const recitersTabButton = document.createElement('button');
+            recitersTabButton.id = 'tab-reciters';
+            recitersTabButton.className = 'tab-button active navigable grid-item';
+            recitersTabButton.tabIndex = 0;
+            recitersTabButton.textContent = 'القراء';
+
+            const toolsTabButton = document.createElement('button');
+            toolsTabButton.id = 'tab-tools';
+            toolsTabButton.className = 'tab-button navigable grid-item';
+            toolsTabButton.tabIndex = 0;
+            toolsTabButton.textContent = 'أدوات';
+
+            tabContainer.appendChild(recitersTabButton);
+            tabContainer.appendChild(toolsTabButton);
+
+            const tabsContentContainer = document.createElement('div');
+            tabsContentContainer.id = 'tabs-content-container';
+            tabsContentContainer.className = 'flex-grow w-full overflow-y-auto';
+
+            // 2. Create Content Panels
+            const recitersContent = document.createElement('div');
+            recitersContent.id = 'tab-content-reciters';
+            recitersContent.className = 'tab-content';
+            const readerButtonsContainer = document.createElement('div');
+            readerButtonsContainer.className = 'reader-container';
+            recitersContent.appendChild(readerButtonsContainer);
+
+            const toolsContent = document.createElement('div');
+            toolsContent.id = 'tab-content-tools';
+            toolsContent.className = 'tab-content hidden';
+            const toolsButtonsContainer = document.createElement('div');
+            toolsButtonsContainer.className = 'reader-container'; 
+            toolsContent.appendChild(toolsButtonsContainer);
+
+            // 3. Populate Content Panels
+            const recitersList = youtubeReaderSuggestions.filter(r => r.name !== "ربط الآيات");
+            recitersList.forEach(reader => {
+                const card = document.createElement('div');
+                card.className = 'youtube-reader-card navigable grid-item';
+                card.tabIndex = 0;
+                card.innerHTML = `<img src="${reader.image}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';"><h3>${reader.name}</h3>`;
+                card.addEventListener('click', () => {
+                    if (searchMode === 'reciter_only') {
+                        youtubeSearchInput.value = reader.name;
+                        searchYouTubeVideos(reader.name);
+                        searchMode = 'reciter_surah'; // Reset mode after search
+                    } else {
+                        handleReaderOrToolClick(reader.name, tabContainer, tabsContentContainer);
+                    }
+                });
+                readerButtonsContainer.appendChild(card);
+            });
+
+            const rabtAlAyat = youtubeReaderSuggestions.find(r => r.name === "ربط الآيات");
+            if (rabtAlAyat) {
+                const card = document.createElement('div');
+                card.className = 'youtube-reader-card navigable grid-item';
+                card.tabIndex = 0;
+                card.innerHTML = `<img src="${rabtAlAyat.image}" alt="${rabtAlAyat.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';"><h3>${rabtAlAyat.name}</h3>`;
+                card.addEventListener('click', () => handleReaderOrToolClick(rabtAlAyat.name, tabContainer, tabsContentContainer));
+                toolsButtonsContainer.appendChild(card);
+    }
+
+            const difficultWordsCard = document.createElement('div');
+            difficultWordsCard.className = 'youtube-reader-card navigable grid-item';
+            difficultWordsCard.tabIndex = 0;
+            difficultWordsCard.innerHTML = `<div class="w-[100px] h-[100px] rounded-full mb-4 border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="book-check" class="w-12 h-12"></i></div><h3>الكلمات الصعبة</h3>`;
+            difficultWordsCard.addEventListener('click', () => handleReaderOrToolClick("الكلمات الصعبة في", tabContainer, tabsContentContainer));
+            toolsButtonsContainer.appendChild(difficultWordsCard);
+
+            const repeatCard = document.createElement('div');
+            repeatCard.className = 'youtube-reader-card navigable grid-item';
+            repeatCard.tabIndex = 0;
+            repeatCard.innerHTML = `<div class="w-[100px] h-[100px] rounded-full mb-4 border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="repeat" class="w-12 h-12"></i></div><h3>تكرار</h3>`;
+            repeatCard.addEventListener('click', () => handleReaderOrToolClick("تكرار", tabContainer, tabsContentContainer));
+            toolsButtonsContainer.appendChild(repeatCard);
+
+            const saveCard = document.createElement('div');
+            saveCard.className = 'youtube-reader-card navigable grid-item';
+            saveCard.tabIndex = 0;
+            saveCard.innerHTML = `<div class="w-[100px] h-[100px] rounded-full mb-4 border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="save" class="w-12 h-12"></i></div><h3>حفظ</h3>`;
+            saveCard.addEventListener('click', () => handleReaderOrToolClick("حفظ", tabContainer, tabsContentContainer));
+            toolsButtonsContainer.appendChild(saveCard);
+
+            // NEW: Add "السورة" button to add a space
+            const surahCard = document.createElement('div');
+            surahCard.className = 'youtube-reader-card navigable grid-item';
+            surahCard.tabIndex = 0;
+            surahCard.innerHTML = `<div class="w-[100px] h-[100px] rounded-full mb-4 border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="book-open" class="w-12 h-12"></i></div><h3>السورة</h3>`;
+            surahCard.addEventListener('click', () => handleReaderOrToolClick("JUST_SURAH", tabContainer, tabsContentContainer));
+            toolsButtonsContainer.appendChild(surahCard);
+
+            // NEW: Add "القارئ فقط" tool
+            const reciterOnlyCard = document.createElement('div');
+            reciterOnlyCard.className = 'youtube-reader-card navigable grid-item';
+            reciterOnlyCard.tabIndex = 0;
+            reciterOnlyCard.innerHTML = `<div class="w-[100px] h-[100px] rounded-full mb-4 border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="mic" class="w-12 h-12"></i></div><h3>القارئ فقط</h3>`;
+            reciterOnlyCard.addEventListener('click', () => {
+                searchMode = 'reciter_only';
+                recitersTabButton.click(); // Switch to reciters tab
+                showMessageBox('اختر قارئاً للبحث عنه مباشرة.');
+                const firstReciter = recitersContent.querySelector('.grid-item');
+                if (firstReciter) setFocus(firstReciter);
+            });
+            toolsButtonsContainer.appendChild(reciterOnlyCard);
+
+
+            // 4. Tab Switching Logic
+            recitersTabButton.addEventListener('click', () => {
+                recitersTabButton.classList.add('active');
+                toolsTabButton.classList.remove('active');
+                recitersContent.classList.remove('hidden');
+                toolsContent.classList.add('hidden');
+                const firstItem = recitersContent.querySelector('.grid-item');
+                if (firstItem) setFocus(firstItem);
+            });
+            toolsTabButton.addEventListener('click', () => {
+                toolsTabButton.classList.add('active');
+                recitersTabButton.classList.remove('active');
+                toolsContent.classList.remove('hidden');
+                recitersContent.classList.add('hidden');
+                const firstItem = toolsContent.querySelector('.grid-item');
+                if (firstItem) setFocus(firstItem);
+            });
+            
+            // 5. Append everything
+            youtubeSuggestionsDiv.appendChild(tabContainer);
+            tabsContentContainer.appendChild(recitersContent);
+            tabsContentContainer.appendChild(toolsContent);
+            youtubeSuggestionsDiv.appendChild(tabsContentContainer);
+
+            lucide.createIcons();
+        }
+
+        function showSurahSuggestions() {
+            const existing = document.getElementById('youtube-surah-section');
+            if (existing) existing.remove();
+
+            const surahSection = document.createElement('div');
+            surahSection.id = 'youtube-surah-section';
+            surahSection.className = 'flex flex-col gap-2 p-3 rounded-xl glass-surface glass-surface--svg w-full flex-grow';
+
+            // 1. Create Tab Structure
+            const tabContainer = document.createElement('div');
+            tabContainer.className = 'tabs-container flex p-1 rounded-full bg-black/20 self-center mb-2';
+
+            const surahTabButton = document.createElement('button');
+            surahTabButton.id = 'tab-surah';
+            surahTabButton.className = 'tab-button active navigable grid-item';
+            surahTabButton.tabIndex = 0;
+            surahTabButton.textContent = 'السورة';
+
+            const juzTabButton = document.createElement('button');
+            juzTabButton.id = 'tab-juz';
+            juzTabButton.className = 'tab-button navigable grid-item';
+            juzTabButton.tabIndex = 0;
+            juzTabButton.textContent = 'الجزء';
+
+            tabContainer.appendChild(surahTabButton);
+            tabContainer.appendChild(juzTabButton);
+
+            const tabsContentContainer = document.createElement('div');
+            tabsContentContainer.id = 'tabs-content-container-surah';
+            tabsContentContainer.className = 'flex-grow w-full overflow-hidden'; // Let inner container scroll
+
+            // 2. Create Surah content panel
+            const surahContent = document.createElement('div');
+            surahContent.id = 'tab-content-surah';
+            surahContent.className = 'tab-content h-full';
+            
+            const scrollableSurahContainer = document.createElement('div');
+            scrollableSurahContainer.className = 'surah-buttons-scrollable h-full';
+            const surahButtonsContainer = document.createElement('div');
+            surahButtonsContainer.className = 'flex flex-wrap justify-center gap-2 w-full';
+            
+            youtubeSurahSuggestions.forEach(name => {
+                const button = document.createElement('button');
+                button.className = 'youtube-suggestion-button navigable grid-item';
+                button.tabIndex = 0;
+                button.innerHTML = `<span class="surah-name-text">${name}</span> <span class="juz-badge">${surahToJuzMap[name] || '?'}</span>`;
+                button.style.backgroundColor = juzColors[(surahToJuzMap[name] || 1) - 1];
+                button.addEventListener('click', () => {
+                    let query = '';
+                    const currentInput = youtubeSearchInput.value.trim();
+                    if (youtubeSearchInput.value.startsWith('الكلمات الصعبة في')) {
+                        query = 'الكلمات الصعبة في سورة ' + name;
+                    } else if (currentInput === '') {
+                        query = name;
+                    } else {
+                        query = selectedReaderName + ' سورة ' + name;
+                    }
+                    youtubeSearchInput.value = query;
+                    searchYouTubeVideos(query);
+                });
+                surahButtonsContainer.appendChild(button);
+            });
+            scrollableSurahContainer.appendChild(surahButtonsContainer);
+            surahContent.appendChild(scrollableSurahContainer);
+
+            // 3. Create Juz content panel
+            const juzContent = document.createElement('div');
+            juzContent.id = 'tab-content-juz';
+            juzContent.className = 'tab-content hidden h-full';
+
+            const scrollableJuzContainer = document.createElement('div');
+            scrollableJuzContainer.className = 'surah-buttons-scrollable h-full';
+            const juzButtonsContainer = document.createElement('div');
+            juzButtonsContainer.className = 'flex flex-wrap justify-center gap-2 w-full';
+
+            for (let i = 1; i <= 30; i++) {
+                const button = document.createElement('button');
+                button.className = 'youtube-suggestion-button navigable grid-item';
+                button.tabIndex = 0;
+                button.style.backgroundColor = juzColors[(i % juzColors.length)];
+                button.innerHTML = `الجزء ${i}`;
+                button.addEventListener('click', () => {
+                    const juzName = juzArabicNames[i - 1];
+                    let query = '';
+                    const currentSearch = youtubeSearchInput.value;
+                    if (currentSearch.trim() && !currentSearch.startsWith('الكلمات الصعبة في')) {
+                        query = currentSearch + `الجزء ${juzName}`;
+                    } else {
+                        query = `الجزء ${juzName}`;
+                    }
+                    youtubeSearchInput.value = query;
+                    searchYouTubeVideos(query);
+                });
+                juzButtonsContainer.appendChild(button);
+            }
+            scrollableJuzContainer.appendChild(juzButtonsContainer);
+            juzContent.appendChild(scrollableJuzContainer);
+
+            // 4. Tab Switching Logic
+            surahTabButton.addEventListener('click', () => {
+                surahTabButton.classList.add('active');
+                juzTabButton.classList.remove('active');
+                surahContent.classList.remove('hidden');
+                juzContent.classList.add('hidden');
+                const firstItem = surahContent.querySelector('.grid-item');
+                if (firstItem) setFocus(firstItem);
+            });
+            juzTabButton.addEventListener('click', () => {
+                juzTabButton.classList.add('active');
+                surahTabButton.classList.remove('active');
+                juzContent.classList.remove('hidden');
+                surahContent.classList.add('hidden');
+                const firstItem = juzContent.querySelector('.grid-item');
+                if (firstItem) setFocus(firstItem);
+            });
+
+            // 5. Append everything
+            surahSection.appendChild(tabContainer);
+            tabsContentContainer.appendChild(surahContent);
+            tabsContentContainer.appendChild(juzContent);
+            surahSection.appendChild(tabsContentContainer);
+            youtubeSuggestionsDiv.appendChild(surahSection);
+        }
+
         function navigateBackToMainSearch() { 
             youtubeVideoListView.classList.add('hidden'); 
             youtubeSearchResultsView.classList.add('hidden'); 
@@ -1828,6 +2429,25 @@ section#screen-Media {
 
         // --- Google Map and Geolocation (REFACTORED FOR RELIABILITY) ---
         let mapsInitialized = false;
+        
+        function showGeolocationErrorOnMap(message) {
+            const overlay = document.getElementById('geolocation-error-overlay');
+            const mapControls = document.querySelector('#dashboard-google-map ~ .absolute'); 
+
+            if (overlay) {
+                overlay.classList.remove('hidden');
+                overlay.classList.add('flex');
+                if (message) {
+                    const p = overlay.querySelector('p');
+                    if (p) p.textContent = message;
+                }
+                lucide.createIcons();
+            }
+            if (mapControls) {
+                mapControls.style.display = 'none';
+            }
+        }
+
 
         function loadGoogleMaps() {
             if (googleMapsPromise) {
@@ -1874,7 +2494,7 @@ section#screen-Media {
                 startContinuousLocationTracking();
             } catch (error) {
                 console.error("Failed to initialize map due to API load error:", error);
-                showMessageBox("تعذر تحميل خرائط جوجل. يرجى التحقق من اتصالك بالإنترنت.");
+                showGeolocationErrorOnMap("تعذر تحميل خرائط جوجل. يرجى التحقق من اتصالك بالإنترنت ومفتاح API.");
             }
         }
 
@@ -1933,8 +2553,53 @@ section#screen-Media {
                 if (dashboardGoogleMap) dashboardGoogleMap.setHeading(heading);
             }
         }
-        function startContinuousLocationTracking() { if (navigator.geolocation) { watchId = navigator.geolocation.watchPosition((pos) => { updateGoogleMapLocation(pos); appState.hasShownGeolocationError = false; }, (err) => { if (!appState.hasShownGeolocationError) { let msg = 'تعذر تتبع موقعك. يرجى التحقق من أذونات الموقع.'; if (err.code === 1) msg += ' إذا كان التطبيق في iframe، تأكد من وجود `allow="geolocation"`.'; showMessageBox(msg); appState.hasShownGeolocationError = true; } }, { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }); } else { showMessageBox('الموقع الجغرافي غير مدعوم.'); } }
-        function centerMapOnUserLocation() { if (navigator.geolocation) { navigator.geolocation.getCurrentPosition((pos) => { updateGoogleMapLocation(pos); showMessageBox(`تم تحديث الخريطة.`); }, () => showMessageBox('تعذر الحصول على موقعك الحالي.'), { enableHighAccuracy: true }); } }
+        function startContinuousLocationTracking() {
+            if (navigator.geolocation) {
+                watchId = navigator.geolocation.watchPosition(
+                    (pos) => { 
+                        const overlay = document.getElementById('geolocation-error-overlay');
+                        if (overlay) overlay.classList.add('hidden');
+                        const mapControls = document.querySelector('#dashboard-google-map ~ .absolute');
+                        if (mapControls) mapControls.style.display = 'flex';
+                        
+                        updateGoogleMapLocation(pos); 
+                        appState.hasShownGeolocationError = false; 
+
+                        // Fetch weather for the first time with accurate location
+                        if (!initialLocationFetched) {
+                            fetchWeatherData();
+                            initialLocationFetched = true;
+                        }
+                    }, 
+                    (err) => { 
+                        if (err.code === 1) { // PERMISSION_DENIED
+                            showGeolocationErrorOnMap('تم رفض إذن تحديد الموقع. يرجى تمكينه في إعدادات المتصفح.');
+                        } else if (!appState.hasShownGeolocationError) {
+                            let msg = 'تعذر تتبع موقعك. يرجى التحقق من أذونات الموقع.';
+                            showMessageBox(msg); 
+                            appState.hasShownGeolocationError = true; 
+                        }
+                    }, 
+                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+                );
+            } else {
+                showGeolocationErrorOnMap('خدمة تحديد المواقع غير مدعومة في هذا المتصفح.');
+            }
+        }
+        function centerMapOnUserLocation() { 
+            if (navigator.geolocation) { 
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => { 
+                        updateGoogleMapLocation(pos); 
+                        showMessageBox(`تم تحديث الخريطة.`); 
+                    }, 
+                    () => {
+                        showGeolocationErrorOnMap('تعذر الحصول على موقعك الحالي. يرجى التحقق من الأذونات.');
+                    }, 
+                    { enableHighAccuracy: true }
+                ); 
+            } 
+        }
         
         async function calculateAndDisplayRouteTo(destinationCoords) {
             if (!appState.currentLocation) {
@@ -1968,10 +2633,172 @@ section#screen-Media {
         }
 
         // --- Weather API Integration ---
-        let hourlyForecastChart = null;
-        async function fetchWeatherData() { if (WEATHER_API_KEY.startsWith('YOUR_')) return showMessageBox('خطأ: لم يتم تعيين مفتاح WeatherAPI.'); try { const res = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=${WEATHER_API_KEY}&q=${appState.weather.location.split(',')[0].trim()}&days=2&aqi=no&alerts=no&lang=ar`); if (!res.ok) throw new Error(`خطأ HTTP! الحالة: ${res.status}`); const data = await res.json(); appState.weather.temperature = data.current.temp_c; appState.weather.description = data.current.condition.text; appState.weather.uvIndex = data.current.uv; appState.weather.iconUrl = `https:${data.current.condition.icon}`; appState.weather.location = `${data.location.name}, ${data.location.country}`; const hourlyData = [...data.forecast.forecastday[0].hour, ...data.forecast.forecastday[1]?.hour || []]; const now = new Date(); const upcomingHours = hourlyData.filter(h => new Date(h.time_epoch * 1000) >= now).slice(0, 12); renderHourlyForecastChart(upcomingHours); updateUI(); } catch (err) { console.error('Error fetching weather data:', err); showMessageBox(`تعذر جلب بيانات الطقس: ${err.message}.`); } }
-        const dataLabelsPlugin = { id: 'dataLabels', afterDatasetsDraw: (chart) => { const { ctx } = chart; ctx.save(); ctx.font = `bold 14px Inter`; ctx.fillStyle = 'white'; ctx.textAlign = 'center'; const meta = chart.getDatasetMeta(0); meta.data.forEach((bar, index) => { ctx.fillText(`${Math.round(chart.data.datasets[0].data[index])}°`, bar.x, bar.y - 5); }); ctx.restore(); } };
-        async function renderHourlyForecastChart(upcomingHours) { const ctx = document.getElementById('hourly-forecast-chart')?.getContext('2d'); if (!ctx) return; const labels = upcomingHours.map(h => new Date(h.time_epoch * 1000).toLocaleTimeString('ar-SA', { hour: 'numeric', hour12: true })); const temps = upcomingHours.map(h => h.temp_c); const icons = upcomingHours.map(h => `https:${h.condition.icon}`); const iconImages = icons.map(url => { const img = new Image(32, 32); img.src = url; return img; }); await Promise.all(iconImages.filter(img => !img.complete).map(img => new Promise(resolve => { img.onload = img.onerror = resolve; }))); if (hourlyForecastChart) hourlyForecastChart.destroy(); const weatherIconPlugin = { id: 'weatherIconPlugin', afterDraw: (chart) => { const { ctx } = chart; const meta = chart.getDatasetMeta(0); meta.data.forEach((bar, index) => { const img = iconImages[index]; if (img.complete) { ctx.drawImage(img, bar.x - 16, bar.y - 45, 32, 32); } }); } }; hourlyForecastChart = new Chart(ctx, { type: 'bar', data: { labels, datasets: [{ label: 'درجة الحرارة', data: temps, backgroundColor: 'rgba(255, 255, 255, 0.3)', borderColor: 'rgba(255, 255, 255, 0.6)', borderWidth: 1, borderRadius: 5 }] }, plugins: [dataLabelsPlugin, weatherIconPlugin], options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: false } }, scales: { y: { beginAtZero: false, grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: 'white', callback: (value) => { if (Number.isInteger(value)) { return value + '°C'; } } }, grace: '25%' }, x: { grid: { display: false }, ticks: { color: 'white' } } } } }); }
+        async function fetchWeatherData() {
+            if (WEATHER_API_KEY.startsWith('YOUR_')) return showMessageBox('خطأ: لم يتم تعيين مفتاح WeatherAPI.');
+            try {
+                const locationQuery = appState.currentLocation ? `${appState.currentLocation.lat},${appState.currentLocation.lng}` : appState.weather.location.split(',')[0].trim();
+                const res = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=${WEATHER_API_KEY}&q=${locationQuery}&days=2&aqi=no&alerts=no&lang=ar`);
+                if (!res.ok) throw new Error(`خطأ HTTP! الحالة: ${res.status}`);
+                const data = await res.json();
+                
+                // Update main state for Salalah
+                appState.weather.temperature = data.current.temp_c;
+                appState.weather.description = data.current.condition.text;
+                appState.weather.uvIndex = data.current.uv;
+                appState.weather.iconUrl = `https:${data.current.condition.icon}`;
+                appState.weather.location = `${data.location.name}, ${data.location.country}`;
+                
+                // --- NEW: Handle hourly forecast ---
+                const hourlyData = [...data.forecast.forecastday[0].hour, ...data.forecast.forecastday[1]?.hour || []];
+                const now = new Date();
+                const currentHourData = {
+                    time: "الآن",
+                    temp_c: data.current.temp_c,
+                    condition: { icon: data.current.condition.icon }
+                };
+                const upcomingHours = hourlyData.filter(h => new Date(h.time_epoch * 1000) > now).slice(0, 6);
+                const forecastToRender = [currentHourData, ...upcomingHours];
+                renderHourlyForecast(forecastToRender);
+                
+                // --- NEW: Fetch other locations ---
+                fetchAndRenderLocationTemps();
+
+                updateUI(); // Update other UI elements
+            } catch (err) {
+                console.error('Error fetching weather data:', err);
+                showMessageBox(`تعذر جلب بيانات الطقس: ${err.message}.`);
+            }
+        }
+
+        function renderHourlyForecast(forecastData) {
+            const container = document.getElementById('hourly-forecast-container');
+            if (!container) return;
+            container.innerHTML = '';
+            forecastData.forEach(hour => {
+                const timeLabel = hour.time === "الآن"
+                    ? "الآن"
+                    : new Date(hour.time_epoch * 1000).toLocaleTimeString('ar-SA', { hour: 'numeric', hour12: false });
+
+                const card = document.createElement('div');
+                card.className = 'flex flex-col items-center justify-center p-1 rounded-lg';
+                card.innerHTML = `
+                    <span class="text-xs font-medium text-white/80">${timeLabel}</span>
+                    <img src="https:${hour.condition.icon}" alt="weather" class="w-8 h-8">
+                    <span class="text-base font-bold">${Math.round(hour.temp_c)}°</span>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        async function fetchAndRenderLocationTemps() {
+            const container = document.getElementById('location-temps-container');
+            if (!container) return;
+            container.innerHTML = '<p class="text-white/70 col-span-full text-center">جاري تحميل درجات الحرارة...</p>';
+
+            const locations = [
+                { name: 'الموقع الحالي', query: appState.currentLocation ? `${appState.currentLocation.lat},${appState.currentLocation.lng}` : '17.0151,54.0924', isCurrent: true },
+                { name: 'سهل اتين', query: '17.08,54.02' },
+                { name: 'طاقة', query: '17.039,54.395' },
+                { name: 'مرباط', query: '16.99,54.69' },
+                { name: 'شاطئ الحافة', query: '16.995,54.088' }
+            ];
+
+            const promises = locations.map(loc =>
+                fetch(`https://api.weatherapi.com/v1/current.json?key=${WEATHER_API_KEY}&q=${loc.query}&aqi=no&lang=ar`)
+                .then(res => res.json())
+                .then(data => ({
+                    name: loc.isCurrent && data.location ? data.location.name : loc.name,
+                    temp: data.current.temp_c,
+                    icon: `https:${data.current.condition.icon}`,
+                    desc: data.current.condition.text,
+                    isCurrent: !!loc.isCurrent,
+                    uv: data.current.uv,
+                    humidity: data.current.humidity,
+                    wind_kph: data.current.wind_kph,
+                    wind_dir: data.current.wind_dir,
+                    pressure_mb: data.current.pressure_mb
+                }))
+                .catch(err => {
+                    console.error(`Failed to fetch weather for ${loc.name}`, err);
+                    return { name: loc.name, temp: 'N/A', icon: '', desc: 'خطأ', isCurrent: !!loc.isCurrent };
+                })
+            );
+
+            const results = await Promise.all(promises);
+
+            container.innerHTML = '';
+            // New grid layout: 3 columns, with 2 rows of different heights
+            container.className = 'grid grid-cols-3 grid-rows-[2.5fr_0.8fr] gap-4 w-full flex-grow';
+
+            const currentLocationData = results.find(r => r.isCurrent);
+            const otherLocationsData = results.filter(r => !r.isCurrent);
+            
+            // Big card for current location (right column, spans both rows)
+            if (currentLocationData) {
+                const bigCard = document.createElement('div');
+                bigCard.className = 'glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col justify-between items-center navigable grid-item col-span-1 row-span-2';
+                bigCard.tabIndex = 0;
+                bigCard.innerHTML = `
+                    <div class="w-full text-center">
+                        <img src="${currentLocationData.icon || 'https://placehold.co/64x64/000000/FFFFFF?text=X'}" alt="weather" class="w-24 h-24 mx-auto mb-2">
+                        <span class="text-6xl font-bold">${currentLocationData.temp === 'N/A' ? '--' : currentLocationData.temp.toFixed(1)}°C</span>
+                    </div>
+                    <div class="w-full text-center mt-auto">
+                        <span class="text-2xl text-white/80 block">${currentLocationData.desc || ''}</span>
+                        <span class="text-lg text-white/80 mt-1 block font-bold">${currentLocationData.name}</span>
+                    </div>
+                `;
+                container.appendChild(bigCard);
+            }
+            
+            // Container for the 4 smaller cards (top left, spans 2 columns)
+            const smallCardsContainer = document.createElement('div');
+            smallCardsContainer.className = 'col-span-2 row-span-1 grid grid-cols-2 gap-4';
+            container.appendChild(smallCardsContainer);
+            
+            otherLocationsData.forEach(result => {
+                const card = document.createElement('div');
+                card.className = 'glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center navigable grid-item';
+                card.tabIndex = 0;
+                card.innerHTML = `
+                    <img src="${result.icon || 'https://placehold.co/48x48/000000/FFFFFF?text=X'}" alt="weather" class="w-14 h-14 mb-2">
+                    <span class="text-3xl font-bold">${result.temp === 'N/A' ? '--' : result.temp.toFixed(1) + '°C'}</span>
+                    <span class="text-sm text-cyan-300 font-semibold">${result.humidity || '--'}% رطوبة</span>
+                    <span class="text-sm text-white/80 mt-1 font-bold">${result.name}</span>
+                `;
+                smallCardsContainer.appendChild(card);
+            });
+
+             // Details card for current location info (bottom left, spans 2 columns)
+            if (currentLocationData) {
+                const detailsCard = document.createElement('div');
+                detailsCard.className = 'glass-surface glass-surface--svg p-4 rounded-3xl text-center navigable grid-item col-span-2 row-span-1';
+                detailsCard.tabIndex = 0;
+                detailsCard.innerHTML = `
+                    <div class="grid grid-cols-4 gap-4 w-full h-full items-center">
+                        <div class="text-center flex flex-col justify-center h-full">
+                            <div class="text-sm text-white/70 mb-1">UV Index</div>
+                            <div class="text-2xl font-bold" style="color: ${getUvIndexColor(currentLocationData.uv)}">${currentLocationData.uv || '--'}</div>
+                        </div>
+                        <div class="text-center flex flex-col justify-center h-full">
+                            <div class="text-sm text-white/70 mb-1">الرطوبة</div>
+                            <div class="text-2xl font-bold">${currentLocationData.humidity || '--'}%</div>
+                        </div>
+                        <div class="text-center flex flex-col justify-center h-full">
+                            <div class="text-sm text-white/70 mb-1">الرياح</div>
+                            <div class="text-lg font-bold">${currentLocationData.wind_kph || '--'} km/h</div>
+                            <div class="text-xs font-bold text-white/70">${currentLocationData.wind_dir || ''}</div>
+                        </div>
+                        <div class="text-center flex flex-col justify-center h-full">
+                            <div class="text-sm text-white/70 mb-1">الضغط</div>
+                            <div class="text-lg font-bold">${currentLocationData.pressure_mb || '--'} mb</div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(detailsCard);
+            }
+        }
+
         function getUvIndexColor(uv) { if (uv <= 2) return '#4ade80'; if (uv <= 5) return '#facc15'; if (uv <= 7) return '#fb923c'; if (uv <= 10) return '#f87171'; return '#c084fc'; }
 
         // --- Simulated Car Data ---
@@ -1985,32 +2812,7 @@ section#screen-Media {
         // --- Prayer Times Integration ---
         const prayerTimes = [
             
-         {"date":"2025-08-21","fajr":"04:54","sunrise":"06:08","dhuhr":"12:32","asr":"15:47","maghrib":"18:51","isha":"20:00"},
-            {"date":"2025-08-22","fajr":"04:54","sunrise":"06:08","dhuhr":"12:32","asr":"15:47","maghrib":"18:50","isha":"19:59"},
-            {"date":"2025-08-23","fajr":"04:54","sunrise":"06:09","dhuhr":"12:31","asr":"15:47","maghrib":"18:49","isha":"19:59"},
-            {"date":"2025-08-24","fajr":"04:54","sunrise":"06:09","dhuhr":"12:31","asr":"15:47","maghrib":"18:48","isha":"19:58"},
-            {"date":"2025-08-25","fajr":"04:55","sunrise":"06:09","dhuhr":"12:31","asr":"15:47","maghrib":"18:48","isha":"19:57"},
-            {"date":"2025-08-26","fajr":"04:55","sunrise":"06:09","dhuhr":"12:31","asr":"15:47","maghrib":"18:47","isha":"19:56"},
-            {"date":"2025-08-27","fajr":"04:55","sunrise":"06:09","dhuhr":"12:30","asr":"15:47","maghrib":"18:46","isha":"19:55"},
-            {"date":"2025-08-28","fajr":"04:56","sunrise":"06:09","dhuhr":"12:30","asr":"15:47","maghrib":"18:46","isha":"19:54"},
-            {"date":"2025-08-29","fajr":"04:56","sunrise":"06:10","dhuhr":"12:30","asr":"15:47","maghrib":"18:45","isha":"19:54"},
-            {"date":"2025-08-30","fajr":"04:56","sunrise":"06:10","dhuhr":"12:29","asr":"15:47","maghrib":"18:44","isha":"19:53"},
-            {"date":"2025-08-31","fajr":"04:56","sunrise":"06:10","dhuhr":"12:29","asr":"15:47","maghrib":"18:43","isha":"19:52"},
-            {"date":"2025-09-01","fajr":"04:57","sunrise":"06:10","dhuhr":"12:29","asr":"15:47","maghrib":"18:42","isha":"19:51"},
-            {"date":"2025-09-02","fajr":"04:57","sunrise":"06:10","dhuhr":"12:28","asr":"15:47","maghrib":"18:42","isha":"19:50"},
-            {"date":"2025-09-03","fajr":"04:57","sunrise":"06:10","dhuhr":"12:28","asr":"15:47","maghrib":"18:41","isha":"19:49"},
-            {"date":"2025-09-04","fajr":"04:57","sunrise":"06:10","dhuhr":"12:28","asr":"15:47","maghrib":"18:40","isha":"19:48"},
-            {"date":"2025-09-05","fajr":"04:58","sunrise":"06:11","dhuhr":"12:27","asr":"15:47","maghrib":"18:39","isha":"19:47"},
-            {"date":"2025-09-06","fajr":"04:58","sunrise":"06:11","dhuhr":"12:27","asr":"15:47","maghrib":"18:39","isha":"19:46"},
-            {"date":"2025-09-07","fajr":"04:58","sunrise":"06:11","dhuhr":"12:27","asr":"15:47","maghrib":"18:38","isha":"19:46"},
-            {"date":"2025-09-08","fajr":"04:58","sunrise":"06:11","dhuhr":"12:26","asr":"15:47","maghrib":"18:37","isha":"19:45"},
-            {"date":"2025-09-09","fajr":"04:58","sunrise":"06:11","dhuhr":"12:26","asr":"15:46","maghrib":"18:36","isha":"19:44"},
-            {"date":"2025-09-10","fajr":"04:59","sunrise":"06:11","dhuhr":"12:26","asr":"15:46","maghrib":"18:35","isha":"19:43"},
-            {"date":"2025-09-11","fajr":"04:59","sunrise":"06:11","dhuhr":"12:25","asr":"15:46","maghrib":"18:34","isha":"19:42"},
-            {"date":"2025-09-12","fajr":"04:59","sunrise":"06:11","dhuhr":"12:25","asr":"15:46","maghrib":"18:34","isha":"19:41"},
-            {"date":"2025-09-13","fajr":"04:59","sunrise":"06:12","dhuhr":"12:25","asr":"15:46","maghrib":"18:33","isha":"19:40"},
-            {"date":"2025-09-14","fajr":"04:59","sunrise":"06:12","dhuhr":"12:24","asr":"15:46","maghrib":"18:32","isha":"19:39"},
-            {"date":"2025-09-15","fajr":"05:00","sunrise":"06:12","dhuhr":"12:24","asr":"15:45","maghrib":"18:31","isha":"19:38"},
+                    {"date":"2025-09-15","fajr":"05:00","sunrise":"06:12","dhuhr":"12:24","asr":"15:45","maghrib":"18:31","isha":"19:38"},
             {"date":"2025-09-16","fajr":"05:00","sunrise":"06:12","dhuhr":"12:24","asr":"15:45","maghrib":"18:30","isha":"19:38"},
             {"date":"2025-09-17","fajr":"05:00","sunrise":"06:12","dhuhr":"12:23","asr":"15:45","maghrib":"18:29","isha":"19:37"},
             {"date":"2025-09-18","fajr":"05:00","sunrise":"06:12","dhuhr":"12:23","asr":"15:45","maghrib":"18:29","isha":"19:36"},
@@ -2070,16 +2872,6 @@ section#screen-Media {
             if (speedEl) speedEl.textContent = `${appState.car.speed} km/h`;
             if (gearEl) gearEl.textContent = appState.car.gear;
             if (dirEl) dirEl.textContent = appState.car.direction;
-
-            // NEW: Update direction controls brightness
-            const directionButtons = document.querySelectorAll('#direction-controls-3d button');
-            directionButtons.forEach(btn => {
-                if (btn.dataset.direction === appState.car.direction) {
-                    btn.classList.add('active-direction');
-                } else {
-                    btn.classList.remove('active-direction');
-                }
-            });
         }
 
         // --- Draggable/Resizable Popup Logic ---
@@ -2139,25 +2931,139 @@ section#screen-Media {
 
         // --- TV Remote / Keyboard Navigation ---
         let currentFocus = null;
-        function setFocus(el) { if (currentFocus) currentFocus.classList.remove('tv-focus'); if (el) { el.classList.add('tv-focus'); el.focus({ preventScroll: true }); currentFocus = el; el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' }); } }
+        function setFocus(el) { if (currentFocus) currentFocus.classList.remove('tv-focus'); if (el) { el.classList.add('tv-focus'); el.focus({ preventScroll: true }); currentFocus = el; el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' }); } else { if (currentFocus) currentFocus.classList.remove('tv-focus'); currentFocus = null; } }
         
-        function handleNavigation(e) {
+        // --- MASTER KEY HANDLER (REFACTORED) ---
+        function handleRemoteControlInput(e) {
             const key = e.key.toLowerCase();
-            if (key === 'f') {
+            const activeEl = document.activeElement;
+
+            // --- NEW GLOBAL SHORTCUTS for 1 and 2 ---
+            if (key === '1') {
                 e.preventDefault();
-                toggleAppFullScreen();
+                switchApp('Media');
+                youtubeSearchInput.value = "الكلمات الصعبة في";
+                youtubeSearchInput.readOnly = false;
+                youtubeSearchInput.focus();
+                floatingKeyboardButton.classList.add('active-keyboard');
+                floatingKeyboardButton.classList.remove('inactive-keyboard');
+                return; // Handled
+            }
+
+            if (key === '2') {
+                e.preventDefault();
+                switchApp('Media');
+                selectedReaderName = ""; // No specific reader
+                youtubeSearchInput.value = "";
+                
+                // Ensure suggestions are ready by resetting the view
+                if (youtubeSuggestionsDiv.style.display === 'none' || !document.getElementById('youtube-readers-section')) {
+                    resetYoutubeSearchUI();
+                }
+                
+                // Use timeout to allow the UI to render before manipulating it
+                setTimeout(() => {
+                    const readersSection = document.getElementById('youtube-readers-section');
+                    if (readersSection) {
+                        readersSection.style.display = 'none';
+                    }
+                    showSurahSuggestions();
+                    setTimeout(() => {
+                        const firstSurah = document.querySelector('#youtube-surah-section .grid-item');
+                        if (firstSurah) setFocus(firstSurah);
+                    }, 100);
+                }, 50);
+                return; // Handled
+            }
+
+            // --- Priority 1: Video Player is Active ---
+            if (videoPopupContainer.classList.contains('active') || appState.isVideoPlayerMinimized) {
+                const customHandledKeys = [
+                    'arrowup', 'arrowdown', 'arrowleft', 'arrowright',
+                    'enter', 'ok', 'p',
+                    'b', 'stop', 'red', 'colorf0red', 'x',
+                    'yellow', 'colorf2yellow', '8',
+                    '9' // Added for fullscreen
+                ];
+
+                if (customHandledKeys.includes(key)) {
+                    e.preventDefault();
+
+                    if (key === 'yellow' || key === 'colorf2yellow' || key === '8') {
+                        if (appState.isVideoPlayerMinimized) restoreVideoPopup();
+                        else minimizeVideoPopup();
+                        return;
+                    }
+                    if (key === 'b' || key === 'stop' || key === 'red' || key === 'colorf0red' || key === 'x') {
+                        hideVideoPopup();
+                        return;
+                    }
+                    if (key === 'enter' || key === 'ok' || key === 'p') {
+                        const playerState = popupPlayer.getPlayerState();
+                        if (playerState === YT.PlayerState.PLAYING) popupPlayer.pauseVideo();
+                        else popupPlayer.playVideo();
+                        return;
+                    }
+                    if (key === '9') {
+                        toggleFullScreen();
+                        return;
+                    }
+                    
+                    const currentTime = popupPlayer.getCurrentTime();
+                    const currentVolume = popupPlayer.getVolume();
+                    switch (key) {
+                        case 'arrowright':
+                            popupPlayer.seekTo(currentTime + 10, true);
+                            break;
+                        case 'arrowleft':
+                            popupPlayer.seekTo(currentTime - 10, true);
+                            break;
+                        case 'arrowup':
+                            const newVolUp = Math.min(currentVolume + 10, 100);
+                            popupPlayer.setVolume(newVolUp);
+                            showMessageBox(`الصوت: ${newVolUp}%`);
+                            break;
+                        case 'arrowdown':
+                            const newVolDown = Math.max(currentVolume - 10, 0);
+                            popupPlayer.setVolume(newVolDown);
+                            showMessageBox(`الصوت: ${newVolDown}%`);
+                            break;
+                    }
+                }
+                // For other keys (like 'f', 'm', spacebar), do nothing and let the event bubble up.
                 return;
             }
 
+            // --- Priority 2: Typing in Search Bar ---
+            const isTyping = !youtubeSearchInput.readOnly && activeEl === youtubeSearchInput;
+            if (isTyping) {
+                if (key === 'enter' || key === 'ok') {
+                    e.preventDefault();
+                    youtubeSearchButton.click();
+                } else if (key.length === 1 && (key.match(/[a-z0-9\s]/i) || key.match(/[\u0600-\u06FF]/))) {
+                    // Allow default typing
+                } else if (key === 'backspace') {
+                    // Allow default backspace
+                } else {
+                    handleNavigation(e);
+                }
+                return;
+            }
+
+            // --- Priority 3: Standard Arrow/OK Navigation ---
+            handleNavigation(e);
+        }
+
+        function handleNavigation(e) {
+            const key = e.key.toLowerCase();
             if (!['arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'enter', 'ok'].includes(key)) return;
+            
+            e.preventDefault(); // Prevent default scroll for navigation keys
 
             const activeEl = document.activeElement;
             if (!activeEl || activeEl === document.body) {
                 const firstIcon = document.querySelector('nav .app-icon');
-                if (firstIcon) {
-                    e.preventDefault();
-                    setFocus(firstIcon);
-                }
+                if (firstIcon) setFocus(firstIcon);
                 return;
             }
 
@@ -2177,7 +3083,6 @@ section#screen-Media {
         }
 
         function handleNavSidebarNavigation(e, activeEl) {
-            e.preventDefault();
             const icons = Array.from(document.querySelectorAll('nav .app-icon'));
             const idx = icons.indexOf(activeEl);
             let nextIdx = -1;
@@ -2195,8 +3100,7 @@ section#screen-Media {
                         if (firstItem) setFocus(firstItem);
                     }
                     return;
-                case 'enter':
-                case 'ok':
+                case 'enter': case 'ok':
                     activeEl.click();
                     return;
             }
@@ -2204,7 +3108,6 @@ section#screen-Media {
         }
         
         function handleMediaScreenNavigation(e, activeEl) {
-            e.preventDefault();
             const searchRow = document.querySelector('#screen-Media .flex.flex-row.items-center.gap-2.grid-container');
             const readersContainer = document.querySelector('.reader-container');
             const surahContainer = document.querySelector('#youtube-surah-section');
@@ -2212,6 +3115,7 @@ section#screen-Media {
             const searchResultsContainer = document.querySelector('#search-results-container');
             const inSearchRow = activeEl.closest('.flex.flex-row.items-center.gap-2.grid-container');
             const inReaders = activeEl.closest('.reader-container');
+
             if (e.key.toLowerCase() === 'arrowdown') {
                 if (inSearchRow) {
                     const nextVisibleContainer = [readersContainer, surahContainer, videoListContainer, searchResultsContainer].find(c => c && c.offsetParent !== null);
@@ -2255,7 +3159,6 @@ section#screen-Media {
         }
 
         function handleGenericGridNavigation(e, activeEl, container) {
-            e.preventDefault();
             const items = Array.from(container.querySelectorAll('.grid-item:not([style*="display: none"])')).filter(el => el.offsetParent !== null);
             if (items.length === 0) return;
             const idx = items.indexOf(activeEl);
@@ -2340,34 +3243,29 @@ section#screen-Media {
             checkWeatherAndSpeak();
         }
 
-        // --- Fullscreen Toggle (NEW & IMPROVED) ---
-        function toggleAppFullScreen() {
+        // --- Fullscreen Toggle ---
+        function toggleFullScreen() {
+            let elem;
+            if (videoPopupContainer.classList.contains('active')) {
+                elem = popupPlayer.getIframe();
+            } else {
+                elem = document.documentElement;
+            }
+
             if (!document.fullscreenElement) {
-                // Find the active screen and request fullscreen for it
-                const activeScreen = document.querySelector('.app-screen.active');
-                if (activeScreen) {
-                    activeScreen.requestFullscreen().catch(err => {
-                        console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
-                    });
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.webkitRequestFullscreen) { /* Safari */
+                    elem.webkitRequestFullscreen();
+                } else if (elem.msRequestFullscreen) { /* IE11 */
+                    elem.msRequestFullscreen();
                 }
             } else {
-                document.exitFullscreen();
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
             }
         }
-
-        function handleFullscreenChange() {
-            const icon = floatingFullscreenButton.querySelector('i');
-            if (document.fullscreenElement) {
-                // Entered fullscreen
-                icon.setAttribute('data-lucide', 'minimize');
-            } else {
-                // Exited fullscreen
-                icon.setAttribute('data-lucide', 'maximize');
-            }
-            // Re-render the icons
-            lucide.createIcons();
-        }
-
 
         // --- Initial Setup ---
         document.addEventListener('DOMContentLoaded', () => { 
@@ -2376,19 +3274,31 @@ section#screen-Media {
             goToHome1Button?.addEventListener('click', () => calculateAndDisplayRouteTo(HOME1_COORDS));
             goToHome2Button?.addEventListener('click', () => calculateAndDisplayRouteTo(HOME2_COORDS));
             floatingMediaButton?.addEventListener('click', () => switchApp('Media')); 
-            floatingFullscreenButton?.addEventListener('click', toggleAppFullScreen);
-            document.addEventListener('fullscreenchange', handleFullscreenChange);
+            floatingMinimizedVideoButton?.addEventListener('click', restoreVideoPopup); // NEW listener
             startTripFloatingButton?.addEventListener('click', () => { if (appState.destinationSet) calculateAndDisplayRoute(); else showMessageBox('الرجاء تحديد وجهة أولاً.'); }); 
             upload360ImageButton?.addEventListener('click', () => upload360ImageInput.click()); 
             upload360ImageInput?.addEventListener('change', handleImageUpload); 
             reset360ImageButton?.addEventListener('click', resetImageToDefault); 
-            document.addEventListener('keydown', handleNavigation);
+            document.addEventListener('keydown', handleRemoteControlInput);
+            document.addEventListener('fullscreenchange', handleFullScreenChange);
+            document.addEventListener('webkitfullscreenchange', handleFullScreenChange); // For Safari
             
             videoPopupCloseButton.addEventListener('click', hideVideoPopup);
             backToPlaylistsFromVideosButton.addEventListener('click', navigateBackToMainSearch);
             backToPlaylistsBottomButton.addEventListener('click', navigateBackToMainSearch);
             backToPlaylistsBottomButtonSearch.addEventListener('click', navigateBackToMainSearch);
-            floatingKeyboardButton.addEventListener('click', () => { youtubeSearchInput.readOnly = !youtubeSearchInput.readOnly; if (!youtubeSearchInput.readOnly) youtubeSearchInput.focus(); else youtubeSearchInput.blur(); floatingKeyboardButton.classList.toggle('active-keyboard', !youtubeSearchInput.readOnly); floatingKeyboardButton.classList.toggle('inactive-keyboard', youtubeSearchInput.readOnly); });
+            floatingKeyboardButton.addEventListener('click', () => { 
+                youtubeSearchInput.readOnly = !youtubeSearchInput.readOnly; 
+                if (!youtubeSearchInput.readOnly) {
+                    youtubeSearchInput.focus(); 
+                } else {
+                    youtubeSearchInput.blur();
+                    // Return focus to the search button after disabling keyboard
+                    setFocus(youtubeSearchButton);
+                }
+                floatingKeyboardButton.classList.toggle('active-keyboard', !youtubeSearchInput.readOnly); 
+                floatingKeyboardButton.classList.toggle('inactive-keyboard', youtubeSearchInput.readOnly); 
+            });
             
             // UPDATED: Clear button logic
             clearSearchButton.addEventListener('click', () => {
@@ -2399,6 +3309,39 @@ section#screen-Media {
             youtubeSearchInput.addEventListener('focus', () => { if (youtubeSearchInput.value.trim() === '') { resetYoutubeSearchUI(); } });
             youtubeSearchButton.addEventListener('click', () => { const query = youtubeSearchInput.value.trim(); if (query) searchYouTubeVideos(query); else showMessageBox('الرجاء إدخال كلمة للبحث.'); });
             
+            // NEW Listeners for Animation and Zoom Controls
+            pauseAnimationButton.addEventListener('click', () => {
+                document.body.classList.toggle('animation-paused');
+                const isPaused = document.body.classList.contains('animation-paused');
+                const playIcon = pauseAnimationButton.querySelector('[data-lucide="play"]');
+                const pauseIcon = pauseAnimationButton.querySelector('[data-lucide="pause"]');
+                playIcon.classList.toggle('hidden', !isPaused);
+                pauseIcon.classList.toggle('hidden', isPaused);
+            });
+
+            fullscreenToggleButton.addEventListener('click', () => {
+                document.body.classList.toggle('small-padding');
+                const isSmall = document.body.classList.contains('small-padding');
+                const maximizeIcon = fullscreenToggleButton.querySelector('[data-lucide="maximize"]');
+                const minimizeIcon = fullscreenToggleButton.querySelector('[data-lucide="minimize"]');
+                maximizeIcon.classList.toggle('hidden', isSmall);
+                minimizeIcon.classList.toggle('hidden', !isSmall);
+            });
+
+            zoomInButton.addEventListener('click', () => {
+                if (currentFontSize < maxFontSize) {
+                    currentFontSize += fontSizeStep;
+                    document.documentElement.style.fontSize = `${currentFontSize}px`;
+                }
+            });
+
+            zoomOutButton.addEventListener('click', () => {
+                if (currentFontSize > minFontSize) {
+                    currentFontSize -= fontSizeStep;
+                    document.documentElement.style.fontSize = `${currentFontSize}px`;
+                }
+            });
+
             // Initial Calls
             setupSwipeNavigation();
             loadGoogleMaps().then(initMap);
@@ -2406,7 +3349,6 @@ section#screen-Media {
             loadPrayerTimes();
             setInterval(fetchWeatherData, 300000); 
             setInterval(updateDigitalClock, 1000); 
-            setInterval(updateTopBarTime, 1000);
             setInterval(determineNextPrayer, 60000);
             setInterval(simulateOtherCarData, 2000); // Call the modified simulation
             switchApp('Dashboard'); 
