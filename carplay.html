@@ -1078,21 +1078,48 @@ section#screen-Media {
             }
 
             #carplay-main-interface {
-                top: 2%;
-                left: 2%;
-                width: 96vw;
-                height: 96vh;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
                 flex-direction: column;
-                border-radius: 1rem;
+                border-radius: 0;
             }
 
             main {
                 order: 1;
-                height: calc(100% - 64px);
+                height: 100%; /* Take full height of the flex container */
+                padding-bottom: 64px; /* Add padding for the nav bar */
+            }
+
+            nav {
+                order: 2; /* Move nav to bottom of flex container */
+                position: fixed; /* Make it a floating dock */
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 64px; /* A standard dock height */
+                flex-direction: row;
+                justify-content: space-around;
+                align-items: center;
+                background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+                backdrop-filter: blur(15px);
+                -webkit-backdrop-filter: blur(15px);
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+                z-index: 200;
+                padding: 0;
+                gap: 0.5rem;
+            }
+            
+            nav .app-icon {
+                flex-grow: 1;
+                border-radius: 0;
+                height: 100%;
+                width: auto;
             }
 
             .app-screen {
-                padding: 0rem 1rem;
+                padding: 1rem;
             }
 
             .dashboard-main-grid {
@@ -1110,6 +1137,26 @@ section#screen-Media {
                 height: 200px;
             }
 
+            /* Media Screen Mobile Zoom and Layout */
+            #screen-Media {
+                zoom: 0.9;
+                padding: 1rem 0.5rem;
+            }
+
+            .reader-container {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+                gap: 0.75rem;
+            }
+
+            .youtube-reader-card img, .youtube-reader-card .w-\[100px\] {
+                width: 75px;
+                height: 75px;
+            }
+             .youtube-reader-card h3 {
+                font-size: 0.9rem;
+                margin-bottom: 0.5rem;
+            }
+
             .youtube-video-card img, .youtube-search-card img {
                 width: 90px;
                 height: 50.625px; /* Maintain 16:9 aspect ratio */
@@ -1119,6 +1166,7 @@ section#screen-Media {
                 font-size: 0.85rem;
             }
 
+            /* Move floating buttons above the new bottom dock */
             #floating-media-button,
             #back-to-playlists-bottom-button,
             #back-to-playlists-bottom-button-search,
@@ -1127,6 +1175,7 @@ section#screen-Media {
                 padding: 0.75rem 1rem;
                 font-size: 0.8rem;
                 gap: 0.25rem;
+                bottom: 75px; /* 64px dock + 11px margin */
             }
             #floating-media-button { right: 1rem; }
             #floating-keyboard-button {
@@ -1135,10 +1184,13 @@ section#screen-Media {
             #back-to-playlists-bottom-button, #back-to-playlists-bottom-button-search {
                 left: 50%;
                 transform: translateX(-50%);
-                bottom: 5.5rem; /* Adjust position to not overlap with other buttons */
             }
             #start-trip-floating-button {
-                bottom: 5.5rem;
+                 left: 50%;
+                transform: translateX(-50%);
+            }
+            #bottom-left-controls {
+                 bottom: 75px;
             }
 
             #video-popup-container {
@@ -2346,6 +2398,19 @@ div#bottom-left-controls {
             surahCard.addEventListener('click', () => handleReaderOrToolClick("JUST_SURAH", tabContainer, tabsContentContainer));
             readerButtonsContainer.appendChild(surahCard);
 
+            // MOVED: Add "القارئ فقط" to the Reciters tab at the end
+            const reciterOnlyCard = document.createElement('div');
+            reciterOnlyCard.className = 'youtube-reader-card navigable grid-item';
+            reciterOnlyCard.tabIndex = 0;
+            reciterOnlyCard.innerHTML = `<h3>القارئ فقط</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="mic" class="w-12 h-12"></i></div>`;
+            reciterOnlyCard.addEventListener('click', () => {
+                searchMode = 'reciter_only';
+                showMessageBox('اختر قارئاً للبحث عنه مباشرة.');
+                const firstReciter = recitersContent.querySelector('.grid-item');
+                if (firstReciter) setFocus(firstReciter);
+            });
+            readerButtonsContainer.appendChild(reciterOnlyCard);
+
 
             const rabtAlAyat = youtubeReaderSuggestions.find(r => r.name === "ربط الآيات");
             if (rabtAlAyat) {
@@ -2377,21 +2442,6 @@ div#bottom-left-controls {
             saveCard.innerHTML = `<h3>حفظ</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="save" class="w-12 h-12"></i></div>`;
             saveCard.addEventListener('click', () => handleReaderOrToolClick("حفظ", tabContainer, tabsContentContainer));
             toolsButtonsContainer.appendChild(saveCard);
-
-            // NEW: Add "القارئ فقط" tool
-            const reciterOnlyCard = document.createElement('div');
-            reciterOnlyCard.className = 'youtube-reader-card navigable grid-item';
-            reciterOnlyCard.tabIndex = 0;
-            reciterOnlyCard.innerHTML = `<h3>القارئ فقط</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="mic" class="w-12 h-12"></i></div>`;
-            reciterOnlyCard.addEventListener('click', () => {
-                searchMode = 'reciter_only';
-                recitersTabButton.click(); // Switch to reciters tab
-                showMessageBox('اختر قارئاً للبحث عنه مباشرة.');
-                const firstReciter = recitersContent.querySelector('.grid-item');
-                if (firstReciter) setFocus(firstReciter);
-            });
-            toolsButtonsContainer.appendChild(reciterOnlyCard);
-
 
             // 4. Tab Switching Logic
             recitersTabButton.addEventListener('click', () => {
@@ -3535,9 +3585,4 @@ div#bottom-left-controls {
         });
     </script>
 </body> 
-</html> 
-
-
-
-
-
+</html>
