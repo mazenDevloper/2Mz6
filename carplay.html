@@ -2766,7 +2766,7 @@ div#bottom-left-controls {
             if (WEATHER_API_KEY.startsWith('YOUR_')) return showMessageBox('خطأ: لم يتم تعيين مفتاح WeatherAPI.');
             try {
                 const locationQuery = appState.currentLocation ? `${appState.currentLocation.lat},${appState.currentLocation.lng}` : appState.weather.location.split(',')[0].trim();
-                const res = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=${WEATHER_API_KEY}&q=${locationQuery}&days=2&aqi=no&alerts=no&lang=ar`);
+                const res = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=${WEATHER_API_KEY}&q=${locationQuery}&days=2&aqi=yes&alerts=no&lang=ar`);
                 if (!res.ok) throw new Error(`خطأ HTTP! الحالة: ${res.status}`);
                 const data = await res.json();
                 
@@ -2827,13 +2827,11 @@ div#bottom-left-controls {
             const locations = [
                 { name: 'الموقع الحالي', query: appState.currentLocation ? `${appState.currentLocation.lat},${appState.currentLocation.lng}` : '17.0151,54.0924', isCurrent: true },
                 { name: 'سهل اتين', query: '17.08,54.02' },
-                { name: 'طاقة', query: '17.039,54.395' },
-                { name: 'مرباط', query: '16.99,54.69' },
                 { name: 'شاطئ الحافة', query: '16.995,54.088' }
             ];
 
             const promises = locations.map(loc =>
-                fetch(`https://api.weatherapi.com/v1/current.json?key=${WEATHER_API_KEY}&q=${loc.query}&aqi=no&lang=ar`)
+                fetch(`https://api.weatherapi.com/v1/current.json?key=${WEATHER_API_KEY}&q=${loc.query}&aqi=yes&lang=ar`)
                 .then(res => res.json())
                 .then(data => ({
                     name: loc.isCurrent && data.location ? data.location.name : loc.name,
@@ -2845,7 +2843,8 @@ div#bottom-left-controls {
                     humidity: data.current.humidity,
                     wind_kph: data.current.wind_kph,
                     wind_dir: data.current.wind_dir,
-                    pressure_mb: data.current.pressure_mb
+                    pressure_mb: data.current.pressure_mb,
+                    aqi: data.current.air_quality ? data.current.air_quality['us-epa-index'] : null
                 }))
                 .catch(err => {
                     console.error(`Failed to fetch weather for ${loc.name}`, err);
@@ -2898,17 +2897,44 @@ div#bottom-left-controls {
                 smallCardsContainer.appendChild(card);
             });
 
+             // Add AQI and UV Index cards
+             if (currentLocationData) {
+                // UV Index Card
+                const uvCard = document.createElement('div');
+                uvCard.className = 'glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center navigable grid-item';
+                uvCard.tabIndex = 0;
+                const uvColorClasses = getUvColor(currentLocationData.uv);
+                uvCard.innerHTML = `
+                    <i data-lucide="sun" class="w-14 h-14 mb-2 opacity-80"></i>
+                    <div class="text-2xl font-bold px-3 py-1 rounded-lg ${uvColorClasses}">
+                        ${currentLocationData.uv || '--'}
+                    </div>
+                    <span class="text-sm text-white/80 mt-2 font-bold">UV Index</span>
+                `;
+                smallCardsContainer.appendChild(uvCard);
+
+                // AQI Card
+                const aqiCard = document.createElement('div');
+                aqiCard.className = 'glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center navigable grid-item';
+                aqiCard.tabIndex = 0;
+                const aqiColorClasses = getAqiColor(currentLocationData.aqi);
+                aqiCard.innerHTML = `
+                    <i data-lucide="wind" class="w-14 h-14 mb-2 opacity-80"></i>
+                    <div class="text-2xl font-bold px-3 py-1 rounded-lg ${aqiColorClasses}">
+                        ${currentLocationData.aqi || '--'}
+                    </div>
+                    <span class="text-sm text-white/80 mt-2 font-bold">AQI</span>
+                `;
+                smallCardsContainer.appendChild(aqiCard);
+            }
+
              // Details card for current location info (bottom left, spans 2 columns)
             if (currentLocationData) {
                 const detailsCard = document.createElement('div');
                 detailsCard.className = 'glass-surface glass-surface--svg p-4 rounded-3xl text-center navigable grid-item col-span-2 row-span-1';
                 detailsCard.tabIndex = 0;
                 detailsCard.innerHTML = `
-                    <div class="grid grid-cols-4 gap-4 w-full h-full items-center">
-                        <div class="text-center flex flex-col justify-center h-full">
-                            <div class="text-sm text-white/70 mb-1">UV Index</div>
-                            <div class="text-2xl font-bold" style="color: ${getUvIndexColor(currentLocationData.uv)}">${currentLocationData.uv || '--'}</div>
-                        </div>
+                    <div class="grid grid-cols-3 gap-4 w-full h-full items-center">
                         <div class="text-center flex flex-col justify-center h-full">
                             <div class="text-sm text-white/70 mb-1">الرطوبة</div>
                             <div class="text-2xl font-bold">${currentLocationData.humidity || '--'}%</div>
@@ -2926,9 +2952,30 @@ div#bottom-left-controls {
                 `;
                 container.appendChild(detailsCard);
             }
+            lucide.createIcons();
         }
 
         function getUvIndexColor(uv) { if (uv <= 2) return '#4ade80'; if (uv <= 5) return '#facc15'; if (uv <= 7) return '#fb923c'; if (uv <= 10) return '#f87171'; return '#c084fc'; }
+
+        // --- NEW COLORING FUNCTIONS ---
+        const getAqiColor = (aqi) => {
+            const aqiValue = parseInt(aqi);
+            if (aqiValue <= 50) return 'bg-green-500 text-white';
+            if (aqiValue <= 100) return 'bg-yellow-400 text-black';
+            if (aqiValue <= 150) return 'bg-orange-500 text-white';
+            if (aqiValue <= 200) return 'bg-red-500 text-white';
+            if (aqiValue <= 300) return 'bg-purple-500 text-white';
+            return 'bg-red-800 text-white';
+        };
+
+        const getUvColor = (uv) => {
+            const uvValue = Math.round(uv);
+            if (uvValue <= 2) return 'bg-green-500 text-white';
+            if (uvValue <= 5) return 'bg-yellow-400 text-black';
+            if (uvValue <= 7) return 'bg-orange-500 text-white';
+            if (uvValue <= 10) return 'bg-red-500 text-white';
+            return 'bg-purple-500 text-white';
+        };
 
         // --- Simulated Car Data ---
         function simulateOtherCarData() { 
@@ -3488,4 +3535,5 @@ div#bottom-left-controls {
     </script>
 </body> 
 </html> 
+
 
