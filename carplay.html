@@ -28,6 +28,17 @@
 div#geolocation-error-overlay {
     display: none !important;
 }
+.search-results-nav {
+    width: 50%;
+    justify-self: center;
+}
+
+.w-full.grid.grid-cols-3.items-center.p-2.sticky.bottom-0.bg-black\/40.backdrop-blur-sm.flex-shrink-0 {
+    WIDTH: 50%;
+    JUSTIFY-SELF: CENTER;
+}
+
+
 
  .flex.flex-wrap.justify-center.gap-2.w-full {zoom: 0.85;}
 
@@ -229,7 +240,7 @@ div#\33 d-screen-weather-widget {
         /* Keyframe animation for the background gradient */
         @keyframes gradient {
             0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }اوا
+            50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
 
@@ -301,7 +312,6 @@ div#\33 d-screen-weather-widget {
         }
         #floating-media-button:hover,
         #back-to-playlists-bottom-button:hover,
-        #back-to-playlists-bottom-button-search:hover,
         #floating-keyboard-button:hover,
         #clear-search-button:hover,
         #start-trip-floating-button:hover {
@@ -328,7 +338,7 @@ div#\33 d-screen-weather-widget {
         #back-to-playlists-bottom-button, #back-to-playlists-bottom-button-search {
             bottom: 1rem;
             left: 50%;
-            transform: translateX(-50%);
+        
             display: none; /* Hidden by default */
         }
 
@@ -683,7 +693,7 @@ div#\33 d-screen-weather-widget {
         }
         /* NEW: Surah Buttons Scrollable Container */
         .surah-buttons-scrollable {
-            max-height: 80%;
+            max-height: 77%;
             overflow-y: auto;
             padding-right: 8px; 
             padding-left: 8px; 
@@ -1448,12 +1458,27 @@ div#bottom-left-controls {
                         </button>
                     </div> 
 
-                    <div id="youtube-search-results-view" class="hidden flex-col items-center justify-center h-full w-full absolute top-0 left-0 p-4 overflow-y-auto gap-4 flex-grow bg-black/50 backdrop-blur-sm">
+                    <div id="youtube-search-results-view" class="hidden flex-col h-full w-full absolute top-0 left-0 bg-black/50 backdrop-blur-sm">
                       
-                        <div id="search-results-container" class="flex flex-col gap-4 w-full grid-container"></div>
-                        <button id="back-to-playlists-bottom-button-search" class="mt-4 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-full transition-colors duration-200 flex items-center justify-center gap-2 text-base navigable grid-item" tabindex="0">
-                            <i data-lucide="arrow-left" class="w-5 h-5"></i> العودة إلى البحث
-                        </button>
+                        <div id="search-results-container" class="flex flex-col gap-4 w-full p-4 overflow-y-auto flex-grow grid-container"></div>
+                        
+                        <!-- NEW: Bottom navigation container -->
+                        <div class="w-full grid grid-cols-3 items-center p-2 sticky bottom-0 bg-black/40 backdrop-blur-sm flex-shrink-0 search-results-nav">
+                            <!-- Previous Button container -->
+                            <div class="flex justify-start">
+                                <button id="previous-item-button" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-full transition-all duration-200 flex items-center justify-center gap-2 text-sm navigable grid-item" style="display: none;" tabindex="0"></button>
+                            </div>
+                            <!-- Back Button container -->
+                            <div class="flex justify-center">
+                                <button id="back-to-playlists-bottom-button-search" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-full transition-all duration-200 flex items-center justify-center gap-2 text-sm navigable grid-item" tabindex="0">
+                                    <i data-lucide="arrow-left" class="w-5 h-5"></i> العودة إلى البحث
+                                </button>
+                            </div>
+                            <!-- Next Button container -->
+                            <div class="flex justify-end">
+                                <button id="next-item-button" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-full transition-all duration-200 flex items-center justify-center gap-2 text-sm navigable grid-item" style="display: none;" tabindex="0"></button>
+                            </div>
+                        </div>
                     </div>
                 </section>
                 
@@ -1677,6 +1702,8 @@ div#bottom-left-controls {
         const backToPlaylistsFromVideosButton = document.getElementById('back-to-playlists-from-videos'); 
         const backToPlaylistsBottomButton = document.getElementById('back-to-playlists-bottom-button');
         const backToPlaylistsBottomButtonSearch = document.getElementById('back-to-playlists-bottom-button-search');
+        const previousItemButton = document.getElementById('previous-item-button');
+        const nextItemButton = document.getElementById('next-item-button');
         const videoPopupContainer = document.getElementById('video-popup-container');
         const videoPopupPlayerContainer = document.getElementById('video-popup-player-container');
         const videoPopupCloseButton = document.getElementById('video-popup-close-button');
@@ -1710,7 +1737,11 @@ div#bottom-left-controls {
         let currentPlayingPlaylistId = '', activeMediaView = 'suggestions', currentPlayingVideoId = '', selectedReaderName = '', popupPlayer, isYouTubeApiReady = false, searchMode = 'reciter_surah', progressInterval = null;
         let initialLocationFetched = false;
 
+        const juzArabicNames = ["الأول", "الثاني", "الثالث", "الرابع", "الخامس", "السادس", "السابع", "الثامن", "التاسع", "العاشر", "الحادي عشر", "الثاني عشر", "الثالث عشر", "الرابع عشر", "الخامس عشر", "السادس عشر", "السابع عشر", "الثامن عشر", "التاسع عشر", "العشرون", "الحادي والعشرون", "الثاني والعشرون", "الثالث والعشرون", "الرابع والعشرون", "الخامس والعشرون", "السادس والعشرون", "السابع والعشرون", "الثامن والعشرون", "التاسع والعشرون", "الثلاثون"];
+
         // --- Utility Functions ---
+        function showMessageBox(message) { const box = document.createElement('div'); box.style.cssText = `position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(0, 0, 0, 0.8); color: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); z-index: 1000; text-align: center; max-width: 80%; font-size: 1.1rem;`; box.innerHTML = `<p>${message}</p><button style="margin-top: 15px; padding: 8px 15px; background-color: #9333ea; border: none; border-radius: 5px; color: white; cursor: pointer;">إغلاق</button>`; document.body.appendChild(box); box.querySelector('button').addEventListener('click', () => document.body.removeChild(box)); }
+
         function showMessageBox(message) { const box = document.createElement('div'); box.style.cssText = `position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(0, 0, 0, 0.8); color: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); z-index: 1000; text-align: center; max-width: 80%; font-size: 1.1rem;`; box.innerHTML = `<p>${message}</p><button style="margin-top: 15px; padding: 8px 15px; background-color: #9333ea; border: none; border-radius: 5px; color: white; cursor: pointer;">إغلاق</button>`; document.body.appendChild(box); box.querySelector('button').addEventListener('click', () => document.body.removeChild(box)); }
         
         // --- NEW: Watched History Helpers ---
@@ -1950,6 +1981,8 @@ div#bottom-left-controls {
                     activeMediaView = 'searchResults';
                     backToPlaylistsBottomButton.style.display = 'none';
                     backToPlaylistsBottomButtonSearch.style.display = 'flex';
+                    // The back button is now inside a container, so we don't hide/show it directly
+                    updateNavigationButtons(query); // NEW: Update navigation buttons
                     setTimeout(() => { const firstResult = searchResultsContainer.querySelector('.grid-item'); if (firstResult) setFocus(firstResult); }, 100);
                 } else {
                     showMessageBox('لم يتم العثور على نتائج بحث لـ: ' + query);
@@ -2068,7 +2101,106 @@ div#bottom-left-controls {
             }
         }
 
-        const youtubeReaderSuggestions = [{"name":"محمد ايوب","image":"https://dmusera.netlify.app/512px-Muhammad_Ayyub.webp"},{"name":"علي جابر","image":"https://dmusera.netlify.app/ali-jaber.webp"},{"name":"محمد الغزالي","image":"https://imgs.search.brave.com/QWUpKrFCLEvXilcNhgSRM6xKPjTlBtGA-BAsH9sN-Tc/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9hci5p/c2xhbXdheS5uZXQv/dXBsb2Fkcy9hdXRo/b3JzLzUwNjEuanBn"},{"name":"مشاري العفاسي","image":"https://dmusera.netlify.app/512px-%D0%9C%D0%B8%D1%88%D0%B0%D1%80%D0%B8_%D0%A0%D0%B0%D1%88%D0%B8%D0%B4.webp"},{"name":"عبدالله القرافي","image":"https://yt3.googleusercontent.com/mHTg3RIX-a3NAR22lAnOvSq3-U_KBcL_Ax4FTNirc3flsb5OU8RWksKu6X8Ush9JhO0EOxxAwQY=s160-c-k-c0x00ffffff-no-rj"},{"name":"اسلام صبحي","image":"https://imgs.search.brave.com/Sq4qNywnl1HmDjSuxWTshlQ8yV9fplcVnUoiErGC-38/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS51bml0ZWRtdXNs/aW13b3JsZC5jb20v/aW1nLzIzLzEyLzIz/LzEyNDk1LmpwZw"},{"name":"احمد النفيس","image":"https://dmusera.netlify.app/ahmednafes.jpg"},{"name":"ياسر الدوسري","image":"https://dmusera.netlify.app/Yasser_Al-Dosari.jpg"},{"name":"فارس عنتر","image":"https://dmusera.netlify.app/faresantar.jpg"},{"name":"ربط الآيات","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDEzYTUgNSAwIDAgMCA3LjU0LjU0bD MtM2E1IDUgMCAwIDAtNy4wNy03LjA3bC0xLjcyIDEuNzIiLz48cGF0aCBkPSJNMTQgMTFhNSA1IDAgMCAwLTcuNTQtLjU0bC0zIDNhNSA1IDAgMCAwIDcuMDcgNy4wN2wxLjcyLTEuNzIiLz48L3N2Zz4="}];
+        // This function is duplicated, removing one instance.
+        
+        // NEW: Function to handle next/previous navigation buttons
+        function updateNavigationButtons(currentQuery) {
+            // Reset and hide buttons by default
+            previousItemButton.style.display = 'none';
+            nextItemButton.style.display = 'none';
+            previousItemButton.onclick = null;
+            nextItemButton.onclick = null;
+
+            // --- Case 1: Surah Navigation ---
+            const surahMatch = currentQuery.match(/سورة (.+)/);
+            if (surahMatch && surahMatch[1]) {
+                const currentSurah = surahMatch[1].trim();
+                const currentIndex = youtubeSurahSuggestions.indexOf(currentSurah);
+
+                if (currentIndex !== -1) {
+                    const baseQuery = currentQuery.substring(0, currentQuery.indexOf('سورة'));
+
+                    // Previous Surah Button
+                    if (currentIndex > 0) {
+                        const prevSurah = youtubeSurahSuggestions[currentIndex - 1];
+                        previousItemButton.innerHTML = `<i data-lucide="arrow-left"></i> ${prevSurah}`;
+                        previousItemButton.style.display = 'flex';
+                        previousItemButton.onclick = () => searchYouTubeVideos(`${baseQuery} سورة ${prevSurah}`);
+                    }
+
+                    // Next Surah Button
+                    if (currentIndex < youtubeSurahSuggestions.length - 1) {
+                        const nextSurah = youtubeSurahSuggestions[currentIndex + 1];
+                        nextItemButton.innerHTML = `${nextSurah} <i data-lucide="arrow-right"></i>`;
+                        nextItemButton.style.display = 'flex';
+                        nextItemButton.onclick = () => searchYouTubeVideos(`${baseQuery} سورة ${nextSurah}`);
+                    }
+                    lucide.createIcons();
+                    return;
+                }
+            }
+
+            // --- Case 2: Juz Navigation ---
+            const juzMatch = currentQuery.match(/الجزء (.+)/);
+            if (juzMatch && juzMatch[1]) {
+                const currentJuz = juzMatch[1].trim();
+                const currentIndex = juzArabicNames.indexOf(currentJuz);
+
+                if (currentIndex !== -1) {
+                    const baseQuery = currentQuery.substring(0, currentQuery.indexOf('الجزء')).trim();
+
+                    // Previous Juz Button
+                    if (currentIndex > 0) {
+                        const prevJuz = juzArabicNames[currentIndex - 1];
+                        previousItemButton.innerHTML = `<i data-lucide="arrow-left"></i> الجزء ${prevJuz}`;
+                        previousItemButton.style.display = 'flex';
+                        previousItemButton.onclick = () => searchYouTubeVideos(`${baseQuery} الجزء ${prevJuz}`.trim());
+                    }
+
+                    // Next Juz Button
+                    if (currentIndex < juzArabicNames.length - 1) {
+                        const nextJuz = juzArabicNames[currentIndex + 1];
+                        nextItemButton.innerHTML = `الجزء ${nextJuz} <i data-lucide="arrow-right"></i>`;
+                        nextItemButton.style.display = 'flex';
+                        nextItemButton.onclick = () => searchYouTubeVideos(`${baseQuery} الجزء ${nextJuz}`.trim());
+                    }
+                    lucide.createIcons();
+                    return;
+                }
+            }
+
+            // --- Case 3: Reciter-Only Navigation ---
+            const reciters = youtubeReaderSuggestions.filter(r => r.name !== "ربط الآيات").map(r => r.name);
+            const reciterIndex = reciters.indexOf(currentQuery.trim());
+
+            if (reciterIndex !== -1) {
+                // Previous Reciter Button
+                if (reciterIndex > 0) {
+                    const prevReciter = reciters[reciterIndex - 1];
+                    previousItemButton.innerHTML = `<i data-lucide="arrow-left"></i> ${prevReciter}`;
+                    previousItemButton.style.display = 'flex';
+                    previousItemButton.onclick = () => {
+                        searchMode = 'reciter_only'; // Preserve mode
+                        searchYouTubeVideos(prevReciter);
+                    };
+                }
+
+                // Next Reciter Button
+                if (reciterIndex < reciters.length - 1) {
+                    const nextReciter = reciters[reciterIndex + 1];
+                    nextItemButton.innerHTML = `${nextReciter} <i data-lucide="arrow-right"></i>`;
+                    nextItemButton.style.display = 'flex';
+                    nextItemButton.onclick = () => {
+                        searchMode = 'reciter_only'; // Preserve mode
+                        searchYouTubeVideos(nextReciter);
+                    };
+                }
+                lucide.createIcons();
+                return;
+            }
+        }
+
+        const youtubeReaderSuggestions = [{"name":"محمد ايوب","image":"https://dmusera.netlify.app/512px-Muhammad_Ayyub.webp"},{"name":"علي جابر","image":"https://dmusera.netlify.app/ali-jaber.webp"},{"name":"محمد الغزالي","image":"https://upload.wikimedia.org/wikipedia/commons/e/e0/Mohamed_al-Ghazali.png"},{"name":"مشاري العفاسي","image":"https://dmusera.netlify.app/512px-%D0%9C%D0%B8%D1%88%D0%B0%D1%80%D0%B8_%D0%A0%D0%B0%D1%88%D0%B8%D0%B4.webp"},{"name":"عبدالله القرافي","image":"https://yt3.googleusercontent.com/mHTg3RIX-a3NAR22lAnOvSq3-U_KBcL_Ax4FTNirc3flsb5OU8RWksKu6X8Ush9JhO0EOxxAwQY=s160-c-k-c0x00ffffff-no-rj"},{"name":"اسلام صبحي","image":"https://i1.sndcdn.com/avatars-000624456932-230x9g-t500x500.jpg"},{"name":"احمد النفيس","image":"https://dmusera.netlify.app/ahmednafes.jpg"},{"name":"ياسر الدوسري","image":"https://dmusera.netlify.app/Yasser_Al-Dosari.jpg"},{"name":"فارس عنتر","image":"https://dmusera.netlify.app/faresantar.jpg"},{"name":"ربط الآيات","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDEzYTUgNSAwIDAgMCA3LjU0LjU0bD MtM2E1IDUgMCAwIDAtNy4wNy03LjA3bC0xLjcyIDEuNzIiLz48cGF0aCBkPSJNMTQgMTFhNSA1IDAgMCAwLTcuNTQtLjU0bC0zIDNhNSA1IDAgMCAwIDcuMDcgNy4wN2wxLjcyLTEuNzIiLz48L3N2Zz4="}];
         const youtubeSurahSuggestions = ["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","الانشقاق","المطففين","البروج","الطارق","الأعلى"];
         const surahToJuzMap = {"الفاتحة":1,"البقرة":1,"آل عمران":3,"النساء":4,"المائدة":6,"الأنعام":7,"الأعراف":8,"الأنفال":9,"التوبة":10,"يونس":11,"هود":11,"يوسف":12,"الرعد":13,"إبراهيم":13,"الحجر":14,"النحل":14,"الإسراء":15,"الكهف":15,"مريم":16,"طه":16,"الأنبياء":17,"الحج":17,"المؤمنون":18,"النور":18,"الفرقان":18,"الشعراء":19,"النمل":19,"القصص":20,"العنكبوت":20,"الروم":21,"لقمان":21,"السجدة":21,"الأحزاب":21,"سبأ":22,"فاطر":22,"يس":22,"الصافات":23,"ص":23,"الزمر":23,"غافر":24,"فصلت":24,"الشورى":25,"الزخرف":25,"الدخان":25,"الجاثية":25,"الأحقاف":26,"محمد":26,"الفتح":26,"الحجرات":26,"ق":26,"الذاريات":27,"الطور":27,"النجم":27,"القمر":27,"الرحمن":27,"الواقعة":27,"الحديد":27,"المجادلة":28,"الحشر":28,"الممتحنة":28,"الصف":28,"الجمعة":28,"المنافقون":28,"التغابن":28,"الطلاق":28,"التحريم":28,"الملك":29,"القلم":29,"الحاقة":29,"المعارج":29,"نوح":29,"الجن":29,"المزمل":29,"المدثر":29,"القيامة":29,"الإنسان":29,"المرسلات":29,"النبأ":30,"النازعات":30,"عبس":30,"التكوير":30,"الانفطار":30,"الانشقاق":30,"المطففين":30,"البروج":30,"الطارق":30,"الأعلى":30};
         const juzColors =  [
@@ -2233,8 +2365,8 @@ div#bottom-left-controls {
             const saveCard = document.createElement('div');
             saveCard.className = 'youtube-reader-card navigable grid-item';
             saveCard.tabIndex = 0;
-            saveCard.innerHTML = `<div class="w-[100px] h-[100px] rounded-full mb-4 border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="save" class="w-12 h-12"></i></div><h3>حدر</h3>`;
-            saveCard.addEventListener('click', () => handleReaderOrToolClick("تكرار حدر", tabContainer, tabsContentContainer));
+            saveCard.innerHTML = `<div class="w-[100px] h-[100px] rounded-full mb-4 border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="save" class="w-12 h-12"></i></div><h3>حفظ</h3>`;
+            saveCard.addEventListener('click', () => handleReaderOrToolClick("حفظ", tabContainer, tabsContentContainer));
             toolsButtonsContainer.appendChild(saveCard);
 
             // NEW: Add "السورة" button to add a space
@@ -2290,14 +2422,41 @@ div#bottom-left-controls {
         function showSurahSuggestions() {
             const existing = document.getElementById('youtube-surah-section');
             if (existing) existing.remove();
+
             const surahSection = document.createElement('div');
             surahSection.id = 'youtube-surah-section';
             surahSection.className = 'flex flex-col gap-2 p-3 rounded-xl glass-surface glass-surface--svg w-full flex-grow';
-            surahSection.innerHTML = '<span class="youtube-suggestion-category-tag bg-green-600">اختر السورة</span>';
-            
-            const scrollableContainer = document.createElement('div');
-            scrollableContainer.className = 'surah-buttons-scrollable';
 
+            // 1. Create Tab Structure
+            const tabContainer = document.createElement('div');
+            tabContainer.className = 'tabs-container flex p-1 rounded-full bg-black/20 self-center mb-2';
+
+            const surahTabButton = document.createElement('button');
+            surahTabButton.id = 'tab-surah';
+            surahTabButton.className = 'tab-button active navigable grid-item';
+            surahTabButton.tabIndex = 0;
+            surahTabButton.textContent = 'السورة';
+
+            const juzTabButton = document.createElement('button');
+            juzTabButton.id = 'tab-juz';
+            juzTabButton.className = 'tab-button navigable grid-item';
+            juzTabButton.tabIndex = 0;
+            juzTabButton.textContent = 'الجزء';
+
+            tabContainer.appendChild(surahTabButton);
+            tabContainer.appendChild(juzTabButton);
+
+            const tabsContentContainer = document.createElement('div');
+            tabsContentContainer.id = 'tabs-content-container-surah';
+            tabsContentContainer.className = 'flex-grow w-full overflow-hidden'; // Let inner container scroll
+
+            // 2. Create Surah content panel
+            const surahContent = document.createElement('div');
+            surahContent.id = 'tab-content-surah';
+            surahContent.className = 'tab-content h-full';
+            
+            const scrollableSurahContainer = document.createElement('div');
+            scrollableSurahContainer.className = 'surah-buttons-scrollable h-full';
             const surahButtonsContainer = document.createElement('div');
             surahButtonsContainer.className = 'flex flex-wrap justify-center gap-2 w-full';
             
@@ -2310,11 +2469,10 @@ div#bottom-left-controls {
                 button.addEventListener('click', () => {
                     let query = '';
                     const currentInput = youtubeSearchInput.value.trim();
-
                     if (youtubeSearchInput.value.startsWith('الكلمات الصعبة في')) {
                         query = 'الكلمات الصعبة في سورة ' + name;
                     } else if (currentInput === '') {
-                        query = name;
+                        query = 'سورة ' + name;
                     } else {
                         query = selectedReaderName + ' سورة ' + name;
                     }
@@ -2323,9 +2481,65 @@ div#bottom-left-controls {
                 });
                 surahButtonsContainer.appendChild(button);
             });
-            
-            scrollableContainer.appendChild(surahButtonsContainer);
-            surahSection.appendChild(scrollableContainer);
+            scrollableSurahContainer.appendChild(surahButtonsContainer);
+            surahContent.appendChild(scrollableSurahContainer);
+
+            // 3. Create Juz content panel
+            const juzContent = document.createElement('div');
+            juzContent.id = 'tab-content-juz';
+            juzContent.className = 'tab-content hidden h-full';
+
+            const scrollableJuzContainer = document.createElement('div');
+            scrollableJuzContainer.className = 'surah-buttons-scrollable h-full';
+            const juzButtonsContainer = document.createElement('div');
+            juzButtonsContainer.className = 'flex flex-wrap justify-center gap-2 w-full';
+
+            for (let i = 1; i <= 30; i++) {
+                const button = document.createElement('button');
+                button.className = 'youtube-suggestion-button navigable grid-item';
+                button.tabIndex = 0;
+                button.style.backgroundColor = juzColors[(i % juzColors.length)];
+                button.innerHTML = `الجزء ${i}`;
+                button.addEventListener('click', () => {
+                    const juzName = juzArabicNames[i - 1];
+                    let query = '';
+                    const currentSearch = youtubeSearchInput.value;
+                    if (currentSearch.trim() && !currentSearch.startsWith('الكلمات الصعبة في')) {
+                        query = currentSearch + `الجزء ${juzName}`;
+                    } else {
+                        query = `الجزء ${juzName}`;
+                    }
+                    youtubeSearchInput.value = query;
+                    searchYouTubeVideos(query);
+                });
+                juzButtonsContainer.appendChild(button);
+            }
+            scrollableJuzContainer.appendChild(juzButtonsContainer);
+            juzContent.appendChild(scrollableJuzContainer);
+
+            // 4. Tab Switching Logic
+            surahTabButton.addEventListener('click', () => {
+                surahTabButton.classList.add('active');
+                juzTabButton.classList.remove('active');
+                surahContent.classList.remove('hidden');
+                juzContent.classList.add('hidden');
+                const firstItem = surahContent.querySelector('.grid-item');
+                if (firstItem) setFocus(firstItem);
+            });
+            juzTabButton.addEventListener('click', () => {
+                juzTabButton.classList.add('active');
+                surahTabButton.classList.remove('active');
+                juzContent.classList.remove('hidden');
+                surahContent.classList.add('hidden');
+                const firstItem = juzContent.querySelector('.grid-item');
+                if (firstItem) setFocus(firstItem);
+            });
+
+            // 5. Append everything
+            surahSection.appendChild(tabContainer);
+            tabsContentContainer.appendChild(surahContent);
+            tabsContentContainer.appendChild(juzContent);
+            surahSection.appendChild(tabsContentContainer);
             youtubeSuggestionsDiv.appendChild(surahSection);
         }
 
@@ -2536,6 +2750,7 @@ div#bottom-left-controls {
                 if (response.status === 'OK') {
                     directionsRenderer.setDirections(response);
                     const route = response.routes[0].legs[0];
+                   
                     showMessageBox(`الطريق إلى وجهتك: ${route.distance.text}, الوقت المقدر: ${route.duration.text}`);
                 } else {
                     showMessageBox('تعذر العثور على اتجاهات: ' + response.status);
@@ -2589,7 +2804,7 @@ div#bottom-left-controls {
             if (!container) return;
             container.innerHTML = '';
             forecastData.forEach(hour => {
-                const timeLabel = hour.time === "الآن"
+                  const timeLabel = hour.time === "الآن"
                     ? "الآن"
                     : new Date(hour.time_epoch * 1000).toLocaleTimeString('ar-SA', { hour: 'numeric', hour12: false });
 
@@ -3272,10 +3487,5 @@ div#bottom-left-controls {
         });
     </script>
 </body> 
-</html>
-
-
-
-
-
+</html> 
 
