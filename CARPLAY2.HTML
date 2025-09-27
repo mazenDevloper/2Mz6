@@ -28,6 +28,17 @@
 div#geolocation-error-overlay {
     display: none !important;
 }
+.search-results-nav {
+    width: 50%;
+    justify-self: center;
+}
+
+.w-full.grid.grid-cols-3.items-center.p-2.sticky.bottom-0.bg-black\/40.backdrop-blur-sm.flex-shrink-0 {
+    WIDTH: 50%;
+    JUSTIFY-SELF: CENTER;
+}
+
+
 
  .flex.flex-wrap.justify-center.gap-2.w-full {zoom: 0.85;}
 
@@ -229,7 +240,7 @@ div#\33 d-screen-weather-widget {
         /* Keyframe animation for the background gradient */
         @keyframes gradient {
             0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }اوا
+            50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
 
@@ -301,7 +312,6 @@ div#\33 d-screen-weather-widget {
         }
         #floating-media-button:hover,
         #back-to-playlists-bottom-button:hover,
-        #back-to-playlists-bottom-button-search:hover,
         #floating-keyboard-button:hover,
         #clear-search-button:hover,
         #start-trip-floating-button:hover {
@@ -328,7 +338,7 @@ div#\33 d-screen-weather-widget {
         #back-to-playlists-bottom-button, #back-to-playlists-bottom-button-search {
             bottom: 1rem;
             left: 50%;
-            transform: translateX(-50%);
+        
             display: none; /* Hidden by default */
         }
 
@@ -1453,12 +1463,21 @@ div#bottom-left-controls {
                         <div id="search-results-container" class="flex flex-col gap-4 w-full p-4 overflow-y-auto flex-grow grid-container"></div>
                         
                         <!-- NEW: Bottom navigation container -->
-                        <div class="w-full flex justify-between items-center p-2 sticky bottom-0 bg-black/40 backdrop-blur-sm flex-shrink-0">
-                            <button id="previous-item-button" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-full transition-all duration-200 flex items-center justify-center gap-2 text-sm navigable grid-item" style="display: none;" tabindex="0"></button>
-                            <button id="back-to-playlists-bottom-button-search" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-full transition-colors duration-200 flex items-center justify-center gap-2 text-base navigable grid-item" tabindex="0">
-                                <i data-lucide="arrow-left" class="w-5 h-5"></i> العودة إلى البحث
-                            </button>
-                            <button id="next-item-button" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-full transition-all duration-200 flex items-center justify-center gap-2 text-sm navigable grid-item" style="display: none;" tabindex="0"></button>
+                        <div class="w-full grid grid-cols-3 items-center p-2 sticky bottom-0 bg-black/40 backdrop-blur-sm flex-shrink-0 search-results-nav">
+                            <!-- Previous Button container -->
+                            <div class="flex justify-start">
+                                <button id="previous-item-button" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-full transition-all duration-200 flex items-center justify-center gap-2 text-sm navigable grid-item" style="display: none;" tabindex="0"></button>
+                            </div>
+                            <!-- Back Button container -->
+                            <div class="flex justify-center">
+                                <button id="back-to-playlists-bottom-button-search" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-full transition-all duration-200 flex items-center justify-center gap-2 text-sm navigable grid-item" tabindex="0">
+                                    <i data-lucide="arrow-left" class="w-5 h-5"></i> العودة إلى البحث
+                                </button>
+                            </div>
+                            <!-- Next Button container -->
+                            <div class="flex justify-end">
+                                <button id="next-item-button" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-full transition-all duration-200 flex items-center justify-center gap-2 text-sm navigable grid-item" style="display: none;" tabindex="0"></button>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -1961,6 +1980,7 @@ div#bottom-left-controls {
                     youtubeSearchResultsView.classList.remove('hidden');
                     activeMediaView = 'searchResults';
                     backToPlaylistsBottomButton.style.display = 'none';
+                    backToPlaylistsBottomButtonSearch.style.display = 'flex';
                     // The back button is now inside a container, so we don't hide/show it directly
                     updateNavigationButtons(query); // NEW: Update navigation buttons
                     setTimeout(() => { const firstResult = searchResultsContainer.querySelector('.grid-item'); if (firstResult) setFocus(firstResult); }, 100);
@@ -2081,16 +2101,7 @@ div#bottom-left-controls {
             }
         }
 
-        function handleFullScreenChange() {
-            if (popupPlayer && typeof popupPlayer.getPlayerState === 'function' && popupPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
-                const isFullScreen = document.fullscreenElement === popupPlayer.getIframe() || document.webkitFullscreenElement === popupPlayer.getIframe();
-                if (isFullScreen) {
-                    popupPlayer.setPlaybackQuality('hd720');
-                } else {
-                    popupPlayer.setPlaybackQuality('large'); // 'large' for 480p
-                }
-            }
-        }
+        // This function is duplicated, removing one instance.
         
         // NEW: Function to handle next/previous navigation buttons
         function updateNavigationButtons(currentQuery) {
@@ -2129,7 +2140,36 @@ div#bottom-left-controls {
                 }
             }
 
-            // --- Case 2: Reciter-Only Navigation ---
+            // --- Case 2: Juz Navigation ---
+            const juzMatch = currentQuery.match(/الجزء (.+)/);
+            if (juzMatch && juzMatch[1]) {
+                const currentJuz = juzMatch[1].trim();
+                const currentIndex = juzArabicNames.indexOf(currentJuz);
+
+                if (currentIndex !== -1) {
+                    const baseQuery = currentQuery.substring(0, currentQuery.indexOf('الجزء')).trim();
+
+                    // Previous Juz Button
+                    if (currentIndex > 0) {
+                        const prevJuz = juzArabicNames[currentIndex - 1];
+                        previousItemButton.innerHTML = `<i data-lucide="arrow-left"></i> الجزء ${prevJuz}`;
+                        previousItemButton.style.display = 'flex';
+                        previousItemButton.onclick = () => searchYouTubeVideos(`${baseQuery} الجزء ${prevJuz}`.trim());
+                    }
+
+                    // Next Juz Button
+                    if (currentIndex < juzArabicNames.length - 1) {
+                        const nextJuz = juzArabicNames[currentIndex + 1];
+                        nextItemButton.innerHTML = `الجزء ${nextJuz} <i data-lucide="arrow-right"></i>`;
+                        nextItemButton.style.display = 'flex';
+                        nextItemButton.onclick = () => searchYouTubeVideos(`${baseQuery} الجزء ${nextJuz}`.trim());
+                    }
+                    lucide.createIcons();
+                    return;
+                }
+            }
+
+            // --- Case 3: Reciter-Only Navigation ---
             const reciters = youtubeReaderSuggestions.filter(r => r.name !== "ربط الآيات").map(r => r.name);
             const reciterIndex = reciters.indexOf(currentQuery.trim());
 
@@ -2432,7 +2472,7 @@ div#bottom-left-controls {
                     if (youtubeSearchInput.value.startsWith('الكلمات الصعبة في')) {
                         query = 'الكلمات الصعبة في سورة ' + name;
                     } else if (currentInput === '') {
-                        query = name;
+                        query = 'سورة ' + name;
                     } else {
                         query = selectedReaderName + ' سورة ' + name;
                     }
@@ -2710,6 +2750,7 @@ div#bottom-left-controls {
                 if (response.status === 'OK') {
                     directionsRenderer.setDirections(response);
                     const route = response.routes[0].legs[0];
+                   
                     showMessageBox(`الطريق إلى وجهتك: ${route.distance.text}, الوقت المقدر: ${route.duration.text}`);
                 } else {
                     showMessageBox('تعذر العثور على اتجاهات: ' + response.status);
@@ -2763,7 +2804,7 @@ div#bottom-left-controls {
             if (!container) return;
             container.innerHTML = '';
             forecastData.forEach(hour => {
-                const timeLabel = hour.time === "الآن"
+                  const timeLabel = hour.time === "الآن"
                     ? "الآن"
                     : new Date(hour.time_epoch * 1000).toLocaleTimeString('ar-SA', { hour: 'numeric', hour12: false });
 
@@ -3447,11 +3488,4 @@ div#bottom-left-controls {
     </script>
 </body> 
 </html>
-
-
-
-
-
-
-
 
