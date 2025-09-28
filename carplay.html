@@ -2076,12 +2076,20 @@ div#bottom-left-controls {
         }
 
         function hideVideoPopup() {
-            if (progressInterval) clearInterval(progressInterval); // Stop tracking progress
-            document.body.classList.remove('video-playing'); // Resume background animation
-            if (popupPlayer?.stopVideo) popupPlayer.stopVideo();
+            if (progressInterval) clearInterval(progressInterval);
+            document.body.classList.remove('video-playing');
+
+            // --- MODIFICATION START ---
+            // Properly destroy the player instance to prevent state corruption
+            if (popupPlayer && typeof popupPlayer.destroy === 'function') {
+                popupPlayer.destroy();
+            }
+            popupPlayer = null; // Clear the reference
+            videoPopupPlayerContainer.innerHTML = ''; // Clear the container div
+            // --- MODIFICATION END ---
+
             videoPopupContainer.classList.remove('active');
-            videoPopupContainer.style.display = 'none'; // Also hide with style
-            // Ensure the minimized button is also hidden when fully closing
+            videoPopupContainer.style.display = 'none';
             floatingMinimizedVideoButton.style.display = 'none';
             appState.isVideoPlayerMinimized = false;
             const screen = document.querySelector('.app-screen.active');
@@ -3037,7 +3045,7 @@ div#bottom-left-controls {
         }
 
         // --- Prayer Times Integration ---
-        const prayerTimes = [{"date":"2025-09-28","fajr":"05:02","sunrise":"06:14","dhuhr":"12:19","asr":"15:41","maghrib":"18:20","isha":"19:27"},{"date":"2025-09-29","fajr":"05:02","sunrise":"06:14","dhuhr":"12:19","asr":"15:41","maghrib":"18:19","isha":"19:26"},{"date":"2025-09-30","fajr":"05:02","sunrise":"06:14","dhuhr":"12:18","asr":"15:40","maghrib":"18:18","isha":"19:25"},{"date":"2025-10-01","fajr":"05:02","sunrise":"06:14","dhuhr":"12:18","asr":"15:40","maghrib":"18:17","isha":"19:24"},{"date":"2025-10-02","fajr":"05:02","sunrise":"06:14","dhuhr":"12:18","asr":"15:39","maghrib":"18:16","isha":"19:23"},{"date":"2025-10-03","fajr":"05:03","sunrise":"06:15","dhuhr":"12:17","asr":"15:39","maghrib":"18:15","isha":"19:22"},{"date":"2025-10-04","fajr":"05:03","sunrise":"06:15","dhuhr":"12:17","asr":"15:38","maghrib":"18:15","isha":"19:21"},{"date":"2025-10-05","fajr":"05:03","sunrise":"06:15","dhuhr":"12:17","asr":"15:38","maghrib":"18:14","isha":"19:20"},{"date":"2025-10-06","fajr":"05:03","sunrise":"06:15","dhuhr":"12:16","asr":"15:37","maghrib":"18:13","isha":"19:20"},{"date":"2025-10-07","fajr":"05:03","sunrise":"06:15","dhuhr":"12:16","asr":"15:37","maghrib":"18:12","isha":"19:19"},{"date":"2025-10-08","fajr":"05:04","sunrise":"06:16","dhuhr":"12:16","asr":"15:36","maghrib":"18:11","isha":"19:18"},{"date":"2025-10-09","fajr":"05:04","sunrise":"06:16","dhuhr":"12:15","asr":"15:36","maghrib":"18:10","isha":"19:17"},{"date":"2025-10-10","fajr":"05:04","sunrise":"06:16","dhuhr":"12:15","asr":"15:35","maghrib":"18:09","isha":"19:16"},{"date":"2025-10-11","fajr":"05:04","sunrise":"06:16","dhuhr":"12:15","asr":"15:35","maghrib":"18:09","isha":"19:15"},{"date":"2025-10-12","fajr":"05:04","sunrise":"06:17","dhuhr":"12:14","asr":"15:34","maghrib":"18:08","isha":"19:15"},{"date":"2025-10-13","fajr":"05:05","sunrise":"06:17","dhuhr":"12:14","asr":"15:34","maghrib":"18:07","isha":"19:14"},{"date":"2025-10-14","fajr":"05:05","sunrise":"06:17","dhuhr":"12:14","asr":"15:33","maghrib":"18:06","isha":"19:13"},{"date":"2025-10-15","fajr":"05:05","sunrise":"06:17","dhuhr":"12:13","asr":"15:33","maghrib":"18:05","isha":"19:12"}];
+        const prayerTimes = [{"date":"2025-09-28","fajr":"05:02","sunrise":"06:14","dhuhr":"12:19","asr":"15:41","maghrib":"18:20","isha":"19:27"},{"date":"2025-09-29","fajr":"05:02","sunrise":"06:14","dhuhr":"12:19","asr":"15:41","maghrib":"18:19","isha":"19:26"},{"date":"2025-09-30","fajr":"05:02","sunrise":"06:14","dhuhr":"12:18","asr":"15:40","maghrib":"18:18","isha":"19:25"},{"date":"2025-10-01","fajr":"05:02","sunrise":"06:14","dhuhr":"12:18","asr":"15:40","maghrib":"18:17","isha":"19:24"},{"date":"2025-10-02","fajr":"05:02","sunrise":"06:14","dhuhr":"12:18","asr":"15:39","maghrib":"18:16","isha":"19:23"},{"date":"2025-10-03","fajr":"05:03","sunrise":"06:15","dhuhr":"12:17","asr":"15:39","maghrib":"18:15","isha":"19:22"},{"date":"2025-10-04","fajr":"05:03","sunrise":"06:15","dhuhr":"12:17","asr":"15:38","maghrib":"18:15","isha":"19:21"},{"date":"2025-10-05","fajr":"05:03","sunrise":"06:15","dhuhr":"12:17","asr":"15:38","maghrib":"18:14","isha":"19:20"},{"date":"2025-10-06","fajr":"05:03","sunrise":"06:15","dhuhr":"12:16","asr":"15:37","maghrib":"18:13","isha":"19:20"},{"date":"2025-10-07","fajr":"05:03","sunrise":"06:15","dhuhr":"12:16","asr":"15:37","maghrib":"18:12","isha":"19:19"},{"date":"2025-10-08","fajr":"05:04","sunrise":"06:16","dhuhr":"12:16","asr":"15:36","maghrib":"18:11","isha":"19:18"},{"date":"2025-10-09","fajr":"05:04","sunrise":"06:16","dhuhr":"12:15","asr":"15:36","maghrib":"18:10","isha":"19:17"},{"date":"2025-10-10","fajr":"05:04","sunrise":"06:16","dhuhr":"12:15","asr":"15:35","maghrib":"18:09","isha":"19:16"},{"date":"2025-10-11","fajr":"05:04","sunrise":"06:16","dhuhr":"12:15","asr":"15:35","maghrib":"18:09","isha":"19:15"},{"date":"2025-10-12","fajr":"05:04","sunrise":"06:17","dhuhr":"12:14","asr":"15:34","maghrib":"18:08","isha":"19:15"},{"date":"2025-10-13","fajr":"05:05","sunrise":"06:17","dhuhr":"12:14","asr":"15:34","maghrib":"18:07","isha":"19:14"},{"date":"2025-10-14","fajr":"05:05","sunrise":"06:17","dhuhr":"12:14","asr":"15:33","maghrib":"18:06","isha":"19:13"},{"date":"2025-10-15","fajr":"05:05","sunrise":"06:17","dhuhr":"12:13","asr":"15:33","maghrib":"18:05","isha":"19:12"}]
         function loadPrayerTimes() {
             const today = new Date().toISOString().split('T')[0];
             const data = prayerTimes.find(p => p.date === today);
@@ -3571,3 +3579,4 @@ div#bottom-left-controls {
     </script>
 </body> 
 </html>
+
