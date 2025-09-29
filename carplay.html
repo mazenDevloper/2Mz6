@@ -28,6 +28,11 @@
 div#geolocation-error-overlay {
     display: none !important;
 }
+.search-results-nav {
+    width: 50%;
+    justify-self: center;
+}
+
 .w-full.grid.grid-cols-3.items-center.p-2.sticky.bottom-0.bg-black\/40.backdrop-blur-sm.flex-shrink-0 {
     WIDTH: 50%;
     JUSTIFY-SELF: CENTER;
@@ -235,7 +240,7 @@ div#\33 d-screen-weather-widget {
         /* Keyframe animation for the background gradient */
         @keyframes gradient {
             0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }اوا
+            50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
 
@@ -307,7 +312,6 @@ div#\33 d-screen-weather-widget {
         }
         #floating-media-button:hover,
         #back-to-playlists-bottom-button:hover,
-        #back-to-playlists-bottom-button-search:hover,
         #floating-keyboard-button:hover,
         #clear-search-button:hover,
         #start-trip-floating-button:hover {
@@ -334,7 +338,7 @@ div#\33 d-screen-weather-widget {
         #back-to-playlists-bottom-button, #back-to-playlists-bottom-button-search {
             bottom: 1rem;
             left: 50%;
-            transform: translateX(-50%);
+        
             display: none; /* Hidden by default */
         }
 
@@ -591,7 +595,6 @@ div#\33 d-screen-weather-widget {
             height: 100px; /* MODIFIED: Increased size */
             object-fit: cover;
             border-radius: 50%;
-            margin-bottom: 1rem; /* MODIFIED: Increased margin */
             border: 2px solid rgba(255,255,255,0.3);
         }
         .youtube-reader-card h3 {
@@ -603,6 +606,7 @@ div#\33 d-screen-weather-widget {
             overflow: hidden;
             text-overflow: ellipsis;
             max-width: 95%;
+            margin-bottom: 1rem; /* MODIFIED: Increased margin */
         }
         .youtube-reader-card.selected {
             background-color: #9333ea !important;
@@ -689,7 +693,7 @@ div#\33 d-screen-weather-widget {
         }
         /* NEW: Surah Buttons Scrollable Container */
         .surah-buttons-scrollable {
-            max-height: 40vh;
+            max-height: 77%;
             overflow-y: auto;
             padding-right: 8px; 
             padding-left: 8px; 
@@ -1064,10 +1068,6 @@ section#screen-Media {
 
         /* Responsive adjustments for smaller screens (mobile first) */
         @media (max-width: 768px) {
-            nav.w-20.sm\:w-24.bg-black\/20.flex.flex-col.items-center.justify-start.pt-8.p-2.space-y-4.border-l.border-white\/10.flex-shrink-0.transition-opacity.\30 \.3s.ease.grid-container {
-    flex-direction: row-reverse;
-    inline-size: -webkit-fill-available;
-}
             body {
                 overflow-y: auto;
             }
@@ -1076,24 +1076,50 @@ section#screen-Media {
                 font-size: 0.8rem;
                 top: 0.5rem;
             }
-            
 
             #carplay-main-interface {
-                top: 2%;
-                left: 2%;
-                width: 96vw;
-                height: 96vh;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
                 flex-direction: column;
-                border-radius: 1rem;
+                border-radius: 0;
             }
 
             main {
                 order: 1;
-                height: calc(100% - 64px);
+                height: 100%; /* Take full height of the flex container */
+                padding-bottom: 64px; /* Add padding for the nav bar */
+            }
+
+            nav {
+                order: 2; /* Move nav to bottom of flex container */
+                position: fixed; /* Make it a floating dock */
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 64px; /* A standard dock height */
+                flex-direction: row;
+                justify-content: space-around;
+                align-items: center;
+                background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+                backdrop-filter: blur(15px);
+                -webkit-backdrop-filter: blur(15px);
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+                z-index: 200;
+                padding: 0;
+                gap: 0.5rem;
+            }
+            
+            nav .app-icon {
+                flex-grow: 1;
+                border-radius: 0;
+                height: 100%;
+                width: auto;
             }
 
             .app-screen {
-                padding: 0rem 1rem;
+                padding: 1rem;
             }
 
             .dashboard-main-grid {
@@ -1111,6 +1137,26 @@ section#screen-Media {
                 height: 200px;
             }
 
+            /* Media Screen Mobile Zoom and Layout */
+            #screen-Media {
+                zoom: 0.9;
+                padding: 1rem 0.5rem;
+            }
+
+            .reader-container {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+                gap: 0.75rem;
+            }
+
+            .youtube-reader-card img, .youtube-reader-card .w-\[100px\] {
+                width: 75px;
+                height: 75px;
+            }
+             .youtube-reader-card h3 {
+                font-size: 0.9rem;
+                margin-bottom: 0.5rem;
+            }
+
             .youtube-video-card img, .youtube-search-card img {
                 width: 90px;
                 height: 50.625px; /* Maintain 16:9 aspect ratio */
@@ -1120,6 +1166,7 @@ section#screen-Media {
                 font-size: 0.85rem;
             }
 
+            /* Move floating buttons above the new bottom dock */
             #floating-media-button,
             #back-to-playlists-bottom-button,
             #back-to-playlists-bottom-button-search,
@@ -1128,6 +1175,7 @@ section#screen-Media {
                 padding: 0.75rem 1rem;
                 font-size: 0.8rem;
                 gap: 0.25rem;
+                bottom: 75px; /* 64px dock + 11px margin */
             }
             #floating-media-button { right: 1rem; }
             #floating-keyboard-button {
@@ -1136,10 +1184,13 @@ section#screen-Media {
             #back-to-playlists-bottom-button, #back-to-playlists-bottom-button-search {
                 left: 50%;
                 transform: translateX(-50%);
-                bottom: 5.5rem; /* Adjust position to not overlap with other buttons */
             }
             #start-trip-floating-button {
-                bottom: 5.5rem;
+                 left: 50%;
+                transform: translateX(-50%);
+            }
+            #bottom-left-controls {
+                 bottom: 75px;
             }
 
             #video-popup-container {
@@ -1464,14 +1515,14 @@ div#bottom-left-controls {
                         <div id="search-results-container" class="flex flex-col gap-4 w-full p-4 overflow-y-auto flex-grow grid-container"></div>
                         
                         <!-- NEW: Bottom navigation container -->
-                        <div class="w-full grid grid-cols-3 items-center p-2 sticky bottom-0 bg-black/40 backdrop-blur-sm flex-shrink-0">
+                        <div class="w-full grid grid-cols-3 items-center p-2 sticky bottom-0 bg-black/40 backdrop-blur-sm flex-shrink-0 search-results-nav">
                             <!-- Previous Button container -->
                             <div class="flex justify-start">
                                 <button id="previous-item-button" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-full transition-all duration-200 flex items-center justify-center gap-2 text-sm navigable grid-item" style="display: none;" tabindex="0"></button>
                             </div>
                             <!-- Back Button container -->
                             <div class="flex justify-center">
-                                <button id="back-to-playlists-bottom-button-search" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-full transition-colors duration-200 flex items-center justify-center gap-2 text-base navigable grid-item" tabindex="0">
+                                <button id="back-to-playlists-bottom-button-search" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-full transition-all duration-200 flex items-center justify-center gap-2 text-sm navigable grid-item" tabindex="0">
                                     <i data-lucide="arrow-left" class="w-5 h-5"></i> العودة إلى البحث
                                 </button>
                             </div>
@@ -1981,6 +2032,7 @@ div#bottom-left-controls {
                     youtubeSearchResultsView.classList.remove('hidden');
                     activeMediaView = 'searchResults';
                     backToPlaylistsBottomButton.style.display = 'none';
+                    backToPlaylistsBottomButtonSearch.style.display = 'flex';
                     // The back button is now inside a container, so we don't hide/show it directly
                     updateNavigationButtons(query); // NEW: Update navigation buttons
                     setTimeout(() => { const firstResult = searchResultsContainer.querySelector('.grid-item'); if (firstResult) setFocus(firstResult); }, 100);
@@ -2101,16 +2153,7 @@ div#bottom-left-controls {
             }
         }
 
-        function handleFullScreenChange() {
-            if (popupPlayer && typeof popupPlayer.getPlayerState === 'function' && popupPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
-                const isFullScreen = document.fullscreenElement === popupPlayer.getIframe() || document.webkitFullscreenElement === popupPlayer.getIframe();
-                if (isFullScreen) {
-                    popupPlayer.setPlaybackQuality('hd720');
-                } else {
-                    popupPlayer.setPlaybackQuality('large'); // 'large' for 480p
-                }
-            }
-        }
+        // This function is duplicated, removing one instance.
         
         // NEW: Function to handle next/previous navigation buttons
         function updateNavigationButtons(currentQuery) {
@@ -2149,7 +2192,36 @@ div#bottom-left-controls {
                 }
             }
 
-            // --- Case 2: Reciter-Only Navigation ---
+            // --- Case 2: Juz Navigation ---
+            const juzMatch = currentQuery.match(/الجزء (.+)/);
+            if (juzMatch && juzMatch[1]) {
+                const currentJuz = juzMatch[1].trim();
+                const currentIndex = juzArabicNames.indexOf(currentJuz);
+
+                if (currentIndex !== -1) {
+                    const baseQuery = currentQuery.substring(0, currentQuery.indexOf('الجزء')).trim();
+
+                    // Previous Juz Button
+                    if (currentIndex > 0) {
+                        const prevJuz = juzArabicNames[currentIndex - 1];
+                        previousItemButton.innerHTML = `<i data-lucide="arrow-left"></i> الجزء ${prevJuz}`;
+                        previousItemButton.style.display = 'flex';
+                        previousItemButton.onclick = () => searchYouTubeVideos(`${baseQuery} الجزء ${prevJuz}`.trim());
+                    }
+
+                    // Next Juz Button
+                    if (currentIndex < juzArabicNames.length - 1) {
+                        const nextJuz = juzArabicNames[currentIndex + 1];
+                        nextItemButton.innerHTML = `الجزء ${nextJuz} <i data-lucide="arrow-right"></i>`;
+                        nextItemButton.style.display = 'flex';
+                        nextItemButton.onclick = () => searchYouTubeVideos(`${baseQuery} الجزء ${nextJuz}`.trim());
+                    }
+                    lucide.createIcons();
+                    return;
+                }
+            }
+
+            // --- Case 3: Reciter-Only Navigation ---
             const reciters = youtubeReaderSuggestions.filter(r => r.name !== "ربط الآيات").map(r => r.name);
             const reciterIndex = reciters.indexOf(currentQuery.trim());
 
@@ -2179,6 +2251,7 @@ div#bottom-left-controls {
                 return;
             }
         }
+
         const youtubeReaderSuggestions = [{"name":"محمد ايوب","image":"https://dmusera.netlify.app/512px-Muhammad_Ayyub.webp"},{"name":"علي جابر","image":"https://dmusera.netlify.app/ali-jaber.webp"},{"name":"محمد الغزالي","image":"https://imgs.search.brave.com/QWUpKrFCLEvXilcNhgSRM6xKPjTlBtGA-BAsH9sN-Tc/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9hci5p/c2xhbXdheS5uZXQv/dXBsb2Fkcy9hdXRo/b3JzLzUwNjEuanBn"},{"name":"مشاري العفاسي","image":"https://dmusera.netlify.app/512px-%D0%9C%D0%B8%D1%88%D0%B0%D1%80%D0%B8_%D0%A0%D0%B0%D1%88%D0%B8%D0%B4.webp"},{"name":"عبدالله القرافي","image":"https://yt3.googleusercontent.com/mHTg3RIX-a3NAR22lAnOvSq3-U_KBcL_Ax4FTNirc3flsb5OU8RWksKu6X8Ush9JhO0EOxxAwQY=s160-c-k-c0x00ffffff-no-rj"},{"name":"اسلام صبحي","image":"https://imgs.search.brave.com/Sq4qNywnl1HmDjSuxWTshlQ8yV9fplcVnUoiErGC-38/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS51bml0ZWRtdXNs/aW13b3JsZC5jb20v/aW1nLzIzLzEyLzIz/LzEyNDk1LmpwZw"},{"name":"احمد النفيس","image":"https://dmusera.netlify.app/ahmednafes.jpg"},{"name":"ياسر الدوسري","image":"https://dmusera.netlify.app/Yasser_Al-Dosari.jpg"},{"name":"فارس عنتر","image":"https://dmusera.netlify.app/faresantar.jpg"},{"name":"ربط الآيات","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDEzYTUgNSAwIDAgMCA3LjU0LjU0bD MtM2E1IDUgMCAwIDAtNy4wNy03LjA3bC0xLjcyIDEuNzIiLz48cGF0aCBkPSJNMTQgMTFhNSA1IDAgMCAwLTcuNTQtLjU0bC0zIDNhNSA1IDAgMCAwIDcuMDcgNy4wN2wxLjcyLTEuNzIiLz48L3N2Zz4="}];
         const youtubeSurahSuggestions = ["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","الانشقاق","المطففين","البروج","الطارق","الأعلى"];
         const surahToJuzMap = {"الفاتحة":1,"البقرة":1,"آل عمران":3,"النساء":4,"المائدة":6,"الأنعام":7,"الأعراف":8,"الأنفال":9,"التوبة":10,"يونس":11,"هود":11,"يوسف":12,"الرعد":13,"إبراهيم":13,"الحجر":14,"النحل":14,"الإسراء":15,"الكهف":15,"مريم":16,"طه":16,"الأنبياء":17,"الحج":17,"المؤمنون":18,"النور":18,"الفرقان":18,"الشعراء":19,"النمل":19,"القصص":20,"العنكبوت":20,"الروم":21,"لقمان":21,"السجدة":21,"الأحزاب":21,"سبأ":22,"فاطر":22,"يس":22,"الصافات":23,"ص":23,"الزمر":23,"غافر":24,"فصلت":24,"الشورى":25,"الزخرف":25,"الدخان":25,"الجاثية":25,"الأحقاف":26,"محمد":26,"الفتح":26,"الحجرات":26,"ق":26,"الذاريات":27,"الطور":27,"النجم":27,"القمر":27,"الرحمن":27,"الواقعة":27,"الحديد":27,"المجادلة":28,"الحشر":28,"الممتحنة":28,"الصف":28,"الجمعة":28,"المنافقون":28,"التغابن":28,"الطلاق":28,"التحريم":28,"الملك":29,"القلم":29,"الحاقة":29,"المعارج":29,"نوح":29,"الجن":29,"المزمل":29,"المدثر":29,"القيامة":29,"الإنسان":29,"المرسلات":29,"النبأ":30,"النازعات":30,"عبس":30,"التكوير":30,"الانفطار":30,"الانشقاق":30,"المطففين":30,"البروج":30,"الطارق":30,"الأعلى":30};
@@ -2304,7 +2377,7 @@ div#bottom-left-controls {
                 const card = document.createElement('div');
                 card.className = 'youtube-reader-card navigable grid-item';
                 card.tabIndex = 0;
-                card.innerHTML = `<img src="${reader.image}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';"><h3>${reader.name}</h3>`;
+                card.innerHTML = `<h3>${reader.name}</h3><img src="${reader.image}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';">`;
                 card.addEventListener('click', () => {
                     if (searchMode === 'reciter_only') {
                         youtubeSearchInput.value = reader.name;
@@ -2317,12 +2390,34 @@ div#bottom-left-controls {
                 readerButtonsContainer.appendChild(card);
             });
 
+            // MOVED: Add "السورة" button to the Reciters tab at the end
+            const surahCard = document.createElement('div');
+            surahCard.className = 'youtube-reader-card navigable grid-item';
+            surahCard.tabIndex = 3;
+            surahCard.innerHTML = `<h3>السورة فقط</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="book-open" class="w-12 h-12"></i></div>`;
+            surahCard.addEventListener('click', () => handleReaderOrToolClick("JUST_SURAH", tabContainer, tabsContentContainer));
+            readerButtonsContainer.appendChild(surahCard);
+
+            // MOVED: Add "القارئ فقط" to the Reciters tab at the end
+            const reciterOnlyCard = document.createElement('div');
+            reciterOnlyCard.className = 'youtube-reader-card navigable grid-item';
+            reciterOnlyCard.tabIndex = 0;
+            reciterOnlyCard.innerHTML = `<h3>القارئ فقط</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="mic" class="w-12 h-12"></i></div>`;
+            reciterOnlyCard.addEventListener('click', () => {
+                searchMode = 'reciter_only';
+                showMessageBox('اختر قارئاً للبحث عنه مباشرة.');
+                const firstReciter = recitersContent.querySelector('.grid-item');
+                if (firstReciter) setFocus(firstReciter);
+            });
+            readerButtonsContainer.appendChild(reciterOnlyCard);
+
+
             const rabtAlAyat = youtubeReaderSuggestions.find(r => r.name === "ربط الآيات");
             if (rabtAlAyat) {
                 const card = document.createElement('div');
                 card.className = 'youtube-reader-card navigable grid-item';
                 card.tabIndex = 0;
-                card.innerHTML = `<img src="${rabtAlAyat.image}" alt="${rabtAlAyat.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';"><h3>${rabtAlAyat.name}</h3>`;
+                card.innerHTML = `<h3>${rabtAlAyat.name}</h3><img src="${rabtAlAyat.image}" alt="${rabtAlAyat.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';">`;
                 card.addEventListener('click', () => handleReaderOrToolClick(rabtAlAyat.name, tabContainer, tabsContentContainer));
                 toolsButtonsContainer.appendChild(card);
     }
@@ -2330,46 +2425,23 @@ div#bottom-left-controls {
             const difficultWordsCard = document.createElement('div');
             difficultWordsCard.className = 'youtube-reader-card navigable grid-item';
             difficultWordsCard.tabIndex = 0;
-            difficultWordsCard.innerHTML = `<div class="w-[100px] h-[100px] rounded-full mb-4 border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="book-check" class="w-12 h-12"></i></div><h3>الكلمات الصعبة</h3>`;
+            difficultWordsCard.innerHTML = `<h3>الكلمات الصعبة</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="book-check" class="w-12 h-12"></i></div>`;
             difficultWordsCard.addEventListener('click', () => handleReaderOrToolClick("الكلمات الصعبة في", tabContainer, tabsContentContainer));
             toolsButtonsContainer.appendChild(difficultWordsCard);
 
             const repeatCard = document.createElement('div');
             repeatCard.className = 'youtube-reader-card navigable grid-item';
             repeatCard.tabIndex = 0;
-            repeatCard.innerHTML = `<div class="w-[100px] h-[100px] rounded-full mb-4 border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="repeat" class="w-12 h-12"></i></div><h3>تكرار</h3>`;
+            repeatCard.innerHTML = `<h3>تكرار</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="repeat" class="w-12 h-12"></i></div>`;
             repeatCard.addEventListener('click', () => handleReaderOrToolClick("تكرار", tabContainer, tabsContentContainer));
             toolsButtonsContainer.appendChild(repeatCard);
 
             const saveCard = document.createElement('div');
             saveCard.className = 'youtube-reader-card navigable grid-item';
             saveCard.tabIndex = 0;
-            saveCard.innerHTML = `<div class="w-[100px] h-[100px] rounded-full mb-4 border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="save" class="w-12 h-12"></i></div><h3>حفظ</h3>`;
+            saveCard.innerHTML = `<h3>حفظ</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="save" class="w-12 h-12"></i></div>`;
             saveCard.addEventListener('click', () => handleReaderOrToolClick("حفظ", tabContainer, tabsContentContainer));
             toolsButtonsContainer.appendChild(saveCard);
-
-            // NEW: Add "السورة" button to add a space
-            const surahCard = document.createElement('div');
-            surahCard.className = 'youtube-reader-card navigable grid-item';
-            surahCard.tabIndex = 0;
-            surahCard.innerHTML = `<div class="w-[100px] h-[100px] rounded-full mb-4 border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="book-open" class="w-12 h-12"></i></div><h3>السورة</h3>`;
-            surahCard.addEventListener('click', () => handleReaderOrToolClick("JUST_SURAH", tabContainer, tabsContentContainer));
-            toolsButtonsContainer.appendChild(surahCard);
-
-            // NEW: Add "القارئ فقط" tool
-            const reciterOnlyCard = document.createElement('div');
-            reciterOnlyCard.className = 'youtube-reader-card navigable grid-item';
-            reciterOnlyCard.tabIndex = 0;
-            reciterOnlyCard.innerHTML = `<div class="w-[100px] h-[100px] rounded-full mb-4 border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="mic" class="w-12 h-12"></i></div><h3>القارئ فقط</h3>`;
-            reciterOnlyCard.addEventListener('click', () => {
-                searchMode = 'reciter_only';
-                recitersTabButton.click(); // Switch to reciters tab
-                showMessageBox('اختر قارئاً للبحث عنه مباشرة.');
-                const firstReciter = recitersContent.querySelector('.grid-item');
-                if (firstReciter) setFocus(firstReciter);
-            });
-            toolsButtonsContainer.appendChild(reciterOnlyCard);
-
 
             // 4. Tab Switching Logic
             recitersTabButton.addEventListener('click', () => {
@@ -2451,7 +2523,7 @@ div#bottom-left-controls {
                     if (youtubeSearchInput.value.startsWith('الكلمات الصعبة في')) {
                         query = 'الكلمات الصعبة في سورة ' + name;
                     } else if (currentInput === '') {
-                        query = name;
+                        query = 'سورة ' + name;
                     } else {
                         query = selectedReaderName + ' سورة ' + name;
                     }
@@ -2729,6 +2801,7 @@ div#bottom-left-controls {
                 if (response.status === 'OK') {
                     directionsRenderer.setDirections(response);
                     const route = response.routes[0].legs[0];
+                   
                     showMessageBox(`الطريق إلى وجهتك: ${route.distance.text}, الوقت المقدر: ${route.duration.text}`);
                 } else {
                     showMessageBox('تعذر العثور على اتجاهات: ' + response.status);
@@ -2744,7 +2817,7 @@ div#bottom-left-controls {
             if (WEATHER_API_KEY.startsWith('YOUR_')) return showMessageBox('خطأ: لم يتم تعيين مفتاح WeatherAPI.');
             try {
                 const locationQuery = appState.currentLocation ? `${appState.currentLocation.lat},${appState.currentLocation.lng}` : appState.weather.location.split(',')[0].trim();
-                const res = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=${WEATHER_API_KEY}&q=${locationQuery}&days=2&aqi=no&alerts=no&lang=ar`);
+                const res = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=${WEATHER_API_KEY}&q=${locationQuery}&days=2&aqi=yes&alerts=no&lang=ar`);
                 if (!res.ok) throw new Error(`خطأ HTTP! الحالة: ${res.status}`);
                 const data = await res.json();
                 
@@ -2768,7 +2841,7 @@ div#bottom-left-controls {
                 renderHourlyForecast(forecastToRender);
                 
                 // --- NEW: Fetch other locations ---
-                fetchAndRenderLocationTemps(data);
+                fetchAndRenderLocationTemps();
 
                 updateUI(); // Update other UI elements
             } catch (err) {
@@ -2797,19 +2870,19 @@ div#bottom-left-controls {
             });
         }
 
-        async function fetchAndRenderLocationTemps(forecastData) {
+        async function fetchAndRenderLocationTemps() {
             const container = document.getElementById('location-temps-container');
             if (!container) return;
             container.innerHTML = '<p class="text-white/70 col-span-full text-center">جاري تحميل درجات الحرارة...</p>';
 
             const locations = [
                 { name: 'الموقع الحالي', query: appState.currentLocation ? `${appState.currentLocation.lat},${appState.currentLocation.lng}` : '17.0151,54.0924', isCurrent: true },
-                { name: 'طاقة', query: '17.039,54.395' },
-                { name: 'مرباط', query: '16.99,54.69' },
+                { name: 'سهل اتين', query: '17.08,54.02' },
+                { name: 'شاطئ الحافة', query: '16.995,54.088' }
             ];
 
             const promises = locations.map(loc =>
-                fetch(`https://api.weatherapi.com/v1/current.json?key=${WEATHER_API_KEY}&q=${loc.query}&aqi=no&lang=ar`)
+                fetch(`https://api.weatherapi.com/v1/current.json?key=${WEATHER_API_KEY}&q=${loc.query}&aqi=yes&lang=ar`)
                 .then(res => res.json())
                 .then(data => ({
                     name: loc.isCurrent && data.location ? data.location.name : loc.name,
@@ -2821,7 +2894,8 @@ div#bottom-left-controls {
                     humidity: data.current.humidity,
                     wind_kph: data.current.wind_kph,
                     wind_dir: data.current.wind_dir,
-                    pressure_mb: data.current.pressure_mb
+                    pressure_mb: data.current.pressure_mb,
+                    aqi: data.current.air_quality ? data.current.air_quality['us-epa-index'] : null
                 }))
                 .catch(err => {
                     console.error(`Failed to fetch weather for ${loc.name}`, err);
@@ -2874,67 +2948,36 @@ div#bottom-left-controls {
                 smallCardsContainer.appendChild(card);
             });
 
-            // NEW: Create Humidity Indicator Card
-            if (currentLocationData && currentLocationData.humidity) {
-                const humidity = currentLocationData.humidity;
-                let humidityColor = '#4ade80'; // Green (Dry)
-                let humidityText = 'جاف';
-                if (humidity > 60 && humidity <= 80) {
-                    humidityColor = '#facc15'; // Yellow (Moderate)
-                    humidityText = 'معتدل';
-                } else if (humidity > 80) {
-                    humidityColor = '#f87171'; // Red (Humid)
-                    humidityText = 'رطب';
-                }
-                const humidityCard = document.createElement('div');
-                humidityCard.className = 'glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center navigable grid-item';
-                humidityCard.tabIndex = 0;
-                humidityCard.innerHTML = `
-                    <i data-lucide="droplets" class="w-14 h-14 mb-2" style="color: ${humidityColor};"></i>
-                    <span class="text-3xl font-bold" style="color: ${humidityColor};">${humidity}%</span>
-                    <span class="text-sm text-white/80 mt-1 font-bold">مؤشر الرطوبة</span>
-                    <span class="text-sm font-semibold" style="color: ${humidityColor};">${humidityText}</span>
+             // Add AQI and UV Index cards
+             if (currentLocationData) {
+                // UV Index Card
+                const uvCard = document.createElement('div');
+                uvCard.className = 'glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center navigable grid-item';
+                uvCard.tabIndex = 0;
+                const uvColorClasses = getUvColor(currentLocationData.uv);
+                uvCard.innerHTML = `
+                    <i data-lucide="sun" class="w-14 h-14 mb-2 opacity-80"></i>
+                    <div class="text-2xl font-bold px-3 py-1 rounded-lg ${uvColorClasses}">
+                        ${currentLocationData.uv || '--'}
+                    </div>
+                    <span class="text-sm text-white/80 mt-2 font-bold">UV Index</span>
                 `;
-                smallCardsContainer.appendChild(humidityCard);
+                smallCardsContainer.appendChild(uvCard);
+
+                // AQI Card
+                const aqiCard = document.createElement('div');
+                aqiCard.className = 'glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center navigable grid-item';
+                aqiCard.tabIndex = 0;
+                const aqiColorClasses = getAqiColor(currentLocationData.aqi);
+                aqiCard.innerHTML = `
+                    <i data-lucide="wind" class="w-14 h-14 mb-2 opacity-80"></i>
+                    <div class="text-2xl font-bold px-3 py-1 rounded-lg ${aqiColorClasses}">
+                        ${currentLocationData.aqi || '--'}
+                    </div>
+                    <span class="text-sm text-white/80 mt-2 font-bold">AQI</span>
+                `;
+                smallCardsContainer.appendChild(aqiCard);
             }
-
-            // NEW: Create Lowest Humidity/UV Time Card
-            if (forecastData) {
-                const now = new Date();
-                const upcomingHours = [
-                    ...forecastData.forecast.forecastday[0].hour,
-                    ...(forecastData.forecast.forecastday[1]?.hour || [])
-                ].filter(h => new Date(h.time_epoch * 1000) > now).slice(0, 3);
-
-                let bestHourCard = document.createElement('div');
-                bestHourCard.className = 'glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center navigable grid-item';
-                bestHourCard.tabIndex = 0;
-
-                if (upcomingHours.length > 0) {
-                    let bestHour = upcomingHours.reduce((best, current) => {
-                        return current.humidity < best.humidity ? current : best;
-                    });
-                    
-                    const bestTime = new Date(bestHour.time_epoch * 1000).toLocaleTimeString('ar-SA', { hour: 'numeric', minute: '2-digit', hour12: true });
-
-                    bestHourCard.innerHTML = `
-                        <i data-lucide="clock" class="w-14 h-14 mb-2 text-purple-300"></i>
-                        <span class="text-2xl font-bold">${bestTime}</span>
-                        <span class="text-sm text-white/80 mt-1 font-bold">أفضل وقت قادم</span>
-                        <div class="flex gap-4 mt-1 text-xs">
-                            <span><i data-lucide="droplets" class="w-3 h-3 inline-block"></i> ${bestHour.humidity}%</span>
-                            <span><i data-lucide="sun" class="w-3 h-3 inline-block"></i> UV ${bestHour.uv}</span>
-                        </div>
-                    `;
-                } else {
-                    bestHourCard.innerHTML = `
-                        <i data-lucide="clock" class="w-14 h-14 mb-2 text-gray-500"></i>
-                        <span class="text-sm text-white/80 mt-1 font-bold">لا توجد بيانات قادمة</span>
-                    `;
-                }
-                smallCardsContainer.appendChild(bestHourCard);
-            }
-
 
              // Details card for current location info (bottom left, spans 2 columns)
             if (currentLocationData) {
@@ -2942,11 +2985,7 @@ div#bottom-left-controls {
                 detailsCard.className = 'glass-surface glass-surface--svg p-4 rounded-3xl text-center navigable grid-item col-span-2 row-span-1';
                 detailsCard.tabIndex = 0;
                 detailsCard.innerHTML = `
-                    <div class="grid grid-cols-4 gap-4 w-full h-full items-center">
-                        <div class="text-center flex flex-col justify-center h-full">
-                            <div class="text-sm text-white/70 mb-1">UV Index</div>
-                            <div class="text-2xl font-bold" style="color: ${getUvIndexColor(currentLocationData.uv)}">${currentLocationData.uv || '--'}</div>
-                        </div>
+                    <div class="grid grid-cols-3 gap-4 w-full h-full items-center">
                         <div class="text-center flex flex-col justify-center h-full">
                             <div class="text-sm text-white/70 mb-1">الرطوبة</div>
                             <div class="text-2xl font-bold">${currentLocationData.humidity || '--'}%</div>
@@ -2969,6 +3008,26 @@ div#bottom-left-controls {
 
         function getUvIndexColor(uv) { if (uv <= 2) return '#4ade80'; if (uv <= 5) return '#facc15'; if (uv <= 7) return '#fb923c'; if (uv <= 10) return '#f87171'; return '#c084fc'; }
 
+        // --- NEW COLORING FUNCTIONS ---
+        const getAqiColor = (aqi) => {
+            const aqiValue = parseInt(aqi);
+            if (aqiValue <= 50) return 'bg-green-500 text-white';
+            if (aqiValue <= 100) return 'bg-yellow-400 text-black';
+            if (aqiValue <= 150) return 'bg-orange-500 text-white';
+            if (aqiValue <= 200) return 'bg-red-500 text-white';
+            if (aqiValue <= 300) return 'bg-purple-500 text-white';
+            return 'bg-red-800 text-white';
+        };
+
+        const getUvColor = (uv) => {
+            const uvValue = Math.round(uv);
+            if (uvValue <= 2) return 'bg-green-500 text-white';
+            if (uvValue <= 5) return 'bg-yellow-400 text-black';
+            if (uvValue <= 7) return 'bg-orange-500 text-white';
+            if (uvValue <= 10) return 'bg-red-500 text-white';
+            return 'bg-purple-500 text-white';
+        };
+
         // --- Simulated Car Data ---
         function simulateOtherCarData() { 
             appState.car.rpm = (Math.random() * 4200 + 800).toFixed(0); 
@@ -2978,8 +3037,22 @@ div#bottom-left-controls {
         }
 
         // --- Prayer Times Integration ---
-                const prayerTimes = [{"date":"2025-09-28","fajr":"05:02","sunrise":"06:14","dhuhr":"12:19","asr":"15:41","maghrib":"18:20","isha":"19:27"},{"date":"2025-09-29","fajr":"05:02","sunrise":"06:14","dhuhr":"12:19","asr":"15:41","maghrib":"18:19","isha":"19:26"},{"date":"2025-09-30","fajr":"05:02","sunrise":"06:14","dhuhr":"12:18","asr":"15:40","maghrib":"18:18","isha":"19:25"},{"date":"2025-10-01","fajr":"05:02","sunrise":"06:14","dhuhr":"12:18","asr":"15:40","maghrib":"18:17","isha":"19:24"},{"date":"2025-10-02","fajr":"05:02","sunrise":"06:14","dhuhr":"12:18","asr":"15:39","maghrib":"18:16","isha":"19:23"},{"date":"2025-10-03","fajr":"05:03","sunrise":"06:15","dhuhr":"12:17","asr":"15:39","maghrib":"18:15","isha":"19:22"},{"date":"2025-10-04","fajr":"05:03","sunrise":"06:15","dhuhr":"12:17","asr":"15:38","maghrib":"18:15","isha":"19:21"},{"date":"2025-10-05","fajr":"05:03","sunrise":"06:15","dhuhr":"12:17","asr":"15:38","maghrib":"18:14","isha":"19:20"},{"date":"2025-10-06","fajr":"05:03","sunrise":"06:15","dhuhr":"12:16","asr":"15:37","maghrib":"18:13","isha":"19:20"},{"date":"2025-10-07","fajr":"05:03","sunrise":"06:15","dhuhr":"12:16","asr":"15:37","maghrib":"18:12","isha":"19:19"},{"date":"2025-10-08","fajr":"05:04","sunrise":"06:16","dhuhr":"12:16","asr":"15:36","maghrib":"18:11","isha":"19:18"},{"date":"2025-10-09","fajr":"05:04","sunrise":"06:16","dhuhr":"12:15","asr":"15:36","maghrib":"18:10","isha":"19:17"},{"date":"2025-10-10","fajr":"05:04","sunrise":"06:16","dhuhr":"12:15","asr":"15:35","maghrib":"18:09","isha":"19:16"},{"date":"2025-10-11","fajr":"05:04","sunrise":"06:16","dhuhr":"12:15","asr":"15:35","maghrib":"18:09","isha":"19:15"},{"date":"2025-10-12","fajr":"05:04","sunrise":"06:17","dhuhr":"12:14","asr":"15:34","maghrib":"18:08","isha":"19:15"},{"date":"2025-10-13","fajr":"05:05","sunrise":"06:17","dhuhr":"12:14","asr":"15:34","maghrib":"18:07","isha":"19:14"},{"date":"2025-10-14","fajr":"05:05","sunrise":"06:17","dhuhr":"12:14","asr":"15:33","maghrib":"18:06","isha":"19:13"},{"date":"2025-10-15","fajr":"05:05","sunrise":"06:17","dhuhr":"12:13","asr":"15:33","maghrib":"18:05","isha":"19:12"}]
-
+        const prayerTimes = [
+            
+                    {"date":"2025-09-15","fajr":"05:00","sunrise":"06:12","dhuhr":"12:24","asr":"15:45","maghrib":"18:31","isha":"19:38"},
+            {"date":"2025-09-16","fajr":"05:00","sunrise":"06:12","dhuhr":"12:24","asr":"15:45","maghrib":"18:30","isha":"19:38"},
+            {"date":"2025-09-17","fajr":"05:00","sunrise":"06:12","dhuhr":"12:23","asr":"15:45","maghrib":"18:29","isha":"19:37"},
+            {"date":"2025-09-18","fajr":"05:00","sunrise":"06:12","dhuhr":"12:23","asr":"15:45","maghrib":"18:29","isha":"19:36"},
+            {"date":"2025-09-19","fajr":"05:00","sunrise":"06:12","dhuhr":"12:23","asr":"15:44","maghrib":"18:28","isha":"19:35"},
+            {"date":"2025-09-20","fajr":"05:00","sunrise":"06:12","dhuhr":"12:22","asr":"15:44","maghrib":"18:27","isha":"19:34"},
+            {"date":"2025-09-21","fajr":"05:01","sunrise":"06:13","dhuhr":"12:22","asr":"15:44","maghrib":"18:26","isha":"19:33"},
+            {"date":"2025-09-22","fajr":"05:01","sunrise":"06:13","dhuhr":"12:22","asr":"15:44","maghrib":"18:25","isha":"19:32"},
+            {"date":"2025-09-23","fajr":"05:01","sunrise":"06:13","dhuhr":"12:21","asr":"15:43","maghrib":"18:25","isha":"19:31"},
+            {"date":"2025-09-24","fajr":"05:01","sunrise":"06:13","dhuhr":"12:21","asr":"15:43","maghrib":"18:24","isha":"19:31"},
+            {"date":"2025-09-25","fajr":"05:01","sunrise":"06:13","dhuhr":"12:20","asr":"15:43","maghrib":"18:23","isha":"19:30"},
+            {"date":"2025-09-26","fajr":"05:01","sunrise":"06:13","dhuhr":"12:20","asr":"15:42","maghrib":"18:22","isha":"19:29"},
+            {"date":"2025-09-27","fajr":"05:01","sunrise":"06:13","dhuhr":"12:20","asr":"15:42","maghrib":"18:21","isha":"19:28"},
+        ];
         function loadPrayerTimes() {
             const today = new Date().toISOString().split('T')[0];
             const data = prayerTimes.find(p => p.date === today);
