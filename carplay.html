@@ -1556,7 +1556,7 @@ div#bottom-left-controls {
                         <!-- Location Temperatures -->
                         <div id="location-temps-container" class="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full flex-grow">
                             <!-- JS will populate this -->
-                            <div class="text-center text-white/70 col-span-full">جاري تحميل درجات الحرارة...</div>
+                            <div class="text-center text-white/70 col-span-full">جاري تحميل البيانات الجديدة...</div>
                         </div>
                     </div>
                 </section>
@@ -2841,7 +2841,7 @@ div#bottom-left-controls {
                 renderHourlyForecast(forecastToRender);
                 
                 // --- NEW: Fetch other locations ---
-                fetchAndRenderLocationTemps();
+                renderAdvancedWeatherCards(data);
 
                 updateUI(); // Update other UI elements
             } catch (err) {
@@ -2857,166 +2857,166 @@ div#bottom-left-controls {
             forecastData.forEach(hour => {
                   const timeLabel = hour.time === "الآن"
                     ? "الآن"
-                    : new Date(hour.time_epoch * 1000).toLocaleTimeString('ar-SA', { hour: 'numeric', hour12: false });
+                    : new Date(hour.time_epoch * 1000).toLocaleTimeString('ar-SA', { hour: 'numeric', hour12: true });
 
                 const card = document.createElement('div');
                 card.className = 'flex flex-col items-center justify-center p-1 rounded-lg';
                 card.innerHTML = `
-                    <span class="text-xs font-medium text-white/80">${timeLabel}</span>
-                    <img src="https:${hour.condition.icon}" alt="weather" class="w-8 h-8">
-                    <span class="text-base font-bold">${Math.round(hour.temp_c)}°</span>
+                    <span class="text-base font-medium text-white/80">${timeLabel}</span>
+                    <img src="https:${hour.condition.icon}" alt="weather" class="w-8 h-8 my-1">
+                    <span class="text-xl font-bold">${Math.round(hour.temp_c)}°</span>
                 `;
                 container.appendChild(card);
             });
         }
 
-        async function fetchAndRenderLocationTemps() {
+        function renderAdvancedWeatherCards(data) {
             const container = document.getElementById('location-temps-container');
             if (!container) return;
-            container.innerHTML = '<p class="text-white/70 col-span-full text-center">جاري تحميل درجات الحرارة...</p>';
-
-            const locations = [
-                { name: 'الموقع الحالي', query: appState.currentLocation ? `${appState.currentLocation.lat},${appState.currentLocation.lng}` : '17.0151,54.0924', isCurrent: true },
-                { name: 'سهل اتين', query: '17.08,54.02' },
-                { name: 'شاطئ الحافة', query: '16.995,54.088' }
-            ];
-
-            const promises = locations.map(loc =>
-                fetch(`https://api.weatherapi.com/v1/current.json?key=${WEATHER_API_KEY}&q=${loc.query}&aqi=yes&lang=ar`)
-                .then(res => res.json())
-                .then(data => ({
-                    name: loc.isCurrent && data.location ? data.location.name : loc.name,
-                    temp: data.current.temp_c,
-                    icon: `https:${data.current.condition.icon}`,
-                    desc: data.current.condition.text,
-                    isCurrent: !!loc.isCurrent,
-                    uv: data.current.uv,
-                    humidity: data.current.humidity,
-                    wind_kph: data.current.wind_kph,
-                    wind_dir: data.current.wind_dir,
-                    pressure_mb: data.current.pressure_mb,
-                    aqi: data.current.air_quality ? data.current.air_quality['us-epa-index'] : null
-                }))
-                .catch(err => {
-                    console.error(`Failed to fetch weather for ${loc.name}`, err);
-                    return { name: loc.name, temp: 'N/A', icon: '', desc: 'خطأ', isCurrent: !!loc.isCurrent };
-                })
-            );
-
-            const results = await Promise.all(promises);
-
             container.innerHTML = '';
-            // New grid layout: 3 columns, with 2 rows of different heights
-            container.className = 'grid grid-cols-3 grid-rows-[2.5fr_0.8fr] gap-4 w-full flex-grow';
+             // Change layout to a flex column to stack the cards vertically
+            container.className = 'flex flex-col gap-4 w-full flex-grow';
 
-            const currentLocationData = results.find(r => r.isCurrent);
-            const otherLocationsData = results.filter(r => !r.isCurrent);
-            
-            // Big card for current location (right column, spans both rows)
-            if (currentLocationData) {
-                const bigCard = document.createElement('div');
-                bigCard.className = 'glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col justify-between items-center navigable grid-item col-span-1 row-span-2';
-                bigCard.tabIndex = 0;
-                bigCard.innerHTML = `
-                    <div class="w-full text-center">
-                        <img src="${currentLocationData.icon || 'https://placehold.co/64x64/000000/FFFFFF?text=X'}" alt="weather" class="w-24 h-24 mx-auto mb-2">
-                        <span class="text-6xl font-bold">${currentLocationData.temp === 'N/A' ? '--' : currentLocationData.temp.toFixed(1)}°C</span>
-                    </div>
-                    <div class="w-full text-center mt-auto">
-                        <span class="text-2xl text-white/80 block">${currentLocationData.desc || ''}</span>
-                        <span class="text-lg text-white/80 mt-1 block font-bold">${currentLocationData.name}</span>
-                    </div>
-                `;
-                container.appendChild(bigCard);
-            }
-            
-            // Container for the 4 smaller cards (top left, spans 2 columns)
-            const smallCardsContainer = document.createElement('div');
-            smallCardsContainer.className = 'col-span-2 row-span-1 grid grid-cols-2 gap-4';
-            container.appendChild(smallCardsContainer);
-            
-            otherLocationsData.forEach(result => {
-                const card = document.createElement('div');
-                card.className = 'glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center navigable grid-item';
-                card.tabIndex = 0;
-                card.innerHTML = `
-                    <img src="${result.icon || 'https://placehold.co/48x48/000000/FFFFFF?text=X'}" alt="weather" class="w-14 h-14 mb-2">
-                    <span class="text-3xl font-bold">${result.temp === 'N/A' ? '--' : result.temp.toFixed(1) + '°C'}</span>
-                    <span class="text-sm text-cyan-300 font-semibold">${result.humidity || '--'}% رطوبة</span>
-                    <span class="text-sm text-white/80 mt-1 font-bold">${result.name}</span>
-                `;
-                smallCardsContainer.appendChild(card);
-            });
+            // Create a container for the top two cards (Humidity and Best Time)
+            const topCardsContainer = document.createElement('div');
+            topCardsContainer.className = 'grid grid-cols-2 gap-4 w-full flex-grow';
+            container.appendChild(topCardsContainer); // Append this container first
 
-             // Add AQI and UV Index cards
-             if (currentLocationData) {
-                // UV Index Card
-                const uvCard = document.createElement('div');
-                uvCard.className = 'glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center navigable grid-item';
-                uvCard.tabIndex = 0;
-                const uvColorClasses = getUvColor(currentLocationData.uv);
-                uvCard.innerHTML = `
-                    <i data-lucide="sun" class="w-14 h-14 mb-2 opacity-80"></i>
-                    <div class="text-2xl font-bold px-3 py-1 rounded-lg ${uvColorClasses}">
-                        ${currentLocationData.uv || '--'}
-                    </div>
-                    <span class="text-sm text-white/80 mt-2 font-bold">UV Index</span>
-                `;
-                smallCardsContainer.appendChild(uvCard);
-
-                // AQI Card
-                const aqiCard = document.createElement('div');
-                aqiCard.className = 'glass-surface glass-surface--svg p-4 rounded-3xl text-center flex flex-col items-center justify-center navigable grid-item';
-                aqiCard.tabIndex = 0;
-                const aqiColorClasses = getAqiColor(currentLocationData.aqi);
-                aqiCard.innerHTML = `
-                    <i data-lucide="wind" class="w-14 h-14 mb-2 opacity-80"></i>
-                    <div class="text-2xl font-bold px-3 py-1 rounded-lg ${aqiColorClasses}">
-                        ${currentLocationData.aqi || '--'}
-                    </div>
-                    <span class="text-sm text-white/80 mt-2 font-bold">AQI</span>
-                `;
-                smallCardsContainer.appendChild(aqiCard);
+            // Card 1: Humidity
+            const humidity = data.current.humidity;
+            let humidityColor = 'text-green-400';
+            let humidityDesc = 'منخفضة';
+            if (humidity >= 60 && humidity < 75) {
+                humidityColor = 'text-yellow-400';
+                humidityDesc = 'معتدلة';
+            } else if (humidity >= 75 && humidity < 85) {
+                humidityColor = 'text-orange-400';
+                humidityDesc = 'مرتفعة';
+            } else if (humidity >= 85) {
+                humidityColor = 'text-red-400';
+                humidityDesc = 'مرتفعة جداً';
             }
 
-             // Details card for current location info (bottom left, spans 2 columns)
-            if (currentLocationData) {
-                const detailsCard = document.createElement('div');
-                detailsCard.className = 'glass-surface glass-surface--svg p-4 rounded-3xl text-center navigable grid-item col-span-2 row-span-1';
-                detailsCard.tabIndex = 0;
-                detailsCard.innerHTML = `
-                    <div class="grid grid-cols-3 gap-4 w-full h-full items-center">
-                        <div class="text-center flex flex-col justify-center h-full">
-                            <div class="text-sm text-white/70 mb-1">الرطوبة</div>
-                            <div class="text-2xl font-bold">${currentLocationData.humidity || '--'}%</div>
-                        </div>
-                        <div class="text-center flex flex-col justify-center h-full">
-                            <div class="text-sm text-white/70 mb-1">الرياح</div>
-                            <div class="text-lg font-bold">${currentLocationData.wind_kph || '--'} km/h</div>
-                            <div class="text-xs font-bold text-white/70">${currentLocationData.wind_dir || ''}</div>
-                        </div>
-                        <div class="text-center flex flex-col justify-center h-full">
-                            <div class="text-sm text-white/70 mb-1">الضغط</div>
-                            <div class="text-lg font-bold">${currentLocationData.pressure_mb || '--'} mb</div>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(detailsCard);
+            const humidityCard = document.createElement('div');
+            humidityCard.className = 'glass-surface glass-surface--svg p-4 rounded-3xl flex flex-col items-center justify-center text-center navigable grid-item';
+            humidityCard.tabIndex = 0;
+            humidityCard.innerHTML = `
+                <div class="flex items-center gap-3 mb-2">
+                    <i data-lucide="droplets" class="w-8 h-8 ${humidityColor}"></i>
+                    <h3 class="text-xl font-bold">مستوى الرطوبة</h3>
+                </div>
+                <div class="text-6xl font-extrabold ${humidityColor}">${humidity}%</div>
+                <div class="text-lg text-white/80 mt-2">${humidityDesc}</div>
+            `;
+            topCardsContainer.appendChild(humidityCard);
+
+            // Card 2: Best Time to Go Out
+            const hourlyData = [...data.forecast.forecastday[0].hour];
+            const now = new Date();
+            const next4Hours = hourlyData.filter(h => new Date(h.time_epoch * 1000) > now).slice(0, 4);
+
+            let bestHour = null;
+            let bestScore = Infinity;
+
+            if (next4Hours.length > 0) {
+                next4Hours.forEach(hour => {
+                    const score = (hour.temp_c * 1.5) + (hour.uv * 2) + (hour.humidity);
+                    if (score < bestScore) {
+                        bestScore = score;
+                        bestHour = hour;
+                    }
+                });
+            } else {
+                 bestHour = { time_epoch: Date.now()/1000 + 3600, temp_c: data.current.temp_c, uv: data.current.uv, humidity: data.current.humidity };
             }
+
+
+            const bestTime = new Date(bestHour.time_epoch * 1000).toLocaleTimeString('ar-OM', { hour: 'numeric', minute: '2-digit', hour12: true });
+
+            const bestTimeCard = document.createElement('div');
+            bestTimeCard.className = 'glass-surface glass-surface--svg p-4 rounded-3xl flex flex-col items-center justify-center text-center navigable grid-item';
+            bestTimeCard.tabIndex = 0;
+            bestTimeCard.innerHTML = `
+                <div class="flex items-center gap-3 mb-3">
+                     <i data-lucide="walk" class="w-8 h-8 text-green-300"></i>
+                    <h3 class="text-xl font-bold">أفضل وقت للخروج</h3>
+                </div>
+                <div class="text-4xl font-extrabold text-green-300 mb-3">${bestTime}</div>
+                <div class="grid grid-cols-3 gap-2 text-sm w-full">
+                    <div class="bg-black/20 p-2 rounded-lg text-center">
+                        <div class="font-bold text-lg ${getTempTextColor(bestHour.temp_c)}">${Math.round(bestHour.temp_c)}°C</div>
+                        <div class="text-xs opacity-90">الحرارة</div>
+                    </div>
+                    <div class="bg-black/20 p-2 rounded-lg text-center">
+                        <div class="font-bold text-lg ${getUvTextColor(bestHour.uv)}">${Math.round(bestHour.uv)}</div>
+                        <div class="text-xs opacity-90">UV</div>
+                    </div>
+                    <div class="bg-black/20 p-2 rounded-lg text-center">
+                        <div class="font-bold text-lg ${getHumidityTextColor(bestHour.humidity)}">${bestHour.humidity}%</div>
+                        <div class="text-xs opacity-90">الرطوبة</div>
+                    </div>
+                </div>
+            `;
+            topCardsContainer.appendChild(bestTimeCard);
+            
+            // NOW, create and append the horizontal card LAST to the main container
+            const currentConditions = data.current;
+            const aqi = currentConditions.air_quality ? currentConditions.air_quality['us-epa-index'] : null;
+
+            const nowCard = document.createElement('div');
+            nowCard.className = 'glass-surface glass-surface--svg p-4 rounded-3xl w-full flex justify-around items-center text-center navigable grid-item';
+            nowCard.tabIndex = 0;
+            nowCard.innerHTML = `
+                <div class="flex flex-col items-center gap-2">
+                    <h4 class="text-sm font-bold text-white/70">مؤشر UV</h4>
+                    <div class="text-2xl font-bold px-4 py-1 rounded-lg ${getUvColor(currentConditions.uv)}">
+                        ${currentConditions.uv || '--'}
+                    </div>
+                </div>
+                <div class="flex flex-col items-center gap-2">
+                    <h4 class="text-sm font-bold text-white/70">الحرارة الآن</h4>
+                    <div class="text-2xl font-bold px-4 py-1 rounded-lg ${getTempColor(currentConditions.temp_c)}">
+                        ${Math.round(currentConditions.temp_c)}°C
+                    </div>
+                </div>
+                <div class="flex flex-col items-center gap-2">
+                    <h4 class="text-sm font-bold text-white/70">جودة الهواء</h4>
+                    <div class="text-2xl font-bold px-4 py-1 rounded-lg ${getAqiColor(aqi)}">
+                        ${aqi || '--'}
+                    </div>
+                </div>
+            `;
+            container.appendChild(nowCard);
+
             lucide.createIcons();
         }
 
         function getUvIndexColor(uv) { if (uv <= 2) return '#4ade80'; if (uv <= 5) return '#facc15'; if (uv <= 7) return '#fb923c'; if (uv <= 10) return '#f87171'; return '#c084fc'; }
 
         // --- NEW COLORING FUNCTIONS ---
+        const getTempColor = (temp) => {
+            const tempValue = parseFloat(temp);
+            if (tempValue < 25) return 'bg-blue-500 text-white';
+            if (tempValue <= 30) return 'bg-green-500 text-white';
+            if (tempValue <= 35) return 'bg-yellow-400 text-black';
+            return 'bg-red-500 text-white';
+        };
+
+        const getHumidityColorBestTime = (humidity) => {
+            const humidityValue = parseInt(humidity);
+            if (humidityValue < 60) return 'bg-cyan-500/90 text-white';
+            if (humidityValue < 75) return 'bg-yellow-400/90 text-black';
+            return 'bg-orange-500/90 text-white';
+        };
+
         const getAqiColor = (aqi) => {
             const aqiValue = parseInt(aqi);
-            if (aqiValue <= 50) return 'bg-green-500 text-white';
-            if (aqiValue <= 100) return 'bg-yellow-400 text-black';
-            if (aqiValue <= 150) return 'bg-orange-500 text-white';
-            if (aqiValue <= 200) return 'bg-red-500 text-white';
-            if (aqiValue <= 300) return 'bg-purple-500 text-white';
-            return 'bg-red-800 text-white';
+            if (aqiValue <= 1) return 'bg-green-500 text-white'; // US EPA Index 1-50 is 1
+            if (aqiValue <= 2) return 'bg-yellow-400 text-black'; // 51-100 is 2
+            if (aqiValue <= 3) return 'bg-orange-500 text-white'; // 101-150 is 3
+            if (aqiValue <= 4) return 'bg-red-500 text-white'; // 151-200 is 4
+            if (aqiValue <= 5) return 'bg-purple-500 text-white'; // 201-300 is 5
+            return 'bg-red-800 text-white'; // > 300
         };
 
         const getUvColor = (uv) => {
@@ -3028,6 +3028,32 @@ div#bottom-left-controls {
             return 'bg-purple-500 text-white';
         };
 
+        // --- NEW TEXT COLORING FUNCTIONS ---
+        const getTempTextColor = (temp) => {
+            const tempValue = parseFloat(temp);
+            if (tempValue < 25) return 'text-blue-400';
+            if (tempValue <= 30) return 'text-green-400';
+            if (tempValue <= 35) return 'text-yellow-400';
+            return 'text-red-400';
+        };
+
+        const getHumidityTextColor = (humidity) => {
+            const humidityValue = parseInt(humidity);
+            if (humidityValue < 60) return 'text-cyan-400';
+            if (humidityValue < 75) return 'text-yellow-400';
+            return 'text-orange-400';
+        };
+        
+        const getUvTextColor = (uv) => {
+            const uvValue = Math.round(uv);
+            if (uvValue <= 2) return 'text-green-400';
+            if (uvValue <= 5) return 'text-yellow-400';
+            if (uvValue <= 7) return 'text-orange-400';
+            if (uvValue <= 10) return 'text-red-400';
+            return 'text-purple-400';
+        };
+
+
         // --- Simulated Car Data ---
         function simulateOtherCarData() { 
             appState.car.rpm = (Math.random() * 4200 + 800).toFixed(0); 
@@ -3037,22 +3063,7 @@ div#bottom-left-controls {
         }
 
         // --- Prayer Times Integration ---
-        const prayerTimes = [
-            
-                    {"date":"2025-09-15","fajr":"05:00","sunrise":"06:12","dhuhr":"12:24","asr":"15:45","maghrib":"18:31","isha":"19:38"},
-            {"date":"2025-09-16","fajr":"05:00","sunrise":"06:12","dhuhr":"12:24","asr":"15:45","maghrib":"18:30","isha":"19:38"},
-            {"date":"2025-09-17","fajr":"05:00","sunrise":"06:12","dhuhr":"12:23","asr":"15:45","maghrib":"18:29","isha":"19:37"},
-            {"date":"2025-09-18","fajr":"05:00","sunrise":"06:12","dhuhr":"12:23","asr":"15:45","maghrib":"18:29","isha":"19:36"},
-            {"date":"2025-09-19","fajr":"05:00","sunrise":"06:12","dhuhr":"12:23","asr":"15:44","maghrib":"18:28","isha":"19:35"},
-            {"date":"2025-09-20","fajr":"05:00","sunrise":"06:12","dhuhr":"12:22","asr":"15:44","maghrib":"18:27","isha":"19:34"},
-            {"date":"2025-09-21","fajr":"05:01","sunrise":"06:13","dhuhr":"12:22","asr":"15:44","maghrib":"18:26","isha":"19:33"},
-            {"date":"2025-09-22","fajr":"05:01","sunrise":"06:13","dhuhr":"12:22","asr":"15:44","maghrib":"18:25","isha":"19:32"},
-            {"date":"2025-09-23","fajr":"05:01","sunrise":"06:13","dhuhr":"12:21","asr":"15:43","maghrib":"18:25","isha":"19:31"},
-            {"date":"2025-09-24","fajr":"05:01","sunrise":"06:13","dhuhr":"12:21","asr":"15:43","maghrib":"18:24","isha":"19:31"},
-            {"date":"2025-09-25","fajr":"05:01","sunrise":"06:13","dhuhr":"12:20","asr":"15:43","maghrib":"18:23","isha":"19:30"},
-            {"date":"2025-09-26","fajr":"05:01","sunrise":"06:13","dhuhr":"12:20","asr":"15:42","maghrib":"18:22","isha":"19:29"},
-            {"date":"2025-09-27","fajr":"05:01","sunrise":"06:13","dhuhr":"12:20","asr":"15:42","maghrib":"18:21","isha":"19:28"},
-        ];
+        const prayerTimes = [{"date":"2025-09-28","fajr":"05:02","sunrise":"06:14","dhuhr":"12:19","asr":"15:41","maghrib":"18:20","isha":"19:27"},{"date":"2025-09-29","fajr":"05:02","sunrise":"06:14","dhuhr":"12:19","asr":"15:41","maghrib":"18:19","isha":"19:26"},{"date":"2025-09-30","fajr":"05:02","sunrise":"06:14","dhuhr":"12:18","asr":"15:40","maghrib":"18:18","isha":"19:25"},{"date":"2025-10-01","fajr":"05:02","sunrise":"06:14","dhuhr":"12:18","asr":"15:40","maghrib":"18:17","isha":"19:24"},{"date":"2025-10-02","fajr":"05:02","sunrise":"06:14","dhuhr":"12:18","asr":"15:39","maghrib":"18:16","isha":"19:23"},{"date":"2025-10-03","fajr":"05:03","sunrise":"06:15","dhuhr":"12:17","asr":"15:39","maghrib":"18:15","isha":"19:22"},{"date":"2025-10-04","fajr":"05:03","sunrise":"06:15","dhuhr":"12:17","asr":"15:38","maghrib":"18:15","isha":"19:21"},{"date":"2025-10-05","fajr":"05:03","sunrise":"06:15","dhuhr":"12:17","asr":"15:38","maghrib":"18:14","isha":"19:20"},{"date":"2025-10-06","fajr":"05:03","sunrise":"06:15","dhuhr":"12:16","asr":"15:37","maghrib":"18:13","isha":"19:20"},{"date":"2025-10-07","fajr":"05:03","sunrise":"06:15","dhuhr":"12:16","asr":"15:37","maghrib":"18:12","isha":"19:19"},{"date":"2025-10-08","fajr":"05:04","sunrise":"06:16","dhuhr":"12:16","asr":"15:36","maghrib":"18:11","isha":"19:18"},{"date":"2025-10-09","fajr":"05:04","sunrise":"06:16","dhuhr":"12:15","asr":"15:36","maghrib":"18:10","isha":"19:17"},{"date":"2025-10-10","fajr":"05:04","sunrise":"06:16","dhuhr":"12:15","asr":"15:35","maghrib":"18:09","isha":"19:16"},{"date":"2025-10-11","fajr":"05:04","sunrise":"06:16","dhuhr":"12:15","asr":"15:35","maghrib":"18:09","isha":"19:15"},{"date":"2025-10-12","fajr":"05:04","sunrise":"06:17","dhuhr":"12:14","asr":"15:34","maghrib":"18:08","isha":"19:15"},{"date":"2025-10-13","fajr":"05:05","sunrise":"06:17","dhuhr":"12:14","asr":"15:34","maghrib":"18:07","isha":"19:14"},{"date":"2025-10-14","fajr":"05:05","sunrise":"06:17","dhuhr":"12:14","asr":"15:33","maghrib":"18:06","isha":"19:13"},{"date":"2025-10-15","fajr":"05:05","sunrise":"06:17","dhuhr":"12:13","asr":"15:33","maghrib":"18:05","isha":"19:12"}]
         function loadPrayerTimes() {
             const today = new Date().toISOString().split('T')[0];
             const data = prayerTimes.find(p => p.date === today);
@@ -3586,3 +3597,7 @@ div#bottom-left-controls {
     </script>
 </body> 
 </html>
+
+
+
+
