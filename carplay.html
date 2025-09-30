@@ -142,6 +142,10 @@ div#hourly-forecast-container {
             z-index: -1;
         }
 
+        div#youtube-search-results-view {
+    overflow: scroll;
+}
+
 .glass-surface.glass-surface--svg.youtube-video-card.navigable.grid-item {
     direction: ltr!important;
 }
@@ -573,6 +577,20 @@ div#\33 d-screen-weather-widget {
             font-weight: bold;
         }
 
+        /* NEW: Explicit scrollbar for search results */
+        #search-results-container::-webkit-scrollbar {
+            width: 8px;
+            display: block; /* Ensure it's always displayed */
+        }
+        #search-results-container::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+        }
+        #search-results-container::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.5);
+            border-radius: 10px;
+        }
+        
         /* YouTube Reader Card Styling (Suggestions) - UPDATED */
         .youtube-reader-card {
             cursor: pointer;
@@ -1690,9 +1708,8 @@ div#bottom-left-controls {
         <button id="zoom-out-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="تصغير">
             <i data-lucide="zoom-out" class="w-5 h-5"></i>
         </button>
-        <button id="fullscreen-toggle-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="تبديل الحشوة">
-            <i data-lucide="maximize" class="w-5 h-5"></i>
-            <i data-lucide="minimize" class="w-5 h-5 hidden"></i>
+        <button id="remove-cache-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="مسح ذاكرة التخزين المؤقت">
+            <i data-lucide="trash-2" class="w-5 h-5"></i>
         </button>
     </div>
 
@@ -1788,7 +1805,7 @@ div#bottom-left-controls {
         const pauseAnimationButton = document.getElementById('pause-animation-button');
         const zoomInButton = document.getElementById('zoom-in-button');
         const zoomOutButton = document.getElementById('zoom-out-button');
-        const fullscreenToggleButton = document.getElementById('fullscreen-toggle-button');
+        const removeCacheButton = document.getElementById('remove-cache-button');
         const default360ImageSrc = "https://dmusera.netlify.app/es350gb.png";
         let currentPlayingPlaylistId = '', activeMediaView = 'suggestions', currentPlayingVideoId = '', selectedReaderName = '', popupPlayer, isYouTubeApiReady = false, searchMode = 'reciter_surah', progressInterval = null;
         let initialLocationFetched = false;
@@ -2121,29 +2138,27 @@ div#bottom-left-controls {
 
         function onPlayerStateChange(event) {
             if (event.data == YT.PlayerState.PLAYING) {
-                // When video starts playing, set initial quality
-                const isFullScreen = document.fullscreenElement === popupPlayer.getIframe() || document.webkitFullscreenElement === popupPlayer.getIframe();
-                const quality = isFullScreen ? 'hd720' : 'large'; // large = 480p
-            popupPlayer.setPlaybackQuality(quality);
+                // When video starts playing, set quality to 144p ('tiny')
+                popupPlayer.setPlaybackQuality('tiny');
 
-            // Start tracking progress
-            progressInterval = setInterval(() => {
+                // Start tracking progress
+                progressInterval = setInterval(() => {
+                    const videoId = popupPlayer.getVideoData().video_id;
+                    const currentTime = popupPlayer.getCurrentTime();
+                    const duration = popupPlayer.getDuration();
+                    updateVideoProgress(videoId, currentTime, duration);
+                }, 5000); // Save progress every 5 seconds
+
+            } else if (event.data == YT.PlayerState.ENDED) {
+                if (progressInterval) clearInterval(progressInterval);
                 const videoId = popupPlayer.getVideoData().video_id;
-                const currentTime = popupPlayer.getCurrentTime();
-                const duration = popupPlayer.getDuration();
-                updateVideoProgress(videoId, currentTime, duration);
-            }, 5000); // Save progress every 5 seconds
-
-        } else if (event.data == YT.PlayerState.ENDED) {
-            if (progressInterval) clearInterval(progressInterval);
-            const videoId = popupPlayer.getVideoData().video_id;
-            markVideoAsWatched(videoId);
-        } else {
-             if (progressInterval) {
-                clearInterval(progressInterval);
-                progressInterval = null;
+                markVideoAsWatched(videoId);
+            } else {
+                 if (progressInterval) {
+                    clearInterval(progressInterval);
+                    progressInterval = null;
+                }
             }
-        }
         }
 
         function handleFullScreenChange() {
@@ -2914,16 +2929,46 @@ div#bottom-left-controls {
             `;
             topCardsContainer.appendChild(humidityCard);
 
-            // Card 2: Best Time to Go Out
-            const hourlyData = [...data.forecast.forecastday[0].hour];
+            // Card 2: Best Time to Go Out (with 30-min intervals for next 6 hours)
+            const hourlyData = [...data.forecast.forecastday[0].hour, ...data.forecast.forecastday[1]?.hour || []];
             const now = new Date();
-            const next4Hours = hourlyData.filter(h => new Date(h.time_epoch * 1000) > now).slice(0, 4);
+            const sixHoursFromNowEpoch = (now.getTime() / 1000) + (6 * 3600);
+
+            // Get the next 7 hours to have enough data for interpolation
+            const upcomingRawHours = hourlyData.filter(h => new Date(h.time_epoch * 1000) > now).slice(0, 7);
+            
+            const interpolatedSlots = [];
+            // Create slots for every 30 mins over the next 6 hours
+            if (upcomingRawHours.length > 1) {
+                for (let i = 0; i < upcomingRawHours.length - 1; i++) {
+                    const currentHour = upcomingRawHours[i];
+                    const nextHour = upcomingRawHours[i+1];
+
+                    // Add the current full hour
+                    interpolatedSlots.push(currentHour);
+
+                    // Create the half-hour slot
+                    const halfHourSlot = {
+                        time_epoch: currentHour.time_epoch + 1800,
+                        temp_c: (currentHour.temp_c + nextHour.temp_c) / 2,
+                        uv: (currentHour.uv + nextHour.uv) / 2,
+                        humidity: (currentHour.humidity + nextHour.humidity) / 2
+                    };
+                    interpolatedSlots.push(halfHourSlot);
+                }
+            } else if (upcomingRawHours.length === 1) {
+                interpolatedSlots.push(upcomingRawHours[0]);
+            }
+
+            // Filter the final list to be strictly within the next 6 hours
+            const next6HourSlots = interpolatedSlots.filter(slot => slot.time_epoch <= sixHoursFromNowEpoch);
 
             let bestHour = null;
             let bestScore = Infinity;
 
-            if (next4Hours.length > 0) {
-                next4Hours.forEach(hour => {
+            if (next6HourSlots.length > 0) {
+                next6HourSlots.forEach(hour => {
+                    // Lower is better: low temp, low UV, low humidity
                     const score = (hour.temp_c * 1.5) + (hour.uv * 2) + (hour.humidity);
                     if (score < bestScore) {
                         bestScore = score;
@@ -2931,6 +2976,7 @@ div#bottom-left-controls {
                     }
                 });
             } else {
+                 // Fallback if no data is available
                  bestHour = { time_epoch: Date.now()/1000 + 3600, temp_c: data.current.temp_c, uv: data.current.uv, humidity: data.current.humidity };
             }
 
@@ -2975,7 +3021,7 @@ div#bottom-left-controls {
                     <h4 class="text-sm font-bold text-white/70">مؤشر UV</h4>
                     <div class="text-2xl font-bold px-4 py-1 rounded-lg ${getUvColor(currentConditions.uv)}">
                         ${currentConditions.uv || '--'}
-                    </div>
+                  </div>
                 </div>
                 <div class="flex flex-col items-center gap-2">
                     <h4 class="text-sm font-bold text-white/70">الحرارة الآن</h4>
@@ -3561,13 +3607,12 @@ div#bottom-left-controls {
                 pauseIcon.classList.toggle('hidden', isPaused);
             });
 
-            fullscreenToggleButton.addEventListener('click', () => {
-                document.body.classList.toggle('small-padding');
-                const isSmall = document.body.classList.contains('small-padding');
-                const maximizeIcon = fullscreenToggleButton.querySelector('[data-lucide="maximize"]');
-                const minimizeIcon = fullscreenToggleButton.querySelector('[data-lucide="minimize"]');
-                maximizeIcon.classList.toggle('hidden', isSmall);
-                minimizeIcon.classList.toggle('hidden', !isSmall);
+            removeCacheButton.addEventListener('click', () => {
+                localStorage.clear();
+                showMessageBox('تم مسح ذاكرة التخزين المؤقت بنجاح. سيتم إعادة تحميل التطبيق.');
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
             });
 
             zoomInButton.addEventListener('click', () => {
@@ -3600,8 +3645,5 @@ div#bottom-left-controls {
         });
     </script>
 </body> 
-</html>
-
-
-
+</html> 
 
