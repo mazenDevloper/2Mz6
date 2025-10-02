@@ -24,6 +24,8 @@
     <!-- YouTube Iframe API -->
     <script src="https://www.youtube.com/iframe_api"></script>
     <style>
+        /* Import Amiri Quran font for Adhkar text */
+        @import url('https://fonts.googleapis.com/css2?family=Amiri+Quran:wght@400;700&display=swap');
 div#tv{display:none;}
 div#geolocation-error-overlay {
     display: none !important;
@@ -1408,7 +1410,7 @@ div#bottom-left-controls {
             #car-360-image {
                 visibility: hidden;
             }
-            div#tv{display:block;}
+            div#tv{display:block;background:#00000050}
             div#map{display:none;}
             
 
@@ -1547,16 +1549,22 @@ div#bottom-left-controls {
                         </div>
 
 
-                        <div id="tv" class="glass-surface glass-surface--svg p-2 flex flex-col items-center justify-center text-center car-cam-360-container col-span-1 row-start-1 navigable grid-item" tabindex="0">
-                            <img id="car-360" src="https://pbs.twimg.com/media/GzQQTWxWYAAyl6U?format=jpg&name=large" alt="عرض الكاميرا 360 درجة للسيارة" class="w-full h-full object-contain rounded-lg opacity-80">
-                            <div class="car-cam-360-controls grid-container">
-                                <input type="file" id="upload-360-image-input" accept="image/*" class="hidden" />
-                                <button id="upload-360-image-button" class="navigable grid-item" tabindex="0">
-                                    <i data-lucide="upload" class="w-4 h-4"></i> تحميل صورة
-                                </button>
-                                <button id="reset-360-image-button" class="navigable grid-item" tabindex="0">
-                                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i> إعادة تعيين
-                                </button>
+                        <div id="tv" class="glass-surface glass-surface--svg p-4 flex flex-col items-center justify-center text-center car-cam-360-container col-span-1 row-start-1 navigable grid-item" tabindex="0">
+                           <div id="adhkar-card" class="w-full h-full flex flex-col items-center justify-center p-4">
+                                <p id="adhkar-text" class="text-3xl font-bold leading-relaxed text-white flex-grow" style="font-family: 'Amiri Quran', serif; display: flex; align-items: center;"></p>
+                                <p id="adhkar-repetition" class="text-xl text-yellow-300 mt-4 font-semibold"></p>
+                                <div id="adhkar-controls" class="flex items-center gap-4 mt-auto pt-4 grid-container">
+                                    <button id="adhkar-prev-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="الذكر السابق">
+                                        <i data-lucide="rewind" class="w-6 h-6"></i>
+                                    </button>
+                                    <button id="adhkar-pause-play-button" class="glass-surface glass-surface--svg rounded-full p-4 navigable grid-item" tabindex="0" title="إيقاف/تشغيل">
+                                        <i data-lucide="pause" class="w-8 h-8"></i>
+                                        <i data-lucide="play" class="w-8 h-8 hidden"></i>
+                                    </button>
+                                    <button id="adhkar-next-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="الذكر التالي">
+                                        <i data-lucide="fast-forward" class="w-6 h-6"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -3967,9 +3975,97 @@ div#bottom-left-controls {
             
             // Play welcome message once after a short delay
             setTimeout(playWelcomeMessage, 1500);
+
+            // --- NEW: Adhkar Card Logic ---
+            const adhkarList = [
+                { text: "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ،", repetition: "مرة واحدة" },
+                 { text: " رَبِّ أَسْأَلُكَ خَيْرَ مَا فِي هَذَا الْيَوْمِ وَخَيْرَ مَا بَعْدَهُ، ", repetition: "مرة واحدة" },
+                { text: "اللَّهُمَّ بِكَ أَصْبَحْنَا، وَبِكَ أَمْسَيْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ وَإِلَيْكَ النُّشُورُ", repetition: "مرة واحدة" },
+                { text: "اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ خَلَقْتَنِي وَأَنَا عَبْدُكَ وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ ", repetition: "سيد الاستغفار" },
+                { text: " أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ وَأَبُوءُ لَكَ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ", repetition: "سيد الاستغفار" },
+                { text: "حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ", repetition: "سبع مرات" },
+                { text: "بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ", repetition: "ثلاث مرات" },
+                { text: "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، عَدَدَ خَلْقِهِ، وَرِضَا نَفْسِهِ، وَزِنَةَ عَرْشِهِ، وَمِدَادَ كَلِمَاتِهِ", repetition: "ثلاث مرات" },
+                { text: "لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ", repetition: "عشر مرات" },
+                { text: "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ", repetition: "مائة مرة" },
+                { text: "أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ", repetition: "مائة مرة" }
+            ];
+
+            let currentAdhkarIndex = 0;
+            let adhkarInterval;
+            let isAdhkarPaused = false;
+            const adhkarTextEl = document.getElementById('adhkar-text');
+            const adhkarRepetitionEl = document.getElementById('adhkar-repetition');
+            const adhkarCardEl = document.getElementById('adhkar-card');
+            const prevButtonAdhkar = document.getElementById('adhkar-prev-button');
+            const pausePlayButtonAdhkar = document.getElementById('adhkar-pause-play-button');
+            const nextButtonAdhkar = document.getElementById('adhkar-next-button');
+            const playIconAdhkar = pausePlayButtonAdhkar?.querySelector('[data-lucide="play"]');
+            const pauseIconAdhkar = pausePlayButtonAdhkar?.querySelector('[data-lucide="pause"]');
+
+            function updateAdhkarDisplay(instant = false) {
+                if (!adhkarTextEl || !adhkarRepetitionEl || !adhkarCardEl) return;
+                const transitionDuration = instant ? 0 : 700;
+                adhkarCardEl.style.transition = `opacity ${transitionDuration / 1000}s ease-in-out`;
+                adhkarCardEl.style.opacity = '0';
+                setTimeout(() => {
+                    const currentAdhkar = adhkarList[currentAdhkarIndex];
+                    adhkarTextEl.textContent = currentAdhkar.text;
+                    adhkarRepetitionEl.textContent = currentAdhkar.repetition;
+                    adhkarCardEl.style.opacity = '1';
+                }, transitionDuration);
+            }
+
+            function nextAdhkar() {
+                currentAdhkarIndex = (currentAdhkarIndex + 1) % adhkarList.length;
+                updateAdhkarDisplay();
+            }
+
+            function prevAdhkar() {
+                currentAdhkarIndex = (currentAdhkarIndex - 1 + adhkarList.length) % adhkarList.length;
+                updateAdhkarDisplay();
+            }
+
+            function startAdhkarInterval() {
+                clearInterval(adhkarInterval);
+                if (!isAdhkarPaused) {
+                    adhkarInterval = setInterval(nextAdhkar, 10000);
+                }
+            }
+
+            function toggleAdhkarPlayback() {
+                isAdhkarPaused = !isAdhkarPaused;
+                if (playIconAdhkar && pauseIconAdhkar) {
+                    playIconAdhkar.classList.toggle('hidden', !isAdhkarPaused);
+                    pauseIconAdhkar.classList.toggle('hidden', isAdhkarPaused);
+                }
+                if (isAdhkarPaused) {
+                    clearInterval(adhkarInterval);
+                } else {
+                    startAdhkarInterval();
+                }
+            }
+
+            nextButtonAdhkar?.addEventListener('click', () => {
+                nextAdhkar();
+                startAdhkarInterval();
+            });
+
+            prevButtonAdhkar?.addEventListener('click', () => {
+                prevAdhkar();
+                startAdhkarInterval();
+            });
+
+            pausePlayButtonAdhkar?.addEventListener('click', toggleAdhkarPlayback);
+
+
+            // Initial display and set interval, only if the TV div is visible
+            if (document.getElementById('tv')?.offsetParent !== null) {
+                 updateAdhkarDisplay(true);
+                 startAdhkarInterval();
+            }
         });
     </script>
 </body> 
-</html> 
-
+</html>
 
