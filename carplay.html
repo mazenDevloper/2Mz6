@@ -24,7 +24,7 @@
     <!-- YouTube Iframe API -->
     <script src="https://www.youtube.com/iframe_api"></script>
     <style>
-
+div#tv{display:none;}
 div#geolocation-error-overlay {
     display: none !important;
 }
@@ -1408,10 +1408,10 @@ div#bottom-left-controls {
             #car-360-image {
                 visibility: hidden;
             }
-
-            div[aria-label="Map"]{display:none;}
-
+            div#tv{display:block;}
+            div#map{display:none;}
             
+
 
         .car-cam-360-controls.grid-container>button {
     display: none;
@@ -1479,7 +1479,7 @@ div#bottom-left-controls {
                     <!-- UPDATED: Dashboard layout changed -->
                     <div class="dashboard-main-grid grid grid-cols-1 md:grid-cols-3 grid-rows-[80%_20%] gap-4 md:gap-6 h-full w-full grid-container">
                         <!-- Map Widget (Now first) -->
-                        <div class="rounded-3xl relative overflow-hidden flex items-center justify-center glass-surface glass-surface--svg p-1 col-span-1 row-start-1 navigable grid-item" tabindex="0">
+                        <div id="map" class="rounded-3xl relative overflow-hidden flex items-center justify-center glass-surface glass-surface--svg p-1 col-span-1 row-start-1 navigable grid-item" tabindex="0">
                             <div id="dashboard-google-map" class="full-iframe"></div>
                              <!-- NEW: Geolocation Error Overlay -->
                              <div id="geolocation-error-overlay" class="hidden absolute top-0 left-0 w-full h-full bg-black/70 text-white flex-col items-center justify-center text-center p-4 z-10 rounded-3xl">
@@ -1545,6 +1545,22 @@ div#bottom-left-controls {
                                 <p class="text-white/70 col-span-full">جاري تحميل أوقات الصلاة...</p>
                             </div>
                         </div>
+
+
+                        <div id="tv" class="glass-surface glass-surface--svg p-2 flex flex-col items-center justify-center text-center car-cam-360-container col-span-1 row-start-1 navigable grid-item" tabindex="0">
+                            <img id="car-360" src="https://pbs.twimg.com/media/GzQQTWxWYAAyl6U?format=jpg&name=large" alt="عرض الكاميرا 360 درجة للسيارة" class="w-full h-full object-contain rounded-lg opacity-80">
+                            <div class="car-cam-360-controls grid-container">
+                                <input type="file" id="upload-360-image-input" accept="image/*" class="hidden" />
+                                <button id="upload-360-image-button" class="navigable grid-item" tabindex="0">
+                                    <i data-lucide="upload" class="w-4 h-4"></i> تحميل صورة
+                                </button>
+                                <button id="reset-360-image-button" class="navigable grid-item" tabindex="0">
+                                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i> إعادة تعيين
+                                </button>
+                            </div>
+                        </div>
+
+
                     </div>
                 </section>
 
