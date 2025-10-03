@@ -1403,9 +1403,26 @@ div#bottom-left-controls {
         /* التغييرات المطلوبة للشاشات الأوسع */
         @media (min-width: 992px) {
             body{
-                background:url('https://dmusera.netlify.app/tvbg1@1.5x.png')!important;
+              background:url('https://dmusera.netlify.app/tvbg1@1.5x.png')!important;
                 background-size:cover!important;
             }
+
+            /* --- START: Hide Elements in TV UI --- */
+
+/* إخفاء العناصر المطلوبة في واجهة التلفاز */
+[data-app="Map"],                  /* إخفاء أيقونة خريطة الـ 3D من شريط التنقل */
+#screen-Quran #quran-iframe,       /* إخفاء إطار موقع quran.com */
+#screen-Media #tab-reciters,       /* إخفاء تبويب "القراء" في شاشة الميديا */
+#screen-Media #tab-content-reciters { /* إخفاء محتوى تبويب "القراء" */
+    display: none !important;
+}
+
+/* تعديل بسيط لجعل التبويبات المتبقية تتوسط بشكل أفضل */
+#screen-Media .tabs-container {
+    justify-content: center;
+}
+
+/* --- END: Hide Elements in TV UI --- */
             /* إخفاء صورة السيارة الأصلية واستبدالها كخلفية للحاوية */
             #car-360-image {
                 visibility: hidden;
@@ -2373,7 +2390,7 @@ div#bottom-left-controls {
             }
         }
 
-         const youtubeReaderSuggestions = [             {"name":"المنزل الرقية", "image":"https://imgs.search.brave.com/afZfY6pdMu-EfuTtrt2hNKEW9TsUAnPOX2QnIlIFi1c/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/YXJhYnNzdG9jay5j/b20vdXBsb2Fkcy92/ZWN0b3JzLzIzMDQx/L3J1cWF5YS1hbi1h/cmFiaWMtbmFtZS1m/b3ItcHJldmlldy0y/MzA0MS53ZWJw"},
+         const youtubeReaderSuggestions = [             {"name":"الرقية", "image":"https://imgs.search.brave.com/afZfY6pdMu-EfuTtrt2hNKEW9TsUAnPOX2QnIlIFi1c/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/YXJhYnNzdG9jay5j/b20vdXBsb2Fkcy92/ZWN0b3JzLzIzMDQx/L3J1cWF5YS1hbi1h/cmFiaWMtbmFtZS1m/b3ItcHJldmlldy0y/MzA0MS53ZWJw"},
 {"name":"محمد ايوب","image":"https://dmusera.netlify.app/512px-Muhammad_Ayyub.webp"},{"name":"علي جابر","image":"https://dmusera.netlify.app/ali-jaber.webp"},{"name":"محمد الغزالي","image":"https://imgs.search.brave.com/QWUpKrFCLEvXilcNhgSRM6xKPjTlBtGA-BAsH9sN-Tc/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9hci5p/c2xhbXdheS5uZXQv/dXBsb2Fkcy9hdXRo/b3JzLzUwNjEuanBn"},{"name":"مشاري العفاسي","image":"https://dmusera.netlify.app/512px-%D0%9C%D0%B8%D1%88%D0%B0%D1%80%D0%B8_%D0%A0%D0%B0%D1%88%D0%B8%D0%B4.webp"},{"name":"عبدالله القرافي","image":"https://yt3.googleusercontent.com/mHTg3RIX-a3NAR22lAnOvSq3-U_KBcL_Ax4FTNirc3flsb5OU8RWksKu6X8Ush9JhO0EOxxAwQY=s160-c-k-c0x00ffffff-no-rj"},{"name":"اسلام صبحي","image":"https://imgs.search.brave.com/Sq4qNywnl1HmDjSuxWTshlQ8yV9fplcVnUoiErGC-38/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS51bml0ZWRtdXNs/aW13b3JsZC5jb20v/aW1nLzIzLzEyLzIz/LzEyNDk1LmpwZw"},{"name":"احمد النفيس","image":"https://dmusera.netlify.app/ahmednafes.jpg"},{"name":"ياسر الدوسري","image":"https://dmusera.netlify.app/Yasser_Al-Dosari.jpg"},
 {"name":"ربط الآيات","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDEzYTUgNSAwIDAgMCA3LjU0LjU0bD MtM2E1IDUgMCAwIDAtNy4wNy03LjA3bC0xLjcyIDEuNzIiLz48cGF0aCBkPSJNMTQgMTFhNSA1IDAgMCAwLTcuNTQtLjU0bC0zIDNhNSA1IDAgMCAwIDcuMDcgNy4wN2wxLjcyLTEuNzIiLz48L3N2Zz4="}, {"name":"ربط الآيات","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDEzYTUgNSAwIDAgMCA3LjU0LjU0bDMtM2E1IDUgMCAwIDAtNy4wNy03LjA3bC0xLjcyIDEuNzIiLz48cGF0aCBkPSJNMTQgMTFhNSA1IDAgMCAwLTcuNTQtLjU0bC0zIDNhNSA1IDAgMCAwIDcuMDcgNy4wN2wxLjcyLTEuNzIiLz48L3N2Zz4="}
         ];
@@ -3429,6 +3446,21 @@ div#bottom-left-controls {
                     item.innerHTML = `<span class="prayer-name">${prayerNames[key]}</span><span class="prayer-time">${time}</span><span class="prayer-iqama text-xs text-white/50">الإقامة: ${addMinutes(time, iqamaOffsets[key])}</span>`;
                     prayerTimesContainer.appendChild(item);
                 });
+
+                // NEW: Add the Ruqyah button
+                const ruqyahButton = document.createElement('button');
+                ruqyahButton.id = 'ruqyah-tv-button';
+                ruqyahButton.className = 'navigable grid-item flex-grow bg-teal-500/50 hover:bg-teal-400/50 text-white font-bold p-2 rounded-lg shadow-lg text-lg transition-all duration-300 ease-in-out focus:ring-4 focus:ring-teal-300 flex items-center justify-center gap-2 h-full';
+                ruqyahButton.innerHTML = `<i data-lucide="shield-check" class="w-6 h-6"></i><span>الرقية الشرعية للبيت</span>`;
+                ruqyahButton.tabIndex = 0;
+                prayerTimesContainer.appendChild(ruqyahButton);
+                lucide.createIcons();
+
+                ruqyahButton.addEventListener('click', () => {
+                    switchApp('Media');
+                    setTimeout(() => searchYouTubeVideos('الرقية الشرعية للبيت'), 100);
+                });
+
                 determineNextPrayer();
                 updateDigitalClock();
             } else {
@@ -3862,6 +3894,9 @@ div#bottom-left-controls {
             floatingMediaButton?.addEventListener('click', () => switchApp('Media')); 
             floatingMinimizedVideoButton?.addEventListener('click', restoreVideoPopup); // NEW listener
             
+
+
+            
             // NEW/UPDATED: Event listener for the floating back button
             backToSearchFloatingButton.addEventListener('click', () => {
                 // If we are on the suggestions screen AND we have a previous search to go back to...
@@ -4068,4 +4103,6 @@ div#bottom-left-controls {
     </script>
 </body> 
 </html>
+
+
 
