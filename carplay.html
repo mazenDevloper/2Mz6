@@ -1412,7 +1412,8 @@ div#bottom-left-controls {
 /* إخفاء العناصر المطلوبة في واجهة التلفاز */
 [data-app="Map"],                  /* إخفاء أيقونة خريطة الـ 3D من شريط التنقل */
 #screen-Quran #quran-iframe,       /* إخفاء إطار موقع quran.com */
- #screen-reciters,       /* إخفاء تبويب "القراء" في شاشة الميديا */ { /* إخفاء محتوى تبويب "القراء" */
+#screen-Media #tab-reciters,       /* إخفاء تبويب "القراء" في شاشة الميديا */
+#screen-Media #tab-content-reciters { /* إخفاء محتوى تبويب "القراء" */
     display: none !important;
 }
 
@@ -3446,20 +3447,38 @@ div#bottom-left-controls {
                     prayerTimesContainer.appendChild(item);
                 });
 
-                // NEW: Add the Ruqyah button
+                // Create a container for the action buttons
+                const buttonContainer = document.createElement('div');
+                buttonContainer.className = 'flex gap-2 mt-2';
+
+                // Ruqyah Button
                 const ruqyahButton = document.createElement('button');
                 ruqyahButton.id = 'ruqyah-tv-button';
-                ruqyahButton.className = 'navigable grid-item flex-grow bg-teal-500/50 hover:bg-teal-400/50 text-white font-bold p-2 rounded-lg shadow-lg text-lg transition-all duration-300 ease-in-out focus:ring-4 focus:ring-teal-300 flex items-center justify-center gap-2 h-full';
-                ruqyahButton.innerHTML = `<i data-lucide="shield-check" class="w-6 h-6"></i><span>الرقية الشرعية للبيت</span>`;
+                ruqyahButton.className = 'navigable grid-item w-1/2 bg-teal-500/50 hover:bg-teal-400/50 text-white font-bold p-2 rounded-lg shadow-lg text-lg transition-all duration-300 ease-in-out flex items-center justify-center gap-2';
+                ruqyahButton.innerHTML = `<i data-lucide="shield-check" class="w-6 h-6"></i><span>الرقية الشرعية</span>`;
                 ruqyahButton.tabIndex = 0;
-                prayerTimesContainer.appendChild(ruqyahButton);
-                lucide.createIcons();
-
                 ruqyahButton.addEventListener('click', () => {
                     switchApp('Media');
                     setTimeout(() => searchYouTubeVideos('الرقية الشرعية للبيت'), 100);
                 });
+                
+                // Adhkar Button
+                const adhkarButton = document.createElement('button');
+                adhkarButton.id = 'adhkar-tv-button';
+                adhkarButton.className = 'navigable grid-item w-1/2 bg-sky-500/50 hover:bg-sky-400/50 text-white font-bold p-2 rounded-lg shadow-lg text-lg transition-all duration-300 ease-in-out flex items-center justify-center gap-2';
+                adhkarButton.innerHTML = `<i data-lucide="sunrise" class="w-6 h-6"></i><span>الأذكار</span>`;
+                adhkarButton.tabIndex = 0;
+                adhkarButton.addEventListener('click', () => {
+                    switchApp('Media');
+                    setTimeout(() => searchYouTubeVideos('أذكار الصباح والمساء'), 100);
+                });
+                
+                // Add buttons to their container, then add the container to the main prayer times area
+                buttonContainer.appendChild(ruqyahButton);
+                buttonContainer.appendChild(adhkarButton);
+                prayerTimesContainer.appendChild(buttonContainer);
 
+                lucide.createIcons();
                 determineNextPrayer();
                 updateDigitalClock();
             } else {
@@ -4102,6 +4121,7 @@ div#bottom-left-controls {
     </script>
 </body> 
 </html>
+
 
 
 
