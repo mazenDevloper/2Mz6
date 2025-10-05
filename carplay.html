@@ -26,6 +26,40 @@
     <style>
         /* Import Amiri Quran font for Adhkar text */
         @import url('https://fonts.googleapis.com/css2?family=Amiri+Quran:wght@400;700&display=swap');
+
+/* --- START: Last Watched & History Styles --- */
+
+#last-watched-container {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+
+.resume-play-button {
+    background-color: rgba(99, 102, 241, 0.8); /* Indigo color */
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border: none;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.resume-play-button:hover {
+    background-color: rgba(79, 70, 229, 1);
+}
+
+.youtube-video-card.is-watched .video-title {
+    color: #a5b4fc; /* Lighter, muted color for watched videos */
+}
+
+/* --- END: Last Watched & History Styles --- */
+
 div#tv{display:none;}
 div#geolocation-error-overlay {
     display: none !important;
@@ -1609,10 +1643,16 @@ div#bottom-left-controls {
                             <input type="text" id="youtube-search-input" placeholder="ابحث في يوتيوب..." class="flex-grow p-3 rounded-full bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 navigable grid-item" tabindex="0" readonly="true" />
                         </div>
                         
-                        <!-- Suggestions Container (Now takes full height) -->
-                        <div id="youtube-suggestions" class="w-full h-full flex-grow overflow-y-auto">
-                            <!-- Content will be populated by JS -->
-                        </div>
+                        <div id="youtube-suggestions" class="w-full h-full flex-grow overflow-y-auto flex flex-col">
+    
+    <div id="last-watched-container" class="hidden">
+        </div>
+
+    <div id="suggestions-content" class="flex flex-col gap-4 w-full h-full">
+        </div>
+
+</div>
+                        
                     </div>
 
                     <div id="youtube-video-list-view" class="hidden flex-col items-center justify-center h-full w-full absolute top-0 left-0 p-4 overflow-y-auto gap-4 flex-grow bg-black/50 backdrop-blur-sm">
@@ -1818,6 +1858,66 @@ div#bottom-left-controls {
     </div>
 
     <script>
+
+        // أضف هذه الدالة الجديدة إلى السكريبت
+async function displayLastWatchedVideo() {
+    const lastWatchedContainer = document.getElementById('last-watched-container');
+    const history = getWatchedHistory();
+    const videoIds = Object.keys(history);
+
+    if (videoIds.length === 0) {
+        lastWatchedContainer.classList.add('hidden');
+        return;
+    }
+
+    // للتبسيط، سنختار أول فيديو في سجل المشاهدة (يمكن تطويره لاحقًا ليعتمد على الوقت)
+    const lastVideoId = videoIds[0];
+    const lastVideoInfo = history[lastVideoId];
+
+    try {
+        const videoDetails = await fetchVideosDetails([lastVideoId]);
+        if (!videoDetails || videoDetails.length === 0) {
+            lastWatchedContainer.classList.add('hidden');
+            return;
+        }
+
+        const video = videoDetails[0];
+        const videoData = {
+            id: video.id,
+            title: video.snippet.title,
+            thumbnail: video.snippet.thumbnails.medium.url,
+            channelTitle: video.snippet.channelTitle
+        };
+
+        const progressPercent = (lastVideoInfo.progress / lastVideoInfo.duration) * 100;
+
+        lastWatchedContainer.innerHTML = `
+            <h2 class="text-xl font-bold mb-3 text-white/90">متابعة المشاهدة</h2>
+            <div class="glass-surface glass-surface--svg p-3 rounded-2xl">
+                <div class="flex items-center gap-4">
+                    <img src="${videoData.thumbnail}" class="w-28 h-auto rounded-lg">
+                    <div class="flex flex-col gap-2 flex-grow">
+                        <h3 class="font-bold text-lg leading-tight">${videoData.title}</h3>
+                        <p class="text-sm text-white/70">${videoData.channelTitle}</p>
+                        <div class="w-full bg-white/20 rounded-full h-1.5">
+                            <div class="bg-red-500 h-1.5 rounded-full" style="width: ${progressPercent}%"></div>
+                        </div>
+                        <button class="resume-play-button self-start navigable grid-item" onclick="showVideoPopup('${videoData.id}')">
+                            <i data-lucide="play" class="w-4 h-4"></i>
+                            استئناف
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        lastWatchedContainer.classList.remove('hidden');
+        lucide.createIcons(); // لعرض أيقونة التشغيل الجديدة
+    } catch (error) {
+        console.error("خطأ في جلب تفاصيل آخر فيديو تمت مشاهدته:", error);
+        lastWatchedContainer.classList.add('hidden');
+    }
+}
+
         // Initialize Lucide icons after they are loaded
         lucide.createIcons();
 
@@ -2168,7 +2268,12 @@ div#bottom-left-controls {
             }
         }
         
-        function showVideoPopup(videoId, start = 0) {
+        function showVideoPopup(videoId) { // لقد أزلنا start = 0 من هنا
+    const history = getWatchedHistory();
+    const watchedInfo = history[videoId];
+    // إذا كان المستخدم قد شاهد أكثر من 5 ثوانٍ، استأنف التشغيل، وإلا ابدأ من الصفر
+    const start = (watchedInfo && watchedInfo.progress > 5) ? watchedInfo.progress : 0;
+    
             // UPDATED: Pause background animations and update control button icon
             document.body.classList.add('animation-paused');
             const playIcon = pauseAnimationButton.querySelector('[data-lucide="play"]');
@@ -2456,20 +2561,24 @@ div#bottom-left-controls {
   // ⚫ Dark / Neutral
   "#1e293b", // Slate Dark
 ];
-        function resetYoutubeSearchUI() { 
-            youtubeSuggestionsDiv.innerHTML = ''; 
-            youtubeSuggestionsDiv.style.display = 'flex'; 
-            selectedReaderName = ''; 
-            youtubeSearchInput.value = ''; 
+        function resetYoutubeSearchUI() {
+            const suggestionsContent = document.getElementById('suggestions-content');
+            if (suggestionsContent) {
+                suggestionsContent.innerHTML = ''; // Clear old suggestions
+            }
+            
+            youtubeSuggestionsDiv.style.display = 'flex';
+            selectedReaderName = '';
+            youtubeSearchInput.value = '';
 
-            // NEW: Show floating back button only if there's a recent search to go back to
             if (lastSuccessfulSearchQuery) {
                 backToSearchFloatingButton.style.display = 'flex';
             } else {
                 backToSearchFloatingButton.style.display = 'none';
             }
 
-            populateYoutubeSuggestions(); 
+            displayLastWatchedVideo(); // This will populate #last-watched-container
+            populateYoutubeSuggestions(); // This will populate #suggestions-content
         }
         
         function handleReaderOrToolClick(selection, tabContainer, tabsContentContainer) {
@@ -2494,9 +2603,13 @@ div#bottom-left-controls {
             }, 100);
         }
 
+
+
         function populateYoutubeSuggestions() {
-            youtubeSuggestionsDiv.innerHTML = '';
-            youtubeSuggestionsDiv.className = 'flex flex-col gap-4 w-full h-full'; // Removed overflow-y-auto, it will be on the content
+            const suggestionsContent = document.getElementById('suggestions-content');
+            if (!suggestionsContent) return;
+            suggestionsContent.innerHTML = '';
+            suggestionsContent.className = 'flex flex-col gap-4 w-full h-full'; 
 
             // 1. Create Tab Structure
             const tabContainer = document.createElement('div');
@@ -2664,7 +2777,7 @@ div#bottom-left-controls {
                 card.innerHTML = `<h3>${rabtAlAyat.name}</h3><img src="${rabtAlAyat.image}" alt="${rabtAlAyat.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';">`;
                 card.addEventListener('click', () => handleReaderOrToolClick(rabtAlAyat.name, tabContainer, tabsContentContainer));
                 toolsButtonsContainer.appendChild(card);
-    }
+            }
 
             const difficultWordsCard = document.createElement('div');
             difficultWordsCard.className = 'youtube-reader-card navigable grid-item';
@@ -2741,12 +2854,12 @@ div#bottom-left-controls {
             });
             
             // 5. Append everything
-            youtubeSuggestionsDiv.appendChild(tabContainer);
+            suggestionsContent.appendChild(tabContainer);
             tabsContentContainer.appendChild(recitersContent);
             tabsContentContainer.appendChild(channContent);
             tabsContentContainer.appendChild(tarteelContent); // Append Tarteel AI content
             tabsContentContainer.appendChild(toolsContent);
-            youtubeSuggestionsDiv.appendChild(tabsContentContainer);
+            suggestionsContent.appendChild(tabsContentContainer);
 
             // Set initial active tab
             channTabButton.classList.add('active');
@@ -2756,10 +2869,10 @@ div#bottom-left-controls {
 
 
             lucide.createIcons();
-        }
+            }
 
-        // NEW: Function to fetch and display Tarteel AI videos
-        async function fetchTarteelVideos() {
+         // NEW: Function to fetch and display Tarteel AI videos
+            async function fetchTarteelVideos() {
             if (YOUTUBE_API_KEY.startsWith('YOUR_')) return showMessageBox('خطأ: لم يتم تعيين مفتاح YouTube API.');
             const tarteelVideosContainer = document.getElementById('tarteel-videos-container');
             if (!tarteelVideosContainer) return;
@@ -4121,6 +4234,7 @@ div#bottom-left-controls {
     </script>
 </body> 
 </html>
+
 
 
 
