@@ -1413,7 +1413,8 @@ div#bottom-left-controls {
 
 .reminders-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* عمودين */
+    grid-template-columns: repeat(2, 48%); /* عمودين بعرض 48% لكل منهما */
+    justify-content: center; /* توسيط العمودين في الحاوية */
     gap: 1rem;
     width: 100%;
     height: 100%;
@@ -1425,26 +1426,26 @@ div#bottom-left-controls {
     background-color: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 1.25rem;
-    padding: 1rem;
-    height: 20%; /* تحديد الطول بنسبة 20% من الحاوية */
-    min-height: 90px; /* لضمان عدم صغر حجمه أكثر من اللازم */
+    padding: 0.8rem 1rem; /* تعديل الحشو */
     display: flex;
-    flex-direction: row; /* ✅ تغيير أساسي: لعرض المحتوى بشكل أفقي */
-    align-items: center; /* لمحاذاة الأيقونة والنص عمودياً في المنتصف */
-    justify-content: flex-start; /* لمحاذاة المحتوى إلى اليمين (بداية السطر في RTL) */
-    gap: 1rem; /* ✅ إضافة مسافة بين الأيقونة والنص */
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.75rem; /* تقليل المسافة */
     transition: all 0.3s ease;
     cursor: pointer;
 }
 
 .reminder-item .icon {
-    /* لم نعد بحاجة إلى margin-bottom */
     color: rgba(255, 255, 255, 0.5); 
     flex-shrink: 0; /* لمنع الأيقونة من الانكماش */
+    /* تصغير حجم الأيقونة لتتناسق مع النص */
+    width: 1.6rem !important;
+    height: 1.6rem !important;
 }
 
 .reminder-item .text {
-    font-size: 1.5rem; 
+    font-size: 1.2rem; /* تصغير حجم الخط */
     font-weight: 600;
     color: rgba(255, 255, 255, 0.7);
     text-align: right; /* لضمان محاذاة النص لليمين */
@@ -4257,7 +4258,7 @@ const dailyReminders = [
     action: () => { switchApp('Media'); searchYouTubeVideos('أذكار النوم'); }
 }
 ];
-dsd
+
 // 2. دالة لإنشاء وعرض القائمة
 function renderDailyReminders() {
     const container = document.getElementById('tv');
@@ -4324,3 +4325,6 @@ document.addEventListener('click', (e) => {
     </script>
 </body> 
 </html>
+
+
+
