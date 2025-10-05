@@ -1409,6 +1409,62 @@ div#bottom-left-controls {
             font-size: 1rem;
         }
 
+        /* --- START: Islamic Daily Reminders Styles (MODIFIED) --- */
+
+.reminders-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* عمودين */
+    gap: 1rem;
+    width: 100%;
+    height: 100%;
+    align-content: center; 
+    padding: 1rem; 
+}
+
+.reminder-item {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1.25rem;
+    padding: 1rem;
+    height: 20%; /* تحديد الطول بنسبة 20% من الحاوية */
+    min-height: 90px; /* لضمان عدم صغر حجمه أكثر من اللازم */
+    display: flex;
+    flex-direction: row; /* ✅ تغيير أساسي: لعرض المحتوى بشكل أفقي */
+    align-items: center; /* لمحاذاة الأيقونة والنص عمودياً في المنتصف */
+    justify-content: flex-start; /* لمحاذاة المحتوى إلى اليمين (بداية السطر في RTL) */
+    gap: 1rem; /* ✅ إضافة مسافة بين الأيقونة والنص */
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.reminder-item .icon {
+    /* لم نعد بحاجة إلى margin-bottom */
+    color: rgba(255, 255, 255, 0.5); 
+    flex-shrink: 0; /* لمنع الأيقونة من الانكماش */
+}
+
+.reminder-item .text {
+    font-size: 1.5rem; 
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
+    text-align: right; /* لضمان محاذاة النص لليمين */
+}
+
+/* كود الحالة النشطة يبقى كما هو لأنه ممتاز */
+.reminder-item.active {
+    background-color: rgba(20, 184, 166, 0.3); 
+    border-color: rgba(45, 212, 191, 0.7);
+    box-shadow: 0 0 20px rgba(20, 184, 166, 0.5);
+}
+
+.reminder-item.active .icon {
+    color: #5eead4; 
+}
+
+.reminder-item.active .text {
+    color: #ffffff; 
+}
+/* --- END: Islamic Daily Reminders Styles (MODIFIED) --- */
         /* OBD-II Specific Styles */
         .obd-data-grid {
             display: grid;
@@ -1600,24 +1656,7 @@ div#bottom-left-controls {
                         </div>
 
 
-                        <div id="tv" class="glass-surface glass-surface--svg p-4 flex flex-col items-center justify-center text-center car-cam-360-container col-span-1 row-start-1 navigable grid-item" tabindex="0">
-                           <div id="adhkar-card" class="w-full h-full flex flex-col items-center justify-center p-4">
-                                <p id="adhkar-text" class="text-3xl font-bold leading-relaxed text-white flex-grow" style="font-family: 'Amiri Quran', serif; display: flex; align-items: center;"></p>
-                                <p id="adhkar-repetition" class="text-xl text-yellow-300 mt-4 font-semibold"></p>
-                                <div id="adhkar-controls" class="flex items-center gap-4 mt-auto pt-4 grid-container">
-                                    <button id="adhkar-prev-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="الذكر السابق">
-                                        <i data-lucide="rewind" class="w-6 h-6"></i>
-                                    </button>
-                                    <button id="adhkar-pause-play-button" class="glass-surface glass-surface--svg rounded-full p-4 navigable grid-item" tabindex="0" title="إيقاف/تشغيل">
-                                        <i data-lucide="pause" class="w-8 h-8"></i>
-                                        <i data-lucide="play" class="w-8 h-8 hidden"></i>
-                                    </button>
-                                    <button id="adhkar-next-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="الذكر التالي">
-                                        <i data-lucide="fast-forward" class="w-6 h-6"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                        <div id="tv" class="glass-surface glass-surface--svg p-4 flex flex-col items-center justify-center text-center car-cam-360-container col-span-1 row-start-1 navigable grid-item" tabindex="0"></div>
 
 
                     </div>
@@ -4142,100 +4181,146 @@ async function displayLastWatchedVideo() {
             // Play welcome message once after a short delay
             setTimeout(playWelcomeMessage, 1500);
 
-            // --- NEW: Adhkar Card Logic ---
-            const adhkarList = [
-                { text: "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ،", repetition: "مرة واحدة" },
-                 { text: " رَبِّ أَسْأَلُكَ خَيْرَ مَا فِي هَذَا الْيَوْمِ وَخَيْرَ مَا بَعْدَهُ، ", repetition: "مرة واحدة" },
-                { text: "اللَّهُمَّ بِكَ أَصْبَحْنَا، وَبِكَ أَمْسَيْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ وَإِلَيْكَ النُّشُورُ", repetition: "مرة واحدة" },
-                { text: "اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ خَلَقْتَنِي وَأَنَا عَبْدُكَ وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ ", repetition: "سيد الاستغفار" },
-                { text: " أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ وَأَبُوءُ لَكَ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ", repetition: "سيد الاستغفار" },
-                { text: "حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ", repetition: "سبع مرات" },
-                { text: "بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ", repetition: "ثلاث مرات" },
-                { text: "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، عَدَدَ خَلْقِهِ، وَرِضَا نَفْسِهِ، وَزِنَةَ عَرْشِهِ، وَمِدَادَ كَلِمَاتِهِ", repetition: "ثلاث مرات" },
-                { text: "لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ", repetition: "عشر مرات" },
-                { text: "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ", repetition: "مائة مرة" },
-                { text: "أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ", repetition: "مائة مرة" }
-            ];
+            // --- START: Islamic Daily Reminders Logic ---
+// 1. تعريف قائمة الأذكار والعبادات مع الشروط الخاصة بها
+const dailyReminders = [
+    {
+        id: 'adhkar_morning',
+        name: 'أذكار الصباح',
+        icon: 'sunrise',
+        isActive: (now, times) => now >= times.Fajr && now < times.Dhuhr,
+        action: () => { switchApp('Media'); searchYouTubeVideos('أذكار الصباح كاملة'); }
+    },
+    {
+        id: 'salat_duha',
+        name: 'صلاة الضحى',
+        icon: 'sun',
+        isActive: (now, times) => {
+            if (!times.Sunrise || !times.Dhuhr) return false;
+            const sunriseTime = new Date(times.Sunrise.getTime() + 20 * 60000);
+            const dhuhrTime = new Date(times.Dhuhr.getTime() - 10 * 60000);
+            return now >= sunriseTime && now < dhuhrTime;
+        },
+        action: () => showMessageBox('صلاة الضحى سنة مؤكدة، ووقتها من بعد شروق الشمس وارتفاعها قدر رمح إلى قبيل وقت صلاة الظهر.')
+    },
+    {
+        id: 'surah_kahf',
+        name: 'سورة الكهف',
+        icon: 'book-open',
+        isActive: (now, times) => now.getDay() === 5, // 5 = Friday
+        action: () => { switchApp('Media'); searchYouTubeVideos('سورة الكهف كاملة'); }
+    },
+    {
+        id: 'adhkar_evening',
+        name: 'أذكار المساء',
+        icon: 'sunset',
+        isActive: (now, times) => now >= times.Asr && now.getHours() <= 23,
+        action: () => { switchApp('Media'); searchYouTubeVideos('أذكار المساء كاملة'); }
+    },
+    // --- START: الإضافات الجديدة ---
+    {
+        id: 'wird_daily',
+        name: 'الورد اليومي',
+        icon: 'book-marked',
+        isActive: (now, times) => true, // نشط طوال اليوم
+        action: () => switchApp('Quran') // ينتقل مباشرة إلى شاشة المصحف
+    },
+    {
+        id: 'fasting_monday_thursday',
+        name: 'صيام الاثنين والخميس',
+        icon: 'calendar-heart',
+        // 1 = الاثنين, 4 = الخميس
+        isActive: (now, times) => now.getDay() === 1 || now.getDay() === 4,
+        action: () => showMessageBox('تُعرَضُ الأعمالُ يومَ الاثنينِ والخميسِ، فأُحِبُّ أن يُعرَضَ عملي وأنا صائمٌ. (حديث نبوي)')
+    },
+    // --- END: الإضافات الجديدة ---
+    {
+        id: 'surah_mulk',
+        name: 'سورة الملك',
+        icon: 'moon',
+        isActive: (now, times) => now >= times.Isha || now < times.Fajr,
+        action: () => { switchApp('Media'); searchYouTubeVideos('سورة الملك كاملة'); }
+    },
+    {
+        id: 'salat_witr',
+        name: 'صلاة الوتر',
+        icon: 'star',
+        isActive: (now, times) => now >= times.Isha || now < times.Fajr,
+        action: () => showMessageBox('صلاة الوتر سنة مؤكدة، وأقلها ركعة واحدة، ووقتها من بعد صلاة العشاء إلى طلوع الفجر.')
+    },
+    {
+    id: 'adhkar_sleep',
+    name: 'أذكار النوم',
+    icon: 'bed',
+    // يصبح نشطاً من الساعة 9 مساءً (21) فصاعداً
+    isActive: (now, times) => now.getHours() >= 23,
+    action: () => { switchApp('Media'); searchYouTubeVideos('أذكار النوم'); }
+}
+];
+dsd
+// 2. دالة لإنشاء وعرض القائمة
+function renderDailyReminders() {
+    const container = document.getElementById('tv');
+    if (!container || !appState.prayerTimes.Fajr || appState.prayerTimes.Fajr === '--:--') return;
 
-            let currentAdhkarIndex = 0;
-            let adhkarInterval;
-            let isAdhkarPaused = false;
-            const adhkarTextEl = document.getElementById('adhkar-text');
-            const adhkarRepetitionEl = document.getElementById('adhkar-repetition');
-            const adhkarCardEl = document.getElementById('adhkar-card');
-            const prevButtonAdhkar = document.getElementById('adhkar-prev-button');
-            const pausePlayButtonAdhkar = document.getElementById('adhkar-pause-play-button');
-            const nextButtonAdhkar = document.getElementById('adhkar-next-button');
-            const playIconAdhkar = pausePlayButtonAdhkar?.querySelector('[data-lucide="play"]');
-            const pauseIconAdhkar = pausePlayButtonAdhkar?.querySelector('[data-lucide="pause"]');
+    // تحويل أوقات الصلاة النصية إلى كائنات Date لسهولة المقارنة
+    const now = new Date();
+    const prayerDateTimes = {
+        Fajr: timeToDate(appState.prayerTimes.Fajr),
+        Sunrise: timeToDate(appState.prayerTimes.Sunrise || '06:15'), // قيمة افتراضية للشروق
+        Dhuhr: timeToDate(appState.prayerTimes.Dhuhr),
+        Asr: timeToDate(appState.prayerTimes.Asr),
+        Maghrib: timeToDate(appState.prayerTimes.Maghrib),
+        Isha: timeToDate(appState.prayerTimes.Isha)
+    };
 
-            function updateAdhkarDisplay(instant = false) {
-                if (!adhkarTextEl || !adhkarRepetitionEl || !adhkarCardEl) return;
-                const transitionDuration = instant ? 0 : 700;
-                adhkarCardEl.style.transition = `opacity ${transitionDuration / 1000}s ease-in-out`;
-                adhkarCardEl.style.opacity = '0';
-                setTimeout(() => {
-                    const currentAdhkar = adhkarList[currentAdhkarIndex];
-                    adhkarTextEl.textContent = currentAdhkar.text;
-                    adhkarRepetitionEl.textContent = currentAdhkar.repetition;
-                    adhkarCardEl.style.opacity = '1';
-                }, transitionDuration);
+    container.innerHTML = ''; // تفريغ الحاوية
+    const grid = document.createElement('div');
+    grid.className = 'reminders-grid';
+    grid.id = 'reminders-grid-container';
+
+    dailyReminders.forEach(reminder => {
+        const isActive = reminder.isActive(now, prayerDateTimes);
+        const item = document.createElement('div');
+        item.className = `reminder-item navigable grid-item ${isActive ? 'active' : ''}`;
+        item.dataset.reminderId = reminder.id;
+        item.tabIndex = 0;
+        
+        // استخدام أيقونة الساعة للعنصر النشط، وأيقونة أخرى للبقية
+        const iconName = isActive ? 'alarm-clock' : 'check-circle';
+
+        item.innerHTML = `
+            <i data-lucide="${iconName}" class="icon w-16 h-16"></i>
+            <span class="text">${reminder.name}</span>
+        `;
+        grid.appendChild(item);
+    });
+
+    container.appendChild(grid);
+    lucide.createIcons(); // تفعيل الأيقونات الجديدة
+}
+
+// 3. إضافة مستمع نقر واحد للتعامل مع كل الأزرار
+document.addEventListener('click', (e) => {
+    const reminderItem = e.target.closest('.reminder-item');
+    if (reminderItem) {
+        const reminderId = reminderItem.dataset.reminderId;
+        const reminder = dailyReminders.find(r => r.id === reminderId);
+        if (reminder && reminder.action) {
+            // Check if the action involves searching, then switch app
+            if (reminder.id.includes('adhkar') || reminder.id.includes('surah')) {
+                switchApp('Media');
+                // Use timeout to allow screen to switch before searching
+                setTimeout(() => reminder.action(), 100);
+            } else {
+                reminder.action(); // For actions like showMessageBox
             }
-
-            function nextAdhkar() {
-                currentAdhkarIndex = (currentAdhkarIndex + 1) % adhkarList.length;
-                updateAdhkarDisplay();
-            }
-
-            function prevAdhkar() {
-                currentAdhkarIndex = (currentAdhkarIndex - 1 + adhkarList.length) % adhkarList.length;
-                updateAdhkarDisplay();
-            }
-
-            function startAdhkarInterval() {
-                clearInterval(adhkarInterval);
-                if (!isAdhkarPaused) {
-                    adhkarInterval = setInterval(nextAdhkar, 10000);
-                }
-            }
-
-            function toggleAdhkarPlayback() {
-                isAdhkarPaused = !isAdhkarPaused;
-                if (playIconAdhkar && pauseIconAdhkar) {
-                    playIconAdhkar.classList.toggle('hidden', !isAdhkarPaused);
-                    pauseIconAdhkar.classList.toggle('hidden', isAdhkarPaused);
-                }
-                if (isAdhkarPaused) {
-                    clearInterval(adhkarInterval);
-                } else {
-                    startAdhkarInterval();
-                }
-            }
-
-            nextButtonAdhkar?.addEventListener('click', () => {
-                nextAdhkar();
-                startAdhkarInterval();
-            });
-
-            prevButtonAdhkar?.addEventListener('click', () => {
-                prevAdhkar();
-                startAdhkarInterval();
-            });
-
-            pausePlayButtonAdhkar?.addEventListener('click', toggleAdhkarPlayback);
-
-
-            // Initial display and set interval, only if the TV div is visible
-            if (document.getElementById('tv')?.offsetParent !== null) {
-                 updateAdhkarDisplay(true);
-                 startAdhkarInterval();
-            }
+        }
+    }
+});
+            renderDailyReminders(); // الاستدعاء الأول
+            setInterval(renderDailyReminders, 60000); // تحديث كل 60 ثانية
         });
     </script>
 </body> 
 </html>
-
-
-
-
-
