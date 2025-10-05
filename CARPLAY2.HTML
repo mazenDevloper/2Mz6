@@ -1409,50 +1409,62 @@ div#bottom-left-controls {
             font-size: 1rem;
         }
 
-        /* --- START: Islamic Daily Reminders Styles --- */
+        /* --- START: Islamic Daily Reminders Styles (MODIFIED) --- */
+
 .reminders-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* عمودين كما طلبت */
+    grid-template-columns: 1fr 1fr; /* عمودين */
     gap: 1rem;
     width: 100%;
     height: 100%;
-    align-content: center; /* توسيط العناصر عمودياً */
+    align-content: center; 
+    padding: 1rem; 
 }
+
 .reminder-item {
     background-color: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 1.25rem;
-    padding: 1.5rem 1rem;
+    padding: 1rem;
+    height: 20%; /* تحديد الطول بنسبة 20% من الحاوية */
+    min-height: 90px; /* لضمان عدم صغر حجمه أكثر من اللازم */
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
+    flex-direction: row; /* ✅ تغيير أساسي: لعرض المحتوى بشكل أفقي */
+    align-items: center; /* لمحاذاة الأيقونة والنص عمودياً في المنتصف */
+    justify-content: flex-start; /* لمحاذاة المحتوى إلى اليمين (بداية السطر في RTL) */
+    gap: 1rem; /* ✅ إضافة مسافة بين الأيقونة والنص */
     transition: all 0.3s ease;
     cursor: pointer;
 }
+
 .reminder-item .icon {
-    margin-bottom: 0.75rem;
-    color: rgba(255, 255, 255, 0.5); /* لون باهت للافتراضي */
+    /* لم نعد بحاجة إلى margin-bottom */
+    color: rgba(255, 255, 255, 0.5); 
+    flex-shrink: 0; /* لمنع الأيقونة من الانكماش */
 }
+
 .reminder-item .text {
-    font-size: 1.5rem; /* حجم خط كبير وواضح للتلفاز */
+    font-size: 1.5rem; 
     font-weight: 600;
     color: rgba(255, 255, 255, 0.7);
+    text-align: right; /* لضمان محاذاة النص لليمين */
 }
-/* هذا هو تأثير الإضاءة للعنصر النشط */
+
+/* كود الحالة النشطة يبقى كما هو لأنه ممتاز */
 .reminder-item.active {
-    background-color: rgba(20, 184, 166, 0.3); /* لون أخضر شفاف */
+    background-color: rgba(20, 184, 166, 0.3); 
     border-color: rgba(45, 212, 191, 0.7);
     box-shadow: 0 0 20px rgba(20, 184, 166, 0.5);
 }
+
 .reminder-item.active .icon {
-    color: #5eead4; /* لون أخضر فاتح للأيقونة النشطة */
+    color: #5eead4; 
 }
+
 .reminder-item.active .text {
-    color: #ffffff; /* لون أبيض ناصع للنص النشط */
+    color: #ffffff; 
 }
-/* --- END: Islamic Daily Reminders Styles --- */
+/* --- END: Islamic Daily Reminders Styles (MODIFIED) --- */
         /* OBD-II Specific Styles */
         .obd-data-grid {
             display: grid;
@@ -4176,18 +4188,17 @@ const dailyReminders = [
         id: 'adhkar_morning',
         name: 'أذكار الصباح',
         icon: 'sunrise',
-        // يكون نشطاً من بعد الفجر حتى قبل الظهر
         isActive: (now, times) => now >= times.Fajr && now < times.Dhuhr,
-        action: () => searchYouTubeVideos('أذكار الصباح كاملة')
+        action: () => { switchApp('Media'); searchYouTubeVideos('أذكار الصباح كاملة'); }
     },
     {
         id: 'salat_duha',
         name: 'صلاة الضحى',
         icon: 'sun',
-        // تكون نشطة بعد الشروق بـ 20 دقيقة وحتى قبل الظهر بـ 10 دقائق
         isActive: (now, times) => {
-            const sunriseTime = new Date(times.Sunrise.getTime() + 20 * 60000); // الشروق + 20 دقيقة
-            const dhuhrTime = new Date(times.Dhuhr.getTime() - 10 * 60000); // الظهر - 10 دقائق
+            if (!times.Sunrise || !times.Dhuhr) return false;
+            const sunriseTime = new Date(times.Sunrise.getTime() + 20 * 60000);
+            const dhuhrTime = new Date(times.Dhuhr.getTime() - 10 * 60000);
             return now >= sunriseTime && now < dhuhrTime;
         },
         action: () => showMessageBox('صلاة الضحى سنة مؤكدة، ووقتها من بعد شروق الشمس وارتفاعها قدر رمح إلى قبيل وقت صلاة الظهر.')
@@ -4196,36 +4207,57 @@ const dailyReminders = [
         id: 'surah_kahf',
         name: 'سورة الكهف',
         icon: 'book-open',
-        // تكون نشطة فقط في يوم الجمعة (0 = الأحد, 5 = الجمعة)
-        isActive: (now, times) => now.getDay() === 5,
-        action: () => searchYouTubeVideos('سورة الكهف كاملة')
+        isActive: (now, times) => now.getDay() === 5, // 5 = Friday
+        action: () => { switchApp('Media'); searchYouTubeVideos('سورة الكهف كاملة'); }
     },
     {
         id: 'adhkar_evening',
         name: 'أذكار المساء',
         icon: 'sunset',
-        // تكون نشطة من وقت العصر حتى منتصف الليل
         isActive: (now, times) => now >= times.Asr && now.getHours() <= 23,
-        action: () => searchYouTubeVideos('أذكار المساء كاملة')
+        action: () => { switchApp('Media'); searchYouTubeVideos('أذكار المساء كاملة'); }
     },
+    // --- START: الإضافات الجديدة ---
+    {
+        id: 'wird_daily',
+        name: 'الورد اليومي',
+        icon: 'book-marked',
+        isActive: (now, times) => true, // نشط طوال اليوم
+        action: () => switchApp('Quran') // ينتقل مباشرة إلى شاشة المصحف
+    },
+    {
+        id: 'fasting_monday_thursday',
+        name: 'صيام الاثنين والخميس',
+        icon: 'calendar-heart',
+        // 1 = الاثنين, 4 = الخميس
+        isActive: (now, times) => now.getDay() === 1 || now.getDay() === 4,
+        action: () => showMessageBox('تُعرَضُ الأعمالُ يومَ الاثنينِ والخميسِ، فأُحِبُّ أن يُعرَضَ عملي وأنا صائمٌ. (حديث نبوي)')
+    },
+    // --- END: الإضافات الجديدة ---
     {
         id: 'surah_mulk',
         name: 'سورة الملك',
         icon: 'moon',
-        // تكون نشطة من بعد صلاة العشاء حتى قبل صلاة الفجر
         isActive: (now, times) => now >= times.Isha || now < times.Fajr,
-        action: () => searchYouTubeVideos('سورة الملك كاملة')
+        action: () => { switchApp('Media'); searchYouTubeVideos('سورة الملك كاملة'); }
     },
     {
         id: 'salat_witr',
         name: 'صلاة الوتر',
         icon: 'star',
-        // تكون نشطة من بعد صلاة العشاء حتى قبل صلاة الفجر
         isActive: (now, times) => now >= times.Isha || now < times.Fajr,
         action: () => showMessageBox('صلاة الوتر سنة مؤكدة، وأقلها ركعة واحدة، ووقتها من بعد صلاة العشاء إلى طلوع الفجر.')
-    }
+    },
+    {
+    id: 'adhkar_sleep',
+    name: 'أذكار النوم',
+    icon: 'bed',
+    // يصبح نشطاً من الساعة 9 مساءً (21) فصاعداً
+    isActive: (now, times) => now.getHours() >= 23,
+    action: () => { switchApp('Media'); searchYouTubeVideos('أذكار النوم'); }
+}
 ];
-
+dsd
 // 2. دالة لإنشاء وعرض القائمة
 function renderDailyReminders() {
     const container = document.getElementById('tv');
@@ -4292,4 +4324,5 @@ document.addEventListener('click', (e) => {
     </script>
 </body> 
 </html>
+
 
