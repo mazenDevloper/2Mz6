@@ -4450,63 +4450,77 @@ async function setManualReminderState(reminderId, state) {
             ];
 
             // 2. دالة لإنشاء وعرض القائمة (MODIFIED)
-            function renderDailyReminders() {
-                const container = document.getElementById('tv');
-                if (!container || !appState.prayerTimes.Fajr || appState.prayerTimes.Fajr === '--:--') return;
+         // ✅ Corrected Version of the function
+async function renderDailyReminders(states) { // We added 'async' and 'states' here
+    const container = document.getElementById('tv');
+    if (!container || !appState.prayerTimes.Fajr || appState.prayerTimes.Fajr === '--:--') return;
 
-                const manualStates = getManualReminderStates();
-                const now = new Date();
-                const prayerDateTimes = { Fajr: timeToDate(appState.prayerTimes.Fajr), Sunrise: timeToDate(appState.prayerTimes.Sunrise || '06:15'), Dhuhr: timeToDate(appState.prayerTimes.Dhuhr), Asr: timeToDate(appState.prayerTimes.Asr), Maghrib: timeToDate(appState.prayerTimes.Maghrib), Isha: timeToDate(appState.prayerTimes.Isha) };
+    // If no states are passed in, fetch them. Otherwise, use the states that were passed.
+    const manualStates = states || await getManualReminderStates(); // We added 'await' here
 
-                container.innerHTML = ''; // تفريغ الحاوية
-                const grid = document.createElement('div');
-                grid.className = 'reminders-grid';
-                grid.id = 'reminders-grid-container';
+    const now = new Date();
+    const prayerDateTimes = {
+        Fajr: timeToDate(appState.prayerTimes.Fajr),
+        Sunrise: timeToDate(appState.prayerTimes.Sunrise || '06:15'),
+        Dhuhr: timeToDate(appState.prayerTimes.Dhuhr),
+        Asr: timeToDate(appState.prayerTimes.Asr),
+        Maghrib: timeToDate(appState.prayerTimes.Maghrib),
+        Isha: timeToDate(appState.prayerTimes.Isha)
+    };
 
-                dailyReminders.forEach(reminder => {
-                    const manualState = manualStates[reminder.id];
-                    let classList = 'reminder-item navigable grid-item';
-                    let iconName = '';
+    container.innerHTML = '';
+    const grid = document.createElement('div');
+    grid.className = 'reminders-grid grid-container'; // Added grid-container for navigation
+    grid.id = 'reminders-grid-container';
 
-                    if (manualState) {
-                        // Use manual state if it exists
-                        classList += ` ${manualState}`; // 'active', 'completed', 'missed'
-                        switch (manualState) {
-                            case 'active':    iconName = 'clock'; break;
-                            case 'completed': iconName = 'check-check'; break;
-                            case 'missed':    iconName = 'x-circle'; break; // New icon for missed
-                        }
-                    } else {
-                        // Original automatic logic
-                        const isActive = reminder.isActive(now, prayerDateTimes);
-                        let isUpcoming = false;
-                        if (reminder.getStartTime && !isActive) { const startTime = reminder.getStartTime(now, prayerDateTimes); if (startTime && startTime > now) { isUpcoming = true; } }
-                        let isCompleted = false;
-                        if (!isActive && !isUpcoming && reminder.getEndTime) { const endTime = reminder.getEndTime(now, prayerDateTimes); if (endTime && now > endTime) { isCompleted = true; } }
+    dailyReminders.forEach(reminder => {
+        const manualState = manualStates[reminder.id];
+        let classList = 'reminder-item navigable grid-item';
+        let iconName = '';
 
-                        if (isActive) { classList += ' active'; iconName = 'clock'; } 
-                        else if (isUpcoming) { classList += ' upcoming'; iconName = 'bell'; } 
-                        else if (isCompleted) { classList += ' completed'; iconName = 'check-check'; } 
-                        else { iconName = 'circle'; } // Default icon for automatic state
-                    }
-
-                    const item = document.createElement('div');
-                    item.className = classList;
-                    item.dataset.reminderId = reminder.id;
-                    item.tabIndex = 0;
-
-                    item.innerHTML = `
-                        <div class="icon-wrapper relative">
-                            <i data-lucide="${iconName || 'circle'}" class="icon w-16 h-16"></i>
-                        </div>
-                        <span class="text">${reminder.name}</span>
-                    `;
-                    grid.appendChild(item);
-                });
-
-                container.appendChild(grid);
-                lucide.createIcons(); // تفعيل الأيقونات الجديدة
+        if (manualState) {
+            classList += ` ${manualState}`;
+            switch (manualState) {
+                case 'active':    iconName = 'clock'; break;
+                case 'completed': iconName = 'check-check'; break;
+                case 'missed':    iconName = 'x-circle'; break;
             }
+        } else {
+            const isActive = reminder.isActive(now, prayerDateTimes);
+            let isUpcoming = false;
+            if (reminder.getStartTime && !isActive) {
+                const startTime = reminder.getStartTime(now, prayerDateTimes);
+                if (startTime && startTime > now) { isUpcoming = true; }
+            }
+            let isCompleted = false;
+            if (!isActive && !isUpcoming && reminder.getEndTime) {
+                const endTime = reminder.getEndTime(now, prayerDateTimes);
+                if (endTime && now > endTime) { isCompleted = true; }
+            }
+
+            if (isActive) { classList += ' active'; iconName = 'play-circle'; } 
+            else if (isUpcoming) { classList += ' upcoming'; iconName = 'bell'; } 
+            else if (isCompleted) { classList += ' completed'; iconName = 'check-check'; } 
+            else { iconName = 'circle'; }
+        }
+
+        const item = document.createElement('div');
+        item.className = classList;
+        item.dataset.reminderId = reminder.id;
+        item.tabIndex = 0;
+
+        item.innerHTML = `
+            <div class="icon-wrapper relative">
+                <i data-lucide="${iconName || 'circle'}" class="icon w-12 h-12"></i>
+            </div>
+            <span class="text">${reminder.name}</span>
+        `;
+        grid.appendChild(item);
+    });
+
+    container.appendChild(grid);
+    lucide.createIcons();
+}
 
             // 3. إضافة مستمع نقر واحد للتعامل مع كل الأزرار (MODIFIED)
             document.addEventListener('click', (e) => {
