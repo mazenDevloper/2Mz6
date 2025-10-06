@@ -26,6 +26,8 @@
     <style>
         /* Import Amiri Quran font for Adhkar text */
         @import url('https://fonts.googleapis.com/css2?family=Amiri+Quran:wght@400;700&display=swap');
+        /* NEW: Import Amiri font for Thuluth-like style */
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
 
 /* --- START: Last Watched & History Styles --- */
 
@@ -319,6 +321,8 @@ div#\33 d-screen-weather-widget {
             border: none;
             border-radius: 1.5rem;
         }
+
+        .homebtn{display:none}
 
         /* Floating Button Styles - Positioned and styled for glass effect */
         #floating-media-button,
@@ -1413,7 +1417,8 @@ div#bottom-left-controls {
 
 .reminders-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* عمودين */
+    grid-template-columns: repeat(2, 48%); /* عمودين بعرض 48% لكل منهما */
+    justify-content: center; /* توسيط العمودين في الحاوية */
     gap: 1rem;
     width: 100%;
     height: 100%;
@@ -1425,26 +1430,27 @@ div#bottom-left-controls {
     background-color: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 1.25rem;
-    padding: 1rem;
-    height: 20%; /* تحديد الطول بنسبة 20% من الحاوية */
-    min-height: 90px; /* لضمان عدم صغر حجمه أكثر من اللازم */
+    padding: 0.8rem 1rem; /* تعديل الحشو */
     display: flex;
-    flex-direction: row; /* ✅ تغيير أساسي: لعرض المحتوى بشكل أفقي */
-    align-items: center; /* لمحاذاة الأيقونة والنص عمودياً في المنتصف */
-    justify-content: flex-start; /* لمحاذاة المحتوى إلى اليمين (بداية السطر في RTL) */
-    gap: 1rem; /* ✅ إضافة مسافة بين الأيقونة والنص */
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.75rem; /* تقليل المسافة */
     transition: all 0.3s ease;
     cursor: pointer;
+    height:80%;
 }
 
 .reminder-item .icon {
-    /* لم نعد بحاجة إلى margin-bottom */
     color: rgba(255, 255, 255, 0.5); 
     flex-shrink: 0; /* لمنع الأيقونة من الانكماش */
+    /* تصغير حجم الأيقونة لتتناسق مع النص */
+    width: 1.6rem !important;
+    height: 1.6rem !important;
 }
 
 .reminder-item .text {
-    font-size: 1.5rem; 
+    font-size: 1.2rem; /* تصغير حجم الخط */
     font-weight: 600;
     color: rgba(255, 255, 255, 0.7);
     text-align: right; /* لضمان محاذاة النص لليمين */
@@ -1464,6 +1470,76 @@ div#bottom-left-controls {
 .reminder-item.active .text {
     color: #ffffff; 
 }
+
+/* NEW: Upcoming reminder glow */
+.reminder-item.upcoming {
+    background-color: rgba(249, 115, 22, 0.2); /* Orange transparent bg */
+    border-color: rgba(251, 146, 60, 0.6);   /* Orange border */
+    box-shadow: 0 0 20px rgba(249, 115, 22, 0.4); /* Orange glow */
+}
+.reminder-item.upcoming .icon {
+    color: #fdba74; /* Light orange icon */
+}
+.reminder-item.upcoming .text {
+    color: #ffffff; /* White text for contrast */
+}
+
+/* ▼▼▼ NEW: Completed reminder style ▼▼▼ */
+.reminder-item.completed {
+    background-color: rgba(107, 114, 128, 0.15); /* Grayish transparent bg */
+    border-color: rgba(107, 114, 128, 0.3);
+    opacity: 0.7; /* Make it more faded */
+}
+.reminder-item.completed .icon {
+    color: #4ade80; /* Green check icon */
+}
+.reminder-item.completed .text {
+    color: rgba(255, 255, 255, 0.5); /* Faded text */
+}
+
+
+/* ▼▼▼ NEW: Missed and Dropdown Styles ▼▼▼ */
+.reminder-item.missed {
+    background-color: rgba(239, 68, 68, 0.2); /* Red transparent bg */
+    border-color: rgba(248, 113, 113, 0.6);   /* Red border */
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.4); /* Red glow */
+}
+.reminder-item.missed .icon {
+    color: #fca5a5; /* Light red icon */
+}
+.reminder-item.missed .text {
+    color: #ffffff; /* White text for contrast */
+}
+
+/* Dropdown menu for reminders */
+.reminder-status-dropdown {
+    position: absolute;
+    top: 90%; /* Position slightly overlapping the icon */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(30, 41, 59, 0.9); /* slate-800 with transparency */
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0.75rem;
+    padding: 0.5rem;
+    z-index: 50;
+    display: none; /* Hidden by default */
+    min-width: 120px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+.reminder-status-dropdown.show {
+    display: block;
+}
+.reminder-status-dropdown button {
+    display: block; width: 100%; padding: 0.5rem 0.75rem; text-align: right; font-size: 0.9rem; color: white; background-color: transparent; border: none; border-radius: 0.5rem; cursor: pointer; transition: background-color 0.2s;
+}
+.reminder-status-dropdown button:hover {
+    background-color: rgba(71, 85, 105, 0.7); /* slate-600 with transparency */
+}
+/* ▲▲▲ END: New Styles ▲▲▲ */
+
+
 /* --- END: Islamic Daily Reminders Styles (MODIFIED) --- */
         /* OBD-II Specific Styles */
         .obd-data-grid {
@@ -1497,23 +1573,36 @@ div#bottom-left-controls {
                 background-size:cover!important;
             }
 
+            /* NEW: Date widget styles */
+            #full-date-widget-container {
+                display: flex !important; /* Make it visible */
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+                padding: 1rem; /* Increased padding */
+                background-color: rgba(0,0,0,0.2);
+                border-radius: 1rem;
+                backdrop-filter: blur(5px);
+                -webkit-backdrop-filter: blur(5px);
+                margin-bottom: 1rem; /* Add some space below it */
+                font-family: 'Amiri', serif; /* Apply Thuluth-like font */
+            }
+            #full-date-widget-container p { margin: 0; }
+            #gregorian-date { font-size: 2rem; font-weight: 700; } /* Increased font size and made bold */
+            #hijri-date { font-size: 1.8rem; opacity: 0.9; font-weight: 700;} /* Increased font size and made bold */
+
+            /* NEW: Larger clock on desktop */
+            #digital-time {
+                font-size: 3rem !important;
+            }
+
+
             /* --- START: Hide Elements in TV UI --- */
 
 /* إخفاء العناصر المطلوبة في واجهة التلفاز */
 [data-app="Map"],                  /* إخفاء أيقونة خريطة الـ 3D من شريط التنقل */
-#screen-Quran #quran-iframe,       /* إخفاء إطار موقع quran.com */
-#screen-Media #tab-reciters,       /* إخفاء تبويب "القراء" في شاشة الميديا */
-#screen-Media #tab-content-reciters { /* إخفاء محتوى تبويب "القراء" */
-    display: none !important;
-}
-
-/* تعديل بسيط لجعل التبويبات المتبقية تتوسط بشكل أفضل */
-#screen-Media .tabs-container {
-    justify-content: center;
-}
-
-/* --- END: Hide Elements in TV UI --- */
-            /* إخفاء صورة السيارة الأصلية واستبدالها كخلفية للحاوية */
             #car-360-image {
                 visibility: hidden;
             }
@@ -1625,6 +1714,8 @@ div#bottom-left-controls {
                         
                         <!-- Weather and Clock/Prayer Widgets (Now third) -->
                         <div class="flex flex-col gap-4 md:gap-6 col-span-1 row-start-1 grid-container">
+                             <div id="full-date-widget-container" class="hidden">
+        </div>
                             <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center navigable grid-item" tabindex="0">
                                 <h2 class="text-xl font-bold mb-1">الطقس</h2>
                                 <div id="weather-widget-container" class="w-full h-full flex flex-col items-center justify-center">
@@ -1897,6 +1988,34 @@ div#bottom-left-controls {
     </div>
 
     <script>
+
+// دالة جديدة لتحديث ودجت التاريخ الكامل في شاشة الحاسوب/التلفاز
+function updateFullDateWidget() {
+    const dateWidgetContainer = document.getElementById('full-date-widget-container');
+    if (!dateWidgetContainer) return;
+
+    const today = new Date();
+    // نجعل السنة 2025 لتتوافق مع بيانات أوقات الصلاة لديك
+    today.setFullYear(2025);
+
+    const gregorianDate = new Intl.DateTimeFormat('ar-OM', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    }).format(today);
+
+    const hijriDate = new Intl.DateTimeFormat('ar-OM-u-ca-islamic', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    }).format(today);
+
+    dateWidgetContainer.innerHTML = `
+        <p id="gregorian-date">${gregorianDate}</p>
+        <p id="hijri-date">${hijriDate}</p>
+    `;
+}
 
         // أضف هذه الدالة الجديدة إلى السكريبت
 async function displayLastWatchedVideo() {
@@ -2959,6 +3078,13 @@ async function displayLastWatchedVideo() {
             const existing = document.getElementById('youtube-surah-section');
             if (existing) existing.remove();
 
+            const lastWatchedContainer = document.getElementById('last-watched-container');
+            if (lastWatchedContainer) lastWatchedContainer.classList.add('hidden');
+
+            // Hide the main suggestions content container to remove the top gap
+            const suggestionsContent = document.getElementById('suggestions-content');
+            if (suggestionsContent) suggestionsContent.classList.add('hidden');
+
             const surahSection = document.createElement('div');
             surahSection.id = 'youtube-surah-section';
             surahSection.className = 'flex flex-col gap-2 p-3 rounded-xl glass-surface glass-surface--svg w-full flex-grow';
@@ -3601,7 +3727,7 @@ async function displayLastWatchedVideo() {
 
                 // Create a container for the action buttons
                 const buttonContainer = document.createElement('div');
-                buttonContainer.className = 'flex gap-2 mt-2';
+                buttonContainer.className = 'flex gap-2 mt-2 homebtn';
 
                 // Ruqyah Button
                 const ruqyahButton = document.createElement('button');
@@ -4065,6 +4191,26 @@ async function displayLastWatchedVideo() {
             floatingMinimizedVideoButton?.addEventListener('click', restoreVideoPopup); // NEW listener
             
 
+    // ... (الكود الموجود لديك)
+
+    // Initial Calls
+    setupSwipeNavigation();
+    loadGoogleMaps().then(initMap);
+    fetchWeatherData(); 
+    loadPrayerTimes();
+    updateFullDateWidget(); // <-- أضف هذا السطر (استدعاء أولي)
+
+    // Play welcome message once after a short delay
+    setTimeout(playWelcomeMessage, 1500);
+
+    setInterval(fetchWeatherData, 300000); 
+    setInterval(updateDigitalClock, 1000); 
+    setInterval(determineNextPrayer, 60000);
+    setInterval(updateFullDateWidget, 60000); // <-- أضف هذا السطر (تحديث دوري)
+    setInterval(simulateOtherCarData, 2000);
+
+    // ... (بقية الكود)
+
 
             
             // NEW/UPDATED: Event listener for the floating back button
@@ -4182,147 +4328,168 @@ async function displayLastWatchedVideo() {
             setTimeout(playWelcomeMessage, 1500);
 
             // --- START: Islamic Daily Reminders Logic ---
-// 1. تعريف قائمة الأذكار والعبادات مع الشروط الخاصة بها
-const dailyReminders = [
-    {
-        id: 'adhkar_morning',
-        name: 'أذكار الصباح',
-        icon: 'sunrise',
-        isActive: (now, times) => now >= times.Fajr && now < times.Dhuhr,
-        action: () => { switchApp('Media'); searchYouTubeVideos('أذكار الصباح كاملة'); }
-    },
-    {
-        id: 'salat_duha',
-        name: 'صلاة الضحى',
-        icon: 'sun',
-        isActive: (now, times) => {
-            if (!times.Sunrise || !times.Dhuhr) return false;
-            const sunriseTime = new Date(times.Sunrise.getTime() + 20 * 60000);
-            const dhuhrTime = new Date(times.Dhuhr.getTime() - 10 * 60000);
-            return now >= sunriseTime && now < dhuhrTime;
-        },
-        action: () => showMessageBox('صلاة الضحى سنة مؤكدة، ووقتها من بعد شروق الشمس وارتفاعها قدر رمح إلى قبيل وقت صلاة الظهر.')
-    },
-    {
-        id: 'surah_kahf',
-        name: 'سورة الكهف',
-        icon: 'book-open',
-        isActive: (now, times) => now.getDay() === 5, // 5 = Friday
-        action: () => { switchApp('Media'); searchYouTubeVideos('سورة الكهف كاملة'); }
-    },
-    {
-        id: 'adhkar_evening',
-        name: 'أذكار المساء',
-        icon: 'sunset',
-        isActive: (now, times) => now >= times.Asr && now.getHours() <= 23,
-        action: () => { switchApp('Media'); searchYouTubeVideos('أذكار المساء كاملة'); }
-    },
-    // --- START: الإضافات الجديدة ---
-    {
-        id: 'wird_daily',
-        name: 'الورد اليومي',
-        icon: 'book-marked',
-        isActive: (now, times) => true, // نشط طوال اليوم
-        action: () => switchApp('Quran') // ينتقل مباشرة إلى شاشة المصحف
-    },
-    {
-        id: 'fasting_monday_thursday',
-        name: 'صيام الاثنين والخميس',
-        icon: 'calendar-heart',
-        // 1 = الاثنين, 4 = الخميس
-        isActive: (now, times) => now.getDay() === 1 || now.getDay() === 4,
-        action: () => showMessageBox('تُعرَضُ الأعمالُ يومَ الاثنينِ والخميسِ، فأُحِبُّ أن يُعرَضَ عملي وأنا صائمٌ. (حديث نبوي)')
-    },
-    // --- END: الإضافات الجديدة ---
-    {
-        id: 'surah_mulk',
-        name: 'سورة الملك',
-        icon: 'moon',
-        isActive: (now, times) => now >= times.Isha || now < times.Fajr,
-        action: () => { switchApp('Media'); searchYouTubeVideos('سورة الملك كاملة'); }
-    },
-    {
-        id: 'salat_witr',
-        name: 'صلاة الوتر',
-        icon: 'star',
-        isActive: (now, times) => now >= times.Isha || now < times.Fajr,
-        action: () => showMessageBox('صلاة الوتر سنة مؤكدة، وأقلها ركعة واحدة، ووقتها من بعد صلاة العشاء إلى طلوع الفجر.')
-    },
-    {
-    id: 'adhkar_sleep',
-    name: 'أذكار النوم',
-    icon: 'bed',
-    // يصبح نشطاً من الساعة 9 مساءً (21) فصاعداً
-    isActive: (now, times) => now.getHours() >= 23,
-    action: () => { switchApp('Media'); searchYouTubeVideos('أذكار النوم'); }
-}
-];
-dsd
-// 2. دالة لإنشاء وعرض القائمة
-function renderDailyReminders() {
-    const container = document.getElementById('tv');
-    if (!container || !appState.prayerTimes.Fajr || appState.prayerTimes.Fajr === '--:--') return;
-
-    // تحويل أوقات الصلاة النصية إلى كائنات Date لسهولة المقارنة
-    const now = new Date();
-    const prayerDateTimes = {
-        Fajr: timeToDate(appState.prayerTimes.Fajr),
-        Sunrise: timeToDate(appState.prayerTimes.Sunrise || '06:15'), // قيمة افتراضية للشروق
-        Dhuhr: timeToDate(appState.prayerTimes.Dhuhr),
-        Asr: timeToDate(appState.prayerTimes.Asr),
-        Maghrib: timeToDate(appState.prayerTimes.Maghrib),
-        Isha: timeToDate(appState.prayerTimes.Isha)
-    };
-
-    container.innerHTML = ''; // تفريغ الحاوية
-    const grid = document.createElement('div');
-    grid.className = 'reminders-grid';
-    grid.id = 'reminders-grid-container';
-
-    dailyReminders.forEach(reminder => {
-        const isActive = reminder.isActive(now, prayerDateTimes);
-        const item = document.createElement('div');
-        item.className = `reminder-item navigable grid-item ${isActive ? 'active' : ''}`;
-        item.dataset.reminderId = reminder.id;
-        item.tabIndex = 0;
-        
-        // استخدام أيقونة الساعة للعنصر النشط، وأيقونة أخرى للبقية
-        const iconName = isActive ? 'alarm-clock' : 'check-circle';
-
-        item.innerHTML = `
-            <i data-lucide="${iconName}" class="icon w-16 h-16"></i>
-            <span class="text">${reminder.name}</span>
-        `;
-        grid.appendChild(item);
-    });
-
-    container.appendChild(grid);
-    lucide.createIcons(); // تفعيل الأيقونات الجديدة
-}
-
-// 3. إضافة مستمع نقر واحد للتعامل مع كل الأزرار
-document.addEventListener('click', (e) => {
-    const reminderItem = e.target.closest('.reminder-item');
-    if (reminderItem) {
-        const reminderId = reminderItem.dataset.reminderId;
-        const reminder = dailyReminders.find(r => r.id === reminderId);
-        if (reminder && reminder.action) {
-            // Check if the action involves searching, then switch app
-            if (reminder.id.includes('adhkar') || reminder.id.includes('surah')) {
-                switchApp('Media');
-                // Use timeout to allow screen to switch before searching
-                setTimeout(() => reminder.action(), 100);
-            } else {
-                reminder.action(); // For actions like showMessageBox
+            // NEW: Helper functions for managing manual states
+            function getManualReminderStates() {
+                return JSON.parse(localStorage.getItem('reminderManualStates')) || {};
             }
-        }
-    }
-});
+
+            function setManualReminderState(reminderId, state) {
+                const states = getManualReminderStates();
+                if (state === 'auto') {
+                    delete states[reminderId]; // Remove the override
+                } else {
+                    states[reminderId] = state;
+                }
+                localStorage.setItem('reminderManualStates', JSON.stringify(states));
+                renderDailyReminders(); // Re-render to show changes
+                closeAllDropdowns(); // Close dropdown after selection
+            }
+
+            // NEW: Function to create and manage the dropdown
+            function createReminderDropdown(reminderId, parentElement) {
+                closeAllDropdowns(); // Close any other open dropdowns first
+
+                const dropdown = document.createElement('div');
+                dropdown.className = 'reminder-status-dropdown show';
+                dropdown.innerHTML = `
+                    <button data-state="active" class="navigable grid-item" tabindex="0">حالي</button>
+                    <button data-state="completed" class="navigable grid-item" tabindex="0">منتهي</button>
+                    <button data-state="missed" class="navigable grid-item" tabindex="0">فائت</button>
+                    <hr class="border-white/10 my-1">
+                    <button data-state="auto" class="navigable grid-item" tabindex="0">تلقائي</button>
+                `;
+                parentElement.appendChild(dropdown);
+
+                dropdown.querySelectorAll('button').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        e.stopPropagation(); // Prevent the main click listener from firing again
+                        const state = button.dataset.state;
+                        setManualReminderState(reminderId, state);
+                    });
+                });
+                 // Focus the first button in the dropdown
+                const firstButton = dropdown.querySelector('button');
+                if (firstButton) setFocus(firstButton);
+            }
+
+            function closeAllDropdowns() {
+                document.querySelectorAll('.reminder-status-dropdown').forEach(d => d.remove());
+            }
+
+            // 1. تعريف قائمة الأذكار والعبادات مع الشروط الخاصة بها
+            const dailyReminders = [
+                { id: 'adhkar_morning', name: 'أذكار الصباح', icon: 'sunrise', isActive: (now, times) => now >= times.Fajr && now < times.Dhuhr, getStartTime: (now, times) => times.Fajr, getEndTime: (now, times) => times.Dhuhr, action: () => { switchApp('Media'); searchYouTubeVideos('أذكار الصباح كاملة'); } },
+                { id: 'salat_duha', name: 'صلاة الضحى', icon: 'sun', isActive: (now, times) => { if (!times.Sunrise || !times.Dhuhr) return false; const sunriseTime = new Date(times.Sunrise.getTime() + 20 * 60000); const dhuhrTime = new Date(times.Dhuhr.getTime() - 10 * 60000); return now >= sunriseTime && now < dhuhrTime; }, getStartTime: (now, times) => { if (!times.Sunrise) return null; return new Date(times.Sunrise.getTime() + 20 * 60000); }, getEndTime: (now, times) => { if (!times.Dhuhr) return null; return new Date(times.Dhuhr.getTime() - 10 * 60000); }, action: () => showMessageBox('صلاة الضحى سنة مؤكدة، ووقتها من بعد شروق الشمس وارتفاعها قدر رمح إلى قبيل وقت صلاة الظهر.') },
+                { id: 'surah_kahf', name: 'سورة الكهف', icon: 'book-open', isActive: (now, times) => now.getDay() === 5, getStartTime: (now, times) => { if (now.getDay() !== 5) return null; const d = new Date(now); d.setHours(0, 0, 0, 0); return d; }, getEndTime: (now, times) => { if (now.getDay() !== 5) return null; const d = new Date(now); d.setHours(23, 59, 59, 999); return d; }, action: () => { switchApp('Media'); searchYouTubeVideos('سورة الكهف كاملة'); } },
+                { id: 'adhkar_evening', name: 'أذكار المساء', icon: 'sunset', isActive: (now, times) => now >= times.Asr && now.getHours() < 23, getStartTime: (now, times) => times.Asr, getEndTime: (now, times) => { const d = new Date(now); d.setHours(22, 59, 59, 999); return d; }, action: () => { switchApp('Media'); searchYouTubeVideos('أذكار المساء كاملة'); } },
+                { id: 'wird_daily', name: 'الورد اليومي', icon: 'book-marked', isActive: (now, times) => true, getStartTime: null, getEndTime: null, action: () => switchApp('Quran') },
+                { id: 'surah_mulk', name: 'سورة الملك', icon: 'moon', isActive: (now, times) => now >= times.Isha || now < times.Fajr, getStartTime: (now, times) => times.Isha, getEndTime: (now, times) => { if (now < times.Fajr) return times.Fajr; return new Date(times.Fajr.getTime() + 24 * 60 * 60 * 1000); }, action: () => { switchApp('Media'); searchYouTubeVideos('سورة الملك كاملة'); } },
+                { id: 'salat_witr', name: 'صلاة الوتر', icon: 'star', isActive: (now, times) => now >= times.Isha || now < times.Fajr, getStartTime: (now, times) => times.Isha, getEndTime: (now, times) => { if (now < times.Fajr) return times.Fajr; return new Date(times.Fajr.getTime() + 24 * 60 * 60 * 1000); }, action: () => showMessageBox('صلاة الوتر سنة مؤكدة، وأقلها ركعة واحدة، ووقتها من بعد صلاة العشاء إلى طلوع الفجر.') },
+                { id: 'adhkar_sleep', name: 'أذكار النوم', icon: 'bed', isActive: (now, times) => now.getHours() >= 23, getStartTime: (now, times) => { const d = new Date(now); d.setHours(23, 0, 0, 0); return d; }, getEndTime: (now, times) => { const d = new Date(now); d.setHours(23, 59, 59, 999); return d; }, action: () => { switchApp('Media'); searchYouTubeVideos('أذكار النوم'); } }
+            ];
+
+            // 2. دالة لإنشاء وعرض القائمة (MODIFIED)
+            function renderDailyReminders() {
+                const container = document.getElementById('tv');
+                if (!container || !appState.prayerTimes.Fajr || appState.prayerTimes.Fajr === '--:--') return;
+
+                const manualStates = getManualReminderStates();
+                const now = new Date();
+                const prayerDateTimes = { Fajr: timeToDate(appState.prayerTimes.Fajr), Sunrise: timeToDate(appState.prayerTimes.Sunrise || '06:15'), Dhuhr: timeToDate(appState.prayerTimes.Dhuhr), Asr: timeToDate(appState.prayerTimes.Asr), Maghrib: timeToDate(appState.prayerTimes.Maghrib), Isha: timeToDate(appState.prayerTimes.Isha) };
+
+                container.innerHTML = ''; // تفريغ الحاوية
+                const grid = document.createElement('div');
+                grid.className = 'reminders-grid';
+                grid.id = 'reminders-grid-container';
+
+                dailyReminders.forEach(reminder => {
+                    const manualState = manualStates[reminder.id];
+                    let classList = 'reminder-item navigable grid-item';
+                    let iconName = '';
+
+                    if (manualState) {
+                        // Use manual state if it exists
+                        classList += ` ${manualState}`; // 'active', 'completed', 'missed'
+                        switch (manualState) {
+                            case 'active':    iconName = 'clock'; break;
+                            case 'completed': iconName = 'check-check'; break;
+                            case 'missed':    iconName = 'x-circle'; break; // New icon for missed
+                        }
+                    } else {
+                        // Original automatic logic
+                        const isActive = reminder.isActive(now, prayerDateTimes);
+                        let isUpcoming = false;
+                        if (reminder.getStartTime && !isActive) { const startTime = reminder.getStartTime(now, prayerDateTimes); if (startTime && startTime > now) { isUpcoming = true; } }
+                        let isCompleted = false;
+                        if (!isActive && !isUpcoming && reminder.getEndTime) { const endTime = reminder.getEndTime(now, prayerDateTimes); if (endTime && now > endTime) { isCompleted = true; } }
+
+                        if (isActive) { classList += ' active'; iconName = 'clock'; } 
+                        else if (isUpcoming) { classList += ' upcoming'; iconName = 'bell'; } 
+                        else if (isCompleted) { classList += ' completed'; iconName = 'check-check'; } 
+                        else { iconName = 'circle'; } // Default icon for automatic state
+                    }
+
+                    const item = document.createElement('div');
+                    item.className = classList;
+                    item.dataset.reminderId = reminder.id;
+                    item.tabIndex = 0;
+
+                    item.innerHTML = `
+                        <div class="icon-wrapper relative">
+                            <i data-lucide="${iconName || 'circle'}" class="icon w-16 h-16"></i>
+                        </div>
+                        <span class="text">${reminder.name}</span>
+                    `;
+                    grid.appendChild(item);
+                });
+
+                container.appendChild(grid);
+                lucide.createIcons(); // تفعيل الأيقونات الجديدة
+            }
+
+            // 3. إضافة مستمع نقر واحد للتعامل مع كل الأزرار (MODIFIED)
+            document.addEventListener('click', (e) => {
+                const reminderItem = e.target.closest('.reminder-item');
+                
+                // If clicking outside a reminder item AND not on a dropdown button, close dropdowns
+                if (!reminderItem && !e.target.closest('.reminder-status-dropdown')) {
+                    closeAllDropdowns();
+                    return;
+                }
+
+                if (!reminderItem) return;
+
+                const reminderId = reminderItem.dataset.reminderId;
+                const reminder = dailyReminders.find(r => r.id === reminderId);
+
+                // If the icon is clicked, toggle the dropdown
+                if (e.target.closest('.icon-wrapper')) {
+                    e.stopPropagation();
+                    const existingDropdown = reminderItem.querySelector('.reminder-status-dropdown');
+                    if (existingDropdown) {
+                        existingDropdown.remove();
+                    } else {
+                        createReminderDropdown(reminderId, e.target.closest('.icon-wrapper'));
+                    }
+                    return;
+                }
+
+                // If the text area (or any other part of the item) is clicked, perform the action
+                if (reminder && reminder.action) {
+                    closeAllDropdowns();
+                    if (reminder.id.includes('adhkar') || reminder.id.includes('surah')) {
+                        switchApp('Media');
+                        setTimeout(() => reminder.action(), 100);
+                    } else {
+                        reminder.action();
+                    }
+                }
+            });
+            
             renderDailyReminders(); // الاستدعاء الأول
             setInterval(renderDailyReminders, 60000); // تحديث كل 60 ثانية
         });
     </script>
 </body> 
 </html>
-
 
