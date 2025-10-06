@@ -2085,6 +2085,12 @@ async function displayLastWatchedVideo() {
         const WEATHER_API_KEY = '7acefc26deee4904a2393917252207'; 
         const GOOGLE_MAPS_API_KEY = 'AIzaSyBRqAHJ2elbE_Z7NXXYC50XZpqi6HbG6Rk';
 
+const JSONBIN_API_KEY = '$2a$10$SYrYv.ct8hiMU9YeUxEQ.ecRkOrTqs.TDchJRV3wW.aKJnDXy2oVy'; // This is your powerful X-Master-Key
+const JSONBIN_BIN_ID = '68e3800cae596e708f07cf32';
+
+// ▼▼▼ ADD THIS NEW LINE ▼▼▼
+const JSONBIN_ACCESS_KEY = '$2a$10$J8o3WrPtnqmKAd///uDw6.BOWnGIBekHFOImbeEZZwsJ/h/XPbVUy';
+
         // NEW: Tarteel AI Channel ID
         const TARTEEL_CHANNEL_ID = 'UCr0J18R8lK0m7oK4eL0jXQg'; // @TarteelArabic channel ID
         const TARTEEL_CHANNEL_IMAGE = 'https://yt3.googleusercontent.com/pUYEmNtUgk7zmyKXVwzTyYCfli0AavVRgAomZITpyh3i6HT0mk35CCJv32Ra79-gKk276qSeYfw=s900-c-k-c0x00ffffff-no-rj';
@@ -4329,21 +4335,76 @@ async function displayLastWatchedVideo() {
 
             // --- START: Islamic Daily Reminders Logic ---
             // NEW: Helper functions for managing manual states
-            function getManualReminderStates() {
-                return JSON.parse(localStorage.getItem('reminderManualStates')) || {};
-            }
+            // --- دوال جديدة للتعامل مع الحالات بشكل محلي ---
 
-            function setManualReminderState(reminderId, state) {
-                const states = getManualReminderStates();
-                if (state === 'auto') {
-                    delete states[reminderId]; // Remove the override
-                } else {
-                    states[reminderId] = state;
-                }
-                localStorage.setItem('reminderManualStates', JSON.stringify(states));
-                renderDailyReminders(); // Re-render to show changes
-                closeAllDropdowns(); // Close dropdown after selection
+// --- NEW & CORRECTED: Helper functions for managing manual states via Server ---
+
+async function getManualReminderStates() {
+    try {
+        const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+            headers: {
+                'X-Access-Key': JSONBIN_ACCESS_KEY
             }
+        });
+        if (!response.ok) {
+            console.error('Failed to fetch reminder states:', response.statusText);
+            return {};
+        }
+        const data = await response.json();
+        const states = data.record || {};
+        
+        // If the only thing in the bin is our placeholder, return an empty object
+        if (Object.keys(states).length === 1 && states._init) {
+            return {};
+        }
+        return states;
+
+    } catch (error) {
+        if (error instanceof SyntaxError) {
+             console.log("Bin is likely empty or invalid. Returning default state.");
+             return {};
+        }
+        console.error('Error in getManualReminderStates:', error);
+        return {};
+    }
+}
+
+async function setManualReminderState(reminderId, state) {
+    let currentStates = await getManualReminderStates();
+    
+    if (state === 'auto') {
+        delete currentStates[reminderId];
+    } else {
+        currentStates[reminderId] = state;
+    }
+
+    // ✅ THE FIX: If the object becomes empty, add a placeholder
+    if (Object.keys(currentStates).length === 0) {
+        currentStates = { "_init": true };
+    }
+
+    try {
+        await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Master-Key': JSONBIN_API_KEY
+            },
+            body: JSON.stringify(currentStates)
+        });
+    } catch (error) {
+        console.error('Error writing to JSONBin:', error);
+        showMessageBox('حدث خطأ أثناء حفظ الحالة.');
+    }
+    
+    // We pass the *real* state (without the placeholder) to the renderer
+    if (currentStates._init) {
+        renderDailyReminders({});
+    } else {
+        renderDailyReminders(currentStates);
+    }
+    closeAllDropdowns();
+}
 
             // NEW: Function to create and manage the dropdown
             function createReminderDropdown(reminderId, parentElement) {
