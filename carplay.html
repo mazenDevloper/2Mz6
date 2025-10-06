@@ -12,7 +12,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <title>CarPlay</title>
+    <title>تطبيق الطقس - واجهة CarPlay</title>
     <!-- Tailwind CSS CDN for utility classes -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons for modern, customizable SVG icons -->
@@ -4329,21 +4329,60 @@ async function displayLastWatchedVideo() {
 
             // --- START: Islamic Daily Reminders Logic ---
             // NEW: Helper functions for managing manual states
-            function getManualReminderStates() {
-                return JSON.parse(localStorage.getItem('reminderManualStates')) || {};
-            }
+            // --- دوال جديدة للتعامل مع الحالات بشكل محلي ---
 
-            function setManualReminderState(reminderId, state) {
-                const states = getManualReminderStates();
-                if (state === 'auto') {
-                    delete states[reminderId]; // Remove the override
-                } else {
-                    states[reminderId] = state;
-                }
-                localStorage.setItem('reminderManualStates', JSON.stringify(states));
-                renderDailyReminders(); // Re-render to show changes
-                closeAllDropdowns(); // Close dropdown after selection
-            }
+// تقرأ أحدث الحالات من ملف JSON المحلي
+async function getManualReminderStates() {
+    // نستخدم localStorage كذاكرة مؤقتة للجلسة الحالية لتجربة أفضل
+    const tempStates = localStorage.getItem('reminderManualStates_temp');
+    if (tempStates) {
+        return JSON.parse(tempStates);
+    }
+
+    // إذا لم تكن هناك بيانات مؤقتة، نقوم بالجلب من الملف
+    // نضيف هذا الجزء لمنع المتصفح من استخدام نسخة قديمة مخبأة من الملف
+    const cacheBuster = '?t=' + new Date().getTime();
+    try {
+        const response = await fetch('reminderStates.json' + cacheBuster);
+        if (!response.ok) {
+            return {}; // إرجاع كائن فارغ إذا لم يتم العثور على الملف
+        }
+        const states = await response.json();
+        // نحفظ الحالة المقروءة في الذاكرة المؤقتة أيضاً
+        localStorage.setItem('reminderManualStates_temp', JSON.stringify(states));
+        return states;
+    } catch (error) {
+        console.error('لا يمكن تحميل reminderStates.json. تأكد من وجود الملف وأنه بصيغة JSON صحيحة.', error);
+        return {}; // إرجاع كائن فارغ عند حدوث خطأ
+    }
+}
+
+// تجهز الحالات المحدثة وتطبعها في الـ console لتقوم أنت بحفظها
+async function setManualReminderState(reminderId, state) {
+    const currentStates = await getManualReminderStates();
+
+    // تعديل كائن الحالات
+    if (state === 'auto') {
+        delete currentStates[reminderId]; // إزالة الحالة اليدوية والعودة للوضع التلقائي
+    } else {
+        currentStates[reminderId] = state;
+    }
+
+    // طباعة الكائن الجديد في لوحة التحكم لتتمكن من نسخه
+    console.clear(); // مسح اللوحة لسهولة الرؤية
+    console.log("--- تحديث ملف reminderStates.json ---");
+    console.log("انسخ المحتوى التالي والصقه في ملف reminderStates.json لحفظ الحالة:");
+    // JSON.stringify مع 4 مسافات لجعله منسقاً وسهل القراءة
+    console.log(JSON.stringify(currentStates, null, 4));
+    console.log("---------------------------------");
+    
+    // سنقوم أيضاً بحفظ التغييرات في localStorage مؤقتاً
+    // حتى تستمر التغييرات ظاهرة خلال الجلسة الحالية دون الحاجة لتحديث الملف يدوياً كل مرة
+    localStorage.setItem('reminderManualStates_temp', JSON.stringify(currentStates));
+    
+    renderDailyReminders(); // إعادة عرض القائمة لإظهار التغييرات فوراً
+    closeAllDropdowns();
+}
 
             // NEW: Function to create and manage the dropdown
             function createReminderDropdown(reminderId, parentElement) {
@@ -4492,3 +4531,4 @@ async function displayLastWatchedVideo() {
     </script>
 </body> 
 </html>
+
