@@ -110,7 +110,7 @@ button#back-to-playlists-bottom-button-search {
             min-height: 100vh; /* Ensure body takes full viewport height */
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: center;ll
             justify-content: center;
             overflow: hidden; /* Prevent body scroll */
         }
@@ -1980,6 +1980,10 @@ div#bottom-left-controls {
     </div>
 
     <script>
+let isYouTubeApiReady = false;
+function onYouTubeIframeAPIReady() {
+    isYouTubeApiReady = true;
+}
        
 
 // =================================================================================
@@ -2192,7 +2196,7 @@ const appButtons = document.querySelectorAll('button[data-app]');
         const zoomOutButton = document.getElementById('zoom-out-button');
         const removeCacheButton = document.getElementById('remove-cache-button');
         const default360ImageSrc = "https://dmusera.netlify.app/es350gb.png";
-        let currentPlayingPlaylistId = '', activeMediaView = 'suggestions', currentPlayingVideoId = '', selectedReaderName = '', popupPlayer, isYouTubeApiReady = false, searchMode = 'reciter_surah', progressInterval = null;
+        let currentPlayingPlaylistId = '', activeMediaView = 'suggestions', currentPlayingVideoId = '', selectedReaderName = '', popupPlayer, searchMode = 'reciter_surah', progressInterval = null, lastFocusedElement = null;
         let lastSuccessfulSearchQuery = null; // NEW: To store the last search query
         let initialLocationFetched = false;
 
@@ -2209,8 +2213,6 @@ const appButtons = document.querySelectorAll('button[data-app]');
             document.body.appendChild(box);
             box.querySelector('button').addEventListener('click', () => document.body.removeChild(box));
         }
-
-        function onYouTubeIframeAPIReady() { isYouTubeApiReady = true; }
 
         function getWatchedHistory() { return JSON.parse(localStorage.getItem('youtubeWatchedHistory')) || {}; }
 
@@ -2305,6 +2307,7 @@ const appButtons = document.querySelectorAll('button[data-app]');
         }
 
         async function searchYouTubeVideos(query) {
+            hideVideoPopup(); // Ensure any open video is closed before a new search
             if (YOUTUBE_API_KEY.startsWith('YOUR_')) return showMessageBox('خطأ: لم يتم تعيين مفتاح YouTube API.');
             try {
                 const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&key=${YOUTUBE_API_KEY}&maxResults=50`);
@@ -2418,7 +2421,6 @@ const appButtons = document.querySelectorAll('button[data-app]');
         sidebarIcons.forEach(el => el.classList.add('w-16', 'h-16', 'rounded-2xl', 'flex', 'items-center', 'justify-center', 'transition-all', 'duration-300', 'ease-in-out'));
         
         // --- YouTube/Media Functions (REFACTORED) ---
-        function onYouTubeIframeAPIReady() { isYouTubeApiReady = true; }
         
         function createVideoCard(video) {
             const card = document.createElement('div');
@@ -2508,6 +2510,7 @@ const appButtons = document.querySelectorAll('button[data-app]');
                     const videoIds = data.items.map(item => item.id.videoId);
                     const videoDetails = await fetchVideosDetails(videoIds);
                     
+                    lastFocusedElement = document.activeElement; // Save focus before changing view
                     lastSuccessfulSearchQuery = query; // NEW: Save the last successful query
                     searchResultsContainer.innerHTML = '';
                     videoDetails.forEach(video => {
@@ -2545,46 +2548,53 @@ const appButtons = document.querySelectorAll('button[data-app]');
             }
         }
         
-        function showVideoPopup(videoId) { // لقد أزلنا start = 0 من هنا
-    const history = getWatchedHistory();
-    const watchedInfo = history[videoId];
-    // إذا كان المستخدم قد شاهد أكثر من 5 ثوانٍ، استأنف التشغيل، وإلا ابدأ من الصفر
-    const start = (watchedInfo && watchedInfo.progress > 5) ? watchedInfo.progress : 0;
-    
-            // UPDATED: Pause background animations and update control button icon
+        function showVideoPopup(videoId) {
+            const history = getWatchedHistory();
+            const watchedInfo = history[videoId];
+            const start = (watchedInfo && watchedInfo.progress > 5) ? watchedInfo.progress : 0;
+
             document.body.classList.add('animation-paused');
             const playIcon = pauseAnimationButton.querySelector('[data-lucide="play"]');
             const pauseIcon = pauseAnimationButton.querySelector('[data-lucide="pause"]');
             if (playIcon && pauseIcon) {
-                playIcon.classList.remove('hidden'); // Show play icon (indicating animations are paused)
+                playIcon.classList.remove('hidden');
                 pauseIcon.classList.add('hidden');
             }
 
-            if (!isYouTubeApiReady) return setTimeout(() => showVideoPopup(videoId, start), 100);
+            if (!isYouTubeApiReady) {
+                setTimeout(() => showVideoPopup(videoId), 100);
+                return;
+            }
+
+            lastFocusedElement = document.activeElement; // Store focus before showing popup
             currentPlayingVideoId = videoId;
-            videoPopupContainer.style.display = 'flex'; // Ensure it's visible
+            videoPopupContainer.style.display = 'flex';
             videoPopupContainer.classList.add('active');
-            // Hide the minimized button when showing the main player
             floatingMinimizedVideoButton.style.display = 'none';
             appState.isVideoPlayerMinimized = false;
-            if (popupPlayer) {
-                popupPlayer.loadVideoById({ videoId, startSeconds: start });
-            } else {
-                videoPopupPlayerContainer.innerHTML = '<div id="video-popup-player"></div>';
-                popupPlayer = new YT.Player('video-popup-player', {
-                    height: '100%', width: '100%', videoId,
-                    playerVars: { 
-                        'autoplay': 1, 
-                        'controls': 1, 
-                        'start': start,
-                        'origin': 'https://dmusera.netlify.app'
-                    },
-                    events: { 
-                        'onReady': (e) => e.target.playVideo(),
-                        'onStateChange': onPlayerStateChange 
-                    }
-                });
+
+            // --- FIX: Always destroy the old player and create a new one ---
+            if (popupPlayer && typeof popupPlayer.destroy === 'function') {
+                popupPlayer.destroy();
             }
+
+            videoPopupPlayerContainer.innerHTML = '<div id="video-popup-player"></div>';
+            popupPlayer = new YT.Player('video-popup-player', {
+                height: '100%',
+                width: '100%',
+                videoId: videoId,
+                playerVars: { 
+                    'autoplay': 1, 
+                    'controls': 1, 
+                    'start': start,
+                    'origin': window.location.origin // Use dynamic origin for robustness
+                },
+                events: { 
+                    'onReady': (e) => e.target.playVideo(),
+                    'onStateChange': onPlayerStateChange 
+                }
+            });
+
             setTimeout(() => setFocus(videoPopupCloseButton), 100);
         }
 
@@ -2600,16 +2610,27 @@ const appButtons = document.querySelectorAll('button[data-app]');
                 pauseIcon.classList.remove('hidden'); // Show pause icon (indicating animations are playing)
             }
 
-            if (popupPlayer?.stopVideo) popupPlayer.stopVideo();
+            // --- FIX: Properly destroy the player and clear the variable ---
+            if (popupPlayer && typeof popupPlayer.destroy === 'function') {
+                popupPlayer.destroy();
+                popupPlayer = null; 
+            }
             videoPopupContainer.classList.remove('active');
             videoPopupContainer.style.display = 'none'; // Also hide with style
             // Ensure the minimized button is also hidden when fully closing
             floatingMinimizedVideoButton.style.display = 'none';
             appState.isVideoPlayerMinimized = false;
-            const screen = document.querySelector('.app-screen.active');
-            if (screen) {
-                const item = screen.querySelector('.grid-item');
-                if (item) setFocus(item);
+            
+            // Return focus to the element that was focused before the popup opened
+            if (lastFocusedElement) {
+                setFocus(lastFocusedElement);
+            } else {
+                // Fallback if no element was stored
+                const screen = document.querySelector('.app-screen.active');
+                if (screen) {
+                    const item = screen.querySelector('.grid-item');
+                    if (item) setFocus(item);
+                }
             }
         }
         
@@ -4132,27 +4153,22 @@ lucide.createIcons();
 
 
         function navigateBackToMainSearch() { 
-
+            hideVideoPopup(); // Close any open video first
             youtubeVideoListView.classList.add('hidden'); 
-
             youtubeSearchResultsView.classList.add('hidden'); 
-
             youtubeSuggestionsDiv.style.display = 'flex'; 
-
             activeMediaView = 'suggestions'; 
-
             currentPlayingPlaylistId = ''; 
-
             backToPlaylistsBottomButton.style.display = 'none'; 
-
             backToPlaylistsBottomButtonSearch.style.display = 'none'; 
-
-            // backToSearchFloatingButton.style.display = 'none'; // REMOVED: Visibility is now handled by resetYoutubeSearchUI
-
             resetYoutubeSearchUI(); 
-
-            setTimeout(() => { const firstReader = youtubeSuggestionsDiv.querySelector('.grid-item'); if (firstReader) setFocus(firstReader); }, 100); 
-
+            
+            // Restore focus to where it was before the search
+            if (lastFocusedElement) {
+                setFocus(lastFocusedElement);
+            } else {
+                setTimeout(() => { const firstReader = youtubeSuggestionsDiv.querySelector('.grid-item'); if (firstReader) setFocus(firstReader); }, 100); 
+            }
         }
 
 
@@ -7100,4 +7116,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </body>
 
 </html>
+
+
+
 
