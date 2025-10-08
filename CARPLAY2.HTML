@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+\<!DOCTYPE html>
 <html lang="ar" dir="rtl" style="
     zoom: 93%;
 ">
@@ -37,47 +37,91 @@
 #last-watched-container {
     width: 100%;
     max-width: 600px; /* Optional: constrain max width for larger screens */
-    margin: 0 auto 1rem auto;
+  
     padding-bottom: 1rem;
     margin-bottom: 1rem;
 }
 
 .last-watched-carousel-wrapper {
     position: relative;
+    width: 300%;
+    overflow: hidden; /* This hides the other slides */
+    border-radius: 1.25rem;
 }
 
-/* This is the scrollable viewport */
 .last-watched-slides-container {
     display: flex;
-    gap: 1rem; /* The space between cards */
-    overflow-x: auto; /* This enables horizontal scrolling */
-    scroll-snap-type: x mandatory; /* This enables snapping behavior */
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-    padding: 0.5rem 1rem; /* Adds some vertical and horizontal padding */
-    clip-path: inset(-5px -10px -5px -10px); /* Prevents padding from clipping box-shadow */
-    scrollbar-width: none; /* Hides scrollbar for Firefox */
-}
-/* Hides scrollbar for Chrome, Safari, and Opera */
-.last-watched-slides-container::-webkit-scrollbar {
-    display: none;
+    transition: transform 0.4s ease-in-out; /* Animation for sliding */
 }
 
 .last-watched-slide {
-    flex: 0 0 45%; /* Each slide is ~45% of the container. 2 slides = 90% + gap, leaving the 3rd one partially visible. */
-    scroll-snap-align: start; /* Each card will snap to the start of the container when scrolling stops */
-    scroll-snap-stop: always; /* Ensures it stops precisely on each snap point */
+    flex: 1 0 100%; /* Each slide takes the full width of the container */
+    box-sizing: border-box;
+    padding: 0 0.5rem;
 }
 
 .last-watched-slide .glass-surface {
     width: 100%;
 }
 
-/* Ensure text doesn't wrap and overflow awkwardly */
 .last-watched-slide h3, .last-watched-slide p {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+.carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.4);
+    color: white;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    z-index: 10;
+    border-radius: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.5rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+.carousel-arrow:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+.carousel-arrow.prev {
+    left: 0.5rem;
+}
+.carousel-arrow.next {
+    right: 0.5rem;
+}
+
+.last-watched-dots-container {
+    text-align: center;
+    padding-top: 0.75rem;
+}
+
+.last-watched-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    margin: 0 5px;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.last-watched-dot.active {
+    background-color: rgba(255, 255, 255, 0.9);
+    transform: scale(1.2);
+}
+/* --- END: Last Watched Carousel Styles --- */
 /* --- END: Last Watched Carousel Styles --- */
 .resume-play-button {
     background-color: rgba(99, 102, 241, 0.8); /* Indigo color */
@@ -4621,4 +4665,3 @@ async function renderDailyReminders(states) { // We added 'async' and 'states' h
     </script>
 </body> 
 </html>
-
