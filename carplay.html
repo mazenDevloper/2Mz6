@@ -62,7 +62,9 @@
 .last-watched-slides-container::-webkit-scrollbar {
     display: none;
 }
-
+div#youtube-suggestions {
+    overflow: clip;
+}
 .last-watched-slide {
     flex: 0 0 45%; /* Each slide is ~45% of the container. 2 slides = 90% + gap, leaving the 3rd one partially visible. */
     scroll-snap-align: start; /* Each card will snap to the start of the container when scrolling stops */
