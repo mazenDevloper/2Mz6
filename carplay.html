@@ -33,12 +33,53 @@
 
 /* --- START: Last Watched & History Styles --- */
 
+/* --- START: Last Watched Carousel (2.5 items) Styles --- */
 #last-watched-container {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    width: 100%;
+    max-width: 600px; /* Optional: constrain max width for larger screens */
+  
     padding-bottom: 1rem;
     margin-bottom: 1rem;
 }
 
+.last-watched-carousel-wrapper {
+    position: relative;
+    width: 200%;
+}
+
+/* This is the scrollable viewport */
+.last-watched-slides-container {
+    display: flex;
+    gap: 1rem; /* The space between cards */
+    overflow-x: auto; /* This enables horizontal scrolling */
+    scroll-snap-type: x mandatory; /* This enables snapping behavior */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    padding: 0.5rem 1rem; /* Adds some vertical and horizontal padding */
+    clip-path: inset(-5px -10px -5px -10px); /* Prevents padding from clipping box-shadow */
+    scrollbar-width: none; /* Hides scrollbar for Firefox */
+}
+/* Hides scrollbar for Chrome, Safari, and Opera */
+.last-watched-slides-container::-webkit-scrollbar {
+    display: none;
+}
+
+.last-watched-slide {
+    flex: 0 0 45%; /* Each slide is ~45% of the container. 2 slides = 90% + gap, leaving the 3rd one partially visible. */
+    scroll-snap-align: start; /* Each card will snap to the start of the container when scrolling stops */
+    scroll-snap-stop: always; /* Ensures it stops precisely on each snap point */
+}
+
+.last-watched-slide .glass-surface {
+    width: 100%;
+}
+
+/* Ensure text doesn't wrap and overflow awkwardly */
+.last-watched-slide h3, .last-watched-slide p {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+/* --- END: Last Watched Carousel Styles --- */
 .resume-play-button {
     background-color: rgba(99, 102, 241, 0.8); /* Indigo color */
     color: white;
@@ -2019,61 +2060,73 @@ function updateFullDateWidget() {
     `;
 }
 
-        // أضف هذه الدالة الجديدة إلى السكريبت
+// REPLACE the current displayLastWatchedVideo function with this one
 async function displayLastWatchedVideo() {
     const lastWatchedContainer = document.getElementById('last-watched-container');
     const history = getWatchedHistory();
-    const videoIds = Object.keys(history);
+    // Get the most recent 3 video IDs.
+    const videoIds = Object.keys(history).slice(0, 3);
 
     if (videoIds.length === 0) {
         lastWatchedContainer.classList.add('hidden');
         return;
     }
 
-    // للتبسيط، سنختار أول فيديو في سجل المشاهدة (يمكن تطويره لاحقًا ليعتمد على الوقت)
-    const lastVideoId = videoIds[0];
-    const lastVideoInfo = history[lastVideoId];
-
     try {
-        const videoDetails = await fetchVideosDetails([lastVideoId]);
+        const videoDetails = await fetchVideosDetails(videoIds);
         if (!videoDetails || videoDetails.length === 0) {
             lastWatchedContainer.classList.add('hidden');
             return;
         }
 
-        const video = videoDetails[0];
-        const videoData = {
-            id: video.id,
-            title: video.snippet.title,
-            thumbnail: video.snippet.thumbnails.medium.url,
-            channelTitle: video.snippet.channelTitle
-        };
+        const slidesHTML = videoDetails.map(video => {
+            const videoData = {
+                id: video.id,
+                title: video.snippet.title,
+                thumbnail: video.snippet.thumbnails.medium.url,
+                channelTitle: video.snippet.channelTitle
+            };
+            const lastVideoInfo = history[videoData.id];
+            const progressPercent = lastVideoInfo ? (lastVideoInfo.progress / lastVideoInfo.duration) * 100 : 0;
 
-        const progressPercent = (lastVideoInfo.progress / lastVideoInfo.duration) * 100;
-
-        lastWatchedContainer.innerHTML = `
-            <h2 class="text-xl font-bold mb-3 text-white/90">متابعة المشاهدة</h2>
-            <div class="glass-surface glass-surface--svg p-3 rounded-2xl">
-                <div class="flex items-center gap-4">
-                    <img src="${videoData.thumbnail}" class="w-28 h-auto rounded-lg">
-                    <div class="flex flex-col gap-2 flex-grow">
-                        <h3 class="font-bold text-lg leading-tight">${videoData.title}</h3>
-                        <p class="text-sm text-white/70">${videoData.channelTitle}</p>
-                        <div class="w-full bg-white/20 rounded-full h-1.5">
-                            <div class="bg-red-500 h-1.5 rounded-full" style="width: ${progressPercent}%"></div>
+            return `
+                <div class="last-watched-slide">
+                    <div class="glass-surface glass-surface--svg p-3 rounded-2xl w-full">
+                        <div class="flex items-center gap-4">
+                            <img src="${videoData.thumbnail}" class="w-28 h-auto rounded-lg flex-shrink-0">
+                            <div class="flex flex-col gap-2 flex-grow min-w-0">
+                                <h3 class="font-bold text-lg leading-tight">${videoData.title}</h3>
+                                <p class="text-sm text-white/70">${videoData.channelTitle}</p>
+                                <div class="w-full bg-white/20 rounded-full h-1.5 mt-1">
+                                    <div class="bg-red-500 h-1.5 rounded-full" style="width: ${progressPercent}%"></div>
+                                </div>
+                                <button class="resume-play-button self-start navigable grid-item" onclick="showVideoPopup('${videoData.id}')">
+                                    <i data-lucide="play" class="w-4 h-4"></i>
+                                    استئناف
+                                </button>
+                            </div>
                         </div>
-                        <button class="resume-play-button self-start navigable grid-item" onclick="showVideoPopup('${videoData.id}')">
-                            <i data-lucide="play" class="w-4 h-4"></i>
-                            استئناف
-                        </button>
                     </div>
+                </div>
+            `;
+        }).join('');
+
+        // Simplified structure for the new scroll-snap container
+        lastWatchedContainer.innerHTML = `
+            <h2 class="text-xl font-bold mb-3 text-white/90 text-center">متابعة المشاهدة</h2>
+            <div class="last-watched-carousel-wrapper">
+                 <div class="last-watched-slides-container">
+                    ${slidesHTML}
                 </div>
             </div>
         `;
+
         lastWatchedContainer.classList.remove('hidden');
-        lucide.createIcons(); // لعرض أيقونة التشغيل الجديدة
+        lucide.createIcons();
+        // No init function is called because CSS handles the scrolling.
+
     } catch (error) {
-        console.error("خطأ في جلب تفاصيل آخر فيديو تمت مشاهدته:", error);
+        console.error("Error fetching details for last watched videos:", error);
         lastWatchedContainer.classList.add('hidden');
     }
 }
