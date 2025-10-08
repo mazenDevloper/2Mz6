@@ -3876,33 +3876,7 @@ const JSONBIN_ACCESS_KEY = '$2a$10$J8o3WrPtnqmKAd///uDw6.BOWnGIBekHFOImbeEZZwsJ/
         });
 
         // --- Swipe Gesture Handling (NEW) ---
-        function setupSwipeNavigation() {
-            const mainContainer = document.querySelector('main');
-            let touchstartX = 0;
-            let touchendX = 0;
-
-            function handleGesture() {
-                const swipeThreshold = 50; // Minimum distance for a swipe in pixels
-                const swipedDistance = touchendX - touchstartX;
-                // Since the layout is RTL, a swipe to the left (negative distance) should go to the next item.
-                if (swipedDistance < -swipeThreshold) {
-                    navigateToNextApp();
-                }
-                // A swipe to the right (positive distance) should go to the previous item.
-                if (swipedDistance > swipeThreshold) {
-                    navigateToPrevApp();
-                }
-            }
-
-            mainContainer.addEventListener('touchstart', e => {
-                touchstartX = e.changedTouches[0].screenX;
-            }, { passive: true });
-
-            mainContainer.addEventListener('touchend', e => {
-                touchendX = e.changedTouches[0].screenX;
-                handleGesture();
-            });
-        }
+    
 
         // --- TV Remote / Keyboard Navigation ---
         let currentFocus = null;
@@ -4255,7 +4229,7 @@ const JSONBIN_ACCESS_KEY = '$2a$10$J8o3WrPtnqmKAd///uDw6.BOWnGIBekHFOImbeEZZwsJ/
     // ... (الكود الموجود لديك)
 
     // Initial Calls
-    setupSwipeNavigation();
+   
     loadGoogleMaps().then(initMap);
     fetchWeatherData(); 
     loadPrayerTimes();
@@ -4375,7 +4349,7 @@ const JSONBIN_ACCESS_KEY = '$2a$10$J8o3WrPtnqmKAd///uDw6.BOWnGIBekHFOImbeEZZwsJ/
             });
 
             // Initial Calls
-            setupSwipeNavigation();
+           
             loadGoogleMaps().then(initMap);
             fetchWeatherData(); 
             loadPrayerTimes();
@@ -4622,4 +4596,3 @@ async function renderDailyReminders(states) { // We added 'async' and 'states' h
     </script>
 </body> 
 </html>
-
