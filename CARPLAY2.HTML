@@ -47,7 +47,6 @@
 }
 .last-watched-carousel-wrapper {
     direction: ltr;
-    width: 232%;
 }
 /* NEW: Carousel Navigation Buttons */
 .carousel-nav-button {
@@ -2125,6 +2124,9 @@ async function displayLastWatchedVideo() {
             lastWatchedContainer.classList.add('hidden');
             return;
         }
+
+        // REVERSE the array so the most recent video is last in the list, ready to be scrolled to.
+        videoDetails.reverse();
 
         const slidesHTML = videoDetails.map(video => {
             const videoData = {
