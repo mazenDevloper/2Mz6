@@ -48,6 +48,36 @@
 .last-watched-carousel-wrapper {
     direction: ltr;
 }
+/* NEW: Carousel Navigation Buttons */
+.carousel-nav-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: none; /* Hidden by default */
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+.carousel-nav-button:hover {
+    background-color: rgba(0, 0, 0, 0.6);
+    transform: translateY(-50%) scale(1.1);
+}
+.carousel-nav-button.prev {
+    left: 10px;
+}
+.carousel-nav-button.next {
+    right: 10px;
+}
 /* This is the scrollable viewport */
 .last-watched-slides-container {
     display: flex;
@@ -1614,6 +1644,9 @@ div#bottom-left-controls {
 
         /* التغييرات المطلوبة للشاشات الأوسع */
         @media (min-width: 992px) {
+            .carousel-nav-button.prev {
+                display: flex;
+            }
             body{
               background:url('https://dmusera.netlify.app/tvbg1@1.5x.png')!important;
                 background-size:cover!important;
@@ -1670,6 +1703,13 @@ div#bottom-left-controls {
             /* إخفاء شعار لكزس على الشاشات الأوسع */
             img[src*="Lexus-Logo.wine.svg"] {
                 display: none !important;
+            }
+        }
+        
+        /* NEW: Show next button on even wider screens */
+        @media (min-width: 1080px) {
+            .carousel-nav-button.next {
+                display: flex;
             }
         }
     </style>
@@ -1763,12 +1803,12 @@ div#bottom-left-controls {
                              <div id="full-date-widget-container" class="hidden">
         </div>
                             <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center navigable grid-item" tabindex="0">
-                                <h2 class="text-xl font-bold mb-1">الطقس</h2>
+                               
                                 <div id="weather-widget-container" class="w-full h-full flex flex-col items-center justify-center">
                                     <img id="dashboard-weather-icon" src="" alt="Weather Icon" class="w-20 h-20 text-white mb-2" />
                                     <p class="text-5xl font-extrabold mb-1" id="dashboard-weather-temp">--°C</p>
                                     <p class="text-xl font-semibold text-white/80 mb-2" id="dashboard-weather-desc">--</p>
-                                    <p class="text-base text-white/60" id="dashboard-weather-location">صلالة، عمان</p>
+                                    
                                 </div>
                             </div>
                             <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center navigable grid-item" tabindex="0">
@@ -2067,8 +2107,11 @@ function updateFullDateWidget() {
 async function displayLastWatchedVideo() {
     const lastWatchedContainer = document.getElementById('last-watched-container');
     const history = getWatchedHistory();
-    // Get the most recent 3 video IDs.
-    const videoIds = Object.keys(history).slice(0, 3);
+    
+    // Sort by timestamp to show the most recently watched videos first
+    const videoIds = Object.keys(history)
+        .sort((a, b) => (history[b].lastWatchedTimestamp || 0) - (history[a].lastWatchedTimestamp || 0))
+        .slice(0, 3);
 
     if (videoIds.length === 0) {
         lastWatchedContainer.classList.add('hidden');
@@ -2090,7 +2133,9 @@ async function displayLastWatchedVideo() {
                 channelTitle: video.snippet.channelTitle
             };
             const lastVideoInfo = history[videoData.id];
-            const progressPercent = lastVideoInfo ? (lastVideoInfo.progress / lastVideoInfo.duration) * 100 : 0;
+            const progressPercent = (lastVideoInfo && lastVideoInfo.progress > 0 && lastVideoInfo.duration > 0) 
+                ? (lastVideoInfo.progress / lastVideoInfo.duration) * 100 
+                : 0;
 
             return `
                 <div class="last-watched-slide">
@@ -2121,20 +2166,30 @@ async function displayLastWatchedVideo() {
                  <div class="last-watched-slides-container">
                     ${slidesHTML}
                 </div>
+                <button id="last-watched-prev" class="carousel-nav-button prev navigable grid-item" tabindex="0"><i data-lucide="chevron-left" class="w-6 h-6"></i></button>
+                <button id="last-watched-next" class="carousel-nav-button next navigable grid-item" tabindex="0"><i data-lucide="chevron-right" class="w-6 h-6"></i></button>
             </div>
         `;
 
         lastWatchedContainer.classList.remove('hidden');
         lucide.createIcons();
-        // Add this block to scroll to the last item
-        setTimeout(() => {
-            const slidesContainer = document.querySelector('.last-watched-slides-container');
-            if (slidesContainer) {
-                // In an RTL layout, scrollLeft becomes negative.
-                // Setting it to a large negative number scrolls it to the far left (the end).
-                slidesContainer.scrollLeft = -slidesContainer.scrollWidth;
-            }
-        }, 0); // Use a timeout of 0 to run this after the browser has rendered the elements
+        
+        // NEW: Event listeners for carousel navigation
+        const slidesContainer = lastWatchedContainer.querySelector('.last-watched-slides-container');
+        const prevButton = lastWatchedContainer.querySelector('#last-watched-prev');
+        const nextButton = lastWatchedContainer.querySelector('#last-watched-next');
+
+        if (slidesContainer && prevButton && nextButton && slidesContainer.querySelector('.last-watched-slide')) {
+            const scrollAmount = slidesContainer.querySelector('.last-watched-slide').offsetWidth + 16; // 16 is the gap
+
+            prevButton.addEventListener('click', () => {
+                slidesContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            });
+
+            nextButton.addEventListener('click', () => {
+                slidesContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            });
+        }
 
     } catch (error) {
         console.error("Error fetching details for last watched videos:", error);
@@ -2255,7 +2310,7 @@ const JSONBIN_ACCESS_KEY = '$2a$10$J8o3WrPtnqmKAd///uDw6.BOWnGIBekHFOImbeEZZwsJ/
         function updateVideoProgress(videoId, currentTime, duration) {
             if (!videoId || !duration) return;
             const history = getWatchedHistory();
-            history[videoId] = { progress: currentTime, duration: duration };
+            history[videoId] = { progress: currentTime, duration: duration, lastWatchedTimestamp: Date.now() };
             localStorage.setItem('youtubeWatchedHistory', JSON.stringify(history));
         }
 
@@ -2263,7 +2318,7 @@ const JSONBIN_ACCESS_KEY = '$2a$10$J8o3WrPtnqmKAd///uDw6.BOWnGIBekHFOImbeEZZwsJ/
             if (!videoId) return;
             const history = getWatchedHistory();
             // Using a special value to indicate fully watched
-            history[videoId] = { progress: -1, duration: 1 };
+            history[videoId] = { progress: -1, duration: 1, lastWatchedTimestamp: Date.now() };
             localStorage.setItem('youtubeWatchedHistory', JSON.stringify(history));
             // Also update the card in the UI if it's visible
             const card = document.querySelector(`.youtube-video-card[data-video-id="${videoId}"]`);
@@ -2498,11 +2553,13 @@ const JSONBIN_ACCESS_KEY = '$2a$10$J8o3WrPtnqmKAd///uDw6.BOWnGIBekHFOImbeEZZwsJ/
             }
         }
         
-        function showVideoPopup(videoId) { // لقد أزلنا start = 0 من هنا
-    const history = getWatchedHistory();
-    const watchedInfo = history[videoId];
-    // إذا كان المستخدم قد شاهد أكثر من 5 ثوانٍ، استأنف التشغيل، وإلا ابدأ من الصفر
-    const start = (watchedInfo && watchedInfo.progress > 5) ? watchedInfo.progress : 0;
+        function showVideoPopup(videoId, startOverride = null) {
+            const start = startOverride !== null ? startOverride : (() => {
+                const history = getWatchedHistory();
+                const watchedInfo = history[videoId];
+                // إذا كان المستخدم قد شاهد أكثر من 5 ثوانٍ، استأنف التشغيل، وإلا ابدأ من الصفر
+                return (watchedInfo && watchedInfo.progress > 5) ? watchedInfo.progress : 0;
+            })();
     
             // UPDATED: Pause background animations and update control button icon
             document.body.classList.add('animation-paused');
@@ -2529,7 +2586,7 @@ const JSONBIN_ACCESS_KEY = '$2a$10$J8o3WrPtnqmKAd///uDw6.BOWnGIBekHFOImbeEZZwsJ/
                     playerVars: { 
                         'autoplay': 1, 
                         'controls': 1, 
-                        'start': start,
+                        'start': Math.floor(start),
                         'origin': 'https://dmusera.netlify.app'
                     },
                     events: { 
@@ -4607,3 +4664,5 @@ async function renderDailyReminders(states) { // We added 'async' and 'states' h
     </script>
 </body> 
 </html>
+
+
