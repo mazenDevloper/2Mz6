@@ -2174,6 +2174,15 @@ async function displayLastWatchedVideo() {
         lastWatchedContainer.classList.remove('hidden');
         lucide.createIcons();
         
+        // Scroll to the last item on load
+        setTimeout(() => {
+            const slidesContainer = document.querySelector('.last-watched-slides-container');
+            if (slidesContainer) {
+                // To show the last item (most recent) in an LTR container, scroll all the way to the right.
+                slidesContainer.scrollLeft = slidesContainer.scrollWidth;
+            }
+        }, 0); // Use a timeout of 0 to run this after the browser has rendered the elements
+
         // NEW: Event listeners for carousel navigation
         const slidesContainer = lastWatchedContainer.querySelector('.last-watched-slides-container');
         const prevButton = lastWatchedContainer.querySelector('#last-watched-prev');
@@ -4664,5 +4673,6 @@ async function renderDailyReminders(states) { // We added 'async' and 'states' h
     </script>
 </body> 
 </html>
+
 
 
