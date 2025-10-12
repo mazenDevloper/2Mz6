@@ -1,4 +1,4 @@
-\<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl" style="
     zoom: 93%;
 ">
@@ -44,84 +44,44 @@
 
 .last-watched-carousel-wrapper {
     position: relative;
-    width: 300%;
-    overflow: hidden; /* This hides the other slides */
-    border-radius: 1.25rem;
 }
-
+.last-watched-carousel-wrapper {
+    direction: ltr;
+}
+/* This is the scrollable viewport */
 .last-watched-slides-container {
     display: flex;
-    transition: transform 0.4s ease-in-out; /* Animation for sliding */
+    gap: 1rem; /* The space between cards */
+    overflow-x: auto; /* This enables horizontal scrolling */
+    scroll-snap-type: x mandatory; /* This enables snapping behavior */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    padding: 0.5rem 1rem; /* Adds some vertical and horizontal padding */
+    clip-path: inset(-5px -10px -5px -10px); /* Prevents padding from clipping box-shadow */
+    scrollbar-width: none; /* Hides scrollbar for Firefox */
 }
-
+/* Hides scrollbar for Chrome, Safari, and Opera */
+.last-watched-slides-container::-webkit-scrollbar {
+    display: none;
+}
+div#youtube-suggestions {
+    overflow: clip;
+}
 .last-watched-slide {
-    flex: 1 0 100%; /* Each slide takes the full width of the container */
-    box-sizing: border-box;
-    padding: 0 0.5rem;
+    flex: 0 0 45%; /* Each slide is ~45% of the container. 2 slides = 90% + gap, leaving the 3rd one partially visible. */
+    scroll-snap-align: start; /* Each card will snap to the start of the container when scrolling stops */
+    scroll-snap-stop: always; /* Ensures it stops precisely on each snap point */
 }
 
 .last-watched-slide .glass-surface {
     width: 100%;
 }
 
+/* Ensure text doesn't wrap and overflow awkwardly */
 .last-watched-slide h3, .last-watched-slide p {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
-
-.carousel-arrow {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: rgba(0, 0, 0, 0.4);
-    color: white;
-    border: none;
-    padding: 0.5rem;
-    cursor: pointer;
-    z-index: 10;
-    border-radius: 50%;
-    width: 2.5rem;
-    height: 2.5rem;
-    font-size: 1.5rem;
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s;
-}
-.carousel-arrow:hover {
-    background-color: rgba(0, 0, 0, 0.7);
-}
-.carousel-arrow.prev {
-    left: 0.5rem;
-}
-.carousel-arrow.next {
-    right: 0.5rem;
-}
-
-.last-watched-dots-container {
-    text-align: center;
-    padding-top: 0.75rem;
-}
-
-.last-watched-dot {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    background-color: rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    margin: 0 5px;
-    cursor: pointer;
-    border: none;
-    transition: background-color 0.3s, transform 0.2s;
-}
-
-.last-watched-dot.active {
-    background-color: rgba(255, 255, 255, 0.9);
-    transform: scale(1.2);
-}
-/* --- END: Last Watched Carousel Styles --- */
 /* --- END: Last Watched Carousel Styles --- */
 .resume-play-button {
     background-color: rgba(99, 102, 241, 0.8); /* Indigo color */
@@ -2166,7 +2126,15 @@ async function displayLastWatchedVideo() {
 
         lastWatchedContainer.classList.remove('hidden');
         lucide.createIcons();
-        // No init function is called because CSS handles the scrolling.
+        // Add this block to scroll to the last item
+        setTimeout(() => {
+            const slidesContainer = document.querySelector('.last-watched-slides-container');
+            if (slidesContainer) {
+                // In an RTL layout, scrollLeft becomes negative.
+                // Setting it to a large negative number scrolls it to the far left (the end).
+                slidesContainer.scrollLeft = -slidesContainer.scrollWidth;
+            }
+        }, 0); // Use a timeout of 0 to run this after the browser has rendered the elements
 
     } catch (error) {
         console.error("Error fetching details for last watched videos:", error);
@@ -3919,33 +3887,7 @@ const JSONBIN_ACCESS_KEY = '$2a$10$J8o3WrPtnqmKAd///uDw6.BOWnGIBekHFOImbeEZZwsJ/
         });
 
         // --- Swipe Gesture Handling (NEW) ---
-        function setupSwipeNavigation() {
-            const mainContainer = document.querySelector('main');
-            let touchstartX = 0;
-            let touchendX = 0;
-
-            function handleGesture() {
-                const swipeThreshold = 50; // Minimum distance for a swipe in pixels
-                const swipedDistance = touchendX - touchstartX;
-                // Since the layout is RTL, a swipe to the left (negative distance) should go to the next item.
-                if (swipedDistance < -swipeThreshold) {
-                    navigateToNextApp();
-                }
-                // A swipe to the right (positive distance) should go to the previous item.
-                if (swipedDistance > swipeThreshold) {
-                    navigateToPrevApp();
-                }
-            }
-
-            mainContainer.addEventListener('touchstart', e => {
-                touchstartX = e.changedTouches[0].screenX;
-            }, { passive: true });
-
-            mainContainer.addEventListener('touchend', e => {
-                touchendX = e.changedTouches[0].screenX;
-                handleGesture();
-            });
-        }
+    
 
         // --- TV Remote / Keyboard Navigation ---
         let currentFocus = null;
@@ -4298,7 +4240,7 @@ const JSONBIN_ACCESS_KEY = '$2a$10$J8o3WrPtnqmKAd///uDw6.BOWnGIBekHFOImbeEZZwsJ/
     // ... (الكود الموجود لديك)
 
     // Initial Calls
-    setupSwipeNavigation();
+   
     loadGoogleMaps().then(initMap);
     fetchWeatherData(); 
     loadPrayerTimes();
@@ -4418,7 +4360,7 @@ const JSONBIN_ACCESS_KEY = '$2a$10$J8o3WrPtnqmKAd///uDw6.BOWnGIBekHFOImbeEZZwsJ/
             });
 
             // Initial Calls
-            setupSwipeNavigation();
+           
             loadGoogleMaps().then(initMap);
             fetchWeatherData(); 
             loadPrayerTimes();
@@ -4537,14 +4479,14 @@ async function setManualReminderState(reminderId, state) {
 
             // 1. تعريف قائمة الأذكار والعبادات مع الشروط الخاصة بها
             const dailyReminders = [
-                { id: 'adhkar_morning', name: 'أذكار الصباح', icon: 'sunrise', isActive: (now, times) => now >= times.Fajr && now < times.Dhuhr, getStartTime: (now, times) => times.Fajr, getEndTime: (now, times) => times.Dhuhr, action: () => { switchApp('Media'); searchYouTubeVideos('أذكار الصباح كاملة'); } },
-                { id: 'salat_duha', name: 'صلاة الضحى', icon: 'sun', isActive: (now, times) => { if (!times.Sunrise || !times.Dhuhr) return false; const sunriseTime = new Date(times.Sunrise.getTime() + 20 * 60000); const dhuhrTime = new Date(times.Dhuhr.getTime() - 10 * 60000); return now >= sunriseTime && now < dhuhrTime; }, getStartTime: (now, times) => { if (!times.Sunrise) return null; return new Date(times.Sunrise.getTime() + 20 * 60000); }, getEndTime: (now, times) => { if (!times.Dhuhr) return null; return new Date(times.Dhuhr.getTime() - 10 * 60000); }, action: () => showMessageBox('صلاة الضحى سنة مؤكدة، ووقتها من بعد شروق الشمس وارتفاعها قدر رمح إلى قبيل وقت صلاة الظهر.') },
-                { id: 'surah_kahf', name: 'سورة الكهف', icon: 'book-open', isActive: (now, times) => now.getDay() === 5, getStartTime: (now, times) => { if (now.getDay() !== 5) return null; const d = new Date(now); d.setHours(0, 0, 0, 0); return d; }, getEndTime: (now, times) => { if (now.getDay() !== 5) return null; const d = new Date(now); d.setHours(23, 59, 59, 999); return d; }, action: () => { switchApp('Media'); searchYouTubeVideos('سورة الكهف كاملة'); } },
-                { id: 'adhkar_evening', name: 'أذكار المساء', icon: 'sunset', isActive: (now, times) => now >= times.Asr && now.getHours() < 23, getStartTime: (now, times) => times.Asr, getEndTime: (now, times) => { const d = new Date(now); d.setHours(22, 59, 59, 999); return d; }, action: () => { switchApp('Media'); searchYouTubeVideos('أذكار المساء كاملة'); } },
-                { id: 'wird_daily', name: 'الورد اليومي', icon: 'book-marked', isActive: (now, times) => true, getStartTime: null, getEndTime: null, action: () => switchApp('Quran') },
-                { id: 'surah_mulk', name: 'سورة الملك', icon: 'moon', isActive: (now, times) => now >= times.Isha || now < times.Fajr, getStartTime: (now, times) => times.Isha, getEndTime: (now, times) => { if (now < times.Fajr) return times.Fajr; return new Date(times.Fajr.getTime() + 24 * 60 * 60 * 1000); }, action: () => { switchApp('Media'); searchYouTubeVideos('سورة الملك كاملة'); } },
+    { id: 'adhkar_morning', name: 'أذكار الصباح', icon: 'sunrise', isActive: (now, times) => now >= times.Fajr && now < times.Dhuhr, getStartTime: (now, times) => times.Fajr, getEndTime: (now, times) => times.Dhuhr, action: () => { switchApp('Media'); searchYouTubeVideos('أذكار الصباح كاملة'); } },
+    { id: 'salat_duha', name: 'صلاة الضحى', icon: 'sun', isActive: (now, times) => { if (!times.Sunrise || !times.Dhuhr) return false; const sunriseTime = new Date(times.Sunrise.getTime() + 20 * 60000); const dhuhrTime = new Date(times.Dhuhr.getTime() - 10 * 60000); return now >= sunriseTime && now < dhuhrTime; }, getStartTime: (now, times) => { if (!times.Sunrise) return null; return new Date(times.Sunrise.getTime() + 20 * 60000); }, getEndTime: (now, times) => { if (!times.Dhuhr) return null; return new Date(times.Dhuhr.getTime() - 10 * 60000); }, action: () => showMessageBox('صلاة الضحى سنة مؤكدة، ووقتها من بعد شروق الشمس وارتفاعها قدر رمح إلى قبيل وقت صلاة الظهر.') },
+    { id: 'sunan_rawatib', name: 'السنن الرواتب', icon: 'calendar-check', isActive: (now, times) => { if (!times.Fajr || !times.Dhuhr || !times.Maghrib || !times.Isha) return false; const tenMinutes = 10 * 60 * 1000; if (now < times.Fajr && (times.Fajr.getTime() - now.getTime()) <= tenMinutes) return true; if (now < times.Dhuhr && (times.Dhuhr.getTime() - now.getTime()) <= tenMinutes) return true; if (now > times.Dhuhr && (now.getTime() - times.Dhuhr.getTime()) <= tenMinutes) return true; if (now > times.Maghrib && (now.getTime() - times.Maghrib.getTime()) <= tenMinutes) return true; if (now > times.Isha && (now.getTime() - times.Isha.getTime()) <= tenMinutes) return true; return false; }, getStartTime: null, getEndTime: null, action: () => showMessageBox('السنن الرواتب: ركعتان قبل الفجر، أربع قبل الظهر، ركعتان بعده، ركعتان بعد المغرب، وركعتان بعد العشاء.') },
+    { id: 'adhkar_evening', name: 'أذكار المساء', icon: 'sunset', isActive: (now, times) => now >= times.Asr && now.getHours() < 23, getStartTime: (now, times) => times.Asr, getEndTime: (now, times) => { const d = new Date(now); d.setHours(22, 59, 59, 999); return d; }, action: () => { switchApp('Media'); searchYouTubeVideos('أذكار المساء كاملة'); } },
+    { id: 'wird_daily', name: 'الورد اليومي', icon: 'book-marked', isActive: (now, times) => true, getStartTime: null, getEndTime: null, action: () => switchApp('Quran') },
+    { id: 'surah_mulk', name: 'سورة الملك', icon: 'moon', isActive: (now, times) => now >= times.Isha || now < times.Fajr, getStartTime: (now, times) => times.Isha, getEndTime: (now, times) => { if (now < times.Fajr) return times.Fajr; return new Date(times.Fajr.getTime() + 24 * 60 * 60 * 1000); }, action: () => { switchApp('Media'); searchYouTubeVideos('سورة الملك كاملة'); } },
                 { id: 'salat_witr', name: 'صلاة الوتر', icon: 'star', isActive: (now, times) => now >= times.Isha || now < times.Fajr, getStartTime: (now, times) => times.Isha, getEndTime: (now, times) => { if (now < times.Fajr) return times.Fajr; return new Date(times.Fajr.getTime() + 24 * 60 * 60 * 1000); }, action: () => showMessageBox('صلاة الوتر سنة مؤكدة، وأقلها ركعة واحدة، ووقتها من بعد صلاة العشاء إلى طلوع الفجر.') },
-                { id: 'adhkar_sleep', name: 'أذكار النوم', icon: 'bed', isActive: (now, times) => now.getHours() >= 23, getStartTime: (now, times) => { const d = new Date(now); d.setHours(23, 0, 0, 0); return d; }, getEndTime: (now, times) => { const d = new Date(now); d.setHours(23, 59, 59, 999); return d; }, action: () => { switchApp('Media'); searchYouTubeVideos('أذكار النوم'); } }
+                { id: 'adhkar_sleep', name: 'قيام الليل ', icon: 'bed', isActive: (now, times) => now.getHours() >= 23, getStartTime: (now, times) => { const d = new Date(now); d.setHours(23, 0, 0, 0); return d; }, getEndTime: (now, times) => { const d = new Date(now); d.setHours(23, 59, 59, 999); return d; }, action: () => { switchApp('Media'); searchYouTubeVideos('أذكار النوم'); } }
             ];
 
             // 2. دالة لإنشاء وعرض القائمة (MODIFIED)
