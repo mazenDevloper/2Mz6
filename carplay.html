@@ -1219,6 +1219,90 @@ section#screen-Media {
 
 
         /*only add here*/
+        /* --- START: Athkar App Styles --- */
+        .athkar-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 4 columns */
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        /* NEW: 5-column grid for monthly reminders */
+        .athkar-grid-monthly {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr); /* 5 columns */
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        .athkar-item {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            text-align: center;
+            font-family: 'Amiri Quran', serif; /* Use the special font */
+            font-size: 1.4rem;
+            line-height: 1.8;
+            color: white;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .athkar-item:hover, .athkar-item.tv-focus {
+            transform: scale(1.03);
+            box-shadow: 0 0 20px rgba(147, 51, 234, 0.5);
+            background-color: rgba(147, 51, 234, 0.3);
+        }
+
+        .athkar-item .repetition {
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif; /* Use regular font for repetition text */
+            color: #a5b4fc; /* Light indigo */
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+
+        .athkar-item.header {
+            background-color: rgba(20, 184, 166, 0.3);
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+         .athkar-color-1 { border-color: rgba(59, 130, 246, 0.7); box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); background-color: rgba(59, 130, 246, 0.15); } /* Blue */
+        .athkar-color-2 { border-color: rgba(16, 185, 129, 0.7); box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); background-color: rgba(16, 185, 129, 0.15); } /* Emerald */
+        .athkar-color-3 { border-color: rgba(249, 115, 22, 0.7); box-shadow: 0 0 20px rgba(249, 115, 22, 0.4); background-color: rgba(249, 115, 22, 0.15); } /* Orange */
+        .athkar-color-4 { border-color: rgba(139, 92, 246, 0.7); box-shadow: 0 0 20px rgba(139, 92, 246, 0.4); background-color: rgba(139, 92, 246, 0.15); } /* Violet */
+        .athkar-color-5 { border-color: rgba(236, 72, 153, 0.7); box-shadow: 0 0 20px rgba(236, 72, 153, 0.4); background-color: rgba(236, 72, 153, 0.15); } /* Pink */
+
+
+        /* Responsive grid for Athkar */
+        @media (max-width: 1024px) {
+            .athkar-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .athkar-grid-monthly {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .athkar-grid {
+                grid-template-columns: 1fr;
+            }
+            .athkar-grid-monthly {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .athkar-item {
+                font-size: 1.2rem;
+                padding: 1rem;
+            }
+        }
+        /* --- END: Athkar App Styles --- */
         @media (max-width: 768px) {
             body {
                 overflow-y: auto;
@@ -1917,6 +2001,33 @@ div#bottom-left-controls {
                    <iframe class="full-iframe" style="zoom: 0.5;" title="Quran Reciters" src="https://quran.com/radio" allow="geolocation"></iframe>
                 </section>
 
+                <!-- Athkar Screen -->
+                <section id="screen-Athkar" class="app-screen p-4 md:p-6 flex-col items-center h-full">
+                    <div class="tabs-container flex p-1 rounded-full bg-black/20 self-center mb-4">
+                        <button id="tab-sabah" class="tab-button navigable grid-item tv-focus active" tabindex="0">أذكار الصباح</button>
+                        <button id="tab-masaa" class="tab-button navigable grid-item" tabindex="0">أذكار المساء</button>
+                        <button id="tab-monthly" class="tab-button navigable grid-item" tabindex="0">التذكيرات الشهرية</button>
+                    </div>
+                    <div id="athkar-content-container" class="w-full flex-grow overflow-y-auto">
+                        <!-- Morning Athkar Panel -->
+                        <div id="athkar-sabah-content" class="tab-content athkar-grid"><div class="athkar-item navigable grid-item header col-span-4" tabindex="0"><p>أذكار الصباح ()</p></div><div class="athkar-item navigable grid-item athkar-color-1" tabindex="0"><p>آية الكرسي</p><span class="repetition">(مرة واحدة)</span></div><div class="athkar-item navigable grid-item athkar-color-2" tabindex="0"><p>اللهم أعني على ذكرك وشكرك وحسن عبادتك.</p></div><div class="athkar-item navigable grid-item athkar-color-3" tabindex="0"><p>المعوذات: سورة الإخلاص، سورة الفلق، سورة الناس</p><span class="repetition">(٣ مرات)</span></div><div class="athkar-item navigable grid-item athkar-color-4" tabindex="0"><p>حسبي الله لا إله إلا هو عليه توكلت وهو رب العرش العظيم</p><span class="repetition">(٧ مرات)</span></div><div class="athkar-item navigable grid-item athkar-color-5" tabindex="0"><p>اللهم بك أصبحنا، وبك أمسينا، وبك نحيا، وبك نموت، وإليك النشور.</p></div><div class="athkar-item navigable grid-item athkar-color-1" tabindex="0"><p>بسم الله الذي لا يضر مع اسمه شيء في الأرض ولا في السماء وهو السميع العليم</p><span class="repetition">(٣ مرات)</span></div><div class="athkar-item navigable grid-item athkar-color-2" tabindex="0"><p>يا حي يا قيوم برحمتك أستغيث، أصلح لي شأني كله ولا تكلني إلى نفسي طرفة عين.</p></div><div class="athkar-item navigable grid-item athkar-color-3 col-span-2" tabindex="0"><p>اللهم عالم الغيب والشهادة فاطر السماوات والأرض، رب كل شيء ومليكه، أشهد أن لا إله إلا أنت، أعوذ بك من شر نفسي، ومن شر الشيطان وشركه، وأن أقترف على نفسي سوءاً أو أجره إلى مسلم.</p></div><div class="athkar-item navigable grid-item athkar-color-4 col-span-2" tabindex="0"><p>سيد الاستغغار: اللهم أنت ربي لا إله إلا أنت، خلقتني وأنا عبدك، وأنا على عهدك ووعدك ما استطعت، أعوذ بك من شر ما صنعت، أبوء لك بنعمتك علي، وأبوء بذنبي فاغفر لي، فإنه لا يغفر الذنوب إلا أنت.</p></div><div class="athkar-item navigable grid-item athkar-color-5 col-span-4" tabindex="0"><p>اللهم إني أسألك العفو والعافية في الدنيا والآخرة، اللهم إني أسألك العفو والعافية في ديني ودنياي وأهلي ومالي، اللهم استر عوراتي وآمن روعاتي، اللهم احفظني من بين يدي ومن خلفي وعن يميني وعن شمالي ومن فوقي، وأعوذ بعظمتك أن أغتال من تحتي.</p></div><div class="athkar-item navigable grid-item athkar-color-1 col-span-4" tabindex="0"><p>أصبحنا وأصبح الملك لله، والحمد لله، لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير. رب أسألك خير ما في هذا اليوم وخير ما بعده، وأعوذ بك من شر ما في هذا اليوم وشر ما بعده، رب أعوذ بك من الكسل وسوء الكبر، رب أعوذ بك من عذاب في النار وعذاب في القبر.</p></div></div>
+                        <!-- Evening Athkar Panel -->
+                        <div id="athkar-masaa-content" class="tab-content athkar-grid hidden"><div class="athkar-item navigable grid-item header col-span-4" tabindex="0"><p>أذكار المساء ()</p></div><div class="athkar-item navigable grid-item athkar-color-1" tabindex="0"><p>آية الكرسي</p><span class="repetition">(مرة واحدة)</span></div><div class="athkar-item navigable grid-item athkar-color-2" tabindex="0"><p>اللهم أعني على ذكرك وشكرك وحسن عبادتك.</p></div><div class="athkar-item navigable grid-item athkar-color-3" tabindex="0"><p>المعوذات: سورة الإخلاص، سورة الفلق، سورة الناس</p><span class="repetition">(٣ مرات)</span></div><div class="athkar-item navigable grid-item athkar-color-4" tabindex="0"><p>حسبي الله لا إله إلا هو عليه توكلت وهو رب العرش العظيم</p><span class="repetition">(٧ مرات)</span></div><div class="athkar-item navigable grid-item athkar-color-5" tabindex="0"><p>اللهم بك أمسينا، وبك أصبحنا، وبك نحيا، وبك نموت، وإليك المصير.</p></div><div class="athkar-item navigable grid-item athkar-color-1" tabindex="0"><p>بسم الله الذي لا يضر مع اسمه شيء في الأرض ولا في السماء وهو السميع العليم</p><span class="repetition">(٣ مرات)</span></div><div class="athkar-item navigable grid-item athkar-color-2" tabindex="0"><p>يا حي يا قيوم برحمتك أستغيث، أصلح لي شأني كله ولا تكلني إلى نفسي طرفة عين.</p></div><div class="athkar-item navigable grid-item athkar-color-3" tabindex="0"><p>اللهم ما أمسى بي من نعمة أو بأحد من خلقك فمنك وحدك لا شريك لك، فلك الحمد ولك الشكر.</p></div><div class="athkar-item navigable grid-item athkar-color-4 col-span-2" tabindex="0"><p>سيد الاستغغار: اللهم أنت ربي لا إله إلا أنت، خلقتني وأنا عبدك، وأنا على عهدك ووعدك ما استطعت، أعوذ بك من شر ما صنعت، أبوء لك بنعمتك علي، وأبوء بذنبي فاغفر لي، فإنه لا يغفر الذنوب إلا أنت.</p></div><div class="athkar-item navigable grid-item athkar-color-5 col-span-4" tabindex="0"><p>اللهم إني أسألك العفو والعافية في الدنيا والآخرة، اللهم إني أسألك العفو والعافية في ديني ودنياي وأهلي ومالي، اللهم استر عوراتي وآمن روعاتي، اللهم احفظني من بين يدي ومن خلفي وعن يميني وعن شمالي ومن فوقي، وأعوذ بعظمتك أن أغتال من تحتي.</p></div><div class="athkar-item navigable grid-item athkar-color-1 col-span-4" tabindex="0"><p>أمسينا وأمسى الملك لله، والحمد لله، لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير. رب أسألك خير ما في هذه الليلة وخير ما بعدها، وأعوذ بك من شر ما في هذه الليلة وشر ما بعدها، رب أعوذ بك من الكسل وسوء الكبر، رب أعوذ بك من عذاب في النار وعذاب في القبر.</p></div></div>
+                        <!-- NEW: Monthly Reminders Panel -->
+                        <div id="athkar-monthly-content" class="tab-content athkar-grid-monthly hidden">
+                            <div class="athkar-item navigable grid-item header col-span-5" tabindex="0"><p>تذكيرات وأعمال شهرية</p></div>
+                            <div class="athkar-item navigable grid-item athkar-color-1" tabindex="0"><p>الصدقة الشهرية</p></div>
+                            <div class="athkar-item navigable grid-item athkar-color-2" tabindex="0"><p>صيام الأيام البيض</p><span class="repetition">(١٣، ١٤، ١٥)</span></div>
+                            <div class="athkar-item navigable grid-item athkar-color-3" tabindex="0"><p>قراءة سورة الكهف</p><span class="repetition">(كل جمعة)</span></div>
+                            <div class="athkar-item navigable grid-item athkar-color-4" tabindex="0"><p>صلة الرحم</p></div>
+                            <div class="athkar-item navigable grid-item athkar-color-5" tabindex="0"><p> حفظ القرأن </p></div>
+                            <div class="athkar-item navigable grid-item athkar-color-1 col-span-2" tabindex="0"><p>جلسة محاسبة للنفس</p></div>
+                            <div class="athkar-item navigable grid-item athkar-color-2" tabindex="0"><p>التخطيط للشهر الجديد</p></div>
+                            <div class="athkar-item navigable grid-item athkar-color-3 col-span-2" tabindex="0"><p>تعلم مسألة فقهية جديدة</p></div>
+                        </div>
+                    </div>
+                </section>
+
                 <!-- Reciters Screen -->
                 <section id="screen-Reciters" class="app-screen items-center justify-center h-full w-full p-4 md:p-6">
                    <iframe class="full-iframe" title="Quran Reciters" style="zoom: 0.78;" src="https://quran.com/reciters" allow="geolocation"></iframe>
@@ -2018,6 +2129,9 @@ div#bottom-left-controls {
                 </button>
                  <button data-app="Radio" class="app-icon navigable grid-item" tabindex="0">
                     <i data-lucide="radio"></i>
+                </button>
+                <button data-app="Athkar" class="app-icon navigable grid-item" tabindex="0">
+                    <i data-lucide="book-heart"></i>
                 </button>
                 <button data-app="Reciters" class="app-icon navigable grid-item" tabindex="0"> 
                     <i data-lucide="users"></i> 
@@ -2367,7 +2481,7 @@ const JSONBIN_ACCESS_KEY = '$2a$10$J8o3WrPtnqmKAd///uDw6.BOWnGIBekHFOImbeEZZwsJ/
         }
 
         // --- App Switching and Navigation Logic ---
-        const appOrder = ['Dashboard', 'Media', 'Radio', 'Reciters', 'Weather', 'Map', 'Quran'];
+        const appOrder = ['Dashboard', 'Media', 'Radio', 'Athkar', 'Reciters', 'Weather', 'Map', 'Quran'];
         let currentAppIndex = 0;
 
         function switchApp(appName) {
@@ -4679,7 +4793,48 @@ async function renderDailyReminders(states) { // We added 'async' and 'states' h
             renderDailyReminders(); // الاستدعاء الأول
             setInterval(renderDailyReminders, 60000); // تحديث كل 60 ثانية
         });
+
+        // --- Athkar App Logic ---
+        const tabSabah = document.getElementById('tab-sabah');
+        const tabMasaa = document.getElementById('tab-masaa');
+        const athkarSabahContent = document.getElementById('athkar-sabah-content');
+        const athkarMasaaContent = document.getElementById('athkar-masaa-content');
+        const tabMonthly = document.getElementById('tab-monthly');
+        const athkarMonthlyContent = document.getElementById('athkar-monthly-content');
+
+        if (tabSabah && tabMasaa && athkarSabahContent && athkarMasaaContent && tabMonthly && athkarMonthlyContent) {
+            tabSabah.addEventListener('click', () => {
+                tabSabah.classList.add('active');
+                tabMasaa.classList.remove('active');
+                tabMonthly.classList.remove('active');
+                athkarSabahContent.classList.remove('hidden');
+                athkarMasaaContent.classList.add('hidden');
+                athkarMonthlyContent.classList.add('hidden');
+                setFocus(tabSabah); // Keep focus on the active tab
+            });
+
+            tabMasaa.addEventListener('click', () => {
+                tabMasaa.classList.add('active');
+                tabSabah.classList.remove('active');
+                tabMonthly.classList.remove('active');
+                athkarMasaaContent.classList.remove('hidden');
+                athkarSabahContent.classList.add('hidden');
+                athkarMonthlyContent.classList.add('hidden');
+                setFocus(tabMasaa); // Keep focus on the active tab
+            });
+
+            tabMonthly.addEventListener('click', () => {
+                tabMonthly.classList.add('active');
+                tabSabah.classList.remove('active');
+                tabMasaa.classList.remove('active');
+                athkarMonthlyContent.classList.remove('hidden');
+                athkarSabahContent.classList.add('hidden');
+                athkarMasaaContent.classList.add('hidden');
+                setFocus(tabMonthly);
+            });
+        }
     </script>
 </body> 
 </html>
+
 
