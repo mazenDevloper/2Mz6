@@ -3883,8 +3883,8 @@ const JSONBIN_ACCESS_KEY = '$2a$10$J8o3WrPtnqmKAd///uDw6.BOWnGIBekHFOImbeEZZwsJ/
                 ruqyahButton.innerHTML = `<i data-lucide="shield-check" class="w-6 h-6"></i><span>الرقية الشرعية</span>`;
                 ruqyahButton.tabIndex = 0;
                 ruqyahButton.addEventListener('click', () => {
-                  
-                    setTimeout(() => searchYouTubeVideos('الرقية الشرعية النفيس'), 100);
+                setTimeout(() => searchYouTubeVideos('الرقية الشرعية النفيس'), 100);
+                switchApp('Media');
                 });
                 
                 // Adhkar Button
@@ -3894,8 +3894,8 @@ const JSONBIN_ACCESS_KEY = '$2a$10$J8o3WrPtnqmKAd///uDw6.BOWnGIBekHFOImbeEZZwsJ/
                 adhkarButton.innerHTML = `<i data-lucide="sunrise" class="w-6 h-6"></i><span>الأذكار</span>`;
                 adhkarButton.tabIndex = 0;
                 adhkarButton.addEventListener('click', () => {
-                    switchApp('Media');
                     setTimeout(() => searchYouTubeVideos('أذكار الصباح والمساء'), 100);
+                     switchApp('Media');
                 });
                 
                 // Add buttons to their container, then add the container to the main prayer times area
