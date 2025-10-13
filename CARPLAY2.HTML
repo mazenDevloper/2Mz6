@@ -2383,17 +2383,19 @@ async function displayLastWatchedVideo() {
             <h2 class="text-xl font-bold mb-3 text-white/90 text-center">متابعة المشاهدة</h2>
             <div class="last-watched-carousel-wrapper">
                  <div class="last-watched-slides-container">
-                    ${viewAllCardHTML}
-                    ${slidesHTML}
+                   
                      <div class="last-watched-slide">
                 <div class="glass-surface glass-surface--svg p-3 rounded-2xl w-full h-full flex flex-col items-center justify-center text-center cursor-pointer navigable grid-item" id="view-all-history-card">
                     <div class="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mb-3">
                         <i data-lucide="history" class="w-8 h-8 text-white"></i>
                     </div>
                     <h3 class="font-bold text-lg">عرض الكل</h3>
-                    <p class="text-sm text-white/70">مشاهدة كل السجل</p>
+                    <p class="text-sm text-white/70">مشاهدة  </p>
                 </div>
             </div>
+             ${slidesHTML}
+             ${viewAllCardHTML}
+                   
                 </div>
                 <button id="last-watched-prev" class="carousel-nav-button prev navigable grid-item" tabindex="0"><i data-lucide="chevron-left" class="w-8 h-8"></i></button>
                 <button id="last-watched-next" class="carousel-nav-button next navigable grid-item" tabindex="0"><i data-lucide="chevron-right" class="w-8 h-8"></i></button>
