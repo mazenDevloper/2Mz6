@@ -1064,12 +1064,11 @@ div#youtube-readers-section {
 section#screen-Media {
     height: 101%!important;
     padding: 0px!important;
+    overflow-y: auto;
 }
 
-        /* Styles for 360 Camera View */
-        .car-cam-360-container {
-            width: 100%;
-            height: 100%;
+div#youtube-readers-section {
+    height: 100%;
             background-color: rgba(0, 0, 0, 0.5);
             border-radius: 1.5rem;
             display: flex;
@@ -2022,7 +2021,7 @@ div#bottom-left-controls {
                         <span>العودة إلى البحث</span>
                     </button>
 
-                    <div class="w-full flex flex-col gap-4 h-full">
+                    <div class="w-full flex flex-col gap-4">
                         <!-- Search Row -->
                         <div class="w-full flex flex-row items-center gap-2 grid-container flex-shrink-0">
                             <button id="youtube-search-button" class="bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center navigable grid-item" tabindex="0">
@@ -2034,12 +2033,12 @@ div#bottom-left-controls {
                             <input type="text" id="youtube-search-input" placeholder="ابحث في يوتيوب..." class="flex-grow p-3 rounded-full bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 navigable grid-item" tabindex="0" readonly="true" />
                         </div>
                         
-                        <div id="youtube-suggestions" class="w-full h-full flex-grow overflow-y-auto flex flex-col">
+                        <div id="youtube-suggestions" class="w-full flex-grow flex flex-col">
     
     <div id="last-watched-container" class="hidden">
         </div>
 
-    <div id="suggestions-content" class="flex flex-col gap-4 w-full h-full">
+    <div id="suggestions-content" class="flex flex-col gap-4 w-full">
         </div>
 
 </div>
@@ -2384,9 +2383,18 @@ async function displayLastWatchedVideo() {
             <h2 class="text-xl font-bold mb-3 text-white/90 text-center">متابعة المشاهدة</h2>
             <div class="last-watched-carousel-wrapper">
                  <div class="last-watched-slides-container">
-                    ${viewAllCardHTML}
-                    ${slidesHTML}
-                    ${viewAllCardHTML}
+                   
+                     <div class="last-watched-slide">
+                <div class="glass-surface glass-surface--svg p-3 rounded-2xl w-full h-full flex flex-col items-center justify-center text-center cursor-pointer navigable grid-item" id="istory-card">
+                    <div class="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mb-3">
+                       
+                    </div>
+                  
+                </div>
+            </div>
+             ${slidesHTML}
+             ${viewAllCardHTML}
+                   
                 </div>
                 <button id="last-watched-prev" class="carousel-nav-button prev navigable grid-item" tabindex="0"><i data-lucide="chevron-left" class="w-8 h-8"></i></button>
                 <button id="last-watched-next" class="carousel-nav-button next navigable grid-item" tabindex="0"><i data-lucide="chevron-right" class="w-8 h-8"></i></button>
@@ -3225,7 +3233,7 @@ let favoritesM = [];
             const suggestionsContent = document.getElementById('suggestions-content');
             if (!suggestionsContent) return;
             suggestionsContent.innerHTML = '';
-            suggestionsContent.className = 'flex flex-col gap-4 w-full h-full'; 
+            suggestionsContent.className = 'flex flex-col gap-4 w-full'; 
 
             // 1. Create Tab Structure
             const tabContainer = document.createElement('div');
@@ -3453,6 +3461,7 @@ let favoritesM = [];
                 tarteelContent.classList.add('hidden');
                 toolsContent.classList.add('hidden');
                 savedContent.classList.add('hidden');
+                displayLastWatchedVideo();
                 const firstItem = recitersContent.querySelector('.grid-item');
                 if (firstItem) setFocus(firstItem);
             });
@@ -3468,6 +3477,7 @@ let favoritesM = [];
                 tarteelContent.classList.add('hidden');
                 toolsContent.classList.add('hidden');
                 savedContent.classList.add('hidden');
+                displayLastWatchedVideo();
                 const firstItem = channContent.querySelector('.grid-item');
                 if (firstItem) setFocus(firstItem);
             });
@@ -3483,6 +3493,7 @@ let favoritesM = [];
                 tarteelContent.classList.add('hidden');
                 toolsContent.classList.remove('hidden');
                 savedContent.classList.add('hidden');
+                displayLastWatchedVideo();
                 const firstItem = toolsContent.querySelector('.grid-item');
                 if (firstItem) setFocus(firstItem);
             });
@@ -3500,6 +3511,7 @@ let favoritesM = [];
                 toolsContent.classList.add('hidden');
                 savedContent.classList.remove('hidden');
 
+                document.getElementById('last-watched-container').classList.add('hidden');
                 loadSavedVideos(); // Load the videos when tab is clicked
                 
                 // --- NEW: Inner tab logic for saved videos ---
@@ -5302,4 +5314,3 @@ async function renderDailyReminders(states) { // We added 'async' and 'states' h
     </script>
 </body> 
 </html>
-
