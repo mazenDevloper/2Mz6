@@ -238,9 +238,7 @@ div#geolocation-error-overlay {
 button#back-to-search-floating-button {
     Z-INDEX: 99999;
 }
-button#back-to-playlists-bottom-button-search {
-    DISPLAY: NONE ! IMPORTANT;
-}
+
 .search-results-nav {
     width: 50%;
     justify-self: center;
@@ -2386,6 +2384,7 @@ async function displayLastWatchedVideo() {
             <h2 class="text-xl font-bold mb-3 text-white/90 text-center">متابعة المشاهدة</h2>
             <div class="last-watched-carousel-wrapper">
                  <div class="last-watched-slides-container">
+                    ${viewAllCardHTML}
                     ${slidesHTML}
                     ${viewAllCardHTML}
                 </div>
@@ -2393,6 +2392,8 @@ async function displayLastWatchedVideo() {
                 <button id="last-watched-next" class="carousel-nav-button next navigable grid-item" tabindex="0"><i data-lucide="chevron-right" class="w-8 h-8"></i></button>
             </div>
         `;
+
+        
 
         lastWatchedContainer.classList.remove('hidden');
         lucide.createIcons();
@@ -5301,3 +5302,4 @@ async function renderDailyReminders(states) { // We added 'async' and 'states' h
     </script>
 </body> 
 </html>
+
