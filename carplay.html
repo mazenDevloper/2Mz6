@@ -2625,11 +2625,57 @@ let favoritesM = [];
             return JSON.parse(localStorage.getItem('youtubeWatchedHistory')) || {};
         }
 
-        function updateVideoProgress(videoId, currentTime, duration) {
-            if (!videoId || !duration) return;
+        async function updateVideoProgress(videoId, currentTime, duration) {
+            if (!videoId || !duration || !isFinite(currentTime) || !isFinite(duration)) return;
+        
+            // 1. Update local history (localStorage)
             const history = getWatchedHistory();
             history[videoId] = { progress: currentTime, duration: duration, lastWatchedTimestamp: Date.now() };
             localStorage.setItem('youtubeWatchedHistory', JSON.stringify(history));
+        
+            // 2. Check and update favorites in JSONBin.io
+            const favDIndex = favoritesD.findIndex(fav => fav.id === videoId);
+            const favMIndex = favoritesM.findIndex(fav => fav.id === videoId);
+        
+            // If the video is not in any favorites list, we don't need to proceed further.
+            if (favDIndex === -1 && favMIndex === -1) {
+                return;
+            }
+        
+            const updatePromises = [];
+        
+            if (favDIndex > -1) {
+                // To ensure state changes are handled correctly, create a new array using .map
+                const updatedFavoritesD = favoritesD.map((fav, index) => {
+                    if (index === favDIndex) {
+                        // Return a new object with the updated progress
+                        return { ...fav, progress: currentTime };
+                    }
+                    return fav; // Return the original object if it's not the one we're updating
+                });
+                favoritesD = updatedFavoritesD; // Re-assign the global variable to the newly created array
+                updatePromises.push(updateFavorites('D', favoritesD));
+            }
+        
+            if (favMIndex > -1) {
+                // Repeat the same immutable update pattern for the 'M' list
+                const updatedFavoritesM = favoritesM.map((fav, index) => {
+                    if (index === favMIndex) {
+                        return { ...fav, progress: currentTime };
+                    }
+                    return fav;
+                });
+                favoritesM = updatedFavoritesM; // Re-assign the global variable
+                updatePromises.push(updateFavorites('M', favoritesM));
+            }
+            
+            if (updatePromises.length > 0) {
+                try {
+                    await Promise.all(updatePromises);
+                } catch (error) {
+                    console.error(`Failed to update favorite progress for video ${videoId}:`, error);
+                }
+            }
         }
 
         function markVideoAsWatched(videoId) {
@@ -2929,24 +2975,43 @@ let favoritesM = [];
             setTimeout(() => setFocus(videoPopupCloseButton), 100);
         }
 
-        function hideVideoPopup() {
-            if (progressInterval) clearInterval(progressInterval); // Stop tracking progress
+        async function hideVideoPopup() {
+            if (progressInterval) clearInterval(progressInterval);
+
+            // 1. Get all necessary data from the player BEFORE destroying it
+            let videoId, currentTime, duration;
+            if (popupPlayer && typeof popupPlayer.getCurrentTime === 'function' && popupPlayer.getVideoData) {
+                const videoData = popupPlayer.getVideoData();
+                videoId = videoData ? videoData.video_id : null;
+                currentTime = popupPlayer.getCurrentTime();
+                duration = popupPlayer.getDuration();
+            }
+
+            // 2. Destroy the player immediately
+            if (popupPlayer) {
+                popupPlayer.destroy();
+                popupPlayer = null;
+            }
+
+            // 3. NOW, update the progress using the stored data
+            if (videoId) {
+                await updateVideoProgress(videoId, currentTime, duration);
+            }
             
-            // UPDATED: Resume background animations and update control button icon
+            // 4. Handle all other UI updates
             document.body.classList.remove('animation-paused');
             const playIcon = pauseAnimationButton.querySelector('[data-lucide="play"]');
             const pauseIcon = pauseAnimationButton.querySelector('[data-lucide="pause"]');
             if (playIcon && pauseIcon) {
                 playIcon.classList.add('hidden');
-                pauseIcon.classList.remove('hidden'); // Show pause icon (indicating animations are playing)
+                pauseIcon.classList.remove('hidden');
             }
-
-            if (popupPlayer?.stopVideo) popupPlayer.stopVideo();
+            
             videoPopupContainer.classList.remove('active');
-            videoPopupContainer.style.display = 'none'; // Also hide with style
-            // Ensure the minimized button is also hidden when fully closing
+            videoPopupContainer.style.display = 'none';
             floatingMinimizedVideoButton.style.display = 'none';
             appState.isVideoPlayerMinimized = false;
+            
             const screen = document.querySelector('.app-screen.active');
             if (screen) {
                 const item = screen.querySelector('.grid-item');
@@ -5402,4 +5467,6 @@ async function renderDailyReminders(states) { // We added 'async' and 'states' h
     </script>
 </body> 
 </html>
+
+
 
