@@ -14,7 +14,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <title>تطبيق الطقس - واجهة CarPlay</title>
+    <title>CarPlay</title>
     <!-- Tailwind CSS CDN for utility classes -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons for modern, customizable SVG icons -->
@@ -3963,7 +3963,9 @@ let favoritesM = [];
                      <button class="remove-favorite-button" title="إزالة من المفضلة"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
                 </div>
             `;
-            card.addEventListener('click', () => showVideoPopup(video.id, video.progress || 0));
+            // Ensure the progress value is treated as a number and passed to the video player
+            const startProgress = parseFloat(video.progress || 0);
+            card.addEventListener('click', () => showVideoPopup(video.id, startProgress));
             card.querySelector('.remove-favorite-button').addEventListener('click', (e) => {
                 e.stopPropagation();
                 removeVideoFromFavorites(video.id, type);
@@ -5400,3 +5402,4 @@ async function renderDailyReminders(states) { // We added 'async' and 'states' h
     </script>
 </body> 
 </html>
+
