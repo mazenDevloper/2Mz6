@@ -49,9 +49,6 @@ div#add-channel-prompt-content {
     height: 37px!important;
     border-radius: 70px!important;
 }
-.flex.items-center.justify-between.w-full.gap-2 {
-    direction: rtl;
-}
 .video-meta>div {justify-content: right;font-size:1.3rem;}
 .video-meta>span {justify-content: right;font-size:1.2rem;}
 
@@ -304,6 +301,9 @@ button#tab-tarteel {
     display: none;
 }
 
+.flex.items-center.justify-between.w-full.gap-2 {
+    direction: rtl;
+}
         body.animation-paused {
             animation-play-state: paused !important;
         }
@@ -2859,7 +2859,8 @@ let favoritesM = [];
                                <span class="hover:underline truncate">${video.channelTitle}</span>
                             </div>
                             <button class="add-channel-from-search-btn p-1 rounded-full hover:bg-white/20 transition-colors flex-shrink-0 navigable grid-item" data-channel-id="${video.channelId}" data-channel-title="${video.channelTitle}" data-channel-thumbnail="${video.channelThumbnail || ''}" title="إضافة القناة للقائمة" tabindex="0">
-                                <i data-lucide="plus-circle" class="w-5 h-5 text-green-400"></i>
+                                <i data-lucide="plus-circle" class="w-5 h-5 text-green-400">إضافة القناة للقائمة</i>
+                            <span class="hover:underline truncate">القناة اضافة</span>
                             </button>
                         </div>
                         <span class="text-xs text-white/60">${video.viewCount} مشاهدة • ${video.publishedAt}</span>
