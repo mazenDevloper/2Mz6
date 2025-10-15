@@ -41,10 +41,17 @@
     padding-bottom: 1rem;
     margin-bottom: 1rem;
 }
-.video-meta>.flex.items-center.gap-2.cursor-pointer.channel-link>img {
+.video-meta>div>div>img {
     width: 37px!important;
     height: 37px!important;
     border-radius: 70px!important;
+}
+.video-meta>div {justify-content: right;font-size:1.3rem;}
+.video-meta>span {justify-content: right;font-size:1.2rem;}
+
+h3.video-title {
+    text-align-last: right;
+    font-size:1.3rem;
 }
 .last-watched-carousel-wrapper {
     position: relative;
@@ -3163,6 +3170,32 @@ let favoritesM = [];
                 }
             }
         }
+
+        async function removeChannelFromList(channelId, channelName) {
+            if (!channelId) return;
+
+            // This function directly removes the channel. A confirmation modal would be a good addition later.
+            try {
+                const updatedList = localChannelsCache.filter(c => c.channelid !== channelId);
+                const success = await updateChannelsList(updatedList);
+                
+                if (success) {
+                    showMessageBox(`تمت إزالة قناة "${channelName}" بنجاح.`);
+                    // Refresh the entire suggestions view to reflect the deletion
+                    const suggestionsContent = document.getElementById('suggestions-content');
+                    if(suggestionsContent) {
+                       suggestionsContent.innerHTML = '';
+                       await populateYoutubeSuggestions(); // await to ensure it completes
+                       // After refresh, focus might be lost, so let's refocus on the tab
+                       const activeTab = document.querySelector('#screen-Media .tab-button.active');
+                       if(activeTab) setFocus(activeTab);
+                    }
+                }
+            } catch (error) {
+                console.error("Error removing channel from list:", error);
+                showMessageBox("حدث خطأ أثناء إزالة القناة.");
+            }
+        }
         // --- END: NEW Channel List Functions ---
         
         async function searchYouTubeVideos(query) {
@@ -3817,27 +3850,28 @@ let favoritesM = [];
             const channelIdsToFetch = channList.filter(r => r.channelid).map(r => r.channelid);
             const channelThumbnails = channelIdsToFetch.length > 0 ? await fetchChannelsDetails(channelIdsToFetch) : {};
 
-             // NEW: Add "Add Channel" button to the Channels tab at the beginning
-            const addChannelCard = document.createElement('div');
-            addChannelCard.className = 'youtube-reader-card navigable grid-item';
-            addChannelCard.tabIndex = 0;
-            addChannelCard.innerHTML = `<h3>إضافة قناة</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-dashed border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="plus" class="w-12 h-12 text-white/50"></i></div>`;
-            addChannelCard.addEventListener('click', showAddChannelPrompt);
-            channButtonsContainer.appendChild(addChannelCard);
-
-
+            
             channList.forEach(reader => {
                 const card = document.createElement('div');
-                card.className = 'youtube-reader-card navigable grid-item';
+                card.className = 'youtube-reader-card navigable grid-item relative group'; // Added relative and group for hover effect
                 card.tabIndex = 0;
                 
                 const imageUrl = reader.channelid 
                     ? (channelThumbnails[reader.channelid] || 'https://placehold.co/100x100/334155/ffffff?text=?') 
                     : (reader.image || 'https://placehold.co/100x100/334155/ffffff?text=?');
 
-                card.innerHTML = `<h3>${reader.name}</h3><img src="${imageUrl}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';">`;
+                card.innerHTML = `
+                    <button class="delete-channel-btn absolute bottom-2 right-2 p-1.5 bg-red-600/80 hover:bg-red-500 rounded-full transition-colors z-10 navigable grid-item" title="حذف القناة" tabindex="0">
+                        <i data-lucide="trash-2" class="w-4 h-4 text-white pointer-events-none"></i>
+                    </button>
+                    <h3>${reader.name}</h3>
+                    <img src="${imageUrl}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';">
+                `;
                 
-                card.addEventListener('click', () => {
+                card.addEventListener('click', (e) => {
+                    // Prevent card click if delete button is the target
+                    if (e.target.closest('.delete-channel-btn')) return;
+
                     if (reader.channelid && reader.channeltitle) {
                         searchVideosByChannel(reader.channelid, reader.channeltitle);
                     } else if (reader.name === 'ربط الآيات') {
@@ -3848,8 +3882,26 @@ let favoritesM = [];
                         searchYouTubeVideos(reader.name);
                     }
                 });
+
+                const deleteBtn = card.querySelector('.delete-channel-btn');
+                deleteBtn?.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    removeChannelFromList(reader.channelid, reader.name);
+                });
+
                 channButtonsContainer.appendChild(card);
             });
+
+ // NEW: Add "Add Channel" button to the Channels tab at the beginning
+            const addChannelCard = document.createElement('div');
+            addChannelCard.className = 'youtube-reader-card navigable grid-item';
+            addChannelCard.tabIndex = 0;
+            addChannelCard.innerHTML = `<h3>إضافة قناة</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-dashed border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="plus" class="w-12 h-12 text-white/50"></i></div>`;
+            addChannelCard.addEventListener('click', showAddChannelPrompt);
+            channButtonsContainer.appendChild(addChannelCard);
+
+
+
 
             // MOVED: Add "السورة" button to the Reciters tab at the end
             const surahCard = document.createElement('div');
@@ -5884,6 +5936,7 @@ async function renderDailyReminders(states) { // We added 'async' and 'states' h
     </script>
 </body> 
 </html>
+
 
 
 
