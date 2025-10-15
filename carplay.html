@@ -41,7 +41,11 @@
     padding-bottom: 1rem;
     margin-bottom: 1rem;
 }
-
+.video-meta>.flex.items-center.gap-2.cursor-pointer.channel-link>img {
+    width: 37px;
+    height: 37px;
+    border-radius: 70px;
+}
 .last-watched-carousel-wrapper {
     position: relative;
     width: 237%;
@@ -788,9 +792,10 @@ div#\33 d-screen-weather-widget {
         .video-meta {
             display: flex;
             flex-direction: column;
-            font-size: 1.2rem;
-            color: #8dffd8;
-            font-weight: bold;
+            gap: 4px; /* Gap between channel line and stats line */
+            font-size: 0.8rem;
+            color: #a7f3d0; /* A minty color, less harsh than cyan */
+            font-weight: 500;
         }
 
         /* NEW: Explicit scrollbar for search results */
@@ -2575,28 +2580,34 @@ let favoritesM = [];
                 if (allVideoDetails.length > 0) {
                     searchResultsContainer.innerHTML = '<h2 class="text-3xl font-bold mb-4 text-center w-full text-white col-span-full">سجل المشاهدة</h2>'; // Add a title
                     
-                    // Sort details according to original sorted videoIds
-                    const sortedDetails = allVideoDetails.sort((a, b) => {
-                        const aTimestamp = history[a.id]?.lastWatchedTimestamp || 0;
-                        const bTimestamp = history[b.id]?.lastWatchedTimestamp || 0;
-                        return bTimestamp - aTimestamp;
-                    });
-                    
-                    sortedDetails.forEach(video => {
-                        const videoData = {
-                            id: video.id,
-                            title: video.snippet.title,
-                            thumbnail: video.snippet.thumbnails.medium.url,
-                            channelTitle: video.snippet.channelTitle,
-                            viewCount: formatViewCount(video.statistics.viewCount),
-                            publishedAt: formatTimeAgo(video.snippet.publishedAt),
-                            duration: formatDuration(video.contentDetails.duration)
-                        };
-                        searchResultsContainer.appendChild(createVideoCard(videoData));
-                    });
+                    // NEW: Fetch channel thumbnails for all videos
+                    const channelIds = [...new Set(allVideoDetails.map(video => video.snippet.channelId))];
+                    const channelThumbnails = await fetchChannelsDetails(channelIds);
 
-                    youtubeSuggestionsDiv.style.display = 'none';
-                    youtubeVideoListView.classList.add('hidden');
+                    // Sort details according to original sorted videoIds
+                const sortedDetails = allVideoDetails.sort((a, b) => {
+                    const aTimestamp = history[a.id]?.lastWatchedTimestamp || 0;
+                    const bTimestamp = history[b.id]?.lastWatchedTimestamp || 0;
+                    return bTimestamp - aTimestamp;
+                });
+                
+                sortedDetails.forEach(video => {
+                    const videoData = {
+                        id: video.id,
+                        title: video.snippet.title,
+                        thumbnail: video.snippet.thumbnails.medium.url,
+                        channelTitle: video.snippet.channelTitle,
+                        channelId: video.snippet.channelId,
+                        channelThumbnail: channelThumbnails[video.snippet.channelId], // Add thumbnail
+                        viewCount: formatViewCount(video.statistics.viewCount),
+                        publishedAt: formatTimeAgo(video.snippet.publishedAt),
+                        duration: formatDuration(video.contentDetails.duration)
+                    };
+                    searchResultsContainer.appendChild(createVideoCard(videoData));
+                });
+
+                youtubeSuggestionsDiv.style.display = 'none';
+                youtubeVideoListView.classList.add('hidden');
                     youtubeSearchResultsView.classList.remove('hidden');
                     activeMediaView = 'searchResults'; // Reuse this view
                     backToPlaylistsBottomButton.style.display = 'none';
@@ -2823,8 +2834,11 @@ let favoritesM = [];
                 <div class="video-details">
                     <h3 class="video-title">${video.title}</h3>
                     <div class="video-meta">
-                        <span>${video.channelTitle}</span>
-                        <span>${video.viewCount} مشاهدة • ${video.publishedAt}</span>
+                        <div class="flex items-center gap-2 cursor-pointer channel-link" data-channel-id="${video.channelId}" data-channel-title="${video.channelTitle}">
+                           <img src="${video.channelThumbnail || 'https://placehold.co/24x24/334155/ffffff?text=?'}" alt="${video.channelTitle}" class="w-6 h-6 rounded-md object-cover flex-shrink-0">
+                           <span class="hover:underline truncate">${video.channelTitle}</span>
+                        </div>
+                        <span class="text-xs text-white/60">${video.viewCount} مشاهدة • ${video.publishedAt}</span>
                     </div>
                 </div>
                 <div class="thumbnail-container relative">
@@ -2839,13 +2853,59 @@ let favoritesM = [];
                 e.stopPropagation(); // Prevent card click event from firing
                 showFavoritesMenu(e.currentTarget, video);
             });
+
+            const channelLink = card.querySelector('.channel-link');
+            if (channelLink) {
+                channelLink.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const channelId = e.currentTarget.dataset.channelId;
+                    const channelTitle = e.currentTarget.dataset.channelTitle;
+                    if(channelId && channelTitle) {
+                        searchVideosByChannel(channelId, channelTitle);
+                    }
+                });
+            }
             return card;
         }
 
         async function fetchVideosDetails(videoIds) {
-            const response = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${videoIds.join(',')}&key=${YOUTUBE_API_KEY}`);
-            const data = await response.json();
-            return data.items;
+            if (!videoIds || videoIds.length === 0) return [];
+            try {
+                const response = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${videoIds.join(',')}&key=${YOUTUBE_API_KEY}`);
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    console.error("YouTube API error (videos):", errorData?.error?.message || response.status);
+                    return null; // Indicate failure
+                }
+                const data = await response.json();
+                return data.items;
+            } catch (error) {
+                console.error("Network error in fetchVideosDetails:", error);
+                return null; // Indicate failure
+            }
+        }
+
+        async function fetchChannelsDetails(channelIds) {
+            if (!channelIds || channelIds.length === 0) return {};
+            const uniqueIds = [...new Set(channelIds)];
+            try {
+                const response = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${uniqueIds.join(',')}&key=${YOUTUBE_API_KEY}`);
+                if (!response.ok) {
+                    console.error("YouTube API error (channels):", response.status);
+                    return {};
+                }
+                const data = await response.json();
+                const channelMap = {};
+                if (data.items) {
+                    data.items.forEach(channel => {
+                        channelMap[channel.id] = channel.snippet.thumbnails.default.url;
+                    });
+                }
+                return channelMap;
+            } catch (error) {
+                console.error("Network error in fetchChannelsDetails:", error);
+                return {};
+            }
         }
 
         function formatDuration(isoDuration) {
@@ -2884,14 +2944,26 @@ let favoritesM = [];
         }
         
         async function searchYouTubeVideos(query) {
-            if (YOUTUBE_API_KEY.startsWith('YOUR_')) return showMessageBox('خطأ: لم يتم تعيين مفتاح YouTube API.');
             try {
                 const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&key=${YOUTUBE_API_KEY}&maxResults=50`);
+                if (!res.ok) {
+                    const errorData = await res.json().catch(() => ({}));
+                    console.error("YouTube API error (search):", errorData?.error?.message || res.status);
+                    throw new Error("API search request failed.");
+                }
                 const data = await res.json();
                 if (data.items && data.items.length > 0) {
                     const videoIds = data.items.map(item => item.id.videoId);
                     const videoDetails = await fetchVideosDetails(videoIds);
+
+                    if (videoDetails === null) {
+                        throw new Error("Failed to fetch details for search results.");
+                    }
                     
+                    // NEW: Fetch channel thumbnails
+                    const channelIds = [...new Set(videoDetails.map(video => video.snippet.channelId))];
+                    const channelThumbnails = await fetchChannelsDetails(channelIds);
+
                     lastSuccessfulSearchQuery = query; // NEW: Save the last successful query
                     searchResultsContainer.innerHTML = '';
                     videoDetails.forEach(video => {
@@ -2904,6 +2976,7 @@ let favoritesM = [];
                             thumbnail: video.snippet.thumbnails.medium.url,
                             channelTitle: video.snippet.channelTitle,
                             channelId: video.snippet.channelId,
+                            channelThumbnail: channelThumbnails[video.snippet.channelId],
                             viewCount: formatViewCount(video.statistics.viewCount),
                             publishedAt: formatTimeAgo(video.snippet.publishedAt),
                             duration: formatDuration(video.contentDetails.duration)
@@ -2926,7 +2999,87 @@ let favoritesM = [];
                 }
             } catch (err) {
                 console.error('Error searching YouTube videos:', err);
-                showMessageBox('حدث خطأ أثناء البحث في يوتيوب.');
+                showMessageBox('حدث خطأ أثناء البحث في يوتيوب. قد تكون هناك مشكلة في الاتصال أو مفتاح API.');
+            }
+        }
+        
+        async function searchVideosByChannel(channelId, channelTitle) {
+            if (!channelId) return;
+
+            searchResultsContainer.innerHTML = `<h2 class="text-3xl font-bold mb-4 text-center w-full text-white col-span-full">جاري تحميل الفيديوهات من ${channelTitle}...</h2>`;
+            youtubeSuggestionsDiv.style.display = 'none';
+            youtubeVideoListView.classList.add('hidden');
+            youtubeSearchResultsView.classList.remove('hidden');
+            activeMediaView = 'searchResults';
+
+            try {
+                // Step 1: Get the uploads playlist ID from the channel ID
+                const channelRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails,snippet&id=${channelId}&key=${YOUTUBE_API_KEY}`);
+                if (!channelRes.ok) {
+                    throw new Error("Failed to fetch channel details to find uploads playlist.");
+                }
+                const channelData = await channelRes.json();
+                const uploadsPlaylistId = channelData?.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
+                const channelThumbnail = channelData?.items?.[0]?.snippet?.thumbnails?.default?.url;
+
+                if (!uploadsPlaylistId) {
+                    throw new Error("Could not find the uploads playlist for this channel.");
+                }
+
+                // Step 2: Get the video items from the uploads playlist
+                const playlistRes = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${uploadsPlaylistId}&key=${YOUTUBE_API_KEY}&maxResults=50`);
+                 if (!playlistRes.ok) {
+                    throw new Error("Failed to fetch videos from the channel's playlist.");
+                }
+                const playlistData = await playlistRes.json();
+
+                if (playlistData.items && playlistData.items.length > 0) {
+                    const videoIds = playlistData.items.map(item => item.snippet.resourceId.videoId).filter(id => id);
+                    const videoDetails = await fetchVideosDetails(videoIds);
+
+                    if (videoDetails === null) {
+                        throw new Error("Failed to fetch details for channel videos.");
+                    }
+
+                    searchResultsContainer.innerHTML = `<h2 class="text-3xl font-bold mb-4 text-center w-full text-white col-span-full"> فيديوهات من ${channelTitle}</h2>`;
+
+                    videoDetails.forEach(video => {
+                        const durationSeconds = video.contentDetails.duration.match(/\d+/g).map(Number).reduce((acc, time, i, arr) => acc + time * (arr.length === 3 ? [3600, 60, 1][i] : (arr.length === 2 ? [60, 1][i] : 1)), 0);
+                        if (durationSeconds <= 61) return;
+
+                        const videoData = {
+                            id: video.id,
+                            title: video.snippet.title,
+                            thumbnail: video.snippet.thumbnails.medium.url,
+                            channelTitle: video.snippet.channelTitle,
+                            channelId: video.snippet.channelId,
+                            channelThumbnail: channelThumbnail,
+                            viewCount: formatViewCount(video.statistics.viewCount),
+                            publishedAt: formatTimeAgo(video.snippet.publishedAt),
+                            duration: formatDuration(video.contentDetails.duration)
+                        };
+                        searchResultsContainer.appendChild(createVideoCard(videoData));
+                    });
+
+                    lucide.createIcons();
+                    updateNavigableElements();
+                    backToPlaylistsBottomButton.style.display = 'none';
+                    backToPlaylistsBottomButtonSearch.style.display = 'flex';
+                    backToSearchFloatingButton.style.display = 'flex';
+                    previousItemButton.style.display = 'none';
+                    nextItemButton.style.display = 'none';
+
+                    setTimeout(() => {
+                        const firstResult = searchResultsContainer.querySelector('.grid-item');
+                        if (firstResult) setFocus(firstResult);
+                    }, 100);
+
+                } else {
+                    searchResultsContainer.innerHTML = `<h2 class="text-3xl font-bold mb-4 text-center w-full text-white col-span-full">لا توجد فيديوهات في قناة ${channelTitle}</h2>`;
+                }
+            } catch (err) {
+                console.error('Error searching videos by channel:', err);
+                searchResultsContainer.innerHTML = `<h2 class="text-3xl font-bold mb-4 text-center w-full text-white col-span-full text-red-400">حدث خطأ أثناء تحميل فيديوهات القناة. قد تكون هناك مشكلة في الاتصال أو مفتاح API.</h2>`;
             }
         }
         
@@ -3182,14 +3335,19 @@ let favoritesM = [];
 {"name":"محمد ايوب","image":"https://dmusera.netlify.app/512px-Muhammad_Ayyub.webp"},{"name":"علي جابر","image":"https://dmusera.netlify.app/ali-jaber.webp"},{"name":"محمد الغزالي","image":"https://imgs.search.brave.com/QWUpKrFCLEvXilcNhgSRM6xKPjTlBtGA-BAsH9sN-Tc/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9hci5p/c2xhbXdheS5uZXQv/dXBsb2Fkcy9hdXRo/b3JzLzUwNjEuanBn"},{"name":"مشاري العفاسي","image":"https://dmusera.netlify.app/512px-%D0%9C%D0%B8%D1%88%D0%B0%D1%80%D0%B8_%D0%A0%D0%B0%D1%88%D0%B8%D0%B4.webp"},{"name":"عبدالله القرافي","image":"https://yt3.googleusercontent.com/mHTg3RIX-a3NAR22lAnOvSq3-U_KBcL_Ax4FTNirc3flsb5OU8RWksKu6X8Ush9JhO0EOxxAwQY=s160-c-k-c0x00ffffff-no-rj"},{"name":"اسلام صبحي","image":"https://imgs.search.brave.com/Sq4qNywnl1HmDjSuxWTshlQ8yV9fplcVnUoiErGC-38/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS51bml0ZWRtdXNs/aW13b3JsZC5jb20v/aW1nLzIzLzEyLzIz/LzEyNDk1LmpwZw"},{"name":"احمد النفيس","image":"https://dmusera.netlify.app/ahmednafes.jpg"},{"name":"ياسر الدوسري","image":"https://dmusera.netlify.app/Yasser_Al-Dosari.jpg"},
 {"name":"ربط الآيات","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDEzYTUgNSAwIDAgMCA3LjU0LjU0bD MtM2E1IDUgMCAwIDAtNy4wNy03LjA3bC0xLjcyIDEuNzIiLz48cGF0aCBkPSJNMTQgMTFhNSA1IDAgMCAwLTcuNTQtLjU0bC0zIDNhNSA1IDAgMCAwIDcuMDcgNy4wN2wxLjcyLTEuNzIiLz48L3N2Zz4="}, {"name":"ربط الآيات","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDEzYTUgNSAwIDAgMCA3LjU0LjU0bDMtM2E1IDUgMCAwIDAtNy4wNy03LjA3bC0xLjcyIDEuNzIiLz48cGF0aCBkPSJNMTQgMTFhNSA1IDAgMCAwLTcuNTQtLjU0bC0zIDNhNSA1IDAgMCAwIDcuMDcgNy4wN2wxLjcyLTEuNzIiLz48L3N2Zz4="}
         ];
-        const youtubeReaderSuggestions2 = [             {"name":"الرقية", "image":"https://imgs.search.brave.com/afZfY6pdMu-EfuTtrt2hNKEW9TsUAnPOX2QnIlIFi1c/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/YXJhYnNzdG9jay5j/b20vdXBsb2Fkcy92/ZWN0b3JzLzIzMDQx/L3J1cWF5YS1hbi1h/cmFiaWMtbmFtZS1m/b3ItcHJldmlldy0y/MzA0MS53ZWJw"}, {"name":"محفوف -BYMAHFOOF", "image":"https://yt3.googleusercontent.com/obc8dOfYmoZe50tvHCJNZgbLAnJAKb-YPSUnguahWqJ-Jm12At_lV8CjfPPuhAsM9i2K26QK=s160-c-k-c0x00ffffff-no-rj"},{"name":"مزامير الفرقان - ياسر الدوسري","image":"https://yt3.googleusercontent.com/ATOVX4RIsbt20_VS0Ly0bNkm5NPCoseg-S28jEEFsMBhHxBRUGXWW1dFOSuKG5p1_Sx8C8fMqFs=s160-c-k-c0x00ffffff-no-rj"},{"name":"عبدالله الشحري","image":"https://yt3.ggpht.com/KZblM_WDIfUaDyB0wmNZOfVDogOhHThprmFyzLL3AkvnLcKqFmhoJ00nsKHKCXizM94hGy1DSdo=s176-c-k-c0x00ffffff-no-rj-mo"},
-           {"name":"ترتيل-@TarteelArabic","image":"https://yt3.googleusercontent.com/pUYEmNtUgk7zmyKXVwzTyYCfli0AavVRgAomZITpyh3i6HT0mk35CCJv32Ra79-gKk276qSeYfw=s900-c-k-c0x00ffffff-no-rj"},
-             {"name":"قناة اخضر", "image":"https://yt3.ggpht.com/CNJHtl9UOLJwzpGI6_8meaFK6-nWkaXABqu4cXfx2oZnTZmvYgHANXoOY-IpGlNk2U9I5nbIX9I=s176-c-k-c0x00ffffff-no-rj-mo"},
-            {"name":"اذاعة مختلف", "image":"https://yt3.ggpht.com/73c3-iw_Lubnz8tI6uxN17s1p8kOvwwsF5tatPe3JYAw_SRKeJfjprdH2wxHGPz3UHBM9NDxzs0=s176-c-k-c0x00ffffff-no-rj-mo"},
-            {"name":"Qtratel", "image":"https://yt3.googleusercontent.com/4op5oT580d20t3w4i4dWjZmfT1YkVSDok-MVlx-c1--EaYt-wZuw1tebFOc-iQ_XRMfUIO0gYA=s160-c-k-c0x00ffffff-no-rj"},
-             {"name":"Mohamed abubakr", "image":"https://yt3.ggpht.com/yp7xPPh1JotsxKkOMos1KWumw7UFFibydMnoPzhP100gsUGWnDXRTAhdV88gd6coAPkXQ5n1Rw=s176-c-k-c0x00ffffff-no-rj-mo"},
-            {"name":"بودكاست", "image":"https://yt3.googleusercontent.com/0Vs32Zwp0qjXovZuV0kCCxCkKkCdTpAn_9_tky7mxQUM69EIrWK_oJawKy_fKpzL1KZN0LG7=s160-c-k-c0x00ffffff-no-rj"},
-            {"name":"ربط الآيات","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDEzYTUgNSAwIDAgMCA3LjU0LjU0bDMtM2E1IDUgMCAwIDAtNy4wNy03LjA3bC0xLjcyIDEuNzIiLz48cGF0aCBkPSJNMTQgMTFhNSA1IDAgMCAwLTcuNTQtLjU0bC0zIDNhNSA1IDAgMCAwIDcuMDcgNy4wN2wxLjcyLTEuNzIiLz48L3N2Zz4="}
+          const youtubeReaderSuggestions2 = [
+            {"name":"الرقية", "image":"https://imgs.search.brave.com/afZfY6pdMu-EfuTtrt2hNKEW9TsUAnPOX2QnIlIFi1c/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/YXJhYnNzdG9jay5j/b20vdXBsb2Fkcy92/ZWN0b3JzLzIzMDQx/L3J1cWF5YS1hbi1h/cmFiaWMtbmFtZS1m/b3ItcHJldmlldy0y/MzA0MS53ZWJw", "channelid": "", "channeltitle": ""},
+            {"name":"محفوف -BYMAHFOOF", "image":"https://yt3.googleusercontent.com/obc8dOfYmoZe50tvHCJNZgbLAnJAKb-YPSUnguahWqJ-Jm12At_lV8CjfPPuhAsM9i2K26QK=s160-c-k-c0x00ffffff-no-rj", "channelid": "UCABzsyFLLA-fKu05lR-49RA", "channeltitle": "محفوف"},
+            {"name":"تلاوات ياسر الدوسري", "image":"https://yt3.googleusercontent.com/ytc/AIdro_k1n9v-3Z3x-v6Q2wY5kX1c8z-G4xQ6X1X5Xw=s176-c-k-c0x00ffffff-no-rj-mo", "channelid": "UClncV9OLPto_MinRzGfjr2g", "channeltitle": "تلاوات ياسر الدوسري إمام الحرم المكي"},
+            {"name":"مزامير الفرقان - ياسر الدوسري", "image":"https://yt3.googleusercontent.com/ATOVX4RIsbt20_VS0Ly0bNkm5NPCoseg-S28jEEFsMBhHxBRUGXWW1dFOSuKG5p1_Sx8C8fMqFs=s160-c-k-c0x00ffffff-no-rj", "channelid": "UCCoB7Hf8gjQzpAyzhvx7Ktg", "channeltitle": "مزامير الفرقان - ياسر الدوسري"},
+            {"name":"عبدالله الشحري", "image":"https://yt3.ggpht.com/KZblM_WDIfUaDyB0wmNZOfVDogOhHThprmFyzLL3AkvnLcKqFmhoJ00nsKHKCXizM94hGy1DSdo=s176-c-k-c0x00ffffff-no-rj-mo", "channelid": "UCyXm7QL-vmBIZcYCoPfmXgw", "channeltitle": "عبدالله الشحري"},
+            {"name":"ترتيل-@TarteelArabic", "image":"https://yt3.googleusercontent.com/pUYEmNtUgk7zmyKXVwzTyYCfli0AavVRgAomZITpyh3i6HT0mk35CCJv32Ra79-gKk276qSeYfw=s900-c-k-c0x00ffffff-no-rj", "channelid": "UCHVX6sawuLNAuRbJdfruXVA", "channeltitle": "ترتيل"},
+            {"name":"قناة اخضر", "image":"https://yt3.ggpht.com/CNJHtl9UOLJwzpGI6_8meaFK6-nWkaXABqu4cXfx2oZnTZmvYgHANXoOY-IpGlNk2U9I5nbIX9I=s176-c-k-c0x00ffffff-no-rj-mo", "channelid": "UCtUor2SqesPS3b_SMFtLT_w", "channeltitle": "أخضر"},
+            {"name":"اذاعة مختلف", "image":"https://yt3.ggpht.com/73c3-iw_Lubnz8tI6uxN17s1p8kOvwwsF5tatPe3JYAw_SRKeJfjprdH2wxHGPz3UHBM9NDxzs0=s176-c-k-c0x00ffffff-no-rj-mo", "channelid": "UC8vdjzu_0QMQlG9qNT5D_AQ", "channeltitle": "إذاعة مختلف"},
+            {"name":"Qtratel", "image":"https://yt3.googleusercontent.com/4op5oT580d20t3w4i4dWjZmfT1YkVSDok-MVlx-c1--EaYt-wZuw1tebFOc-iQ_XRMfUIO0gYA=s160-c-k-c0x00ffffff-no-rj", "channelid": "", "channeltitle": ""},
+            {"name":"Mohamed abubakr", "image":"https://yt3.ggpht.com/yp7xPPh1JotsxKkOMos1KWumw7UFFibydMnoPzhP100gsUGWnDXRTAhdV88gd6coAPkXQ5n1Rw=s176-c-k-c0x00ffffff-no-rj-mo", "channelid": "UC9i6gCxiph_aBj68Xs9Iqng", "channeltitle": "Mohamed Aboubakr"},
+            {"name":"بودكاست", "image":"https://yt3.googleusercontent.com/0Vs32Zwp0qjXovZuV0kCCxCkKkCdTpAn_9_tky7mxQUM69EIrWK_oJawKy_fKpzL1KZN0LG7=s160-c-k-c0x00ffffff-no-rj", "channelid": "", "channeltitle": ""},
+            {"name":"ربط الآيات","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDEzYTUgNSAwIDAgMCA3LjU0LjU0bDMtM2E1IDUgMCAwIDAtNy4wNy03LjA3bC0xLjcyIDEuNzIiLz48cGF0aCBkPSJNMTQgMTFhNSA1IDAgMCAwLTcuNTQtLjU0bC0zIDNhNSA1IDAgMCAwIDcuMDcgNy4wN2wxLjcyLTEuNzIiLz48L3N2Zz4=", "channelid": "", "channeltitle": ""}
         ];
         
         const youtubeSurahSuggestions = ["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","الانشقاق","المطففين","البروج","الطارق","الأعلى"];
@@ -3295,7 +3453,7 @@ let favoritesM = [];
 
 
 
-        function populateYoutubeSuggestions() {
+        async function populateYoutubeSuggestions() {
             const suggestionsContent = document.getElementById('suggestions-content');
             if (!suggestionsContent) return;
             suggestionsContent.innerHTML = '';
@@ -3434,29 +3592,29 @@ let favoritesM = [];
             });
             
             const channList = youtubeReaderSuggestions2;
+            const channelIdsToFetch = channList.filter(r => r.channelid).map(r => r.channelid);
+            const channelThumbnails = channelIdsToFetch.length > 0 ? await fetchChannelsDetails(channelIdsToFetch) : {};
+
             channList.forEach(reader => {
                 const card = document.createElement('div');
                 card.className = 'youtube-reader-card navigable grid-item';
                 card.tabIndex = 0;
-                card.innerHTML = `<h3>${reader.name}</h3><img src="${reader.image}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';">`;
+                
+                const imageUrl = reader.channelid 
+                    ? (channelThumbnails[reader.channelid] || 'https://placehold.co/100x100/334155/ffffff?text=?') 
+                    : (reader.image || 'https://placehold.co/100x100/334155/ffffff?text=?');
+
+                card.innerHTML = `<h3>${reader.name}</h3><img src="${imageUrl}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';">`;
                 
                 card.addEventListener('click', () => {
-                    const specialReciters = [
-                        'ترتيل-@TarteelArabic',
-                        'محفوف -BYMAHFOOF',
-                        'اذاعة مختلف', 'الرقية' ,
-                        'Mohamed abubakr',
-                        'قناة اخضر' , 'Qtratel' ,'مزامير الفرقان - ياسر الدوسري','عبدالله الشحري','بودكاست'
-                    ];
-
-                    if (specialReciters.includes(reader.name)) {
-                        searchYouTubeVideos(reader.name);
-                    } else if (searchMode === 'reciter_only') {
-                        youtubeSearchInput.value = reader.name;
-                        searchYouTubeVideos(reader.name);
-                        searchMode = 'reciter_surah'; // Reset mode after search
-                    } else {
+                    if (reader.channelid && reader.channeltitle) {
+                        searchVideosByChannel(reader.channelid, reader.channeltitle);
+                    } else if (reader.name === 'ربط الآيات') {
+                        // Special case for 'ربط الآيات' tool
                         handleReaderOrToolClick(reader.name, tabContainer, tabsContentContainer);
+                    } else {
+                        // Fallback for items without a channel ID, like "الرقية" or "بودكاست"
+                        searchYouTubeVideos(reader.name);
                     }
                 });
                 channButtonsContainer.appendChild(card);
@@ -3629,15 +3787,19 @@ let favoritesM = [];
 
          // NEW: Function to fetch and display Tarteel AI videos
             async function fetchTarteelVideos() {
-            if (YOUTUBE_API_KEY.startsWith('YOUR_')) return showMessageBox('خطأ: لم يتم تعيين مفتاح YouTube API.');
             const tarteelVideosContainer = document.getElementById('tarteel-videos-container');
             if (!tarteelVideosContainer) return;
 
             tarteelVideosContainer.innerHTML = '<p class="text-center col-span-full">جاري تحميل أحدث فيديوهات ترتيل...</p>';
             
             try {
-                // CHANGED: Increased maxResults to 50 to fetch more videos
+                if (YOUTUBE_API_KEY.startsWith('YOUR_')) {
+                     throw new Error("YouTube API key not set.");
+                }
                 const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${TARTEEL_CHANNEL_ID}&type=video&order=date&key=${YOUTUBE_API_KEY}&maxResults=50`);
+                if (!res.ok) {
+                    throw new Error(`YouTube API error: ${res.status}`);
+                }
                 const data = await res.json();
                 
                 if (data.items && data.items.length > 0) {
@@ -3645,6 +3807,15 @@ let favoritesM = [];
                     const videoDetails = await fetchVideosDetails(videoIds); // Re-use existing detail fetcher
                     
                     tarteelVideosContainer.innerHTML = ''; // Clear loading message
+
+                    if (videoDetails === null) {
+                        throw new Error("Failed to fetch details for Tarteel videos.");
+                    }
+                    
+                    // NEW: Fetch channel thumbnails
+                    const channelIds = [...new Set(videoDetails.map(video => video.snippet.channelId))];
+                    const channelThumbnails = await fetchChannelsDetails(channelIds);
+
                     videoDetails.forEach(video => {
                         const durationSeconds = video.contentDetails.duration.match(/\d+/g).map(Number).reduce((acc, time, i, arr) => acc + time * (arr.length === 3 ? [3600, 60, 1][i] : (arr.length === 2 ? [60, 1][i] : 1)), 0);
                         if (durationSeconds <= 61) return; // Filter out very short videos
@@ -3655,6 +3826,7 @@ let favoritesM = [];
                             thumbnail: video.snippet.thumbnails.medium.url,
                             channelTitle: video.snippet.channelTitle,
                             channelId: video.snippet.channelId,
+                            channelThumbnail: channelThumbnails[video.snippet.channelId],
                             viewCount: formatViewCount(video.statistics.viewCount),
                             publishedAt: formatTimeAgo(video.snippet.publishedAt),
                             duration: formatDuration(video.contentDetails.duration)
@@ -4761,6 +4933,16 @@ let favoritesM = [];
 
         // --- TV Remote / Keyboard Navigation ---
         let currentFocus = null;
+        let navigableElements = []; // Global array for focusable items
+
+        function updateNavigableElements() {
+            // This function rebuilds the list of all currently visible, focusable elements.
+            // It's called after the UI changes, like loading new search results or switching tabs.
+            navigableElements = Array.from(
+                document.querySelectorAll('.app-screen.active .navigable, nav .navigable, .video-popup-controls.grid-container .navigable, #bottom-left-controls .navigable, #floating-minimized-video-button.navigable')
+            ).filter(el => el.offsetParent !== null && !el.closest('.hidden'));
+        }
+
         function setFocus(el) { if (currentFocus) currentFocus.classList.remove('tv-focus'); if (el) { el.classList.add('tv-focus'); el.focus({ preventScroll: true }); currentFocus = el; el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' }); } else { if (currentFocus) currentFocus.classList.remove('tv-focus'); currentFocus = null; } }
         
         // --- MASTER KEY HANDLER (REFACTORED) ---
