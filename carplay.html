@@ -2849,6 +2849,8 @@ let favoritesM = [];
             else if (isSavedD) bookmarkClass = 'saved-d';
             else if (isSavedM) bookmarkClass = 'saved-m';
 
+            const isLive = video.duration === 'مباشر';
+
             card.innerHTML = `
                 <div class="video-details">
                     <h3 class="video-title">${video.title}</h3>
@@ -2859,8 +2861,7 @@ let favoritesM = [];
                                <span class="hover:underline truncate">${video.channelTitle}</span>
                             </div>
                             <button class="add-channel-from-search-btn p-1 rounded-full hover:bg-white/20 transition-colors flex-shrink-0 navigable grid-item" data-channel-id="${video.channelId}" data-channel-title="${video.channelTitle}" data-channel-thumbnail="${video.channelThumbnail || ''}" title="إضافة القناة للقائمة" tabindex="0">
-                                <i data-lucide="plus-circle" class="w-5 h-5 text-green-400">إضافة القناة للقائمة</i>
-                            <span class="hover:underline truncate">القناة اضافة</span>
+                                <i data-lucide="plus-circle" class="w-5 h-5 text-green-400"></i>
                             </button>
                         </div>
                         <span class="text-xs text-white/60">${video.viewCount} مشاهدة • ${video.publishedAt}</span>
@@ -2868,7 +2869,7 @@ let favoritesM = [];
                 </div>
                 <div class="thumbnail-container relative">
                     <img src="${video.thumbnail}" alt="${video.title}" class="w-[180px] h-[101.25px] object-cover rounded-md ml-4 flex-shrink-0" onerror="this.onerror=null;this.src='https://placehold.co/180x101';">
-                    <span class="video-duration">${video.duration}</span>
+                    <span class="video-duration ${isLive ? 'bg-red-600 font-bold' : ''}">${video.duration}</span>
                     ${progressHTML}
                     <button class="bookmark-button ${bookmarkClass}" data-video-id="${video.id}"><i data-lucide="bookmark" class="w-5 h-5"></i></button>
                 </div>
@@ -2910,6 +2911,7 @@ let favoritesM = [];
                 }
             }
 
+            lucide.createIcons();
             return card;
         }
 
@@ -3310,8 +3312,13 @@ let favoritesM = [];
                     lastSuccessfulSearchQuery = query; // NEW: Save the last successful query
                     searchResultsContainer.innerHTML = '';
                     videoDetails.forEach(video => {
-                        const durationSeconds = video.contentDetails.duration.match(/\d+/g).map(Number).reduce((acc, time, i, arr) => acc + time * (arr.length === 3 ? [3600, 60, 1][i] : (arr.length === 2 ? [60, 1][i] : 1)), 0);
-                        if (durationSeconds <= 61) return;
+                        const isLive = video.snippet.liveBroadcastContent === 'live';
+                        const durationString = video.contentDetails.duration;
+
+                        if (!isLive) {
+                            const durationSeconds = durationString.match(/\d+/g)?.map(Number).reduce((acc, time, i, arr) => acc + time * (arr.length === 3 ? [3600, 60, 1][i] : (arr.length === 2 ? [60, 1][i] : 1)), 0) || 0;
+                            if (durationSeconds <= 61) return;
+                        }
 
                         const videoData = {
                             id: video.id,
@@ -3322,7 +3329,7 @@ let favoritesM = [];
                             channelThumbnail: channelThumbnails[video.snippet.channelId],
                             viewCount: formatViewCount(video.statistics.viewCount),
                             publishedAt: formatTimeAgo(video.snippet.publishedAt),
-                            duration: formatDuration(video.contentDetails.duration)
+                            duration: isLive ? 'مباشر' : formatDuration(durationString)
                         };
                         searchResultsContainer.appendChild(createVideoCard(videoData));
                     });
@@ -3387,8 +3394,13 @@ let favoritesM = [];
                     searchResultsContainer.innerHTML = `<h2 class="text-3xl font-bold mb-4 text-center w-full text-white col-span-full"> فيديوهات من ${channelTitle}</h2>`;
 
                     videoDetails.forEach(video => {
-                        const durationSeconds = video.contentDetails.duration.match(/\d+/g).map(Number).reduce((acc, time, i, arr) => acc + time * (arr.length === 3 ? [3600, 60, 1][i] : (arr.length === 2 ? [60, 1][i] : 1)), 0);
-                        if (durationSeconds <= 61) return;
+                        const isLive = video.snippet.liveBroadcastContent === 'live';
+                        const durationString = video.contentDetails.duration;
+                        
+                        if (!isLive) {
+                            const durationSeconds = durationString.match(/\d+/g)?.map(Number).reduce((acc, time, i, arr) => acc + time * (arr.length === 3 ? [3600, 60, 1][i] : (arr.length === 2 ? [60, 1][i] : 1)), 0) || 0;
+                            if (durationSeconds <= 61) return;
+                        }
 
                         const videoData = {
                             id: video.id,
@@ -3399,7 +3411,7 @@ let favoritesM = [];
                             channelThumbnail: channelThumbnail,
                             viewCount: formatViewCount(video.statistics.viewCount),
                             publishedAt: formatTimeAgo(video.snippet.publishedAt),
-                            duration: formatDuration(video.contentDetails.duration)
+                            duration: isLive ? 'مباشر' : formatDuration(durationString)
                         };
                         searchResultsContainer.appendChild(createVideoCard(videoData));
                     });
@@ -6024,9 +6036,3 @@ async function renderDailyReminders(states) { // We added 'async' and 'states' h
     </script>
 </body> 
 </html>
-
-
-
-
-
-
