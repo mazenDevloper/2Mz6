@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" style="
+    zoom: 93%;
+">
+<head>
+    <link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#000000">
+ 
+<!-- لتغطية الشاشة بالكامل مع حواف النوتش -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Cache Control Meta Tags -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>CarPlay</title>
+    <!-- Tailwind CSS CDN for utility classes -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons for modern, customizable SVG icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Font Awesome for additional icons (e.g., Trip log) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <!-- Video.js for HLS Playback -->
+    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+    <style>
+        /* Import Amiri Quran font for Adhkar text */
+        @import url('https://fonts.googleapis.com/css2?family=Amiri+Quran:wght@400;700&display=swap');
+        /* NEW: Import Amiri font for Thuluth-like style */
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+
+div#tv{display:none;}
+div#geolocation-error-overlay {
+    display: none !important;
+}
+        /* Import Inter font for a modern, clean look */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Default background gradient - UPDATED: black parts are wider, animation is 3x slower */
+            background: linear-gradient(-45deg, #000000 0%, #000000 30%, #00FFFF 35%, #000000 60%, #4B0082 65%, #8A2BE2 70%, #FF00FF 75%, #000000 100%);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite; /* Animation duration decreased to 15s */
+            transition: background-image 0.5s ease; /* Smooth transition for background changes */
+            min-height: 100vh; /* Ensure body takes full viewport height */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden; /* Prevent body scroll */
+        }
+        
+        body.animation-paused {
+            animation-play-state: paused !important;
+        }
+
+.bg-black2 {
+    background-image: linear-gradient(45deg, #000000, #6f6f6f39)!important;
+}
+        img.max-w-full.max-h-full.object-contain { max-width: 50%;
+    mix-blend-mode: hard-light;
+}
+        /* Define different background themes for customization */
+        body.theme-gradient-1 {
+            background: linear-gradient(-45deg, #000000 0%, #000000 30%, #00FFFF 35%, #000000 60%, #4B0082 65%, #8A2BE2 70%, #FF00FF 75%, #000000 100%);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        body.theme-gradient-2 {
+            background: linear-gradient(-45deg, #4CAF50, #8BC34A, #FFEB3B, #FFC107);
+            background-size: 400% 400%;
+            animation: gradient 75s ease infinite reverse;
+        }
+        body.theme-dark-blue {
+            background-color: #1a202c; /* Dark blue-gray */
+            background-image: none;
+            animation: none;
+        }
+        body.theme-purple-haze {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-size: 100% 100%;
+            animation: none;
+        }
+
+        .h-full {
+            height: 97% !important;
+        }
+
+        /* NEW GLASS SURFACE CSS - Enhanced for liquid 3D effect and "drop glass" */
+        .glass-surface {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition: opacity 0.26s ease-out;
+            border-radius: 1.5rem; /* Ensure rounded corners */
+        }
+        .glass-surface__filter {
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            z-index: -1;
+        }
+        .glass-surface__content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            border-radius: inherit;
+            position: relative;
+            z-index: 1;
+        }
+        .glass-surface--svg {
+            /* Adjusted background for a more pronounced "drop" effect */
+            background: light-dark(hsl(0 0% 100% / var(--glass-frost, 0.1)), /* Slightly more opaque background */
+                hsl(0 0% 0% / var(--glass-frost, 0.2))); /* Darker opaque background for dark mode */
+            
+            /* Enhanced backdrop-filter for stronger blur and saturation */
+            backdrop-filter: var(--filter-id, url(#glass-filter)) blur(10px) saturate(2.0) brightness(1.1); /* Reduced blur, saturation, and brightness for sharper effect */
+            -webkit-backdrop-filter: blur(10px) saturate(2.0) brightness(1.1); /* Webkit prefix */
+
+            /* More pronounced box-shadow for a "dropped" effect */
+            box-shadow:
+                0 0 5px 2px rgba(255, 255, 255, 0.1) inset, /* Inner light glow */
+                0 0 15px 6px rgba(0, 255, 255, 0.15) inset, /* Inner cyan glow */
+                0px 8px 30px rgba(17, 17, 26, 0.1), /* Stronger outer shadow */
+                0px 16px 60px rgba(17, 17, 26, 0.15), /* Even stronger outer shadow */
+                0px 24px 80px rgba(17, 17, 26, 0.2), /* Deepest outer shadow */
+                inset 0 0 20px 8px rgba(0,0,0,0.3), /* Deeper inner shadow for depth */
+                inset 0 0 25px 10px rgba(0,0,0,0.2), /* Even deeper inner shadow */
+                0 0 20px rgba(255, 255, 255, 0.15); /* Added subtle outer white glow for "shine" */
+            border: 1px solid rgba(255, 255, 255, 0.3); /* Added a subtle white border */
+        }
+        
+        /* Fallback for browsers not supporting backdrop-filter - also enhanced */
+        .glass-surface--fallback {
+            background: rgba(255, 255, 255, 0.35); /* More opaque fallback */
+            backdrop-filter: blur(15px) saturate(2.0) brightness(1.2); /* Stronger fallback blur/saturate */
+            -webkit-backdrop-filter: blur(15px) saturate(2.0) brightness(1.2);
+            border: 1px solid rgba(255, 255, 255, 0.4); /* Stronger border */
+            box-shadow:
+                0 10px 40px 0 rgba(31, 38, 135, 0.3), /* Stronger fallback shadow */
+                0 4px 20px 0 rgba(31, 38, 135, 0.2),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.5),
+                inset 0 -1px 0 0 rgba(255, 255, 255, 0.3);
+        }
+        @media (prefers-color-scheme: dark) {
+            .glass-surface--fallback {
+                background: rgba(255, 255, 255, 0.15); /* Dark mode fallback */
+                backdrop-filter: blur(15px) saturate(2.0) brightness(1.3);
+                -webkit-backdrop-filter: blur(15px) saturate(2.0) brightness(1.3);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                box-shadow:
+                    inset 0 1px 0 0 rgba(255, 255, 255, 0.3),
+                    inset 0 -1px 0 0 rgba(255, 255, 255, 0.2);
+            }
+        }
+        @supports not (backdrop-filter: blur(10px)) {
+            .glass-surface--fallback {
+                background: rgba(255, 255, 255, 0.5); /* Strongest fallback for no backdrop-filter */
+                box-shadow:
+                    inset 0 1px 0 0 rgba(255, 255, 255, 0.6),
+                    inset 0 -1px 0 0 rgba(255, 255, 255, 0.4);
+            }
+            .glass-surface--fallback::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: rgba(255, 255, 255, 0.2); /* More opaque overlay */
+                border-radius: inherit;
+                z-index: -1;
+            }
+        }
+        
+        /* TV Remote Focus Style */
+        .navigable:focus, .navigable.tv-focus {
+            outline: 3px solid #0A84FF !important; /* Use !important to override other outlines */
+            box-shadow: 0 0 20px rgba(10, 132, 255, 0.7) !important; /* Use !important */
+            transform: scale(1.03);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        /* Keyframe animation for the background gradient */
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Styles for individual app screens */
+        .app-screen {
+            display: none; /* Hidden by default */
+            animation: fadeIn 0.5s ease-in-out; /* Fade-in transition */
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+            border-radius: 1.5rem; /* Ensure app screens have rounded corners */
+        }
+        .app-screen.active {
+            display: flex; /* Display when active */
+        }
+        
+        /* Fade-in animation for screen transitions */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        /* Styling for iframes to fit their containers */
+        .full-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 1.5rem;
+        }
+
+        .homebtn{display:none}
+
+        /* Top bar positioning and transition */
+        .top-bar {
+            top: 1rem;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Main CarPlay interface container adjustments */
+        #carplay-main-interface {
+            position: fixed;
+            top: 0%;
+            left: 0%;
+            width: 100vw;
+            height: 100vh;
+            transition: all 0.5s ease-in-out;
+            border-radius: 2rem;
+        }
+
+        /* Pseudo-fullscreen class for the CarPlay interface */
+        #carplay-main-interface.carplay-pseudo-fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            border-radius: 0;
+            z-index: 99; /* Ensure it's above other content but below the floating button */
+            max-width: 100vw; /* When fullscreen, it should take full width */
+        }
+
+        /* Shrink content when in pseudo-fullscreen mode for better fit */
+        #carplay-main-interface.carplay-pseudo-fullscreen #digital-time {
+            font-size: 2.2rem !important;
+        }
+        
+        /* Scrollbar styling for better aesthetics */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+
+        /* Active app icon styling */
+        .app-icon.active {
+            background-color: #6b22ff; /* Purple */
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        /* Car Dashboard Specific Styles */
+        .car-dashboard-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .car-cam-360-container img {
+            height: 160%;
+            width: 100%; 
+            object-fit: cover;
+        }
+        .car-cam-360-controls {
+            position: absolute;
+            bottom: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            z-index: 20;
+        }
+        .car-cam-360-controls button {
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .car-cam-360-controls button:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        /* Digital Clock Styles (Apple iOS 19 style) */
+        #digital-time {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: baseline;
+            gap: 0.2rem;
+            direction: ltr; /* FIX: Enforce LTR for correct HH:MM:SS order */
+        }
+        #digital-time span {
+            transition: opacity 0.3s ease;
+        }
+        #digital-time .hours { opacity: 1; }
+        #digital-time .minutes { opacity: 0.8; }
+        #digital-time .seconds { opacity: 0.4; }
+
+        /* Updated #digital-date styles based on user request */
+        #digital-date {
+            font-size: 1.2rem;
+            color: rgb(255 255 255 / 99%);
+            font-weight: bold;
+            text-align: center;
+            line-height: 1.4;
+        }
+        /* Countdown to Azan */
+        .countdown-azan {
+            color: cyan !important;
+        }
+        /* Countdown to Iqama */
+        .countdown-iqama {
+            color: orange !important;
+        }
+        /* Count-up after Iqama */
+        .countdown-up {
+            color: #98FB98 !important; /* PaleGreen, close to lightmint */
+        }
+
+        /* Animated Weather Icon Styles */
+        @keyframes pulse-float {
+            0% { transform: scale(1) translateY(0px); opacity: 1; }
+            50% { transform: scale(1.05) translateY(-2px); opacity: 0.9; }
+            100% { transform: scale(1) translateY(0px); opacity: 1; }
+        }
+        #dashboard-weather-icon {
+            animation: pulse-float 3s ease-in-out infinite alternate;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        div#digital-date-line2 {
+            font-size: 1.4em;
+        }
+
+        /* NEW IPTV Styles based on user request */
+        #iptv-simple-sidebar {
+            background-color: #ffffff;
+            color: #000000;
+            border-right: 1px solid #ccc;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            border-radius: 1.5rem;
+            padding: 0.5rem;
+            overflow-y: auto;
+        }
+        #iptv-simple-channel-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #iptv-simple-channel-list li {
+            padding: 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+            font-size: 16px;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        #iptv-simple-channel-list li:hover {
+            background-color: #f0f0f0;
+        }
+        #iptv-simple-channel-list li.active {
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+        }
+        #iptv-simple-channel-list li img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+
+        /* Responsive adjustments for smaller screens (mobile first) */
+        @media (max-width: 768px) {
+            body {
+                overflow-y: auto;
+            }
+
+               nav.w-20.sm\:w-24.bg-black\/20.flex.flex-col.items-center.justify-start.pt-8.p-2.space-y-4.border-l.border-white\/10.flex-shrink-0.transition-opacity.\30 \.3s.ease.grid-container {
+                flex-direction: row-reverse;
+                inline-size: -webkit-fill-available;
+            }
+            .top-bar {
+                padding: 0.5rem 1rem;
+                font-size: 0.8rem;
+                top: 0.5rem;
+            }
+
+            div#bottom-left-controls {
+                DISPLAY: NONE;
+            }
+
+            #carplay-main-interface {
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                flex-direction: column;
+                border-radius: 0;
+            }
+
+            main {
+                order: 1;
+                height: 100%; /* Take full height of the flex container */
+                padding-bottom: 64px; /* Add padding for the nav bar */
+            }
+
+            nav {
+                order: 2; /* Move nav to bottom of flex container */
+                position: fixed; /* Make it a floating dock */
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 64px; /* A standard dock height */
+                flex-direction: row;
+                justify-content: space-around;
+                align-items: center;
+                background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+                backdrop-filter: blur(15px);
+                -webkit-backdrop-filter: blur(15px);
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+                z-index: 200;
+                padding: 0;
+                gap: 0.5rem;
+            }
+            
+            nav .app-icon {
+                flex-grow: 1;
+                border-radius: 0;
+                height: 100%;
+                width: auto;
+            }
+
+            .app-screen {
+                padding: 1rem;
+            }
+
+            .dashboard-main-grid {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto;
+                height: auto;
+            }
+
+            .dashboard-main-grid > div {
+                height: auto !important;
+                width: 100%;
+            }
+
+            .car-cam-360-container {
+                height: 200px;
+            }
+
+            #screen-IPTV .flex {
+                flex-direction: column-reverse;
+            }
+             #iptv-simple-sidebar {
+                width: 100%;
+                height: 60%;
+            }
+            #iptv-simple-player-container {
+                width: 100%;
+                height: 40%;
+            }
+        }
+
+        /* UPDATED: Media Query for 16:9 aspect ratio screens in portrait mode (e.g., 1080x1920) */
+        @media screen and (aspect-ratio: 9/16) and (orientation: portrait) {
+            body {
+                justify-content: flex-start; /* Align content to the top */
+                padding-top: 4rem; /* Add padding to avoid notch/top bar */
+                overflow-y: auto; /* Allow scrolling on tall screens */
+            }
+
+            #carplay-main-interface {
+                height: auto; /* Allow content to determine height */
+                min-height: 95vh;
+                width: 98vw;
+                top: 1rem;
+                left: 1%;
+                flex-direction: column; /* Stack sidebar and main content */
+            }
+            
+            nav {
+                flex-direction: row;
+                width: 100%;
+                height: auto;
+                justify-content: center;
+                gap: 0.5rem;
+                padding-top: 0.5rem;
+                padding-bottom: 0.5rem;
+                order: 2; /* Move nav to bottom */
+            }
+            
+            main {
+                order: 1; /* Move main content to top */
+            }
+
+            .dashboard-main-grid {
+                grid-template-columns: 1fr; /* Force single column */
+                grid-template-rows: 1fr 1fr 1fr auto; /* Adjust rows for vertical layout */
+                gap: 1rem;
+            }
+
+            /* Ensure all grid items in dashboard are visible and take full width */
+            .dashboard-main-grid > div {
+                grid-column: 1 / -1 !important;
+                grid-row: auto !important;
+            }
+
+            .flex.flex-col.gap-4.md\:gap-6.col-span-1.row-start-1.grid-container {
+                flex-direction: row; /* Side-by-side clock and weather */
+                gap: 1rem;
+            }
+            .flex.flex-col.gap-4.md\:gap-6.col-span-1.row-start-1.grid-container > div {
+                flex-grow: 1;
+            }
+        }
+        
+        /* NEW: Responsive padding toggle */
+        @media (min-width: 768px) {
+            body.small-padding .md\:p-6 {
+                padding: 1.5rem !important;
+            }
+        }
+
+        div#bottom-left-controls {
+            left: 90px!important;
+        }
+        img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
+            position: fixed;
+        }
+        /* Prayer Times Specific Styles */
+        .prayer-times-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.75rem;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        .prayer-time-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            min-width: 80px;
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+        /* UPDATED: Current prayer is green */
+        .prayer-time-item.current-prayer {
+            background-color: rgba(16, 185, 129, 0.4); /* Greenish */
+            font-weight: bold;
+            border: 1px solid #10B981;
+        }
+        /* UPDATED: Next prayer is orange */
+        .prayer-time-item.next-prayer {
+            background-color: rgba(251, 146, 60, 0.3); /* Orangey */
+            border: 1px solid #fb923c;
+        }
+        .prayer-name {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+            margin-bottom: 0.2rem;
+        }
+        .prayer-time {
+            color: white;
+            font-size: 1rem;
+        }
+
+        /* التغييرات المطلوبة للشاشات الأوسع */
+        @media (min-width: 992px) {
+            body{
+              background:url('https://dmusera.netlify.app/tvbg1@1.5x.png')!important;
+                background-size:cover!important;
+            }
+
+            /* NEW: Date widget styles */
+            #full-date-widget-container {
+                display: flex !important; /* Make it visible */
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+                padding: 0.2rem; /* Increased padding */
+                background-color: rgba(0,0,0,0.2);
+                border-radius: 1rem;
+                backdrop-filter: blur(5px);
+                -webkit-backdrop-filter: blur(5px);
+                margin-bottom: 0.4rem; /* Add some space below it */
+                font-family: 'Amiri', serif; /* Apply Thuluth-like font */
+            }
+            #full-date-widget-container p { margin: 0; }
+            #gregorian-date { font-size: 1.6rem; font-weight: 700; } /* Increased font size and made bold */
+            #hijri-date { font-size: 1.6rem; opacity: 0.9; font-weight: 700;padding:0px;margin:0px} /* Increased font size and made bold */
+
+            /* NEW: Larger clock on desktop */
+            #digital-time {
+                font-size: 3rem !important;
+            }
+
+            /* --- START: Hide Elements in TV UI --- */
+            #car-360-image {
+                visibility: hidden;
+            }
+            div#tv{display:block;background:#00000050}
+            div#map{display:none;}
+            
+            .car-cam-360-controls.grid-container>button {
+                display: none;
+            }
+
+            .car-cam-360-container {
+                background-image: url('https://cdn.salla.sa/ePoPG/896b46ef-2021-4ffb-8ee6-d1010f51a8fd-333.4375x500-651XvkaPHg7Xk9VDEAzv8nBS2uEA58WWVa64rmnk.jpg');
+                background-size: cover;
+                background-position: center center;
+                background-repeat: no-repeat;
+            }
+            /* إخفاء شعار لكزس على الشاشات الأوسع */
+            img[src*="Lexus-Logo.wine.svg"] {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="animated-bg text-white overflow-hidden theme-gradient-1">
+    <!-- SVG Filter Definition for Liquid Glass Effect -->
+    <svg style="position: absolute; width: 0; height: 0; overflow: hidden;">
+        <defs>
+            <filter id="glass-filter" colorInterpolationFilters="sRGB" x="0%" y="0%" width="100%" height="100%">
+                <feImage x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="map" 
+                    href="data:image/svg+xml,%3Csvg viewBox='0 0 400 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='red-grad' x1='100%25' y1='0%25' x2='0%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%230000'/%3E%3Cstop offset='100%25' stop-color='red'/%3E%3C/linearGradient%3E%3ClinearGradient id='blue-grad' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230000'/%3E%3Cstop offset='100%25' stop-color='blue'/%3E%3C/defs%3E%3Crect x='0' y='0' width='400' height='200' fill='black'/%3E%3Crect x='0' y='0' width='400' height='200' rx='20' fill='url(%23red-grad)'/%3E%3Crect x='0' y='0' width='400' height='200' rx='20' fill='url(%23blue-grad)' style='mix-blend-mode: difference'/%3E%3Crect x='1.4' y='1.4' width='397.2' height='197.2' rx='20' fill='hsl(0 0% 50% / 0.93)' style='filter:blur(11px)'/%3E%3C/svg%3E"/>
+                
+                <feDisplacementMap in="SourceGraphic" in2="map" id="redchannel" scale="300" xChannelSelector="R" yChannelSelector="G" result="dispRed" />
+                <feColorMatrix in="dispRed" type="matrix" values="1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0" result="red" />
+                
+                <feDisplacementMap in="SourceGraphic" in2="map" id="greenchannel" scale="310" xChannelSelector="R" yChannelSelector="G" result="dispGreen" />
+                <feColorMatrix in="dispGreen" type="matrix" values="0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0" result="green" />
+                
+                <feDisplacementMap in="SourceGraphic" in2="map" id="bluechannel" scale="320" xChannelSelector="R" yChannelSelector="G" result="dispBlue" />
+                <feColorMatrix in="blue" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0" result="blue" />
+                
+                <feBlend in="red" in2="green" mode="screen" result="rg" />
+                <feBlend in="rg" in2="blue" mode="screen" result="output" />
+                
+                <feGaussianBlur in="output" stdDeviation="5" />
+            </filter>
+        </defs>
+    </svg>
+
+    <div class="w-full h-screen flex flex-col items-center justify-center p-4 sm:p-6">
+        
+        <!-- Top Bar: Wifi, 5G, Current Time -->
+        <div class="w-full max-w-7xl flex justify-between items-center text-white/80 text-sm px-4 py-2 absolute top-4 left-1/2 -translate-x-1/2 z-10 top-bar">
+            <div class="flex items-center gap-2">
+              
+            </div>
+           
+        </div>
+
+        <!-- Lexus Logo Fixed at Top Center -->
+        <img src="https://dmusera.netlify.app/Lexus-Logo.wine.svg" width="200px" alt="Lexus Logo" class="fixed top-2 left-1/2 -translate-x-1/2 h-12 z-[1000] opacity-80" style="filter: invert(1) grayscale(100%) brightness(200%);" />
+
+        <!-- Main CarPlay Interface Container -->
+        <div id="carplay-main-interface" class="flex flex-row shadow-2xl rounded-3xl overflow-hidden bg-black/20 border border-white/10">
+            
+            <!-- Main content area for app screens -->
+            <main class="flex-1 flex flex-col h-full">
+                
+                <!-- Dashboard Screen -->
+                <section id="screen-Dashboard" class="app-screen p-4 md:p-6 flex-col h-full">
+                    <div class="dashboard-main-grid grid grid-cols-1 md:grid-cols-3 grid-rows-[80%_20%] gap-4 md:gap-6 h-full w-full grid-container">
+                        <!-- Map Widget -->
+                        <div id="map" class="rounded-3xl relative overflow-hidden flex items-center justify-center glass-surface glass-surface--svg p-1 col-span-1 row-start-1 navigable grid-item" tabindex="0">
+                            <div id="dashboard-google-map" class="full-iframe"></div>
+                             <div id="geolocation-error-overlay" class="hidden absolute top-0 left-0 w-full h-full bg-black/70 text-white flex-col items-center justify-center text-center p-4 z-10 rounded-3xl">
+                                <i data-lucide="map-pin-off" class="w-12 h-12 text-red-500 mb-4"></i>
+                                <h3 class="font-bold text-lg mb-2">خدمة تحديد المواقع معطلة</h3>
+                                <p class="text-sm text-white/80">يرجى تمكين أذونات الموقع في إعدادات المتصفح لهذا الموقع للاستفادة من ميزات الخريطة.</p>
+                            </div>
+                            <div class="absolute bottom-4 left-4 flex gap-2">
+                                <button id="get-my-location-button-dashboard" class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center text-sm navigable grid-item" tabindex="0" title="تحديث الموقع">
+                                    <i data-lucide="map-pin" class="w-5 h-5"></i>
+                                </button>
+                                <button id="go-to-home-1-button" class="bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center text-sm navigable grid-item" tabindex="0" title="الذهاب الى المنزل 1">
+                                    <i data-lucide="home" class="w-5 h-5"></i>
+                                </button>
+                                <button id="go-to-home-2-button" class="bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center text-sm navigable grid-item" tabindex="0" title="الذهاب الى المنزل 2">
+                                    <i data-lucide="building-2" class="w-5 h-5"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 360 Camera View -->
+                        <div class="glass-surface glass-surface--svg p-2 flex flex-col items-center justify-center text-center car-cam-360-container col-span-1 row-start-1 navigable grid-item" tabindex="0">
+                            <img id="car-360-image" src="https://dmusera.netlify.app/es350gb.png" alt="عرض الكاميرا 360 درجة للسيارة" class="w-full h-full object-contain rounded-lg opacity-80">
+                            <div class="car-cam-360-controls grid-container">
+                                <input type="file" id="upload-360-image-input" accept="image/*" class="hidden" />
+                                <button id="upload-360-image-button" class="navigable grid-item" tabindex="0">
+                                    <i data-lucide="upload" class="w-4 h-4"></i> تحميل صورة
+                                </button>
+                                <button id="reset-360-image-button" class="navigable grid-item" tabindex="0">
+                                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i> إعادة تعيين
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Weather and Clock/Prayer Widgets -->
+                        <div class="flex flex-col gap-4 md:gap-6 col-span-1 row-start-1 grid-container">
+                             <div id="full-date-widget-container" class="hidden">
+                             </div>
+                            <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center navigable grid-item" tabindex="0">
+                               
+                                <div id="weather-widget-container" class="w-full h-full flex flex-col items-center justify-center">
+                                    <img id="dashboard-weather-icon" src="" alt="Weather Icon" class="w-20 h-20 text-white mb-2" />
+                                    <p class="text-5xl font-extrabold mb-1" id="dashboard-weather-temp">--°C</p>
+                                    <p class="text-xl font-semibold text-white/80 mb-2" id="dashboard-weather-desc">--</p>
+                                    <p class="text-md text-white/60" id="dashboard-weather-location">--</p>
+                                </div>
+                            </div>
+                            <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center navigable grid-item" tabindex="0">
+                                <div id="digital-clock-widget" class="w-full h-full flex flex-col items-center justify-center text-center">
+                                    <div id="digital-time">
+                                        <span class="hours">00</span>:<span class="minutes">00</span>:<span class="seconds">00</span>
+                                    </div>
+                                    <div id="digital-date">
+                                        <div id="digital-date-line1">  </div>
+                                        <div id="digital-date-line2"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Prayer Times Row -->
+                        <div class="glass-surface glass-surface--svg p-4 flex flex-col items-center justify-center text-center col-span-full row-start-2 navigable grid-item" tabindex="0">
+                            <div id="prayer-times-container" class="prayer-times-row grid-container">
+                                <p class="text-white/70 col-span-full">جاري تحميل أوقات الصلاة...</p>
+                            </div>
+                        </div>
+
+                        <div id="tv" class="glass-surface glass-surface--svg p-4 flex flex-col items-center justify-center text-center car-cam-360-container col-span-1 row-start-1 navigable grid-item" tabindex="0"></div>
+
+                    </div>
+                </section>
+
+                <!-- IPTV Screen -->
+                <section id="screen-IPTV" class="app-screen p-4 md:p-6 h-full">
+                    <div class="flex h-full w-full gap-4">
+                        <div id="iptv-simple-player-container" class="flex-1 flex items-center justify-center bg-black rounded-2xl overflow-hidden">
+                           <video id="iptv-video-player" class="video-js vjs-default-skin vjs-big-play-centered w-full h-full" controls autoplay preload="auto">
+                           </video>
+                        </div>
+                        <div id="iptv-simple-sidebar" class="w-80 h-full">
+                             <ul id="iptv-simple-channel-list" class="grid-container">
+                             </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Sofascore Screen -->
+                <section id="screen-Sofascore" class="app-screen p-1 h-full">
+                     <iframe src="https://www.sofascore.com/" class="full-iframe" sandbox="allow-scripts allow-same-origin"></iframe>
+                </section>
+
+
+            </main>
+
+            <!-- Navigation Dock (Left Sidebar) -->
+            <nav class="w-20 sm:w-24 bg-black/20 flex flex-col items-center justify-start pt-8 p-2 space-y-4 border-l border-white/10 flex-shrink-0 transition-opacity 0.3s ease grid-container">
+                <button data-app="Dashboard" class="app-icon navigable grid-item" tabindex="0">
+                    <i data-lucide="layout-grid"></i>
+                </button>
+                <button data-app="IPTV" class="app-icon navigable grid-item" tabindex="0">
+                    <i data-lucide="tv-2"></i>
+                </button>
+                <button data-app="Sofascore" class="app-icon navigable grid-item" tabindex="0">
+                    <i data-lucide="football"></i>
+                </button>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Floating UI Elements -->
+    <div id="bottom-left-controls" class="fixed bottom-4 left-4 flex flex-row gap-2 z-[100] grid-container">
+        <button id="pause-animation-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="إيقاف/تشغيل الحركة">
+            <i data-lucide="pause" class="w-5 h-5"></i>
+            <i data-lucide="play" class="w-5 h-5 hidden"></i>
+        </button>
+        <button id="zoom-in-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="تكبير">
+            <i data-lucide="zoom-in" class="w-5 h-5"></i>
+        </button>
+        <button id="zoom-out-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="تصغير">
+            <i data-lucide="zoom-out" class="w-5 h-5"></i>
+        </button>
+        <button id="remove-cache-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="مسح ذاكرة التخزين المؤقت">
+            <i data-lucide="trash-2" class="w-5 h-5"></i>
+        </button>
+    </div>
+
+    <script>
+        // Initialize Lucide icons after they are loaded
+        lucide.createIcons();
+
+        // --- API Keys & URLs ---
+        const WEATHER_API_KEY = '7acefc26deee4904a2393917252207'; 
+        const GOOGLE_MAPS_API_KEY = 'AIzaSyBRqAHJ2elbE_Z7NXXYC50XZpqi6HbG6Rk';
+
+        // --- Global App State Management ---
+        let appState = {
+            mapLocation: { lat: 17.0151, lon: 54.0924, zoom: 17 },
+            weather: { temperature: null, description: null, iconUrl: '', location: 'Salalah, Oman' },
+            prayerTimes: { Fajr: '--:--', Dhuhr: '--:--', Asr: '--:--', Maghrib: '--:--', Isha: '--:--', nextPrayer: null, nextPrayerIqamaTime: null, currentPrayer: null },
+            hasShownGeolocationError: false,
+            mapZoomChangedByUser: false,
+            dashboardReturnCounter: 0,
+            custom360Image: localStorage.getItem('custom360Image') || null,
+            currentLocation: null,
+        };
+        let googleMapsPromise = null;
+        let currentFontSize = 16;
+        const fontSizeStep = 1;
+        let videoJsPlayer;
+
+        // --- Favorite Channels ---
+        const iptvChannels = [
+            { name: 'Bein Sports 1', url: 'https://live-hls-abr-cdn.livepush.io/live/bigbuckbunnyclip/index.m3u8', logo: 'https://i.imgur.com/3J6z5L5.png', group: 'Favorites' },
+            { name: 'Bein Sports 2', url: 'https://dmusera.netlify.app/3111.M3U8', logo: 'https://i.imgur.com/3J6z5L5.png', group: 'Favorites' },
+            { name: 'Bein Sports 3', url: 'http://playstop.watch:2095/live/W87d737/Pd37qj34/3109.m3u8', logo: 'https://i.imgur.com/3J6z5L5.png', group: 'Favorites' },
+            { name: 'Thikrayat', url: 'http://playstop.watch:2095/live/W87d737/Pd37qj34/293740.m3u8', logo: 'https://i.imgur.com/1FqkC3g.png', group: 'Favorites' },
+            { name: 'Thikrayat 2', url: 'http://playstop.watch:2095/live/W87d737/Pd37qj34/293741.ts', logo: 'https://i.imgur.com/1FqkC3g.png', group: 'Favorites' },
+            { name: 'Oman TV', url: 'http://playstop.watch:2095/live/W87d737/Pd37qj34/2759.m3u8', logo: 'https://i.imgur.com/cO1a3b1.png', group: 'Favorites' },
+            { name: 'Al-Shasha', url: 'http://playstop.watch:2095/live/W87d737/Pd37qj34/299856.m3u8', logo: 'https://i.imgur.com/4zY2b1Y.png', group: 'Favorites' }
+        ];
+
+        // --- Home Locations ---
+        const HOME1_COORDS = { lat: 17.081667, lng: 54.159722 };
+        const HOME2_COORDS = { lat: 17.048560, lng: 54.159616 };
+
+        // --- DOM Element References ---
+        const appButtons = document.querySelectorAll('button[data-app]');
+        const appScreens = document.querySelectorAll('.app-screen');
+        const sidebarIcons = document.querySelectorAll('.app-icon');
+        const prayerTimesContainer = document.getElementById('prayer-times-container');
+        const digitalHoursSpan = document.querySelector('#digital-time .hours');
+        const digitalMinutesSpan = document.querySelector('#digital-time .minutes');
+        const digitalSecondsSpan = document.querySelector('#digital-time .seconds');
+        const digitalDateLine1 = document.getElementById('digital-date-line1');
+        const digitalDateLine2 = document.getElementById('digital-date-line2');
+        let dashboardGoogleMap, dashboardGoogleMarker, directionsService, directionsRenderer;
+        let watchId;
+        const getMyLocationButtonDashboard = document.getElementById('get-my-location-button-dashboard');
+        const goToHome1Button = document.getElementById('go-to-home-1-button');
+        const goToHome2Button = document.getElementById('go-to-home-2-button');
+        const car360Image = document.getElementById('car-360-image');
+        const upload360ImageInput = document.getElementById('upload-360-image-input');
+        const upload360ImageButton = document.getElementById('upload-360-image-button');
+        const reset360ImageButton = document.getElementById('reset-360-image-button');
+        const pauseAnimationButton = document.getElementById('pause-animation-button');
+        const zoomInButton = document.getElementById('zoom-in-button');
+        const zoomOutButton = document.getElementById('zoom-out-button');
+        const removeCacheButton = document.getElementById('remove-cache-button');
+        const default360ImageSrc = "https://dmusera.netlify.app/es350gb.png";
+        let initialLocationFetched = false;
+
+        // --- Utility Functions ---
+        function showMessageBox(message) { const box = document.createElement('div'); box.style.cssText = `position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(0, 0, 0, 0.8); color: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); z-index: 1000; text-align: center; max-width: 80%; font-size: 1.1rem;`; box.innerHTML = `<p>${message}</p><button style="margin-top: 15px; padding: 8px 15px; background-color: #9333ea; border: none; border-radius: 5px; color: white; cursor: pointer;">إغلاق</button>`; document.body.appendChild(box); box.querySelector('button').addEventListener('click', () => document.body.removeChild(box)); }
+
+        function updateFullDateWidget() {
+            const dateWidgetContainer = document.getElementById('full-date-widget-container');
+            if (!dateWidgetContainer) return;
+            const today = new Date();
+            today.setFullYear(2025);
+            const gregorianDate = new Intl.DateTimeFormat('ar-OM', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(today);
+            const hijriDate = new Intl.DateTimeFormat('ar-OM-u-ca-islamic', { year: 'numeric', month: 'long', day: 'numeric' }).format(today);
+            dateWidgetContainer.innerHTML = `<p id="gregorian-date">${gregorianDate}</p><p id="hijri-date">${hijriDate}</p>`;
+        }
+        
+        function updateUI() { 
+            document.getElementById('dashboard-weather-temp').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature.toFixed(1)}°C` : '--°C'; 
+            document.getElementById('dashboard-weather-desc').textContent = appState.weather.description || '--'; 
+            document.getElementById('dashboard-weather-icon').src = appState.weather.iconUrl || 'https://placehold.co/64x64/000000/FFFFFF?text=X'; 
+            document.getElementById('dashboard-weather-location').textContent = appState.weather.location; 
+            car360Image.src = appState.custom360Image || default360ImageSrc; 
+        }
+
+        // --- App Switching and Navigation Logic ---
+        function switchApp(appName) {
+            appScreens.forEach(s => s.classList.remove('active'));
+            sidebarIcons.forEach(i => i.classList.remove('active'));
+            const screen = document.getElementById(`screen-${appName}`);
+            if (screen) screen.classList.add('active');
+            const icon = document.querySelector(`.app-icon[data-app="${appName}"]`);
+            if (icon) icon.classList.add('active');
+
+            if (appName === 'IPTV') {
+                loadIptv();
+            }
+
+            if (appName === 'Dashboard' && appState.mapZoomChangedByUser) {
+                appState.dashboardReturnCounter++;
+                if (appState.dashboardReturnCounter >= 2 && dashboardGoogleMap) {
+                    dashboardGoogleMap.setZoom(appState.mapLocation.zoom);
+                    appState.mapZoomChangedByUser = false;
+                    appState.dashboardReturnCounter = 0;
+                    showMessageBox('تم إعادة تعيين تكبير الخريطة إلى الافتراضي.');
+                }
+            } else if (appName !== 'Dashboard' && !appState.mapZoomChangedByUser) {
+                appState.dashboardReturnCounter = 0;
+            }
+        }
+        
+        // --- Google Map and Geolocation ---
+        let mapsInitialized = false;
+        function showGeolocationErrorOnMap(message) { 
+            const overlay = document.getElementById('geolocation-error-overlay');
+            const mapControls = document.querySelector('#dashboard-google-map ~ .absolute'); 
+            if (overlay) {
+                overlay.classList.remove('hidden');
+                overlay.classList.add('flex');
+                if (message) {
+                    const p = overlay.querySelector('p');
+                    if (p) p.textContent = message;
+                }
+                lucide.createIcons();
+            }
+            if (mapControls) {
+                mapControls.style.display = 'none';
+            }
+        }
+        function loadGoogleMaps() { 
+            if (googleMapsPromise) return googleMapsPromise;
+            googleMapsPromise = new Promise((resolve, reject) => {
+                if (typeof google !== 'undefined' && google.maps) {
+                    resolve();
+                    return;
+                }
+                const script = document.createElement('script');
+                script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=geometry,places`;
+                script.async = true;
+                script.defer = true;
+                script.onload = () => resolve();
+                script.onerror = () => reject('Failed to load Google Maps script.');
+                document.head.appendChild(script);
+            });
+            return googleMapsPromise;
+        }
+        async function initMap() { 
+            if (mapsInitialized) return;
+             mapsInitialized = true;
+            try {
+                const mapElement = document.getElementById('dashboard-google-map');
+                if (!mapElement) {
+                    console.error("Map container 'dashboard-google-map' not found.");
+                    return;
+                }
+                dashboardGoogleMap = new google.maps.Map(mapElement, {
+                    center: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon },
+                    zoom: appState.mapLocation.zoom,
+                    disableDefaultUI: true,
+                    mapTypeId: 'satellite',
+                });
+                dashboardGoogleMarker = new google.maps.Marker({
+                    position: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon },
+                    map: dashboardGoogleMap,
+                    icon: {
+                        path: google.maps.SymbolPath.CIRCLE,
+                        scale: 7,
+                        fillColor: "#4285F4",
+                        fillOpacity: 1,
+                        strokeColor: "white",
+                        strokeWeight: 2,
+                    },
+                });
+                directionsService = new google.maps.DirectionsService();
+                directionsRenderer = new google.maps.DirectionsRenderer({
+                    map: dashboardGoogleMap,
+                    suppressMarkers: true 
+                });
+                dashboardGoogleMap.addListener('zoom_changed', () => { if (dashboardGoogleMap.getZoom() !== appState.mapLocation.zoom) appState.mapZoomChangedByUser = true; }); 
+                startContinuousLocationTracking();
+            } catch (error) {
+                console.error("Failed to initialize map due to API load error:", error);
+                showGeolocationErrorOnMap("تعذر تحميل خرائط جوجل. يرجى التحقق من اتصالك بالإنترنت ومفتاح API.");
+            }
+        }
+        function updateGoogleMapLocation(pos) { 
+            const { latitude: lat, longitude: lng, heading } = pos.coords;
+            appState.currentLocation = { lat, lng };
+            if (dashboardGoogleMap && dashboardGoogleMarker) {
+                const newLatLng = { lat, lng };
+                dashboardGoogleMarker.setPosition(newLatLng);
+                if (!appState.mapZoomChangedByUser) {
+                    dashboardGoogleMap.setCenter(newLatLng);
+                    dashboardGoogleMap.setZoom(appState.mapLocation.zoom);
+                }
+            }
+            if (typeof heading === 'number' && !isNaN(heading)) {
+                if (dashboardGoogleMap) dashboardGoogleMap.setHeading(heading);
+            }
+         }
+        function startContinuousLocationTracking() { 
+            if (navigator.geolocation) {
+                watchId = navigator.geolocation.watchPosition(
+                    (pos) => { 
+                        const overlay = document.getElementById('geolocation-error-overlay');
+                        if (overlay) overlay.classList.add('hidden');
+                        const mapControls = document.querySelector('#dashboard-google-map ~ .absolute');
+                        if (mapControls) mapControls.style.display = 'flex';
+                        updateGoogleMapLocation(pos); 
+                        appState.hasShownGeolocationError = false; 
+                        if (!initialLocationFetched) {
+                            fetchWeatherData();
+                            initialLocationFetched = true;
+                        }
+                    }, 
+                    (err) => { 
+                        if (err.code === 1) {
+                            showGeolocationErrorOnMap('تم رفض إذن تحديد الموقع. يرجى تمكينه في إعدادات المتصفح.');
+                        } else if (!appState.hasShownGeolocationError) {
+                            let msg = 'تعذر تتبع موقعك. يرجى التحقق من أذونات الموقع.';
+                            showMessageBox(msg); 
+                            appState.hasShownGeolocationError = true; 
+                        }
+                    }, 
+                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+                );
+            } else {
+                showGeolocationErrorOnMap('خدمة تحديد المواقع غير مدعومة في هذا المتصفح.');
+            }
+         }
+        function centerMapOnUserLocation() { 
+            if (navigator.geolocation) { 
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => { 
+                        updateGoogleMapLocation(pos); 
+                        showMessageBox(`تم تحديث الخريطة.`); 
+                    }, 
+                    () => {
+                        showGeolocationErrorOnMap('تعذر الحصول على موقعك الحالي. يرجى التحقق من الأذونات.');
+                    }, 
+                    { enableHighAccuracy: true }
+                ); 
+            } 
+        }
+        async function calculateAndDisplayRouteTo(destinationCoords) { 
+            if (!appState.currentLocation) {
+                showMessageBox('لم يتم تحديد موقعك الحالي بعد. يرجى الانتظار أو تحديث الموقع.');
+                return;
+            }
+            if (!directionsService || !directionsRenderer) {
+                showMessageBox('خدمة التوجيهات غير جاهزة.');
+                return;
+            }
+            
+            const request = {
+                origin: appState.currentLocation,
+                destination: destinationCoords,
+                travelMode: 'DRIVING'
+            };
+
+            try {
+                const response = await directionsService.route(request);
+                if (response.status === 'OK') {
+                    directionsRenderer.setDirections(response);
+                    const route = response.routes[0].legs[0];
+                    showMessageBox(`الطريق إلى وجهتك: ${route.distance.text}, الوقت المقدر: ${route.duration.text}`);
+                } else {
+                    showMessageBox('تعذر العثور على اتجاهات: ' + response.status);
+                }
+            } catch (err) {
+                console.error('Error calculating directions:', err);
+                showMessageBox('حدث خطأ أثناء حساب الاتجاهات.');
+            }
+        }
+
+
+        // --- Weather API Integration ---
+        async function fetchWeatherData() {
+            if (WEATHER_API_KEY.startsWith('YOUR_')) return showMessageBox('خطأ: لم يتم تعيين مفتاح WeatherAPI.');
+            try {
+                const locationQuery = appState.currentLocation ? `${appState.currentLocation.lat},${appState.currentLocation.lng}` : appState.weather.location.split(',')[0].trim();
+                const res = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=${WEATHER_API_KEY}&q=${locationQuery}&days=1&aqi=no&alerts=no&lang=ar`);
+                if (!res.ok) throw new Error(`خطأ HTTP! الحالة: ${res.status}`);
+                const data = await res.json();
+                
+                appState.weather.temperature = data.current.temp_c;
+                appState.weather.description = data.current.condition.text;
+                appState.weather.iconUrl = `https:${data.current.condition.icon}`;
+                appState.weather.location = `${data.location.name}, ${data.location.country}`;
+                
+                updateUI();
+            } catch (err) {
+                console.error('Error fetching weather data:', err);
+            }
+        }
+
+        // --- 360 Camera ---
+        function handleImageUpload(e) { 
+             const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = (ev) => { appState.custom360Image = ev.target.result; localStorage.setItem('custom360Image', ev.target.result); updateUI(); }; reader.readAsDataURL(file); }
+        }
+        function resetImageToDefault() { 
+            appState.custom360Image = null; localStorage.removeItem('custom360Image'); updateUI();
+        }
+
+        // --- Prayer Times Integration ---
+        const prayerTimes = [{"date":"2025-10-13","fajr":"05:04","sunrise":"06:16","dhuhr":"12:15","asr":"15:36","maghrib":"18:09","isha":"19:16"},{"date":"2025-10-14","fajr":"05:04","sunrise":"06:16","dhuhr":"12:15","asr":"15:36","maghrib":"18:08","isha":"19:15"},{"date":"2025-10-15","fajr":"05:04","sunrise":"06:16","dhuhr":"12:14","asr":"15:36","maghrib":"18:07","isha":"19:15"},{"date":"2025-10-16","fajr":"05:04","sunrise":"06:17","dhuhr":"12:14","asr":"15:35","maghrib":"18:07","isha":"19:14"},{"date":"2025-10-17","fajr":"05:05","sunrise":"06:17","dhuhr":"12:14","asr":"15:35","maghrib":"18:06","isha":"19:14"},{"date":"2025-10-18","fajr":"05:05","sunrise":"06:17","dhuhr":"12:14","asr":"15:35","maghrib":"18:05","isha":"19:13"},{"date":"2025-10-19","fajr":"05:05","sunrise":"06:18","dhuhr":"12:14","asr":"15:34","maghrib":"18:05","isha":"19:12"},{"date":"2025-10-20","fajr":"05:05","sunrise":"06:18","dhuhr":"12:13","asr":"15:34","maghrib":"18:04","isha":"19:12"},{"date":"2025-10-21","fajr":"05:05","sunrise":"06:18","dhuhr":"12:13","asr":"15:34","maghrib":"18:04","isha":"19:11"},{"date":"2025-10-22","fajr":"05:06","sunrise":"06:18","dhuhr":"12:13","asr":"15:33","maghrib":"18:03","isha":"19:11"},{"date":"2025-10-23","fajr":"05:06","sunrise":"06:19","dhuhr":"12:13","asr":"15:33","maghrib":"18:02","isha":"19:10"},{"date":"2025-10-24","fajr":"05:06","sunrise":"06:19","dhuhr":"12:13","asr":"15:33","maghrib":"18:02","isha":"19:10"},{"date":"2025-10-25","fajr":"05:06","sunrise":"06:19","dhuhr":"12:13","asr":"15:33","maghrib":"18:01","isha":"19:09"},{"date":"2025-10-26","fajr":"05:07","sunrise":"06:20","dhuhr":"12:13","asr":"15:32","maghrib":"18:01","isha":"19:09"},{"date":"2025-10-27","fajr":"05:07","sunrise":"06:20","dhuhr":"12:13","asr":"15:32","maghrib":"18:00","isha":"19:08"},{"date":"2025-10-28","fajr":"05:07","sunrise":"06:20","dhuhr":"12:12","asr":"15:32","maghrib":"18:00","isha":"19:08"},{"date":"2025-10-29","fajr":"05:07","sunrise":"06:21","dhuhr":"12:12","asr":"15:31","maghrib":"17:59","isha":"19:07"},{"date":"2025-10-30","fajr":"05:08","sunrise":"06:21","dhuhr":"12:12","asr":"15:31","maghrib":"17:59","isha":"19:07"},{"date":"2025-10-31","fajr":"05:08","sunrise":"06:21","dhuhr":"12:12","asr":"15:31","maghrib":"17:58","isha":"19:07"}];
+        function loadPrayerTimes() { 
+            const today = new Date().toISOString().split('T')[0];
+            const specificDate = "2025-10-18";
+            const data = prayerTimes.find(p => p.date === specificDate);
+            if (data) {
+                appState.prayerTimes = { ...appState.prayerTimes, Fajr: data.fajr, Dhuhr: data.dhuhr, Asr: data.asr, Maghrib: data.maghrib, Isha: data.isha };
+                prayerTimesContainer.innerHTML = '';
+                const prayerOrder = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+                const prayerNames = { Fajr: 'الفجر', Dhuhr: 'الظهر', Asr: 'العصر', Maghrib: 'المغرب', Isha: 'العشاء' };
+                const iqamaOffsets = { Fajr: 25, Dhuhr: 20, Asr: 20, Maghrib: 5, Isha: 20 };
+                prayerOrder.forEach(key => {
+                    const item = document.createElement('div');
+                    item.className = 'prayer-time-item navigable grid-item';
+                    item.tabIndex = 0;
+                    const time = data[key.toLowerCase()];
+                    item.innerHTML = `<span class="prayer-name">${prayerNames[key]}</span><span class="prayer-time">${time}</span><span class="prayer-iqama text-xs text-white/50">الإقامة: ${addMinutes(time, iqamaOffsets[key])}</span>`;
+                    prayerTimesContainer.appendChild(item);
+                });
+                lucide.createIcons();
+                determineNextPrayer();
+                updateDigitalClock();
+            } else {
+                prayerTimesContainer.innerHTML = `<p class="text-white/70 col-span-full">لا توجد أوقات صلاة لهذا اليوم.</p>`;
+            }
+        }
+        function addMinutes(time, min) { const [h, m] = time.split(':').map(Number); const d = new Date(); d.setHours(h, m + min, 0, 0); return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }); }
+        function timeToDate(time) { const [h, m] = time.split(':').map(Number); const d = new Date(); d.setHours(h, m, 0, 0); return d; }
+        function determineNextPrayer() { 
+            const now = new Date();
+            now.setFullYear(2025, 9, 18); // October is month 9
+            const todayTimings = appState.prayerTimes;
+            if (!todayTimings.Fajr || todayTimings.Fajr === '--:--') return;
+            const fajrTomorrowTime = timeToDate(todayTimings.Fajr);
+            fajrTomorrowTime.setDate(fajrTomorrowTime.getDate() + 1);
+            const prayers = [
+                { n: "الفجر", t: todayTimings.Fajr, o: 25, g: 5 }, { n: "الظهر", t: todayTimings.Dhuhr, o: 20, g: 15 }, { n: "العصر", t: todayTimings.Asr, o: 20, g: 20 }, { n: "المغرب", t: todayTimings.Maghrib, o: 5, g: 20 }, { n: "العشاء", t: todayTimings.Isha, o: 20, g: 15 }
+            ];
+            appState.prayerTimes.currentPrayer = null;
+            appState.prayerTimes.nextPrayer = null;
+            appState.prayerTimes.nextPrayerIqamaTime = null; 
+            appState.prayerTimes.currentPrayerIqamaTime = null; 
+            let currentPrayerData = null;
+            let nextPrayerData = null;
+            const fajrTimeToday = timeToDate(todayTimings.Fajr);
+            if (now < fajrTimeToday) {
+                 const ishaPrayerInfo = prayers.find(p => p.n === "العشاء");
+                 const ishaTimeYesterday = timeToDate(ishaPrayerInfo.t);
+                 ishaTimeYesterday.setDate(ishaTimeYesterday.getDate() - 1);
+                 const iqamaTimeYesterday = new Date(ishaTimeYesterday.getTime() + ishaPrayerInfo.o * 60000);
+                 const graceEndYesterday = new Date(iqamaTimeYesterday.getTime() + ishaPrayerInfo.g * 60000);
+                 if (now >= ishaTimeYesterday && now < graceEndYesterday) {
+                     currentPrayerData = { n: "العشاء", iqamaTime: iqamaTimeYesterday };
+                     nextPrayerData = { n: "الفجر", pTime: fajrTimeToday };
+                 }
+            }
+            if (!currentPrayerData) {
+                for (const p of prayers) {
+                    const pTime = timeToDate(p.t);
+                    const iqamaTime = timeToDate(addMinutes(p.t, p.o));
+                    const graceEnd = new Date(iqamaTime.getTime() + p.g * 60000);
+                    if (now >= pTime && now < graceEnd) { currentPrayerData = {...p, iqamaTime}; }
+                    if (now < pTime && !nextPrayerData) { nextPrayerData = {...p, pTime}; }
+                }
+            }
+            if (currentPrayerData) {
+                appState.prayerTimes.currentPrayer = currentPrayerData.n;
+                if (now < currentPrayerData.iqamaTime) { 
+                    appState.prayerTimes.nextPrayer = currentPrayerData.n;
+                    appState.prayerTimes.nextPrayerIqamaTime = currentPrayerData.iqamaTime;
+                } else { 
+                    appState.prayerTimes.currentPrayerIqamaTime = currentPrayerData.iqamaTime; 
+                    const nextP = nextPrayerData ? nextPrayerData : { n: "الفجر (غدًا)", pTime: fajrTomorrowTime };
+                    appState.prayerTimes.nextPrayer = nextP.n;
+                    appState.prayerTimes.nextPrayerIqamaTime = nextP.pTime; 
+                }
+            } else if (nextPrayerData) { 
+                appState.prayerTimes.nextPrayer = nextPrayerData.n;
+                appState.prayerTimes.nextPrayerIqamaTime = nextPrayerData.pTime;
+            } else {
+                 appState.prayerTimes.nextPrayer = "الفجر (غدًا)";
+                 appState.prayerTimes.nextPrayerIqamaTime = fajrTomorrowTime;
+            }
+            renderPrayerTimesHighlights();
+        }
+        function renderPrayerTimesHighlights() { 
+             if (!prayerTimesContainer) return; document.querySelectorAll('.prayer-time-item').forEach(i => i.classList.remove('current-prayer', 'next-prayer')); if (appState.prayerTimes.currentPrayer) { const item = Array.from(prayerTimesContainer.querySelectorAll('.prayer-name')).find(s => s.textContent === appState.prayerTimes.currentPrayer)?.parentElement; if (item) item.classList.add('current-prayer'); } if (appState.prayerTimes.nextPrayer && appState.prayerTimes.nextPrayer !== appState.prayerTimes.currentPrayer) { const nextPrayerName = appState.prayerTimes.nextPrayer.replace(' (غدًا)', ''); const item = Array.from(prayerTimesContainer.querySelectorAll('.prayer-name')).find(s => s.textContent === nextPrayerName)?.parentElement; if (item && !item.classList.contains('current-prayer')) item.classList.add('next-prayer'); }
+        }
+        
+        // --- Digital Clock ---
+        function updateDigitalClock() { 
+            const now = new Date(); 
+            now.setFullYear(2025, 9, 18); // October is month 9
+            const h = now.getHours(); 
+            const m = now.getMinutes(); 
+            const s = now.getSeconds(); 
+            digitalHoursSpan.textContent = h.toString().padStart(2, '0'); 
+            digitalMinutesSpan.textContent = m.toString().padStart(2, '0'); 
+            digitalSecondsSpan.textContent = s.toString().padStart(2, '0'); 
+            digitalDateLine1.classList.remove('countdown-azan', 'countdown-iqama', 'countdown-up'); 
+            digitalDateLine2.classList.remove('countdown-azan', 'countdown-iqama', 'countdown-up'); 
+            if (appState.prayerTimes.currentPrayer && appState.prayerTimes.currentPrayerIqamaTime) {
+                const diff = now - appState.prayerTimes.currentPrayerIqamaTime;
+                const totalSecs = Math.floor(diff / 1000);
+                const secs = totalSecs % 60;
+                const mins = Math.floor(totalSecs / 60);
+                digitalDateLine1.textContent = `انتهت اقامة الصلاة ${appState.prayerTimes.currentPrayer} منذ:`;
+                digitalDateLine2.textContent = `+${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                digitalDateLine1.classList.add('countdown-up');
+                digitalDateLine2.classList.add('countdown-up');
+            } else if (appState.prayerTimes.nextPrayerIqamaTime) {
+                const diff = appState.prayerTimes.nextPrayerIqamaTime - now;
+                const totalSecs = Math.floor(diff / 1000);
+                const secs = totalSecs % 60;
+                const mins = Math.floor((totalSecs / 60) % 60);
+                const hrs = Math.floor(totalSecs / 3600);
+                const isCountdownToIqama = (appState.prayerTimes.currentPrayer === appState.prayerTimes.nextPrayer);
+                if (isCountdownToIqama) {
+                    digitalDateLine1.textContent = `إقامة صلاة ${appState.prayerTimes.currentPrayer} في:`;
+                    digitalDateLine2.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                    digitalDateLine1.classList.add('countdown-iqama');
+                    digitalDateLine2.classList.add('countdown-iqama');
+                } else {
+                    digitalDateLine1.textContent = `الأذان القادم: ${appState.prayerTimes.nextPrayer}`;
+                    digitalDateLine2.textContent = hrs > 0 ? `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}` : `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                    digitalDateLine1.classList.add('countdown-azan');
+                    digitalDateLine2.classList.add('countdown-azan');
+                }
+            } else {
+                digitalDateLine1.textContent = 'جاري تحميل أوقات الصلاة...';
+                digitalDateLine2.textContent = '';
+            } 
+        }
+
+        // --- IPTV Functions (NEW IMPLEMENTATION) ---
+        function playSimpleChannel(url, listItem) {
+            const allItems = document.querySelectorAll('#iptv-simple-channel-list li');
+            allItems.forEach(item => item.classList.remove('active'));
+            listItem.classList.add('active');
+            
+            const videoEl = document.getElementById('iptv-video-player');
+
+            if (!videoJsPlayer) { // If player doesn't exist, create it
+                videoJsPlayer = videojs(videoEl, {
+                    autoplay: true,
+                    controls: true,
+                    preload: 'auto',
+                    fluid: true 
+                });
+            }
+            
+            const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(url);
+
+            // Set the new source
+            videoJsPlayer.src({
+                src: proxyUrl,
+                type: 'application/x-mpegURL' // Specify HLS type
+            });
+
+            videoJsPlayer.load();
+            videoJsPlayer.play();
+        }
+
+
+        function loadIptv() {
+            const channelListElement = document.getElementById('iptv-simple-channel-list');
+            if (channelListElement.children.length > 0) return; // Already populated
+
+            channelListElement.innerHTML = ''; 
+
+            if (iptvChannels.length === 0) {
+                channelListElement.innerHTML = '<li>No channels found.</li>';
+                return;
+            }
+
+            iptvChannels.forEach(channel => {
+                const li = document.createElement('li');
+                li.className = 'navigable grid-item';
+                li.tabIndex = 0;
+                li.innerHTML = `
+                    <img src="${channel.logo}" alt="" onerror="this.onerror=null;this.style.display='none';">
+                    <span>${channel.name}</span>
+                `;
+                li.addEventListener('click', () => {
+                    playSimpleChannel(channel.url, li);
+                });
+                channelListElement.appendChild(li);
+            });
+
+            if (channelListElement.firstChild) {
+                playSimpleChannel(iptvChannels[0].url, channelListElement.firstChild);
+            }
+        }
+
+
+        // --- TV Remote / Keyboard Navigation ---
+        let currentFocus = null;
+        function setFocus(el) {
+            if (currentFocus) currentFocus.classList.remove('tv-focus');
+            if (el) {
+                el.classList.add('tv-focus');
+                el.focus({ preventScroll: true });
+                currentFocus = el;
+                el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+            } else {
+                if (currentFocus) currentFocus.classList.remove('tv-focus');
+                currentFocus = null;
+            }
+        }
+        function handleRemoteControlInput(e) {
+             const key = e.key.toLowerCase();
+            const activeEl = document.activeElement;
+            if (!['arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'enter', 'ok'].includes(key)) return;
+            e.preventDefault();
+            if (!activeEl || activeEl === document.body) {
+                const firstIcon = document.querySelector('nav .app-icon');
+                if (firstIcon) setFocus(firstIcon);
+                return;
+            }
+            const inNav = activeEl.closest('nav');
+            if (inNav) {
+                const icons = Array.from(document.querySelectorAll('nav .app-icon'));
+                const idx = icons.indexOf(activeEl);
+                let nextIdx = -1;
+                switch(key) {
+                    case 'arrowup': nextIdx = idx > 0 ? idx - 1 : icons.length - 1; break;
+                    case 'arrowdown': nextIdx = idx < icons.length - 1 ? idx + 1 : 0; break;
+                    case 'arrowright': {
+                        const screen = document.querySelector('.app-screen.active');
+                        if (screen) {
+                            const firstItem = screen.querySelector('.grid-item');
+                            if (firstItem) setFocus(firstItem);
+                        }
+                        return;
+                    }
+                    case 'enter': case 'ok': activeEl.click(); return;
+                }
+                 if (nextIdx !== -1) setFocus(icons[nextIdx]);
+            } else {
+                const container = activeEl.closest('.grid-container');
+                if (container) {
+                    handleGenericGridNavigation(e, activeEl, container);
+                }
+            }
+        }
+        function handleGenericGridNavigation(e, activeEl, container) {
+            const items = Array.from(container.querySelectorAll('.grid-item:not([style*="display: none"])')).filter(el => el.offsetParent !== null);
+            if (items.length === 0) return;
+            const idx = items.indexOf(activeEl);
+            if (idx === -1) { setFocus(items[0]); return; }
+
+            // Determine columns based on layout flow
+            let cols = 1;
+            if(window.getComputedStyle(container).display === 'grid') {
+                 cols = window.getComputedStyle(container).gridTemplateColumns.split(' ').length;
+            } else {
+                // For flexbox or block, assume 1 column
+                cols = 1;
+            }
+
+            let nextIdx = -1;
+            switch (e.key.toLowerCase()) {
+                case 'arrowup': nextIdx = idx - cols; break;
+                case 'arrowdown': nextIdx = idx + cols; break;
+                case 'arrowright': 
+                     if (container.id === "iptv-simple-channel-list") return; // Don't move right from channel list
+                     nextIdx = idx + 1;
+                     break;
+                case 'arrowleft':
+                    if (container.id === "iptv-simple-channel-list") {
+                         const navIcon = document.querySelector('nav .app-icon.active');
+                         if (navIcon) setFocus(navIcon);
+                         return;
+                    }
+                    nextIdx = idx - 1;
+                    break;
+                case 'enter': case 'ok': activeEl.click(); return;
+            }
+            if (nextIdx >= 0 && nextIdx < items.length) { 
+                setFocus(items[nextIdx]); 
+            } else if (e.key === 'arrowleft' && idx % cols === 0) {
+                 const navIcon = document.querySelector('nav .app-icon.active');
+                 if (navIcon) setFocus(navIcon);
+            }
+        }
+        
+        // --- Welcome Voice Message ---
+        function playWelcomeMessage() { 
+             const today = new Date();
+            today.setFullYear(2025, 9, 18); // October is month 9
+            const gregorianDate = new Intl.DateTimeFormat('en-UK', {  year: 'numeric', month: 'long', day: 'numeric' }).format(today);
+            const hijriDate = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', { weekday: 'long'}).format(today);
+
+            const speak = (textToSpeak) => {
+                if ('speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                    const voices = window.speechSynthesis.getVoices();
+                    let arabicVoice = voices.find(voice => voice.lang.startsWith('ar') && voice.name.includes('Male')) || voices.find(voice => voice.lang.startsWith('ar'));
+                    if (arabicVoice) utterance.voice = arabicVoice;
+                    utterance.lang = 'ar-SA';
+                    utterance.rate = 0.9;
+                    window.speechSynthesis.speak(utterance);
+                }
+            };
+
+            const speakWithVoicesReady = (text) => {
+                 if (window.speechSynthesis.getVoices().length === 0) {
+                    window.speechSynthesis.onvoiceschanged = () => speak(text);
+                } else {
+                    speak(text);
+                }
+            }
+
+            const checkWeatherAndSpeak = () => {
+                if (appState.weather.temperature !== null) {
+                    speakWithVoicesReady(`مرحبا تاريخ اليوم ${hijriDate} الموافق ${gregorianDate}`);
+                    setTimeout(() => {
+                        speakWithVoicesReady(`حالة الطقس الان ${appState.weather.temperature} درجة مئوية`);
+                    }, 8000); 
+                } else {
+                    setTimeout(checkWeatherAndSpeak, 500);
+                }
+            };
+            checkWeatherAndSpeak();
+        }
+
+        // --- Initial Setup ---
+        document.addEventListener('DOMContentLoaded', () => { 
+            appButtons.forEach(b => b.addEventListener('click', () => switchApp(b.dataset.app)));
+            getMyLocationButtonDashboard?.addEventListener('click', centerMapOnUserLocation);
+            goToHome1Button?.addEventListener('click', () => calculateAndDisplayRouteTo(HOME1_COORDS));
+            goToHome2Button?.addEventListener('click', () => calculateAndDisplayRouteTo(HOME2_COORDS));
+            upload360ImageButton?.addEventListener('click', () => upload360ImageInput.click()); 
+            upload360ImageInput?.addEventListener('change', handleImageUpload); 
+            reset360ImageButton?.addEventListener('click', resetImageToDefault); 
+            document.addEventListener('keydown', handleRemoteControlInput);
+            pauseAnimationButton.addEventListener('click', () => { 
+                document.body.classList.toggle('animation-paused');
+                const isPaused = document.body.classList.contains('animation-paused');
+                const playIcon = pauseAnimationButton.querySelector('[data-lucide="play"]');
+                const pauseIcon = pauseAnimationButton.querySelector('[data-lucide="pause"]');
+                playIcon.classList.toggle('hidden', !isPaused);
+                pauseIcon.classList.toggle('hidden', isPaused);
+             });
+            removeCacheButton.addEventListener('click', () => { 
+                localStorage.clear();
+                showMessageBox('تم مسح ذاكرة التخزين المؤقت بنجاح. سيتم إعادة تحميل التطبيق.');
+                setTimeout(() => location.reload(), 2000);
+            });
+            zoomInButton.addEventListener('click', () => { 
+                 if (currentFontSize < 20) {
+                    currentFontSize += 1;
+                    document.documentElement.style.fontSize = `${currentFontSize}px`;
+                }
+            });
+            zoomOutButton.addEventListener('click', () => { 
+                 if (currentFontSize > 12) {
+                    currentFontSize -= 1;
+                    document.documentElement.style.fontSize = `${currentFontSize}px`;
+                }
+            });
+
+            // Initial Calls
+            loadGoogleMaps().then(initMap);
+            fetchWeatherData(); 
+            loadPrayerTimes();
+            updateFullDateWidget();
+            setTimeout(playWelcomeMessage, 1500);
+            setInterval(fetchWeatherData, 300000); 
+            setInterval(updateDigitalClock, 1000); 
+            setInterval(determineNextPrayer, 60000);
+            setInterval(updateFullDateWidget, 60000); 
+            switchApp('Dashboard'); 
+        });
+
+    </script>
+</body> 
+</html>
+
