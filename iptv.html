@@ -423,46 +423,32 @@ div#geolocation-error-overlay {
             div#bottom-left-controls {
                 DISPLAY: NONE;
             }
-
+            
             #carplay-main-interface {
-                top: 0;
-                left: 0;
-                width: 100vw;
-                height: 100vh;
-                flex-direction: column;
-                border-radius: 0;
+                 flex-direction: column;
             }
 
             main {
                 order: 1;
                 height: 100%; /* Take full height of the flex container */
-                padding-bottom: 64px; /* Add padding for the nav bar */
             }
 
             nav {
                 order: 2; /* Move nav to bottom of flex container */
-                position: fixed; /* Make it a floating dock */
-                bottom: 0;
-                left: 0;
                 width: 100%;
                 height: 64px; /* A standard dock height */
                 flex-direction: row;
                 justify-content: space-around;
                 align-items: center;
-                background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
-                backdrop-filter: blur(15px);
-                -webkit-backdrop-filter: blur(15px);
-                border-top: 1px solid rgba(255, 255, 255, 0.1);
-                z-index: 200;
-                padding: 0;
+                padding-top: 0;
+                padding-bottom: 0;
                 gap: 0.5rem;
             }
             
             nav .app-icon {
                 flex-grow: 1;
-                border-radius: 0;
-                height: 100%;
-                width: auto;
+                border-radius: 1rem;
+                height: 90%;
             }
 
             .app-screen {
@@ -800,6 +786,17 @@ div#geolocation-error-overlay {
                      <iframe src="https://www.sofascore.com/" class="full-iframe" sandbox="allow-scripts allow-same-origin"></iframe>
                 </section>
 
+                <!-- Mini Browser Screen -->
+                <section id="screen-Browser" class="app-screen p-2 flex-col h-full gap-2">
+                    <div id="browser-nav" class="flex items-center gap-2 p-2 bg-black/20 rounded-lg glass-surface glass-surface--svg flex-shrink-0">
+                        <button id="browser-back" class="p-2 rounded-md hover:bg-white/10"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
+                        <button id="browser-forward" class="p-2 rounded-md hover:bg-white/10"><i data-lucide="arrow-right" class="w-5 h-5"></i></button>
+                        <input type="text" id="browser-url" class="flex-grow bg-black/30 text-white px-3 py-2 rounded-md border border-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500 text-left" dir="ltr">
+                        <button id="browser-go" class="p-2 rounded-md bg-purple-600 hover:bg-purple-700 text-white"><i data-lucide="search" class="w-5 h-5"></i></button>
+                    </div>
+                    <iframe id="mini-browser-iframe" class="full-iframe flex-grow" title="Mini Browser" src="about:blank" allow="geolocation"></iframe>
+                </section>
+
 
             </main>
 
@@ -813,6 +810,9 @@ div#geolocation-error-overlay {
                 </button>
                 <button data-app="Sofascore" class="app-icon navigable grid-item" tabindex="0">
                     <i data-lucide="football"></i>
+                </button>
+                <button data-app="Browser" class="app-icon navigable grid-item" tabindex="0">
+                    <i data-lucide="globe"></i>
                 </button>
             </nav>
         </div>
@@ -861,11 +861,10 @@ div#geolocation-error-overlay {
 
         // --- Favorite Channels ---
         const iptvChannels = [
-            { name: 'Bein Sports 1', url: 'https://live-hls-abr-cdn.livepush.io/live/bigbuckbunnyclip/index.m3u8', logo: 'https://i.imgur.com/3J6z5L5.png', group: 'Favorites' },
-            { name: 'Bein Sports 2', url: 'https://dmusera.netlify.app/3111.M3U8', logo: 'https://i.imgur.com/3J6z5L5.png', group: 'Favorites' },
+            { name: 'Bein Sports 1', url: 'http://playstop.watch:2095/live/W87d737/Pd37qj34/3111.m3u8', logo: 'https://i.imgur.com/3J6z5L5.png', group: 'Favorites' },
+            { name: 'Bein Sports 2', url: 'http://playstop.watch:2095/live/W87d737/Pd37qj34/3110.m3u8', logo: 'https://i.imgur.com/3J6z5L5.png', group: 'Favorites' },
             { name: 'Bein Sports 3', url: 'http://playstop.watch:2095/live/W87d737/Pd37qj34/3109.m3u8', logo: 'https://i.imgur.com/3J6z5L5.png', group: 'Favorites' },
             { name: 'Thikrayat', url: 'http://playstop.watch:2095/live/W87d737/Pd37qj34/293740.m3u8', logo: 'https://i.imgur.com/1FqkC3g.png', group: 'Favorites' },
-            { name: 'Thikrayat 2', url: 'http://playstop.watch:2095/live/W87d737/Pd37qj34/293741.ts', logo: 'https://i.imgur.com/1FqkC3g.png', group: 'Favorites' },
             { name: 'Oman TV', url: 'http://playstop.watch:2095/live/W87d737/Pd37qj34/2759.m3u8', logo: 'https://i.imgur.com/cO1a3b1.png', group: 'Favorites' },
             { name: 'Al-Shasha', url: 'http://playstop.watch:2095/live/W87d737/Pd37qj34/299856.m3u8', logo: 'https://i.imgur.com/4zY2b1Y.png', group: 'Favorites' }
         ];
@@ -932,6 +931,16 @@ div#geolocation-error-overlay {
 
             if (appName === 'IPTV') {
                 loadIptv();
+            }
+
+            if (appName === 'Browser') {
+                const browserIframe = document.getElementById('mini-browser-iframe');
+                const browserUrlInput = document.getElementById('browser-url');
+                if (browserIframe.getAttribute('src') === 'about:blank') {
+                    const initialUrl = 'https://yallalive.sx';
+                    browserIframe.src = 'https://thingproxy.freeboard.io/fetch/' + initialUrl;
+                    browserUrlInput.value = initialUrl;
+                }
             }
 
             if (appName === 'Dashboard' && appState.mapZoomChangedByUser) {
@@ -1292,7 +1301,7 @@ div#geolocation-error-overlay {
                 });
             }
             
-            const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(url);
+            const proxyUrl = 'https://thingproxy.freeboard.io/fetch/' + url;
 
             // Set the new source
             videoJsPlayer.src({
@@ -1301,7 +1310,9 @@ div#geolocation-error-overlay {
             });
 
             videoJsPlayer.load();
-            videoJsPlayer.play();
+            videoJsPlayer.play().catch(e => {
+                console.warn("Autoplay was prevented. User interaction might be required.");
+            });
         }
 
 
@@ -1502,6 +1513,30 @@ div#geolocation-error-overlay {
                     document.documentElement.style.fontSize = `${currentFontSize}px`;
                 }
             });
+
+            // --- Browser Navigation Logic ---
+            const browserIframe = document.getElementById('mini-browser-iframe');
+            const browserUrlInput = document.getElementById('browser-url');
+            document.getElementById('browser-back').addEventListener('click', () => {
+                try { browserIframe.contentWindow.history.back(); } catch (e) { console.error("Browser back error:", e); }
+            });
+            document.getElementById('browser-forward').addEventListener('click', () => {
+                try { browserIframe.contentWindow.history.forward(); } catch (e) { console.error("Browser forward error:", e); }
+            });
+            const goAction = () => {
+                let url = browserUrlInput.value.trim();
+                if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                    url = 'https://' + url;
+                }
+                 browserIframe.src = 'https://corsproxy.io/?' + encodeURIComponent(url);
+            };
+            document.getElementById('browser-go').addEventListener('click', goAction);
+            browserUrlInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    goAction();
+                }
+            });
+
 
             // Initial Calls
             loadGoogleMaps().then(initMap);
