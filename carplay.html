@@ -2339,7 +2339,7 @@ function updateFullDateWidget() {
         day: 'numeric'
     }).format(today);
 
-    const hijriDate = new Intl.DateTimeFormat('ar-OM-u-ca-islamic', {
+    const hijriDate = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
@@ -5601,7 +5601,7 @@ let favoritesM = [];
                     speakWithVoicesReady(welcomeText);
 
                     setTimeout(() => {
-                        weatherText = `حالة الطقس الان ${appState.weather.temperature} ${appState.weather.temperature} درجة مئوية`;
+                        weatherText = `حالة الطقس الان ${appState.weather.temperature} درجة مئوية`;
                         speakWithVoicesReady(weatherText);
                     }, 8000); 
                 } else {
