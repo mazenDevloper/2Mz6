@@ -1405,16 +1405,7 @@ div#youtube-readers-section {
         }
 
         @media (max-width: 768px) {
-            .athkar-grid {
-                grid-template-columns: 1fr;
-            }
-            .athkar-grid-monthly {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .athkar-item {
-                font-size: 1.2rem;
-                padding: 1rem;
-            }
+            
         }
         /* --- END: Athkar App Styles --- */
         @media (max-width: 768px) {
@@ -1943,7 +1934,7 @@ section#screen-Dashboard{
     display: block;
 }
        .flex.gap-2.mt-2.homebtn {
-    display: flex;
+    display: block;
 }
 div#map{display:none}
 
@@ -5619,30 +5610,41 @@ let favoritesM = [];
                     speak(text);
                 }
             }
-let hasSpokenWelcome = false; // علم لمنع تكرار الترحيب
+// 1. التحقق من "الحارس العالمي" أولاً
+if (!window.hasInitializedWeatherSpeaker) {
 
-const checkWeatherAndSpeak = () => {
-    // نطق الترحيب مرة واحدة فقط
-    if (!hasSpokenWelcome) {
-        const welcomeText = `مرحبا، تاريخ اليوم ${hijriDate} الموافق ${gregorianDate}`;
-        speakWithVoicesReady(welcomeText);
-        hasSpokenWelcome = true;
-    }
+    // 2. إذا لم يتم التشغيل من قبل، قم بتعيين الحارس فوراً
+    window.hasInitializedWeatherSpeaker = true;
+    
+    // 3. الآن، ضع الكود الأصلي بالكامل هنا
+    let hasSpokenWelcome = false; // هذا العلم سيعمل الآن بشكل صحيح
 
-    // إذا كانت بيانات الطقس جاهزة، نطقها بعد تأخير
-    if (appState.weather.temperature !== null) {
-        setTimeout(() => {
-            const weatherText = `حالة الطقس الآن ${appState.weather.temperature} درجة مئوية`;
-            speakWithVoicesReady(weatherText);
-        }, 8000);
-    } else {
-        // إذا لم تكن جاهزة، كرر المحاولة لاحقًا (بدون نطق الترحيب مجددًا)
-        setTimeout(checkWeatherAndSpeak, 500);
-    }
-};
+    const checkWeatherAndSpeak = () => {
+        // نطق الترحيب مرة واحدة فقط
+        if (!hasSpokenWelcome) {
+            const welcomeText = `مرحبا، تاريخ اليوم ${hijriDate} الموافق ${gregorianDate}`;
+            speakWithVoicesReady(welcomeText);
+            hasSpokenWelcome = true;
+        }
 
-// ابدأ التشغيل
-checkWeatherAndSpeak();
+        // إذا كانت بيانات الطقس جاهزة، نطقها بعد تأخير
+        if (appState.weather.temperature !== null) {
+            setTimeout(() => {
+                const weatherText = `حالة الطقس الآن ${appState.weather.temperature} درجة مئوية`;
+                speakWithVoicesReady(weatherText);
+            }, 7000);
+        } else {
+            // إذا لم تكن جاهزة، كرر المحاولة لاحقًا
+            setTimeout(checkWeatherAndSpeak, 500);
+        }
+    };
+
+    // 4. ابدأ التشغيل (سيحدث هذا مرة واحدة فقط)
+    checkWeatherAndSpeak();
+}
+// 5. في المرة الثانية والثالثة التي يحاول فيها الكود العمل،
+// سيفشل الشرط الأول (!window.hasInitializedWeatherSpeaker)
+// وسيتم تخطي الكود بالكامل.
 
         }
 
