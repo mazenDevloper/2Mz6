@@ -5597,9 +5597,16 @@ let favoritesM = [];
                     speak(text);
                 }
             }
-
+let hasSpokenWelcome = false; // علم لمنع تكرار الترحيب
             // Check if weather data is ready before proceeding
             const checkWeatherAndSpeak = () => {
+
+if (!hasSpokenWelcome) {
+        const welcomeText = `مرحبا، تاريخ اليوم ${hijriDate} الموافق ${gregorianDate}`;
+        speakWithVoicesReady(welcomeText);
+        hasSpokenWelcome = true;
+    }
+
                 if (appState.weather.temperature !== null) {
                     welcomeText = `مرحبا تاريخ اليوم ${hijriDate} الموافق ${gregorianDate}    `;
                     speakWithVoicesReady(welcomeText);
@@ -5609,8 +5616,7 @@ let favoritesM = [];
                         speakWithVoicesReady(weatherText);
                     }, 8000); 
                 } else {
-                    welcomeText = `مرحبا تاريخ اليوم ${hijriDate} الموافق ${gregorianDate}    `;
-                    speakWithVoicesReady(welcomeText);
+                      setTimeout(checkWeatherAndSpeak, 500);
                 }
             };
 
