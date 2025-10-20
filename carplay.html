@@ -5599,41 +5599,24 @@ let favoritesM = [];
             }
 
             // Check if weather data is ready before proceeding
-           let isSpeaking = false; // لمنع التشغيل المتعدد
-let speechTimeout = null; // لتخزين timeout و إلغائه لاحقًا
+            const checkWeatherAndSpeak = () => {
+                if (appState.weather.temperature !== null) {
+                    welcomeText = `مرحبا تاريخ اليوم ${hijriDate} الموافق ${gregorianDate}    `;
+                    speakWithVoicesReady(welcomeText);
 
-const checkWeatherAndSpeak = () => {
-    // إذا كان النطق قيد التشغيل، لا تبدأ من جديد
-    if (isSpeaking) return;
+                    setTimeout(() => {
+                        weatherText = `حالة الطقس الان ${appState.weather.temperature} درجة مئوية`;
+                        speakWithVoicesReady(weatherText);
+                    }, 8000); 
+                } else {
+                    // If weather data isn't ready, wait and try again.
+                    setTimeout(checkWeatherAndSpeak, 500);
+                }
+            };
 
-    if (appState.weather.temperature !== null) {
-        isSpeaking = true; // نبدأ النطق
+            checkWeatherAndSpeak();
+        }
 
-        const welcomeText = `مرحبا، تاريخ اليوم ${hijriDate} الموافق ${gregorianDate}`;
-        speakWithVoicesReady(welcomeText);
-
-        // إلغاء أي timeout سابق قبل تعيين واحد جديد
-        if (speechTimeout) clearTimeout(speechTimeout);
-
-        speechTimeout = setTimeout(() => {
-            const weatherText = `حالة الطقس الآن ${appState.weather.temperature} درجة مئوية`;
-            speakWithVoicesReady(weatherText);
-
-            // بعد انتهاء النطق، نعيد التأشير إلى false
-            // (اختياري: يمكنك تأجيله أكثر إذا أردت منع إعادة التشغيل فوراً)
-            isSpeaking = false;
-        }, 8000);
-    } else {
-        // إذا لم تكن بيانات الطقس جاهزة، حاول لاحقاً
-        setTimeout(checkWeatherAndSpeak, 500);
-    }
-};
-
-// عند استدعاء الدالة (مثلاً بعد تحميل الصفحة أو تحديث الطقس)
-// تأكد أنها لا تُنادى أكثر من مرة دون داعٍ
-if (!isSpeaking) {
-    checkWeatherAndSpeak();
-}
         // --- Fullscreen Toggle ---
         function toggleFullScreen() {
             let elem;
