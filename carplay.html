@@ -2331,24 +2331,28 @@ function updateFullDateWidget() {
     const today = new Date();
     // نجعل السنة 2025 لتتوافق مع بيانات أوقات الصلاة لديك
     today.setFullYear(2025);
+const yesterday = new Date(today);
+yesterday.setDate(today.getDate() - 1);
 
-    const gregorianDate = new Intl.DateTimeFormat('ar-OM', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    }).format(today);
+// Format Gregorian date (optional, if you still want to show today's Gregorian)
+const gregorianDate = new Intl.DateTimeFormat('en-GB', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+}).format(today);
 
-    const hijriDate = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    }).format(today);
+// Format Hijri date for *yesterday*
+const hijriDateYesterday = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+}).format(yesterday);
 
-    dateWidgetContainer.innerHTML = `
-        <p id="gregorian-date">${gregorianDate}</p>
-        <p id="hijri-date">${hijriDate}</p>
-    `;
+// Update the DOM
+dateWidgetContainer.innerHTML = `
+    <p id="gregorian-date">${gregorianDate}</p>
+    <p id="hijri-date">${hijriDateYesterday}</p>
+`;
 }
 
 // REPLACE the current displayLastWatchedVideo function with this one
