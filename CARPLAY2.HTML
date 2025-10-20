@@ -41,10 +41,23 @@
     padding-bottom: 1rem;
     margin-bottom: 1rem;
 }
-.video-meta>.flex.items-center.gap-2.cursor-pointer.channel-link>img {
-    width: 37px;
-    height: 37px;
-    border-radius: 70px;
+.flex.gap-2.mt-2.homebtn {
+    display: none;
+}
+div#add-channel-prompt-content {
+    max-width: 100%;
+}
+.video-meta>div>div>img {
+    width: 37px!important;
+    height: 37px!important;
+    border-radius: 70px!important;
+}
+.video-meta>div {justify-content: right;font-size:1.3rem;}
+.video-meta>span {justify-content: right;font-size:1.2rem;}
+
+h3.video-title {
+    text-align-last: right;
+    font-size:1.3rem;
 }
 .last-watched-carousel-wrapper {
     position: relative;
@@ -54,6 +67,9 @@
     direction: ltr;
 }
 /* NEW: Carousel Navigation Buttons */
+        section#screen-Dashboard {
+        height: 105% !important;
+}
 .carousel-nav-button {
     position: absolute;
     top: 50%;
@@ -121,6 +137,9 @@ div#youtube-suggestions {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+button.delete-channel-btn.absolute.bottom-2.right-2.p-1\.5.bg-red-600\/80.hover\:bg-red-500.rounded-full.transition-colors.z-10.navigable.grid-item {
+    z-index: 0;
 }
 /* --- END: Last Watched Carousel Styles --- */
 .resume-play-button {
@@ -261,6 +280,7 @@ button#back-to-search-floating-button {
     bottom: 51px;
     left: 99px;
     position: fixed;
+     z-index: 1000;
 }
 
 button#back-to-playlists-bottom-button-search {
@@ -291,6 +311,9 @@ button#tab-tarteel {
     display: none;
 }
 
+.flex.items-center.justify-between.w-full.gap-2 {
+    direction: rtl;
+}
         body.animation-paused {
             animation-play-state: paused !important;
         }
@@ -1070,8 +1093,10 @@ section#screen-Media {
     height: 101%!important;
     padding: 0px!important;
     overflow-y: auto;
+    background: #000000b5;
 }
 
+        
 div#youtube-readers-section {
     height: 100%;
             background-color: rgba(0, 0, 0, 0.5);
@@ -1128,7 +1153,7 @@ div#youtube-readers-section {
         }
         #digital-time .hours { opacity: 1; }
         #digital-time .minutes { opacity: 0.8; }
-        #digital-time .seconds { opacity: 0.4; }
+        #digital-time .seconds { opacity: 0.6; }
 
         /* Updated #digital-date styles based on user request */
         #digital-date {
@@ -1380,16 +1405,7 @@ div#youtube-readers-section {
         }
 
         @media (max-width: 768px) {
-            .athkar-grid {
-                grid-template-columns: 1fr;
-            }
-            .athkar-grid-monthly {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .athkar-item {
-                font-size: 1.2rem;
-                padding: 1rem;
-            }
+            
         }
         /* --- END: Athkar App Styles --- */
         @media (max-width: 768px) {
@@ -1659,13 +1675,26 @@ div#bottom-left-controls {
             border: 1px solid #fb923c;
         }
         .prayer-name {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.8rem;
-            margin-bottom: 0.2rem;
+           color: rgba(255, 255, 255);
+    font-size: 1rem;
+    font-family: sans-serif;
+    font-weight: bold;
+    margin-bottom: 0.2rem;
         }
         .prayer-time {
-            color: white;
+           color: rgba(255, 255, 255,0.85);
+            font-size: 1.4rem;
+            font-weight: bold;
+   
+        }
+       span.prayer-iqama{
+             font-size: 1rem;
+             color: rgb(255 179 20 / 85%);
+             font-family: sans-serif;
+             font-weight: bold;
+            margin-bottom: 0.2rem;
             font-size: 1rem;
+            
         }
 
         /* --- START: Islamic Daily Reminders Styles (MODIFIED) --- */
@@ -1826,8 +1855,15 @@ div#bottom-left-controls {
             .carousel-nav-button.prev {
                 display: flex;
             }
+           
+     .flex.gap-2.mt-2.homebtn {
+    display: none;
+}
+section#screen-Dashboard{
+  background: #00000084;   
+}
             body{
-              background:url('https://dmusera.netlify.app/tvbg1@1.5x.png')!important;
+              background:url('https://dmusera.netlify.app/tvbg.webp')!important;
                 background-size:cover!important;
             }
 
@@ -1860,12 +1896,15 @@ div#bottom-left-controls {
             /* --- START: Hide Elements in TV UI --- */
 
 /* إخفاء العناصر المطلوبة في واجهة التلفاز */
-[data-app="Map"],                  /* إخفاء أيقونة خريطة الـ 3D من شريط التنقل */
+
+            .glass-surface.glass-surface--svg.p-2.flex.flex-col.items-center.justify-center.text-center.car-cam-360-container.col-span-1.row-start-1.navigable.grid-item {
+    display: none;
+}
+                              /* إخفاء أيقونة خريطة الـ 3D من شريط التنقل */
             #car-360-image {
                 visibility: hidden;
             }
             div#tv{display:block;background:#00000050}
-            div#map{display:none;}
             
 
 
@@ -1874,7 +1913,7 @@ div#bottom-left-controls {
 }
 
             .car-cam-360-container {
-                background-image: url('https://cdn.salla.sa/ePoPG/896b46ef-2021-4ffb-8ee6-d1010f51a8fd-333.4375x500-651XvkaPHg7Xk9VDEAzv8nBS2uEA58WWVa64rmnk.jpg');
+                background-image: url('https://dmusera.netlify.app/tv-cont.png');
                 background-size: cover;
                 background-position: center center;
                 background-repeat: no-repeat;
@@ -1887,13 +1926,26 @@ div#bottom-left-controls {
         
         /* NEW: Show next button on even wider screens */
         @media (min-width: 1080px) {
+            [data-app="Map"],                  /* إخفاء أيقونة خريطة الـ 3D من شريط التنقل */
+            #car-360-image {
+                display:none
+            }
+            .glass-surface.glass-surface--svg.p-2.flex.flex-col.items-center.justify-center.text-center.car-cam-360-container.col-span-1.row-start-1.navigable.grid-item {
+    display: block;
+}
+       .flex.gap-2.mt-2.homebtn {
+    display: block;
+}
+div#map{display:none}
+
+            div#tv{display:block;background:#00000050}
             .carousel-nav-button.next {
                 display: flex;
             }
         }
     </style>
 </head>
-<body class="animated-bg text-white overflow-hidden theme-gradient-1">
+<body class="animated-bg text-white overflow-hidden theme-gradient-1 animation-paused">
     <!-- SVG Filter Definition for Liquid Glass Effect -->
     <svg style="position: absolute; width: 0; height: 0; overflow: hidden;">
         <defs>
@@ -2119,7 +2171,7 @@ div#bottom-left-controls {
 
                 <!-- Reciters Screen -->
                 <section id="screen-Reciters" class="app-screen items-center justify-center h-full w-full p-4 md:p-6">
-                   <iframe class="full-iframe" title="Quran Reciters" style="zoom: 0.78;" src="https://quran.com/reciters" allow="geolocation"></iframe>
+                   <iframe class="full-iframe" title="Quran Reciters" style="zoom: 0.78;" src="https://www.bein-live.com/" allow="geolocation"></iframe>
                 </section>
 
                 <!-- Weather Screen -->
@@ -2223,7 +2275,7 @@ div#bottom-left-controls {
                     <i data-lucide="book-heart"></i>
                 </button>
                 <button data-app="Reciters" class="app-icon navigable grid-item" tabindex="0"> 
-                    <i data-lucide="users"></i> 
+                    <i data-lucide="tv"></i> 
                 </button>
                 <button data-app="Weather" class="app-icon navigable grid-item" tabindex="0"> 
                     <i data-lucide="cloud-sun"></i> 
@@ -2258,8 +2310,8 @@ div#bottom-left-controls {
     <!-- NEW: Bottom Left Controls -->
     <div id="bottom-left-controls" class="fixed bottom-4 left-4 flex flex-row gap-2 z-[100] grid-container">
         <button id="pause-animation-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="إيقاف/تشغيل الحركة">
-            <i data-lucide="pause" class="w-5 h-5"></i>
-            <i data-lucide="play" class="w-5 h-5 hidden"></i>
+            <i data-lucide="play" class="w-5 h-5"></i>
+            <i data-lucide="pause" class="w-5 h-5 hidden"></i>
         </button>
         <button id="zoom-in-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="تكبير">
             <i data-lucide="zoom-in" class="w-5 h-5"></i>
@@ -2292,24 +2344,28 @@ function updateFullDateWidget() {
     const today = new Date();
     // نجعل السنة 2025 لتتوافق مع بيانات أوقات الصلاة لديك
     today.setFullYear(2025);
+const yesterday = new Date(today);
+yesterday.setDate(today.getDate() - 1);
 
-    const gregorianDate = new Intl.DateTimeFormat('ar-OM', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    }).format(today);
+// Format Gregorian date (optional, if you still want to show today's Gregorian)
+const gregorianDate = new Intl.DateTimeFormat('ar-GB', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+}).format(today);
 
-    const hijriDate = new Intl.DateTimeFormat('ar-OM-u-ca-islamic', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    }).format(today);
+// Format Hijri date for *yesterday*
+const hijriDateYesterday = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+}).format(yesterday);
 
-    dateWidgetContainer.innerHTML = `
-        <p id="gregorian-date">${gregorianDate}</p>
-        <p id="hijri-date">${hijriDate}</p>
-    `;
+// Update the DOM
+dateWidgetContainer.innerHTML = `
+    <p id="gregorian-date">${gregorianDate}</p>
+    <p id="hijri-date">${hijriDateYesterday}</p>
+`;
 }
 
 // REPLACE the current displayLastWatchedVideo function with this one
@@ -2465,6 +2521,12 @@ const JSONBIN_ACCESS_KEY_REMINDERS = '$2a$10$J8o3WrPtnqmKAd///uDw6.BOWnGIBekHFOI
 // NEW: JSONBin IDs for Favorites
 const JSONBIN_BIN_ID_FAV_M = '68e4ac20d0ea881f4098138c';
 const JSONBIN_BIN_ID_FAV_D = '68e4ac2e43b1c97be95d24af';
+
+// NEW: JSONBin IDs for Channels List
+const JSONBIN_BIN_ID_CHANNELS = '68ef1b3dd0ea881f40a38bd1';
+const JSONBIN_ACCESS_KEY_CHANNELS = '$2a$10$J8o3WrPtnqmKAd///uDw6.BOWnGIBekHFOImbeEZZwsJ/h/XPbVUy';
+let localChannelsCache = []; // To store the list locally
+
 let favoritesD = [];
 let favoritesM = [];
 
@@ -2830,20 +2892,27 @@ let favoritesM = [];
             else if (isSavedD) bookmarkClass = 'saved-d';
             else if (isSavedM) bookmarkClass = 'saved-m';
 
+            const isLive = video.duration === 'مباشر';
+
             card.innerHTML = `
                 <div class="video-details">
                     <h3 class="video-title">${video.title}</h3>
                     <div class="video-meta">
-                        <div class="flex items-center gap-2 cursor-pointer channel-link" data-channel-id="${video.channelId}" data-channel-title="${video.channelTitle}">
-                           <img src="${video.channelThumbnail || 'https://placehold.co/24x24/334155/ffffff?text=?'}" alt="${video.channelTitle}" class="w-6 h-6 rounded-md object-cover flex-shrink-0">
-                           <span class="hover:underline truncate">${video.channelTitle}</span>
+                        <div class="flex items-center justify-between w-full gap-2">
+                            <div class="flex items-center gap-2 cursor-pointer channel-link min-w-0" data-channel-id="${video.channelId}" data-channel-title="${video.channelTitle}">
+                               <img src="${video.channelThumbnail || 'https://placehold.co/24x24/334155/ffffff?text=?'}" alt="${video.channelTitle}" class="w-6 h-6 rounded-full object-cover flex-shrink-0">
+                               <span class="hover:underline truncate">${video.channelTitle}</span>
+                            </div>
+                            <button class="add-channel-from-search-btn p-1 rounded-full hover:bg-white/20 transition-colors flex-shrink-0 navigable grid-item" data-channel-id="${video.channelId}" data-channel-title="${video.channelTitle}" data-channel-thumbnail="${video.channelThumbnail || ''}" title="إضافة القناة للقائمة" tabindex="0">
+                                <i data-lucide="plus-circle" class="w-5 h-5 text-green-400"></i>
+                            </button>
                         </div>
                         <span class="text-xs text-white/60">${video.viewCount} مشاهدة • ${video.publishedAt}</span>
                     </div>
                 </div>
                 <div class="thumbnail-container relative">
                     <img src="${video.thumbnail}" alt="${video.title}" class="w-[180px] h-[101.25px] object-cover rounded-md ml-4 flex-shrink-0" onerror="this.onerror=null;this.src='https://placehold.co/180x101';">
-                    <span class="video-duration">${video.duration}</span>
+                    <span class="video-duration ${isLive ? 'bg-red-600 font-bold' : ''}">${video.duration}</span>
                     ${progressHTML}
                     <button class="bookmark-button ${bookmarkClass}" data-video-id="${video.id}"><i data-lucide="bookmark" class="w-5 h-5"></i></button>
                 </div>
@@ -2865,6 +2934,27 @@ let favoritesM = [];
                     }
                 });
             }
+
+            // NEW: Event listener for the add channel button
+            const addChannelBtn = card.querySelector('.add-channel-from-search-btn');
+            if (addChannelBtn) {
+                // Check if channel is already in the list and disable button
+                if (localChannelsCache.some(c => c.channelid === video.channelId)) {
+                    addChannelBtn.disabled = true;
+                    addChannelBtn.innerHTML = `<i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>`;
+                } else {
+                    addChannelBtn.addEventListener('click', (e) => {
+                        e.stopPropagation(); // Prevent card click
+                        const btn = e.currentTarget;
+                        const channelId = btn.dataset.channelId;
+                        const channelTitle = btn.dataset.channelTitle;
+                        const channelThumbnail = btn.dataset.channelThumbnail;
+                        addChannelFromSearchResult(channelId, channelTitle, channelThumbnail, btn);
+                    });
+                }
+            }
+
+            lucide.createIcons();
             return card;
         }
 
@@ -2943,6 +3033,304 @@ let favoritesM = [];
             return `قبل ${Math.floor(seconds)} ثوان`;
         }
         
+        // --- START: NEW Channel List Functions (JSONBin.io) ---
+        async function fetchChannelsList() {
+            try {
+                const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID_CHANNELS}/latest`, {
+                    headers: { 'X-Access-Key': JSONBIN_ACCESS_KEY_CHANNELS }
+                });
+                if (res.status === 404) return []; // Bin is new/empty
+                if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+                const data = await res.json();
+                localChannelsCache = Array.isArray(data.record) ? data.record : [];
+                return localChannelsCache;
+            } catch (error) {
+                console.error(`Error fetching channels list:`, error);
+                return []; // Return empty on error
+            }
+        }
+
+        async function updateChannelsList(newChannelsList) {
+            try {
+                const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID_CHANNELS}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': JSONBIN_API_KEY
+                    },
+                    body: JSON.stringify(newChannelsList)
+                });
+                if (!res.ok) throw new Error(`Failed to update channels list: ${res.status}`);
+                localChannelsCache = newChannelsList; // Update local cache
+                return true;
+            } catch (error) {
+                console.error(`Error updating channels list:`, error);
+                showMessageBox(`حدث خطأ أثناء تحديث قائمة القنوات`);
+                return false;
+            }
+        }
+
+        function showAddChannelPrompt() {
+            const existingPrompt = document.getElementById('add-channel-prompt');
+            if (existingPrompt) existingPrompt.remove();
+
+            const promptHTML = `
+                <div id="add-channel-prompt" class="fixed inset-0 bg-black/70 flex items-center justify-center z-[9999]">
+                    <div id="add-channel-prompt-content" class="glass-surface glass-surface--svg p-6 rounded-2xl w-full max-w-lg flex flex-col gap-4 transition-all duration-300">
+                        <h3 class="text-xl font-bold text-center">إضافة قناة يوتيوب جديدة</h3>
+                        <p class="text-sm text-white/70 text-center">ابحث باسم القناة لإضافتها إلى قائمتك.</p>
+                        <div class="flex gap-2">
+                            <input type="text" id="new-channel-search-input" placeholder="اسم القناة..." class="flex-grow p-3 rounded-full bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 navigable grid-item" tabindex="0" />
+                            <button id="search-channel-confirm" class="bg-purple-600 hover:bg-purple-700 text-white font-bold p-3 rounded-full navigable grid-item" tabindex="0">
+                                <i data-lucide="search" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                        <div id="channel-search-results" class="mt-4 max-h-[50vh] overflow-y-auto flex flex-col gap-3">
+                            <!-- Search results will appear here -->
+                        </div>
+                         <button id="add-channel-cancel" class="mt-2 bg-red-600/80 hover:bg-red-700/80 text-white font-bold py-2 px-4 rounded-full navigable grid-item self-center" tabindex="0">إغلاق</button>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', promptHTML);
+            lucide.createIcons();
+
+            const promptEl = document.getElementById('add-channel-prompt');
+            const inputEl = document.getElementById('new-channel-search-input');
+            const confirmBtn = document.getElementById('search-channel-confirm');
+            const cancelBtn = document.getElementById('add-channel-cancel');
+
+            const closePrompt = () => promptEl.remove();
+
+            confirmBtn.addEventListener('click', handleSearchForChannel);
+            cancelBtn.addEventListener('click', closePrompt);
+            inputEl.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleSearchForChannel();
+                }
+            });
+            
+            const escapeHandler = (e) => {
+                if (e.key === 'Escape') {
+                    closePrompt();
+                    document.removeEventListener('keydown', escapeHandler);
+                }
+            };
+            document.addEventListener('keydown', escapeHandler);
+
+            inputEl.focus();
+            setFocus(inputEl);
+        }
+
+        async function handleSearchForChannel() {
+            const inputEl = document.getElementById('new-channel-search-input');
+            const resultsContainer = document.getElementById('channel-search-results');
+            const confirmBtn = document.getElementById('search-channel-confirm');
+            const query = inputEl.value.trim();
+
+            if (!query) {
+                showMessageBox("الرجاء إدخال اسم قناة للبحث.");
+                return;
+            }
+
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i>`;
+            lucide.createIcons();
+            resultsContainer.innerHTML = '<p class="text-center text-white/70">...جاري البحث</p>';
+
+            try {
+                const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=channel&key=${YOUTUBE_API_KEY}&maxResults=10`);
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+                displayChannelSearchResults(data.items);
+            } catch (error) {
+                console.error("Error searching for channel:", error);
+                resultsContainer.innerHTML = '<p class="text-center text-red-400">حدث خطأ أثناء البحث. يرجى المحاولة مرة أخرى.</p>';
+            } finally {
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = `<i data-lucide="search" class="w-5 h-5"></i>`;
+                lucide.createIcons();
+            }
+        }
+
+        function displayChannelSearchResults(channels) {
+            const resultsContainer = document.getElementById('channel-search-results');
+            resultsContainer.innerHTML = '';
+
+            if (!channels || channels.length === 0) {
+                resultsContainer.innerHTML = '<p class="text-center text-white/70">لم يتم العثور على قنوات بهذا الاسم.</p>';
+                return;
+            }
+
+            channels.forEach(channel => {
+                const isSaved = localChannelsCache.some(c => c.channelid === channel.id.channelId);
+                const resultCard = document.createElement('div');
+                resultCard.className = 'flex items-center gap-4 p-3 rounded-xl bg-white/5';
+                resultCard.innerHTML = `
+                    <img src="${channel.snippet.thumbnails.default.url}" alt="${channel.snippet.title}" class="w-16 h-16 rounded-full object-cover">
+                    <div class="flex-grow min-w-0">
+                        <h4 class="font-bold truncate">${channel.snippet.title}</h4>
+                        <p class="text-sm text-white/60 truncate">${channel.snippet.description || 'لا يوجد وصف'}</p>
+                    </div>
+                    <button 
+                        class="add-channel-from-modal-btn p-2 rounded-full transition-colors flex-shrink-0 navigable grid-item ${isSaved ? 'bg-green-600' : 'bg-blue-600 hover:bg-blue-700'}" 
+                        data-channel-id="${channel.id.channelId}" 
+                        data-channel-title="${channel.snippet.title}" 
+                        data-channel-thumbnail="${channel.snippet.thumbnails.default.url}"
+                        ${isSaved ? 'disabled' : ''}
+                        tabindex="0"
+                    >
+                        <i data-lucide="${isSaved ? 'check' : 'plus'}" class="w-5 h-5 text-white"></i>
+                    </button>
+                `;
+                resultsContainer.appendChild(resultCard);
+
+                if (!isSaved) {
+                    resultCard.querySelector('.add-channel-from-modal-btn').addEventListener('click', (e) => {
+                        const btn = e.currentTarget;
+                        const channelId = btn.dataset.channelId;
+                        const channelTitle = btn.dataset.channelTitle;
+                        const channelThumbnail = btn.dataset.channelThumbnail;
+                        handleAddChannelFromModal(channelId, channelTitle, channelThumbnail);
+                    });
+                }
+            });
+            lucide.createIcons();
+            updateNavigableElements();
+        }
+
+        async function handleAddChannelFromModal(channelId, channelTitle, channelThumbnail) {
+            const modalButton = document.querySelector(`.add-channel-from-modal-btn[data-channel-id="${channelId}"]`);
+            if (modalButton) {
+                modalButton.disabled = true;
+                modalButton.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 text-yellow-400 animate-spin"></i>`;
+                lucide.createIcons();
+            }
+
+            try {
+                if (localChannelsCache.some(c => c.channelid === channelId)) {
+                     showMessageBox("هذه القناة موجودة بالفعل في قائمتك.");
+                     if (modalButton) {
+                         modalButton.innerHTML = `<i data-lucide="check" class="w-5 h-5 text-white"></i>`;
+                         modalButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                         modalButton.classList.add('bg-green-600');
+                         lucide.createIcons();
+                     }
+                     return;
+                }
+
+                const newChannel = { name: channelTitle, image: channelThumbnail, channelid: channelId, channeltitle: channelTitle };
+                const updatedList = [...localChannelsCache, newChannel];
+                const success = await updateChannelsList(updatedList);
+
+                if (success) {
+                    showMessageBox(`تمت إضافة قناة "${newChannel.name}" بنجاح.`);
+                    if (modalButton) {
+                         modalButton.innerHTML = `<i data-lucide="check" class="w-5 h-5 text-white"></i>`;
+                         modalButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                         modalButton.classList.add('bg-green-600');
+                         lucide.createIcons();
+                    }
+                    const suggestionsContent = document.getElementById('suggestions-content');
+                    if(suggestionsContent) {
+                        const activeTabId = document.querySelector('#screen-Media .tab-button.active')?.id;
+                        suggestionsContent.innerHTML = '';
+                        await populateYoutubeSuggestions();
+                        if (activeTabId) {
+                            document.getElementById(activeTabId)?.click();
+                        } else {
+                            document.getElementById('tab-channels')?.click();
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error("Error adding channel from modal:", error);
+                showMessageBox("حدث خطأ أثناء إضافة القناة.");
+                if (modalButton) {
+                     modalButton.disabled = false;
+                     modalButton.innerHTML = `<i data-lucide="plus" class="w-5 h-5 text-white"></i>`;
+                     lucide.createIcons();
+                }
+            }
+        }
+
+        async function addChannelFromSearchResult(channelId, channelTitle, channelThumbnail, containerElement, video) {
+            if (!channelId || !channelTitle) {
+                showMessageBox("معلومات القناة غير كاملة.");
+                return;
+            }
+
+            if (buttonElement) {
+                buttonElement.disabled = true;
+                buttonElement.innerHTML = `<i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>`;
+                lucide.createIcons();
+            }
+
+            try {
+                if (localChannelsCache.some(c => c.channelid === channelId)) {
+                     showMessageBox("هذه القناة موجودة بالفعل في قائمتك.");
+                     return;
+                }
+
+                const newChannel = {
+                    name: channelTitle,
+                    image: channelThumbnail,
+                    channelid: channelId,
+                    channeltitle: channelTitle
+                };
+
+                const updatedList = [...localChannelsCache, newChannel];
+                const success = await updateChannelsList(updatedList);
+
+                if (success) {
+                    showMessageBox(`تمت إضافة قناة "${newChannel.name}" بنجاح.`);
+                } else {
+                    if (buttonElement) {
+                        buttonElement.disabled = false;
+                        buttonElement.innerHTML = `<i data-lucide="plus-circle" class="w-5 h-5 text-green-400"></i>`;
+                        lucide.createIcons();
+                    }
+                }
+
+            } catch (error) {
+                console.error("Error adding channel from search result:", error);
+                showMessageBox("حدث خطأ أثناء إضافة القناة.");
+                if (buttonElement) {
+                    buttonElement.disabled = false;
+                    buttonElement.innerHTML = `<i data-lucide="plus-circle" class="w-5 h-5 text-green-400"></i>`;
+                    lucide.createIcons();
+                }
+            }
+        }
+
+        async function removeChannelFromList(channelId, channelName) {
+            if (!channelId) return;
+
+            // This function directly removes the channel. A confirmation modal would be a good addition later.
+            try {
+                const updatedList = localChannelsCache.filter(c => c.channelid !== channelId);
+                const success = await updateChannelsList(updatedList);
+                
+                if (success) {
+                    showMessageBox(`تمت إزالة قناة "${channelName}" بنجاح.`);
+                    // Refresh the entire suggestions view to reflect the deletion
+                    const suggestionsContent = document.getElementById('suggestions-content');
+                    if(suggestionsContent) {
+                       suggestionsContent.innerHTML = '';
+                       await populateYoutubeSuggestions(); // await to ensure it completes
+                       // After refresh, focus might be lost, so let's refocus on the tab
+                       const activeTab = document.querySelector('#screen-Media .tab-button.active');
+                       if(activeTab) setFocus(activeTab);
+                    }
+                }
+            } catch (error) {
+                console.error("Error removing channel from list:", error);
+                showMessageBox("حدث خطأ أثناء إزالة القناة.");
+            }
+        }
+        // --- END: NEW Channel List Functions ---
+        
         async function searchYouTubeVideos(query) {
             try {
                 const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&key=${YOUTUBE_API_KEY}&maxResults=50`);
@@ -2967,8 +3355,13 @@ let favoritesM = [];
                     lastSuccessfulSearchQuery = query; // NEW: Save the last successful query
                     searchResultsContainer.innerHTML = '';
                     videoDetails.forEach(video => {
-                        const durationSeconds = video.contentDetails.duration.match(/\d+/g).map(Number).reduce((acc, time, i, arr) => acc + time * (arr.length === 3 ? [3600, 60, 1][i] : (arr.length === 2 ? [60, 1][i] : 1)), 0);
-                        if (durationSeconds <= 61) return;
+                        const isLive = video.snippet.liveBroadcastContent === 'live';
+                        const durationString = video.contentDetails.duration;
+
+                        if (!isLive) {
+                            const durationSeconds = durationString.match(/\d+/g)?.map(Number).reduce((acc, time, i, arr) => acc + time * (arr.length === 3 ? [3600, 60, 1][i] : (arr.length === 2 ? [60, 1][i] : 1)), 0) || 0;
+                            if (durationSeconds <= 61) return;
+                        }
 
                         const videoData = {
                             id: video.id,
@@ -2979,7 +3372,7 @@ let favoritesM = [];
                             channelThumbnail: channelThumbnails[video.snippet.channelId],
                             viewCount: formatViewCount(video.statistics.viewCount),
                             publishedAt: formatTimeAgo(video.snippet.publishedAt),
-                            duration: formatDuration(video.contentDetails.duration)
+                            duration: isLive ? 'مباشر' : formatDuration(durationString)
                         };
                         searchResultsContainer.appendChild(createVideoCard(videoData));
                     });
@@ -3044,8 +3437,13 @@ let favoritesM = [];
                     searchResultsContainer.innerHTML = `<h2 class="text-3xl font-bold mb-4 text-center w-full text-white col-span-full"> فيديوهات من ${channelTitle}</h2>`;
 
                     videoDetails.forEach(video => {
-                        const durationSeconds = video.contentDetails.duration.match(/\d+/g).map(Number).reduce((acc, time, i, arr) => acc + time * (arr.length === 3 ? [3600, 60, 1][i] : (arr.length === 2 ? [60, 1][i] : 1)), 0);
-                        if (durationSeconds <= 61) return;
+                        const isLive = video.snippet.liveBroadcastContent === 'live';
+                        const durationString = video.contentDetails.duration;
+                        
+                        if (!isLive) {
+                            const durationSeconds = durationString.match(/\d+/g)?.map(Number).reduce((acc, time, i, arr) => acc + time * (arr.length === 3 ? [3600, 60, 1][i] : (arr.length === 2 ? [60, 1][i] : 1)), 0) || 0;
+                            if (durationSeconds <= 61) return;
+                        }
 
                         const videoData = {
                             id: video.id,
@@ -3056,7 +3454,7 @@ let favoritesM = [];
                             channelThumbnail: channelThumbnail,
                             viewCount: formatViewCount(video.statistics.viewCount),
                             publishedAt: formatTimeAgo(video.snippet.publishedAt),
-                            duration: formatDuration(video.contentDetails.duration)
+                            duration: isLive ? 'مباشر' : formatDuration(durationString)
                         };
                         searchResultsContainer.appendChild(createVideoCard(videoData));
                     });
@@ -3335,14 +3733,19 @@ let favoritesM = [];
 {"name":"محمد ايوب","image":"https://dmusera.netlify.app/512px-Muhammad_Ayyub.webp"},{"name":"علي جابر","image":"https://dmusera.netlify.app/ali-jaber.webp"},{"name":"محمد الغزالي","image":"https://imgs.search.brave.com/QWUpKrFCLEvXilcNhgSRM6xKPjTlBtGA-BAsH9sN-Tc/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9hci5p/c2xhbXdheS5uZXQv/dXBsb2Fkcy9hdXRo/b3JzLzUwNjEuanBn"},{"name":"مشاري العفاسي","image":"https://dmusera.netlify.app/512px-%D0%9C%D0%B8%D1%88%D0%B0%D1%80%D0%B8_%D0%A0%D0%B0%D1%88%D0%B8%D0%B4.webp"},{"name":"عبدالله القرافي","image":"https://yt3.googleusercontent.com/mHTg3RIX-a3NAR22lAnOvSq3-U_KBcL_Ax4FTNirc3flsb5OU8RWksKu6X8Ush9JhO0EOxxAwQY=s160-c-k-c0x00ffffff-no-rj"},{"name":"اسلام صبحي","image":"https://imgs.search.brave.com/Sq4qNywnl1HmDjSuxWTshlQ8yV9fplcVnUoiErGC-38/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS51bml0ZWRtdXNs/aW13b3JsZC5jb20v/aW1nLzIzLzEyLzIz/LzEyNDk1LmpwZw"},{"name":"احمد النفيس","image":"https://dmusera.netlify.app/ahmednafes.jpg"},{"name":"ياسر الدوسري","image":"https://dmusera.netlify.app/Yasser_Al-Dosari.jpg"},
 {"name":"ربط الآيات","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDEzYTUgNSAwIDAgMCA3LjU0LjU0bD MtM2E1IDUgMCAwIDAtNy4wNy03LjA3bC0xLjcyIDEuNzIiLz48cGF0aCBkPSJNMTQgMTFhNSA1IDAgMCAwLTcuNTQtLjU0bC0zIDNhNSA1IDAgMCAwIDcuMDcgNy4wN2wxLjcyLTEuNzIiLz48L3N2Zz4="}, {"name":"ربط الآيات","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDEzYTUgNSAwIDAgMCA3LjU0LjU0bDMtM2E1IDUgMCAwIDAtNy4wNy03LjA3bC0xLjcyIDEuNzIiLz48cGF0aCBkPSJNMTQgMTFhNSA1IDAgMCAwLTcuNTQtLjU0bC0zIDNhNSA1IDAgMCAwIDcuMDcgNy4wN2wxLjcyLTEuNzIiLz48L3N2Zz4="}
         ];
-        const youtubeReaderSuggestions2 = [             {"name":"الرقية", "image":"https://imgs.search.brave.com/afZfY6pdMu-EfuTtrt2hNKEW9TsUAnPOX2QnIlIFi1c/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/YXJhYnNzdG9jay5j/b20vdXBsb2Fkcy92/ZWN0b3JzLzIzMDQx/L3J1cWF5YS1hbi1h/cmFiaWMtbmFtZS1m/b3ItcHJldmlldy0y/MzA0MS53ZWJw"}, {"name":"محفوف -BYMAHFOOF", "image":"https://yt3.googleusercontent.com/obc8dOfYmoZe50tvHCJNZgbLAnJAKb-YPSUnguahWqJ-Jm12At_lV8CjfPPuhAsM9i2K26QK=s160-c-k-c0x00ffffff-no-rj"},{"name":"مزامير الفرقان - ياسر الدوسري","image":"https://yt3.googleusercontent.com/ATOVX4RIsbt20_VS0Ly0bNkm5NPCoseg-S28jEEFsMBhHxBRUGXWW1dFOSuKG5p1_Sx8C8fMqFs=s160-c-k-c0x00ffffff-no-rj"},{"name":"عبدالله الشحري","image":"https://yt3.ggpht.com/KZblM_WDIfUaDyB0wmNZOfVDogOhHThprmFyzLL3AkvnLcKqFmhoJ00nsKHKCXizM94hGy1DSdo=s176-c-k-c0x00ffffff-no-rj-mo"},
-           {"name":"ترتيل-@TarteelArabic","image":"https://yt3.googleusercontent.com/pUYEmNtUgk7zmyKXVwzTyYCfli0AavVRgAomZITpyh3i6HT0mk35CCJv32Ra79-gKk276qSeYfw=s900-c-k-c0x00ffffff-no-rj"},
-             {"name":"قناة اخضر", "image":"https://yt3.ggpht.com/CNJHtl9UOLJwzpGI6_8meaFK6-nWkaXABqu4cXfx2oZnTZmvYgHANXoOY-IpGlNk2U9I5nbIX9I=s176-c-k-c0x00ffffff-no-rj-mo"},
-            {"name":"اذاعة مختلف", "image":"https://yt3.ggpht.com/73c3-iw_Lubnz8tI6uxN17s1p8kOvwwsF5tatPe3JYAw_SRKeJfjprdH2wxHGPz3UHBM9NDxzs0=s176-c-k-c0x00ffffff-no-rj-mo"},
-            {"name":"Qtratel", "image":"https://yt3.googleusercontent.com/4op5oT580d20t3w4i4dWjZmfT1YkVSDok-MVlx-c1--EaYt-wZuw1tebFOc-iQ_XRMfUIO0gYA=s160-c-k-c0x00ffffff-no-rj"},
-             {"name":"Mohamed abubakr", "image":"https://yt3.ggpht.com/yp7xPPh1JotsxKkOMos1KWumw7UFFibydMnoPzhP100gsUGWnDXRTAhdV88gd6coAPkXQ5n1Rw=s176-c-k-c0x00ffffff-no-rj-mo"},
-            {"name":"بودكاست", "image":"https://yt3.googleusercontent.com/0Vs32Zwp0qjXovZuV0kCCxCkKkCdTpAn_9_tky7mxQUM69EIrWK_oJawKy_fKpzL1KZN0LG7=s160-c-k-c0x00ffffff-no-rj"},
-            {"name":"ربط الآيات","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDEzYTUgNSAwIDAgMCA3LjU0LjU0bDMtM2E1IDUgMCAwIDAtNy4wNy03LjA3bC0xLjcyIDEuNzIiLz48cGF0aCBkPSJNMTQgMTFhNSA1IDAgMCAwLTcuNTQtLjU0bC0zIDNhNSA1IDAgMCAwIDcuMDcgNy4wN2wxLjcyLTEuNzIiLz48L3N2Zz4="}
+          const youtubeReaderSuggestions2 = [
+            {"name":"الرقية", "image":"https://imgs.search.brave.com/afZfY6pdMu-EfuTtrt2hNKEW9TsUAnPOX2QnIlIFi1c/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/YXJhYnNzdG9jay5j/b20vdXBsb2Fkcy92/ZWN0b3JzLzIzMDQx/L3J1cWF5YS1hbi1h/cmFiaWMtbmFtZS1m/b3ItcHJldmlldy0y/MzA0MS53ZWJw", "channelid": "", "channeltitle": ""},
+            {"name":"محفوف -BYMAHFOOF", "image":"https://yt3.googleusercontent.com/obc8dOfYmoZe50tvHCJNZgbLAnJAKb-YPSUnguahWqJ-Jm12At_lV8CjfPPuhAsM9i2K26QK=s160-c-k-c0x00ffffff-no-rj", "channelid": "UCABzsyFLLA-fKu05lR-49RA", "channeltitle": "محفوف"},
+            {"name":"تلاوات ياسر الدوسري", "image":"https://yt3.googleusercontent.com/ytc/AIdro_k1n9v-3Z3x-v6Q2wY5kX1c8z-G4xQ6X1X5Xw=s176-c-k-c0x00ffffff-no-rj-mo", "channelid": "UClncV9OLPto_MinRzGfjr2g", "channeltitle": "تلاوات ياسر الدوسري إمام الحرم المكي"},
+            {"name":"مزامير الفرقان - ياسر الدوسري", "image":"https://yt3.googleusercontent.com/ATOVX4RIsbt20_VS0Ly0bNkm5NPCoseg-S28jEEFsMBhHxBRUGXWW1dFOSuKG5p1_Sx8C8fMqFs=s160-c-k-c0x00ffffff-no-rj", "channelid": "UCCoB7Hf8gjQzpAyzhvx7Ktg", "channeltitle": "مزامير الفرقان - ياسر الدوسري"},
+            {"name":"عبدالله الشحري", "image":"https://yt3.ggpht.com/KZblM_WDIfUaDyB0wmNZOfVDogOhHThprmFyzLL3AkvnLcKqFmhoJ00nsKHKCXizM94hGy1DSdo=s176-c-k-c0x00ffffff-no-rj-mo", "channelid": "UCyXm7QL-vmBIZcYCoPfmXgw", "channeltitle": "عبدالله الشحري"},
+            {"name":"ترتيل-@TarteelArabic", "image":"https://yt3.googleusercontent.com/pUYEmNtUgk7zmyKXVwzTyYCfli0AavVRgAomZITpyh3i6HT0mk35CCJv32Ra79-gKk276qSeYfw=s900-c-k-c0x00ffffff-no-rj", "channelid": "UCHVX6sawuLNAuRbJdfruXVA", "channeltitle": "ترتيل"},
+            {"name":"قناة اخضر", "image":"https://yt3.ggpht.com/CNJHtl9UOLJwzpGI6_8meaFK6-nWkaXABqu4cXfx2oZnTZmvYgHANXoOY-IpGlNk2U9I5nbIX9I=s176-c-k-c0x00ffffff-no-rj-mo", "channelid": "UCtUor2SqesPS3b_SMFtLT_w", "channeltitle": "أخضر"},
+            {"name":"اذاعة مختلف", "image":"https://yt3.ggpht.com/73c3-iw_Lubnz8tI6uxN17s1p8kOvwwsF5tatPe3JYAw_SRKeJfjprdH2wxHGPz3UHBM9NDxzs0=s176-c-k-c0x00ffffff-no-rj-mo", "channelid": "UC8vdjzu_0QMQlG9qNT5D_AQ", "channeltitle": "إذاعة مختلف"},
+            {"name":"Qtratel", "image":"https://yt3.googleusercontent.com/4op5oT580d20t3w4i4dWjZmfT1YkVSDok-MVlx-c1--EaYt-wZuw1tebFOc-iQ_XRMfUIO0gYA=s160-c-k-c0x00ffffff-no-rj", "channelid": "", "channeltitle": ""},
+            {"name":"Mohamed abubakr", "image":"https://yt3.ggpht.com/yp7xPPh1JotsxKkOMos1KWumw7UFFibydMnoPzhP100gsUGWnDXRTAhdV88gd6coAPkXQ5n1Rw=s176-c-k-c0x00ffffff-no-rj-mo", "channelid": "UC9i6gCxiph_aBj68Xs9Iqng", "channeltitle": "Mohamed Aboubakr"},
+            {"name":"بودكاست", "image":"https://yt3.googleusercontent.com/0Vs32Zwp0qjXovZuV0kCCxCkKkCdTpAn_9_tky7mxQUM69EIrWK_oJawKy_fKpzL1KZN0LG7=s160-c-k-c0x00ffffff-no-rj", "channelid": "", "channeltitle": ""},
+            {"name":"ربط الآيات","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDEzYTUgNSAwIDAgMCA3LjU0LjU0bDMtM2E1IDUgMCAwIDAtNy4wNy03LjA3bC0xLjcyIDEuNzIiLz48cGF0aCBkPSJNMTQgMTFhNSA1IDAgMCAwLTcuNTQtLjU0bC0zIDNhNSA1IDAgMCAwIDcuMDcgNy4wN2wxLjcyLTEuNzIiLz48L3N2Zz4=", "channelid": "", "channeltitle": ""}
         ];
         
         const youtubeSurahSuggestions = ["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","الانشقاق","المطففين","البروج","الطارق","الأعلى"];
@@ -3448,7 +3851,7 @@ let favoritesM = [];
 
 
 
-        function populateYoutubeSuggestions() {
+        async function populateYoutubeSuggestions() {
             const suggestionsContent = document.getElementById('suggestions-content');
             if (!suggestionsContent) return;
             suggestionsContent.innerHTML = '';
@@ -3586,34 +3989,62 @@ let favoritesM = [];
                 readerButtonsContainer.appendChild(card);
             });
             
-            const channList = youtubeReaderSuggestions2;
+            const channList = await fetchChannelsList();
+            const channelIdsToFetch = channList.filter(r => r.channelid).map(r => r.channelid);
+            const channelThumbnails = channelIdsToFetch.length > 0 ? await fetchChannelsDetails(channelIdsToFetch) : {};
+
+            
             channList.forEach(reader => {
                 const card = document.createElement('div');
-                card.className = 'youtube-reader-card navigable grid-item';
+                card.className = 'youtube-reader-card navigable grid-item relative group'; // Added relative and group for hover effect
                 card.tabIndex = 0;
-                card.innerHTML = `<h3>${reader.name}</h3><img src="${reader.image}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';">`;
                 
-                card.addEventListener('click', () => {
-                    const specialReciters = [
-                        'ترتيل-@TarteelArabic',
-                        'محفوف -BYMAHFOOF',
-                        'اذاعة مختلف', 'الرقية' ,
-                        'Mohamed abubakr',
-                        'قناة اخضر' , 'Qtratel' ,'مزامير الفرقان - ياسر الدوسري','عبدالله الشحري','بودكاست'
-                    ];
+                const imageUrl = reader.channelid 
+                    ? (channelThumbnails[reader.channelid] || 'https://placehold.co/100x100/334155/ffffff?text=?') 
+                    : (reader.image || 'https://placehold.co/100x100/334155/ffffff?text=?');
 
-                    if (specialReciters.includes(reader.name)) {
-                        searchYouTubeVideos(reader.name);
-                    } else if (searchMode === 'reciter_only') {
-                        youtubeSearchInput.value = reader.name;
-                        searchYouTubeVideos(reader.name);
-                        searchMode = 'reciter_surah'; // Reset mode after search
-                    } else {
+                card.innerHTML = `
+                    <button class="delete-channel-btn absolute bottom-2 right-2 p-1.5 bg-red-600/80 hover:bg-red-500 rounded-full transition-colors z-10 navigable grid-item" title="حذف القناة" tabindex="0">
+                        <i data-lucide="trash-2" class="w-4 h-4 text-white pointer-events-none"></i>
+                    </button>
+                    <h3>${reader.name}</h3>
+                    <img src="${imageUrl}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';">
+                `;
+                
+                card.addEventListener('click', (e) => {
+                    // Prevent card click if delete button is the target
+                    if (e.target.closest('.delete-channel-btn')) return;
+
+                    if (reader.channelid && reader.channeltitle) {
+                        searchVideosByChannel(reader.channelid, reader.channeltitle);
+                    } else if (reader.name === 'ربط الآيات') {
+                        // Special case for 'ربط الآيات' tool
                         handleReaderOrToolClick(reader.name, tabContainer, tabsContentContainer);
+                    } else {
+                        // Fallback for items without a channel ID, like "الرقية" or "بودكاست"
+                        searchYouTubeVideos(reader.name);
                     }
                 });
+
+                const deleteBtn = card.querySelector('.delete-channel-btn');
+                deleteBtn?.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    removeChannelFromList(reader.channelid, reader.name);
+                });
+
                 channButtonsContainer.appendChild(card);
             });
+
+ // NEW: Add "Add Channel" button to the Channels tab at the beginning
+            const addChannelCard = document.createElement('div');
+            addChannelCard.className = 'youtube-reader-card navigable grid-item';
+            addChannelCard.tabIndex = 0;
+            addChannelCard.innerHTML = `<h3>إضافة قناة</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-dashed border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="plus" class="w-12 h-12 text-white/50"></i></div>`;
+            addChannelCard.addEventListener('click', showAddChannelPrompt);
+            channButtonsContainer.appendChild(addChannelCard);
+
+
+
 
             // MOVED: Add "السورة" button to the Reciters tab at the end
             const surahCard = document.createElement('div');
@@ -5179,24 +5610,42 @@ let favoritesM = [];
                     speak(text);
                 }
             }
+// 1. التحقق من "الحارس العالمي" أولاً
+if (!window.hasInitializedWeatherSpeaker) {
 
-            // Check if weather data is ready before proceeding
-            const checkWeatherAndSpeak = () => {
-                if (appState.weather.temperature !== null) {
-                    welcomeText = `مرحبا تاريخ اليوم ${hijriDate} الموافق ${gregorianDate}    `;
-                    speakWithVoicesReady(welcomeText);
+    // 2. إذا لم يتم التشغيل من قبل، قم بتعيين الحارس فوراً
+    window.hasInitializedWeatherSpeaker = true;
+    
+    // 3. الآن، ضع الكود الأصلي بالكامل هنا
+    let hasSpokenWelcome = false; // هذا العلم سيعمل الآن بشكل صحيح
 
-                    setTimeout(() => {
-                        weatherText = `حالة الطقس الان ${appState.weather.temperature} ${appState.weather.temperature} درجة مئوية`;
-                        speakWithVoicesReady(weatherText);
-                    }, 8000); 
-                } else {
-                    // If weather data isn't ready, wait and try again.
-                    setTimeout(checkWeatherAndSpeak, 500);
-                }
-            };
+    const checkWeatherAndSpeak = () => {
+        // نطق الترحيب مرة واحدة فقط
+        if (!hasSpokenWelcome) {
+            const welcomeText = `مرحبا، تاريخ اليوم ${hijriDate} الموافق ${gregorianDate}`;
+            speakWithVoicesReady(welcomeText);
+            hasSpokenWelcome = true;
+        }
 
-            checkWeatherAndSpeak();
+        // إذا كانت بيانات الطقس جاهزة، نطقها بعد تأخير
+        if (appState.weather.temperature !== null) {
+            setTimeout(() => {
+                const weatherText = `حالة الطقس الآن ${appState.weather.temperature} درجة مئوية`;
+                speakWithVoicesReady(weatherText);
+            }, 8000);
+        } else {
+            // إذا لم تكن جاهزة، كرر المحاولة لاحقًا
+            setTimeout(checkWeatherAndSpeak, 500);
+        }
+    };
+
+    // 4. ابدأ التشغيل (سيحدث هذا مرة واحدة فقط)
+    checkWeatherAndSpeak();
+}
+// 5. في المرة الثانية والثالثة التي يحاول فيها الكود العمل،
+// سيفشل الشرط الأول (!window.hasInitializedWeatherSpeaker)
+// وسيتم تخطي الكود بالكامل.
+
         }
 
         // --- Fullscreen Toggle ---
@@ -5648,8 +6097,3 @@ async function renderDailyReminders(states) { // We added 'async' and 'states' h
     </script>
 </body> 
 </html>
-
-
-
-
-
