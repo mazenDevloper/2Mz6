@@ -1861,6 +1861,7 @@ div#bottom-left-controls {
             .carousel-nav-button.prev {
                 display: flex;
             }
+           
             
 section#screen-Dashboard{
   background: #00000084;   
@@ -1899,12 +1900,15 @@ section#screen-Dashboard{
             /* --- START: Hide Elements in TV UI --- */
 
 /* إخفاء العناصر المطلوبة في واجهة التلفاز */
-[data-app="Map"],                  /* إخفاء أيقونة خريطة الـ 3D من شريط التنقل */
+
+            .glass-surface.glass-surface--svg.p-2.flex.flex-col.items-center.justify-center.text-center.car-cam-360-container.col-span-1.row-start-1.navigable.grid-item {
+    display: none;
+}
+                              /* إخفاء أيقونة خريطة الـ 3D من شريط التنقل */
             #car-360-image {
                 visibility: hidden;
             }
             div#tv{display:block;background:#00000050}
-            div#map{display:none;}
             
 
 
@@ -1926,6 +1930,16 @@ section#screen-Dashboard{
         
         /* NEW: Show next button on even wider screens */
         @media (min-width: 1080px) {
+            [data-app="Map"],                  /* إخفاء أيقونة خريطة الـ 3D من شريط التنقل */
+            #car-360-image {
+                display:none
+            }
+            .glass-surface.glass-surface--svg.p-2.flex.flex-col.items-center.justify-center.text-center.car-cam-360-container.col-span-1.row-start-1.navigable.grid-item {
+    display: block;
+}
+div#map{display:none}
+
+            div#tv{display:block;background:#00000050}
             .carousel-nav-button.next {
                 display: flex;
             }
