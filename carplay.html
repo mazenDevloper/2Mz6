@@ -5598,29 +5598,30 @@ let favoritesM = [];
                 }
             }
 let hasSpokenWelcome = false; // علم لمنع تكرار الترحيب
-            // Check if weather data is ready before proceeding
-            const checkWeatherAndSpeak = () => {
 
-if (!hasSpokenWelcome) {
+const checkWeatherAndSpeak = () => {
+    // نطق الترحيب مرة واحدة فقط
+    if (!hasSpokenWelcome) {
         const welcomeText = `مرحبا، تاريخ اليوم ${hijriDate} الموافق ${gregorianDate}`;
         speakWithVoicesReady(welcomeText);
         hasSpokenWelcome = true;
     }
 
-                if (appState.weather.temperature !== null) {
-                    welcomeText = `مرحبا تاريخ اليوم ${hijriDate} الموافق ${gregorianDate}    `;
-                    speakWithVoicesReady(welcomeText);
+    // إذا كانت بيانات الطقس جاهزة، نطقها بعد تأخير
+    if (appState.weather.temperature !== null) {
+        setTimeout(() => {
+            const weatherText = `حالة الطقس الآن ${appState.weather.temperature} درجة مئوية`;
+            speakWithVoicesReady(weatherText);
+        }, 8000);
+    } else {
+        // إذا لم تكن جاهزة، كرر المحاولة لاحقًا (بدون نطق الترحيب مجددًا)
+        setTimeout(checkWeatherAndSpeak, 500);
+    }
+};
 
-                    setTimeout(() => {
-                        weatherText = `حالة الطقس الان ${appState.weather.temperature} درجة مئوية`;
-                        speakWithVoicesReady(weatherText);
-                    }, 8000); 
-                } else {
-                      setTimeout(checkWeatherAndSpeak, 500);
-                }
-            };
+// ابدأ التشغيل
+checkWeatherAndSpeak();
 
-            checkWeatherAndSpeak();
         }
 
         // --- Fullscreen Toggle ---
