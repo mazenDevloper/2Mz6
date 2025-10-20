@@ -2335,7 +2335,7 @@ const yesterday = new Date(today);
 yesterday.setDate(today.getDate() - 1);
 
 // Format Gregorian date (optional, if you still want to show today's Gregorian)
-const gregorianDate = new Intl.DateTimeFormat('en-GB', {
+const gregorianDate = new Intl.DateTimeFormat('ar-GB', {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
@@ -5609,8 +5609,8 @@ let favoritesM = [];
                         speakWithVoicesReady(weatherText);
                     }, 8000); 
                 } else {
-                    // If weather data isn't ready, wait and try again.
-                    setTimeout(checkWeatherAndSpeak, 500);
+                    welcomeText = `مرحبا تاريخ اليوم ${hijriDate} الموافق ${gregorianDate}    `;
+                    speakWithVoicesReady(welcomeText);
                 }
             };
 
