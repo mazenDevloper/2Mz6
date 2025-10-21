@@ -44,6 +44,10 @@
 .flex.gap-2.mt-2.homebtn {
     display: none;
 }
+button#video-popup-bookmark-button {
+    position: fixed;
+    left: 2px;
+}
 div#add-channel-prompt-content {
     max-width: 100%;
 }
@@ -1325,8 +1329,8 @@ div#youtube-readers-section {
             background-color: rgba(0, 0, 0, 0.6);
             color: white;
             border-radius: 50%;
-            width: 30px;
-            height: 30px;
+            width: 46px;
+            height: 46px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -3602,94 +3606,156 @@ let favoritesM = [];
             }
         }
         
-        function showVideoPopup(videoId, startOverride = null) {
-            const start = startOverride !== null ? startOverride : (() => {
-                const history = getWatchedHistory();
-                const watchedInfo = history[videoId];
-                // إذا كان المستخدم قد شاهد أكثر من 5 ثوانٍ، استأنف التشغيل، وإلا ابدأ من الصفر
-                return (watchedInfo && watchedInfo.progress > 5) ? watchedInfo.progress : 0;
-            })();
-    
-            // UPDATED: Pause background animations and update control button icon
-            document.body.classList.add('animation-paused');
-            const playIcon = pauseAnimationButton.querySelector('[data-lucide="play"]');
-            const pauseIcon = pauseAnimationButton.querySelector('[data-lucide="pause"]');
-            if (playIcon && pauseIcon) {
-                playIcon.classList.remove('hidden'); // Show play icon (indicating animations are paused)
-                pauseIcon.classList.add('hidden');
-            }
+        async function showVideoPopup(videoId, startOverride = null) {
+            const start = startOverride !== null ? startOverride : (() => {
+                const history = getWatchedHistory();
+                const watchedInfo = history[videoId];
+                // إذا كان المستخدم قد شاهد أكثر من 5 ثوانٍ، استأنف التشغيل، وإلا ابدأ من الصفر
+                return (watchedInfo && watchedInfo.progress > 5) ? watchedInfo.progress : 0;
+            })();
+    
+            // UPDATED: Pause background animations and update control button icon
+            document.body.classList.add('animation-paused');
+            const playIcon = pauseAnimationButton.querySelector('[data-lucide="play"]');
+            const pauseIcon = pauseAnimationButton.querySelector('[data-lucide="pause"]');
+            if (playIcon && pauseIcon) {
+                playIcon.classList.remove('hidden'); // Show play icon (indicating animations are paused)
+                pauseIcon.classList.add('hidden');
+            }
 
-            if (!isYouTubeApiReady) return setTimeout(() => showVideoPopup(videoId, start), 100);
-            currentPlayingVideoId = videoId;
-            videoPopupContainer.style.display = 'flex'; // Ensure it's visible
-            videoPopupContainer.classList.add('active');
-            // Hide the minimized button when showing the main player
-            floatingMinimizedVideoButton.style.display = 'none';
-            appState.isVideoPlayerMinimized = false;
-            if (popupPlayer) {
-                popupPlayer.loadVideoById({ videoId, startSeconds: start });
-            } else {
-                videoPopupPlayerContainer.innerHTML = '<div id="video-popup-player"></div>';
-                popupPlayer = new YT.Player('video-popup-player', {
-                    height: '100%', width: '100%', videoId,
-                    playerVars: { 
-                        'autoplay': 1, 
-                        'controls': 1, 
-                        'start': Math.floor(start),
-                        'origin': 'https://dmusera.netlify.app'
-                    },
-                    events: { 
-                        'onReady': (e) => e.target.playVideo(),
-                        'onStateChange': onPlayerStateChange 
-                    }
-                });
-            }
-            setTimeout(() => setFocus(videoPopupCloseButton), 100);
-        }
+            if (!isYouTubeApiReady) return setTimeout(() => showVideoPopup(videoId, start), 100);
+            currentPlayingVideoId = videoId;
+            videoPopupContainer.style.display = 'flex'; // Ensure it's visible
+            videoPopupContainer.classList.add('active');
+            // Hide the minimized button when showing the main player
+            floatingMinimizedVideoButton.style.display = 'none';
+            appState.isVideoPlayerMinimized = false;
 
-        async function hideVideoPopup() {
-            if (progressInterval) clearInterval(progressInterval);
+            // --- START: NEW BOOKMARK BUTTON LOGIC ---
+            const controlsContainer = videoPopupCloseButton.parentElement;
+            if (controlsContainer && !document.getElementById('video-popup-bookmark-button')) {
+                const bookmarkBtn = document.createElement('button');
+                bookmarkBtn.id = 'video-popup-bookmark-button';
+                bookmarkBtn.className = 'navigable grid-item p-3 rounded-full glass-surface glass-surface--svg hover:bg-white/20 transition-colors';
+                bookmarkBtn.innerHTML = `<i data-lucide="bookmark" class="w-6 h-6"></i>`;
+                bookmarkBtn.tabIndex = 0;
 
-            // 1. Get all necessary data from the player BEFORE destroying it
-            let videoId, currentTime, duration;
-            if (popupPlayer && typeof popupPlayer.getCurrentTime === 'function' && popupPlayer.getVideoData) {
-                const videoData = popupPlayer.getVideoData();
-                videoId = videoData ? videoData.video_id : null;
-                currentTime = popupPlayer.getCurrentTime();
-                duration = popupPlayer.getDuration();
-            }
+                // Set initial state
+                const isSavedD = favoritesD.some(fav => fav.id === videoId);
+                const isSavedM = favoritesM.some(fav => fav.id === videoId);
+                if (isSavedD && isSavedM) bookmarkBtn.classList.add('saved-both');
+                else if (isSavedD) bookmarkBtn.classList.add('saved-d');
+                else if (isSavedM) bookmarkBtn.classList.add('saved-m');
 
-            // 2. Destroy the player immediately
-            if (popupPlayer) {
-                popupPlayer.destroy();
-                popupPlayer = null;
-            }
+                // Add click listener to fetch details and show menu
+                bookmarkBtn.onclick = async (e) => {
+                    e.stopPropagation();
+                    const currentVideoId = currentPlayingVideoId; // Use the stored ID
+                    if (!currentVideoId) return;
 
-            // 3. NOW, update the progress using the stored data
-            if (videoId) {
-                await updateVideoProgress(videoId, currentTime, duration);
-            }
-            
-            // 4. Handle all other UI updates
-            document.body.classList.remove('animation-paused');
-            const playIcon = pauseAnimationButton.querySelector('[data-lucide="play"]');
-            const pauseIcon = pauseAnimationButton.querySelector('[data-lucide="pause"]');
-            if (playIcon && pauseIcon) {
-                playIcon.classList.add('hidden');
-                pauseIcon.classList.remove('hidden');
-            }
-            
-            videoPopupContainer.classList.remove('active');
-            videoPopupContainer.style.display = 'none';
-            floatingMinimizedVideoButton.style.display = 'none';
-            appState.isVideoPlayerMinimized = false;
-            
-            const screen = document.querySelector('.app-screen.active');
-            if (screen) {
-                const item = screen.querySelector('.grid-item');
-                if (item) setFocus(item);
-            }
-        }
+                    // Fetch details on demand
+                    const videoDetailsList = await fetchVideosDetails([currentVideoId]);
+                    if (!videoDetailsList || videoDetailsList.length === 0) {
+                        showMessageBox("خطأ: لم يتم العثور على تفاصيل الفيديو.");
+                        return;
+                    }
+                    const videoDetails = videoDetailsList[0];
+                    const channelThumbnails = await fetchChannelsDetails([videoDetails.snippet.channelId]);
+
+                    // Reconstruct the videoData object
+                    const videoData = {
+                        id: videoDetails.id,
+                        title: videoDetails.snippet.title,
+                        thumbnail: videoDetails.snippet.thumbnails.medium.url,
+                        channelTitle: videoDetails.snippet.channelTitle,
+                        channelId: videoDetails.snippet.channelId,
+                        channelThumbnail: channelThumbnails[videoDetails.snippet.channelId],
+                        viewCount: formatViewCount(videoDetails.statistics.viewCount),
+                        publishedAt: formatTimeAgo(videoDetails.snippet.publishedAt),
+                        duration: formatDuration(videoDetails.contentDetails.duration)
+                    };
+
+                    // Show the menu
+                    showFavoritesMenu(bookmarkBtn, videoData);
+                };
+
+                // Insert the button before the close button
+                controlsContainer.insertBefore(bookmarkBtn, videoPopupCloseButton);
+                lucide.createIcons();
+            }
+            // --- END: NEW BOOKMARK BUTTON LOGIC ---
+
+            if (popupPlayer) {
+                popupPlayer.loadVideoById({ videoId, startSeconds: start });
+            } else {
+                videoPopupPlayerContainer.innerHTML = '<div id="video-popup-player"></div>';
+                popupPlayer = new YT.Player('video-popup-player', {
+                    height: '100%', width: '100%', videoId,
+                    playerVars: { 
+                        'autoplay': 1, 
+                        'controls': 1, 
+                        'start': Math.floor(start),
+                        'origin': 'https://dmusera.netlify.app'
+                    },
+                    events: { 
+                        'onReady': (e) => e.target.playVideo(),
+                        'onStateChange': onPlayerStateChange 
+                    }
+                });
+            }
+            setTimeout(() => setFocus(videoPopupCloseButton), 100);
+        }
+async function hideVideoPopup() {
+            if (progressInterval) clearInterval(progressInterval);
+
+            // 1. Get all necessary data from the player BEFORE destroying it
+            let videoId, currentTime, duration;
+            if (popupPlayer && typeof popupPlayer.getCurrentTime === 'function' && popupPlayer.getVideoData) {
+                const videoData = popupPlayer.getVideoData();
+                videoId = videoData ? videoData.video_id : null;
+                currentTime = popupPlayer.getCurrentTime();
+                duration = popupPlayer.getDuration();
+            }
+
+            // 2. Destroy the player immediately
+            if (popupPlayer) {
+                popupPlayer.destroy();
+                popupPlayer = null;
+            }
+
+            // 3. NOW, update the progress using the stored data
+            if (videoId) {
+                await updateVideoProgress(videoId, currentTime, duration);
+            }
+            
+            // 4. Handle all other UI updates
+            document.body.classList.remove('animation-paused');
+            const playIcon = pauseAnimationButton.querySelector('[data-lucide="play"]');
+            const pauseIcon = pauseAnimationButton.querySelector('[data-lucide="pause"]');
+            if (playIcon && pauseIcon) {
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+            }
+            
+            videoPopupContainer.classList.remove('active');
+            videoPopupContainer.style.display = 'none';
+            floatingMinimizedVideoButton.style.display = 'none';
+            appState.isVideoPlayerMinimized = false;
+
+            // --- START: NEW CLEANUP LOGIC ---
+            // Remove the bookmark button so it can be re-created fresh next time
+            const bookmarkBtn = document.getElementById('video-popup-bookmark-button');
+            if (bookmarkBtn) {
+                bookmarkBtn.remove();
+            }
+            // --- END: NEW CLEANUP LOGIC ---
+            
+            const screen = document.querySelector('.app-screen.active');
+            if (screen) {
+                const item = screen.querySelector('.grid-item');
+                if (item) setFocus(item);
+            }
+        }
         
         // NEW: Functions to minimize and restore the video popup
         function minimizeVideoPopup() {
