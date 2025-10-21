@@ -1411,16 +1411,27 @@ div#youtube-readers-section {
             }
         }
 
-        @media (max-width: 768px) {
-            
-        }
+      
         /* --- END: Athkar App Styles --- */
         @media (max-width: 768px) {
             body {
                 overflow-y: auto;
             }
 
+.dashboard-main-grid.grid.grid-cols-1.md\:grid-cols-3.grid-rows-\[80\%_20\%\].gap-4.md\:gap-6.h-full.w-full.grid-container {
+    height: 100% !important;
+    grid-template-rows: 90% 10%;
+}
 
+
+button#floating-keyboard-button {
+    bottom: 1.8rem;
+}
+
+div#video-popup-container {
+    width: 100%;
+    height: 64%;
+}
             div#map {
     display: none;
 }
