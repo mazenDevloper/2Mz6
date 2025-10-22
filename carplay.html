@@ -42,6 +42,12 @@
     padding-bottom: 1rem;
     margin-bottom: 1rem;
 }
+ .tabs-container.flex.p-1.rounded-full.bg-black\/20.self-center {
+    bottom: 51px!important;
+    left: 99px!important;
+    position: fixed!important;
+     z-index: 1000!important;
+}
 .flex.gap-2.mt-2.homebtn {
     display: none;
 }
@@ -76,11 +82,7 @@ h3.video-title {
         height: 105% !important;
 }
 
-.tabs-container.flex.p-1.rounded-full.bg-black\/20.self-center {
 
-        background-color: rgb(0 0 0 / 0.8)!important;
-    
-}
 
 .carousel-nav-button {
     position: absolute;
@@ -288,11 +290,15 @@ button#back-to-search-floating-button {
 
  .flex.flex-wrap.justify-center.gap-2.w-full {zoom: 0.85;}
 
- .tabs-container.flex.p-1.rounded-full.bg-black\/20.self-center {
-    bottom: 51px;
-    left: 99px;
-    position: fixed;
-     z-index: 1000;
+/* --- Try removing !important from these rules --- */
+.tabs-container {
+  display: flex; /* Remove !important */
+  gap: 0.5rem; /* Remove !important */
+  padding: 0.25rem; /* Remove !important */
+  border-radius: 9999px; /* Remove !important */
+  background-color: rgba(0, 0, 0, 0.8)!important; /* Remove !important */
+  align-self: center; /* Remove !important */
+  margin-bottom: 1rem; /* Remove !important */
 }
 
 button#back-to-playlists-bottom-button-search {
@@ -1422,11 +1428,7 @@ div#youtube-readers-section {
             body {
                 overflow-y: auto;
             }
-.tabs-container.flex.p-1.rounded-full.bg-black\/20.self-center {
 
-        background-color: rgb(0 0 0 / 0.8)!important;
-    
-}
 
 div#ts-1,div#ts-2,div#ts-3,div#ts-4,div#ts-5 {
     height: 10rem;
@@ -3196,6 +3198,67 @@ let favoritesM = [];
             }
         }
 
+        // --- ADD THIS NEW FUNCTION ---
+    function incrementChannelClick(channelId) {
+            if (!channelId || !localChannelsCache) return;
+            
+            let channelFound = false;
+            const updatedList = localChannelsCache.map(channel => {
+                if (channel && channel.channelid === channelId) { // التأكد من أن 'channel' موجود
+                    channelFound = true;
+                    const currentClicks = parseInt(channel.clickschannel, 10) || 0; // تحويل آمن إلى رقم
+                    return { ...channel, clickschannel: currentClicks + 1 };
+                }
+                return channel;
+            });
+
+            if (channelFound) {
+                localChannelsCache = updatedList; // تحديث الذاكرة المؤقتة فورًا
+                // إرسال التحديث إلى الخادم في الخلفية
+                updateChannelsList(updatedList).catch(err => {
+                    console.error("Failed to update channel clicks in background:", err);
+                });
+            }
+        }
+
+        // --- 2. أضف هذه الدالة الجديدة ---
+        // (هذه الدالة تصلح بياناتك القديمة في JSONBin بإضافة clickschannel: 0)
+        async function migrateChannelData() {
+            if (localStorage.getItem('channelMigrationDone')) {
+                return; // تم التنفيذ من قبل
+            }
+
+            console.log("Running channel data migration (one time only)...");
+            try {
+                let currentList = await fetchChannelsList(); // جلب القائمة الحالية
+                let needsUpdate = false;
+                
+                const updatedList = currentList.map(channel => {
+                    if (channel && typeof channel === 'object' && channel.channelid) {
+                        // إذا كانت الخاصية غير موجودة
+                        if (typeof channel.clickschannel === 'undefined') {
+                            needsUpdate = true;
+                            return { ...channel, clickschannel: 0 }; // أضفها بقيمة 0
+                        }
+                    }
+                    return channel;
+                });
+
+                if (needsUpdate) {
+                    console.log("Updating channels in JSONBin with default clickschannel: 0...");
+                    await updateChannelsList(updatedList);
+                    localChannelsCache = updatedList; // تحديث الذاكرة المؤقتة
+                    console.log("Migration complete.");
+                } else {
+                    console.log("No channel data migration needed.");
+                }
+                
+                localStorage.setItem('channelMigrationDone', 'true'); // تسجيل أنه تم
+            } catch (error) {
+                console.error("Error during channel data migration:", error);
+            }
+        }
+
         function showAddChannelPrompt() {
             const existingPrompt = document.getElementById('add-channel-prompt');
             if (existingPrompt) existingPrompt.remove();
@@ -3325,110 +3388,117 @@ let favoritesM = [];
             lucide.createIcons();
             updateNavigableElements();
         }
+// --- REPLACE THIS FUNCTION ---
+        async function handleAddChannelFromModal(channelId, channelTitle, channelThumbnail) {
+            const modalButton = document.querySelector(`.add-channel-from-modal-btn[data-channel-id="${channelId}"]`);
+            if (modalButton) {
+                modalButton.disabled = true;
+                modalButton.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 text-yellow-400 animate-spin"></i>`;
+                lucide.createIcons();
+            }
 
-        async function handleAddChannelFromModal(channelId, channelTitle, channelThumbnail) {
-            const modalButton = document.querySelector(`.add-channel-from-modal-btn[data-channel-id="${channelId}"]`);
-            if (modalButton) {
-                modalButton.disabled = true;
-                modalButton.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 text-yellow-400 animate-spin"></i>`;
-                lucide.createIcons();
-            }
+            try {
+                if (localChannelsCache.some(c => c.channelid === channelId)) {
+                     showMessageBox("هذه القناة موجودة بالفعل في قائمتك.");
+                     if (modalButton) {
+                         modalButton.innerHTML = `<i data-lucide="check" class="w-5 h-5 text-white"></i>`;
+                         modalButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                         modalButton.classList.add('bg-green-600');
+                         lucide.createIcons();
+                     }
+                     return;
+                }
 
-            try {
-                if (localChannelsCache.some(c => c.channelid === channelId)) {
-                     showMessageBox("هذه القناة موجودة بالفعل في قائمتك.");
-                     if (modalButton) {
-                         modalButton.innerHTML = `<i data-lucide="check" class="w-5 h-5 text-white"></i>`;
-                         modalButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-                         modalButton.classList.add('bg-green-600');
-                         lucide.createIcons();
-                     }
-                     return;
-                }
+                // [FIX] إضافة خاصية clickschannel: 0
+                const newChannel = { 
+                    name: channelTitle, 
+                    image: channelThumbnail, 
+                    channelid: channelId, 
+                    channeltitle: channelTitle,
+                    clickschannel: 0 
+                };
+                
+                const updatedList = [...localChannelsCache, newChannel];
+                const success = await updateChannelsList(updatedList);
 
-                const newChannel = { name: channelTitle, image: channelThumbnail, channelid: channelId, channeltitle: channelTitle };
-                const updatedList = [...localChannelsCache, newChannel];
-                const success = await updateChannelsList(updatedList);
+                if (success) {
+                    showMessageBox(`تمت إضافة قناة "${newChannel.name}" بنجاح.`);
+                    if (modalButton) {
+                         modalButton.innerHTML = `<i data-lucide="check" class="w-5 h-5 text-white"></i>`;
+                         modalButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                         modalButton.classList.add('bg-green-600');
+                         lucide.createIcons();
+                    }
+                    // ... (الكود الخاص بك لتحديث الواجهة) ...
+                    const suggestionsContent = document.getElementById('suggestions-content');
+                    if(suggestionsContent) {
+                        const activeTabId = document.querySelector('#screen-Media .tab-button.active')?.id;
+                        suggestionsContent.innerHTML = '';
+                        await populateYoutubeSuggestions();
+                        if (activeTabId) { document.getElementById(activeTabId)?.click(); } 
+                        else { document.getElementById('tab-channels')?.click(); }
+                    }
+                }
+            } catch (error) {
+                console.error("Error adding channel from modal:", error);
+                showMessageBox("حدث خطأ أثناء إضافة القناة.");
+                if (modalButton) {
+                     modalButton.disabled = false;
+                     modalButton.innerHTML = `<i data-lucide="plus" class="w-5 h-5 text-white"></i>`;
+                     lucide.createIcons();
+                }
+            }
+        }
 
-                if (success) {
-                    showMessageBox(`تمت إضافة قناة "${newChannel.name}" بنجاح.`);
-                    if (modalButton) {
-                         modalButton.innerHTML = `<i data-lucide="check" class="w-5 h-5 text-white"></i>`;
-                         modalButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-                         modalButton.classList.add('bg-green-600');
-                         lucide.createIcons();
-                    }
-                    const suggestionsContent = document.getElementById('suggestions-content');
-                    if(suggestionsContent) {
-                        const activeTabId = document.querySelector('#screen-Media .tab-button.active')?.id;
-                        suggestionsContent.innerHTML = '';
-                        await populateYoutubeSuggestions();
-                        if (activeTabId) {
-                            document.getElementById(activeTabId)?.click();
-                        } else {
-                            document.getElementById('tab-channels')?.click();
-                        }
-                    }
-                }
-            } catch (error) {
-                console.error("Error adding channel from modal:", error);
-                showMessageBox("حدث خطأ أثناء إضافة القناة.");
-                if (modalButton) {
-                     modalButton.disabled = false;
-                     modalButton.innerHTML = `<i data-lucide="plus" class="w-5 h-5 text-white"></i>`;
-                     lucide.createIcons();
-                }
-            }
-        }
+       async function addChannelFromSearchResult(channelId, channelTitle, channelThumbnail, buttonElement) {
+            if (!channelId || !channelTitle) {
+                showMessageBox("معلومات القناة غير كاملة.");
+                return;
+            }
 
-        async function addChannelFromSearchResult(channelId, channelTitle, channelThumbnail, containerElement, video) {
-            if (!channelId || !channelTitle) {
-                showMessageBox("معلومات القناة غير كاملة.");
-                return;
-            }
+            if (buttonElement) {
+                buttonElement.disabled = true;
+                buttonElement.innerHTML = `<i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>`;
+                lucide.createIcons();
+            }
 
-            if (buttonElement) {
-                buttonElement.disabled = true;
-                buttonElement.innerHTML = `<i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>`;
-                lucide.createIcons();
-            }
+            try {
+                if (localChannelsCache.some(c => c.channelid === channelId)) {
+                     showMessageBox("هذه القناة موجودة بالفعل في قائمتك.");
+                     return;
+                }
 
-            try {
-                if (localChannelsCache.some(c => c.channelid === channelId)) {
-                     showMessageBox("هذه القناة موجودة بالفعل في قائمتك.");
-                     return;
-                }
+                const newChannel = {
+                    name: channelTitle,
+                    image: channelThumbnail,
+                    channelid: channelId,
+                    channeltitle: channelTitle,
+                    clickschannel: 0 // [تعديل] إضافة عدّاد النقرات
+                };
 
-                const newChannel = {
-                    name: channelTitle,
-                    image: channelThumbnail,
-                    channelid: channelId,
-                    channeltitle: channelTitle
-                };
+                const updatedList = [...localChannelsCache, newChannel];
+                const success = await updateChannelsList(updatedList);
 
-                const updatedList = [...localChannelsCache, newChannel];
-                const success = await updateChannelsList(updatedList);
+                if (success) {
+                    showMessageBox(`تمت إضافة قناة "${newChannel.name}" بنجاح.`);
+                } else {
+                    if (buttonElement) {
+                        buttonElement.disabled = false;
+                        buttonElement.innerHTML = `<i data-lucide="plus-circle" class="w-5 h-5 text-green-400"></i>`;
+                        lucide.createIcons();
+                    }
+                }
 
-                if (success) {
-                    showMessageBox(`تمت إضافة قناة "${newChannel.name}" بنجاح.`);
-                } else {
-                    if (buttonElement) {
-                        buttonElement.disabled = false;
-                        buttonElement.innerHTML = `<i data-lucide="plus-circle" class="w-5 h-5 text-green-400"></i>`;
-                        lucide.createIcons();
-                    }
-                }
-
-            } catch (error) {
-                console.error("Error adding channel from search result:", error);
-                showMessageBox("حدث خطأ أثناء إضافة القناة.");
-                if (buttonElement) {
-                    buttonElement.disabled = false;
-                    buttonElement.innerHTML = `<i data-lucide="plus-circle" class="w-5 h-5 text-green-400"></i>`;
-                    lucide.createIcons();
-                }
-            }
-        }
+            } catch (error) {
+                console.error("Error adding channel from search result:", error);
+                showMessageBox("حدث خطأ أثناء إضافة القناة.");
+                if (buttonElement) {
+                    buttonElement.disabled = false;
+                    buttonElement.innerHTML = `<i data-lucide="plus-circle" class="w-5 h-5 text-green-400"></i>`;
+                    lucide.createIcons();
+                }
+            }
+        }
 
         async function removeChannelFromList(channelId, channelName) {
             if (!channelId) return;
@@ -4038,426 +4108,225 @@ async function hideVideoPopup() {
         }
 
 
+// --- REPLACE THIS FUNCTION AGAIN ---
+       // --- REPLACE THIS FUNCTION AGAIN ---
+       // --- REPLACE THIS FUNCTION AGAIN ---
+   async function populateYoutubeSuggestions() {
+    const suggestionsContent = document.getElementById('suggestions-content');
+    if (!suggestionsContent) {
+        console.error("suggestions-content element not found!");
+        return;
+    }
+    console.log("[Debug] Starting populateYoutubeSuggestions...");
 
-        async function populateYoutubeSuggestions() {
-            const suggestionsContent = document.getElementById('suggestions-content');
-            if (!suggestionsContent) return;
-            suggestionsContent.innerHTML = '';
-            suggestionsContent.className = 'flex flex-col gap-4 w-full'; 
+    suggestionsContent.innerHTML = '';
+    suggestionsContent.className = 'flex flex-col gap-4 w-full';
 
-            // 1. Create Tab Structure
-            const tabContainer = document.createElement('div');
-            tabContainer.className = 'tabs-container flex p-1 rounded-full bg-black/20 self-center';
+    // 1. Create Tab Structure (MODIFIED)
+    const tabContainer = document.createElement('div');
+    tabContainer.className = 'tabs-container flex p-1 rounded-full bg-black/20 self-center';
 
-            const recitersTabButton = document.createElement('button');
-            recitersTabButton.id = 'tab-reciters';
-            recitersTabButton.className = 'tab-button navigable grid-item';
-            recitersTabButton.tabIndex = 0;
-            recitersTabButton.textContent = 'القراء';
+    const recitersTabButton = document.createElement('button');
+    recitersTabButton.id = 'tab-reciters';
+    recitersTabButton.className = 'tab-button navigable grid-item';
+    recitersTabButton.tabIndex = 0;
+    recitersTabButton.textContent = 'القراء';
 
-            const channTabButton = document.createElement('button');
-            channTabButton.id = 'tab-channels';
-            channTabButton.className = 'tab-button navigable grid-item';
-            channTabButton.tabIndex = 0;
-            channTabButton.textContent = 'قنوات';
+    const channTabButton = document.createElement('button'); // Default active
+    channTabButton.id = 'tab-channels';
+    channTabButton.className = 'tab-button active navigable grid-item'; // Set Channels as active initially
+    channTabButton.tabIndex = 0;
+    channTabButton.textContent = 'قنوات';
 
-            // NEW: Tarteel AI Tab Button
-            const tarteelTabButton = document.createElement('button');
-            tarteelTabButton.id = 'tab-tarteel';
-            tarteelTabButton.className = 'tab-button navigable grid-item';
-            tarteelTabButton.tabIndex = 0;
-            tarteelTabButton.textContent = 'ترتيل-@TarteelArabic';
+    const toolsTabButton = document.createElement('button');
+    toolsTabButton.id = 'tab-tools';
+    toolsTabButton.className = 'tab-button navigable grid-item';
+    toolsTabButton.tabIndex = 0;
+    toolsTabButton.textContent = 'أدوات';
 
-            const toolsTabButton = document.createElement('button');
-            toolsTabButton.id = 'tab-tools';
-            toolsTabButton.className = 'tab-button navigable grid-item';
-            toolsTabButton.tabIndex = 0;
-            toolsTabButton.textContent = 'أدوات';
+    // --- NEW: Split Saved Tabs ---
+    const savedDTabButton = document.createElement('button');
+    savedDTabButton.id = 'tab-saved-d';
+    savedDTabButton.className = 'tab-button navigable grid-item';
+    savedDTabButton.tabIndex = 0;
+    savedDTabButton.textContent = 'متابعة  في السيارة'; // Car List
 
-            const savedTabButton = document.createElement('button');
-            savedTabButton.id = 'tab-saved';
-            savedTabButton.className = 'tab-button navigable grid-item';
-            savedTabButton.tabIndex = 0;
-            savedTabButton.textContent = 'الفيديوهات المحفوظة';
+    const savedMTabButton = document.createElement('button');
+    savedMTabButton.id = 'tab-saved-m';
+    savedMTabButton.className = 'tab-button navigable grid-item';
+    savedMTabButton.tabIndex = 0;
+    savedMTabButton.textContent = 'المتابعة في التلفاز'; // TV List
+    // --- END NEW ---
 
-            tabContainer.appendChild(recitersTabButton);
-            tabContainer.appendChild(channTabButton); // Add Tarteel AI tab
-            tabContainer.appendChild(toolsTabButton);
-            tabContainer.appendChild(savedTabButton);
+    tabContainer.appendChild(recitersTabButton);
+    tabContainer.appendChild(channTabButton);
+    tabContainer.appendChild(toolsTabButton);
+    tabContainer.appendChild(savedDTabButton); // Add new D button
+    tabContainer.appendChild(savedMTabButton); // Add new M button
 
-            const tabsContentContainer = document.createElement('div');
-            tabsContentContainer.id = 'tabs-content-container';
-            tabsContentContainer.className = 'flex-grow w-full overflow-y-auto';
+    const tabsContentContainer = document.createElement('div');
+    tabsContentContainer.id = 'tabs-content-container';
+    tabsContentContainer.className = 'flex-grow w-full overflow-y-auto';
 
-            // 2. Create Content Panels
-            const recitersContent = document.createElement('div');
-            recitersContent.id = 'tab-content-reciters';
-            recitersContent.className = 'tab-content';
-            const readerButtonsContainer = document.createElement('div');
-            readerButtonsContainer.className = 'reader-container';
-            recitersContent.appendChild(readerButtonsContainer);
+    console.log("[Debug] Created tab buttons and content container.");
 
-            // Create Channels Content Panels
-            const channContent = document.createElement('div');
-            channContent.id = 'tab-content-channels';
-            channContent.className = 'tab-content hidden';
-            const channButtonsContainer = document.createElement('div');
-            channButtonsContainer.className = 'reader-container';
-            channContent.appendChild(channButtonsContainer);
-            
-            // NEW: Tarteel AI Content Panel
-            const tarteelContent = document.createElement('div');
-            tarteelContent.id = 'tab-content-tarteel';
-            tarteelContent.className = 'tab-content hidden h-full flex flex-col items-center';
-            tarteelContent.innerHTML = `
-                <div class="flex flex-col items-center mb-4">
-                    <img src="${TARTEEL_CHANNEL_IMAGE}" alt="Tarteel AI Logo" class="w-24 h-24 rounded-full mb-3 border-2 border-purple-400">
-                    <h2 class="text-2xl font-bold">@TarteelArabic</h2>
-                    <p class="text-gray-400">أحدث الفيديوهات من قناة ترتيل</p>
-                </div>
-                <div id="tarteel-videos-container" class="grid-container w-full overflow-y-auto" style="height: calc(100% - 150px);">
-                    <p class="text-center col-span-full">جاري تحميل الفيديوهات...</p>
-                </div>
-            `;
+    // 2. Create Content Panels (MODIFIED)
+    const recitersContent = document.createElement('div');
+    recitersContent.id = 'tab-content-reciters';
+    recitersContent.className = 'tab-content hidden'; // Hide initially
+    const readerButtonsContainer = document.createElement('div');
+    readerButtonsContainer.className = 'reader-container';
+    recitersContent.appendChild(readerButtonsContainer);
 
+    const channContent = document.createElement('div'); // Default active content
+    channContent.id = 'tab-content-channels';
+    channContent.className = 'tab-content'; // Show initially
+    const channButtonsContainer = document.createElement('div');
+    channButtonsContainer.className = 'reader-container';
+    channContent.appendChild(channButtonsContainer);
 
-            const toolsContent = document.createElement('div');
-            toolsContent.id = 'tab-content-tools';
-            toolsContent.className = 'tab-content hidden';
-            const toolsButtonsContainer = document.createElement('div');
-            toolsButtonsContainer.className = 'reader-container'; 
-            toolsContent.appendChild(toolsButtonsContainer);
+    const toolsContent = document.createElement('div');
+    toolsContent.id = 'tab-content-tools';
+    toolsContent.className = 'tab-content hidden';
+    const toolsButtonsContainer = document.createElement('div');
+    toolsButtonsContainer.className = 'reader-container';
+    toolsContent.appendChild(toolsButtonsContainer);
 
-            const savedContent = document.createElement('div');
-            savedContent.id = 'tab-content-saved';
-            savedContent.className = 'tab-content hidden h-full';
-            savedContent.innerHTML = `
-                <div class="w-full h-full flex flex-col items-center">
-                    <div class="tabs-container flex p-1 rounded-full bg-black/30 self-center mt-2 mb-4" style="position: relative; top: 30px; z-index: 10;">
-                        <button id="tab-saved-d" class="tab-button active navigable grid-item" tabindex="0">متابعة المشاهدة في السيارة</button>
-                        <button id="tab-saved-m" class="tab-button navigable grid-item" tabindex="0">المتابعة في التلفاز</button>
-                    </div>
-                    <div id="tab-content-saved-d" class="tab-content w-full flex-grow overflow-y-auto pt-12">
-                         <div id="favorites-d-grid" class="flex flex-col gap-4 w-full p-2 grid-container"></div>
-                    </div>
-                    <div id="tab-content-saved-m" class="tab-content hidden w-full flex-grow overflow-y-auto pt-12">
-                        <div id="favorites-m-grid" class="flex flex-col gap-4 w-full p-2 grid-container"></div>
-                    </div>
-                </div>
-            `;
+    // --- NEW: Split Saved Content Divs ---
+    const savedDContent = document.createElement('div');
+    savedDContent.id = 'tab-content-saved-d';
+    savedDContent.className = 'tab-content hidden h-full'; // Initially hidden
+    savedDContent.innerHTML = `<div id="favorites-d-grid" class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4"></div>`; // Grid for D
 
-            // 3. Populate Content Panels
-            const recitersList = youtubeReaderSuggestions.filter(r => r.name !== "ربط الآيات");
-            recitersList.forEach(reader => {
-                const card = document.createElement('div');
-                card.className = 'youtube-reader-card navigable grid-item';
-                card.tabIndex = 0;
-                card.innerHTML = `<h3>${reader.name}</h3><img src="${reader.image}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';">`;
-                
-                // UPDATED: This listener now checks for Tarteel by name to perform a direct search.
-                card.addEventListener('click', () => {
-                    const specialReciters = [
-                        'ترتيل-@TarteelArabic',
-                        'محفوف -BYMAHFOOF',
-                        'اذاعة مختلف', 'الرقية' ,
-                        'Mohamed abubakr',
-                        'قناة اخضر' , 'Qtratel' ,'مزامير الفرقان - ياسر الدوسري','عبدالله الشحري','بودكاست'
-                    ];
-
-                    if (specialReciters.includes(reader.name)) {
-                        searchYouTubeVideos(reader.name);
-                    } else if (searchMode === 'reciter_only') {
-                        youtubeSearchInput.value = reader.name;
-                        searchYouTubeVideos(reader.name);
-                        searchMode = 'reciter_surah'; // Reset mode after search
-                    } else {
-                        handleReaderOrToolClick(reader.name, tabContainer, tabsContentContainer);
-                    }
-                });
-                readerButtonsContainer.appendChild(card);
-            });
-            
-            const channList = await fetchChannelsList();
-            const channelIdsToFetch = channList.filter(r => r.channelid).map(r => r.channelid);
-            const channelThumbnails = channelIdsToFetch.length > 0 ? await fetchChannelsDetails(channelIdsToFetch) : {};
-
-            
-            channList.forEach(reader => {
-                const card = document.createElement('div');
-                card.className = 'youtube-reader-card navigable grid-item relative group'; // Added relative and group for hover effect
-                card.tabIndex = 0;
-                
-                const imageUrl = reader.channelid 
-                    ? (channelThumbnails[reader.channelid] || 'https://placehold.co/100x100/334155/ffffff?text=?') 
-                    : (reader.image || 'https://placehold.co/100x100/334155/ffffff?text=?');
-
-                card.innerHTML = `
-                    <button class="delete-channel-btn absolute bottom-2 right-2 p-1.5 bg-red-600/80 hover:bg-red-500 rounded-full transition-colors z-10 navigable grid-item" title="حذف القناة" tabindex="0">
-                        <i data-lucide="trash-2" class="w-4 h-4 text-white pointer-events-none"></i>
-                    </button>
-                    <h3>${reader.name}</h3>
-                    <img src="${imageUrl}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';">
-                `;
-                
-                card.addEventListener('click', (e) => {
-                    // Prevent card click if delete button is the target
-                    if (e.target.closest('.delete-channel-btn')) return;
-
-                    if (reader.channelid && reader.channeltitle) {
-                        searchVideosByChannel(reader.channelid, reader.channeltitle);
-                    } else if (reader.name === 'ربط الآيات') {
-                        // Special case for 'ربط الآيات' tool
-                        handleReaderOrToolClick(reader.name, tabContainer, tabsContentContainer);
-                    } else {
-                        // Fallback for items without a channel ID, like "الرقية" or "بودكاست"
-                        searchYouTubeVideos(reader.name);
-                    }
-                });
-
-                const deleteBtn = card.querySelector('.delete-channel-btn');
-                deleteBtn?.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    removeChannelFromList(reader.channelid, reader.name);
-                });
-
-                channButtonsContainer.appendChild(card);
-            });
-
- // NEW: Add "Add Channel" button to the Channels tab at the beginning
-            const addChannelCard = document.createElement('div');
-            addChannelCard.className = 'youtube-reader-card navigable grid-item';
-            addChannelCard.tabIndex = 0;
-            addChannelCard.innerHTML = `<h3>إضافة قناة</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-dashed border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="plus" class="w-12 h-12 text-white/50"></i></div>`;
-            addChannelCard.addEventListener('click', showAddChannelPrompt);
-            channButtonsContainer.appendChild(addChannelCard);
+    const savedMContent = document.createElement('div');
+    savedMContent.id = 'tab-content-saved-m';
+    savedMContent.className = 'tab-content hidden h-full'; // Initially hidden
+    savedMContent.innerHTML = `<div id="favorites-m-grid" class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4"></div>`; // Grid for M
+    // --- END NEW ---
 
 
+    try {
+        console.log("[Debug] Populating Reciters...");
+        // --- Populate Reciters --- (Keep your existing code)
+        youtubeReaderSuggestions.forEach(reader => {
+             const card = document.createElement('div');
+             card.className = 'youtube-reader-card navigable grid-item';
+             card.tabIndex = 0;
+             card.innerHTML = `<h3>${reader.name}</h3><img src="${reader.image}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/100x100';">`;
+             card.addEventListener('click', () => handleReaderOrToolClick(reader.name, tabContainer, tabsContentContainer));
+             readerButtonsContainer.appendChild(card);
+        });
+        console.log("[Debug] Populated Reciters.");
 
-
-            // MOVED: Add "السورة" button to the Reciters tab at the end
-            const surahCard = document.createElement('div');
-            surahCard.className = 'youtube-reader-card navigable grid-item';
-            surahCard.tabIndex = 3;
-            surahCard.innerHTML = `<h3>السورة فقط</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="book-open" class="w-12 h-12"></i></div>`;
-            surahCard.addEventListener('click', () => handleReaderOrToolClick("JUST_SURAH", tabContainer, tabsContentContainer));
-            readerButtonsContainer.appendChild(surahCard);
-
-            // MOVED: Add "القارئ فقط" to the Reciters tab at the end
-            const reciterOnlyCard = document.createElement('div');
-            reciterOnlyCard.className = 'youtube-reader-card navigable grid-item';
-            reciterOnlyCard.tabIndex = 0;
-            reciterOnlyCard.innerHTML = `<h3>القارئ فقط</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="mic" class="w-12 h-12"></i></div>`;
-            reciterOnlyCard.addEventListener('click', () => {
-                searchMode = 'reciter_only';
-                showMessageBox('اختر قارئاً للبحث عنه مباشرة.');
-                const firstReciter = recitersContent.querySelector('.grid-item');
-                if (firstReciter) setFocus(firstReciter);
-            });
-            readerButtonsContainer.appendChild(reciterOnlyCard);
-
-
-            const rabtAlAyat = youtubeReaderSuggestions.find(r => r.name === "ربط الآيات");
-            if (rabtAlAyat) {
-                const card = document.createElement('div');
-                card.className = 'youtube-reader-card navigable grid-item';
-                card.tabIndex = 0;
-                card.innerHTML = `<h3>${rabtAlAyat.name}</h3><img src="${rabtAlAyat.image}" alt="${rabtAlAyat.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';">`;
-                card.addEventListener('click', () => handleReaderOrToolClick(rabtAlAyat.name, tabContainer, tabsContentContainer));
-                toolsButtonsContainer.appendChild(card);
-            }
-
-            const difficultWordsCard = document.createElement('div');
-            difficultWordsCard.className = 'youtube-reader-card navigable grid-item';
-            difficultWordsCard.tabIndex = 0;
-            difficultWordsCard.innerHTML = `<h3>الكلمات الصعبة</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="book-check" class="w-12 h-12"></i></div>`;
-            difficultWordsCard.addEventListener('click', () => handleReaderOrToolClick("الكلمات الصعبة في", tabContainer, tabsContentContainer));
-            toolsButtonsContainer.appendChild(difficultWordsCard);
-
-            const repeatCard = document.createElement('div');
-            repeatCard.className = 'youtube-reader-card navigable grid-item';
-            repeatCard.tabIndex = 0;
-            repeatCard.innerHTML = `<h3>تكرار</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="repeat" class="w-12 h-12"></i></div>`;
-            repeatCard.addEventListener('click', () => handleReaderOrToolClick("تكرار", tabContainer, tabsContentContainer));
-            toolsButtonsContainer.appendChild(repeatCard);
-
-            const saveCard = document.createElement('div');
-            saveCard.className = 'youtube-reader-card navigable grid-item';
-            saveCard.tabIndex = 0;
-            saveCard.innerHTML = `<h3>حفظ</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="save" class="w-12 h-12"></i></div>`;
-            saveCard.addEventListener('click', () => handleReaderOrToolClick("حفظ", tabContainer, tabsContentContainer));
-            toolsButtonsContainer.appendChild(saveCard);
-
-            // 4. Tab Switching Logic
-            recitersTabButton.addEventListener('click', () => {
-                recitersTabButton.classList.add('active');
-                channTabButton.classList.remove('active');
-                tarteelTabButton.classList.remove('active');
-                toolsTabButton.classList.remove('active');
-                savedTabButton.classList.remove('active');
-                recitersContent.classList.remove('hidden');
-                channContent.classList.add('hidden');
-                tarteelContent.classList.add('hidden');
-                toolsContent.classList.add('hidden');
-                savedContent.classList.add('hidden');
-                displayLastWatchedVideo();
-                const firstItem = recitersContent.querySelector('.grid-item');
-                if (firstItem) setFocus(firstItem);
-            });
-
-            channTabButton.addEventListener('click', () => {
-                recitersTabButton.classList.remove('active');
-                channTabButton.classList.add('active');
-                tarteelTabButton.classList.remove('active');
-                toolsTabButton.classList.remove('active');
-                savedTabButton.classList.remove('active');
-                recitersContent.classList.add('hidden');
-                channContent.classList.remove('hidden');
-                tarteelContent.classList.add('hidden');
-                toolsContent.classList.add('hidden');
-                savedContent.classList.add('hidden');
-                displayLastWatchedVideo();
-                const firstItem = channContent.querySelector('.grid-item');
-                if (firstItem) setFocus(firstItem);
-            });
-
-            toolsTabButton.addEventListener('click', () => {
-                recitersTabButton.classList.remove('active');
-                channTabButton.classList.remove('active');
-                tarteelTabButton.classList.remove('active');
-                toolsTabButton.classList.add('active');
-                savedTabButton.classList.remove('active');
-                recitersContent.classList.add('hidden');
-                channContent.classList.add('hidden');
-                tarteelContent.classList.add('hidden');
-                toolsContent.classList.remove('hidden');
-                savedContent.classList.add('hidden');
-                displayLastWatchedVideo();
-                const firstItem = toolsContent.querySelector('.grid-item');
-                if (firstItem) setFocus(firstItem);
-            });
-            
-            savedTabButton.addEventListener('click', () => {
-                recitersTabButton.classList.remove('active');
-                channTabButton.classList.remove('active');
-                tarteelTabButton.classList.remove('active');
-                toolsTabButton.classList.remove('active');
-                savedTabButton.classList.add('active');
-
-                recitersContent.classList.add('hidden');
-                channContent.classList.add('hidden');
-                tarteelContent.classList.add('hidden');
-                toolsContent.classList.add('hidden');
-                savedContent.classList.remove('hidden');
-
-                document.getElementById('last-watched-container').classList.add('hidden');
-                loadSavedVideos(); // Load the videos when tab is clicked
-                
-                // --- NEW: Inner tab logic for saved videos ---
-                const tabSavedD = savedContent.querySelector('#tab-saved-d');
-                const tabSavedM = savedContent.querySelector('#tab-saved-m');
-                const contentSavedD = savedContent.querySelector('#tab-content-saved-d');
-                const contentSavedM = savedContent.querySelector('#tab-content-saved-m');
-
-                if (tabSavedD && tabSavedM && contentSavedD && contentSavedM) {
-                    tabSavedD.addEventListener('click', () => {
-                        tabSavedD.classList.add('active');
-                        tabSavedM.classList.remove('active');
-                        contentSavedD.classList.remove('hidden');
-                        contentSavedM.classList.add('hidden');
-                        setFocus(tabSavedD);
-                    });
-
-                    tabSavedM.addEventListener('click', () => {
-                        tabSavedM.classList.add('active');
-                        tabSavedD.classList.remove('active');
-                        contentSavedM.classList.remove('hidden');
-                        contentSavedD.classList.add('hidden');
-                        setFocus(tabSavedM);
-                    });
-                }
-                
-                const firstItem = savedContent.querySelector('.grid-item');
-                if (firstItem) setFocus(firstItem);
-            });
-
-            // 5. Append everything
-            suggestionsContent.appendChild(tabContainer);
-            tabsContentContainer.appendChild(recitersContent);
-            tabsContentContainer.appendChild(channContent);
-            tabsContentContainer.appendChild(tarteelContent); // Append Tarteel AI content
-            tabsContentContainer.appendChild(toolsContent);
-            tabsContentContainer.appendChild(savedContent);
-            suggestionsContent.appendChild(tabsContentContainer);
-
-            // Set initial active tab
-            channTabButton.classList.add('active');
-            channContent.classList.remove('hidden');
-            recitersTabButton.classList.remove('active');
-            recitersContent.classList.add('hidden');
-
-
-            lucide.createIcons();
-            }
-
-         // NEW: Function to fetch and display Tarteel AI videos
-            async function fetchTarteelVideos() {
-            const tarteelVideosContainer = document.getElementById('tarteel-videos-container');
-            if (!tarteelVideosContainer) return;
-
-            tarteelVideosContainer.innerHTML = '<p class="text-center col-span-full">جاري تحميل أحدث فيديوهات ترتيل...</p>';
-            
-            try {
-                if (YOUTUBE_API_KEY.startsWith('YOUR_')) {
-                     throw new Error("YouTube API key not set.");
-                }
-                const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${TARTEEL_CHANNEL_ID}&type=video&order=date&key=${YOUTUBE_API_KEY}&maxResults=50`);
-                if (!res.ok) {
-                    throw new Error(`YouTube API error: ${res.status}`);
-                }
-                const data = await res.json();
-                
-                if (data.items && data.items.length > 0) {
-                    const videoIds = data.items.map(item => item.id.videoId);
-                    const videoDetails = await fetchVideosDetails(videoIds); // Re-use existing detail fetcher
-                    
-                    tarteelVideosContainer.innerHTML = ''; // Clear loading message
-
-                    if (videoDetails === null) {
-                        throw new Error("Failed to fetch details for Tarteel videos.");
-                    }
-                    
-                    // NEW: Fetch channel thumbnails
-                    const channelIds = [...new Set(videoDetails.map(video => video.snippet.channelId))];
-                    const channelThumbnails = await fetchChannelsDetails(channelIds);
-
-                    videoDetails.forEach(video => {
-                        const durationSeconds = video.contentDetails.duration.match(/\d+/g).map(Number).reduce((acc, time, i, arr) => acc + time * (arr.length === 3 ? [3600, 60, 1][i] : (arr.length === 2 ? [60, 1][i] : 1)), 0);
-                        if (durationSeconds <= 61) return; // Filter out very short videos
-
-                        const videoData = {
-                            id: video.id,
-                            title: video.snippet.title,
-                            thumbnail: video.snippet.thumbnails.medium.url,
-                            channelTitle: video.snippet.channelTitle,
-                            channelId: video.snippet.channelId,
-                            channelThumbnail: channelThumbnails[video.snippet.channelId],
-                            viewCount: formatViewCount(video.statistics.viewCount),
-                            publishedAt: formatTimeAgo(video.snippet.publishedAt),
-                            duration: formatDuration(video.contentDetails.duration)
-                        };
-                        tarteelVideosContainer.appendChild(createVideoCard(videoData));
-                    });
-                } else {
-                    tarteelVideosContainer.innerHTML = '<p class="text-center col-span-full">لا توجد فيديوهات حديثة لقناة ترتيل.</p>';
-                }
-            } catch (err) {
-                console.error('Error fetching Tarteel AI videos:', err);
-                tarteelVideosContainer.innerHTML = '<p class="text-center col-span-full text-red-400">حدث خطأ أثناء تحميل فيديوهات ترتيل.</p>';
-            }
-            lucide.createIcons();
-            updateNavigableElements();
+        console.log("[Debug] Populating Channels...");
+        // --- Populate Channels --- (Keep your existing code)
+        let channList = await fetchChannelsList();
+        if (Array.isArray(channList)) {
+             channList.sort((a, b) => (parseInt(b?.clickschannel, 10) || 0) - (parseInt(a?.clickschannel, 10) || 0));
+        } else {
+             console.error("fetchChannelsList did not return an array."); channList = [];
         }
+        const channelIdsToFetch = channList.filter(r => r && r.channelid).map(r => r.channelid);
+        const channelThumbnails = channelIdsToFetch.length > 0 ? await fetchChannelsDetails(channelIdsToFetch) : {};
+        channButtonsContainer.innerHTML = '';
+        channList.forEach(reader => {
+             if (!reader || typeof reader !== 'object') return;
+             const card = document.createElement('div');
+             card.className = 'youtube-reader-card navigable grid-item relative group';
+             card.tabIndex = 0;
+             const imageUrl = reader.channelid ? (channelThumbnails[reader.channelid] || 'https://placehold.co/100x100/334155/ffffff?text=?') : (reader.image || 'https://placehold.co/100x100/334155/ffffff?text=?');
+             card.innerHTML = `
+                 <button class="delete-channel-btn absolute bottom-2 right-2 p-1.5 bg-red-600/80 hover:bg-red-500 rounded-full transition-colors z-10 navigable grid-item" title="حذف القناة" tabindex="0"><i data-lucide="trash-2" class="w-4 h-4 text-white pointer-events-none"></i></button>
+                 <h3>${reader.name}</h3>
+                 <img src="${imageUrl}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';">`;
+             card.addEventListener('click', (e) => {
+                 if (e.target.closest('.delete-channel-btn')) return;
+                 if (reader.channelid && reader.channeltitle) {
+                     incrementChannelClick(reader.channelid);
+                     searchVideosByChannel(reader.channelid, reader.channeltitle);
+                 } else {
+                     handleReaderOrToolClick(reader.name, tabContainer, tabsContentContainer);
+                 }
+             });
+             const deleteBtn = card.querySelector('.delete-channel-btn');
+             deleteBtn?.addEventListener('click', (e) => { e.stopPropagation(); removeChannelFromList(reader.channelid, reader.name); });
+             channButtonsContainer.appendChild(card);
+        });
+        const addChannelCard = document.createElement('div');
+        addChannelCard.className = 'youtube-reader-card navigable grid-item';
+        addChannelCard.tabIndex = 0;
+        addChannelCard.innerHTML = `<h3>إضافة قناة</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-dashed border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="plus" class="w-12 h-12 text-white/50"></i></div>`;
+        addChannelCard.addEventListener('click', showAddChannelPrompt);
+        channButtonsContainer.appendChild(addChannelCard);
+        console.log("[Debug] Populated Channels.");
 
+
+        console.log("[Debug] Populating Tools...");
+        // --- Populate Tools --- (Keep your existing code)
+        const tools = [
+             { name: "الكلمات الصعبة في", icon: "help-circle" },
+             { name: "فقط السورة", icon: "book-open", specialAction: "JUST_SURAH" }
+        ];
+        tools.forEach(tool => {
+            const card = document.createElement('div');
+            card.className = 'youtube-reader-card navigable grid-item';
+            card.tabIndex = 0;
+            card.innerHTML = `<h3>${tool.name}</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="${tool.icon}" class="w-12 h-12 text-white/50"></i></div>`;
+            card.addEventListener('click', () => handleReaderOrToolClick(tool.specialAction || tool.name, tabContainer, tabsContentContainer));
+            toolsButtonsContainer.appendChild(card);
+        });
+        console.log("[Debug] Populated Tools.");
+
+
+        console.log("[Debug] Attaching click listeners to tab buttons...");
+
+        // --- Tab Switching Logic (MODIFIED) ---
+        const tabs = [recitersTabButton, channTabButton, toolsTabButton, savedDTabButton, savedMTabButton]; // Updated tabs array
+        const contents = [recitersContent, channContent, toolsContent, savedDContent, savedMContent];   // Updated contents array
+
+        tabs.forEach((tab, index) => {
+            tab.addEventListener('click', () => {
+                console.log(`[Debug] ${tab.textContent} tab clicked!`);
+                tabs.forEach(t => t.classList.remove('active'));
+                contents.forEach(c => c.classList.add('hidden'));
+                tab.classList.add('active');
+                contents[index].classList.remove('hidden');
+
+                // --- Special actions for Saved tabs ---
+                if (tab.id === 'tab-saved-d') {
+                    loadSavedVideos('D'); // Load only D list
+                } else if (tab.id === 'tab-saved-m') {
+                    loadSavedVideos('M'); // Load only M list
+                }
+                // --- End Special actions ---
+
+                const firstItem = contents[index].querySelector('.grid-item');
+                if (firstItem) setFocus(firstItem); else setFocus(tab);
+            });
+        });
+        console.log("[Debug] Finished attaching click listeners.");
+
+
+        // 5. Append everything
+        suggestionsContent.appendChild(tabContainer);
+        tabsContentContainer.appendChild(recitersContent);
+        tabsContentContainer.appendChild(channContent);
+        tabsContentContainer.appendChild(toolsContent);
+        tabsContentContainer.appendChild(savedDContent); // Add new D content
+        tabsContentContainer.appendChild(savedMContent); // Add new M content
+        suggestionsContent.appendChild(tabsContentContainer);
+
+        // Set initial active tab (Channels is already set via class)
+
+        lucide.createIcons();
+        console.log("[Debug] Finished populateYoutubeSuggestions.");
+        updateNavigableElements();
+
+    } catch (error) {
+        console.error("Error during populateYoutubeSuggestions:", error);
+        suggestionsContent.innerHTML = '<p class="text-red-500 text-center">Error loading suggestions.</p>';
+    }
+}
 
         function showSurahSuggestions() {
             const existing = document.getElementById('youtube-surah-section');
@@ -4724,39 +4593,53 @@ async function hideVideoPopup() {
         }
 
         async function saveVideoToFavorites(video, type) {
-            const favoritesList = type === 'D' ? favoritesD : favoritesM;
-            if (favoritesList.some(fav => fav.id === video.id)) {
-                showMessageBox(`الفيديو موجود بالفعل في المفضلة ${type}`);
-                return;
-            }
-            const history = getWatchedHistory();
-            const watchedInfo = history[video.id];
-            const progress = (watchedInfo && watchedInfo.progress > 0) ? watchedInfo.progress : 0;
+            const favoritesList = type === 'D' ? favoritesD : favoritesM;
+            if (favoritesList.some(fav => fav.id === video.id)) {
+                showMessageBox(`الفيديو موجود بالفعل في المفضلة ${type}`);
+                return;
+            }
+            const history = getWatchedHistory();
+            const watchedInfo = history[video.id];
+            const progress = (watchedInfo && watchedInfo.progress > 0) ? watchedInfo.progress : 0;
 
-            const videoToSave = {
-                id: video.id,
-                title: video.title,
-                thumbnail: video.thumbnail,
-                channelTitle: video.channelTitle,
-                channelId: video.channelId,
-                duration: video.duration,
-                progress: progress
-            };
-            const updatedList = [...favoritesList, videoToSave];
-            const success = await updateFavorites(type, updatedList);
+            const videoToSave = {
+                id: video.id,
+                title: video.title,
+                thumbnail: video.thumbnail,
+                channelTitle: video.channelTitle,
+                channelId: video.channelId,
+                duration: video.duration,
+                progress: progress
+            };
 
-            if (success) {
-                if (type === 'D') favoritesD = updatedList; else favoritesM = updatedList;
-                showMessageBox(`تم حفظ الفيديو في المفضلة ${type}`);
-                const bookmarkBtn = document.querySelector(`.bookmark-button[data-video-id="${video.id}"]`);
-                if(bookmarkBtn) {
-                    bookmarkBtn.classList.remove('saved-d', 'saved-m', 'saved-both');
-                    if (favoritesD.some(fav => fav.id === video.id) && favoritesM.some(fav => fav.id === video.id)) bookmarkBtn.classList.add('saved-both');
-                    else if (favoritesD.some(fav => fav.id === video.id)) bookmarkBtn.classList.add('saved-d');
-                    else if (favoritesM.some(fav => fav.id === video.id)) bookmarkBtn.classList.add('saved-m');
-                }
-            }
-        }
+            // [تعديل] إضافة الفيديو الجديد في بداية القائمة (الأحدث أولاً)
+            const updatedList = [videoToSave, ...favoritesList];
+            
+            const success = await updateFavorites(type, updatedList);
+
+            if (success) {
+                if (type === 'D') favoritesD = updatedList; else favoritesM = updatedList;
+                showMessageBox(`تم حفظ الفيديو في المفضلة ${type}`);
+                
+                // تحديث زر الحفظ في الكارت
+                const bookmarkBtn = document.querySelector(`.bookmark-button[data-video-id="${video.id}"]`);
+                if(bookmarkBtn) {
+                    bookmarkBtn.classList.remove('saved-d', 'saved-m', 'saved-both');
+                    if (favoritesD.some(fav => fav.id === video.id) && favoritesM.some(fav => fav.id === video.id)) bookmarkBtn.classList.add('saved-both');
+                    else if (favoritesD.some(fav => fav.id === video.id)) bookmarkBtn.classList.add('saved-d');
+                    else if (favoritesM.some(fav => fav.id === video.id)) bookmarkBtn.classList.add('saved-m');
+                }
+
+                // [إضافة] تحديث زر الحفظ في نافذة الفيديو المنبثقة إذا كانت مفتوحة
+                const popupBookmarkBtn = document.getElementById('video-popup-bookmark-button');
+                if (popupBookmarkBtn && currentPlayingVideoId === video.id) {
+                     popupBookmarkBtn.classList.remove('saved-d', 'saved-m', 'saved-both');
+                    if (favoritesD.some(fav => fav.id === video.id) && favoritesM.some(fav => fav.id === video.id)) popupBookmarkBtn.classList.add('saved-both');
+                    else if (favoritesD.some(fav => fav.id === video.id)) popupBookmarkBtn.classList.add('saved-d');
+                    else if (favoritesM.some(fav => fav.id === video.id)) popupBookmarkBtn.classList.add('saved-m');
+                }
+            }
+        }
 
         async function removeVideoFromFavorites(videoId, type) {
             const favoritesList = type === 'D' ? favoritesD : favoritesM;
@@ -4769,31 +4652,83 @@ async function hideVideoPopup() {
             }
         }
 
-        async function loadSavedVideos() {
-            const gridD = document.getElementById('favorites-d-grid');
-            const gridM = document.getElementById('favorites-m-grid');
-            if (!gridD || !gridM) return;
+        // Replace the existing loadSavedVideos function
+async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or undefined)
+    console.log(`[Debug SavedVideos] Starting loadSavedVideos(${type || 'both'})...`);
 
-            gridD.innerHTML = '<p>جاري التحميل...</p>';
-            gridM.innerHTML = '<p>جاري التحميل...</p>';
+    const gridD = document.getElementById('favorites-d-grid');
+    const gridM = document.getElementById('favorites-m-grid');
+    const savedDContent = document.getElementById('tab-content-saved-d');
+    const savedMContent = document.getElementById('tab-content-saved-m');
 
-            [favoritesD, favoritesM] = await Promise.all([fetchFavorites('D'), fetchFavorites('M')]);
+    // Determine which grids/content areas to update
+    const updateD = !type || type === 'D';
+    const updateM = !type || type === 'M';
 
-            gridD.innerHTML = '';
-            if (favoritesD.length > 0) {
-                favoritesD.forEach(video => gridD.appendChild(createFavoriteVideoCard(video, 'D')));
-            } else {
-                gridD.innerHTML = '<p>لا توجد فيديوهات محفوظة هنا.</p>';
-            }
-            gridM.innerHTML = '';
-            if (favoritesM.length > 0) {
-                favoritesM.forEach(video => gridM.appendChild(createFavoriteVideoCard(video, 'M')));
-            } else {
-                gridM.innerHTML = '<p>لا توجد فيديوهات محفوظة هنا.</p>';
-            }
-            lucide.createIcons();
-            updateNavigableElements();
+    if (updateD && !gridD) console.error("[Debug SavedVideos] favorites-d-grid not found!");
+    if (updateM && !gridM) console.error("[Debug SavedVideos] favorites-m-grid not found!");
+
+    // Show loading messages only in the relevant grids
+    if (updateD && gridD) gridD.innerHTML = '<p class="text-white/70 text-center col-span-full">جاري تحميل قائمة السيارة...</p>';
+    if (updateM && gridM) gridM.innerHTML = '<p class="text-white/70 text-center col-span-full">جاري تحميل قائمة التلفاز...</p>';
+
+    try {
+        let fetchedD = [], fetchedM = [];
+
+        // Fetch only the necessary lists
+        if (updateD && updateM) { // Fetch both if no type specified
+             const results = await Promise.allSettled([fetchFavorites('D'), fetchFavorites('M')]);
+             fetchedD = results[0].status === 'fulfilled' ? results[0].value : [];
+             fetchedM = results[1].status === 'fulfilled' ? results[1].value : [];
+             favoritesD = fetchedD; // Update global cache
+             favoritesM = fetchedM; // Update global cache
+        } else if (updateD) { // Fetch only D
+             fetchedD = await fetchFavorites('D');
+             favoritesD = fetchedD; // Update global cache
+        } else if (updateM) { // Fetch only M
+             fetchedM = await fetchFavorites('M');
+             favoritesM = fetchedM; // Update global cache
         }
+
+        console.log("[Debug SavedVideos] Fetched D:", fetchedD);
+        console.log("[Debug SavedVideos] Fetched M:", fetchedM);
+
+        // Render D list if needed
+        if (updateD && gridD) {
+            gridD.innerHTML = '';
+            if (fetchedD.length > 0) {
+                 fetchedD.forEach(video => {
+                     const cardElement = createFavoriteVideoCard(video, 'D');
+                     if (cardElement) gridD.appendChild(cardElement);
+                 });
+            } else {
+                 gridD.innerHTML = '<p class="text-white/70 text-center col-span-full">لا توجد فيديوهات محفوظة هنا.</p>';
+            }
+        }
+
+        // Render M list if needed
+        if (updateM && gridM) {
+             gridM.innerHTML = '';
+             if (fetchedM.length > 0) {
+                 fetchedM.forEach(video => {
+                     const cardElement = createFavoriteVideoCard(video, 'M');
+                     if (cardElement) gridM.appendChild(cardElement);
+                 });
+             } else {
+                 gridM.innerHTML = '<p class="text-white/70 text-center col-span-full">لا توجد فيديوهات محفوظة هنا.</p>';
+             }
+        }
+
+        lucide.createIcons();
+        updateNavigableElements(); // Ensure focusable elements are updated after rendering
+        console.log("[Debug SavedVideos] Finished rendering saved videos.");
+
+    } catch (error) {
+        console.error("[Debug SavedVideos] Error in loadSavedVideos:", error);
+        if (updateD && gridD) gridD.innerHTML = '<p class="text-red-500 text-center col-span-full">خطأ في تحميل المفضلة.</p>';
+        if (updateM && gridM) gridM.innerHTML = '<p class="text-red-500 text-center col-span-full">خطأ في تحميل المفضلة.</p>';
+    }
+}
 
         function createFavoriteVideoCard(video, type) {
             const card = document.createElement('div');
@@ -5878,7 +5813,7 @@ if (!window.hasInitializedWeatherSpeaker) {
         favoritesD = d;
         favoritesM = m;
     });
-
+migrateChannelData();
     loadGoogleMaps().then(initMap);
     fetchWeatherData(); 
     loadPrayerTimes();
