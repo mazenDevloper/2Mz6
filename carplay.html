@@ -357,22 +357,7 @@ button#tab-tarteel {
             background-size: 400% 400%;
             animation: gradient 15s ease infinite;
         }
-        body.theme-gradient-2 {
-            background: linear-gradient(-45deg, #4CAF50, #8BC34A, #FFEB3B, #FFC107);
-            background-size: 400% 400%;
-            animation: gradient 75s ease infinite reverse;
-        }
-        body.theme-dark-blue {
-            background-color: #1a202c; /* Dark blue-gray */
-            background-image: none;
-            animation: none;
-        }
-        body.theme-purple-haze {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            background-size: 100% 100%;
-            animation: none;
-        }
-
+       
         div#quran-quick-access {
             display: none !important;
         }
@@ -434,8 +419,8 @@ div#\33 d-screen-weather-widget {
                 hsl(0 0% 0% / var(--glass-frost, 0.2))); /* Darker opaque background for dark mode */
             
             /* Enhanced backdrop-filter for stronger blur and saturation */
-            backdrop-filter: var(--filter-id, url(#glass-filter)) blur(10px) saturate(2.0) brightness(1.1); /* Reduced blur, saturation, and brightness for sharper effect */
-            -webkit-backdrop-filter: blur(10px) saturate(2.0) brightness(1.1); /* Webkit prefix */
+            backdrop-filter: var(--filter-id, url(#glass-filter)) blur(8px) saturate(1.8) brightness(1.1); /* e.g., 8px instead of 10px */
+     -webkit-backdrop-filter: blur(8px) saturate(1.8) brightness(1.1);/* Webkit prefix */
 
             /* More pronounced box-shadow for a "dropped" effect */
             box-shadow:
@@ -502,9 +487,16 @@ div#\33 d-screen-weather-widget {
 
         /* Keyframe animation for the background gradient */
         @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+              
+          0% {
+    background-position: 29.0118% 50%;
+  }
+  50% {
+    background-position: 65.0118% 50%;
+  }
+    0% {
+    background-position: 29.0118% 50%;
+  }
         }
 
         /* Styles for individual app screens */
@@ -2654,14 +2646,11 @@ let localChannelsCache = []; // To store the list locally
 let favoritesD = [];
 let favoritesM = [];
 
-        // NEW: Tarteel AI Channel ID
-        const TARTEEL_CHANNEL_ID = 'UCr0J18R8lK0m7oK4eL0jXQg'; // @TarteelArabic channel ID
-        const TARTEEL_CHANNEL_IMAGE = 'https://yt3.googleusercontent.com/pUYEmNtUgk7zmyKXVwzTyYCfli0AavVRgAomZITpyh3i6HT0mk35CCJv32Ra79-gKk276qSeYfw=s900-c-k-c0x00ffffff-no-rj';
-
+        
         // --- Global App State Management ---
         let appState = {
             currentTime: '',
-            mapLocation: { lat: 17.0151, lon: 54.0924, zoom: 17 },
+            mapLocation: { lat: 17.081667, lon: 54.159722, zoom: 19 },
             weather: { temperature: null, description: null, uvIndex: null, iconUrl: '', location: 'Salalah, Oman' },
             car: { speed: 0, rpm: 0, fuel: 0, temp: 0, gear: 'P', direction: '--' }, // Added direction
             prayerTimes: { Fajr: '--:--', Dhuhr: '--:--', Asr: '--:--', Maghrib: '--:--', Isha: '--:--', nextPrayer: null, nextPrayerIqamaTime: null, currentPrayer: null },
@@ -2682,7 +2671,7 @@ let favoritesM = [];
 
         // --- Home Locations ---
         // UPDATED: Coordinates for Home 1 and Home 2
-        const HOME1_COORDS = { lat: 17.081667, lng: 54.159722 }; // 17°04'54.0"N 54°09'35.0"E
+        const HOME1_COORDS = { lat: 17.0, lng: 54.159722 }; // 17°04'54.0"N 54°09'35.0"E
         const HOME2_COORDS = { lat: 17.048560, lng: 54.159616 };
 
         // --- DOM Element References ---
@@ -5816,12 +5805,12 @@ migrateChannelData();
     updateFullDateWidget(); // <-- أضف هذا السطر (استدعاء أولي)
 
     // Play welcome message once after a short delay
-    setTimeout(playWelcomeMessage, 1500);
+    setTimeout(playWelcomeMessage, 2000);
 
-    setInterval(fetchWeatherData, 300000); 
+    setInterval(fetchWeatherData, 800000); 
     setInterval(updateDigitalClock, 1000); 
     setInterval(determineNextPrayer, 60000);
-    setInterval(updateFullDateWidget, 60000); // <-- أضف هذا السطر (تحديث دوري)
+    setInterval(updateFullDateWidget, 600000); // <-- أضف هذا السطر (تحديث دوري)
     setInterval(simulateOtherCarData, 2000);
 
     // ... (بقية الكود)
