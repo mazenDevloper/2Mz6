@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" style="
     zoom: 93%;
@@ -41,8 +42,18 @@
     padding-bottom: 1rem;
     margin-bottom: 1rem;
 }
+ .tabs-container.flex.p-1.rounded-full.bg-black\/20.self-center {
+    bottom: 51px!important;
+    left: 99px!important;
+    position: fixed!important;
+     z-index: 1000!important;
+}
 .flex.gap-2.mt-2.homebtn {
     display: none;
+}
+button#video-popup-bookmark-button {
+    position: fixed;
+    left: 2px;
 }
 div#add-channel-prompt-content {
     max-width: 100%;
@@ -67,9 +78,12 @@ h3.video-title {
     direction: ltr;
 }
 /* NEW: Carousel Navigation Buttons */
-        section#screen-Dashboard {
+        section#screen-Dashboard,section#screen-Media {
         height: 105% !important;
 }
+
+
+
 .carousel-nav-button {
     position: absolute;
     top: 50%;
@@ -276,11 +290,15 @@ button#back-to-search-floating-button {
 
  .flex.flex-wrap.justify-center.gap-2.w-full {zoom: 0.85;}
 
- .tabs-container.flex.p-1.rounded-full.bg-black\/20.self-center {
-    bottom: 51px;
-    left: 99px;
-    position: fixed;
-     z-index: 1000;
+/* --- Try removing !important from these rules --- */
+.tabs-container {
+  display: flex; /* Remove !important */
+  gap: 0.5rem; /* Remove !important */
+  padding: 0.25rem; /* Remove !important */
+  border-radius: 9999px; /* Remove !important */
+  background-color: rgba(0, 0, 0, 0.8)!important; /* Remove !important */
+  align-self: center; /* Remove !important */
+  margin-bottom: 1rem; /* Remove !important */
 }
 
 button#back-to-playlists-bottom-button-search {
@@ -339,25 +357,8 @@ button#tab-tarteel {
             background-size: 400% 400%;
             animation: gradient 15s ease infinite;
         }
-        body.theme-gradient-2 {
-            background: linear-gradient(-45deg, #4CAF50, #8BC34A, #FFEB3B, #FFC107);
-            background-size: 400% 400%;
-            animation: gradient 75s ease infinite reverse;
-        }
-        body.theme-dark-blue {
-            background-color: #1a202c; /* Dark blue-gray */
-            background-image: none;
-            animation: none;
-        }
-        body.theme-purple-haze {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            background-size: 100% 100%;
-            animation: none;
-        }
-
-        div#quran-quick-access {
-            display: none !important;
-        }
+       
+       
 
         .h-full {
             height: 97% !important;
@@ -415,9 +416,10 @@ div#\33 d-screen-weather-widget {
             background: light-dark(hsl(0 0% 100% / var(--glass-frost, 0.1)), /* Slightly more opaque background */
                 hsl(0 0% 0% / var(--glass-frost, 0.2))); /* Darker opaque background for dark mode */
             
+            backdrop-filter: var(--filter-id, url(#glass-filter)) blur(8px) saturate(1.8) brightness(1.1); /* e.g., 8px instead of 10px */
+     -webkit-backdrop-filter: blur(8px) saturate(1.8) brightness(1.1);
             /* Enhanced backdrop-filter for stronger blur and saturation */
-            backdrop-filter: var(--filter-id, url(#glass-filter)) blur(10px) saturate(2.0) brightness(1.1); /* Reduced blur, saturation, and brightness for sharper effect */
-            -webkit-backdrop-filter: blur(10px) saturate(2.0) brightness(1.1); /* Webkit prefix */
+           
 
             /* More pronounced box-shadow for a "dropped" effect */
             box-shadow:
@@ -484,9 +486,16 @@ div#\33 d-screen-weather-widget {
 
         /* Keyframe animation for the background gradient */
         @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+          
+          0% {
+    background-position: 29.0118% 50%;
+  }
+  50% {
+    background-position: 65.0118% 50%;
+  }
+    100% {
+    background-position: 29.0118% 50%;
+  }
         }
 
         /* Styles for individual app screens */
@@ -676,47 +685,6 @@ div#\33 d-screen-weather-widget {
             transform: scale(1.1);
         }
 
-        /* Gemini-like Chat Styling */
-        .chat-message {
-            max-width: 70%;
-            padding: 0.75rem 1rem;
-            border-radius: 1.5rem; /* More rounded */
-            margin-bottom: 0.75rem;
-            word-wrap: break-word;
-            font-size: 0.9rem; /* Slightly smaller font for chat */
-        }
-
-        .chat-message.user {
-            background-color: #4f46e5; /* Blue */
-            color: white;
-            margin-left: auto;
-            border-bottom-right-radius: 0.5rem; /* Pointy bottom right */
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        .chat-message.ai {
-            background-color: #2d3748; /* Darker gray */
-            color: white;
-            margin-right: auto;
-            border-bottom-left-radius: 0.5rem; /* Pointy bottom left */
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        #ai-input {
-            border-radius: 2rem; /* Fully rounded pill shape */
-            padding: 0.75rem 1.25rem;
-            background-color: rgba(255, 255, 255, 0.15); /* Lighter glass */
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
-        }
-        #ai-input::placeholder {
-            color: rgba(255, 255, 255, 0.6);
-        }
-        #ai-input:focus {
-            background-color: rgba(255, 255, 255, 0.2);
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.4), 0 0 0 2px rgba(147, 51, 234, 0.5);
-        }
-        
         /* YouTube Video Card Styling (List View and Search Results) - UPDATED */
         .youtube-video-card, .youtube-search-card {
             display: flex;
@@ -970,7 +938,7 @@ div#\33 d-screen-weather-widget {
             gap: 0.5rem;
             padding: 0.25rem;
             border-radius: 9999px; /* pill shape */
-            background-color: rgba(0, 0, 0, 0.2);
+            background-color: rgba(0, 0, 0, 0.8);
             align-self: center; /* Center the tab bar */
             margin-bottom: 1rem;
         }
@@ -1220,39 +1188,7 @@ div#youtube-readers-section {
         }
 
         /* Electronic Quran specific styles */
-        .quran-text {
-            font-family: 'Amiri Quran', serif;
-            font-size: 2rem;
-            line-height: 2.5;
-            text-align: center;
-            direction: rtl;
-            padding: 0rem 1rem;
-            background-color: rgba(0, 0, 0, 0.2);
-            border-radius: 1rem;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-            overflow-y: auto;
-            max-height: 80%;
-        }
-
-        .quran-controls {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
-            justify-content: center;
-        }
-        .quran-control-button {
-            background-image: linear-gradient(to right, #6366f1, #8b5cf6);
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 9999px;
-            font-weight: bold;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
-        .quran-control-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-        }
+       
 
         /* NEW: Weather Screen Scroll Override */
         #screen-Weather {
@@ -1318,8 +1254,8 @@ div#youtube-readers-section {
             background-color: rgba(0, 0, 0, 0.6);
             color: white;
             border-radius: 50%;
-            width: 30px;
-            height: 30px;
+            width: 46px;
+            height: 46px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1404,15 +1340,93 @@ div#youtube-readers-section {
             }
         }
 
-        @media (max-width: 768px) {
-            
-        }
+      
         /* --- END: Athkar App Styles --- */
         @media (max-width: 768px) {
             body {
                 overflow-y: auto;
             }
 
+
+div#ts-1,div#ts-2,div#ts-3,div#ts-4,div#ts-5 {
+    height: 10rem;
+    width: 6rem;
+    font-size:10px;
+}
+
+div#tm-1,div#tm-2,div#tm-3,div#tm-4,div#tm-5 {
+   height: 10rem;
+    width: 8rem;
+    font-size:10px;
+}
+div#tl-1,div#tl-2,div#tm-3,div#tm-4,div#tm-5 {
+   height: 10rem;
+    width: 11rem%;
+    font-size:10px;
+}
+div#tsl-1,div#tsl-2,div#tm-3,div#tm-4,div#tm-5 {
+   height: 10rem;
+    width: 100%;
+    font-size:10px;
+}
+
+div#athkar-sabah-content {
+    gap: 0.5rem;
+    padding: 0.5rem;
+}
+
+div#athkar-sabah-content {
+
+    justify-content: center;
+    align-items: center;
+    justify-items: center;
+}
+
+div#athkar-masaa-content {
+
+    justify-content: center;
+    align-items: center;
+    justify-items: center;
+}
+
+section#screen-Athkar {zoom: 75%;}
+
+.dashboard-main-grid.grid.grid-cols-1.md\:grid-cols-3.grid-rows-\[80\%_20\%\].gap-4.md\:gap-6.h-full.w-full.grid-container {
+    height: 100% !important;
+    grid-template-rows: 90% 10%;
+}
+
+
+button#floating-keyboard-button {
+    bottom: 1.8rem;
+}
+
+div#video-popup-container {
+    width: 100%;
+    height: 64%;
+}
+            div#map {
+    display: none;
+}
+
+.glass-surface.glass-surface--svg.p-2.flex.flex-col.items-center.justify-center.text-center.car-cam-360-container.col-span-1.row-start-1.navigable.grid-item {
+    display: none;
+}
+
+.prayer-time-item.navigable.grid-item {
+    transform: scale(0.8);
+}
+
+div#prayer-times-container {
+    display: ruby;
+    margin: 0px;
+    padding: 0px;
+}
+
+.glass-surface.glass-surface--svg.p-4.flex.flex-col.items-center.justify-center.text-center.col-span-full.row-start-2.navigable.grid-item {
+    grid-row-start: 1;
+}
+            
                nav.w-20.sm\:w-24.bg-black\/20.flex.flex-col.items-center.justify-start.pt-8.p-2.space-y-4.border-l.border-white\/10.flex-shrink-0.transition-opacity.\30 \.3s.ease.grid-container {
     flex-direction: row-reverse;
     inline-size: -webkit-fill-available;}
@@ -1506,11 +1520,7 @@ div#youtube-readers-section {
                 margin-bottom: 0.5rem;
             }
 
-            .youtube-video-card img, .youtube-search-card img {
-                width: 90px;
-                height: 50.625px; /* Maintain 16:9 aspect ratio */
-                margin-right: 0.5rem;
-            }
+           
             .youtube-video-card h3, .youtube-search-card h3 {
                 font-size: 0.85rem;
             }
@@ -1693,7 +1703,7 @@ div#bottom-left-controls {
              font-family: sans-serif;
              font-weight: bold;
             margin-bottom: 0.2rem;
-            font-size: 1rem;
+            font-size: 1.3rem;
             
         }
 
@@ -1825,36 +1835,20 @@ div#bottom-left-controls {
 
 
 /* --- END: Islamic Daily Reminders Styles (MODIFIED) --- */
-        /* OBD-II Specific Styles */
-        .obd-data-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 1rem;
-            width: 100%;
-        }
-        .obd-data-card {
-            background-color: rgba(255, 255, 255, 0.05);
-            padding: 1rem;
-            border-radius: 1rem;
-            text-align: center;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
-        }
-        .obd-data-card .value {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #10b981;
-            margin-bottom: 0.25rem;
-        }
-        .obd-data-card .label {
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        /* التغييرات المطلوبة للشاشات الأوسع */
+       تغييرات المطلوبة للشاشات الأوسع */
         @media (min-width: 992px) {
             .carousel-nav-button.prev {
                 display: flex;
             }
+
+            div#video-popup-container {
+    height: 17rem;
+    width: 29rem;
+    bottom:8rem;
+    right:2rem;
+}
+
+
            
      .flex.gap-2.mt-2.homebtn {
     display: none;
@@ -1974,9 +1968,7 @@ div#map{display:none}
         
         <!-- Top Bar: Wifi, 5G, Current Time -->
         <div class="w-full max-w-7xl flex justify-between items-center text-white/80 text-sm px-4 py-2 absolute top-4 left-1/2 -translate-x-1/2 z-10 top-bar">
-            <div class="flex items-center gap-2">
-              
-            </div>
+           
            
         </div>
 
@@ -2151,10 +2143,33 @@ div#map{display:none}
                     </div>
                     <div id="athkar-content-container" class="w-full flex-grow overflow-y-auto">
                         <!-- Morning Athkar Panel -->
-                        <div id="athkar-sabah-content" class="tab-content athkar-grid"><div class="athkar-item navigable grid-item athkar-color-1" tabindex="0"><p>آية الكرسي</p><span class="repetition">(مرة واحدة)</span></div><div class="athkar-item navigable grid-item athkar-color-2" tabindex="0"><p>اللهم أعني على ذكرك وشكرك وحسن عبادتك.</p></div><div class="athkar-item navigable grid-item athkar-color-3" tabindex="0"><p>المعوذات: سورة الإخلاص، سورة الفلق، سورة الناس</p><span class="repetition">(٣ مرات)</span></div><div class="athkar-item navigable grid-item athkar-color-4" tabindex="0"><p>حسبي الله لا إله إلا هو عليه توكلت وهو رب العرش العظيم</p><span class="repetition">(٧ مرات)</span></div><div class="athkar-item navigable grid-item athkar-color-5" tabindex="0"><p>اللهم بك أصبحنا، وبك أمسينا، وبك نحيا، وبك نموت، وإليك النشور.</p></div><div class="athkar-item navigable grid-item athkar-color-1" tabindex="0"><p>بسم الله الذي لا يضر مع اسمه شيء في الأرض ولا في السماء وهو السميع العليم</p><span class="repetition">(٣ مرات)</span></div><div class="athkar-item navigable grid-item athkar-color-2" tabindex="0"><p>يا حي يا قيوم برحمتك أستغيث، أصلح لي شأني كله ولا تكلني إلى نفسي طرفة عين.</p></div><div class="athkar-item navigable grid-item athkar-color-3 col-span-2" tabindex="0"><p>اللهم عالم الغيب والشهادة فاطر السماوات والأرض، رب كل شيء ومليكه، أشهد أن لا إله إلا أنت، أعوذ بك من شر نفسي، ومن شر الشيطان وشركه، وأن أقترف على نفسي سوءاً أو أجره إلى مسلم.</p></div><div class="athkar-item navigable grid-item athkar-color-4 col-span-2" tabindex="0"><p>سيد الاستغغار: اللهم أنت ربي لا إله إلا أنت، خلقتني وأنا عبدك، وأنا على عهدك ووعدك ما استطعت، أعوذ بك من شر ما صنعت، أبوء لك بنعمتك علي، وأبوء بذنبي فاغفر لي، فإنه لا يغفر الذنوب إلا أنت.</p></div><div class="athkar-item navigable grid-item athkar-color-5 col-span-4" tabindex="0"><p>اللهم إني أسألك العفو والعافية في الدنيا والآخرة، اللهم إني أسألك العفو والعافية في ديني ودنياي وأهلي ومالي، اللهم استر عوراتي وآمن روعاتي، اللهم احفظني من بين يدي ومن خلفي وعن يميني وعن شمالي ومن فوقي، وأعوذ بعظمتك أن أغتال من تحتي.</p></div><div class="athkar-item navigable grid-item athkar-color-1 col-span-4" tabindex="0"><p>أصبحنا وأصبح الملك لله، والحمد لله، لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير. رب أسألك خير ما في هذا اليوم وخير ما بعده، وأعوذ بك من شر ما في هذا اليوم وشر ما بعده، رب أعوذ بك من الكسل وسوء الكبر، رب أعوذ بك من عذاب في النار وعذاب في القبر.</p></div></div>
+                        <div id="athkar-sabah-content" class="tab-content athkar-grid"><div id="ts-1" class="athkar-item navigable grid-item athkar-color-1" tabindex="0"><p>آية الكرسي</p><span class="repetition">(مرة واحدة)</span></div><div id="ts-2" class="athkar-item navigable grid-item athkar-color-2" tabindex="0"><p>اللهم أعني على ذكرك وشكرك وحسن عبادتك.</p></div><div id="ts-3" class="athkar-item navigable grid-item athkar-color-3" tabindex="0"><p> سورة الإخلاص، سورة الفلق، سورة الناس</p><span class="repetition">(٣ مرات)</span></div>
+                        <div id="ts-4" class="athkar-item navigable grid-item athkar-color-5" tabindex="0"><p>اللهم بك أصبحنا، وبك أمسينا، وبك نحيا، وبك نموت، وإليك النشور.</p></div>
+                        <div id="tm-3" class="athkar-item navigable grid-item athkar-color-4" tabindex="0"><p>حسبي الله لا إله إلا هو عليه توكلت وهو رب العرش العظيم</p><span class="repetition">(٧ مرات)</span></div>
+                        
+                        <div id="tm-1" class="athkar-item navigable grid-item athkar-color-1" tabindex="0"><p>بسم الله الذي لا يضر مع اسمه شيء في الأرض ولا في السماء وهو السميع العليم</p><span class="repetition">(٣ مرات)</span></div>
+                        <div id="tm-2" class="athkar-item navigable grid-item athkar-color-2" tabindex="0"><p>يا حي يا قيوم برحمتك أستغيث، أصلح لي شأني كله ولا تكلني إلى نفسي طرفة عين.</p></div>
+                        <div id="tl-1" class="athkar-item navigable grid-item athkar-color-3 col-span-2" tabindex="0"><p>اللهم عالم الغيب والشهادة فاطر السماوات والأرض، رب كل شيء ومليكه، أشهد أن لا إله إلا أنت، أعوذ بك من شر نفسي، ومن شر الشيطان وشركه، وأن أقترف على نفسي سوءاً أو أجره إلى مسلم.</p></div>
+                        <div id="tl-2" class="athkar-item navigable grid-item athkar-color-4 col-span-2" tabindex="0"><p>سيد الاستغغار: اللهم أنت ربي لا إله إلا أنت، خلقتني وأنا عبدك، وأنا على عهدك ووعدك ما استطعت، أعوذ بك من شر ما صنعت، أبوء لك بنعمتك علي، وأبوء بذنبي فاغفر لي، فإنه لا يغفر الذنوب إلا أنت.</p></div>
+                        <div id="tsl-1" class="athkar-item navigable grid-item athkar-color-5 col-span-4" tabindex="0"><p>اللهم إني أسألك العفو والعافية في الدنيا والآخرة، اللهم إني أسألك العفو والعافية في ديني ودنياي وأهلي ومالي، اللهم استر عوراتي وآمن روعاتي، اللهم احفظني من بين يدي ومن خلفي وعن يميني وعن شمالي ومن فوقي، وأعوذ بعظمتك أن أغتال من تحتي.</p></div>
+                        <div id="tsl-2" class="athkar-item navigable grid-item athkar-color-1 col-span-4" tabindex="0"><p>أصبحنا وأصبح الملك لله، والحمد لله، لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير. رب أسألك خير ما في هذا اليوم وخير ما بعده، وأعوذ بك من شر ما في هذا اليوم وشر ما بعده، رب أعوذ بك من الكسل وسوء الكبر، رب أعوذ بك من عذاب في النار وعذاب في القبر.</p></div>
+                        </div>
+                        
                         <!-- Evening Athkar Panel -->
-                        <div id="athkar-masaa-content" class="tab-content athkar-grid hidden"><div class="athkar-item navigable grid-item header col-span-4" tabindex="0"><p>أذكار المساء ()</p></div><div class="athkar-item navigable grid-item athkar-color-1" tabindex="0"><p>آية الكرسي</p><span class="repetition">(مرة واحدة)</span></div><div class="athkar-item navigable grid-item athkar-color-2" tabindex="0"><p>اللهم أعني على ذكرك وشكرك وحسن عبادتك.</p></div><div class="athkar-item navigable grid-item athkar-color-3" tabindex="0"><p>المعوذات: سورة الإخلاص، سورة الفلق، سورة الناس</p><span class="repetition">(٣ مرات)</span></div><div class="athkar-item navigable grid-item athkar-color-4" tabindex="0"><p>حسبي الله لا إله إلا هو عليه توكلت وهو رب العرش العظيم</p><span class="repetition">(٧ مرات)</span></div><div class="athkar-item navigable grid-item athkar-color-5" tabindex="0"><p>اللهم بك أمسينا، وبك أصبحنا، وبك نحيا، وبك نموت، وإليك المصير.</p></div><div class="athkar-item navigable grid-item athkar-color-1" tabindex="0"><p>بسم الله الذي لا يضر مع اسمه شيء في الأرض ولا في السماء وهو السميع العليم</p><span class="repetition">(٣ مرات)</span></div><div class="athkar-item navigable grid-item athkar-color-2" tabindex="0"><p>يا حي يا قيوم برحمتك أستغيث، أصلح لي شأني كله ولا تكلني إلى نفسي طرفة عين.</p></div><div class="athkar-item navigable grid-item athkar-color-3" tabindex="0"><p>اللهم ما أمسى بي من نعمة أو بأحد من خلقك فمنك وحدك لا شريك لك، فلك الحمد ولك الشكر.</p></div><div class="athkar-item navigable grid-item athkar-color-4 col-span-2" tabindex="0"><p>سيد الاستغغار: اللهم أنت ربي لا إله إلا أنت، خلقتني وأنا عبدك، وأنا على عهدك ووعدك ما استطعت، أعوذ بك من شر ما صنعت، أبوء لك بنعمتك علي، وأبوء بذنبي فاغفر لي، فإنه لا يغفر الذنوب إلا أنت.</p></div><div class="athkar-item navigable grid-item athkar-color-5 col-span-4" tabindex="0"><p>اللهم إني أسألك العفو والعافية في الدنيا والآخرة، اللهم إني أسألك العفو والعافية في ديني ودنياي وأهلي ومالي، اللهم استر عوراتي وآمن روعاتي، اللهم احفظني من بين يدي ومن خلفي وعن يميني وعن شمالي ومن فوقي، وأعوذ بعظمتك أن أغتال من تحتي.</p></div><div class="athkar-item navigable grid-item athkar-color-1 col-span-4" tabindex="0"><p>أمسينا وأمسى الملك لله، والحمد لله، لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير. رب أسألك خير ما في هذه الليلة وخير ما بعدها، وأعوذ بك من شر ما في هذه الليلة وشر ما بعدها، رب أعوذ بك من الكسل وسوء الكبر، رب أعوذ بك من عذاب في النار وعذاب في القبر.</p></div></div>
-                        <!-- NEW: Monthly Reminders Panel -->
+                        <div id="athkar-masaa-content" class="tab-content athkar-grid hidden">
+                         
+                            <div id="ts-1" class="athkar-item navigable grid-item athkar-color-1" tabindex="0"><p>آية الكرسي</p><span class="repetition">(مرة واحدة)</span></div>
+                            <div id="ts-2" class="athkar-item navigable grid-item athkar-color-2" tabindex="0"><p>اللهم أعني على ذكرك وشكرك وحسن عبادتك.</p></div
+                            ><div id="ts-3" class="athkar-item navigable grid-item athkar-color-3" tabindex="0"><p>المعوذات: سورة الإخلاص، سورة الفلق، سورة الناس</p><span class="repetition">(٣ مرات)</span></div>
+                            <div id="ts-4" class="athkar-item navigable grid-item athkar-color-4" tabindex="0"><p>حسبي الله لا إله إلا هو عليه توكلت وهو رب العرش العظيم</p><span class="repetition">(٧ مرات)</span>
+                            </div><div id="tm-1" class="athkar-item navigable grid-item athkar-color-5" tabindex="0"><p>اللهم بك أمسينا، وبك أصبحنا، وبك نحيا، وبك نموت، وإليك المصير.</p></div>
+                            <div id="tm-2" class="athkar-item navigable grid-item athkar-color-1" tabindex="0"><p>بسم الله الذي لا يضر مع اسمه شيء في الأرض ولا في السماء وهو السميع العليم</p><span class="repetition">(٣ مرات)</span></div>
+                            <div id="tm-3" class="athkar-item navigable grid-item athkar-color-2" tabindex="0"><p>يا حي يا قيوم برحمتك أستغيث، أصلح لي شأني كله ولا تكلني إلى نفسي طرفة عين.</p></div>
+                            <div id="tl-1" class="athkar-item navigable grid-item athkar-color-3" tabindex="0"><p>اللهم ما أمسى بي من نعمة أو بأحد من خلقك فمنك وحدك لا شريك لك، فلك الحمد ولك الشكر.</p></div>
+                            <div id="tl-2" class="athkar-item navigable grid-item athkar-color-4 col-span-2" tabindex="0"><p>سيد الاستغغار: اللهم أنت ربي لا إله إلا أنت، خلقتني وأنا عبدك، وأنا على عهدك ووعدك ما استطعت، أعوذ بك من شر ما صنعت، أبوء لك بنعمتك علي، وأبوء بذنبي فاغفر لي، فإنه لا يغفر الذنوب إلا أنت.</p></div>
+                            <div id="tsl-1" class="athkar-item navigable grid-item athkar-color-5 col-span-4" tabindex="0"><p>اللهم إني أسألك العفو والعافية في الدنيا والآخرة، اللهم إني أسألك العفو والعافية في ديني ودنياي وأهلي ومالي، اللهم استر عوراتي وآمن روعاتي، اللهم احفظني من بين يدي ومن خلفي وعن يميني وعن شمالي ومن فوقي، وأعوذ بعظمتك أن أغتال من تحتي.</p></div>
+                            <div id="tsl-2" class="athkar-item navigable grid-item athkar-color-1 col-span-4" tabindex="0"><p>أمسينا وأمسى الملك لله، والحمد لله، لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير. رب أسألك خير ما في هذه الليلة وخير ما بعدها، وأعوذ بك من شر ما في هذه الليلة وشر ما بعدها، رب أعوذ بك من الكسل وسوء الكبر، رب أعوذ بك من عذاب في النار وعذاب في القبر.</p></div>
+                            </div> <!-- NEW: Monthly Reminders Panel -->
                         <div id="athkar-monthly-content" class="tab-content athkar-grid-monthly hidden">
                             <div class="athkar-item navigable grid-item header col-span-5" tabindex="0"><p>تذكيرات وأعمال شهرية</p></div>
                             <div class="athkar-item navigable grid-item athkar-color-1" tabindex="0"><p>الصدقة الشهرية</p></div>
@@ -2234,25 +2249,12 @@ div#map{display:none}
                             </div>
                         </div>
                     </div>
-                    <!-- NEW: Sticky Directional Controls -->
-                    <div id="direction-controls-3d" class="absolute top-1/2 -translate-y-1/2 right-8 grid grid-cols-3 gap-2 w-[120px] z-10">
-                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">NW</button>
-                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">N</button>
-                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">NE</button>
-                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">W</button>
-                        <div class="w-10 h-10"></div> <!-- Spacer -->
-                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">E</button>
-                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">SW</button>
-                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">S</button>
-                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">SE</button>
-                    </div>
+                   
                 </section>
 
                 <!-- Electronic Quran App Screen -->
                 <section id="screen-Quran" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full relative">
-                   <div id="quran-quick-access" class="mt-4 bg-black/30 p-4 rounded-xl flex flex-col gap-3 items-end z-20 glass-surface glass-surface--svg w-full max-w-md">
-                        <button id="quran-go-button" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm self-center navigable grid-item" tabindex="0"></button>
-                    </div>
+                  
                     <div class="w-full h-full glass-surface glass-surface--svg p-4 rounded-xl flex flex-col items-center flex-grow" style="height: 100%!important;">
                         <iframe id="quran-iframe" class="full-iframe" src="https://quran.com/?lang=ar" lang="ar" title="القرآن الكريم" frameborder="0" allow="fullscreen; picture-in-picture"></iframe>
                     </div>
@@ -2510,7 +2512,6 @@ async function displayLastWatchedVideo() {
 
         // --- API Keys ---
         const YOUTUBE_API_KEY = 'AIzaSyBYThRM6tVnzgFgdHOUAN6DN8jQd54OKeg'; 
-        const AI_ASSISTANT_API_KEY = 'AIzaSyBMmtON9ww4dJxMHrl1wKyWTvI0ipJXJws'; 
         const WEATHER_API_KEY = '7acefc26deee4904a2393917252207'; 
         const GOOGLE_MAPS_API_KEY = 'AIzaSyBRqAHJ2elbE_Z7NXXYC50XZpqi6HbG6Rk';
 
@@ -2531,9 +2532,7 @@ let favoritesD = [];
 let favoritesM = [];
 
         // NEW: Tarteel AI Channel ID
-        const TARTEEL_CHANNEL_ID = 'UCr0J18R8lK0m7oK4eL0jXQg'; // @TarteelArabic channel ID
-        const TARTEEL_CHANNEL_IMAGE = 'https://yt3.googleusercontent.com/pUYEmNtUgk7zmyKXVwzTyYCfli0AavVRgAomZITpyh3i6HT0mk35CCJv32Ra79-gKk276qSeYfw=s900-c-k-c0x00ffffff-no-rj';
-
+       
         // --- Global App State Management ---
         let appState = {
             currentTime: '',
@@ -3070,6 +3069,67 @@ let favoritesM = [];
             }
         }
 
+        // --- ADD THIS NEW FUNCTION ---
+    function incrementChannelClick(channelId) {
+            if (!channelId || !localChannelsCache) return;
+            
+            let channelFound = false;
+            const updatedList = localChannelsCache.map(channel => {
+                if (channel && channel.channelid === channelId) { // التأكد من أن 'channel' موجود
+                    channelFound = true;
+                    const currentClicks = parseInt(channel.clickschannel, 10) || 0; // تحويل آمن إلى رقم
+                    return { ...channel, clickschannel: currentClicks + 1 };
+                }
+                return channel;
+            });
+
+            if (channelFound) {
+                localChannelsCache = updatedList; // تحديث الذاكرة المؤقتة فورًا
+                // إرسال التحديث إلى الخادم في الخلفية
+                updateChannelsList(updatedList).catch(err => {
+                    console.error("Failed to update channel clicks in background:", err);
+                });
+            }
+        }
+
+        // --- 2. أضف هذه الدالة الجديدة ---
+        // (هذه الدالة تصلح بياناتك القديمة في JSONBin بإضافة clickschannel: 0)
+        async function migrateChannelData() {
+            if (localStorage.getItem('channelMigrationDone')) {
+                return; // تم التنفيذ من قبل
+            }
+
+            console.log("Running channel data migration (one time only)...");
+            try {
+                let currentList = await fetchChannelsList(); // جلب القائمة الحالية
+                let needsUpdate = false;
+                
+                const updatedList = currentList.map(channel => {
+                    if (channel && typeof channel === 'object' && channel.channelid) {
+                        // إذا كانت الخاصية غير موجودة
+                        if (typeof channel.clickschannel === 'undefined') {
+                            needsUpdate = true;
+                            return { ...channel, clickschannel: 0 }; // أضفها بقيمة 0
+                        }
+                    }
+                    return channel;
+                });
+
+                if (needsUpdate) {
+                    console.log("Updating channels in JSONBin with default clickschannel: 0...");
+                    await updateChannelsList(updatedList);
+                    localChannelsCache = updatedList; // تحديث الذاكرة المؤقتة
+                    console.log("Migration complete.");
+                } else {
+                    console.log("No channel data migration needed.");
+                }
+                
+                localStorage.setItem('channelMigrationDone', 'true'); // تسجيل أنه تم
+            } catch (error) {
+                console.error("Error during channel data migration:", error);
+            }
+        }
+
         function showAddChannelPrompt() {
             const existingPrompt = document.getElementById('add-channel-prompt');
             if (existingPrompt) existingPrompt.remove();
@@ -3199,110 +3259,117 @@ let favoritesM = [];
             lucide.createIcons();
             updateNavigableElements();
         }
+// --- REPLACE THIS FUNCTION ---
+        async function handleAddChannelFromModal(channelId, channelTitle, channelThumbnail) {
+            const modalButton = document.querySelector(`.add-channel-from-modal-btn[data-channel-id="${channelId}"]`);
+            if (modalButton) {
+                modalButton.disabled = true;
+                modalButton.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 text-yellow-400 animate-spin"></i>`;
+                lucide.createIcons();
+            }
 
-        async function handleAddChannelFromModal(channelId, channelTitle, channelThumbnail) {
-            const modalButton = document.querySelector(`.add-channel-from-modal-btn[data-channel-id="${channelId}"]`);
-            if (modalButton) {
-                modalButton.disabled = true;
-                modalButton.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 text-yellow-400 animate-spin"></i>`;
-                lucide.createIcons();
-            }
+            try {
+                if (localChannelsCache.some(c => c.channelid === channelId)) {
+                     showMessageBox("هذه القناة موجودة بالفعل في قائمتك.");
+                     if (modalButton) {
+                         modalButton.innerHTML = `<i data-lucide="check" class="w-5 h-5 text-white"></i>`;
+                         modalButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                         modalButton.classList.add('bg-green-600');
+                         lucide.createIcons();
+                     }
+                     return;
+                }
 
-            try {
-                if (localChannelsCache.some(c => c.channelid === channelId)) {
-                     showMessageBox("هذه القناة موجودة بالفعل في قائمتك.");
-                     if (modalButton) {
-                         modalButton.innerHTML = `<i data-lucide="check" class="w-5 h-5 text-white"></i>`;
-                         modalButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-                         modalButton.classList.add('bg-green-600');
-                         lucide.createIcons();
-                     }
-                     return;
-                }
+                // [FIX] إضافة خاصية clickschannel: 0
+                const newChannel = { 
+                    name: channelTitle, 
+                    image: channelThumbnail, 
+                    channelid: channelId, 
+                    channeltitle: channelTitle,
+                    clickschannel: 0 
+                };
+                
+                const updatedList = [...localChannelsCache, newChannel];
+                const success = await updateChannelsList(updatedList);
 
-                const newChannel = { name: channelTitle, image: channelThumbnail, channelid: channelId, channeltitle: channelTitle };
-                const updatedList = [...localChannelsCache, newChannel];
-                const success = await updateChannelsList(updatedList);
+                if (success) {
+                    showMessageBox(`تمت إضافة قناة "${newChannel.name}" بنجاح.`);
+                    if (modalButton) {
+                         modalButton.innerHTML = `<i data-lucide="check" class="w-5 h-5 text-white"></i>`;
+                         modalButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                         modalButton.classList.add('bg-green-600');
+                         lucide.createIcons();
+                    }
+                    // ... (الكود الخاص بك لتحديث الواجهة) ...
+                    const suggestionsContent = document.getElementById('suggestions-content');
+                    if(suggestionsContent) {
+                        const activeTabId = document.querySelector('#screen-Media .tab-button.active')?.id;
+                        suggestionsContent.innerHTML = '';
+                        await populateYoutubeSuggestions();
+                        if (activeTabId) { document.getElementById(activeTabId)?.click(); } 
+                        else { document.getElementById('tab-channels')?.click(); }
+                    }
+                }
+            } catch (error) {
+                console.error("Error adding channel from modal:", error);
+                showMessageBox("حدث خطأ أثناء إضافة القناة.");
+                if (modalButton) {
+                     modalButton.disabled = false;
+                     modalButton.innerHTML = `<i data-lucide="plus" class="w-5 h-5 text-white"></i>`;
+                     lucide.createIcons();
+                }
+            }
+        }
 
-                if (success) {
-                    showMessageBox(`تمت إضافة قناة "${newChannel.name}" بنجاح.`);
-                    if (modalButton) {
-                         modalButton.innerHTML = `<i data-lucide="check" class="w-5 h-5 text-white"></i>`;
-                         modalButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-                         modalButton.classList.add('bg-green-600');
-                         lucide.createIcons();
-                    }
-                    const suggestionsContent = document.getElementById('suggestions-content');
-                    if(suggestionsContent) {
-                        const activeTabId = document.querySelector('#screen-Media .tab-button.active')?.id;
-                        suggestionsContent.innerHTML = '';
-                        await populateYoutubeSuggestions();
-                        if (activeTabId) {
-                            document.getElementById(activeTabId)?.click();
-                        } else {
-                            document.getElementById('tab-channels')?.click();
-                        }
-                    }
-                }
-            } catch (error) {
-                console.error("Error adding channel from modal:", error);
-                showMessageBox("حدث خطأ أثناء إضافة القناة.");
-                if (modalButton) {
-                     modalButton.disabled = false;
-                     modalButton.innerHTML = `<i data-lucide="plus" class="w-5 h-5 text-white"></i>`;
-                     lucide.createIcons();
-                }
-            }
-        }
+       async function addChannelFromSearchResult(channelId, channelTitle, channelThumbnail, buttonElement) {
+            if (!channelId || !channelTitle) {
+                showMessageBox("معلومات القناة غير كاملة.");
+                return;
+            }
 
-        async function addChannelFromSearchResult(channelId, channelTitle, channelThumbnail, containerElement, video) {
-            if (!channelId || !channelTitle) {
-                showMessageBox("معلومات القناة غير كاملة.");
-                return;
-            }
+            if (buttonElement) {
+                buttonElement.disabled = true;
+                buttonElement.innerHTML = `<i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>`;
+                lucide.createIcons();
+            }
 
-            if (buttonElement) {
-                buttonElement.disabled = true;
-                buttonElement.innerHTML = `<i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>`;
-                lucide.createIcons();
-            }
+            try {
+                if (localChannelsCache.some(c => c.channelid === channelId)) {
+                     showMessageBox("هذه القناة موجودة بالفعل في قائمتك.");
+                     return;
+                }
 
-            try {
-                if (localChannelsCache.some(c => c.channelid === channelId)) {
-                     showMessageBox("هذه القناة موجودة بالفعل في قائمتك.");
-                     return;
-                }
+                const newChannel = {
+                    name: channelTitle,
+                    image: channelThumbnail,
+                    channelid: channelId,
+                    channeltitle: channelTitle,
+                    clickschannel: 0 // [تعديل] إضافة عدّاد النقرات
+                };
 
-                const newChannel = {
-                    name: channelTitle,
-                    image: channelThumbnail,
-                    channelid: channelId,
-                    channeltitle: channelTitle
-                };
+                const updatedList = [...localChannelsCache, newChannel];
+                const success = await updateChannelsList(updatedList);
 
-                const updatedList = [...localChannelsCache, newChannel];
-                const success = await updateChannelsList(updatedList);
+                if (success) {
+                    showMessageBox(`تمت إضافة قناة "${newChannel.name}" بنجاح.`);
+                } else {
+                    if (buttonElement) {
+                        buttonElement.disabled = false;
+                        buttonElement.innerHTML = `<i data-lucide="plus-circle" class="w-5 h-5 text-green-400"></i>`;
+                        lucide.createIcons();
+                    }
+                }
 
-                if (success) {
-                    showMessageBox(`تمت إضافة قناة "${newChannel.name}" بنجاح.`);
-                } else {
-                    if (buttonElement) {
-                        buttonElement.disabled = false;
-                        buttonElement.innerHTML = `<i data-lucide="plus-circle" class="w-5 h-5 text-green-400"></i>`;
-                        lucide.createIcons();
-                    }
-                }
-
-            } catch (error) {
-                console.error("Error adding channel from search result:", error);
-                showMessageBox("حدث خطأ أثناء إضافة القناة.");
-                if (buttonElement) {
-                    buttonElement.disabled = false;
-                    buttonElement.innerHTML = `<i data-lucide="plus-circle" class="w-5 h-5 text-green-400"></i>`;
-                    lucide.createIcons();
-                }
-            }
-        }
+            } catch (error) {
+                console.error("Error adding channel from search result:", error);
+                showMessageBox("حدث خطأ أثناء إضافة القناة.");
+                if (buttonElement) {
+                    buttonElement.disabled = false;
+                    buttonElement.innerHTML = `<i data-lucide="plus-circle" class="w-5 h-5 text-green-400"></i>`;
+                    lucide.createIcons();
+                }
+            }
+        }
 
         async function removeChannelFromList(channelId, channelName) {
             if (!channelId) return;
@@ -3481,7 +3548,7 @@ let favoritesM = [];
             }
         }
         
-        function showVideoPopup(videoId, startOverride = null) {
+        async function showVideoPopup(videoId, startOverride = null) {
             const start = startOverride !== null ? startOverride : (() => {
                 const history = getWatchedHistory();
                 const watchedInfo = history[videoId];
@@ -3505,6 +3572,61 @@ let favoritesM = [];
             // Hide the minimized button when showing the main player
             floatingMinimizedVideoButton.style.display = 'none';
             appState.isVideoPlayerMinimized = false;
+
+            // --- START: NEW BOOKMARK BUTTON LOGIC ---
+            const controlsContainer = videoPopupCloseButton.parentElement;
+            if (controlsContainer && !document.getElementById('video-popup-bookmark-button')) {
+                const bookmarkBtn = document.createElement('button');
+                bookmarkBtn.id = 'video-popup-bookmark-button';
+                bookmarkBtn.className = 'navigable grid-item p-3 rounded-full glass-surface glass-surface--svg hover:bg-white/20 transition-colors';
+                bookmarkBtn.innerHTML = `<i data-lucide="bookmark" class="w-6 h-6"></i>`;
+                bookmarkBtn.tabIndex = 0;
+
+                // Set initial state
+                const isSavedD = favoritesD.some(fav => fav.id === videoId);
+                const isSavedM = favoritesM.some(fav => fav.id === videoId);
+                if (isSavedD && isSavedM) bookmarkBtn.classList.add('saved-both');
+                else if (isSavedD) bookmarkBtn.classList.add('saved-d');
+                else if (isSavedM) bookmarkBtn.classList.add('saved-m');
+
+                // Add click listener to fetch details and show menu
+                bookmarkBtn.onclick = async (e) => {
+                    e.stopPropagation();
+                    const currentVideoId = currentPlayingVideoId; // Use the stored ID
+                    if (!currentVideoId) return;
+
+                    // Fetch details on demand
+                    const videoDetailsList = await fetchVideosDetails([currentVideoId]);
+                    if (!videoDetailsList || videoDetailsList.length === 0) {
+                        showMessageBox("خطأ: لم يتم العثور على تفاصيل الفيديو.");
+                        return;
+                    }
+                    const videoDetails = videoDetailsList[0];
+                    const channelThumbnails = await fetchChannelsDetails([videoDetails.snippet.channelId]);
+
+                    // Reconstruct the videoData object
+                    const videoData = {
+                        id: videoDetails.id,
+                        title: videoDetails.snippet.title,
+                        thumbnail: videoDetails.snippet.thumbnails.medium.url,
+                        channelTitle: videoDetails.snippet.channelTitle,
+                        channelId: videoDetails.snippet.channelId,
+                        channelThumbnail: channelThumbnails[videoDetails.snippet.channelId],
+                        viewCount: formatViewCount(videoDetails.statistics.viewCount),
+                        publishedAt: formatTimeAgo(videoDetails.snippet.publishedAt),
+                        duration: formatDuration(videoDetails.contentDetails.duration)
+                    };
+
+                    // Show the menu
+                    showFavoritesMenu(bookmarkBtn, videoData);
+                };
+
+                // Insert the button before the close button
+                controlsContainer.insertBefore(bookmarkBtn, videoPopupCloseButton);
+                lucide.createIcons();
+            }
+            // --- END: NEW BOOKMARK BUTTON LOGIC ---
+
             if (popupPlayer) {
                 popupPlayer.loadVideoById({ videoId, startSeconds: start });
             } else {
@@ -3525,8 +3647,7 @@ let favoritesM = [];
             }
             setTimeout(() => setFocus(videoPopupCloseButton), 100);
         }
-
-        async function hideVideoPopup() {
+async function hideVideoPopup() {
             if (progressInterval) clearInterval(progressInterval);
 
             // 1. Get all necessary data from the player BEFORE destroying it
@@ -3562,6 +3683,14 @@ let favoritesM = [];
             videoPopupContainer.style.display = 'none';
             floatingMinimizedVideoButton.style.display = 'none';
             appState.isVideoPlayerMinimized = false;
+
+            // --- START: NEW CLEANUP LOGIC ---
+            // Remove the bookmark button so it can be re-created fresh next time
+            const bookmarkBtn = document.getElementById('video-popup-bookmark-button');
+            if (bookmarkBtn) {
+                bookmarkBtn.remove();
+            }
+            // --- END: NEW CLEANUP LOGIC ---
             
             const screen = document.querySelector('.app-screen.active');
             if (screen) {
@@ -3733,21 +3862,7 @@ let favoritesM = [];
 {"name":"محمد ايوب","image":"https://dmusera.netlify.app/512px-Muhammad_Ayyub.webp"},{"name":"علي جابر","image":"https://dmusera.netlify.app/ali-jaber.webp"},{"name":"محمد الغزالي","image":"https://imgs.search.brave.com/QWUpKrFCLEvXilcNhgSRM6xKPjTlBtGA-BAsH9sN-Tc/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9hci5p/c2xhbXdheS5uZXQv/dXBsb2Fkcy9hdXRo/b3JzLzUwNjEuanBn"},{"name":"مشاري العفاسي","image":"https://dmusera.netlify.app/512px-%D0%9C%D0%B8%D1%88%D0%B0%D1%80%D0%B8_%D0%A0%D0%B0%D1%88%D0%B8%D0%B4.webp"},{"name":"عبدالله القرافي","image":"https://yt3.googleusercontent.com/mHTg3RIX-a3NAR22lAnOvSq3-U_KBcL_Ax4FTNirc3flsb5OU8RWksKu6X8Ush9JhO0EOxxAwQY=s160-c-k-c0x00ffffff-no-rj"},{"name":"اسلام صبحي","image":"https://imgs.search.brave.com/Sq4qNywnl1HmDjSuxWTshlQ8yV9fplcVnUoiErGC-38/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS51bml0ZWRtdXNs/aW13b3JsZC5jb20v/aW1nLzIzLzEyLzIz/LzEyNDk1LmpwZw"},{"name":"احمد النفيس","image":"https://dmusera.netlify.app/ahmednafes.jpg"},{"name":"ياسر الدوسري","image":"https://dmusera.netlify.app/Yasser_Al-Dosari.jpg"},
 {"name":"ربط الآيات","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDEzYTUgNSAwIDAgMCA3LjU0LjU0bD MtM2E1IDUgMCAwIDAtNy4wNy03LjA3bC0xLjcyIDEuNzIiLz48cGF0aCBkPSJNMTQgMTFhNSA1IDAgMCAwLTcuNTQtLjU0bC0zIDNhNSA1IDAgMCAwIDcuMDcgNy4wN2wxLjcyLTEuNzIiLz48L3N2Zz4="}, {"name":"ربط الآيات","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDEzYTUgNSAwIDAgMCA3LjU0LjU0bDMtM2E1IDUgMCAwIDAtNy4wNy03LjA3bC0xLjcyIDEuNzIiLz48cGF0aCBkPSJNMTQgMTFhNSA1IDAgMCAwLTcuNTQtLjU0bC0zIDNhNSA1IDAgMCAwIDcuMDcgNy4wN2wxLjcyLTEuNzIiLz48L3N2Zz4="}
         ];
-          const youtubeReaderSuggestions2 = [
-            {"name":"الرقية", "image":"https://imgs.search.brave.com/afZfY6pdMu-EfuTtrt2hNKEW9TsUAnPOX2QnIlIFi1c/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/YXJhYnNzdG9jay5j/b20vdXBsb2Fkcy92/ZWN0b3JzLzIzMDQx/L3J1cWF5YS1hbi1h/cmFiaWMtbmFtZS1m/b3ItcHJldmlldy0y/MzA0MS53ZWJw", "channelid": "", "channeltitle": ""},
-            {"name":"محفوف -BYMAHFOOF", "image":"https://yt3.googleusercontent.com/obc8dOfYmoZe50tvHCJNZgbLAnJAKb-YPSUnguahWqJ-Jm12At_lV8CjfPPuhAsM9i2K26QK=s160-c-k-c0x00ffffff-no-rj", "channelid": "UCABzsyFLLA-fKu05lR-49RA", "channeltitle": "محفوف"},
-            {"name":"تلاوات ياسر الدوسري", "image":"https://yt3.googleusercontent.com/ytc/AIdro_k1n9v-3Z3x-v6Q2wY5kX1c8z-G4xQ6X1X5Xw=s176-c-k-c0x00ffffff-no-rj-mo", "channelid": "UClncV9OLPto_MinRzGfjr2g", "channeltitle": "تلاوات ياسر الدوسري إمام الحرم المكي"},
-            {"name":"مزامير الفرقان - ياسر الدوسري", "image":"https://yt3.googleusercontent.com/ATOVX4RIsbt20_VS0Ly0bNkm5NPCoseg-S28jEEFsMBhHxBRUGXWW1dFOSuKG5p1_Sx8C8fMqFs=s160-c-k-c0x00ffffff-no-rj", "channelid": "UCCoB7Hf8gjQzpAyzhvx7Ktg", "channeltitle": "مزامير الفرقان - ياسر الدوسري"},
-            {"name":"عبدالله الشحري", "image":"https://yt3.ggpht.com/KZblM_WDIfUaDyB0wmNZOfVDogOhHThprmFyzLL3AkvnLcKqFmhoJ00nsKHKCXizM94hGy1DSdo=s176-c-k-c0x00ffffff-no-rj-mo", "channelid": "UCyXm7QL-vmBIZcYCoPfmXgw", "channeltitle": "عبدالله الشحري"},
-            {"name":"ترتيل-@TarteelArabic", "image":"https://yt3.googleusercontent.com/pUYEmNtUgk7zmyKXVwzTyYCfli0AavVRgAomZITpyh3i6HT0mk35CCJv32Ra79-gKk276qSeYfw=s900-c-k-c0x00ffffff-no-rj", "channelid": "UCHVX6sawuLNAuRbJdfruXVA", "channeltitle": "ترتيل"},
-            {"name":"قناة اخضر", "image":"https://yt3.ggpht.com/CNJHtl9UOLJwzpGI6_8meaFK6-nWkaXABqu4cXfx2oZnTZmvYgHANXoOY-IpGlNk2U9I5nbIX9I=s176-c-k-c0x00ffffff-no-rj-mo", "channelid": "UCtUor2SqesPS3b_SMFtLT_w", "channeltitle": "أخضر"},
-            {"name":"اذاعة مختلف", "image":"https://yt3.ggpht.com/73c3-iw_Lubnz8tI6uxN17s1p8kOvwwsF5tatPe3JYAw_SRKeJfjprdH2wxHGPz3UHBM9NDxzs0=s176-c-k-c0x00ffffff-no-rj-mo", "channelid": "UC8vdjzu_0QMQlG9qNT5D_AQ", "channeltitle": "إذاعة مختلف"},
-            {"name":"Qtratel", "image":"https://yt3.googleusercontent.com/4op5oT580d20t3w4i4dWjZmfT1YkVSDok-MVlx-c1--EaYt-wZuw1tebFOc-iQ_XRMfUIO0gYA=s160-c-k-c0x00ffffff-no-rj", "channelid": "", "channeltitle": ""},
-            {"name":"Mohamed abubakr", "image":"https://yt3.ggpht.com/yp7xPPh1JotsxKkOMos1KWumw7UFFibydMnoPzhP100gsUGWnDXRTAhdV88gd6coAPkXQ5n1Rw=s176-c-k-c0x00ffffff-no-rj-mo", "channelid": "UC9i6gCxiph_aBj68Xs9Iqng", "channeltitle": "Mohamed Aboubakr"},
-            {"name":"بودكاست", "image":"https://yt3.googleusercontent.com/0Vs32Zwp0qjXovZuV0kCCxCkKkCdTpAn_9_tky7mxQUM69EIrWK_oJawKy_fKpzL1KZN0LG7=s160-c-k-c0x00ffffff-no-rj", "channelid": "", "channeltitle": ""},
-            {"name":"ربط الآيات","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDEzYTUgNSAwIDAgMCA3LjU0LjU0bDMtM2E1IDUgMCAwIDAtNy4wNy03LjA3bC0xLjcyIDEuNzIiLz48cGF0aCBkPSJNMTQgMTFhNSA1IDAgMCAwLTcuNTQtLjU0bC0zIDNhNSA1IDAgMCAwIDcuMDcgNy4wN2wxLjcyLTEuNzIiLz48L3N2Zz4=", "channelid": "", "channeltitle": ""}
-        ];
-        
+         
         const youtubeSurahSuggestions = ["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","الانشقاق","المطففين","البروج","الطارق","الأعلى"];
         const surahToJuzMap = {"الفاتحة":1,"البقرة":1,"آل عمران":3,"النساء":4,"المائدة":6,"الأنعام":7,"الأعراف":8,"الأنفال":9,"التوبة":10,"يونس":11,"هود":11,"يوسف":12,"الرعد":13,"إبراهيم":13,"الحجر":14,"النحل":14,"الإسراء":15,"الكهف":15,"مريم":16,"طه":16,"الأنبياء":17,"الحج":17,"المؤمنون":18,"النور":18,"الفرقان":18,"الشعراء":19,"النمل":19,"القصص":20,"العنكبوت":20,"الروم":21,"لقمان":21,"السجدة":21,"الأحزاب":21,"سبأ":22,"فاطر":22,"يس":22,"الصافات":23,"ص":23,"الزمر":23,"غافر":24,"فصلت":24,"الشورى":25,"الزخرف":25,"الدخان":25,"الجاثية":25,"الأحقاف":26,"محمد":26,"الفتح":26,"الحجرات":26,"ق":26,"الذاريات":27,"الطور":27,"النجم":27,"القمر":27,"الرحمن":27,"الواقعة":27,"الحديد":27,"المجادلة":28,"الحشر":28,"الممتحنة":28,"الصف":28,"الجمعة":28,"المنافقون":28,"التغابن":28,"الطلاق":28,"التحريم":28,"الملك":29,"القلم":29,"الحاقة":29,"المعارج":29,"نوح":29,"الجن":29,"المزمل":29,"المدثر":29,"القيامة":29,"الإنسان":29,"المرسلات":29,"النبأ":30,"النازعات":30,"عبس":30,"التكوير":30,"الانفطار":30,"الانشقاق":30,"المطففين":30,"البروج":30,"الطارق":30,"الأعلى":30};
         const juzColors =  [
@@ -3850,426 +3965,225 @@ let favoritesM = [];
         }
 
 
+// --- REPLACE THIS FUNCTION AGAIN ---
+       // --- REPLACE THIS FUNCTION AGAIN ---
+       // --- REPLACE THIS FUNCTION AGAIN ---
+   async function populateYoutubeSuggestions() {
+    const suggestionsContent = document.getElementById('suggestions-content');
+    if (!suggestionsContent) {
+        console.error("suggestions-content element not found!");
+        return;
+    }
+    console.log("[Debug] Starting populateYoutubeSuggestions...");
 
-        async function populateYoutubeSuggestions() {
-            const suggestionsContent = document.getElementById('suggestions-content');
-            if (!suggestionsContent) return;
-            suggestionsContent.innerHTML = '';
-            suggestionsContent.className = 'flex flex-col gap-4 w-full'; 
+    suggestionsContent.innerHTML = '';
+    suggestionsContent.className = 'flex flex-col gap-4 w-full';
 
-            // 1. Create Tab Structure
-            const tabContainer = document.createElement('div');
-            tabContainer.className = 'tabs-container flex p-1 rounded-full bg-black/20 self-center';
+    // 1. Create Tab Structure (MODIFIED)
+    const tabContainer = document.createElement('div');
+    tabContainer.className = 'tabs-container flex p-1 rounded-full bg-black/20 self-center';
 
-            const recitersTabButton = document.createElement('button');
-            recitersTabButton.id = 'tab-reciters';
-            recitersTabButton.className = 'tab-button navigable grid-item';
-            recitersTabButton.tabIndex = 0;
-            recitersTabButton.textContent = 'القراء';
+    const recitersTabButton = document.createElement('button');
+    recitersTabButton.id = 'tab-reciters';
+    recitersTabButton.className = 'tab-button navigable grid-item';
+    recitersTabButton.tabIndex = 0;
+    recitersTabButton.textContent = 'القراء';
 
-            const channTabButton = document.createElement('button');
-            channTabButton.id = 'tab-channels';
-            channTabButton.className = 'tab-button navigable grid-item';
-            channTabButton.tabIndex = 0;
-            channTabButton.textContent = 'قنوات';
+    const channTabButton = document.createElement('button'); // Default active
+    channTabButton.id = 'tab-channels';
+    channTabButton.className = 'tab-button active navigable grid-item'; // Set Channels as active initially
+    channTabButton.tabIndex = 0;
+    channTabButton.textContent = 'قنوات';
 
-            // NEW: Tarteel AI Tab Button
-            const tarteelTabButton = document.createElement('button');
-            tarteelTabButton.id = 'tab-tarteel';
-            tarteelTabButton.className = 'tab-button navigable grid-item';
-            tarteelTabButton.tabIndex = 0;
-            tarteelTabButton.textContent = 'ترتيل-@TarteelArabic';
+    const toolsTabButton = document.createElement('button');
+    toolsTabButton.id = 'tab-tools';
+    toolsTabButton.className = 'tab-button navigable grid-item';
+    toolsTabButton.tabIndex = 0;
+    toolsTabButton.textContent = 'أدوات';
 
-            const toolsTabButton = document.createElement('button');
-            toolsTabButton.id = 'tab-tools';
-            toolsTabButton.className = 'tab-button navigable grid-item';
-            toolsTabButton.tabIndex = 0;
-            toolsTabButton.textContent = 'أدوات';
+    // --- NEW: Split Saved Tabs ---
+    const savedDTabButton = document.createElement('button');
+    savedDTabButton.id = 'tab-saved-d';
+    savedDTabButton.className = 'tab-button navigable grid-item';
+    savedDTabButton.tabIndex = 0;
+    savedDTabButton.textContent = 'متابعة  في السيارة'; // Car List
 
-            const savedTabButton = document.createElement('button');
-            savedTabButton.id = 'tab-saved';
-            savedTabButton.className = 'tab-button navigable grid-item';
-            savedTabButton.tabIndex = 0;
-            savedTabButton.textContent = 'الفيديوهات المحفوظة';
+    const savedMTabButton = document.createElement('button');
+    savedMTabButton.id = 'tab-saved-m';
+    savedMTabButton.className = 'tab-button navigable grid-item';
+    savedMTabButton.tabIndex = 0;
+    savedMTabButton.textContent = 'المتابعة في التلفاز'; // TV List
+    // --- END NEW ---
 
-            tabContainer.appendChild(recitersTabButton);
-            tabContainer.appendChild(channTabButton); // Add Tarteel AI tab
-            tabContainer.appendChild(toolsTabButton);
-            tabContainer.appendChild(savedTabButton);
+    tabContainer.appendChild(recitersTabButton);
+    tabContainer.appendChild(channTabButton);
+    tabContainer.appendChild(toolsTabButton);
+    tabContainer.appendChild(savedDTabButton); // Add new D button
+    tabContainer.appendChild(savedMTabButton); // Add new M button
 
-            const tabsContentContainer = document.createElement('div');
-            tabsContentContainer.id = 'tabs-content-container';
-            tabsContentContainer.className = 'flex-grow w-full overflow-y-auto';
+    const tabsContentContainer = document.createElement('div');
+    tabsContentContainer.id = 'tabs-content-container';
+    tabsContentContainer.className = 'flex-grow w-full overflow-y-auto';
 
-            // 2. Create Content Panels
-            const recitersContent = document.createElement('div');
-            recitersContent.id = 'tab-content-reciters';
-            recitersContent.className = 'tab-content';
-            const readerButtonsContainer = document.createElement('div');
-            readerButtonsContainer.className = 'reader-container';
-            recitersContent.appendChild(readerButtonsContainer);
+    console.log("[Debug] Created tab buttons and content container.");
 
-            // Create Channels Content Panels
-            const channContent = document.createElement('div');
-            channContent.id = 'tab-content-channels';
-            channContent.className = 'tab-content hidden';
-            const channButtonsContainer = document.createElement('div');
-            channButtonsContainer.className = 'reader-container';
-            channContent.appendChild(channButtonsContainer);
-            
-            // NEW: Tarteel AI Content Panel
-            const tarteelContent = document.createElement('div');
-            tarteelContent.id = 'tab-content-tarteel';
-            tarteelContent.className = 'tab-content hidden h-full flex flex-col items-center';
-            tarteelContent.innerHTML = `
-                <div class="flex flex-col items-center mb-4">
-                    <img src="${TARTEEL_CHANNEL_IMAGE}" alt="Tarteel AI Logo" class="w-24 h-24 rounded-full mb-3 border-2 border-purple-400">
-                    <h2 class="text-2xl font-bold">@TarteelArabic</h2>
-                    <p class="text-gray-400">أحدث الفيديوهات من قناة ترتيل</p>
-                </div>
-                <div id="tarteel-videos-container" class="grid-container w-full overflow-y-auto" style="height: calc(100% - 150px);">
-                    <p class="text-center col-span-full">جاري تحميل الفيديوهات...</p>
-                </div>
-            `;
+    // 2. Create Content Panels (MODIFIED)
+    const recitersContent = document.createElement('div');
+    recitersContent.id = 'tab-content-reciters';
+    recitersContent.className = 'tab-content hidden'; // Hide initially
+    const readerButtonsContainer = document.createElement('div');
+    readerButtonsContainer.className = 'reader-container';
+    recitersContent.appendChild(readerButtonsContainer);
 
+    const channContent = document.createElement('div'); // Default active content
+    channContent.id = 'tab-content-channels';
+    channContent.className = 'tab-content'; // Show initially
+    const channButtonsContainer = document.createElement('div');
+    channButtonsContainer.className = 'reader-container';
+    channContent.appendChild(channButtonsContainer);
 
-            const toolsContent = document.createElement('div');
-            toolsContent.id = 'tab-content-tools';
-            toolsContent.className = 'tab-content hidden';
-            const toolsButtonsContainer = document.createElement('div');
-            toolsButtonsContainer.className = 'reader-container'; 
-            toolsContent.appendChild(toolsButtonsContainer);
+    const toolsContent = document.createElement('div');
+    toolsContent.id = 'tab-content-tools';
+    toolsContent.className = 'tab-content hidden';
+    const toolsButtonsContainer = document.createElement('div');
+    toolsButtonsContainer.className = 'reader-container';
+    toolsContent.appendChild(toolsButtonsContainer);
 
-            const savedContent = document.createElement('div');
-            savedContent.id = 'tab-content-saved';
-            savedContent.className = 'tab-content hidden h-full';
-            savedContent.innerHTML = `
-                <div class="w-full h-full flex flex-col items-center">
-                    <div class="tabs-container flex p-1 rounded-full bg-black/30 self-center mt-2 mb-4" style="position: relative; top: 30px; z-index: 10;">
-                        <button id="tab-saved-d" class="tab-button active navigable grid-item" tabindex="0">متابعة المشاهدة في السيارة</button>
-                        <button id="tab-saved-m" class="tab-button navigable grid-item" tabindex="0">المتابعة في التلفاز</button>
-                    </div>
-                    <div id="tab-content-saved-d" class="tab-content w-full flex-grow overflow-y-auto pt-12">
-                         <div id="favorites-d-grid" class="flex flex-col gap-4 w-full p-2 grid-container"></div>
-                    </div>
-                    <div id="tab-content-saved-m" class="tab-content hidden w-full flex-grow overflow-y-auto pt-12">
-                        <div id="favorites-m-grid" class="flex flex-col gap-4 w-full p-2 grid-container"></div>
-                    </div>
-                </div>
-            `;
+    // --- NEW: Split Saved Content Divs ---
+    const savedDContent = document.createElement('div');
+    savedDContent.id = 'tab-content-saved-d';
+    savedDContent.className = 'tab-content hidden h-full'; // Initially hidden
+    savedDContent.innerHTML = `<div id="favorites-d-grid" class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4"></div>`; // Grid for D
 
-            // 3. Populate Content Panels
-            const recitersList = youtubeReaderSuggestions.filter(r => r.name !== "ربط الآيات");
-            recitersList.forEach(reader => {
-                const card = document.createElement('div');
-                card.className = 'youtube-reader-card navigable grid-item';
-                card.tabIndex = 0;
-                card.innerHTML = `<h3>${reader.name}</h3><img src="${reader.image}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';">`;
-                
-                // UPDATED: This listener now checks for Tarteel by name to perform a direct search.
-                card.addEventListener('click', () => {
-                    const specialReciters = [
-                        'ترتيل-@TarteelArabic',
-                        'محفوف -BYMAHFOOF',
-                        'اذاعة مختلف', 'الرقية' ,
-                        'Mohamed abubakr',
-                        'قناة اخضر' , 'Qtratel' ,'مزامير الفرقان - ياسر الدوسري','عبدالله الشحري','بودكاست'
-                    ];
-
-                    if (specialReciters.includes(reader.name)) {
-                        searchYouTubeVideos(reader.name);
-                    } else if (searchMode === 'reciter_only') {
-                        youtubeSearchInput.value = reader.name;
-                        searchYouTubeVideos(reader.name);
-                        searchMode = 'reciter_surah'; // Reset mode after search
-                    } else {
-                        handleReaderOrToolClick(reader.name, tabContainer, tabsContentContainer);
-                    }
-                });
-                readerButtonsContainer.appendChild(card);
-            });
-            
-            const channList = await fetchChannelsList();
-            const channelIdsToFetch = channList.filter(r => r.channelid).map(r => r.channelid);
-            const channelThumbnails = channelIdsToFetch.length > 0 ? await fetchChannelsDetails(channelIdsToFetch) : {};
-
-            
-            channList.forEach(reader => {
-                const card = document.createElement('div');
-                card.className = 'youtube-reader-card navigable grid-item relative group'; // Added relative and group for hover effect
-                card.tabIndex = 0;
-                
-                const imageUrl = reader.channelid 
-                    ? (channelThumbnails[reader.channelid] || 'https://placehold.co/100x100/334155/ffffff?text=?') 
-                    : (reader.image || 'https://placehold.co/100x100/334155/ffffff?text=?');
-
-                card.innerHTML = `
-                    <button class="delete-channel-btn absolute bottom-2 right-2 p-1.5 bg-red-600/80 hover:bg-red-500 rounded-full transition-colors z-10 navigable grid-item" title="حذف القناة" tabindex="0">
-                        <i data-lucide="trash-2" class="w-4 h-4 text-white pointer-events-none"></i>
-                    </button>
-                    <h3>${reader.name}</h3>
-                    <img src="${imageUrl}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';">
-                `;
-                
-                card.addEventListener('click', (e) => {
-                    // Prevent card click if delete button is the target
-                    if (e.target.closest('.delete-channel-btn')) return;
-
-                    if (reader.channelid && reader.channeltitle) {
-                        searchVideosByChannel(reader.channelid, reader.channeltitle);
-                    } else if (reader.name === 'ربط الآيات') {
-                        // Special case for 'ربط الآيات' tool
-                        handleReaderOrToolClick(reader.name, tabContainer, tabsContentContainer);
-                    } else {
-                        // Fallback for items without a channel ID, like "الرقية" or "بودكاست"
-                        searchYouTubeVideos(reader.name);
-                    }
-                });
-
-                const deleteBtn = card.querySelector('.delete-channel-btn');
-                deleteBtn?.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    removeChannelFromList(reader.channelid, reader.name);
-                });
-
-                channButtonsContainer.appendChild(card);
-            });
-
- // NEW: Add "Add Channel" button to the Channels tab at the beginning
-            const addChannelCard = document.createElement('div');
-            addChannelCard.className = 'youtube-reader-card navigable grid-item';
-            addChannelCard.tabIndex = 0;
-            addChannelCard.innerHTML = `<h3>إضافة قناة</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-dashed border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="plus" class="w-12 h-12 text-white/50"></i></div>`;
-            addChannelCard.addEventListener('click', showAddChannelPrompt);
-            channButtonsContainer.appendChild(addChannelCard);
+    const savedMContent = document.createElement('div');
+    savedMContent.id = 'tab-content-saved-m';
+    savedMContent.className = 'tab-content hidden h-full'; // Initially hidden
+    savedMContent.innerHTML = `<div id="favorites-m-grid" class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4"></div>`; // Grid for M
+    // --- END NEW ---
 
 
+    try {
+        console.log("[Debug] Populating Reciters...");
+        // --- Populate Reciters --- (Keep your existing code)
+        youtubeReaderSuggestions.forEach(reader => {
+             const card = document.createElement('div');
+             card.className = 'youtube-reader-card navigable grid-item';
+             card.tabIndex = 0;
+             card.innerHTML = `<h3>${reader.name}</h3><img src="${reader.image}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/100x100';">`;
+             card.addEventListener('click', () => handleReaderOrToolClick(reader.name, tabContainer, tabsContentContainer));
+             readerButtonsContainer.appendChild(card);
+        });
+        console.log("[Debug] Populated Reciters.");
 
-
-            // MOVED: Add "السورة" button to the Reciters tab at the end
-            const surahCard = document.createElement('div');
-            surahCard.className = 'youtube-reader-card navigable grid-item';
-            surahCard.tabIndex = 3;
-            surahCard.innerHTML = `<h3>السورة فقط</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="book-open" class="w-12 h-12"></i></div>`;
-            surahCard.addEventListener('click', () => handleReaderOrToolClick("JUST_SURAH", tabContainer, tabsContentContainer));
-            readerButtonsContainer.appendChild(surahCard);
-
-            // MOVED: Add "القارئ فقط" to the Reciters tab at the end
-            const reciterOnlyCard = document.createElement('div');
-            reciterOnlyCard.className = 'youtube-reader-card navigable grid-item';
-            reciterOnlyCard.tabIndex = 0;
-            reciterOnlyCard.innerHTML = `<h3>القارئ فقط</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="mic" class="w-12 h-12"></i></div>`;
-            reciterOnlyCard.addEventListener('click', () => {
-                searchMode = 'reciter_only';
-                showMessageBox('اختر قارئاً للبحث عنه مباشرة.');
-                const firstReciter = recitersContent.querySelector('.grid-item');
-                if (firstReciter) setFocus(firstReciter);
-            });
-            readerButtonsContainer.appendChild(reciterOnlyCard);
-
-
-            const rabtAlAyat = youtubeReaderSuggestions.find(r => r.name === "ربط الآيات");
-            if (rabtAlAyat) {
-                const card = document.createElement('div');
-                card.className = 'youtube-reader-card navigable grid-item';
-                card.tabIndex = 0;
-                card.innerHTML = `<h3>${rabtAlAyat.name}</h3><img src="${rabtAlAyat.image}" alt="${rabtAlAyat.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';">`;
-                card.addEventListener('click', () => handleReaderOrToolClick(rabtAlAyat.name, tabContainer, tabsContentContainer));
-                toolsButtonsContainer.appendChild(card);
-            }
-
-            const difficultWordsCard = document.createElement('div');
-            difficultWordsCard.className = 'youtube-reader-card navigable grid-item';
-            difficultWordsCard.tabIndex = 0;
-            difficultWordsCard.innerHTML = `<h3>الكلمات الصعبة</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="book-check" class="w-12 h-12"></i></div>`;
-            difficultWordsCard.addEventListener('click', () => handleReaderOrToolClick("الكلمات الصعبة في", tabContainer, tabsContentContainer));
-            toolsButtonsContainer.appendChild(difficultWordsCard);
-
-            const repeatCard = document.createElement('div');
-            repeatCard.className = 'youtube-reader-card navigable grid-item';
-            repeatCard.tabIndex = 0;
-            repeatCard.innerHTML = `<h3>تكرار</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="repeat" class="w-12 h-12"></i></div>`;
-            repeatCard.addEventListener('click', () => handleReaderOrToolClick("تكرار", tabContainer, tabsContentContainer));
-            toolsButtonsContainer.appendChild(repeatCard);
-
-            const saveCard = document.createElement('div');
-            saveCard.className = 'youtube-reader-card navigable grid-item';
-            saveCard.tabIndex = 0;
-            saveCard.innerHTML = `<h3>حفظ</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="save" class="w-12 h-12"></i></div>`;
-            saveCard.addEventListener('click', () => handleReaderOrToolClick("حفظ", tabContainer, tabsContentContainer));
-            toolsButtonsContainer.appendChild(saveCard);
-
-            // 4. Tab Switching Logic
-            recitersTabButton.addEventListener('click', () => {
-                recitersTabButton.classList.add('active');
-                channTabButton.classList.remove('active');
-                tarteelTabButton.classList.remove('active');
-                toolsTabButton.classList.remove('active');
-                savedTabButton.classList.remove('active');
-                recitersContent.classList.remove('hidden');
-                channContent.classList.add('hidden');
-                tarteelContent.classList.add('hidden');
-                toolsContent.classList.add('hidden');
-                savedContent.classList.add('hidden');
-                displayLastWatchedVideo();
-                const firstItem = recitersContent.querySelector('.grid-item');
-                if (firstItem) setFocus(firstItem);
-            });
-
-            channTabButton.addEventListener('click', () => {
-                recitersTabButton.classList.remove('active');
-                channTabButton.classList.add('active');
-                tarteelTabButton.classList.remove('active');
-                toolsTabButton.classList.remove('active');
-                savedTabButton.classList.remove('active');
-                recitersContent.classList.add('hidden');
-                channContent.classList.remove('hidden');
-                tarteelContent.classList.add('hidden');
-                toolsContent.classList.add('hidden');
-                savedContent.classList.add('hidden');
-                displayLastWatchedVideo();
-                const firstItem = channContent.querySelector('.grid-item');
-                if (firstItem) setFocus(firstItem);
-            });
-
-            toolsTabButton.addEventListener('click', () => {
-                recitersTabButton.classList.remove('active');
-                channTabButton.classList.remove('active');
-                tarteelTabButton.classList.remove('active');
-                toolsTabButton.classList.add('active');
-                savedTabButton.classList.remove('active');
-                recitersContent.classList.add('hidden');
-                channContent.classList.add('hidden');
-                tarteelContent.classList.add('hidden');
-                toolsContent.classList.remove('hidden');
-                savedContent.classList.add('hidden');
-                displayLastWatchedVideo();
-                const firstItem = toolsContent.querySelector('.grid-item');
-                if (firstItem) setFocus(firstItem);
-            });
-            
-            savedTabButton.addEventListener('click', () => {
-                recitersTabButton.classList.remove('active');
-                channTabButton.classList.remove('active');
-                tarteelTabButton.classList.remove('active');
-                toolsTabButton.classList.remove('active');
-                savedTabButton.classList.add('active');
-
-                recitersContent.classList.add('hidden');
-                channContent.classList.add('hidden');
-                tarteelContent.classList.add('hidden');
-                toolsContent.classList.add('hidden');
-                savedContent.classList.remove('hidden');
-
-                document.getElementById('last-watched-container').classList.add('hidden');
-                loadSavedVideos(); // Load the videos when tab is clicked
-                
-                // --- NEW: Inner tab logic for saved videos ---
-                const tabSavedD = savedContent.querySelector('#tab-saved-d');
-                const tabSavedM = savedContent.querySelector('#tab-saved-m');
-                const contentSavedD = savedContent.querySelector('#tab-content-saved-d');
-                const contentSavedM = savedContent.querySelector('#tab-content-saved-m');
-
-                if (tabSavedD && tabSavedM && contentSavedD && contentSavedM) {
-                    tabSavedD.addEventListener('click', () => {
-                        tabSavedD.classList.add('active');
-                        tabSavedM.classList.remove('active');
-                        contentSavedD.classList.remove('hidden');
-                        contentSavedM.classList.add('hidden');
-                        setFocus(tabSavedD);
-                    });
-
-                    tabSavedM.addEventListener('click', () => {
-                        tabSavedM.classList.add('active');
-                        tabSavedD.classList.remove('active');
-                        contentSavedM.classList.remove('hidden');
-                        contentSavedD.classList.add('hidden');
-                        setFocus(tabSavedM);
-                    });
-                }
-                
-                const firstItem = savedContent.querySelector('.grid-item');
-                if (firstItem) setFocus(firstItem);
-            });
-
-            // 5. Append everything
-            suggestionsContent.appendChild(tabContainer);
-            tabsContentContainer.appendChild(recitersContent);
-            tabsContentContainer.appendChild(channContent);
-            tabsContentContainer.appendChild(tarteelContent); // Append Tarteel AI content
-            tabsContentContainer.appendChild(toolsContent);
-            tabsContentContainer.appendChild(savedContent);
-            suggestionsContent.appendChild(tabsContentContainer);
-
-            // Set initial active tab
-            channTabButton.classList.add('active');
-            channContent.classList.remove('hidden');
-            recitersTabButton.classList.remove('active');
-            recitersContent.classList.add('hidden');
-
-
-            lucide.createIcons();
-            }
-
-         // NEW: Function to fetch and display Tarteel AI videos
-            async function fetchTarteelVideos() {
-            const tarteelVideosContainer = document.getElementById('tarteel-videos-container');
-            if (!tarteelVideosContainer) return;
-
-            tarteelVideosContainer.innerHTML = '<p class="text-center col-span-full">جاري تحميل أحدث فيديوهات ترتيل...</p>';
-            
-            try {
-                if (YOUTUBE_API_KEY.startsWith('YOUR_')) {
-                     throw new Error("YouTube API key not set.");
-                }
-                const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${TARTEEL_CHANNEL_ID}&type=video&order=date&key=${YOUTUBE_API_KEY}&maxResults=50`);
-                if (!res.ok) {
-                    throw new Error(`YouTube API error: ${res.status}`);
-                }
-                const data = await res.json();
-                
-                if (data.items && data.items.length > 0) {
-                    const videoIds = data.items.map(item => item.id.videoId);
-                    const videoDetails = await fetchVideosDetails(videoIds); // Re-use existing detail fetcher
-                    
-                    tarteelVideosContainer.innerHTML = ''; // Clear loading message
-
-                    if (videoDetails === null) {
-                        throw new Error("Failed to fetch details for Tarteel videos.");
-                    }
-                    
-                    // NEW: Fetch channel thumbnails
-                    const channelIds = [...new Set(videoDetails.map(video => video.snippet.channelId))];
-                    const channelThumbnails = await fetchChannelsDetails(channelIds);
-
-                    videoDetails.forEach(video => {
-                        const durationSeconds = video.contentDetails.duration.match(/\d+/g).map(Number).reduce((acc, time, i, arr) => acc + time * (arr.length === 3 ? [3600, 60, 1][i] : (arr.length === 2 ? [60, 1][i] : 1)), 0);
-                        if (durationSeconds <= 61) return; // Filter out very short videos
-
-                        const videoData = {
-                            id: video.id,
-                            title: video.snippet.title,
-                            thumbnail: video.snippet.thumbnails.medium.url,
-                            channelTitle: video.snippet.channelTitle,
-                            channelId: video.snippet.channelId,
-                            channelThumbnail: channelThumbnails[video.snippet.channelId],
-                            viewCount: formatViewCount(video.statistics.viewCount),
-                            publishedAt: formatTimeAgo(video.snippet.publishedAt),
-                            duration: formatDuration(video.contentDetails.duration)
-                        };
-                        tarteelVideosContainer.appendChild(createVideoCard(videoData));
-                    });
-                } else {
-                    tarteelVideosContainer.innerHTML = '<p class="text-center col-span-full">لا توجد فيديوهات حديثة لقناة ترتيل.</p>';
-                }
-            } catch (err) {
-                console.error('Error fetching Tarteel AI videos:', err);
-                tarteelVideosContainer.innerHTML = '<p class="text-center col-span-full text-red-400">حدث خطأ أثناء تحميل فيديوهات ترتيل.</p>';
-            }
-            lucide.createIcons();
-            updateNavigableElements();
+        console.log("[Debug] Populating Channels...");
+        // --- Populate Channels --- (Keep your existing code)
+        let channList = await fetchChannelsList();
+        if (Array.isArray(channList)) {
+             channList.sort((a, b) => (parseInt(b?.clickschannel, 10) || 0) - (parseInt(a?.clickschannel, 10) || 0));
+        } else {
+             console.error("fetchChannelsList did not return an array."); channList = [];
         }
+        const channelIdsToFetch = channList.filter(r => r && r.channelid).map(r => r.channelid);
+        const channelThumbnails = channelIdsToFetch.length > 0 ? await fetchChannelsDetails(channelIdsToFetch) : {};
+        channButtonsContainer.innerHTML = '';
+        channList.forEach(reader => {
+             if (!reader || typeof reader !== 'object') return;
+             const card = document.createElement('div');
+             card.className = 'youtube-reader-card navigable grid-item relative group';
+             card.tabIndex = 0;
+             const imageUrl = reader.channelid ? (channelThumbnails[reader.channelid] || 'https://placehold.co/100x100/334155/ffffff?text=?') : (reader.image || 'https://placehold.co/100x100/334155/ffffff?text=?');
+             card.innerHTML = `
+                 <button class="delete-channel-btn absolute bottom-2 right-2 p-1.5 bg-red-600/80 hover:bg-red-500 rounded-full transition-colors z-10 navigable grid-item" title="حذف القناة" tabindex="0"><i data-lucide="trash-2" class="w-4 h-4 text-white pointer-events-none"></i></button>
+                 <h3>${reader.name}</h3>
+                 <img src="${imageUrl}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';">`;
+             card.addEventListener('click', (e) => {
+                 if (e.target.closest('.delete-channel-btn')) return;
+                 if (reader.channelid && reader.channeltitle) {
+                     incrementChannelClick(reader.channelid);
+                     searchVideosByChannel(reader.channelid, reader.channeltitle);
+                 } else {
+                     handleReaderOrToolClick(reader.name, tabContainer, tabsContentContainer);
+                 }
+             });
+             const deleteBtn = card.querySelector('.delete-channel-btn');
+             deleteBtn?.addEventListener('click', (e) => { e.stopPropagation(); removeChannelFromList(reader.channelid, reader.name); });
+             channButtonsContainer.appendChild(card);
+        });
+        const addChannelCard = document.createElement('div');
+        addChannelCard.className = 'youtube-reader-card navigable grid-item';
+        addChannelCard.tabIndex = 0;
+        addChannelCard.innerHTML = `<h3>إضافة قناة</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-dashed border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="plus" class="w-12 h-12 text-white/50"></i></div>`;
+        addChannelCard.addEventListener('click', showAddChannelPrompt);
+        channButtonsContainer.appendChild(addChannelCard);
+        console.log("[Debug] Populated Channels.");
 
+
+        console.log("[Debug] Populating Tools...");
+        // --- Populate Tools --- (Keep your existing code)
+        const tools = [
+             { name: "الكلمات الصعبة في", icon: "help-circle" },
+             { name: "فقط السورة", icon: "book-open", specialAction: "JUST_SURAH" }
+        ];
+        tools.forEach(tool => {
+            const card = document.createElement('div');
+            card.className = 'youtube-reader-card navigable grid-item';
+            card.tabIndex = 0;
+            card.innerHTML = `<h3>${tool.name}</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="${tool.icon}" class="w-12 h-12 text-white/50"></i></div>`;
+            card.addEventListener('click', () => handleReaderOrToolClick(tool.specialAction || tool.name, tabContainer, tabsContentContainer));
+            toolsButtonsContainer.appendChild(card);
+        });
+        console.log("[Debug] Populated Tools.");
+
+
+        console.log("[Debug] Attaching click listeners to tab buttons...");
+
+        // --- Tab Switching Logic (MODIFIED) ---
+        const tabs = [recitersTabButton, channTabButton, toolsTabButton, savedDTabButton, savedMTabButton]; // Updated tabs array
+        const contents = [recitersContent, channContent, toolsContent, savedDContent, savedMContent];   // Updated contents array
+
+        tabs.forEach((tab, index) => {
+            tab.addEventListener('click', () => {
+                console.log(`[Debug] ${tab.textContent} tab clicked!`);
+                tabs.forEach(t => t.classList.remove('active'));
+                contents.forEach(c => c.classList.add('hidden'));
+                tab.classList.add('active');
+                contents[index].classList.remove('hidden');
+
+                // --- Special actions for Saved tabs ---
+                if (tab.id === 'tab-saved-d') {
+                    loadSavedVideos('D'); // Load only D list
+                } else if (tab.id === 'tab-saved-m') {
+                    loadSavedVideos('M'); // Load only M list
+                }
+                // --- End Special actions ---
+
+                const firstItem = contents[index].querySelector('.grid-item');
+                if (firstItem) setFocus(firstItem); else setFocus(tab);
+            });
+        });
+        console.log("[Debug] Finished attaching click listeners.");
+
+
+        // 5. Append everything
+        suggestionsContent.appendChild(tabContainer);
+        tabsContentContainer.appendChild(recitersContent);
+        tabsContentContainer.appendChild(channContent);
+        tabsContentContainer.appendChild(toolsContent);
+        tabsContentContainer.appendChild(savedDContent); // Add new D content
+        tabsContentContainer.appendChild(savedMContent); // Add new M content
+        suggestionsContent.appendChild(tabsContentContainer);
+
+        // Set initial active tab (Channels is already set via class)
+
+        lucide.createIcons();
+        console.log("[Debug] Finished populateYoutubeSuggestions.");
+        updateNavigableElements();
+
+    } catch (error) {
+        console.error("Error during populateYoutubeSuggestions:", error);
+        suggestionsContent.innerHTML = '<p class="text-red-500 text-center">Error loading suggestions.</p>';
+    }
+}
 
         function showSurahSuggestions() {
             const existing = document.getElementById('youtube-surah-section');
@@ -4536,39 +4450,53 @@ let favoritesM = [];
         }
 
         async function saveVideoToFavorites(video, type) {
-            const favoritesList = type === 'D' ? favoritesD : favoritesM;
-            if (favoritesList.some(fav => fav.id === video.id)) {
-                showMessageBox(`الفيديو موجود بالفعل في المفضلة ${type}`);
-                return;
-            }
-            const history = getWatchedHistory();
-            const watchedInfo = history[video.id];
-            const progress = (watchedInfo && watchedInfo.progress > 0) ? watchedInfo.progress : 0;
+            const favoritesList = type === 'D' ? favoritesD : favoritesM;
+            if (favoritesList.some(fav => fav.id === video.id)) {
+                showMessageBox(`الفيديو موجود بالفعل في المفضلة ${type}`);
+                return;
+            }
+            const history = getWatchedHistory();
+            const watchedInfo = history[video.id];
+            const progress = (watchedInfo && watchedInfo.progress > 0) ? watchedInfo.progress : 0;
 
-            const videoToSave = {
-                id: video.id,
-                title: video.title,
-                thumbnail: video.thumbnail,
-                channelTitle: video.channelTitle,
-                channelId: video.channelId,
-                duration: video.duration,
-                progress: progress
-            };
-            const updatedList = [...favoritesList, videoToSave];
-            const success = await updateFavorites(type, updatedList);
+            const videoToSave = {
+                id: video.id,
+                title: video.title,
+                thumbnail: video.thumbnail,
+                channelTitle: video.channelTitle,
+                channelId: video.channelId,
+                duration: video.duration,
+                progress: progress
+            };
 
-            if (success) {
-                if (type === 'D') favoritesD = updatedList; else favoritesM = updatedList;
-                showMessageBox(`تم حفظ الفيديو في المفضلة ${type}`);
-                const bookmarkBtn = document.querySelector(`.bookmark-button[data-video-id="${video.id}"]`);
-                if(bookmarkBtn) {
-                    bookmarkBtn.classList.remove('saved-d', 'saved-m', 'saved-both');
-                    if (favoritesD.some(fav => fav.id === video.id) && favoritesM.some(fav => fav.id === video.id)) bookmarkBtn.classList.add('saved-both');
-                    else if (favoritesD.some(fav => fav.id === video.id)) bookmarkBtn.classList.add('saved-d');
-                    else if (favoritesM.some(fav => fav.id === video.id)) bookmarkBtn.classList.add('saved-m');
-                }
-            }
-        }
+            // [تعديل] إضافة الفيديو الجديد في بداية القائمة (الأحدث أولاً)
+            const updatedList = [videoToSave, ...favoritesList];
+            
+            const success = await updateFavorites(type, updatedList);
+
+            if (success) {
+                if (type === 'D') favoritesD = updatedList; else favoritesM = updatedList;
+                showMessageBox(`تم حفظ الفيديو في المفضلة ${type}`);
+                
+                // تحديث زر الحفظ في الكارت
+                const bookmarkBtn = document.querySelector(`.bookmark-button[data-video-id="${video.id}"]`);
+                if(bookmarkBtn) {
+                    bookmarkBtn.classList.remove('saved-d', 'saved-m', 'saved-both');
+                    if (favoritesD.some(fav => fav.id === video.id) && favoritesM.some(fav => fav.id === video.id)) bookmarkBtn.classList.add('saved-both');
+                    else if (favoritesD.some(fav => fav.id === video.id)) bookmarkBtn.classList.add('saved-d');
+                    else if (favoritesM.some(fav => fav.id === video.id)) bookmarkBtn.classList.add('saved-m');
+                }
+
+                // [إضافة] تحديث زر الحفظ في نافذة الفيديو المنبثقة إذا كانت مفتوحة
+                const popupBookmarkBtn = document.getElementById('video-popup-bookmark-button');
+                if (popupBookmarkBtn && currentPlayingVideoId === video.id) {
+                     popupBookmarkBtn.classList.remove('saved-d', 'saved-m', 'saved-both');
+                    if (favoritesD.some(fav => fav.id === video.id) && favoritesM.some(fav => fav.id === video.id)) popupBookmarkBtn.classList.add('saved-both');
+                    else if (favoritesD.some(fav => fav.id === video.id)) popupBookmarkBtn.classList.add('saved-d');
+                    else if (favoritesM.some(fav => fav.id === video.id)) popupBookmarkBtn.classList.add('saved-m');
+                }
+            }
+        }
 
         async function removeVideoFromFavorites(videoId, type) {
             const favoritesList = type === 'D' ? favoritesD : favoritesM;
@@ -4581,31 +4509,83 @@ let favoritesM = [];
             }
         }
 
-        async function loadSavedVideos() {
-            const gridD = document.getElementById('favorites-d-grid');
-            const gridM = document.getElementById('favorites-m-grid');
-            if (!gridD || !gridM) return;
+        // Replace the existing loadSavedVideos function
+async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or undefined)
+    console.log(`[Debug SavedVideos] Starting loadSavedVideos(${type || 'both'})...`);
 
-            gridD.innerHTML = '<p>جاري التحميل...</p>';
-            gridM.innerHTML = '<p>جاري التحميل...</p>';
+    const gridD = document.getElementById('favorites-d-grid');
+    const gridM = document.getElementById('favorites-m-grid');
+    const savedDContent = document.getElementById('tab-content-saved-d');
+    const savedMContent = document.getElementById('tab-content-saved-m');
 
-            [favoritesD, favoritesM] = await Promise.all([fetchFavorites('D'), fetchFavorites('M')]);
+    // Determine which grids/content areas to update
+    const updateD = !type || type === 'D';
+    const updateM = !type || type === 'M';
 
-            gridD.innerHTML = '';
-            if (favoritesD.length > 0) {
-                favoritesD.forEach(video => gridD.appendChild(createFavoriteVideoCard(video, 'D')));
-            } else {
-                gridD.innerHTML = '<p>لا توجد فيديوهات محفوظة هنا.</p>';
-            }
-            gridM.innerHTML = '';
-            if (favoritesM.length > 0) {
-                favoritesM.forEach(video => gridM.appendChild(createFavoriteVideoCard(video, 'M')));
-            } else {
-                gridM.innerHTML = '<p>لا توجد فيديوهات محفوظة هنا.</p>';
-            }
-            lucide.createIcons();
-            updateNavigableElements();
+    if (updateD && !gridD) console.error("[Debug SavedVideos] favorites-d-grid not found!");
+    if (updateM && !gridM) console.error("[Debug SavedVideos] favorites-m-grid not found!");
+
+    // Show loading messages only in the relevant grids
+    if (updateD && gridD) gridD.innerHTML = '<p class="text-white/70 text-center col-span-full">جاري تحميل قائمة السيارة...</p>';
+    if (updateM && gridM) gridM.innerHTML = '<p class="text-white/70 text-center col-span-full">جاري تحميل قائمة التلفاز...</p>';
+
+    try {
+        let fetchedD = [], fetchedM = [];
+
+        // Fetch only the necessary lists
+        if (updateD && updateM) { // Fetch both if no type specified
+             const results = await Promise.allSettled([fetchFavorites('D'), fetchFavorites('M')]);
+             fetchedD = results[0].status === 'fulfilled' ? results[0].value : [];
+             fetchedM = results[1].status === 'fulfilled' ? results[1].value : [];
+             favoritesD = fetchedD; // Update global cache
+             favoritesM = fetchedM; // Update global cache
+        } else if (updateD) { // Fetch only D
+             fetchedD = await fetchFavorites('D');
+             favoritesD = fetchedD; // Update global cache
+        } else if (updateM) { // Fetch only M
+             fetchedM = await fetchFavorites('M');
+             favoritesM = fetchedM; // Update global cache
         }
+
+        console.log("[Debug SavedVideos] Fetched D:", fetchedD);
+        console.log("[Debug SavedVideos] Fetched M:", fetchedM);
+
+        // Render D list if needed
+        if (updateD && gridD) {
+            gridD.innerHTML = '';
+            if (fetchedD.length > 0) {
+                 fetchedD.forEach(video => {
+                     const cardElement = createFavoriteVideoCard(video, 'D');
+                     if (cardElement) gridD.appendChild(cardElement);
+                 });
+            } else {
+                 gridD.innerHTML = '<p class="text-white/70 text-center col-span-full">لا توجد فيديوهات محفوظة هنا.</p>';
+            }
+        }
+
+        // Render M list if needed
+        if (updateM && gridM) {
+             gridM.innerHTML = '';
+             if (fetchedM.length > 0) {
+                 fetchedM.forEach(video => {
+                     const cardElement = createFavoriteVideoCard(video, 'M');
+                     if (cardElement) gridM.appendChild(cardElement);
+                 });
+             } else {
+                 gridM.innerHTML = '<p class="text-white/70 text-center col-span-full">لا توجد فيديوهات محفوظة هنا.</p>';
+             }
+        }
+
+        lucide.createIcons();
+        updateNavigableElements(); // Ensure focusable elements are updated after rendering
+        console.log("[Debug SavedVideos] Finished rendering saved videos.");
+
+    } catch (error) {
+        console.error("[Debug SavedVideos] Error in loadSavedVideos:", error);
+        if (updateD && gridD) gridD.innerHTML = '<p class="text-red-500 text-center col-span-full">خطأ في تحميل المفضلة.</p>';
+        if (updateM && gridM) gridM.innerHTML = '<p class="text-red-500 text-center col-span-full">خطأ في تحميل المفضلة.</p>';
+    }
+}
 
         function createFavoriteVideoCard(video, type) {
             const card = document.createElement('div');
@@ -5620,23 +5600,23 @@ if (!window.hasInitializedWeatherSpeaker) {
     let hasSpokenWelcome = false; // هذا العلم سيعمل الآن بشكل صحيح
 
     const checkWeatherAndSpeak = () => {
-        // نطق الترحيب مرة واحدة فقط
-        if (!hasSpokenWelcome) {
-            const welcomeText = `مرحبا، تاريخ اليوم ${hijriDate} الموافق ${gregorianDate}`;
-            speakWithVoicesReady(welcomeText);
-            hasSpokenWelcome = true;
-        }
+        // نطق الترحيب مرة واحدة فقط
+        if (!hasSpokenWelcome) {
+            const welcomeText = `مرحبا، تاريخ اليوم ${hijriDate} الموافق ${gregorianDate}`;
+            speakWithVoicesReady(welcomeText);
+            hasSpokenWelcome = true;
+        }
 
-        // إذا كانت بيانات الطقس جاهزة، نطقها بعد تأخير
-        if (appState.weather.temperature !== null) {
-            setTimeout(() => {
-                const weatherText = `حالة الطقس الآن ${appState.weather.temperature} درجة مئوية`;
-                speakWithVoicesReady(weatherText);
-            }, 8000);
-        } else {
-            // إذا لم تكن جاهزة، كرر المحاولة لاحقًا
-            setTimeout(checkWeatherAndSpeak, 500);
-        }
+        // إذا كانت بيانات الطقس جاهزة، نطقها بعد تأخير
+        if (appState.weather.temperature !== null) {
+            setTimeout(() => {
+                const weatherText = `حالة الطقس الآن ${appState.weather.temperature} درجة مئوية`;
+                speakWithVoicesReady(weatherText);
+            }, 7000);
+        } else {
+            // إذا لم تكن جاهزة، كرر المحاولة لاحقًا
+            setTimeout(checkWeatherAndSpeak, 500);
+        }
     };
 
     // 4. ابدأ التشغيل (سيحدث هذا مرة واحدة فقط)
@@ -5690,7 +5670,7 @@ if (!window.hasInitializedWeatherSpeaker) {
         favoritesD = d;
         favoritesM = m;
     });
-
+migrateChannelData();
     loadGoogleMaps().then(initMap);
     fetchWeatherData(); 
     loadPrayerTimes();
@@ -5699,10 +5679,10 @@ if (!window.hasInitializedWeatherSpeaker) {
     // Play welcome message once after a short delay
     setTimeout(playWelcomeMessage, 1500);
 
-    setInterval(fetchWeatherData, 300000); 
+    setInterval(fetchWeatherData, 800000); 
     setInterval(updateDigitalClock, 1000); 
     setInterval(determineNextPrayer, 60000);
-    setInterval(updateFullDateWidget, 60000); // <-- أضف هذا السطر (تحديث دوري)
+    setInterval(updateFullDateWidget, 600000); // <-- أضف هذا السطر (تحديث دوري)
     setInterval(simulateOtherCarData, 2000);
 
     // ... (بقية الكود)
@@ -6052,7 +6032,7 @@ async function renderDailyReminders(states) { // We added 'async' and 'states' h
             });
             
             renderDailyReminders(); // الاستدعاء الأول
-            setInterval(renderDailyReminders, 60000); // تحديث كل 60 ثانية
+            setInterval(renderDailyReminders, 180000); // تحديث كل 60 ثانية
         });
 
         // --- Athkar App Logic ---
