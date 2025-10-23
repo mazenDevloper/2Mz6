@@ -2886,14 +2886,16 @@ let favoritesM = [];
             }
         }
         
-        function updateUI() { 
-            document.getElementById('dashboard-weather-temp').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature.toFixed(1)}°C` : '--°C'; 
-            document.getElementById('dashboard-weather-desc').textContent = appState.weather.description || '--'; 
-            document.getElementById('dashboard-weather-icon').src = appState.weather.iconUrl || 'https://placehold.co/64x64/000000/FFFFFF?text=X'; 
-            document.getElementById('dashboard-weather-location').textContent = appState.weather.location; 
-            document.getElementById('3d-screen-weather-temp').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature.toFixed(1)}°C` : '--°C';
-            
-            const humidityEl = document.getElementById('dashboard-weather-humidity');
+        function updateUI() {
+    // --- Existing updates ---
+    document.getElementById('dashboard-weather-temp').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature.toFixed(1)}°C` : '--°C';
+    document.getElementById('dashboard-weather-desc').textContent = appState.weather.description || '--';
+    document.getElementById('dashboard-weather-icon').src = appState.weather.iconUrl || 'https://placehold.co/64x64/000000/FFFFFF?text=X';
+    document.getElementById('dashboard-weather-location').textContent = appState.weather.location;
+    document.getElementById('3d-screen-weather-temp').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature.toFixed(1)}°C` : '--°C';
+
+    // --- NEW Updates for Humidity and UV ---
+    const humidityEl = document.getElementById('dashboard-weather-humidity');
     const uvDashboardEl = document.getElementById('dashboard-weather-uv'); // Changed ID slightly
 
     if (humidityEl) {
@@ -2905,12 +2907,20 @@ let favoritesM = [];
         // Optional: Apply color based on UV index
         uvDashboardEl.style.color = getUvIndexColor(uvValue); // Use your existing color function
     }
-            
-            const uvEl = document.getElementById('weather-uv'); 
-            if (uvEl) { uvEl.textContent = appState.weather.uvIndex !== null ? appState.weather.uvIndex : '--'; uvEl.style.color = getUvIndexColor(appState.weather.uvIndex); } 
-            car360Image.src = appState.custom360Image || default360ImageSrc; 
-            startTripFloatingButton.style.display = appState.destinationSet ? 'flex' : 'none'; 
-        }
+    // --- End NEW Updates ---
+
+
+    // --- Existing updates ---
+    const uvEl = document.getElementById('weather-uv'); // Keep this for the other weather screen if used
+    if (uvEl) { uvEl.textContent = appState.weather.uvIndex !== null ? appState.weather.uvIndex : '--'; uvEl.style.color = getUvIndexColor(appState.weather.uvIndex); }
+
+    car360Image.src = appState.custom360Image || default360ImageSrc;
+    startTripFloatingButton.style.display = appState.destinationSet ? 'flex' : 'none';
+}
+
+// Make sure appState includes humidity (it should already if fetchWeatherData is correct)
+// Inside fetchWeatherData, ensure humidity is stored:
+// appState.weather.humidity = data.current.humidity; // Add this line if missing
 
         // --- App Switching and Navigation Logic ---
         const appOrder = ['Dashboard', 'Media', 'Radio', 'Athkar', 'Reciters', 'Weather', 'Map', 'Quran'];
@@ -6134,44 +6144,50 @@ async function renderDailyReminders(states) { // We added 'async' and 'states' h
     lucide.createIcons();
 }
 
-            // 3. إضافة مستمع نقر واحد للتعامل مع كل الأزرار (MODIFIED)
-            document.addEventListener('click', (e) => {
-                const reminderItem = e.target.closest('.reminder-item');
-                
-                // If clicking outside a reminder item AND not on a dropdown button, close dropdowns
-                if (!reminderItem && !e.target.closest('.reminder-status-dropdown')) {
-                    closeAllDropdowns();
-                    return;
-                }
+            // --- الكود الجديد ---
+// 3. إضافة مستمع نقر واحد للتعامل مع كل الأزرار (MODIFIED)
+document.addEventListener('click', (e) => {
+    const reminderItem = e.target.closest('.reminder-item');
+    const dropdownButton = e.target.closest('.reminder-status-dropdown button');
 
-                if (!reminderItem) return;
+    // إذا تم النقر على زر داخل القائمة المنسدلة، دعه يعمل (المستمع الخاص به سيعمل)
+    if (dropdownButton) {
+        return;
+    }
 
-                const reminderId = reminderItem.dataset.reminderId;
-                const reminder = dailyReminders.find(r => r.id === reminderId);
+    // إذا تم النقر خارج عنصر تذكير وخارج قائمة منسدلة، أغلق جميع القوائم
+    if (!reminderItem && !e.target.closest('.reminder-status-dropdown')) {
+        closeAllDropdowns();
+        return;
+    }
 
-                // If the icon is clicked, toggle the dropdown
-                if (e.target.closest('.icon-wrapper')) {
-                    e.stopPropagation();
-                    const existingDropdown = reminderItem.querySelector('.reminder-status-dropdown');
-                    if (existingDropdown) {
-                        existingDropdown.remove();
-                    } else {
-                        createReminderDropdown(reminderId, e.target.closest('.icon-wrapper'));
-                    }
-                    return;
-                }
+    // إذا لم يتم النقر على عنصر تذكير، توقف هنا
+    if (!reminderItem) return;
 
-                // If the text area (or any other part of the item) is clicked, perform the action
-                if (reminder && reminder.action) {
-                    closeAllDropdowns();
-                    if (reminder.id.includes('adhkar') || reminder.id.includes('surah')) {
-                        switchApp('Media');
-                        setTimeout(() => reminder.action(), 100);
-                    } else {
-                        reminder.action();
-                    }
-                }
-            });
+    // --- الجزء الرئيسي للتعديل ---
+    // أوقف انتشار الحدث لمنع أي إجراءات افتراضية أخرى
+    e.stopPropagation();
+
+    const reminderId = reminderItem.dataset.reminderId;
+    const iconWrapper = reminderItem.querySelector('.icon-wrapper'); // ابحث عن حاوية الأيقونة
+
+    if (!iconWrapper) return; // تأكد من وجود حاوية الأيقونة
+
+    // تحقق مما إذا كانت القائمة المنسدلة لهذا العنصر مفتوحة بالفعل
+    const existingDropdown = reminderItem.querySelector('.reminder-status-dropdown');
+
+    if (existingDropdown) {
+        // إذا كانت مفتوحة، أغلقها
+        existingDropdown.remove();
+    } else {
+        // إذا كانت مغلقة، أغلق أي قوائم أخرى وافتح هذه القائمة
+        closeAllDropdowns(); // أغلق القوائم الأخرى أولاً
+        createReminderDropdown(reminderId, iconWrapper); // افتح القائمة الجديدة بالنسبة لحاوية الأيقونة
+    }
+    // --- نهاية التعديل ---
+
+    // تم إزالة الجزء الخاص بتنفيذ الإجراء الافتراضي (مثل البحث في يوتيوب)
+});
             
             renderDailyReminders(); // الاستدعاء الأول
             setInterval(renderDailyReminders, 60000); // تحديث كل 60 ثانية
