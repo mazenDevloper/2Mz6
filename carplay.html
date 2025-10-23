@@ -2129,11 +2129,11 @@ div#map{display:none}
                             <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center navigable grid-item" tabindex="0">
                                
                                 <div id="weather-widget-container" class="w-full h-full flex flex-col items-center justify-center">
-                                    <img id="dashboard-weather-icon" src="" alt="Weather Icon" class="w-20 h-20 text-white mb-2" />
-                                    <p class="text-5xl font-extrabold mb-1" id="dashboard-weather-temp">--°C</p>
-                                    <p class="text-xl font-semibold text-white/80 mb-2" id="dashboard-weather-desc">--</p>
-                                    <p class="text-md text-white/60" id="dashboard-weather-location">--</p>
-                                </div>
+    <img id="dashboard-weather-icon" src="" alt="Weather Icon" class="w-20 h-20 text-white mb-2" />
+    <p class="text-5xl font-extrabold mb-1" id="dashboard-weather-temp">--°C</p>
+    <p class="text-xl font-semibold text-white/80 mb-2" id="dashboard-weather-desc">--</p>
+    <p class="text-md text-white/70" id="dashboard-weather-humidity">💧 --%</p> <p class="text-md text-white/70" id="dashboard-weather-uv">☀️ UV: --</p> <p class="text-md text-white/60 mt-1" id="dashboard-weather-location">--</p>
+</div>
                             </div>
                             <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center navigable grid-item" tabindex="0">
                                 <div id="digital-clock-widget" class="w-full h-full flex flex-col items-center justify-center text-center">
@@ -2892,6 +2892,20 @@ let favoritesM = [];
             document.getElementById('dashboard-weather-icon').src = appState.weather.iconUrl || 'https://placehold.co/64x64/000000/FFFFFF?text=X'; 
             document.getElementById('dashboard-weather-location').textContent = appState.weather.location; 
             document.getElementById('3d-screen-weather-temp').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature.toFixed(1)}°C` : '--°C';
+            
+            const humidityEl = document.getElementById('dashboard-weather-humidity');
+    const uvDashboardEl = document.getElementById('dashboard-weather-uv'); // Changed ID slightly
+
+    if (humidityEl) {
+        humidityEl.textContent = appState.weather.humidity !== undefined ? `💧 ${appState.weather.humidity}%` : '💧 --%';
+    }
+    if (uvDashboardEl) { // Check if the element exists
+        const uvValue = appState.weather.uvIndex;
+        uvDashboardEl.textContent = uvValue !== null ? `☀️ UV: ${uvValue}` : '☀️ UV: --';
+        // Optional: Apply color based on UV index
+        uvDashboardEl.style.color = getUvIndexColor(uvValue); // Use your existing color function
+    }
+            
             const uvEl = document.getElementById('weather-uv'); 
             if (uvEl) { uvEl.textContent = appState.weather.uvIndex !== null ? appState.weather.uvIndex : '--'; uvEl.style.color = getUvIndexColor(appState.weather.uvIndex); } 
             car360Image.src = appState.custom360Image || default360ImageSrc; 
