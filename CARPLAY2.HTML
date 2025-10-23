@@ -307,20 +307,20 @@ button#back-to-playlists-bottom-button-search {
 }
         /* Import Inter font for a modern, clean look */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-            /* Default background gradient - UPDATED: black parts are wider, animation is 3x slower */
-            background: linear-gradient(-45deg, #000000 0%, #000000 30%, #00FFFF 35%, #000000 60%, #4B0082 65%, #8A2BE2 70%, #FF00FF 75%, #000000 100%);
-            background-size: 400% 400%;
-            animation: gradient 15s ease infinite; /* Animation duration decreased to 15s */
-            transition: background-image 0.5s ease; /* Smooth transition for background changes */
-            min-height: 100vh; /* Ensure body takes full viewport height */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden; /* Prevent body scroll */
-        }
+        /* Cleaned base body styles - animation and gradient moved to screens */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000000; /* Simple black fallback */
+            background-size: auto; /* Reset size */
+            animation: none; /* Remove body animation */
+            transition: background-image 0.5s ease;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
         
 div#hourly-forecast-container {
     min-height: 93px;
@@ -358,7 +358,9 @@ button#tab-tarteel {
             animation: gradient 15s ease infinite;
         }
        
-       
+        div#quran-quick-access {
+            display: none !important;
+        }
 
         .h-full {
             height: 97% !important;
@@ -416,10 +418,9 @@ div#\33 d-screen-weather-widget {
             background: light-dark(hsl(0 0% 100% / var(--glass-frost, 0.1)), /* Slightly more opaque background */
                 hsl(0 0% 0% / var(--glass-frost, 0.2))); /* Darker opaque background for dark mode */
             
-            backdrop-filter: var(--filter-id, url(#glass-filter)) blur(8px) saturate(1.8) brightness(1.1); /* e.g., 8px instead of 10px */
-     -webkit-backdrop-filter: blur(8px) saturate(1.8) brightness(1.1);
             /* Enhanced backdrop-filter for stronger blur and saturation */
-           
+            backdrop-filter: var(--filter-id, url(#glass-filter)) blur(8px) saturate(1.8) brightness(1.1); /* e.g., 8px instead of 10px */
+     -webkit-backdrop-filter: blur(8px) saturate(1.8) brightness(1.1);/* Webkit prefix */
 
             /* More pronounced box-shadow for a "dropped" effect */
             box-shadow:
@@ -486,14 +487,14 @@ div#\33 d-screen-weather-widget {
 
         /* Keyframe animation for the background gradient */
         @keyframes gradient {
-          
+              
           0% {
     background-position: 29.0118% 50%;
   }
   50% {
     background-position: 65.0118% 50%;
   }
-    100% {
+    0% {
     background-position: 29.0118% 50%;
   }
         }
@@ -685,6 +686,47 @@ div#\33 d-screen-weather-widget {
             transform: scale(1.1);
         }
 
+        /* Gemini-like Chat Styling */
+        .chat-message {
+            max-width: 70%;
+            padding: 0.75rem 1rem;
+            border-radius: 1.5rem; /* More rounded */
+            margin-bottom: 0.75rem;
+            word-wrap: break-word;
+            font-size: 0.9rem; /* Slightly smaller font for chat */
+        }
+
+        .chat-message.user {
+            background-color: #4f46e5; /* Blue */
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 0.5rem; /* Pointy bottom right */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .chat-message.ai {
+            background-color: #2d3748; /* Darker gray */
+            color: white;
+            margin-right: auto;
+            border-bottom-left-radius: 0.5rem; /* Pointy bottom left */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        #ai-input {
+            border-radius: 2rem; /* Fully rounded pill shape */
+            padding: 0.75rem 1.25rem;
+            background-color: rgba(255, 255, 255, 0.15); /* Lighter glass */
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+        }
+        #ai-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        #ai-input:focus {
+            background-color: rgba(255, 255, 255, 0.2);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.4), 0 0 0 2px rgba(147, 51, 234, 0.5);
+        }
+        
         /* YouTube Video Card Styling (List View and Search Results) - UPDATED */
         .youtube-video-card, .youtube-search-card {
             display: flex;
@@ -1188,7 +1230,39 @@ div#youtube-readers-section {
         }
 
         /* Electronic Quran specific styles */
-       
+        .quran-text {
+            font-family: 'Amiri Quran', serif;
+            font-size: 2rem;
+            line-height: 2.5;
+            text-align: center;
+            direction: rtl;
+            padding: 0rem 1rem;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 1rem;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            overflow-y: auto;
+            max-height: 80%;
+        }
+
+        .quran-controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+        .quran-control-button {
+            background-image: linear-gradient(to right, #6366f1, #8b5cf6);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .quran-control-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
 
         /* NEW: Weather Screen Scroll Override */
         #screen-Weather {
@@ -1835,7 +1909,32 @@ div#bottom-left-controls {
 
 
 /* --- END: Islamic Daily Reminders Styles (MODIFIED) --- */
-       تغييرات المطلوبة للشاشات الأوسع */
+        /* OBD-II Specific Styles */
+        .obd-data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            width: 100%;
+        }
+        .obd-data-card {
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 1rem;
+            text-align: center;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+        }
+        .obd-data-card .value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #10b981;
+            margin-bottom: 0.25rem;
+        }
+        .obd-data-card .label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* التغييرات المطلوبة للشاشات الأوسع */
         @media (min-width: 992px) {
             .carousel-nav-button.prev {
                 display: flex;
@@ -1968,7 +2067,9 @@ div#map{display:none}
         
         <!-- Top Bar: Wifi, 5G, Current Time -->
         <div class="w-full max-w-7xl flex justify-between items-center text-white/80 text-sm px-4 py-2 absolute top-4 left-1/2 -translate-x-1/2 z-10 top-bar">
-           
+            <div class="flex items-center gap-2">
+              
+            </div>
            
         </div>
 
@@ -2028,11 +2129,11 @@ div#map{display:none}
                             <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center navigable grid-item" tabindex="0">
                                
                                 <div id="weather-widget-container" class="w-full h-full flex flex-col items-center justify-center">
-                                    <img id="dashboard-weather-icon" src="" alt="Weather Icon" class="w-20 h-20 text-white mb-2" />
-                                    <p class="text-5xl font-extrabold mb-1" id="dashboard-weather-temp">--°C</p>
-                                    <p class="text-xl font-semibold text-white/80 mb-2" id="dashboard-weather-desc">--</p>
-                                    <p class="text-md text-white/60" id="dashboard-weather-location">--</p>
-                                </div>
+    <img id="dashboard-weather-icon" src="" alt="Weather Icon" class="w-20 h-20 text-white mb-2" />
+    <p class="text-5xl font-extrabold mb-1" id="dashboard-weather-temp">--°C</p>
+    <p class="text-xl font-semibold text-white/80 mb-2" id="dashboard-weather-desc">--</p>
+    <p class="text-md text-white/70" id="dashboard-weather-humidity">💧 --%</p> <p class="text-md text-white/70" id="dashboard-weather-uv">☀️ UV: --</p> <p class="text-md text-white/60 mt-1" id="dashboard-weather-location">--</p>
+</div>
                             </div>
                             <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center navigable grid-item" tabindex="0">
                                 <div id="digital-clock-widget" class="w-full h-full flex flex-col items-center justify-center text-center">
@@ -2249,12 +2350,25 @@ div#map{display:none}
                             </div>
                         </div>
                     </div>
-                   
+                    <!-- NEW: Sticky Directional Controls -->
+                    <div id="direction-controls-3d" class="absolute top-1/2 -translate-y-1/2 right-8 grid grid-cols-3 gap-2 w-[120px] z-10">
+                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">NW</button>
+                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">N</button>
+                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">NE</button>
+                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">W</button>
+                        <div class="w-10 h-10"></div> <!-- Spacer -->
+                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">E</button>
+                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">SW</button>
+                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">S</button>
+                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">SE</button>
+                    </div>
                 </section>
 
                 <!-- Electronic Quran App Screen -->
                 <section id="screen-Quran" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full relative">
-                  
+                   <div id="quran-quick-access" class="mt-4 bg-black/30 p-4 rounded-xl flex flex-col gap-3 items-end z-20 glass-surface glass-surface--svg w-full max-w-md">
+                        <button id="quran-go-button" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm self-center navigable grid-item" tabindex="0"></button>
+                    </div>
                     <div class="w-full h-full glass-surface glass-surface--svg p-4 rounded-xl flex flex-col items-center flex-grow" style="height: 100%!important;">
                         <iframe id="quran-iframe" class="full-iframe" src="https://quran.com/?lang=ar" lang="ar" title="القرآن الكريم" frameborder="0" allow="fullscreen; picture-in-picture"></iframe>
                     </div>
@@ -2374,7 +2488,7 @@ dateWidgetContainer.innerHTML = `
 async function displayLastWatchedVideo() {
     const lastWatchedContainer = document.getElementById('last-watched-container');
     const history = getWatchedHistory();
-    
+
     // Sort by timestamp to show the most recently watched videos first
     const videoIds = Object.keys(history)
         .sort((a, b) => (history[b].lastWatchedTimestamp || 0) - (history[a].lastWatchedTimestamp || 0))
@@ -2464,17 +2578,17 @@ async function displayLastWatchedVideo() {
             </div>
         `;
 
-        
+
 
         lastWatchedContainer.classList.remove('hidden');
         lucide.createIcons();
-        
+
         // NEW: Add event listener for the view all card
         const viewAllCard = document.getElementById('view-all-history-card');
         if (viewAllCard) {
             viewAllCard.addEventListener('click', showAllWatchedHistory);
         }
-        
+
         // Scroll to the last item on load
         setTimeout(() => {
             const slidesContainer = document.querySelector('.last-watched-slides-container');
@@ -2512,6 +2626,7 @@ async function displayLastWatchedVideo() {
 
         // --- API Keys ---
         const YOUTUBE_API_KEY = 'AIzaSyBYThRM6tVnzgFgdHOUAN6DN8jQd54OKeg'; 
+        const AI_ASSISTANT_API_KEY = 'AIzaSyBMmtON9ww4dJxMHrl1wKyWTvI0ipJXJws'; 
         const WEATHER_API_KEY = '7acefc26deee4904a2393917252207'; 
         const GOOGLE_MAPS_API_KEY = 'AIzaSyBRqAHJ2elbE_Z7NXXYC50XZpqi6HbG6Rk';
 
@@ -2531,12 +2646,11 @@ let localChannelsCache = []; // To store the list locally
 let favoritesD = [];
 let favoritesM = [];
 
-        // NEW: Tarteel AI Channel ID
-       
+
         // --- Global App State Management ---
         let appState = {
             currentTime: '',
-            mapLocation: { lat: 17.0151, lon: 54.0924, zoom: 17 },
+            mapLocation: { lat: 17.081667, lon: 54.159722, zoom: 19 },
             weather: { temperature: null, description: null, uvIndex: null, iconUrl: '', location: 'Salalah, Oman' },
             car: { speed: 0, rpm: 0, fuel: 0, temp: 0, gear: 'P', direction: '--' }, // Added direction
             prayerTimes: { Fajr: '--:--', Dhuhr: '--:--', Asr: '--:--', Maghrib: '--:--', Isha: '--:--', nextPrayer: null, nextPrayerIqamaTime: null, currentPrayer: null },
@@ -2557,7 +2671,7 @@ let favoritesM = [];
 
         // --- Home Locations ---
         // UPDATED: Coordinates for Home 1 and Home 2
-        const HOME1_COORDS = { lat: 17.081667, lng: 54.159722 }; // 17°04'54.0"N 54°09'35.0"E
+        const HOME1_COORDS = { lat: 17.0, lng: 54.159722 }; // 17°04'54.0"N 54°09'35.0"E
         const HOME2_COORDS = { lat: 17.048560, lng: 54.159616 };
 
         // --- DOM Element References ---
@@ -2637,10 +2751,10 @@ let favoritesM = [];
                         allVideoDetails.push(...details);
                     }
                 }
-                
+
                 if (allVideoDetails.length > 0) {
                     searchResultsContainer.innerHTML = '<h2 class="text-3xl font-bold mb-4 text-center w-full text-white col-span-full">سجل المشاهدة</h2>'; // Add a title
-                    
+
                     // NEW: Fetch channel thumbnails for all videos
                     const channelIds = [...new Set(allVideoDetails.map(video => video.snippet.channelId))];
                     const channelThumbnails = await fetchChannelsDetails(channelIds);
@@ -2651,7 +2765,7 @@ let favoritesM = [];
                     const bTimestamp = history[b.id]?.lastWatchedTimestamp || 0;
                     return bTimestamp - aTimestamp;
                 });
-                
+
                 sortedDetails.forEach(video => {
                     const videoData = {
                         id: video.id,
@@ -2691,7 +2805,7 @@ let favoritesM = [];
                 showMessageBox('حدث خطأ أثناء تحميل سجل المشاهدة.');
             }
         }
-        
+
         // --- NEW: Watched History Helpers ---
         function getWatchedHistory() {
             return JSON.parse(localStorage.getItem('youtubeWatchedHistory')) || {};
@@ -2699,23 +2813,23 @@ let favoritesM = [];
 
         async function updateVideoProgress(videoId, currentTime, duration) {
             if (!videoId || !duration || !isFinite(currentTime) || !isFinite(duration)) return;
-        
+
             // 1. Update local history (localStorage)
             const history = getWatchedHistory();
             history[videoId] = { progress: currentTime, duration: duration, lastWatchedTimestamp: Date.now() };
             localStorage.setItem('youtubeWatchedHistory', JSON.stringify(history));
-        
+
             // 2. Check and update favorites in JSONBin.io
             const favDIndex = favoritesD.findIndex(fav => fav.id === videoId);
             const favMIndex = favoritesM.findIndex(fav => fav.id === videoId);
-        
+
             // If the video is not in any favorites list, we don't need to proceed further.
             if (favDIndex === -1 && favMIndex === -1) {
                 return;
             }
-        
+
             const updatePromises = [];
-        
+
             if (favDIndex > -1) {
                 // To ensure state changes are handled correctly, create a new array using .map
                 const updatedFavoritesD = favoritesD.map((fav, index) => {
@@ -2728,7 +2842,7 @@ let favoritesM = [];
                 favoritesD = updatedFavoritesD; // Re-assign the global variable to the newly created array
                 updatePromises.push(updateFavorites('D', favoritesD));
             }
-        
+
             if (favMIndex > -1) {
                 // Repeat the same immutable update pattern for the 'M' list
                 const updatedFavoritesM = favoritesM.map((fav, index) => {
@@ -2740,7 +2854,7 @@ let favoritesM = [];
                 favoritesM = updatedFavoritesM; // Re-assign the global variable
                 updatePromises.push(updateFavorites('M', favoritesM));
             }
-            
+
             if (updatePromises.length > 0) {
                 try {
                     await Promise.all(updatePromises);
@@ -2771,18 +2885,42 @@ let favoritesM = [];
                 }
             }
         }
-        
-        function updateUI() { 
-            document.getElementById('dashboard-weather-temp').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature.toFixed(1)}°C` : '--°C'; 
-            document.getElementById('dashboard-weather-desc').textContent = appState.weather.description || '--'; 
-            document.getElementById('dashboard-weather-icon').src = appState.weather.iconUrl || 'https://placehold.co/64x64/000000/FFFFFF?text=X'; 
-            document.getElementById('dashboard-weather-location').textContent = appState.weather.location; 
-            document.getElementById('3d-screen-weather-temp').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature.toFixed(1)}°C` : '--°C';
-            const uvEl = document.getElementById('weather-uv'); 
-            if (uvEl) { uvEl.textContent = appState.weather.uvIndex !== null ? appState.weather.uvIndex : '--'; uvEl.style.color = getUvIndexColor(appState.weather.uvIndex); } 
-            car360Image.src = appState.custom360Image || default360ImageSrc; 
-            startTripFloatingButton.style.display = appState.destinationSet ? 'flex' : 'none'; 
-        }
+
+        function updateUI() {
+    // --- Existing updates ---
+    document.getElementById('dashboard-weather-temp').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature.toFixed(1)}°C` : '--°C';
+    document.getElementById('dashboard-weather-desc').textContent = appState.weather.description || '--';
+    document.getElementById('dashboard-weather-icon').src = appState.weather.iconUrl || 'https://placehold.co/64x64/000000/FFFFFF?text=X';
+    document.getElementById('dashboard-weather-location').textContent = appState.weather.location;
+    document.getElementById('3d-screen-weather-temp').textContent = appState.weather.temperature !== null ? `${appState.weather.temperature.toFixed(1)}°C` : '--°C';
+
+    // --- NEW Updates for Humidity and UV ---
+    const humidityEl = document.getElementById('dashboard-weather-humidity');
+    const uvDashboardEl = document.getElementById('dashboard-weather-uv'); // Changed ID slightly
+
+    if (humidityEl) {
+        humidityEl.textContent = appState.weather.humidity !== undefined ? `💧 ${appState.weather.humidity}%` : '💧 --%';
+    }
+    if (uvDashboardEl) { // Check if the element exists
+        const uvValue = appState.weather.uvIndex;
+        uvDashboardEl.textContent = uvValue !== null ? `☀️ UV: ${uvValue}` : '☀️ UV: --';
+        // Optional: Apply color based on UV index
+        uvDashboardEl.style.color = getUvIndexColor(uvValue); // Use your existing color function
+    }
+    // --- End NEW Updates ---
+
+
+    // --- Existing updates ---
+    const uvEl = document.getElementById('weather-uv'); // Keep this for the other weather screen if used
+    if (uvEl) { uvEl.textContent = appState.weather.uvIndex !== null ? appState.weather.uvIndex : '--'; uvEl.style.color = getUvIndexColor(appState.weather.uvIndex); }
+
+    car360Image.src = appState.custom360Image || default360ImageSrc;
+    startTripFloatingButton.style.display = appState.destinationSet ? 'flex' : 'none';
+}
+
+// Make sure appState includes humidity (it should already if fetchWeatherData is correct)
+// Inside fetchWeatherData, ensure humidity is stored:
+// appState.weather.humidity = data.current.humidity; // Add this line if missing
 
         // --- App Switching and Navigation Logic ---
         const appOrder = ['Dashboard', 'Media', 'Radio', 'Athkar', 'Reciters', 'Weather', 'Map', 'Quran'];
@@ -2836,11 +2974,11 @@ let favoritesM = [];
             floatingMediaButton.style.display = (appName === 'Media') ? 'none' : 'flex';
             floatingKeyboardButton.style.display = (appName === 'Media') ? 'flex' : 'none';
             clearSearchButton.style.display = (appName === 'Media') ? 'flex' : 'none';
-            
+
             if (appName === 'Media') {
                 floatingKeyboardButton.classList.toggle('active-keyboard', !youtubeSearchInput.readOnly);
                 floatingKeyboardButton.classList.toggle('inactive-keyboard', youtubeSearchInput.readOnly);
-                
+
                 // Logic to show the correct view
                 youtubeVideoListView.classList.add('hidden');
                 youtubeSearchResultsView.classList.add('hidden');
@@ -2860,10 +2998,10 @@ let favoritesM = [];
         }
         appButtons.forEach(b => b.addEventListener('click', () => switchApp(b.dataset.app)));
         sidebarIcons.forEach(el => el.classList.add('w-16', 'h-16', 'rounded-2xl', 'flex', 'items-center', 'justify-center', 'transition-all', 'duration-300', 'ease-in-out'));
-        
+
         // --- YouTube/Media Functions (REFACTORED) ---
         function onYouTubeIframeAPIReady() { isYouTubeApiReady = true; }
-        
+
         function createVideoCard(video) {
             const card = document.createElement('div');
             card.className = 'glass-surface glass-surface--svg youtube-video-card navigable grid-item';
@@ -2883,7 +3021,7 @@ let favoritesM = [];
                     progressHTML = `<div class="watched-progress-bar-container"><div class="watched-progress-bar" style="width: ${progressPercent}%"></div></div>`;
                 }
             }
-            
+
             const isSavedD = favoritesD.some(fav => fav.id === video.id);
             const isSavedM = favoritesM.some(fav => fav.id === video.id);
             let bookmarkClass = '';
@@ -3031,7 +3169,7 @@ let favoritesM = [];
             if (interval > 1) return `قبل ${Math.floor(interval)} دقائق`;
             return `قبل ${Math.floor(seconds)} ثوان`;
         }
-        
+
         // --- START: NEW Channel List Functions (JSONBin.io) ---
         async function fetchChannelsList() {
             try {
@@ -3070,65 +3208,65 @@ let favoritesM = [];
         }
 
         // --- ADD THIS NEW FUNCTION ---
-    function incrementChannelClick(channelId) {
-            if (!channelId || !localChannelsCache) return;
-            
-            let channelFound = false;
-            const updatedList = localChannelsCache.map(channel => {
-                if (channel && channel.channelid === channelId) { // التأكد من أن 'channel' موجود
-                    channelFound = true;
-                    const currentClicks = parseInt(channel.clickschannel, 10) || 0; // تحويل آمن إلى رقم
-                    return { ...channel, clickschannel: currentClicks + 1 };
-                }
-                return channel;
-            });
+    function incrementChannelClick(channelId) {
+            if (!channelId || !localChannelsCache) return;
 
-            if (channelFound) {
-                localChannelsCache = updatedList; // تحديث الذاكرة المؤقتة فورًا
-                // إرسال التحديث إلى الخادم في الخلفية
-                updateChannelsList(updatedList).catch(err => {
-                    console.error("Failed to update channel clicks in background:", err);
-                });
-            }
-        }
+            let channelFound = false;
+            const updatedList = localChannelsCache.map(channel => {
+                if (channel && channel.channelid === channelId) { // التأكد من أن 'channel' موجود
+                    channelFound = true;
+                    const currentClicks = parseInt(channel.clickschannel, 10) || 0; // تحويل آمن إلى رقم
+                    return { ...channel, clickschannel: currentClicks + 1 };
+                }
+                return channel;
+            });
 
-        // --- 2. أضف هذه الدالة الجديدة ---
-        // (هذه الدالة تصلح بياناتك القديمة في JSONBin بإضافة clickschannel: 0)
-        async function migrateChannelData() {
-            if (localStorage.getItem('channelMigrationDone')) {
-                return; // تم التنفيذ من قبل
-            }
+            if (channelFound) {
+                localChannelsCache = updatedList; // تحديث الذاكرة المؤقتة فورًا
+                // إرسال التحديث إلى الخادم في الخلفية
+                updateChannelsList(updatedList).catch(err => {
+                    console.error("Failed to update channel clicks in background:", err);
+                });
+            }
+        }
 
-            console.log("Running channel data migration (one time only)...");
-            try {
-                let currentList = await fetchChannelsList(); // جلب القائمة الحالية
-                let needsUpdate = false;
-                
-                const updatedList = currentList.map(channel => {
-                    if (channel && typeof channel === 'object' && channel.channelid) {
-                        // إذا كانت الخاصية غير موجودة
-                        if (typeof channel.clickschannel === 'undefined') {
-                            needsUpdate = true;
-                            return { ...channel, clickschannel: 0 }; // أضفها بقيمة 0
-                        }
-                    }
-                    return channel;
-                });
+        // --- 2. أضف هذه الدالة الجديدة ---
+        // (هذه الدالة تصلح بياناتك القديمة في JSONBin بإضافة clickschannel: 0)
+        async function migrateChannelData() {
+            if (localStorage.getItem('channelMigrationDone')) {
+                return; // تم التنفيذ من قبل
+            }
 
-                if (needsUpdate) {
-                    console.log("Updating channels in JSONBin with default clickschannel: 0...");
-                    await updateChannelsList(updatedList);
-                    localChannelsCache = updatedList; // تحديث الذاكرة المؤقتة
-                    console.log("Migration complete.");
-                } else {
-                    console.log("No channel data migration needed.");
-                }
-                
-                localStorage.setItem('channelMigrationDone', 'true'); // تسجيل أنه تم
-            } catch (error) {
-                console.error("Error during channel data migration:", error);
-            }
-        }
+            console.log("Running channel data migration (one time only)...");
+            try {
+                let currentList = await fetchChannelsList(); // جلب القائمة الحالية
+                let needsUpdate = false;
+
+                const updatedList = currentList.map(channel => {
+                    if (channel && typeof channel === 'object' && channel.channelid) {
+                        // إذا كانت الخاصية غير موجودة
+                        if (typeof channel.clickschannel === 'undefined') {
+                            needsUpdate = true;
+                            return { ...channel, clickschannel: 0 }; // أضفها بقيمة 0
+                        }
+                    }
+                    return channel;
+                });
+
+                if (needsUpdate) {
+                    console.log("Updating channels in JSONBin with default clickschannel: 0...");
+                    await updateChannelsList(updatedList);
+                    localChannelsCache = updatedList; // تحديث الذاكرة المؤقتة
+                    console.log("Migration complete.");
+                } else {
+                    console.log("No channel data migration needed.");
+                }
+
+                localStorage.setItem('channelMigrationDone', 'true'); // تسجيل أنه تم
+            } catch (error) {
+                console.error("Error during channel data migration:", error);
+            }
+        }
 
         function showAddChannelPrompt() {
             const existingPrompt = document.getElementById('add-channel-prompt');
@@ -3170,7 +3308,7 @@ let favoritesM = [];
                     handleSearchForChannel();
                 }
             });
-            
+
             const escapeHandler = (e) => {
                 if (e.key === 'Escape') {
                     closePrompt();
@@ -3260,116 +3398,116 @@ let favoritesM = [];
             updateNavigableElements();
         }
 // --- REPLACE THIS FUNCTION ---
-        async function handleAddChannelFromModal(channelId, channelTitle, channelThumbnail) {
-            const modalButton = document.querySelector(`.add-channel-from-modal-btn[data-channel-id="${channelId}"]`);
-            if (modalButton) {
-                modalButton.disabled = true;
-                modalButton.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 text-yellow-400 animate-spin"></i>`;
-                lucide.createIcons();
-            }
+        async function handleAddChannelFromModal(channelId, channelTitle, channelThumbnail) {
+            const modalButton = document.querySelector(`.add-channel-from-modal-btn[data-channel-id="${channelId}"]`);
+            if (modalButton) {
+                modalButton.disabled = true;
+                modalButton.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 text-yellow-400 animate-spin"></i>`;
+                lucide.createIcons();
+            }
 
-            try {
-                if (localChannelsCache.some(c => c.channelid === channelId)) {
-                     showMessageBox("هذه القناة موجودة بالفعل في قائمتك.");
-                     if (modalButton) {
-                         modalButton.innerHTML = `<i data-lucide="check" class="w-5 h-5 text-white"></i>`;
-                         modalButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-                         modalButton.classList.add('bg-green-600');
-                         lucide.createIcons();
-                     }
-                     return;
-                }
+            try {
+                if (localChannelsCache.some(c => c.channelid === channelId)) {
+                     showMessageBox("هذه القناة موجودة بالفعل في قائمتك.");
+                     if (modalButton) {
+                         modalButton.innerHTML = `<i data-lucide="check" class="w-5 h-5 text-white"></i>`;
+                         modalButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                         modalButton.classList.add('bg-green-600');
+                         lucide.createIcons();
+                     }
+                     return;
+                }
 
-                // [FIX] إضافة خاصية clickschannel: 0
-                const newChannel = { 
-                    name: channelTitle, 
-                    image: channelThumbnail, 
-                    channelid: channelId, 
-                    channeltitle: channelTitle,
-                    clickschannel: 0 
-                };
-                
-                const updatedList = [...localChannelsCache, newChannel];
-                const success = await updateChannelsList(updatedList);
+                // [FIX] إضافة خاصية clickschannel: 0
+                const newChannel = { 
+                    name: channelTitle, 
+                    image: channelThumbnail, 
+                    channelid: channelId, 
+                    channeltitle: channelTitle,
+                    clickschannel: 0 
+                };
 
-                if (success) {
-                    showMessageBox(`تمت إضافة قناة "${newChannel.name}" بنجاح.`);
-                    if (modalButton) {
-                         modalButton.innerHTML = `<i data-lucide="check" class="w-5 h-5 text-white"></i>`;
-                         modalButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-                         modalButton.classList.add('bg-green-600');
-                         lucide.createIcons();
-                    }
-                    // ... (الكود الخاص بك لتحديث الواجهة) ...
-                    const suggestionsContent = document.getElementById('suggestions-content');
-                    if(suggestionsContent) {
-                        const activeTabId = document.querySelector('#screen-Media .tab-button.active')?.id;
-                        suggestionsContent.innerHTML = '';
-                        await populateYoutubeSuggestions();
-                        if (activeTabId) { document.getElementById(activeTabId)?.click(); } 
-                        else { document.getElementById('tab-channels')?.click(); }
-                    }
-                }
-            } catch (error) {
-                console.error("Error adding channel from modal:", error);
-                showMessageBox("حدث خطأ أثناء إضافة القناة.");
-                if (modalButton) {
-                     modalButton.disabled = false;
-                     modalButton.innerHTML = `<i data-lucide="plus" class="w-5 h-5 text-white"></i>`;
-                     lucide.createIcons();
-                }
-            }
-        }
+                const updatedList = [...localChannelsCache, newChannel];
+                const success = await updateChannelsList(updatedList);
+
+                if (success) {
+                    showMessageBox(`تمت إضافة قناة "${newChannel.name}" بنجاح.`);
+                    if (modalButton) {
+                         modalButton.innerHTML = `<i data-lucide="check" class="w-5 h-5 text-white"></i>`;
+                         modalButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                         modalButton.classList.add('bg-green-600');
+                         lucide.createIcons();
+                    }
+                    // ... (الكود الخاص بك لتحديث الواجهة) ...
+                    const suggestionsContent = document.getElementById('suggestions-content');
+                    if(suggestionsContent) {
+                        const activeTabId = document.querySelector('#screen-Media .tab-button.active')?.id;
+                        suggestionsContent.innerHTML = '';
+                        await populateYoutubeSuggestions();
+                        if (activeTabId) { document.getElementById(activeTabId)?.click(); } 
+                        else { document.getElementById('tab-channels')?.click(); }
+                    }
+                }
+            } catch (error) {
+                console.error("Error adding channel from modal:", error);
+                showMessageBox("حدث خطأ أثناء إضافة القناة.");
+                if (modalButton) {
+                     modalButton.disabled = false;
+                     modalButton.innerHTML = `<i data-lucide="plus" class="w-5 h-5 text-white"></i>`;
+                     lucide.createIcons();
+                }
+            }
+        }
 
        async function addChannelFromSearchResult(channelId, channelTitle, channelThumbnail, buttonElement) {
-            if (!channelId || !channelTitle) {
-                showMessageBox("معلومات القناة غير كاملة.");
-                return;
-            }
+            if (!channelId || !channelTitle) {
+                showMessageBox("معلومات القناة غير كاملة.");
+                return;
+            }
 
-            if (buttonElement) {
-                buttonElement.disabled = true;
-                buttonElement.innerHTML = `<i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>`;
-                lucide.createIcons();
-            }
+            if (buttonElement) {
+                buttonElement.disabled = true;
+                buttonElement.innerHTML = `<i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>`;
+                lucide.createIcons();
+            }
 
-            try {
-                if (localChannelsCache.some(c => c.channelid === channelId)) {
-                     showMessageBox("هذه القناة موجودة بالفعل في قائمتك.");
-                     return;
-                }
+            try {
+                if (localChannelsCache.some(c => c.channelid === channelId)) {
+                     showMessageBox("هذه القناة موجودة بالفعل في قائمتك.");
+                     return;
+                }
 
-                const newChannel = {
-                    name: channelTitle,
-                    image: channelThumbnail,
-                    channelid: channelId,
-                    channeltitle: channelTitle,
-                    clickschannel: 0 // [تعديل] إضافة عدّاد النقرات
-                };
+                const newChannel = {
+                    name: channelTitle,
+                    image: channelThumbnail,
+                    channelid: channelId,
+                    channeltitle: channelTitle,
+                    clickschannel: 0 // [تعديل] إضافة عدّاد النقرات
+                };
 
-                const updatedList = [...localChannelsCache, newChannel];
-                const success = await updateChannelsList(updatedList);
+                const updatedList = [...localChannelsCache, newChannel];
+                const success = await updateChannelsList(updatedList);
 
-                if (success) {
-                    showMessageBox(`تمت إضافة قناة "${newChannel.name}" بنجاح.`);
-                } else {
-                    if (buttonElement) {
-                        buttonElement.disabled = false;
-                        buttonElement.innerHTML = `<i data-lucide="plus-circle" class="w-5 h-5 text-green-400"></i>`;
-                        lucide.createIcons();
-                    }
-                }
+                if (success) {
+                    showMessageBox(`تمت إضافة قناة "${newChannel.name}" بنجاح.`);
+                } else {
+                    if (buttonElement) {
+                        buttonElement.disabled = false;
+                        buttonElement.innerHTML = `<i data-lucide="plus-circle" class="w-5 h-5 text-green-400"></i>`;
+                        lucide.createIcons();
+                    }
+                }
 
-            } catch (error) {
-                console.error("Error adding channel from search result:", error);
-                showMessageBox("حدث خطأ أثناء إضافة القناة.");
-                if (buttonElement) {
-                    buttonElement.disabled = false;
-                    buttonElement.innerHTML = `<i data-lucide="plus-circle" class="w-5 h-5 text-green-400"></i>`;
-                    lucide.createIcons();
-                }
-            }
-        }
+            } catch (error) {
+                console.error("Error adding channel from search result:", error);
+                showMessageBox("حدث خطأ أثناء إضافة القناة.");
+                if (buttonElement) {
+                    buttonElement.disabled = false;
+                    buttonElement.innerHTML = `<i data-lucide="plus-circle" class="w-5 h-5 text-green-400"></i>`;
+                    lucide.createIcons();
+                }
+            }
+        }
 
         async function removeChannelFromList(channelId, channelName) {
             if (!channelId) return;
@@ -3378,7 +3516,7 @@ let favoritesM = [];
             try {
                 const updatedList = localChannelsCache.filter(c => c.channelid !== channelId);
                 const success = await updateChannelsList(updatedList);
-                
+
                 if (success) {
                     showMessageBox(`تمت إزالة قناة "${channelName}" بنجاح.`);
                     // Refresh the entire suggestions view to reflect the deletion
@@ -3397,7 +3535,7 @@ let favoritesM = [];
             }
         }
         // --- END: NEW Channel List Functions ---
-        
+
         async function searchYouTubeVideos(query) {
             try {
                 const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&key=${YOUTUBE_API_KEY}&maxResults=50`);
@@ -3414,7 +3552,7 @@ let favoritesM = [];
                     if (videoDetails === null) {
                         throw new Error("Failed to fetch details for search results.");
                     }
-                    
+
                     // NEW: Fetch channel thumbnails
                     const channelIds = [...new Set(videoDetails.map(video => video.snippet.channelId))];
                     const channelThumbnails = await fetchChannelsDetails(channelIds);
@@ -3443,7 +3581,7 @@ let favoritesM = [];
                         };
                         searchResultsContainer.appendChild(createVideoCard(videoData));
                     });
-                    
+
                     youtubeSuggestionsDiv.style.display = 'none';
                     youtubeVideoListView.classList.add('hidden');
                     youtubeSearchResultsView.classList.remove('hidden');
@@ -3462,7 +3600,7 @@ let favoritesM = [];
                 showMessageBox('حدث خطأ أثناء البحث في يوتيوب. قد تكون هناك مشكلة في الاتصال أو مفتاح API.');
             }
         }
-        
+
         async function searchVideosByChannel(channelId, channelTitle) {
             if (!channelId) return;
 
@@ -3506,7 +3644,7 @@ let favoritesM = [];
                     videoDetails.forEach(video => {
                         const isLive = video.snippet.liveBroadcastContent === 'live';
                         const durationString = video.contentDetails.duration;
-                        
+
                         if (!isLive) {
                             const durationSeconds = durationString.match(/\d+/g)?.map(Number).reduce((acc, time, i, arr) => acc + time * (arr.length === 3 ? [3600, 60, 1][i] : (arr.length === 2 ? [60, 1][i] : 1)), 0) || 0;
                             if (durationSeconds <= 61) return;
@@ -3547,7 +3685,7 @@ let favoritesM = [];
                 searchResultsContainer.innerHTML = `<h2 class="text-3xl font-bold mb-4 text-center w-full text-white col-span-full text-red-400">حدث خطأ أثناء تحميل فيديوهات القناة. قد تكون هناك مشكلة في الاتصال أو مفتاح API.</h2>`;
             }
         }
-        
+
         async function showVideoPopup(videoId, startOverride = null) {
             const start = startOverride !== null ? startOverride : (() => {
                 const history = getWatchedHistory();
@@ -3555,7 +3693,7 @@ let favoritesM = [];
                 // إذا كان المستخدم قد شاهد أكثر من 5 ثوانٍ، استأنف التشغيل، وإلا ابدأ من الصفر
                 return (watchedInfo && watchedInfo.progress > 5) ? watchedInfo.progress : 0;
             })();
-    
+
             // UPDATED: Pause background animations and update control button icon
             document.body.classList.add('animation-paused');
             const playIcon = pauseAnimationButton.querySelector('[data-lucide="play"]');
@@ -3669,7 +3807,7 @@ async function hideVideoPopup() {
             if (videoId) {
                 await updateVideoProgress(videoId, currentTime, duration);
             }
-            
+
             // 4. Handle all other UI updates
             document.body.classList.remove('animation-paused');
             const playIcon = pauseAnimationButton.querySelector('[data-lucide="play"]');
@@ -3678,7 +3816,7 @@ async function hideVideoPopup() {
                 playIcon.classList.add('hidden');
                 pauseIcon.classList.remove('hidden');
             }
-            
+
             videoPopupContainer.classList.remove('active');
             videoPopupContainer.style.display = 'none';
             floatingMinimizedVideoButton.style.display = 'none';
@@ -3691,20 +3829,20 @@ async function hideVideoPopup() {
                 bookmarkBtn.remove();
             }
             // --- END: NEW CLEANUP LOGIC ---
-            
+
             const screen = document.querySelector('.app-screen.active');
             if (screen) {
                 const item = screen.querySelector('.grid-item');
                 if (item) setFocus(item);
             }
         }
-        
+
         // NEW: Functions to minimize and restore the video popup
         function minimizeVideoPopup() {
             if (!videoPopupContainer.classList.contains('active')) return;
             videoPopupContainer.style.display = 'none';
             floatingMinimizedVideoButton.style.display = 'flex';
-            
+
             const videoData = popupPlayer.getVideoData();
             const titleElement = floatingMinimizedVideoButton.querySelector('.minimized-title');
             if(titleElement) titleElement.textContent = videoData.title || '...';
@@ -3760,7 +3898,7 @@ async function hideVideoPopup() {
         }
 
         // This function is duplicated, removing one instance.
-        
+
         // NEW: Function to handle next/previous navigation buttons
         function updateNavigationButtons(currentQuery) {
             // Reset and hide buttons by default
@@ -3862,7 +4000,21 @@ async function hideVideoPopup() {
 {"name":"محمد ايوب","image":"https://dmusera.netlify.app/512px-Muhammad_Ayyub.webp"},{"name":"علي جابر","image":"https://dmusera.netlify.app/ali-jaber.webp"},{"name":"محمد الغزالي","image":"https://imgs.search.brave.com/QWUpKrFCLEvXilcNhgSRM6xKPjTlBtGA-BAsH9sN-Tc/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9hci5p/c2xhbXdheS5uZXQv/dXBsb2Fkcy9hdXRo/b3JzLzUwNjEuanBn"},{"name":"مشاري العفاسي","image":"https://dmusera.netlify.app/512px-%D0%9C%D0%B8%D1%88%D0%B0%D1%80%D0%B8_%D0%A0%D0%B0%D1%88%D0%B8%D0%B4.webp"},{"name":"عبدالله القرافي","image":"https://yt3.googleusercontent.com/mHTg3RIX-a3NAR22lAnOvSq3-U_KBcL_Ax4FTNirc3flsb5OU8RWksKu6X8Ush9JhO0EOxxAwQY=s160-c-k-c0x00ffffff-no-rj"},{"name":"اسلام صبحي","image":"https://imgs.search.brave.com/Sq4qNywnl1HmDjSuxWTshlQ8yV9fplcVnUoiErGC-38/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS51bml0ZWRtdXNs/aW13b3JsZC5jb20v/aW1nLzIzLzEyLzIz/LzEyNDk1LmpwZw"},{"name":"احمد النفيس","image":"https://dmusera.netlify.app/ahmednafes.jpg"},{"name":"ياسر الدوسري","image":"https://dmusera.netlify.app/Yasser_Al-Dosari.jpg"},
 {"name":"ربط الآيات","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDEzYTUgNSAwIDAgMCA3LjU0LjU0bD MtM2E1IDUgMCAwIDAtNy4wNy03LjA3bC0xLjcyIDEuNzIiLz48cGF0aCBkPSJNMTQgMTFhNSA1IDAgMCAwLTcuNTQtLjU0bC0zIDNhNSA1IDAgMCAwIDcuMDcgNy4wN2wxLjcyLTEuNzIiLz48L3N2Zz4="}, {"name":"ربط الآيات","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDEzYTUgNSAwIDAgMCA3LjU0LjU0bDMtM2E1IDUgMCAwIDAtNy4wNy03LjA3bC0xLjcyIDEuNzIiLz48cGF0aCBkPSJNMTQgMTFhNSA1IDAgMCAwLTcuNTQtLjU0bC0zIDNhNSA1IDAgMCAwIDcuMDcgNy4wN2wxLjcyLTEuNzIiLz48L3N2Zz4="}
         ];
-         
+          const youtubeReaderSuggestions2 = [
+            {"name":"الرقية", "image":"https://imgs.search.brave.com/afZfY6pdMu-EfuTtrt2hNKEW9TsUAnPOX2QnIlIFi1c/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/YXJhYnNzdG9jay5j/b20vdXBsb2Fkcy92/ZWN0b3JzLzIzMDQx/L3J1cWF5YS1hbi1h/cmFiaWMtbmFtZS1m/b3ItcHJldmlldy0y/MzA0MS53ZWJw", "channelid": "", "channeltitle": ""},
+            {"name":"محفوف -BYMAHFOOF", "image":"https://yt3.googleusercontent.com/obc8dOfYmoZe50tvHCJNZgbLAnJAKb-YPSUnguahWqJ-Jm12At_lV8CjfPPuhAsM9i2K26QK=s160-c-k-c0x00ffffff-no-rj", "channelid": "UCABzsyFLLA-fKu05lR-49RA", "channeltitle": "محفوف"},
+            {"name":"تلاوات ياسر الدوسري", "image":"https://yt3.googleusercontent.com/ytc/AIdro_k1n9v-3Z3x-v6Q2wY5kX1c8z-G4xQ6X1X5Xw=s176-c-k-c0x00ffffff-no-rj-mo", "channelid": "UClncV9OLPto_MinRzGfjr2g", "channeltitle": "تلاوات ياسر الدوسري إمام الحرم المكي"},
+            {"name":"مزامير الفرقان - ياسر الدوسري", "image":"https://yt3.googleusercontent.com/ATOVX4RIsbt20_VS0Ly0bNkm5NPCoseg-S28jEEFsMBhHxBRUGXWW1dFOSuKG5p1_Sx8C8fMqFs=s160-c-k-c0x00ffffff-no-rj", "channelid": "UCCoB7Hf8gjQzpAyzhvx7Ktg", "channeltitle": "مزامير الفرقان - ياسر الدوسري"},
+            {"name":"عبدالله الشحري", "image":"https://yt3.ggpht.com/KZblM_WDIfUaDyB0wmNZOfVDogOhHThprmFyzLL3AkvnLcKqFmhoJ00nsKHKCXizM94hGy1DSdo=s176-c-k-c0x00ffffff-no-rj-mo", "channelid": "UCyXm7QL-vmBIZcYCoPfmXgw", "channeltitle": "عبدالله الشحري"},
+            {"name":"ترتيل-@TarteelArabic", "image":"https://yt3.googleusercontent.com/pUYEmNtUgk7zmyKXVwzTyYCfli0AavVRgAomZITpyh3i6HT0mk35CCJv32Ra79-gKk276qSeYfw=s900-c-k-c0x00ffffff-no-rj", "channelid": "UCHVX6sawuLNAuRbJdfruXVA", "channeltitle": "ترتيل"},
+            {"name":"قناة اخضر", "image":"https://yt3.ggpht.com/CNJHtl9UOLJwzpGI6_8meaFK6-nWkaXABqu4cXfx2oZnTZmvYgHANXoOY-IpGlNk2U9I5nbIX9I=s176-c-k-c0x00ffffff-no-rj-mo", "channelid": "UCtUor2SqesPS3b_SMFtLT_w", "channeltitle": "أخضر"},
+            {"name":"اذاعة مختلف", "image":"https://yt3.ggpht.com/73c3-iw_Lubnz8tI6uxN17s1p8kOvwwsF5tatPe3JYAw_SRKeJfjprdH2wxHGPz3UHBM9NDxzs0=s176-c-k-c0x00ffffff-no-rj-mo", "channelid": "UC8vdjzu_0QMQlG9qNT5D_AQ", "channeltitle": "إذاعة مختلف"},
+            {"name":"Qtratel", "image":"https://yt3.googleusercontent.com/4op5oT580d20t3w4i4dWjZmfT1YkVSDok-MVlx-c1--EaYt-wZuw1tebFOc-iQ_XRMfUIO0gYA=s160-c-k-c0x00ffffff-no-rj", "channelid": "", "channeltitle": ""},
+            {"name":"Mohamed abubakr", "image":"https://yt3.ggpht.com/yp7xPPh1JotsxKkOMos1KWumw7UFFibydMnoPzhP100gsUGWnDXRTAhdV88gd6coAPkXQ5n1Rw=s176-c-k-c0x00ffffff-no-rj-mo", "channelid": "UC9i6gCxiph_aBj68Xs9Iqng", "channeltitle": "Mohamed Aboubakr"},
+            {"name":"بودكاست", "image":"https://yt3.googleusercontent.com/0Vs32Zwp0qjXovZuV0kCCxCkKkCdTpAn_9_tky7mxQUM69EIrWK_oJawKy_fKpzL1KZN0LG7=s160-c-k-c0x00ffffff-no-rj", "channelid": "", "channeltitle": ""},
+            {"name":"ربط الآيات","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwIDEzYTUgNSAwIDAgMCA3LjU0LjU0bDMtM2E1IDUgMCAwIDAtNy4wNy03LjA3bC0xLjcyIDEuNzIiLz48cGF0aCBkPSJNMTQgMTFhNSA1IDAgMCAwLTcuNTQtLjU0bC0zIDNhNSA1IDAgMCAwIDcuMDcgNy4wN2wxLjcyLTEuNzIiLz48L3N2Zz4=", "channelid": "", "channeltitle": ""}
+        ];
+
         const youtubeSurahSuggestions = ["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","الانشقاق","المطففين","البروج","الطارق","الأعلى"];
         const surahToJuzMap = {"الفاتحة":1,"البقرة":1,"آل عمران":3,"النساء":4,"المائدة":6,"الأنعام":7,"الأعراف":8,"الأنفال":9,"التوبة":10,"يونس":11,"هود":11,"يوسف":12,"الرعد":13,"إبراهيم":13,"الحجر":14,"النحل":14,"الإسراء":15,"الكهف":15,"مريم":16,"طه":16,"الأنبياء":17,"الحج":17,"المؤمنون":18,"النور":18,"الفرقان":18,"الشعراء":19,"النمل":19,"القصص":20,"العنكبوت":20,"الروم":21,"لقمان":21,"السجدة":21,"الأحزاب":21,"سبأ":22,"فاطر":22,"يس":22,"الصافات":23,"ص":23,"الزمر":23,"غافر":24,"فصلت":24,"الشورى":25,"الزخرف":25,"الدخان":25,"الجاثية":25,"الأحقاف":26,"محمد":26,"الفتح":26,"الحجرات":26,"ق":26,"الذاريات":27,"الطور":27,"النجم":27,"القمر":27,"الرحمن":27,"الواقعة":27,"الحديد":27,"المجادلة":28,"الحشر":28,"الممتحنة":28,"الصف":28,"الجمعة":28,"المنافقون":28,"التغابن":28,"الطلاق":28,"التحريم":28,"الملك":29,"القلم":29,"الحاقة":29,"المعارج":29,"نوح":29,"الجن":29,"المزمل":29,"المدثر":29,"القيامة":29,"الإنسان":29,"المرسلات":29,"النبأ":30,"النازعات":30,"عبس":30,"التكوير":30,"الانفطار":30,"الانشقاق":30,"المطففين":30,"البروج":30,"الطارق":30,"الأعلى":30};
         const juzColors =  [
@@ -3921,13 +4073,13 @@ async function hideVideoPopup() {
                 suggestionsContent.innerHTML = ''; // Clear old suggestions
                 suggestionsContent.classList.remove('hidden'); //  تأكد من إظهاره مجدداً
             }
-            
+
             // إصلاح: إزالة قسم السور بشكل صريح إذا كان موجوداً
             const existingSurahSection = document.getElementById('youtube-surah-section');
             if (existingSurahSection) {
                 existingSurahSection.remove();
             }
-            
+
             youtubeSuggestionsDiv.style.display = 'flex';
             selectedReaderName = '';
             youtubeSearchInput.value = '';
@@ -3941,7 +4093,7 @@ async function hideVideoPopup() {
             displayLastWatchedVideo(); // This will populate #last-watched-container
             populateYoutubeSuggestions(); // This will populate #suggestions-content
         }
-        
+
         function handleReaderOrToolClick(selection, tabContainer, tabsContentContainer) {
             if (selection === "الكلمات الصعبة في") {
                 selectedReaderName = ''; // Clear reader name
@@ -3966,9 +4118,9 @@ async function hideVideoPopup() {
 
 
 // --- REPLACE THIS FUNCTION AGAIN ---
-       // --- REPLACE THIS FUNCTION AGAIN ---
-       // --- REPLACE THIS FUNCTION AGAIN ---
-   async function populateYoutubeSuggestions() {
+       // --- REPLACE THIS FUNCTION AGAIN ---
+       // --- REPLACE THIS FUNCTION AGAIN ---
+   async function populateYoutubeSuggestions() {
     const suggestionsContent = document.getElementById('suggestions-content');
     if (!suggestionsContent) {
         console.error("suggestions-content element not found!");
@@ -4178,7 +4330,6 @@ async function hideVideoPopup() {
         lucide.createIcons();
         console.log("[Debug] Finished populateYoutubeSuggestions.");
         updateNavigableElements();
-
     } catch (error) {
         console.error("Error during populateYoutubeSuggestions:", error);
         suggestionsContent.innerHTML = '<p class="text-red-500 text-center">Error loading suggestions.</p>';
@@ -4227,12 +4378,12 @@ async function hideVideoPopup() {
             const surahContent = document.createElement('div');
             surahContent.id = 'tab-content-surah';
             surahContent.className = 'tab-content h-full';
-            
+
               const scrollableSurahContainer = document.createElement('div');
             scrollableSurahContainer.className = 'surah-buttons-scrollable h-full';
             const surahButtonsContainer = document.createElement('div');
             surahButtonsContainer.className = 'flex flex-wrap justify-center gap-2 w-full';
-            
+
             youtubeSurahSuggestions.forEach(name => {
                 const button = document.createElement('button');
                 button.className = 'youtube-suggestion-button navigable grid-item';
@@ -4324,20 +4475,20 @@ async function hideVideoPopup() {
             currentPlayingPlaylistId = ''; 
             backToPlaylistsBottomButton.style.display = 'none'; 
             backToPlaylistsBottomButtonSearch.style.display = 'none'; 
-            
+
             // إصلاح: إزالة قسم السور بشكل صريح عند العودة
             const existingSurahSection = document.getElementById('youtube-surah-section');
             if (existingSurahSection) {
                 existingSurahSection.remove();
             }
-            
+
             resetYoutubeSearchUI(); 
             setTimeout(() => { const firstReader = youtubeSuggestionsDiv.querySelector('.grid-item'); if (firstReader) setFocus(firstReader); }, 100); 
         }
 
         // --- Google Map and Geolocation (REFACTORED FOR RELIABILITY) ---
         let mapsInitialized = false;
-        
+
         function showGeolocationErrorOnMap(message) {
             const overlay = document.getElementById('geolocation-error-overlay');
             const mapControls = document.querySelector('#dashboard-google-map ~ .absolute'); 
@@ -4375,7 +4526,7 @@ async function hideVideoPopup() {
 
             menu.style.top = `${rect.bottom + 5}px`;
             menu.style.left = `${rect.left}px`;
-            
+
             menu.innerHTML = `
                 <button data-type="D" class="navigable grid-item" tabindex="0">
                      <i data-lucide="folder-plus" class="w-4 h-4 text-blue-400"></i> CAR LIST
@@ -4425,7 +4576,7 @@ async function hideVideoPopup() {
 
         async function updateFavorites(type, newFavoritesList) {
             const binId = type === 'D' ? JSONBIN_BIN_ID_FAV_D : JSONBIN_BIN_ID_FAV_M;
-            
+
             // If the list is empty, send a placeholder object to avoid API errors.
             const dataToSend = (Array.isArray(newFavoritesList) && newFavoritesList.length === 0)
                 ? { _init: true } 
@@ -4450,53 +4601,53 @@ async function hideVideoPopup() {
         }
 
         async function saveVideoToFavorites(video, type) {
-            const favoritesList = type === 'D' ? favoritesD : favoritesM;
-            if (favoritesList.some(fav => fav.id === video.id)) {
-                showMessageBox(`الفيديو موجود بالفعل في المفضلة ${type}`);
-                return;
-            }
-            const history = getWatchedHistory();
-            const watchedInfo = history[video.id];
-            const progress = (watchedInfo && watchedInfo.progress > 0) ? watchedInfo.progress : 0;
+            const favoritesList = type === 'D' ? favoritesD : favoritesM;
+            if (favoritesList.some(fav => fav.id === video.id)) {
+                showMessageBox(`الفيديو موجود بالفعل في المفضلة ${type}`);
+                return;
+            }
+            const history = getWatchedHistory();
+            const watchedInfo = history[video.id];
+            const progress = (watchedInfo && watchedInfo.progress > 0) ? watchedInfo.progress : 0;
 
-            const videoToSave = {
-                id: video.id,
-                title: video.title,
-                thumbnail: video.thumbnail,
-                channelTitle: video.channelTitle,
-                channelId: video.channelId,
-                duration: video.duration,
-                progress: progress
-            };
+            const videoToSave = {
+                id: video.id,
+                title: video.title,
+                thumbnail: video.thumbnail,
+                channelTitle: video.channelTitle,
+                channelId: video.channelId,
+                duration: video.duration,
+                progress: progress
+            };
 
-            // [تعديل] إضافة الفيديو الجديد في بداية القائمة (الأحدث أولاً)
-            const updatedList = [videoToSave, ...favoritesList];
-            
-            const success = await updateFavorites(type, updatedList);
+            // [تعديل] إضافة الفيديو الجديد في بداية القائمة (الأحدث أولاً)
+            const updatedList = [videoToSave, ...favoritesList];
 
-            if (success) {
-                if (type === 'D') favoritesD = updatedList; else favoritesM = updatedList;
-                showMessageBox(`تم حفظ الفيديو في المفضلة ${type}`);
-                
-                // تحديث زر الحفظ في الكارت
-                const bookmarkBtn = document.querySelector(`.bookmark-button[data-video-id="${video.id}"]`);
-                if(bookmarkBtn) {
-                    bookmarkBtn.classList.remove('saved-d', 'saved-m', 'saved-both');
-                    if (favoritesD.some(fav => fav.id === video.id) && favoritesM.some(fav => fav.id === video.id)) bookmarkBtn.classList.add('saved-both');
-                    else if (favoritesD.some(fav => fav.id === video.id)) bookmarkBtn.classList.add('saved-d');
-                    else if (favoritesM.some(fav => fav.id === video.id)) bookmarkBtn.classList.add('saved-m');
-                }
+            const success = await updateFavorites(type, updatedList);
 
-                // [إضافة] تحديث زر الحفظ في نافذة الفيديو المنبثقة إذا كانت مفتوحة
-                const popupBookmarkBtn = document.getElementById('video-popup-bookmark-button');
-                if (popupBookmarkBtn && currentPlayingVideoId === video.id) {
-                     popupBookmarkBtn.classList.remove('saved-d', 'saved-m', 'saved-both');
-                    if (favoritesD.some(fav => fav.id === video.id) && favoritesM.some(fav => fav.id === video.id)) popupBookmarkBtn.classList.add('saved-both');
-                    else if (favoritesD.some(fav => fav.id === video.id)) popupBookmarkBtn.classList.add('saved-d');
-                    else if (favoritesM.some(fav => fav.id === video.id)) popupBookmarkBtn.classList.add('saved-m');
-                }
-            }
-        }
+            if (success) {
+                if (type === 'D') favoritesD = updatedList; else favoritesM = updatedList;
+                showMessageBox(`تم حفظ الفيديو في المفضلة ${type}`);
+
+                // تحديث زر الحفظ في الكارت
+                const bookmarkBtn = document.querySelector(`.bookmark-button[data-video-id="${video.id}"]`);
+                if(bookmarkBtn) {
+                    bookmarkBtn.classList.remove('saved-d', 'saved-m', 'saved-both');
+                    if (favoritesD.some(fav => fav.id === video.id) && favoritesM.some(fav => fav.id === video.id)) bookmarkBtn.classList.add('saved-both');
+                    else if (favoritesD.some(fav => fav.id === video.id)) bookmarkBtn.classList.add('saved-d');
+                    else if (favoritesM.some(fav => fav.id === video.id)) bookmarkBtn.classList.add('saved-m');
+                }
+
+                // [إضافة] تحديث زر الحفظ في نافذة الفيديو المنبثقة إذا كانت مفتوحة
+                const popupBookmarkBtn = document.getElementById('video-popup-bookmark-button');
+                if (popupBookmarkBtn && currentPlayingVideoId === video.id) {
+                     popupBookmarkBtn.classList.remove('saved-d', 'saved-m', 'saved-both');
+                    if (favoritesD.some(fav => fav.id === video.id) && favoritesM.some(fav => fav.id === video.id)) popupBookmarkBtn.classList.add('saved-both');
+                    else if (favoritesD.some(fav => fav.id === video.id)) popupBookmarkBtn.classList.add('saved-d');
+                    else if (favoritesM.some(fav => fav.id === video.id)) popupBookmarkBtn.classList.add('saved-m');
+                }
+            }
+        }
 
         async function removeVideoFromFavorites(videoId, type) {
             const favoritesList = type === 'D' ? favoritesD : favoritesM;
@@ -4694,7 +4845,7 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
             return R * c * 1000; // in meters
         }
-        
+
         // NEW: Helper function to convert bearing to direction
         function bearingToDirection(bearing) {
             if (typeof bearing !== 'number' || isNaN(bearing)) return '--';
@@ -4745,7 +4896,7 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
                         if (overlay) overlay.classList.add('hidden');
                         const mapControls = document.querySelector('#dashboard-google-map ~ .absolute');
                         if (mapControls) mapControls.style.display = 'flex';
-                        
+
                         updateGoogleMapLocation(pos); 
                         appState.hasShownGeolocationError = false; 
 
@@ -4784,7 +4935,7 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
                 ); 
             } 
         }
-        
+
         async function calculateAndDisplayRouteTo(destinationCoords) {
             if (!appState.currentLocation) {
                 showMessageBox('لم يتم تحديد موقعك الحالي بعد. يرجى الانتظار أو تحديث الموقع.');
@@ -4794,7 +4945,7 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
                 showMessageBox('خدمة التوجيهات غير جاهزة.');
                 return;
             }
-            
+
             const request = {
                 origin: appState.currentLocation,
                 destination: destinationCoords,
@@ -4806,7 +4957,7 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
                 if (response.status === 'OK') {
                     directionsRenderer.setDirections(response);
                     const route = response.routes[0].legs[0];
-                   
+
                     showMessageBox(`الطريق إلى وجهتك: ${route.distance.text}, الوقت المقدر: ${route.duration.text}`);
                 } else {
                     showMessageBox('تعذر العثور على اتجاهات: ' + response.status);
@@ -4825,14 +4976,14 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
                 const res = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=${WEATHER_API_KEY}&q=${locationQuery}&days=2&aqi=yes&alerts=no&lang=ar`);
                 if (!res.ok) throw new Error(`خطأ HTTP! الحالة: ${res.status}`);
                 const data = await res.json();
-                
+
                 // Update main state for Salalah
                 appState.weather.temperature = data.current.temp_c;
                 appState.weather.description = data.current.condition.text;
                 appState.weather.uvIndex = data.current.uv;
                 appState.weather.iconUrl = `https:${data.current.condition.icon}`;
                 appState.weather.location = `${data.location.name}, ${data.location.country}`;
-                
+
                 // --- NEW: Handle hourly forecast ---
                 const hourlyData = [...data.forecast.forecastday[0].hour, ...data.forecast.forecastday[1]?.hour || []];
                 const now = new Date();
@@ -4844,14 +4995,14 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
                 const upcomingHours = hourlyData.filter(h => new Date(h.time_epoch * 1000) > now).slice(0, 6);
                 const forecastToRender = [currentHourData, ...upcomingHours];
                 renderHourlyForecast(forecastToRender);
-                
+
                 // --- NEW: Fetch other locations ---
                 renderAdvancedWeatherCards(data);
 
                 updateUI(); // Update other UI elements
             } catch (err) {
                 console.error('Error fetching weather data:', err);
-            
+
             }
         }
 
@@ -4922,7 +5073,7 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
 
             // Get the next 7 hours to have enough data for interpolation
             const upcomingRawHours = hourlyData.filter(h => new Date(h.time_epoch * 1000) > now).slice(0, 7);
-            
+
             const interpolatedSlots = [];
             // Create slots for every 30 mins over the next 6 hours
             if (upcomingRawHours.length > 1) {
@@ -4994,7 +5145,7 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
                 </div>
             `;
             topCardsContainer.appendChild(bestTimeCard);
-            
+
             // NOW, create and append the horizontal card LAST to the main container
             const currentConditions = data.current;
             const aqi = currentConditions.air_quality ? currentConditions.air_quality['us-epa-index'] : null;
@@ -5079,7 +5230,7 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
             if (humidityValue < 75) return 'text-yellow-400';
             return 'text-orange-400';
         };
-        
+
         const getUvTextColor = (uv) => {
             const uvValue = Math.round(uv);
             if (uvValue <= 2) return 'text-green-400';
@@ -5133,7 +5284,7 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
                 setTimeout(() => searchYouTubeVideos('الرقية الشرعية النفيس'), 100);
                 switchApp('Media');
                 });
-                
+
                 // Adhkar Button
                 const adhkarButton = document.createElement('button');
                 adhkarButton.id = 'adhkar-tv-button';
@@ -5144,7 +5295,7 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
                     setTimeout(() => searchYouTubeVideos('أذكار الصباح والمساء'), 100);
                      switchApp('Media');
                 });
-                
+
                 // Add buttons to their container, then add the container to the main prayer times area
                 buttonContainer.appendChild(ruqyahButton);
                 buttonContainer.appendChild(adhkarButton);
@@ -5174,7 +5325,7 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
                 { n: "المغرب", t: todayTimings.Maghrib, o: 5, g: 20 },
                 { n: "العشاء", t: todayTimings.Isha, o: 20, g: 15 }
             ];
-            
+
             // Reset state
             appState.prayerTimes.currentPrayer = null;
             appState.prayerTimes.nextPrayer = null;
@@ -5183,14 +5334,14 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
 
             let currentPrayerData = null;
             let nextPrayerData = null;
-            
+
             // Check yesterday's Isha for post-midnight times before today's Fajr
             const fajrTimeToday = timeToDate(todayTimings.Fajr);
             if (now < fajrTimeToday) {
                  const ishaPrayerInfo = prayers.find(p => p.n === "العشاء");
                  const ishaTimeYesterday = timeToDate(ishaPrayerInfo.t);
                  ishaTimeYesterday.setDate(ishaTimeYesterday.getDate() - 1);
-                 
+
                  const iqamaTimeYesterday = new Date(ishaTimeYesterday.getTime() + ishaPrayerInfo.o * 60000);
                  const graceEndYesterday = new Date(iqamaTimeYesterday.getTime() + ishaPrayerInfo.g * 60000);
 
@@ -5206,7 +5357,7 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
                     const pTime = timeToDate(p.t);
                     const iqamaTime = timeToDate(addMinutes(p.t, p.o));
                     const graceEnd = new Date(iqamaTime.getTime() + p.g * 60000);
-                    
+
                     if (now >= pTime && now < graceEnd) {
                         currentPrayerData = {...p, iqamaTime};
                     }
@@ -5215,11 +5366,11 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
                     }
                 }
             }
-            
+
             // Now, set the state based on what was found.
             if (currentPrayerData) {
                 appState.prayerTimes.currentPrayer = currentPrayerData.n;
-                
+
                 if (now < currentPrayerData.iqamaTime) { // Countdown to Iqama
                     appState.prayerTimes.nextPrayer = currentPrayerData.n;
                     appState.prayerTimes.nextPrayerIqamaTime = currentPrayerData.iqamaTime;
@@ -5239,7 +5390,7 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
             renderPrayerTimesHighlights();
         }
        function renderPrayerTimesHighlights() { if (!prayerTimesContainer) return; document.querySelectorAll('.prayer-time-item').forEach(i => i.classList.remove('current-prayer', 'next-prayer')); if (appState.prayerTimes.currentPrayer) { const item = Array.from(prayerTimesContainer.querySelectorAll('.prayer-name')).find(s => s.textContent === appState.prayerTimes.currentPrayer)?.parentElement; if (item) item.classList.add('current-prayer'); } if (appState.prayerTimes.nextPrayer && appState.prayerTimes.nextPrayer !== appState.prayerTimes.currentPrayer) { const nextPrayerName = appState.prayerTimes.nextPrayer.replace(' (غدًا)', ''); const item = Array.from(prayerTimesContainer.querySelectorAll('.prayer-name')).find(s => s.textContent === nextPrayerName)?.parentElement; if (item && !item.classList.contains('current-prayer')) item.classList.add('next-prayer'); } }
-        
+
         // --- Digital Clock ---
         function updateDigitalClock() { 
             const now = new Date(); 
@@ -5249,7 +5400,7 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
             digitalHoursSpan.textContent = h.toString().padStart(2, '0'); 
             digitalMinutesSpan.textContent = m.toString().padStart(2, '0'); 
             digitalSecondsSpan.textContent = s.toString().padStart(2, '0'); 
-            
+
             digitalDateLine1.classList.remove('countdown-azan', 'countdown-iqama', 'countdown-up'); 
             digitalDateLine2.classList.remove('countdown-azan', 'countdown-iqama', 'countdown-up'); 
 
@@ -5271,7 +5422,7 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
                 const secs = totalSecs % 60;
                 const mins = Math.floor((totalSecs / 60) % 60);
                 const hrs = Math.floor(totalSecs / 3600);
-                
+
                 const isCountdownToIqama = (appState.prayerTimes.currentPrayer === appState.prayerTimes.nextPrayer);
 
                 if (isCountdownToIqama) {
@@ -5335,7 +5486,7 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
         });
 
         // --- Swipe Gesture Handling (NEW) ---
-    
+
 
         // --- TV Remote / Keyboard Navigation ---
         let currentFocus = null;
@@ -5350,15 +5501,15 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
         }
 
         function setFocus(el) { if (currentFocus) currentFocus.classList.remove('tv-focus'); if (el) { el.classList.add('tv-focus'); el.focus({ preventScroll: true }); currentFocus = el; el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' }); } else { if (currentFocus) currentFocus.classList.remove('tv-focus'); currentFocus = null; } }
-        
+
         // --- MASTER KEY HANDLER (REFACTORED) ---
         function handleRemoteControlInput(e) {
             const key = e.key.toLowerCase();
             const activeEl = document.activeElement;
 
-          
 
-       
+
+
 
             // --- Priority 1: Video Player is Active ---
             if (videoPopupContainer.classList.contains('active') || appState.isVideoPlayerMinimized) {
@@ -5392,10 +5543,10 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
                         toggleFullScreen();
                         return;
                     }
-                    
+
                     const currentTime = popupPlayer.getCurrentTime();
                     const currentVolume = popupPlayer.getVolume();
-                    
+
                 }
                 // For other keys (like 'f', 'm', spacebar), do nothing and let the event bubble up.
                 return;
@@ -5424,7 +5575,7 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
         function handleNavigation(e) {
             const key = e.key.toLowerCase();
             if (!['arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'enter', 'ok'].includes(key)) return;
-            
+
             e.preventDefault(); // Prevent default scroll for navigation keys
 
             const activeEl = document.activeElement;
@@ -5473,7 +5624,7 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
             }
             if (nextIdx !== -1) setFocus(icons[nextIdx]);
         }
-        
+
         function handleMediaScreenNavigation(e, activeEl) {
             const searchRow = document.querySelector('#screen-Media .flex.flex-row.items-center.gap-2.grid-container');
             const readersContainer = document.querySelector('.reader-container');
@@ -5550,7 +5701,7 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
             }
             if (nextIdx >= 0 && nextIdx < items.length) { setFocus(items[nextIdx]); }
         }
-        
+
         // --- Welcome Voice Message ---
         function playWelcomeMessage() {
             const today = new Date();
@@ -5595,7 +5746,7 @@ if (!window.hasInitializedWeatherSpeaker) {
 
     // 2. إذا لم يتم التشغيل من قبل، قم بتعيين الحارس فوراً
     window.hasInitializedWeatherSpeaker = true;
-    
+
     // 3. الآن، ضع الكود الأصلي بالكامل هنا
     let hasSpokenWelcome = false; // هذا العلم سيعمل الآن بشكل صحيح
 
@@ -5660,12 +5811,12 @@ if (!window.hasInitializedWeatherSpeaker) {
             goToHome2Button?.addEventListener('click', () => calculateAndDisplayRouteTo(HOME2_COORDS));
             floatingMediaButton?.addEventListener('click', () => switchApp('Media')); 
             floatingMinimizedVideoButton?.addEventListener('click', restoreVideoPopup); // NEW listener
-            
+
 
     // ... (الكود الموجود لديك)
 
     // Initial Calls
-   
+
     Promise.all([fetchFavorites('D'), fetchFavorites('M')]).then(([d, m]) => {
         favoritesD = d;
         favoritesM = m;
@@ -5677,7 +5828,7 @@ migrateChannelData();
     updateFullDateWidget(); // <-- أضف هذا السطر (استدعاء أولي)
 
     // Play welcome message once after a short delay
-    setTimeout(playWelcomeMessage, 1500);
+    setTimeout(playWelcomeMessage, 2000);
 
     setInterval(fetchWeatherData, 800000); 
     setInterval(updateDigitalClock, 1000); 
@@ -5688,7 +5839,7 @@ migrateChannelData();
     // ... (بقية الكود)
 
 
-            
+
             // NEW/UPDATED: Event listener for the floating back button
             backToSearchFloatingButton.addEventListener('click', () => {
                 // If we are on the suggestions screen AND we have a previous search to go back to...
@@ -5707,7 +5858,7 @@ migrateChannelData();
             document.addEventListener('keydown', handleRemoteControlInput);
             document.addEventListener('fullscreenchange', handleFullScreenChange);
             document.addEventListener('webkitfullscreenchange', handleFullScreenChange); // For Safari
-            
+
             videoPopupCloseButton.addEventListener('click', hideVideoPopup);
             backToPlaylistsFromVideosButton.addEventListener('click', navigateBackToMainSearch);
             backToPlaylistsBottomButton.addEventListener('click', navigateBackToMainSearch);
@@ -5724,7 +5875,7 @@ migrateChannelData();
                 floatingKeyboardButton.classList.toggle('active-keyboard', !youtubeSearchInput.readOnly); 
                 floatingKeyboardButton.classList.toggle('inactive-keyboard', youtubeSearchInput.readOnly); 
             });
-            
+
             // UPDATED: Clear button logic
             clearSearchButton.addEventListener('click', () => {
                 youtubeSearchInput.value = ''; // Clear input immediately
@@ -5734,7 +5885,7 @@ migrateChannelData();
 
             youtubeSearchInput.addEventListener('focus', () => { if (youtubeSearchInput.value.trim() === '') { resetYoutubeSearchUI(); } });
             youtubeSearchButton.addEventListener('click', () => { const query = youtubeSearchInput.value.trim(); if (query) searchYouTubeVideos(query); else showMessageBox('الرجاء إدخال كلمة للبحث.'); });
-            
+
             // UPDATED: Auto-search for Tarteel channel with pre-click effect
             youtubeSearchInput.addEventListener('input', () => {
                 const targetText = 'ترتيل-@TarteelArabic';
@@ -5790,7 +5941,7 @@ migrateChannelData();
             });
 
             // Initial Calls
-           
+
             loadGoogleMaps().then(initMap);
             fetchWeatherData(); 
             loadPrayerTimes();
@@ -5799,7 +5950,7 @@ migrateChannelData();
             setInterval(determineNextPrayer, 60000);
             setInterval(simulateOtherCarData, 2000); // Call the modified simulation
             switchApp('Dashboard'); 
-            
+
             // Play welcome message once after a short delay
             setTimeout(playWelcomeMessage, 1500);
 
@@ -5822,7 +5973,7 @@ async function getManualReminderStates() {
         }
         const data = await response.json();
         const states = data.record || {};
-        
+
         // If the only thing in the bin is our placeholder, return an empty object
         if (Object.keys(states).length === 1 && states._init) {
             return {};
@@ -5841,7 +5992,7 @@ async function getManualReminderStates() {
 
 async function setManualReminderState(reminderId, state) {
     let currentStates = await getManualReminderStates();
-    
+
     if (state === 'auto') {
         delete currentStates[reminderId];
     } else {
@@ -5866,7 +6017,7 @@ async function setManualReminderState(reminderId, state) {
         console.error('Error writing to JSONBin:', error);
         showMessageBox('حدث خطأ أثناء حفظ الحالة.');
     }
-    
+
     // We pass the *real* state (without the placeholder) to the renderer
     if (currentStates._init) {
         renderDailyReminders({});
@@ -5992,47 +6143,53 @@ async function renderDailyReminders(states) { // We added 'async' and 'states' h
     lucide.createIcons();
 }
 
-            // 3. إضافة مستمع نقر واحد للتعامل مع كل الأزرار (MODIFIED)
-            document.addEventListener('click', (e) => {
-                const reminderItem = e.target.closest('.reminder-item');
-                
-                // If clicking outside a reminder item AND not on a dropdown button, close dropdowns
-                if (!reminderItem && !e.target.closest('.reminder-status-dropdown')) {
-                    closeAllDropdowns();
-                    return;
-                }
+            // --- الكود الجديد ---
+// 3. إضافة مستمع نقر واحد للتعامل مع كل الأزرار (MODIFIED)
+document.addEventListener('click', (e) => {
+    const reminderItem = e.target.closest('.reminder-item');
+    const dropdownButton = e.target.closest('.reminder-status-dropdown button');
 
-                if (!reminderItem) return;
+    // إذا تم النقر على زر داخل القائمة المنسدلة، دعه يعمل (المستمع الخاص به سيعمل)
+    if (dropdownButton) {
+        return;
+    }
 
-                const reminderId = reminderItem.dataset.reminderId;
-                const reminder = dailyReminders.find(r => r.id === reminderId);
+    // إذا تم النقر خارج عنصر تذكير وخارج قائمة منسدلة، أغلق جميع القوائم
+    if (!reminderItem && !e.target.closest('.reminder-status-dropdown')) {
+        closeAllDropdowns();
+        return;
+    }
 
-                // If the icon is clicked, toggle the dropdown
-                if (e.target.closest('.icon-wrapper')) {
-                    e.stopPropagation();
-                    const existingDropdown = reminderItem.querySelector('.reminder-status-dropdown');
-                    if (existingDropdown) {
-                        existingDropdown.remove();
-                    } else {
-                        createReminderDropdown(reminderId, e.target.closest('.icon-wrapper'));
-                    }
-                    return;
-                }
+    // إذا لم يتم النقر على عنصر تذكير، توقف هنا
+    if (!reminderItem) return;
 
-                // If the text area (or any other part of the item) is clicked, perform the action
-                if (reminder && reminder.action) {
-                    closeAllDropdowns();
-                    if (reminder.id.includes('adhkar') || reminder.id.includes('surah')) {
-                        switchApp('Media');
-                        setTimeout(() => reminder.action(), 100);
-                    } else {
-                        reminder.action();
-                    }
-                }
-            });
-            
+    // --- الجزء الرئيسي للتعديل ---
+    // أوقف انتشار الحدث لمنع أي إجراءات افتراضية أخرى
+    e.stopPropagation();
+
+    const reminderId = reminderItem.dataset.reminderId;
+    const iconWrapper = reminderItem.querySelector('.icon-wrapper'); // ابحث عن حاوية الأيقونة
+
+    if (!iconWrapper) return; // تأكد من وجود حاوية الأيقونة
+
+    // تحقق مما إذا كانت القائمة المنسدلة لهذا العنصر مفتوحة بالفعل
+    const existingDropdown = reminderItem.querySelector('.reminder-status-dropdown');
+
+    if (existingDropdown) {
+        // إذا كانت مفتوحة، أغلقها
+        existingDropdown.remove();
+    } else {
+        // إذا كانت مغلقة، أغلق أي قوائم أخرى وافتح هذه القائمة
+        closeAllDropdowns(); // أغلق القوائم الأخرى أولاً
+        createReminderDropdown(reminderId, iconWrapper); // افتح القائمة الجديدة بالنسبة لحاوية الأيقونة
+    }
+    // --- نهاية التعديل ---
+
+    // تم إزالة الجزء الخاص بتنفيذ الإجراء الافتراضي (مثل البحث في يوتيوب)
+});
+
             renderDailyReminders(); // الاستدعاء الأول
-            setInterval(renderDailyReminders, 180000); // تحديث كل 60 ثانية
+            setInterval(renderDailyReminders, 60000); // تحديث كل 60 ثانية
         });
 
         // --- Athkar App Logic ---
