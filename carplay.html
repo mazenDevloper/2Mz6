@@ -33,7 +33,12 @@
         @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
 
 /* --- START: Last Watched & History Styles --- */
-
+}
+section#screen-Reciters {
+    HEIGHT: 100% ! IMPORTANT;
+    PADDING: 1px;
+    MARGIN: 0PX;
+}
 /* --- START: Last Watched Carousel (2.5 items) Styles --- */
 #last-watched-container {
     width: 100%;
@@ -2354,15 +2359,15 @@ div#map{display:none}
                 <section id="screen-Reciters" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full w-full">
 <iframe id="reciters-iframe"
             class="full-iframe flex-grow"
-            
+            sandbox="allow-scripts allow-forms allow-same-origin allow-pointer-lock allow-downloads"
             title="Reciters/TV"
             src="https://www.bein-live.com/"
             allow="geolocation; fullscreen"  allowfullscreen="true"          webkitallowfullscreen="true"    mozallowfullscreen="true">      </iframe>
     <div class="mb-4 flex flex-wrap justify-center gap-2 flex-shrink-0 grid-container" style="
-    transform: scale(1.4);
+    transform: scale(1.1);
 ">
         <button data-src="https://www.bein-live.com/" class="iframe-src-button bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item active" tabindex="0">
-            مباريات اليوم
+            مباريات
         </button>
         <button data-src="https://tgyh.kora1goal.com/albaplayer/sports-c1/" class="iframe-src-button bg-black-600 hover:bg-black-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
             ثمانية 1
@@ -2564,7 +2569,69 @@ div#map{display:none}
     </div>
 
     <script>
+/**
+ * دالة JavaScript لمنع النوافذ المنبثقة والإعلانات داخل الصفحة.
+ * تستهدف العناصر ذات الخصائص الشائعة للإعلانات المنبثقة (مثل التثبيت على الشاشة).
+ */
+function blockInPagePopups() {
+    // 1. قائمة بفئات CSS (classes) الشائعة التي تستخدمها الإعلانات المنبثقة
+    const adClasses = [
+        '.ad-container',         // حاويات الإعلانات العامة
+        '.popup-ad-wrapper',     // مغلفات الإعلانات المنبثقة
+        '#div-gpt-ad',           // مُعرفات (IDs) شائعة لأنظمة إعلانات معينة
+        '.fixed-ad',             // إعلانات مُثبتة (Fixed) غالبًا ما تكون مزعجة
+        // يمكنك إضافة أي فئات أو مُعرفات تلاحظها في إعلانات موقعك هنا
+    ];
 
+    // 2. محددات (Selectors) تستهدف العناصر ذات النمط الثابت والشفافية العالية (قد تكون إعلانات أو أغطية لإعلانات)
+    const fixedSelectors = [
+        'div[style*="position: fixed"]',      // أي عنصر div ذو تثبيت مطلق
+        'div[style*="z-index: 9999"]',        // أي عنصر ذو قيمة z-index عالية جدًا
+        'div[id*="ad-"]'                      // أي عنصر يحتوي ID على كلمة 'ad-'
+    ];
+
+    // دمج جميع محددات الإعلانات في محدد واحد
+    const allAdSelectors = adClasses.join(', ') + ', ' + fixedSelectors.join(', ');
+
+    // 3. البحث عن جميع العناصر المطابقة للمحددات
+    const adElements = document.querySelectorAll(allAdSelectors);
+
+    if (adElements.length > 0) {
+        console.log(`Coding Partner: تم العثور على ${adElements.length} عناصر إعلانية مشتبه بها. جاري إخفاؤها...`);
+        
+        // 4. المرور على جميع العناصر المخالفة وإخفاؤها
+        adElements.forEach(element => {
+            // قم بإزالة العنصر بالكامل من DOM (أكثر فعالية)
+            element.remove(); 
+            
+            // أو قم فقط بإخفائه (إذا كنت تخشى من تأثير الإزالة على تنسيق الصفحة)
+            // element.style.display = 'none'; 
+        });
+    } else {
+        // console.log("Coding Partner: لم يتم العثور على إعلانات داخلية في الفحص الحالي.");
+    }
+}
+
+// 5. استخدام MutationObserver لمراقبة DOM (الهيكل) لضمان العمل حتى بعد تحميل الإعلانات بالـ AJAX
+// إذا كانت الإعلانات تُحمّل بعد تحميل الصفحة (وهو أمر شائع)، فهذا يضمن التقاطها.
+const observer = new MutationObserver(blockInPagePopups);
+
+// ابدأ المراقبة عند تحميل الصفحة
+// راقب جميع التغييرات في الجسم الرئيسي (body) والـ subtree (جميع العناصر الفرعية)
+document.addEventListener('DOMContentLoaded', () => {
+    // نفذ الدالة مرة واحدة عند التحميل الأولي
+    blockInPagePopups(); 
+
+    // ابدأ المراقبة المستمرة للتغييرات اللاحقة
+    observer.observe(document.body, { 
+        childList: true, 
+        subtree: true, 
+        attributes: true 
+    });
+});
+
+// يمكنك أيضًا تشغيل الدالة بشكل دوري كل 5 ثوانٍ كطبقة حماية إضافية
+// setInterval(blockInPagePopups, 5000);
 // دالة جديدة لتحديث ودجت التاريخ الكامل في شاشة الحاسوب/التلفاز
 function updateFullDateWidget() {
     const dateWidgetContainer = document.getElementById('full-date-widget-container');
