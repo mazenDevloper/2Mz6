@@ -1,7 +1,7 @@
 
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" style="
-    zoom: 93%;
+    
 ">
 <head>
     <link rel="manifest" href="/manifest.json">
@@ -33,11 +33,60 @@
         @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
 
 /* --- START: Last Watched & History Styles --- */
+/* --- START: Fullscreen Toggle Button Styles --- */
+
+.fullscreen-toggle-button {
+    /* Positioning the button inside the section, usually top right */
+    position: absolute; 
+    bottom: 1rem;
+    left: 1rem;
+    z-index: 99; /* Ensure it's above content but below floating buttons (like popup video) */
+    
+    /* Aesthetic styling (can be adjusted to match your glass-surface style) */
+    background-color: rgba(255, 255, 255, 0.1); 
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
 }
+
+.fullscreen-toggle-button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+/* CRITICAL: The class that forces the section to cover the viewport 
+*/
+.is-fullscreen {
+    /* Overrides parent containers and positions relative to the viewport */
+    position: fixed !important; 
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    z-index: 100 !important; /* Must be high to cover everything else */
+    border-radius: 0 !important; /* Removes rounded corners for a true fullscreen feel */
+    overflow-y: auto !important; /* Ensure content remains scrollable if needed */
+    transition: all 0.5s ease-in-out; /* Smooth transition for the effect */
+}
+
+/* Optional: Hide the navigation bar when a screen is fullscreen */
+body.fullscreen-mode nav {
+    display: none !important; 
+}
+
 section#screen-Reciters {
     HEIGHT: 100% ! IMPORTANT;
     PADDING: 1px;
-    MARGIN: 0PX;
+    MARGIN: 0px;
 }
 /* --- START: Last Watched Carousel (2.5 items) Styles --- */
 #last-watched-container {
@@ -2235,7 +2284,13 @@ div#map{display:none}
 
                 <!-- Media (YouTube) Screen -->
                 <section id="screen-Media" class="app-screen p-4 md:p-6 flex-col items-center h-full relative">
-                    <!-- NEW: Floating "Back to Search" Button -->
+                    <button 
+        id="fullscreen-screen-Media-btn" 
+        onclick="toggleFullscreen('screen-Media')"  class="fullscreen-toggle-button navigable grid-item"
+        title="Toggle Fullscreen Map"
+    >
+        <i class="fas fa-expand"></i> 
+    </button><!-- NEW: Floating "Back to Search" Button -->
                     <button id="back-to-search-floating-button" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-5 rounded-full shadow-lg z-50 flex items-center gap-2 navigable grid-item" tabindex="0" style="display: none;">
                         <i data-lucide="arrow-left" class="w-5 h-5"></i>
                         <span>العودة إلى البحث</span>
@@ -2302,7 +2357,15 @@ div#map{display:none}
                 
                 <!-- Radio Screen -->
                 <section id="screen-Radio" class="app-screen items-center justify-center h-full w-full p-4 md:p-6">
-                   <iframe class="full-iframe" style="zoom: 0.5;" title="Quran Reciters" src="https://quran.com/radio" allow="geolocation"></iframe>
+       
+                   <iframe id="iframe-Radio" class="full-iframe" style="zoom: 0.5;" title="Quran Reciters" src="https://quran.com/radio" allow="geolocation"></iframe>
+                             <button 
+        id="fullscreen-radio-iframe-btn" 
+        onclick="toggleFullscreen('screen-Radio')"  class="fullscreen-toggle-button navigable grid-item"
+        title="Toggle Fullscreen Map"
+    >
+        <i class="fas fa-expand"></i> 
+    </button>
                 </section>
 
                 <!-- Athkar Screen -->
@@ -2313,6 +2376,13 @@ div#map{display:none}
                         <button id="tab-monthly" class="tab-button navigable grid-item" tabindex="0">التذكيرات الشهرية</button>
                     </div>
                     <div id="athkar-content-container" class="w-full flex-grow overflow-y-auto">
+                                     <button 
+        id="fullscreen-athkar-btn" 
+        onclick="toggleFullscreen('athkar-content-container')"  class="fullscreen-toggle-button navigable grid-item"
+        title="Toggle Fullscreen Map"
+    >
+        <i class="fas fa-expand"></i> 
+    </button>
                         <!-- Morning Athkar Panel -->
                         <div id="athkar-sabah-content" class="tab-content athkar-grid"><div id="ts-1" class="athkar-item navigable grid-item athkar-color-1" tabindex="0"><p>آية الكرسي</p><span class="repetition">(مرة واحدة)</span></div><div id="ts-2" class="athkar-item navigable grid-item athkar-color-2" tabindex="0"><p>اللهم أعني على ذكرك وشكرك وحسن عبادتك.</p></div><div id="ts-3" class="athkar-item navigable grid-item athkar-color-3" tabindex="0"><p> سورة الإخلاص، سورة الفلق، سورة الناس</p><span class="repetition">(٣ مرات)</span></div>
                         <div id="ts-4" class="athkar-item navigable grid-item athkar-color-5" tabindex="0"><p>اللهم بك أصبحنا، وبك أمسينا، وبك نحيا، وبك نموت، وإليك النشور.</p></div>
@@ -2324,6 +2394,8 @@ div#map{display:none}
                         <div id="tl-2" class="athkar-item navigable grid-item athkar-color-4 col-span-2" tabindex="0"><p>سيد الاستغغار: اللهم أنت ربي لا إله إلا أنت، خلقتني وأنا عبدك، وأنا على عهدك ووعدك ما استطعت، أعوذ بك من شر ما صنعت، أبوء لك بنعمتك علي، وأبوء بذنبي فاغفر لي، فإنه لا يغفر الذنوب إلا أنت.</p></div>
                         <div id="tsl-1" class="athkar-item navigable grid-item athkar-color-5 col-span-4" tabindex="0"><p>اللهم إني أسألك العفو والعافية في الدنيا والآخرة، اللهم إني أسألك العفو والعافية في ديني ودنياي وأهلي ومالي، اللهم استر عوراتي وآمن روعاتي، اللهم احفظني من بين يدي ومن خلفي وعن يميني وعن شمالي ومن فوقي، وأعوذ بعظمتك أن أغتال من تحتي.</p></div>
                         <div id="tsl-2" class="athkar-item navigable grid-item athkar-color-1 col-span-4" tabindex="0"><p>أصبحنا وأصبح الملك لله، والحمد لله، لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير. رب أسألك خير ما في هذا اليوم وخير ما بعده، وأعوذ بك من شر ما في هذا اليوم وشر ما بعده، رب أعوذ بك من الكسل وسوء الكبر، رب أعوذ بك من عذاب في النار وعذاب في القبر.</p></div>
+                         <div id="tsl-3" class="athkar-item navigable grid-item athkar-color-1 col-span-4" tabindex="0"><p></p></div>
+
                         </div>
                         
                         <!-- Evening Athkar Panel -->
@@ -2340,6 +2412,8 @@ div#map{display:none}
                             <div id="tl-2" class="athkar-item navigable grid-item athkar-color-4 col-span-2" tabindex="0"><p>سيد الاستغغار: اللهم أنت ربي لا إله إلا أنت، خلقتني وأنا عبدك، وأنا على عهدك ووعدك ما استطعت، أعوذ بك من شر ما صنعت، أبوء لك بنعمتك علي، وأبوء بذنبي فاغفر لي، فإنه لا يغفر الذنوب إلا أنت.</p></div>
                             <div id="tsl-1" class="athkar-item navigable grid-item athkar-color-5 col-span-4" tabindex="0"><p>اللهم إني أسألك العفو والعافية في الدنيا والآخرة، اللهم إني أسألك العفو والعافية في ديني ودنياي وأهلي ومالي، اللهم استر عوراتي وآمن روعاتي، اللهم احفظني من بين يدي ومن خلفي وعن يميني وعن شمالي ومن فوقي، وأعوذ بعظمتك أن أغتال من تحتي.</p></div>
                             <div id="tsl-2" class="athkar-item navigable grid-item athkar-color-1 col-span-4" tabindex="0"><p>أمسينا وأمسى الملك لله، والحمد لله، لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير. رب أسألك خير ما في هذه الليلة وخير ما بعدها، وأعوذ بك من شر ما في هذه الليلة وشر ما بعدها، رب أعوذ بك من الكسل وسوء الكبر، رب أعوذ بك من عذاب في النار وعذاب في القبر.</p></div>
+                            <div id="tsl-4" class="athkar-item navigable grid-item athkar-color-1 col-span-4" tabindex="0"><p></p></div>
+
                             </div> <!-- NEW: Monthly Reminders Panel -->
                         <div id="athkar-monthly-content" class="tab-content athkar-grid-monthly hidden">
                             <div class="athkar-item navigable grid-item header col-span-5" tabindex="0"><p>تذكيرات وأعمال شهرية</p></div>
@@ -2351,18 +2425,29 @@ div#map{display:none}
                             <div class="athkar-item navigable grid-item athkar-color-1 col-span-2" tabindex="0"><p>جلسة محاسبة للنفس</p></div>
                             <div class="athkar-item navigable grid-item athkar-color-2" tabindex="0"><p>التخطيط للشهر الجديد</p></div>
                             <div class="athkar-item navigable grid-item athkar-color-3 col-span-2" tabindex="0"><p>تعلم مسألة فقهية جديدة</p></div>
+                            <div id="tsl-5" class="athkar-item navigable grid-item athkar-color-1 col-span-4" tabindex="0"><p></p></div>
+
                         </div>
                     </div>
                 </section>
 
                 <!-- Reciters Screen -->
+               
                 <section id="screen-Reciters" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full w-full">
+<button 
+        id="fullscreen-reciters-iframe-btn" 
+        onclick="toggleFullscreen('screen-Reciters')"  class="fullscreen-toggle-button navigable grid-item"
+        title="Toggle Fullscreen Map"
+    >
+        <i class="fas fa-expand"></i> 
+    </button>
 <iframe id="reciters-iframe"
             class="full-iframe flex-grow"
-            
+            sandbox="allow-scripts allow-forms allow-same-origin allow-pointer-lock allow-downloads"
             title="Reciters/TV"
             src="https://www.bein-live.com/"
             allow="geolocation; fullscreen"  allowfullscreen="true"          webkitallowfullscreen="true"    mozallowfullscreen="true">      </iframe>
+    
     <div class="mb-4 flex flex-wrap justify-center gap-2 flex-shrink-0 grid-container" style="
     transform: scale(1.1);
 ">
@@ -2372,12 +2457,13 @@ div#map{display:none}
         <button data-src="https://tgyh.kora1goal.com/albaplayer/sports-c1/" class="iframe-src-button bg-black-600 hover:bg-black-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
             ثمانية 1
         </button>
-        <button data-src="https://direct.aflam4you.net/zremb472.php?vid=68&aflam_s=1&aflam_w=360&aflam_h=250&aflam_k=1831551111111" class="iframe-src-button bg-purple-700 hover:bg-purple-800 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
+         <button data-src="https://direct.aflam4you.net/zremb472.php?vid=68&aflam_s=1&aflam_w=360&aflam_h=250&aflam_k=1831551111111" class="iframe-src-button bg-purple-700 hover:bg-purple-800 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
             beIN 1
         </button>
         <button data-src="hhttps://direct.aflam4you.net/playeraf.php?vid=2&aflam_s=1&aflam_k=345543234455" class="iframe-src-button bg-purple-700 hover:bg-purple-800 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
             beIN 2
         </button>
+
         <button data-src="https://tgyh.kora1goal.com/albaplayer/sports-3/" class="iframe-src-button bg-purple-700 hover:bg-purple-800 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
             beIN 3
         </button>
@@ -2427,6 +2513,13 @@ div#map{display:none}
 
                 <!-- 3D Screen (Formerly Map Screen) -->
                 <section id="screen-Map" class="app-screen p-4 md:p-6 flex-col h-full items-center justify-center relative">
+                    <button 
+        id="fullscreen-map-btn" 
+        onclick="toggleFullscreen('screen-Map')"  class="fullscreen-toggle-button navigable grid-item"
+        title="Toggle Fullscreen Map"
+    >
+        <i class="fas fa-expand"></i> 
+    </button>
                     <div class="w-full h-full bg-black2 rounded-3xl flex items-center justify-center p-1 overflow:hidden">
                         <iframe title="LEXSUS ES" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share WIDTH="80%" HEIGHT="80%" src="https://sketchfab.com/models/17ed331fd31f491fa3907156f0b0b55e/embed?autostart=1&preload=1&annotations_visible=0&annotation=0&annotation_cycle=6&transparent=1&ui_theme=dark"> </iframe>
                     </div>
@@ -2484,6 +2577,13 @@ div#map{display:none}
 
                 <!-- Electronic Quran App Screen -->
                 <section id="screen-Quran" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full relative">
+                               <button 
+        id="fullscreen-screen-Quran-btn" 
+        onclick="toggleFullscreen('screen-Quran')"  class="fullscreen-toggle-button navigable grid-item"
+        title="Toggle Fullscreen Map"
+    >
+        <i class="fas fa-expand"></i> 
+    </button>
                    <div id="quran-quick-access" class="mt-4 bg-black/30 p-4 rounded-xl flex flex-col gap-3 items-end z-20 glass-surface glass-surface--svg w-full max-w-md">
                         <button id="quran-go-button" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm self-center navigable grid-item" tabindex="0"></button>
                     </div>
@@ -2569,8 +2669,45 @@ div#map{display:none}
     </div>
 
     <script>
+        /**
+ * Toggles a section element between its normal state and fullscreen mode.
+ * * @param {string} sectionId - The ID of the section element (e.g., 'screen-Dashboard').
+ */
+function toggleFullscreen(sectionId) {
+    const section = document.getElementById(sectionId);
+    const body = document.body;
+
+    if (section) {
+        // Toggle the fullscreen class on the section
+        section.classList.toggle('is-fullscreen');
+        
+        // Toggle a class on the body to handle hiding global elements like the navigation bar
+        body.classList.toggle('fullscreen-mode');
+
+        // Optional: Update the button icon to indicate the state
+        const icon = document.querySelector(`#fullscreen-${sectionId}-btn .fas`);
+        if (icon) {
+            if (section.classList.contains('is-fullscreen')) {
+                // Change to exit fullscreen icon
+                icon.classList.remove('fa-expand');
+                icon.classList.add('fa-compress');
+            } else {
+                // Change back to expand icon
+                icon.classList.remove('fa-compress');
+                icon.classList.add('fa-expand');
+            }
+        }
+
+        console.log(`${sectionId} is now in fullscreen mode: ${section.classList.contains('is-fullscreen')}`);
+    } else {
+        console.error(`Error: Section with ID ${sectionId} not found.`);
+    }
+}
 /**
- * دالة JavaScript لمنع النوافذ المنبثقة والإعلانات داخل الصفحة.
+ * دالة JavaScript لمنع النوافذ المنبثقة والإعلانات داخل
+ * 
+ * 
+ *  الصفحة.
  * تستهدف العناصر ذات الخصائص الشائعة للإعلانات المنبثقة (مثل التثبيت على الشاشة).
  */
 function blockInPagePopups() {
