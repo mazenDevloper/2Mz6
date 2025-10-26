@@ -2439,14 +2439,16 @@ div#map{display:none}
         onclick="toggleFullscreen('screen-Reciters')"  class="fullscreen-toggle-button navigable grid-item"
         title="Toggle Fullscreen Map"
     >
-        <i class="fas fa-expand"></i> 
+        
     </button>
 <iframe id="reciters-iframe"
             class="full-iframe flex-grow"
-        
+            onclick="toggleIframeFullscreen('reciters-iframe')"  class="fullscreen-toggle-button navigable grid-item"
             title="Reciters/TV"
             src="https://www.bein-live.com/"
-            allow="geolocation; fullscreen"  allowfullscreen="true"          webkitallowfullscreen="true"    mozallowfullscreen="true">      </iframe>
+            allow="geolocation; fullscreen"  allowfullscreen="true"          webkitallowfullscreen="true"    mozallowfullscreen="true">  
+            <i class="fas fa-expand"></i> 
+                </iframe>
     
     <div class="mb-4 flex flex-wrap justify-center gap-2 flex-shrink-0 grid-container" style="
     transform: scale(1.1);
@@ -2673,6 +2675,40 @@ div#map{display:none}
  * Toggles a section element between its normal state and fullscreen mode.
  * * @param {string} sectionId - The ID of the section element (e.g., 'screen-Dashboard').
  */
+/**
+ * Function 2: Toggles fullscreen mode specifically for an IFRAME element.
+ * (This function is generic and will work on 'reciters-iframe')
+ * @param {string} targetId - The ID of the IFRAME element.
+ */
+function toggleIframeFullscreen(targetId) {
+    const targetElement = document.getElementById(targetId);
+    const body = document.body;
+
+    if (targetElement) {
+        // We toggle the is-fullscreen class on the target element (the iframe)
+        targetElement.classList.toggle('is-fullscreen');
+        
+        // We toggle fullscreen-mode on the body to hide global elements
+        body.classList.toggle('fullscreen-mode');
+
+        // Optional: Icon update logic here (using a generic button ID if possible)
+        const buttonId = `fullscreen-btn-${targetId}`;
+        const icon = document.querySelector(`#${buttonId} .fas`); 
+        
+        if (icon) {
+            if (targetElement.classList.contains('is-fullscreen')) {
+                icon.classList.remove('fa-expand');
+                icon.classList.add('fa-compress');
+            } else {
+                icon.classList.remove('fa-compress');
+                icon.classList.add('fa-expand');
+            }
+        }
+    } else {
+        console.error(`Error: Element with ID ${targetId} not found.`);
+    }
+}
+        
 function toggleFullscreen(sectionId) {
     const section = document.getElementById(sectionId);
     const body = document.body;
