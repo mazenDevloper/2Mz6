@@ -1221,7 +1221,10 @@ div#youtube-readers-section {
         }
         #digital-time .hours { opacity: 1; }
         #digital-time .minutes { opacity: 0.8; }
-        #digital-time .seconds { opacity: 0.6; }
+       #digital-time .seconds {
+    opacity: 0.6;
+    font-size: 2.2rem;
+}
 
         /* Updated #digital-date styles based on user request */
         #digital-date {
@@ -5665,6 +5668,30 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
         // --- Prayer Times Integration ---
         const prayerTimes = [{"date":"2025-10-13","fajr":"05:04","sunrise":"06:16","dhuhr":"12:15","asr":"15:36","maghrib":"18:09","isha":"19:16"},{"date":"2025-10-14","fajr":"05:04","sunrise":"06:16","dhuhr":"12:15","asr":"15:36","maghrib":"18:08","isha":"19:15"},{"date":"2025-10-15","fajr":"05:04","sunrise":"06:16","dhuhr":"12:14","asr":"15:36","maghrib":"18:07","isha":"19:15"},{"date":"2025-10-16","fajr":"05:04","sunrise":"06:17","dhuhr":"12:14","asr":"15:35","maghrib":"18:07","isha":"19:14"},{"date":"2025-10-17","fajr":"05:05","sunrise":"06:17","dhuhr":"12:14","asr":"15:35","maghrib":"18:06","isha":"19:14"},{"date":"2025-10-18","fajr":"05:05","sunrise":"06:17","dhuhr":"12:14","asr":"15:35","maghrib":"18:05","isha":"19:13"},{"date":"2025-10-19","fajr":"05:05","sunrise":"06:18","dhuhr":"12:14","asr":"15:34","maghrib":"18:05","isha":"19:12"},{"date":"2025-10-20","fajr":"05:05","sunrise":"06:18","dhuhr":"12:13","asr":"15:34","maghrib":"18:04","isha":"19:12"},{"date":"2025-10-21","fajr":"05:05","sunrise":"06:18","dhuhr":"12:13","asr":"15:34","maghrib":"18:04","isha":"19:11"},{"date":"2025-10-22","fajr":"05:06","sunrise":"06:18","dhuhr":"12:13","asr":"15:33","maghrib":"18:03","isha":"19:11"},{"date":"2025-10-23","fajr":"05:06","sunrise":"06:19","dhuhr":"12:13","asr":"15:33","maghrib":"18:02","isha":"19:10"},{"date":"2025-10-24","fajr":"05:06","sunrise":"06:19","dhuhr":"12:13","asr":"15:33","maghrib":"18:02","isha":"19:10"},{"date":"2025-10-25","fajr":"05:06","sunrise":"06:19","dhuhr":"12:13","asr":"15:33","maghrib":"18:01","isha":"19:09"},{"date":"2025-10-26","fajr":"05:07","sunrise":"06:20","dhuhr":"12:13","asr":"15:32","maghrib":"18:01","isha":"19:09"},{"date":"2025-10-27","fajr":"05:07","sunrise":"06:20","dhuhr":"12:13","asr":"15:32","maghrib":"18:00","isha":"19:08"},{"date":"2025-10-28","fajr":"05:07","sunrise":"06:20","dhuhr":"12:12","asr":"15:32","maghrib":"18:00","isha":"19:08"},{"date":"2025-10-29","fajr":"05:07","sunrise":"06:21","dhuhr":"12:12","asr":"15:31","maghrib":"17:59","isha":"19:07"},{"date":"2025-10-30","fajr":"05:08","sunrise":"06:21","dhuhr":"12:12","asr":"15:31","maghrib":"17:59","isha":"19:07"},{"date":"2025-10-31","fajr":"05:08","sunrise":"06:21","dhuhr":"12:12","asr":"15:31","maghrib":"17:58","isha":"19:07"}];
 
+/**
+ * Converts a 24-hour time string (HH:MM) to a 12-hour time string (H:MM).
+ * * @param {string} time24h - Time in 24-hour format (e.g., "15:36").
+ * @returns {string} Time in 12-hour format (e.g., "3:36").
+ */
+function convertTo12Hour(time24h) {
+    if (!time24h || typeof time24h !== 'string' || time24h === '--:--') {
+        return time24h; // Return as is if invalid or not loaded
+    }
+
+    // Split the time string into hours and minutes
+    const [hours24, minutes] = time24h.split(':').map(str => parseInt(str, 10));
+
+    // Convert hours from 24h to 12h format
+    let hours12 = hours24 % 12;
+
+    // The hour '0' (midnight) should be '12' in 12-hour format
+    hours12 = hours12 ? hours12 : 12;
+
+    // Return the formatted string (we don't pad the hour, but keep minutes padded)
+    return `${hours12}:${minutes.toString().padStart(2, '0')}`;
+}
+
+
         function loadPrayerTimes() {
             const today = new Date().toISOString().split('T')[0];
             const data = prayerTimes.find(p => p.date === today);
@@ -5675,13 +5702,24 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
                 const prayerNames = { Fajr: 'الفجر', Dhuhr: 'الظهر', Asr: 'العصر', Maghrib: 'المغرب', Isha: 'العشاء' };
                 const iqamaOffsets = { Fajr: 25, Dhuhr: 20, Asr: 20, Maghrib: 5, Isha: 20 };
                 prayerOrder.forEach(key => {
-                    const item = document.createElement('div');
-                    item.className = 'prayer-time-item navigable grid-item';
-                    item.tabIndex = 0;
-                    const time = data[key.toLowerCase()];
-                    item.innerHTML = `<span class="prayer-name">${prayerNames[key]}</span><span class="prayer-time">${time}</span><span class="prayer-iqama text-xs text-white/50">الإقامة: ${addMinutes(time, iqamaOffsets[key])}</span>`;
-                    prayerTimesContainer.appendChild(item);
-                });
+    const item = document.createElement('div');
+    item.className = 'prayer-time-item navigable grid-item';
+    item.tabIndex = 0;
+    
+    // 1. Get the 24-hour time
+    const time24h = data[key.toLowerCase()]; 
+    
+    // 2. Convert to 12-hour time for display
+    const time12h = convertTo12Hour(time24h);
+    
+    // 3. Calculate Iqama time (still needs the 24h time for calculation)
+    const iqamaTime = addMinutes(time24h, iqamaOffsets[key]); 
+    
+    // 4. Update the inner HTML using the 12h format
+    item.innerHTML = `<span class="prayer-name">${prayerNames[key]}</span><span class="prayer-time">${time12h}</span><span class="prayer-iqama text-xs text-white/50">الإقامة: ${convertTo12Hour(iqamaTime)}</span>`;
+    
+    prayerTimesContainer.appendChild(item);
+});
 
                 // Create a container for the action buttons
                 const buttonContainer = document.createElement('div');
