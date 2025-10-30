@@ -5805,55 +5805,71 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
        function renderPrayerTimesHighlights() { if (!prayerTimesContainer) return; document.querySelectorAll('.prayer-time-item').forEach(i => i.classList.remove('current-prayer', 'next-prayer')); if (appState.prayerTimes.currentPrayer) { const item = Array.from(prayerTimesContainer.querySelectorAll('.prayer-name')).find(s => s.textContent === appState.prayerTimes.currentPrayer)?.parentElement; if (item) item.classList.add('current-prayer'); } if (appState.prayerTimes.nextPrayer && appState.prayerTimes.nextPrayer !== appState.prayerTimes.currentPrayer) { const nextPrayerName = appState.prayerTimes.nextPrayer.replace(' (غدًا)', ''); const item = Array.from(prayerTimesContainer.querySelectorAll('.prayer-name')).find(s => s.textContent === nextPrayerName)?.parentElement; if (item && !item.classList.contains('current-prayer')) item.classList.add('next-prayer'); } }
         
         // --- Digital Clock ---
-        function updateDigitalClock() { 
-            const now = new Date(); 
-            const h = now.getHours(); 
-            const m = now.getMinutes(); 
-            const s = now.getSeconds(); 
-            digitalHoursSpan.textContent = h.toString().padStart(2, '0'); 
-            digitalMinutesSpan.textContent = m.toString().padStart(2, '0'); 
-            digitalSecondsSpan.textContent = s.toString().padStart(2, '0'); 
-            
-            digitalDateLine1.classList.remove('countdown-azan', 'countdown-iqama', 'countdown-up'); 
-            digitalDateLine2.classList.remove('countdown-azan', 'countdown-iqama', 'countdown-up'); 
+        // --- Digital Clock ---
+function updateDigitalClock() {
+    const now = new Date();
+    
+    // --- 1. Get Hours in 12-Hour Format ---
+    let h = now.getHours();
+    const m = now.getMinutes();
+    const s = now.getSeconds();
+    
+    // Convert to 12-hour format (0 should be 12)
+    h = h % 12;
+    h = h ? h : 12; // The hour '0' should be '12'
 
-            if (appState.prayerTimes.currentPrayer && appState.prayerTimes.currentPrayerIqamaTime) {
-                // State: Counting up from a prayer's iqama time
-                const diff = now - appState.prayerTimes.currentPrayerIqamaTime;
-                const totalSecs = Math.floor(diff / 1000);
-                const secs = totalSecs % 60;
-                const mins = Math.floor(totalSecs / 60);
-                digitalDateLine1.textContent = `انتهت اقامة الصلاة ${appState.prayerTimes.currentPrayer} منذ:`;
-                digitalDateLine2.textContent = `+${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-                digitalDateLine1.classList.add('countdown-up');
-                digitalDateLine2.classList.add('countdown-up');
+    // --- 2. Update the Digital Display (Hours are not padded in 12h format) ---
+    digitalHoursSpan.textContent = h; 
+    digitalMinutesSpan.textContent = m.toString().padStart(2, '0');
+    digitalSecondsSpan.textContent = s.toString().padStart(2, '0');
+    
+    // --- 3. Clean up the AM/PM indicator if it exists ---
+    const ampmEl = document.getElementById('am-pm-indicator');
+    if (ampmEl) {
+        ampmEl.remove();
+    }
+    
+    // --- 4. Prayer Time Logic ---
+    digitalDateLine1.classList.remove('countdown-azan', 'countdown-iqama', 'countdown-up');
+    digitalDateLine2.classList.remove('countdown-azan', 'countdown-iqama', 'countdown-up');
 
-            } else if (appState.prayerTimes.nextPrayerIqamaTime) {
-                // State: Counting down to something (either iqama or azan)
-                const diff = appState.prayerTimes.nextPrayerIqamaTime - now;
-                const totalSecs = Math.floor(diff / 1000);
-                const secs = totalSecs % 60;
-                const mins = Math.floor((totalSecs / 60) % 60);
-                const hrs = Math.floor(totalSecs / 3600);
-                
-                const isCountdownToIqama = (appState.prayerTimes.currentPrayer === appState.prayerTimes.nextPrayer);
+    if (appState.prayerTimes.currentPrayer && appState.prayerTimes.currentPrayerIqamaTime) {
+        // State: Counting up from a prayer's iqama time
+        const diff = now - appState.prayerTimes.currentPrayerIqamaTime;
+        const totalSecs = Math.floor(diff / 1000);
+        const secs = totalSecs % 60;
+        const mins = Math.floor(totalSecs / 60);
+        digitalDateLine1.textContent = `انتهت اقامة الصلاة ${appState.prayerTimes.currentPrayer} منذ:`;
+        digitalDateLine2.textContent = `+${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        digitalDateLine1.classList.add('countdown-up');
+        digitalDateLine2.classList.add('countdown-up');
 
-                if (isCountdownToIqama) {
-                    digitalDateLine1.textContent = `إقامة صلاة ${appState.prayerTimes.currentPrayer} في:`;
-                    digitalDateLine2.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-                    digitalDateLine1.classList.add('countdown-iqama');
-                    digitalDateLine2.classList.add('countdown-iqama');
-                } else {
-                    digitalDateLine1.textContent = `الأذان القادم: ${appState.prayerTimes.nextPrayer}`;
-                    digitalDateLine2.textContent = hrs > 0 ? `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}` : `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-                    digitalDateLine1.classList.add('countdown-azan');
-                    digitalDateLine2.classList.add('countdown-azan');
-                }
-            } else {
-                digitalDateLine1.textContent = 'جاري تحميل أوقات الصلاة...';
-                digitalDateLine2.textContent = '';
-            } 
+    } else if (appState.prayerTimes.nextPrayerIqamaTime) {
+        // State: Counting down to something (either iqama or azan)
+        const diff = appState.prayerTimes.nextPrayerIqamaTime - now;
+        const totalSecs = Math.floor(diff / 1000);
+        const secs = totalSecs % 60;
+        const mins = Math.floor((totalSecs / 60) % 60);
+        const hrs = Math.floor(totalSecs / 3600);
+        
+        const isCountdownToIqama = (appState.prayerTimes.currentPrayer === appState.prayerTimes.nextPrayer);
+
+        if (isCountdownToIqama) {
+            digitalDateLine1.textContent = `إقامة صلاة ${appState.prayerTimes.currentPrayer} في:`;
+            digitalDateLine2.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            digitalDateLine1.classList.add('countdown-iqama');
+            digitalDateLine2.classList.add('countdown-iqama');
+        } else {
+            digitalDateLine1.textContent = `الأذان القادم: ${appState.prayerTimes.nextPrayer}`;
+            digitalDateLine2.textContent = hrs > 0 ? `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}` : `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            digitalDateLine1.classList.add('countdown-azan');
+            digitalDateLine2.classList.add('countdown-azan');
         }
+    } else {
+        digitalDateLine1.textContent = 'جاري تحميل أوقات الصلاة...';
+        digitalDateLine2.textContent = '';
+    }
+}
 
         // --- 360 Camera ---
         function handleImageUpload(e) { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = (ev) => { appState.custom360Image = ev.target.result; localStorage.setItem('custom360Image', ev.target.result); updateUI(); }; reader.readAsDataURL(file); } }
