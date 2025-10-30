@@ -1851,10 +1851,10 @@ div#map{display:none}
                 <!-- Radio Screen -->
                 <section id="screen-Radio" class="app-screen items-center justify-center h-full w-full p-4 md:p-6">
        
-                   <iframe id="iframe-Radio" class="full-iframe" style="zoom: 0.5;" title="Quran Reciters" src="https://quran.com/radio" allow="geolocation"></iframe>
+                   <iframe id="iframe-Radio" class="full-iframe" title="Quran Reciters" src="https://quran.com/radio" allow="geolocation"></iframe>
                              <button 
         id="fullscreen-radio-iframe-btn" 
-        onclick="toggleFullscreen('screen-Radio')"  class="fullscreen-toggle-button navigable grid-item"
+        onclick="toggleIframeFullscreen('iframe-Radio')"  class="fullscreen-toggle-button navigable grid-item"
         title="Toggle Fullscreen Map"
     >
         <i class="fas fa-expand"></i> 
@@ -1929,7 +1929,7 @@ div#map{display:none}
                 <section id="screen-Reciters" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full w-full">
 <button 
         id="fullscreen-reciters-iframe-btn" 
-        onclick="toggleFullscreen('screen-Reciters')"  class="fullscreen-toggle-button navigable grid-item"
+        onclick="toggleIframeFullscreen('reciters-iframe')"  class="fullscreen-toggle-button navigable grid-item"
         title="Toggle Fullscreen Map"
     >
         
@@ -2010,13 +2010,13 @@ div#map{display:none}
                 <section id="screen-Map" class="app-screen p-4 md:p-6 flex-col h-full items-center justify-center relative">
                     <button 
         id="fullscreen-map-btn" 
-        onclick="toggleFullscreen('screen-Map')"  class="fullscreen-toggle-button navigable grid-item"
+        onclick="toggleIframeFullscreen('screen-Map')"  class="fullscreen-toggle-button navigable grid-item"
         title="Toggle Fullscreen Map"
     >
         <i class="fas fa-expand"></i> 
     </button>
                     <div class="w-full h-full bg-black2 rounded-3xl flex items-center justify-center p-1 overflow:hidden">
-                        <iframe title="LEXSUS ES" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share WIDTH="80%" HEIGHT="80%" src="https://sketchfab.com/models/17ed331fd31f491fa3907156f0b0b55e/embed?autostart=1&preload=1&annotations_visible=0&annotation=0&annotation_cycle=6&transparent=1&ui_theme=dark"> </iframe>
+                        <iframe id="cardash" title="LEXSUS ES" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share WIDTH="80%" HEIGHT="80%" src="https://sketchfab.com/models/17ed331fd31f491fa3907156f0b0b55e/embed?autostart=1&preload=1&annotations_visible=0&annotation=0&annotation_cycle=6&transparent=1&ui_theme=dark"> </iframe>
                     </div>
                     <!-- Right side widget -->
                     <div id="3d-screen-weather-widget" class="absolute top-8 right-8 p-4 rounded-2xl text-center flex items-center gap-3 z-10 navigable grid-item" tabindex="0">
@@ -2071,10 +2071,10 @@ div#map{display:none}
                 </section>
 
                 <!-- Electronic Quran App Screen -->
-                <section id="screen-Quran" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full relative">
+                <section id="screen-Quran" class="app-screen flex-col items-center justify-center h-full relative">
                                <button 
         id="fullscreen-screen-Quran-btn" 
-        onclick="toggleFullscreen('screen-Quran')"  class="fullscreen-toggle-button navigable grid-item"
+        onclick="toggleIframeFullscreen('quran-iframe')"  class="fullscreen-toggle-button navigable grid-item"
         title="Toggle Fullscreen Map"
     >
         <i class="fas fa-expand"></i> 
