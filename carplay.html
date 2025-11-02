@@ -5856,11 +5856,11 @@ migrateChannelData();
     updateFullDateWidget(); // <-- أضف هذا السطر (استدعاء أولي)
 
     // Play welcome message once after a short delay
-    setTimeout(playWelcomeMessage, 20000);
+    setTimeout(playWelcomeMessage, 7000);
 
     setInterval(fetchWeatherData, 800000); 
     setInterval(updateDigitalClock, 1000); 
-    setInterval(determineNextPrayer, 2000);
+    setInterval(determineNextPrayer, 60000);
     setInterval(updateFullDateWidget, 6000000); // <-- أضف هذا السطر (تحديث دوري)
     setInterval(simulateOtherCarData, 6000);
 
