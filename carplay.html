@@ -1300,6 +1300,26 @@ div#youtube-readers-section {
             transition: transform 0.3s ease-in-out;
         }
 
+@media (max-width: 768px) {
+    /* ... (بقية الأكواد الخاصة بالهواتف المحمولة) ... */
+
+    /* 🛑 إخفاء أيقونات التطبيقات غير الضرورية في وضع الموبايل */
+    button[data-app="Map"] {
+        display: none !important; /* إخفاء أيقونة Map/3D Car (تمت إعادة تسميتها) */
+    }
+    button[data-app="Radio"] {
+        display: none !important; /* إخفاء أيقونة Radio */
+    }
+    
+    /* 🛑 إخفاء زر الوسائط العائم (مكرر مع شريط التنقل) */
+    #floating-media-button {
+        display: none !important;
+    }
+
+    /* ملاحظة: يتم بالفعل إخفاء floating-media-button عندما تكون شاشة Media نشطة في handleMediaViewSwitch */
+    
+    /* ... (بقية الأكواد) ... */
+}
 
         /* NEW: Responsive padding toggle */
         @media (min-width: 768px) {
