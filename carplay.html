@@ -1748,8 +1748,20 @@ div#map{display:none}
     <img id="dashboard-weather-icon" src="" alt="Weather Icon" class="w-20 h-20 text-white mb-2" />
     <p class="text-5xl font-extrabold mb-1" id="dashboard-weather-temp">--°C</p>
     <p class="text-xl font-semibold text-white/80 mb-2" id="dashboard-weather-desc">--</p>
-    <p class="text-md text-white/70 mt-1" id="dashboard-weather-uv">☀️ UV: --</p>
-    <p class="text-md text-white/60 mt-1" id="dashboard-weather-location">--</p>
+    <div id="dashboard-weather-main-metrics" class="grid grid-cols-3 gap-2 text-sm w-full mt-3">
+        <div class="bg-black/20 p-2 rounded-lg text-center">
+            <div class="font-bold text-lg" id="dash-metric-temp">--°C</div>
+            <div class="text-xs opacity-90">الحرارة</div>
+        </div>
+        <div class="bg-black/20 p-2 rounded-lg text-center">
+            <div class="font-bold text-lg" id="dash-metric-uv">--</div>
+            <div class="text-xs opacity-90">UV</div>
+        </div>
+        <div class="bg-black/20 p-2 rounded-lg text-center">
+            <div class="font-bold text-lg" id="dash-metric-humidity">--%</div>
+            <div class="text-xs opacity-90">الرطوبة</div>
+        </div>
+    </div>
 </div>
                             </div>
                             <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center navigable grid-item" tabindex="0">
@@ -2736,18 +2748,27 @@ let favoritesM = [];
                 }
             }
         }
+        
         function updateUI() {
     // --- Dashboard Weather Widget Updates ---
     const tempEl = document.getElementById('dashboard-weather-temp');
     const descEl = document.getElementById('dashboard-weather-desc');
     const iconEl = document.getElementById('dashboard-weather-icon');
     const locationEl = document.getElementById('dashboard-weather-location');
-    const humidityEl = document.getElementById('dashboard-weather-humidity');
-    const humidityDescEl = document.getElementById('dashboard-weather-humidity-desc');
-    const uvDashboardEl = document.getElementById('dashboard-weather-uv');
+    
+    // NEW METRICS REFERENCES
+    const dashMetricTemp = document.getElementById('dash-metric-temp');
+    const dashMetricUV = document.getElementById('dash-metric-uv');
+    const dashMetricHumidity = document.getElementById('dash-metric-humidity');
+    
+    const tempValue = appState.weather.temperature;
+    const uvValue = appState.weather.uvIndex;
+    const humidityValue = appState.weather.humidity;
 
+
+    // Update main display
     if (tempEl) {
-        tempEl.textContent = appState.weather.temperature !== null ? `${appState.weather.temperature.toFixed(1)}°C` : '--°C';
+        tempEl.textContent = tempValue !== null ? `${tempValue.toFixed(1)}°C` : '--°C';
     }
     if (descEl) {
         descEl.textContent = appState.weather.description || '--';
@@ -2759,69 +2780,46 @@ let favoritesM = [];
         locationEl.textContent = appState.weather.location;
     }
 
-    // --- Humidity Logic & Update ---
-    const humidityValue = appState.weather.humidity; // Ensure this is set in fetchWeatherData
-    let humidityDesc = '--';
-    let humidityColorClass = 'text-white/70'; // Default color
+    // --- NEW: Update Main Dashboard Metrics Grid ---
+    if (dashMetricTemp && tempValue !== null) {
+        dashMetricTemp.textContent = `${Math.round(tempValue)}°C`;
+        // Apply color class using a helper function (assumed defined elsewhere)
+        dashMetricTemp.className = `font-bold text-lg ${getTempTextColor(tempValue)}`;
+    } else if (dashMetricTemp) { dashMetricTemp.textContent = '--°C'; dashMetricTemp.className = 'font-bold text-lg text-white/70'; }
 
-    if (humidityValue !== undefined && humidityValue !== null) {
-        // Determine description and color based on value
-        if (humidityValue < 60) {
-            humidityDesc = 'منخفضة';
-            humidityColorClass = 'text-green-400';
-        } else if (humidityValue < 75) {
-            humidityDesc = 'معتدلة';
-            humidityColorClass = 'text-yellow-400';
-        } else if (humidityValue < 85) {
-            humidityDesc = 'مرتفعة';
-            humidityColorClass = 'text-orange-400';
-        } else {
-            humidityDesc = 'مرتفعة جداً';
-            humidityColorClass = 'text-red-400';
-        }
-    }
+    if (dashMetricUV && uvValue !== null) {
+        dashMetricUV.textContent = `${uvValue}`;
+        dashMetricUV.className = `font-bold text-lg ${getUvTextColor(uvValue)}`;
+    } else if (dashMetricUV) { dashMetricUV.textContent = '--'; dashMetricUV.className = 'font-bold text-lg text-white/70'; }
 
-    if (humidityEl) {
-        humidityEl.textContent = humidityValue !== undefined ? `💧 ${humidityValue}%` : '💧 --%';
-        // Apply color class (adjust base classes if needed)
-        humidityEl.className = `text-md ${humidityColorClass}`;
-    }
-    if (humidityDescEl) {
-        humidityDescEl.textContent = humidityDesc;
-        // Apply color class (adjust base classes if needed)
-        humidityDescEl.className = `text-sm ${humidityColorClass}`;
-    }
-    // --- End Humidity Logic ---
+    if (dashMetricHumidity && humidityValue !== null) {
+        dashMetricHumidity.textContent = `${Math.round(humidityValue)}%`;
+        dashMetricHumidity.className = `font-bold text-lg ${getHumidityTextColor(humidityValue)}`;
+    } else if (dashMetricHumidity) { dashMetricHumidity.textContent = '--%'; dashMetricHumidity.className = 'font-bold text-lg text-white/70'; }
+    // --- END NEW METRICS GRID UPDATE ---
 
-    // --- UV Index Update for Dashboard ---
-    if (uvDashboardEl) {
-        const uvValue = appState.weather.uvIndex;
-        uvDashboardEl.textContent = uvValue !== null ? `☀️ UV: ${uvValue}` : '☀️ UV: --';
-        uvDashboardEl.style.color = getUvIndexColor(uvValue); // Use your color function
-    }
 
     // --- 3D Screen Weather Temp Update ---
     const temp3dEl = document.getElementById('3d-screen-weather-temp');
     if (temp3dEl) {
-        temp3dEl.textContent = appState.weather.temperature !== null ? `${appState.weather.temperature.toFixed(1)}°C` : '--°C';
+        temp3dEl.textContent = tempValue !== null ? `${tempValue.toFixed(1)}°C` : '--°C';
     }
 
     // --- Weather Screen UV Update (If element exists) ---
     const uvWeatherScreenEl = document.getElementById('weather-uv');
     if (uvWeatherScreenEl) {
-        const uvValue = appState.weather.uvIndex;
         uvWeatherScreenEl.textContent = uvValue !== null ? uvValue : '--';
         uvWeatherScreenEl.style.color = getUvIndexColor(uvValue);
     }
 
     // --- 360 Image Update ---
-    if (car360Image) { // Check if car360Image exists
+    if (car360Image) { 
         car360Image.src = appState.custom360Image || default360ImageSrc;
     }
 
     // --- Start Trip Button Visibility ---
     const startTripFloatingButton = document.getElementById('start-trip-floating-button');
-    if (startTripFloatingButton) { // Check if button exists
+    if (startTripFloatingButton) { 
         startTripFloatingButton.style.display = appState.destinationSet ? 'flex' : 'none';
     }
 }
@@ -4892,6 +4890,8 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
                 appState.weather.uvIndex = data.current.uv;
                 appState.weather.iconUrl = `https:${data.current.condition.icon}`;
                 appState.weather.location = `${data.location.name}, ${data.location.country}`;
+
+                appState.weather.humidity = data.current.humidity;
                 
                 // --- NEW: Handle hourly forecast ---
                 const hourlyData = [...data.forecast.forecastday[0].hour, ...data.forecast.forecastday[1]?.hour || []];
