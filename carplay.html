@@ -1570,8 +1570,11 @@ section#screen-Dashboard{
   background: #00000084;   
 }
             body{
-              background:url('https://dmusera.netlify.app/tvbg.webp')!important;
-                background-size:cover!important;
+                      background: url(https://dmusera.netlify.app/tvbgc1.webp) !important;
+        background-size: contain !important;
+        background-color: black !important;
+        background-repeat: no-repeat !important;
+        background-position: center !important;
             }
 
             /* NEW: Date widget styles */
@@ -1745,8 +1748,6 @@ div#map{display:none}
     <img id="dashboard-weather-icon" src="" alt="Weather Icon" class="w-20 h-20 text-white mb-2" />
     <p class="text-5xl font-extrabold mb-1" id="dashboard-weather-temp">--°C</p>
     <p class="text-xl font-semibold text-white/80 mb-2" id="dashboard-weather-desc">--</p>
-    <p class="text-md text-white/70" id="dashboard-weather-humidity">💧 --%</p>
-    <p class="text-sm text-white/60" id="dashboard-weather-humidity-desc">--</p>
     <p class="text-md text-white/70 mt-1" id="dashboard-weather-uv">☀️ UV: --</p>
     <p class="text-md text-white/60 mt-1" id="dashboard-weather-location">--</p>
 </div>
@@ -1754,7 +1755,7 @@ div#map{display:none}
                             <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center navigable grid-item" tabindex="0">
                                 <div id="digital-clock-widget" class="w-full h-full flex flex-col items-center justify-center text-center">
                                     <div id="digital-time">
-                                        <span class="hours">00</span>:<span class="minutes">00</span>:<span class="seconds">00</span>
+                                        <span class="hours">00</span>:<span class="minutes">00</span>
                                     </div>
                                     <div id="digital-date">
                                         <div id="digital-date-line1">  </div>
@@ -5374,7 +5375,7 @@ function updateDigitalClock() {
     // --- 1. Get Hours in 12-Hour Format ---
     let h = now.getHours();
     const m = now.getMinutes();
-    const s = now.getSeconds();
+   
     
     // Convert to 12-hour format (0 should be 12)
     h = h % 12;
@@ -5383,7 +5384,6 @@ function updateDigitalClock() {
     // --- 2. Update the Digital Display (Hours are not padded in 12h format) ---
     digitalHoursSpan.textContent = h; 
     digitalMinutesSpan.textContent = m.toString().padStart(2, '0');
-    digitalSecondsSpan.textContent = s.toString().padStart(2, '0');
     
     // --- 3. Clean up the AM/PM indicator if it exists ---
     const ampmEl = document.getElementById('am-pm-indicator');
@@ -5836,13 +5836,13 @@ migrateChannelData();
     updateFullDateWidget(); // <-- أضف هذا السطر (استدعاء أولي)
 
     // Play welcome message once after a short delay
-    setTimeout(playWelcomeMessage, 2000);
+    setTimeout(playWelcomeMessage, 20000);
 
     setInterval(fetchWeatherData, 800000); 
     setInterval(updateDigitalClock, 1000); 
-    setInterval(determineNextPrayer, 60000);
-    setInterval(updateFullDateWidget, 600000); // <-- أضف هذا السطر (تحديث دوري)
-    setInterval(simulateOtherCarData, 2000);
+    setInterval(determineNextPrayer, 2000);
+    setInterval(updateFullDateWidget, 6000000); // <-- أضف هذا السطر (تحديث دوري)
+    setInterval(simulateOtherCarData, 6000);
 
     // ... (بقية الكود)
 
