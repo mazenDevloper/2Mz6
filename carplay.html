@@ -2210,6 +2210,69 @@ div#map{display:none}
  * (This function is generic and will work on 'reciters-iframe')
  * @param {string} targetId - The ID of the IFRAME element.
  */
+
+// -------------------------------------------------------------
+// --- NEW updateTimerDisplay function ---
+// -------------------------------------------------------------
+/**
+ * UPDATED: Updates the digital clock countdown/count-up display separately.
+ * Runs every 2 seconds ONLY IF THE VIDEO POPUP IS NOT ACTIVE.
+ */
+function updateTimerDisplay() {
+    // 🛑 الشرط الحاسم: إذا كان المشغل المنبثق نشطاً، قم بالخروج فوراً لتجنب التقطيع
+    if (videoPopupContainer.classList.contains('active')) {
+        return;
+    }
+    
+    const now = new Date();
+    // تأكد من أن determineNextPrayer قد عملت مرة واحدة على الأقل
+    if (!appState.prayerTimes.nextPrayerIqamaTime) {
+        return;
+    }
+
+    const diff = appState.prayerTimes.nextPrayerIqamaTime - now;
+    const totalSecs = Math.floor(diff / 1000);
+    
+    // إعادة تعيين أنماط الألوان قبل التحديث
+    digitalDateLine1.classList.remove('countdown-azan', 'countdown-iqama', 'countdown-up');
+    digitalDateLine2.classList.remove('countdown-azan', 'countdown-iqama', 'countdown-up');
+
+    // 1. Logic for COUNT UP (after Iqama)
+    if (appState.prayerTimes.currentPrayer && appState.prayerTimes.currentPrayerIqamaTime && now > appState.prayerTimes.currentPrayerIqamaTime) {
+        const diffUp = now - appState.prayerTimes.currentPrayerIqamaTime;
+        const upSecs = Math.floor(diffUp / 1000);
+        const secs = upSecs % 60;
+        const mins = Math.floor(upSecs / 60);
+
+        digitalDateLine1.textContent = `انتهت اقامة الصلاة ${appState.prayerTimes.currentPrayer} منذ:`;
+        digitalDateLine2.textContent = `+${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        digitalDateLine1.classList.add('countdown-up');
+        digitalDateLine2.classList.add('countdown-up');
+        return;
+    }
+
+    // 2. Logic for COUNT DOWN (to Azan or Iqama)
+    if (totalSecs >= 0) {
+        const secs = totalSecs % 60;
+        const mins = Math.floor((totalSecs / 60) % 60);
+        const hrs = Math.floor(totalSecs / 3600);
+        
+        const isCountdownToIqama = (appState.prayerTimes.currentPrayer === appState.prayerTimes.nextPrayer);
+
+        if (isCountdownToIqama) {
+            digitalDateLine1.textContent = `إقامة صلاة ${appState.prayerTimes.currentPrayer} في:`;
+            digitalDateLine2.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            digitalDateLine1.classList.add('countdown-iqama');
+            digitalDateLine2.classList.add('countdown-iqama');
+        } else {
+            digitalDateLine1.textContent = `الأذان القادم: ${appState.prayerTimes.nextPrayer}`;
+            digitalDateLine2.textContent = hrs > 0 ? `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}` : `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            digitalDateLine1.classList.add('countdown-azan');
+            digitalDateLine2.classList.add('countdown-azan');
+        }
+    }
+}
+
 function toggleIframeFullscreen(targetId) {
     const targetElement = document.getElementById(targetId);
     const body = document.body;
@@ -5305,86 +5368,116 @@ function convertTo12Hour(time24h) {
             }
         }
         function addMinutes(time, min) { const [h, m] = time.split(':').map(Number); const d = new Date(); d.setHours(h, m + min, 0, 0); return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }); }
-        function timeToDate(time) { const [h, m] = time.split(':').map(Number); const d = new Date(); d.setHours(h, m, 0, 0); return d; }
-        function determineNextPrayer() {
-            const now = new Date();
-            const todayTimings = appState.prayerTimes;
-            if (!todayTimings.Fajr || todayTimings.Fajr === '--:--') return;
+// -------------------------------------------------------------
+// --- CORRECTED timeToDate function (Crucial for 24H -> Date conversion) ---
+// -------------------------------------------------------------
+// -------------------------------------------------------------
+// --- CORRECTED timeToDate function (Uses CURRENT System Date) ---
+// -------------------------------------------------------------
+function timeToDate(time) {
+    // 1. استخراج الساعات والدقائق (24-hour format)
+    const [h, m] = time.split(':').map(Number);
+    
+    // 2. إنشاء كائن Date جديد من الوقت والتاريخ الحاليين للنظام
+    const d = new Date();
+    
+    // 3. تعيين الساعات والدقائق
+    // هذا يضمن أن التاريخ هو التاريخ الفعلي للنظام، لكن التوقيت هو توقيت الصلاة (مثل 15:30)
+    d.setHours(h, m, 0, 0); 
+    
+    return d;
+}
 
-            const fajrTomorrowTime = timeToDate(todayTimings.Fajr);
-            fajrTomorrowTime.setDate(fajrTomorrowTime.getDate() + 1);
+// -------------------------------------------------------------
+// --- MODIFIED determineNextPrayer function (FINAL Time Context FIX) ---
+// -------------------------------------------------------------
+function determineNextPrayer() {
+    // الوقت الحالي الفعلي
+    const now = new Date();
+    const todayTimings = appState.prayerTimes;
+    if (!todayTimings.Fajr || todayTimings.Fajr === '--:--') return;
 
-            const prayers = [
-                { n: "الفجر", t: todayTimings.Fajr, o: 25, g: 5 },
-                { n: "الظهر", t: todayTimings.Dhuhr, o: 20, g: 15 },
-                { n: "العصر", t: todayTimings.Asr, o: 20, g: 20 },
-                { n: "المغرب", t: todayTimings.Maghrib, o: 5, g: 20 },
-                { n: "العشاء", t: todayTimings.Isha, o: 20, g: 15 }
-            ];
-            
-            // Reset state
-            appState.prayerTimes.currentPrayer = null;
-            appState.prayerTimes.nextPrayer = null;
-            appState.prayerTimes.nextPrayerIqamaTime = null; // This is for the *next* prayer's azan/iqama time
-            appState.prayerTimes.currentPrayerIqamaTime = null; // This is for the *current* prayer's iqama time (for count-up)
+    // 1. Define constants
+    const PRAYER_OFFSETS = { Fajr: 25, Dhuhr: 20, Asr: 20, Maghrib: 5, Isha: 15 }; // تم تعديل Isha graceEnd إلى 15 (افتراضي)
+    const PRAYER_GRACE = { Fajr: 5, Dhuhr: 15, Asr: 20, Maghrib: 20, Isha: 15 };
+    const PRAYER_NAMES = { Fajr: 'الفجر', Dhuhr: 'الظهر', Asr: 'العصر', Maghrib: 'المغرب', Isha: 'العشاء' };
+    const ORDER = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 
-            let currentPrayerData = null;
-            let nextPrayerData = null;
-            
-            // Check yesterday's Isha for post-midnight times before today's Fajr
-            const fajrTimeToday = timeToDate(todayTimings.Fajr);
-            if (now < fajrTimeToday) {
-                 const ishaPrayerInfo = prayers.find(p => p.n === "العشاء");
-                 const ishaTimeYesterday = timeToDate(ishaPrayerInfo.t);
-                 ishaTimeYesterday.setDate(ishaTimeYesterday.getDate() - 1);
-                 
-                 const iqamaTimeYesterday = new Date(ishaTimeYesterday.getTime() + ishaPrayerInfo.o * 60000);
-                 const graceEndYesterday = new Date(iqamaTimeYesterday.getTime() + ishaPrayerInfo.g * 60000);
+    let prayerEvents = [];
+    
+    // 2. Populate Events for TODAY
+    ORDER.forEach(key => {
+        // pTime يحمل تاريخ اليوم الفعلي وتوقيت الصلاة
+        const pTime = timeToDate(todayTimings[key]);
+        const iqamaTime = new Date(pTime.getTime() + PRAYER_OFFSETS[key] * 60000);
+        const graceEnd = new Date(iqamaTime.getTime() + PRAYER_GRACE[key] * 60000);
 
-                 if (now >= ishaTimeYesterday && now < graceEndYesterday) {
-                     currentPrayerData = { n: "العشاء", iqamaTime: iqamaTimeYesterday };
-                     nextPrayerData = { n: "الفجر", pTime: fajrTimeToday };
-                 }
-            }
+        prayerEvents.push({ 
+            name: PRAYER_NAMES[key], 
+            azan: pTime, 
+            iqama: iqamaTime, 
+            graceEnd: graceEnd 
+        });
+    });
 
-            // If not in the overnight period (or after its grace), run the normal logic for today.
-            if (!currentPrayerData) {
-                for (const p of prayers) {
-                    const pTime = timeToDate(p.t);
-                    const iqamaTime = timeToDate(addMinutes(p.t, p.o));
-                    const graceEnd = new Date(iqamaTime.getTime() + p.g * 60000);
-                    
-                    if (now >= pTime && now < graceEnd) {
-                        currentPrayerData = {...p, iqamaTime};
-                    }
-                    if (now < pTime && !nextPrayerData) {
-                        nextPrayerData = {...p, pTime};
-                    }
-                }
-            }
-            
-            // Now, set the state based on what was found.
-            if (currentPrayerData) {
-                appState.prayerTimes.currentPrayer = currentPrayerData.n;
-                
-                if (now < currentPrayerData.iqamaTime) { // Countdown to Iqama
-                    appState.prayerTimes.nextPrayer = currentPrayerData.n;
-                    appState.prayerTimes.nextPrayerIqamaTime = currentPrayerData.iqamaTime;
-                } else { // Count up from Iqama
-                    appState.prayerTimes.currentPrayerIqamaTime = currentPrayerData.iqamaTime; // Store the exact iqama time
-                    const nextP = nextPrayerData ? nextPrayerData : { n: "الفجر (غدًا)", pTime: fajrTomorrowTime };
-                    appState.prayerTimes.nextPrayer = nextP.n;
-                    appState.prayerTimes.nextPrayerIqamaTime = nextP.pTime; // Target for next event is the azan
-                }
-            } else if (nextPrayerData) { // Countdown to next Azan
-                appState.prayerTimes.nextPrayer = nextPrayerData.n;
-                appState.prayerTimes.nextPrayerIqamaTime = nextPrayerData.pTime;
-            } else { // After today's Isha grace period
-                 appState.prayerTimes.nextPrayer = "الفجر (غدًا)";
-                 appState.prayerTimes.nextPrayerIqamaTime = fajrTomorrowTime;
-            }
-            renderPrayerTimesHighlights();
+    // 3. Prepare Tomorrow's Fajr (Set to tomorrow's date based on current system time)
+    const fajrTomorrow = timeToDate(todayTimings.Fajr);
+    fajrTomorrow.setDate(fajrTomorrow.getDate() + 1); // التقدم ليوم واحد
+    
+    prayerEvents.push({
+        name: 'الفجر (غدًا)', azan: fajrTomorrow,
+        iqama: new Date(fajrTomorrow.getTime() + PRAYER_OFFSETS.Fajr * 60000),
+        graceEnd: new Date(fajrTomorrow.getTime() + PRAYER_OFFSETS.Fajr * 60000 + PRAYER_GRACE.Fajr * 60000)
+    });
+
+
+    // 4. Find CURRENT and NEXT States
+    appState.prayerTimes.currentPrayer = null;
+    appState.prayerTimes.currentPrayerIqamaTime = null;
+    let nextEvent = null;
+    let currentEvent = null;
+    
+    // Find CURRENT (Iterate backwards to find the latest active prayer)
+    for (let i = prayerEvents.length - 1; i >= 0; i--) {
+        const event = prayerEvents[i];
+        if (now >= event.azan && now < event.graceEnd) {
+             currentEvent = event;
+             break;
         }
+    }
+
+    // Find NEXT (First event whose Azan time is in the future)
+    nextEvent = prayerEvents.find(event => event.azan > now);
+
+    
+    // 5. Set Final Application State
+    
+    if (currentEvent) {
+        appState.prayerTimes.currentPrayer = currentEvent.name.replace(' (غدًا)', '');
+        appState.prayerTimes.currentPrayerIqamaTime = currentEvent.iqama;
+
+        if (now < currentEvent.iqama) {
+            // Case 1: Counting down TO Iqama 
+            appState.prayerTimes.nextPrayer = appState.prayerTimes.currentPrayer;
+            appState.prayerTimes.nextPrayerIqamaTime = currentEvent.iqama;
+        } else if (nextEvent) {
+            // Case 2: Iqama passed, waiting for the NEXT AZAN
+            appState.prayerTimes.nextPrayer = nextEvent.name;
+            appState.prayerTimes.nextPrayerIqamaTime = nextEvent.azan;
+        }
+    } else if (nextEvent) {
+        // Case 3: Outside any prayer window, waiting for the NEXT AZAN (Should be Asr/Maghrib)
+        appState.prayerTimes.nextPrayer = nextEvent.name;
+        appState.prayerTimes.nextPrayerIqamaTime = nextEvent.azan;
+    } else {
+        // Fallback: This means we are past tomorrow's Fajr (Shouldn't happen with the list logic)
+        appState.prayerTimes.nextPrayer = "الفجر (غدًا)";
+        appState.prayerTimes.nextPrayerIqamaTime = fajrTomorrow;
+    }
+    
+    // 6. Render Updates
+    renderPrayerTimesHighlights();
+}
        function renderPrayerTimesHighlights() { if (!prayerTimesContainer) return; document.querySelectorAll('.prayer-time-item').forEach(i => i.classList.remove('current-prayer', 'next-prayer')); if (appState.prayerTimes.currentPrayer) { const item = Array.from(prayerTimesContainer.querySelectorAll('.prayer-name')).find(s => s.textContent === appState.prayerTimes.currentPrayer)?.parentElement; if (item) item.classList.add('current-prayer'); } if (appState.prayerTimes.nextPrayer && appState.prayerTimes.nextPrayer !== appState.prayerTimes.currentPrayer) { const nextPrayerName = appState.prayerTimes.nextPrayer.replace(' (غدًا)', ''); const item = Array.from(prayerTimesContainer.querySelectorAll('.prayer-name')).find(s => s.textContent === nextPrayerName)?.parentElement; if (item && !item.classList.contains('current-prayer')) item.classList.add('next-prayer'); } }
         
         // --- Digital Clock ---
@@ -5856,13 +5949,14 @@ migrateChannelData();
     updateFullDateWidget(); // <-- أضف هذا السطر (استدعاء أولي)
 
     // Play welcome message once after a short delay
-    setTimeout(playWelcomeMessage, 7000);
+    setTimeout(playWelcomeMessage, 20000);
 
     setInterval(fetchWeatherData, 800000); 
     setInterval(updateDigitalClock, 1000); 
     setInterval(determineNextPrayer, 60000);
-    setInterval(updateFullDateWidget, 200000); // <-- أضف هذا السطر (تحديث دوري)
+    setInterval(updateFullDateWidget, 6000000); // <-- أضف هذا السطر (تحديث دوري)
     setInterval(simulateOtherCarData, 6000);
+    setInterval(updateTimerDisplay, 2000);
 
     // ... (بقية الكود)
 
