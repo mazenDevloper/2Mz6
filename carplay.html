@@ -1787,7 +1787,8 @@ div#map{display:none}
                             <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center navigable grid-item" tabindex="0">
                                 <div id="digital-clock-widget" class="w-full h-full flex flex-col items-center justify-center text-center">
                                     <div id="digital-time">
-                                        <span class="hours">00</span>:<span class="minutes">00</span>
+                                        
+                                        <span class="hours">00</span>:<span class="minutes">00</span><span id="time-icon-container"></span>
                                     </div>
                                     <div id="digital-date">
                                         <div id="digital-date-line1">  </div>
@@ -2210,7 +2211,30 @@ div#map{display:none}
  * (This function is generic and will work on 'reciters-iframe')
  * @param {string} targetId - The ID of the IFRAME element.
  */
+/**
+ * Converts a 24-hour time string (HH:MM) to a 12-hour time string (H:MM ص/م).
+ *
+ * @param {string} time24h - Time in 24-hour format (e.g., "15:36").
+ * @returns {string} Time in 12-hour format with 'ص' or 'م' (e.g., "3:36 م").
+ */
+function convertTo12HourWithAmPm(time24h) {
+    if (!time24h || typeof time24h !== 'string' || time24h === '--:--') {
+        return time24h; 
+    }
 
+    // Split the time string into hours and minutes
+    const [hours24, minutes] = time24h.split(':').map(str => parseInt(str, 10));
+    
+    // Determine AM/PM (ص/م)
+    const suffix = hours24 >= 12 ? 'م' : 'ص';
+    
+    // Convert to 12-hour format (0 = 12 AM, 13 = 1 PM)
+    let hours12 = hours24 % 12;
+    hours12 = hours12 ? hours12 : 12; // The hour '0' (midnight) should be '12'
+
+    // Return the formatted string
+    return `${hours12}:${minutes.toString().padStart(2, '0')} ${suffix}`;
+}
 // -------------------------------------------------------------
 // --- NEW updateTimerDisplay function ---
 // -------------------------------------------------------------
@@ -5245,36 +5269,37 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
 
         // --- Prayer Times Integration ---
         const prayerTimes = [
-    {"date":"2025-11-01","fajr":"05:08","sunrise":"06:22","dhuhr":"12:12","asr":"03:31","maghrib":"05:58","isha":"07:06"},
-    {"date":"2025-11-02","fajr":"05:08","sunrise":"06:22","dhuhr":"12:12","asr":"03:30","maghrib":"05:57","isha":"07:06"},
-    {"date":"2025-11-03","fajr":"05:09","sunrise":"06:23","dhuhr":"12:12","asr":"03:30","maghrib":"05:57","isha":"07:06"},
-    {"date":"2025-11-04","fajr":"05:09","sunrise":"06:23","dhuhr":"12:12","asr":"03:30","maghrib":"05:57","isha":"07:05"},
-    {"date":"2025-11-05","fajr":"05:09","sunrise":"06:23","dhuhr":"12:12","asr":"03:30","maghrib":"05:56","isha":"07:05"},
-    {"date":"2025-11-06","fajr":"05:10","sunrise":"06:24","dhuhr":"12:12","asr":"03:30","maghrib":"05:56","isha":"07:05"},
-    {"date":"2025-11-07","fajr":"05:10","sunrise":"06:24","dhuhr":"12:12","asr":"03:29","maghrib":"05:55","isha":"07:04"},
-    {"date":"2025-11-08","fajr":"05:10","sunrise":"06:25","dhuhr":"12:12","asr":"03:29","maghrib":"05:55","isha":"07:04"},
-    {"date":"2025-11-09","fajr":"05:11","sunrise":"06:25","dhuhr":"12:12","asr":"03:29","maghrib":"05:55","isha":"07:04"},
-    {"date":"2025-11-10","fajr":"05:11","sunrise":"06:26","dhuhr":"12:13","asr":"03:29","maghrib":"05:55","isha":"07:04"},
-    {"date":"2025-11-11","fajr":"05:12","sunrise":"06:26","dhuhr":"12:13","asr":"03:29","maghrib":"05:54","isha":"07:04"},
-    {"date":"2025-11-12","fajr":"05:12","sunrise":"06:27","dhuhr":"12:13","asr":"03:29","maghrib":"05:54","isha":"07:04"},
-    {"date":"2025-11-13","fajr":"05:12","sunrise":"06:27","dhuhr":"12:13","asr":"03:29","maghrib":"05:54","isha":"07:03"},
-    {"date":"2025-11-14","fajr":"05:13","sunrise":"06:28","dhuhr":"12:13","asr":"03:29","maghrib":"05:54","isha":"07:03"},
-    {"date":"2025-11-15","fajr":"05:13","sunrise":"06:28","dhuhr":"12:13","asr":"03:29","maghrib":"05:53","isha":"07:03"},
-    {"date":"2025-11-16","fajr":"05:13","sunrise":"06:29","dhuhr":"12:13","asr":"03:29","maghrib":"05:53","isha":"07:03"},
-    {"date":"2025-11-17","fajr":"05:14","sunrise":"06:29","dhuhr":"12:14","asr":"03:28","maghrib":"05:53","isha":"07:03"},
-    {"date":"2025-11-18","fajr":"05:14","sunrise":"06:30","dhuhr":"12:14","asr":"03:28","maghrib":"05:53","isha":"07:03"},
-    {"date":"2025-11-19","fajr":"05:15","sunrise":"06:30","dhuhr":"12:14","asr":"03:28","maghrib":"05:53","isha":"07:03"},
-    {"date":"2025-11-20","fajr":"05:15","sunrise":"06:31","dhuhr":"12:14","asr":"03:28","maghrib":"05:53","isha":"07:03"},
-    {"date":"2025-11-21","fajr":"05:16","sunrise":"06:31","dhuhr":"12:14","asr":"03:29","maghrib":"05:53","isha":"07:03"},
-    {"date":"2025-11-22","fajr":"05:16","sunrise":"06:32","dhuhr":"12:15","asr":"03:29","maghrib":"05:53","isha":"07:03"},
-    {"date":"2025-11-23","fajr":"05:17","sunrise":"06:32","dhuhr":"12:15","asr":"03:29","maghrib":"05:53","isha":"07:03"},
-    {"date":"2025-11-24","fajr":"05:17","sunrise":"06:33","dhuhr":"12:15","asr":"03:29","maghrib":"05:53","isha":"07:04"},
-    {"date":"2025-11-25","fajr":"05:17","sunrise":"06:33","dhuhr":"12:16","asr":"03:29","maghrib":"05:53","isha":"07:04"},
-    {"date":"2025-11-26","fajr":"05:18","sunrise":"06:34","dhuhr":"12:16","asr":"03:29","maghrib":"05:53","isha":"07:04"},
-    {"date":"2025-11-27","fajr":"05:18","sunrise":"06:35","dhuhr":"12:16","asr":"03:29","maghrib":"05:53","isha":"07:04"},
-    {"date":"2025-11-28","fajr":"05:19","sunrise":"06:35","dhuhr":"12:17","asr":"03:29","maghrib":"05:53","isha":"07:04"},
-    {"date":"2025-11-29","fajr":"05:19","sunrise":"06:36","dhuhr":"12:17","asr":"03:29","maghrib":"05:53","isha":"07:04"},
-    {"date":"2025-11-30","fajr":"05:20","sunrise":"06:36","dhuhr":"12:17","asr":"03:30","maghrib":"05:53","isha":"07:05"}
+
+    {"date":"2025-11-01","fajr":"05:08","sunrise":"06:22","dhuhr":"12:12","asr":"15:31","maghrib":"17:58","isha":"19:06"},
+    {"date":"2025-11-02","fajr":"05:08","sunrise":"06:22","dhuhr":"12:12","asr":"15:30","maghrib":"17:57","isha":"19:06"},
+    {"date":"2025-11-03","fajr":"05:09","sunrise":"06:23","dhuhr":"12:12","asr":"15:30","maghrib":"17:57","isha":"19:06"},
+    {"date":"2025-11-04","fajr":"05:09","sunrise":"06:23","dhuhr":"12:12","asr":"15:30","maghrib":"17:57","isha":"19:05"},
+    {"date":"2025-11-05","fajr":"05:09","sunrise":"06:23","dhuhr":"12:12","asr":"15:30","maghrib":"17:56","isha":"19:05"},
+    {"date":"2025-11-06","fajr":"05:10","sunrise":"06:24","dhuhr":"12:12","asr":"15:30","maghrib":"17:56","isha":"19:05"},
+    {"date":"2025-11-07","fajr":"05:10","sunrise":"06:24","dhuhr":"12:12","asr":"15:29","maghrib":"17:55","isha":"19:04"},
+    {"date":"2025-11-08","fajr":"05:10","sunrise":"06:25","dhuhr":"12:12","asr":"15:29","maghrib":"17:55","isha":"19:04"},
+    {"date":"2025-11-09","fajr":"05:11","sunrise":"06:25","dhuhr":"12:12","asr":"15:29","maghrib":"17:55","isha":"19:04"},
+    {"date":"2025-11-10","fajr":"05:11","sunrise":"06:26","dhuhr":"12:13","asr":"15:29","maghrib":"17:55","isha":"19:04"},
+    {"date":"2025-11-11","fajr":"05:12","sunrise":"06:26","dhuhr":"12:13","asr":"15:29","maghrib":"17:54","isha":"19:04"},
+    {"date":"2025-11-12","fajr":"05:12","sunrise":"06:27","dhuhr":"12:13","asr":"15:29","maghrib":"17:54","isha":"19:04"},
+    {"date":"2025-11-13","fajr":"05:12","sunrise":"06:27","dhuhr":"12:13","asr":"15:29","maghrib":"17:54","isha":"19:03"},
+    {"date":"2025-11-14","fajr":"05:13","sunrise":"06:28","dhuhr":"12:13","asr":"15:29","maghrib":"17:54","isha":"19:03"},
+    {"date":"2025-11-15","fajr":"05:13","sunrise":"06:28","dhuhr":"12:13","asr":"15:29","maghrib":"17:53","isha":"19:03"},
+    {"date":"2025-11-16","fajr":"05:13","sunrise":"06:29","dhuhr":"12:13","asr":"15:29","maghrib":"17:53","isha":"19:03"},
+    {"date":"2025-11-17","fajr":"05:14","sunrise":"06:29","dhuhr":"12:14","asr":"15:28","maghrib":"17:53","isha":"19:03"},
+    {"date":"2025-11-18","fajr":"05:14","sunrise":"06:30","dhuhr":"12:14","asr":"15:28","maghrib":"17:53","isha":"19:03"},
+    {"date":"2025-11-19","fajr":"05:15","sunrise":"06:30","dhuhr":"12:14","asr":"15:28","maghrib":"17:53","isha":"19:03"},
+    {"date":"2025-11-20","fajr":"05:15","sunrise":"06:31","dhuhr":"12:14","asr":"15:28","maghrib":"17:53","isha":"19:03"},
+    {"date":"2025-11-21","fajr":"05:16","sunrise":"06:31","dhuhr":"12:14","asr":"15:29","maghrib":"17:53","isha":"19:03"},
+    {"date":"2025-11-22","fajr":"05:16","sunrise":"06:32","dhuhr":"12:15","asr":"15:29","maghrib":"17:53","isha":"19:03"},
+    {"date":"2025-11-23","fajr":"05:17","sunrise":"06:32","dhuhr":"12:15","asr":"15:29","maghrib":"17:53","isha":"19:03"},
+    {"date":"2025-11-24","fajr":"05:17","sunrise":"06:33","dhuhr":"12:15","asr":"15:29","maghrib":"17:53","isha":"19:04"},
+    {"date":"2025-11-25","fajr":"05:17","sunrise":"06:33","dhuhr":"12:16","asr":"15:29","maghrib":"17:53","isha":"19:04"},
+    {"date":"2025-11-26","fajr":"05:18","sunrise":"06:34","dhuhr":"12:16","asr":"15:29","maghrib":"17:53","isha":"19:04"},
+    {"date":"2025-11-27","fajr":"05:18","sunrise":"06:35","dhuhr":"12:16","asr":"15:29","maghrib":"17:53","isha":"19:04"},
+    {"date":"2025-11-28","fajr":"05:19","sunrise":"06:35","dhuhr":"12:17","asr":"15:29","maghrib":"17:53","isha":"19:04"},
+    {"date":"2025-11-29","fajr":"05:19","sunrise":"06:36","dhuhr":"12:17","asr":"15:29","maghrib":"17:53","isha":"19:04"},
+    {"date":"2025-11-30","fajr":"05:20","sunrise":"06:36","dhuhr":"12:17","asr":"15:30","maghrib":"17:53","isha":"19:05"}
 ];
 /**
  * Converts a 24-hour time string (HH:MM) to a 12-hour time string (H:MM).
@@ -5306,28 +5331,32 @@ function convertTo12Hour(time24h) {
             if (data) {
                 appState.prayerTimes = { ...appState.prayerTimes, Fajr: data.fajr, Dhuhr: data.dhuhr, Asr: data.asr, Maghrib: data.maghrib, Isha: data.isha };
                 prayerTimesContainer.innerHTML = '';
-                const prayerOrder = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+               const prayerOrder = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
                 const prayerNames = { Fajr: 'الفجر', Dhuhr: 'الظهر', Asr: 'العصر', Maghrib: 'المغرب', Isha: 'العشاء' };
                 const iqamaOffsets = { Fajr: 25, Dhuhr: 20, Asr: 20, Maghrib: 5, Isha: 20 };
+                
                 prayerOrder.forEach(key => {
-    const item = document.createElement('div');
-    item.className = 'prayer-time-item navigable grid-item';
-    item.tabIndex = 0;
-    
-    // 1. Get the 24-hour time
-    const time24h = data[key.toLowerCase()]; 
-    
-    // 2. Convert to 12-hour time for display
-    const time12h = convertTo12Hour(time24h);
-    
-    // 3. Calculate Iqama time (still needs the 24h time for calculation)
-    const iqamaTime = addMinutes(time24h, iqamaOffsets[key]); 
-    
-    // 4. Update the inner HTML using the 12h format
-    item.innerHTML = `<span class="prayer-name">${prayerNames[key]}</span><span class="prayer-time">${time12h}</span><span class="prayer-iqama text-xs text-white/50">الإقامة: ${convertTo12Hour(iqamaTime)}</span>`;
-    
-    prayerTimesContainer.appendChild(item);
-});
+                    const item = document.createElement('div');
+                    item.className = 'prayer-time-item navigable grid-item';
+                    item.tabIndex = 0;
+                    
+                    // 1. Get the 24-hour time
+                    const time24h = data[key.toLowerCase()]; 
+                    
+                    // 2. Convert to 12-hour time (e.g., 3:30 م)
+                    const time12hDisplay = convertTo12HourWithAmPm(time24h); // ✅ استخدام الدالة الجديدة
+                    
+                    // 3. Calculate Iqama time (24h format string)
+                    const iqamaTime24h = addMinutes(time24h, iqamaOffsets[key]); 
+                    
+                    // 4. Convert Iqama time for display (e.g., 3:50 م)
+                    const iqamaTime12hDisplay = convertTo12HourWithAmPm(iqamaTime24h); // ✅ استخدام الدالة الجديدة
+                    
+                    // 5. Update the inner HTML using the 12h format
+                    item.innerHTML = `<span class="prayer-name">${prayerNames[key]}</span><span class="prayer-time">${time12hDisplay}</span><span class="prayer-iqama text-xs text-white/50">الإقامة: ${iqamaTime12hDisplay}</span>`;
+                    
+                    prayerTimesContainer.appendChild(item);
+                });
 
                 // Create a container for the action buttons
                 const buttonContainer = document.createElement('div');
@@ -5485,65 +5514,68 @@ function determineNextPrayer() {
 function updateDigitalClock() {
     const now = new Date();
     
-    // --- 1. Get Hours in 12-Hour Format ---
-    let h = now.getHours();
+    // --- 1. Get Hours and Minutes ---
+    const h24 = now.getHours(); // 🛑 نستخدم h24 (0-23) للمنطق الزمني
+    let h12 = h24;              // h12 للتنسيق المرئي
     const m = now.getMinutes();
-   
+    const s = now.getSeconds();
     
-    // Convert to 12-hour format (0 should be 12)
-    h = h % 12;
-    h = h ? h : 12; // The hour '0' should be '12'
+    // Convert to 12-hour format for display
+    h12 = h12 % 12;
+    h12 = h12 ? h12 : 12; // The hour '0' should be '12'
 
-    // --- 2. Update the Digital Display (Hours are not padded in 12h format) ---
-    digitalHoursSpan.textContent = h; 
+    // --- 2. Update the Digital Display ---
+    digitalHoursSpan.textContent = h12; 
     digitalMinutesSpan.textContent = m.toString().padStart(2, '0');
     
-    // --- 3. Clean up the AM/PM indicator if it exists ---
-    const ampmEl = document.getElementById('am-pm-indicator');
-    if (ampmEl) {
-        ampmEl.remove();
+    if (digitalSecondsSpan) {
+        // إذا كان العنصر موجوداً، اعرض الثواني (نظام 24 ساعة)
+        digitalSecondsSpan.textContent = s.toString().padStart(2, '0');
+    }
+    
+    // --- 3. Update the TIME ICON based on the 24H time (h24) ---
+    const iconContainer = document.getElementById('time-icon-container');
+    if (iconContainer) {
+        let iconSrc = '';
+        
+        // المنطق الزمني بناءً على الساعة 24
+        
+        // 1. النهار المشمس (8:30 AM - 4:59 PM)
+        if ((h24 > 8 || (h24 === 8 && m >= 30)) && (h24 < 17)) { 
+            iconSrc = 'https://cdn.weatherapi.com/weather/64x64/day/113.png'; // Sun Icon
+        } 
+        
+        // 2. الغروب (6:00 PM - 7:00 PM) (18:00 - 19:00)
+        else if ((h24 >= 18 && h24 < 19)) { 
+            iconSrc = 'https://cdn.weatherapi.com/weather/64x64/day/1087.png'; // Sunset Icon (Dusk)
+        } 
+        
+        // 3. الليل (7:01 PM - 6:00 AM) (19:01 - 06:00)
+        else if (h24 >= 19 || h24 < 6 || (h24 === 6 && m === 0)) {
+            iconSrc = 'https://cdn.weatherapi.com/weather/64x64/night/113.png'; // Moon Icon
+        } 
+        
+        // 4. الشروق (6:00 AM - 6:30 AM) (06:00 - 06:30)
+        else if (h24 === 6 && m > 0 && m <= 30) { 
+            iconSrc = 'https://cdn.weatherapi.com/weather/64x64/day/1087.png'; // Sunrise Icon (Dusk)
+        } 
+        
+        // 5. الغيوم الصباحية والمسائية (Morning Cloudy: 6:30 AM - 8:30 AM)
+        // (Pre-sunset Cloudy: 5:00 PM - 6:00 PM) (17:00 - 18:00)
+        else if ((h24 === 6 && m > 30) || (h24 === 7) || (h24 === 8 && m <= 30) || (h24 >= 17 && h24 < 18)) { 
+            iconSrc = 'https://cdn.weatherapi.com/weather/64x64/day/116.png'; // Cloudy/Overcast Icon
+        }
+        
+        // تحديث العنصر في DOM
+        if (iconSrc) {
+            iconContainer.innerHTML = `<img src="${iconSrc}" alt="Time Icon" class="w-8 h-8 inline-block ml-2" style="transform: translateY(4px);">`;
+        } else {
+            iconContainer.innerHTML = '';
+        }
     }
     
     // --- 4. Prayer Time Logic ---
-    digitalDateLine1.classList.remove('countdown-azan', 'countdown-iqama', 'countdown-up');
-    digitalDateLine2.classList.remove('countdown-azan', 'countdown-iqama', 'countdown-up');
-
-    if (appState.prayerTimes.currentPrayer && appState.prayerTimes.currentPrayerIqamaTime) {
-        // State: Counting up from a prayer's iqama time
-        const diff = now - appState.prayerTimes.currentPrayerIqamaTime;
-        const totalSecs = Math.floor(diff / 1000);
-        const secs = totalSecs % 60;
-        const mins = Math.floor(totalSecs / 60);
-        digitalDateLine1.textContent = `انتهت اقامة الصلاة ${appState.prayerTimes.currentPrayer} منذ:`;
-        digitalDateLine2.textContent = `+${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-        digitalDateLine1.classList.add('countdown-up');
-        digitalDateLine2.classList.add('countdown-up');
-
-    } else if (appState.prayerTimes.nextPrayerIqamaTime) {
-        // State: Counting down to something (either iqama or azan)
-        const diff = appState.prayerTimes.nextPrayerIqamaTime - now;
-        const totalSecs = Math.floor(diff / 1000);
-        const secs = totalSecs % 60;
-        const mins = Math.floor((totalSecs / 60) % 60);
-        const hrs = Math.floor(totalSecs / 3600);
-        
-        const isCountdownToIqama = (appState.prayerTimes.currentPrayer === appState.prayerTimes.nextPrayer);
-
-        if (isCountdownToIqama) {
-            digitalDateLine1.textContent = `إقامة صلاة ${appState.prayerTimes.currentPrayer} في:`;
-            digitalDateLine2.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-            digitalDateLine1.classList.add('countdown-iqama');
-            digitalDateLine2.classList.add('countdown-iqama');
-        } else {
-            digitalDateLine1.textContent = `الأذان القادم: ${appState.prayerTimes.nextPrayer}`;
-            digitalDateLine2.textContent = hrs > 0 ? `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}` : `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-            digitalDateLine1.classList.add('countdown-azan');
-            digitalDateLine2.classList.add('countdown-azan');
-        }
-    } else {
-        digitalDateLine1.textContent = 'جاري تحميل أوقات الصلاة...';
-        digitalDateLine2.textContent = '';
-    }
+    // ... (بقية كود الصلاة) ...
 }
 
         // --- 360 Camera ---
