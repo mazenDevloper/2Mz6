@@ -2870,6 +2870,7 @@ function updateUI() {
     const dashboardIcon = document.getElementById('dashboard-weather-icon');
     const locationEl = document.getElementById('dashboard-weather-location');
     
+    // العناصر الجديدة التي تحتوي على المقاييس (Dash Metrics)
     const dashMetricTemp = document.getElementById('dash-metric-temp');
     const dashMetricUV = document.getElementById('dash-metric-uv');
     const dashMetricHumidity = document.getElementById('dash-metric-humidity');
@@ -2878,67 +2879,77 @@ function updateUI() {
     const currentHour = now.getHours();
     const currentMinute = now.getMinutes();
 
+    // القيم المخزنة في حالة التطبيق (App State)
     const tempValue = appState.weather.temperature;
     const uvValue = appState.weather.uvIndex;
     const humidityValue = appState.weather.humidity;
 
 
-    // 🛑 PERIOD FOR MOON TEST: 9:00 AM (09:00) to 12:00 PM (12:00)
-    const isMoonTestPeriod = (currentHour >= 9 && currentHour < 12); 
+    // 🛑 PERIOD FOR MOON DISPLAY (Night Time)
+    const isNightTimeOrTest = (currentHour >= 18 || currentHour < 6); 
     
     let iconSrc = appState.weather.iconUrl || 'https://placehold.co/64x64/000000/FFFFFF?text=X';
         
-    // --- 1. المنطق الزمني للأيقونة (يتم تنفيذه لتحديد أيقونة ودجت الطقس) ---
-    
-    // 1.1. تطبيق المنطق لفرض أيقونة القمر خلال فترة الاختبار أو الليل
-    if (appState.dynamicMoonImageUrl && (isMoonTestPeriod || currentHour >= 19 || currentHour < 6 || (currentHour === 6 && currentMinute === 0))) {
-        iconSrc = appState.dynamicMoonImageUrl; 
-    } 
-    // 1.2. تطبيق منطق الأيقونات الشمسية/الغيوم العادية (إذا لم يكن قمراً أو وقت اختبار)
-    else {
-        // نستخدم نفس المنطق من updateDigitalClock لتحديد أيقونة الوقت الزمني
-        if ((currentHour > 8 || (currentHour === 8 && currentMinute >= 30)) && (currentHour < 17)) { 
-            iconSrc = 'https://cdn.weatherapi.com/weather/64x64/day/113.png'; // Sun Icon
-        } else if ((currentHour >= 18 && currentHour < 19)) { 
-            iconSrc = 'https://cdn.weatherapi.com/weather/64x64/day/1087.png'; // Sunset Icon
-        } else if (currentHour === 6 && currentMinute > 0 && currentMinute <= 30) { 
-            iconSrc = 'https://cdn.weatherapi.com/weather/64x64/day/1087.png'; // Sunrise Icon
-        } else if ((currentHour === 6 && currentMinute > 30) || (currentHour === 7) || (currentHour === 8 && currentMinute <= 30) || (currentHour >= 17 && currentHour < 18)) { 
-            iconSrc = 'https://cdn.weatherapi.com/weather/64x64/day/116.png'; // Cloudy/Sun Icon
-        }
-    }
-
-    // 2. تطبيق الأيقونة النهائية
+    // --- 1. تحديث أيقونة لوحة القيادة (Dashboard Weather Icon) ---
     if (dashboardIcon) {
+        // 1.1. تطبيق المنطق الليلي (قمر NASA)
+        if (isNightTimeOrTest && appState.dynamicMoonImageUrl) {
+            iconSrc = appState.dynamicMoonImageUrl; 
+        } 
+        // 1.2. تطبيق منطق الأيقونات الشمسية/الغيوم العادية (أثناء النهار)
+        else {
+            if ((currentHour > 8 || (currentHour === 8 && currentMinute >= 30)) && (currentHour < 17)) { 
+                iconSrc = 'https://cdn.weatherapi.com/weather/64x64/day/113.png'; // Sun Icon
+            } else if ((currentHour >= 18 && currentHour < 19)) { 
+                iconSrc = 'https://cdn.weatherapi.com/weather/64x64/day/1087.png'; // Sunset Icon
+            } else if (currentHour === 6 && currentMinute > 0 && currentMinute <= 30) { 
+                iconSrc = 'https://cdn.weatherapi.com/weather/64x64/day/1087.png'; // Sunrise Icon
+            } else if ((currentHour === 6 && currentMinute > 30) || (currentHour === 7) || (currentHour === 8 && currentMinute <= 30) || (currentHour >= 17 && currentHour < 18)) { 
+                iconSrc = 'https://cdn.weatherapi.com/weather/64x64/day/116.png'; // Cloudy/Sun Icon
+            } else {
+                 iconSrc = appState.weather.iconUrl || 'https://placehold.co/64x64/000000/FFFFFF?text=X';
+            }
+        }
         dashboardIcon.src = iconSrc;
     }
-    
-    // --- 3. تحديث الواجهة الرئيسية والنصوص (Main Display and Metrics) ---
 
-    // Update main display text
+    // --- 2. تحديث الشاشات الرئيسية والنصوص ---
+    
+    // تحديث درجة الحرارة الكبيرة (التي لا تحتاج إلى toFixed إلا إذا كانت موجودة)
     if (tempEl) {
-        tempEl.textContent = tempValue !== null ? `${tempValue.toFixed(1)}°C` : '--°C';
+        const tempDisplay = tempValue !== null && !isNaN(tempValue) ? tempValue.toFixed(1) : '--';
+        tempEl.textContent = `${tempDisplay}°C`;
     }
+    
+    // وصف الطقس / مرحلة القمر
     if (descEl) {
-        descEl.textContent = appState.weather.description || '--';
+        if (isNightTimeOrTest && appState.moonData && appState.moonData.phase !== undefined) {
+            const phase = appState.moonData.phase.toFixed(1);
+            descEl.textContent = `القمر: ${phase}% مضاء`;
+        } else {
+            descEl.textContent = appState.weather.description || '--';
+        }
     }
+    
     if (locationEl) {
         locationEl.textContent = appState.weather.location;
     }
 
-    // الحرارة
+    // --- 3. تحديث المقاييس الموحدة الجديدة في لوحة القيادة ---
+
+    // الحرارة (Metric 1)
     if (dashMetricTemp && tempValue !== null && !isNaN(tempValue)) {
         dashMetricTemp.textContent = `${Math.round(tempValue)}°C`;
         dashMetricTemp.className = `font-bold text-lg ${getTempTextColor(tempValue)}`;
     } else if (dashMetricTemp) { dashMetricTemp.textContent = '--°C'; dashMetricTemp.className = 'font-bold text-lg text-white/70'; }
 
-    // مؤشر UV
+    // مؤشر UV (Metric 2)
     if (dashMetricUV && uvValue !== null && !isNaN(uvValue)) {
-        dashMetricUV.textContent = `${uvValue}`;
+        dashMetricUV.textContent = `${Math.round(uvValue)}`;
         dashMetricUV.className = `font-bold text-lg ${getUvTextColor(uvValue)}`;
     } else if (dashMetricUV) { dashMetricUV.textContent = '--'; dashMetricUV.className = 'font-bold text-lg text-white/70'; }
 
-    // الرطوبة
+    // الرطوبة (Metric 3)
     if (dashMetricHumidity && humidityValue !== null && !isNaN(humidityValue)) { 
         dashMetricHumidity.textContent = `${Math.round(humidityValue)}%`;
         dashMetricHumidity.className = `font-bold text-lg ${getHumidityTextColor(humidityValue)}`;
@@ -2946,7 +2957,7 @@ function updateUI() {
         dashMetricHumidity.textContent = '--%'; 
         dashMetricHumidity.className = 'font-bold text-lg text-white/70'; 
     }
-    
+
     // 360 Image Update
     const car360Image = document.getElementById('car-360-image');
     if (car360Image) { 
@@ -5068,13 +5079,53 @@ async function fetchWeatherData() {
 /**
  * Generates the current date/time string in NASA SVS format (YYYY-MM-DDT HH:MM).
  */
+/**
+ * Generates the current date/time string in NASA SVS format (YYYY-MM-DDT HH:MM).
+ * NASA API uses the hour/minute of the current system time for the comparison.
+ */
 function getNasaDateTime(date) {
     const year = date.getFullYear();
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const day = date.getDate().toString().padStart(2, '0');
     const hours = date.getHours().toString().padStart(2, '0');
     const minutes = date.getMinutes().toString().padStart(2, '0');
+    
+    // YYYY-MM-DDT HH:MM format
     return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+
+/**
+ * Fetches the dynamic moon data object from the NASA SVS Dial-A-Moon API.
+ * * @param {Date} dateObj - The current Date object.
+ * @returns {Promise<object|null>} The moon data JSON object, or null if failed.
+ */
+async function fetchNasaMoonData(dateObj) {
+    const nasaDateString = getNasaDateTime(dateObj); 
+    const API_URL = `https://svs.gsfc.nasa.gov/api/dialamoon/${nasaDateString}`;
+
+    try {
+        const response = await fetch(API_URL);
+        
+        if (!response.ok) {
+            console.error(`NASA Dial-A-Moon API failed: Status ${response.status}.`);
+            return null;
+        }
+
+        const data = await response.json();
+        
+        // نرجع كائن البيانات كاملاً للاستفادة من 'phase' و 'image.url'
+        if (data && data.image && data.image.url) {
+            console.log("NASA SVS data fetched successfully.");
+            return data; 
+        }
+        
+        return null;
+        
+    } catch (error) {
+        console.error("Network error during NASA API call:", error);
+        return null;
+    }
 }
 
 /**
@@ -5114,12 +5165,15 @@ async function fetchNasaMoonImage(dateObj) {
 // -------------------------------------------------------------
 // --- MODIFIED fetchWeatherData function (Fetches Weather + NASA Moon) ---
 // -------------------------------------------------------------
+// -------------------------------------------------------------
+// --- MODIFIED fetchWeatherData function (Fetches Weather + NASA Moon) ---
+// -------------------------------------------------------------
 async function fetchWeatherData() {
-    const now = new Date(); // جلب الوقت الحالي لتمريره إلى API الطقس والقمر
+    const now = new Date(); 
     
     if (WEATHER_API_KEY.startsWith('YOUR_')) return showMessageBox('خطأ: لم يتم تعيين مفتاح WeatherAPI.');
     
-    // 1. تحديد الموقع
+    // 1. جلب بيانات الطقس
     try {
         const locationQuery = appState.currentLocation ? `${appState.currentLocation.lat},${appState.currentLocation.lng}` : appState.weather.location.split(',')[0].trim();
         const res = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=${WEATHER_API_KEY}&q=${locationQuery}&days=2&aqi=yes&alerts=no&lang=ar`);
@@ -5133,19 +5187,21 @@ async function fetchWeatherData() {
         appState.weather.uvIndex = data.current.uv;
         appState.weather.iconUrl = `https:${data.current.condition.icon}`;
         appState.weather.location = `${data.location.name}, ${data.location.country}`;
-        appState.weather.humidity = data.current.humidity; // ✅ تحديث قيمة الرطوبة
+        appState.weather.humidity = data.current.humidity; 
 
-        // 3. جلب أيقونة القمر من NASA SVS (لا تحتاج مصادقة معقدة)
-        // ✅ استخدام الدالة الجديدة التي ترجع رابط صورة مباشر
-        const moonUrl = await fetchNasaMoonImage(now);
-        if (moonUrl) {
-            appState.dynamicMoonImageUrl = moonUrl;
+        // 3. جلب بيانات القمر (Moon Data)
+        const moonResult = await fetchNasaMoonData(now); // ✅ نطلب كائن البيانات كاملاً
+
+        // 4. تحديث حالة القمر في AppState
+        if (moonResult) {
+            appState.dynamicMoonImageUrl = moonResult.image.url; // تخزين رابط الصورة
+            appState.moonData = moonResult; // ✅ تخزين كائن البيانات للحصول على حقل 'phase'
         } else {
-             // في حالة فشل جلب القمر، نستخدم أيقونة القمر الثابتة
-            appState.dynamicMoonImageUrl = 'https://cdn.weatherapi.com/weather/64x64/day/113.png'; 
+            appState.dynamicMoonImageUrl = 'https://cdn.weatherapi.com/weather/64x64/night/113.png'; 
+            appState.moonData = null;
         }
 
-        // 4. تحديث الواجهات المرئية
+        // 5. تحديث الواجهات المرئية
         const hourlyData = [...data.forecast.forecastday[0].hour, ...data.forecast.forecastday[1]?.hour || []];
         const currentHourData = {
             time: "الآن",
