@@ -6135,6 +6135,7 @@ if (!window.hasInitializedWeatherSpeaker) {
 
         // --- Initial Setup ---
         document.addEventListener('DOMContentLoaded', () => { 
+            fetchWeatherData(); 
             // Standard Listeners
             getMyLocationButtonDashboard?.addEventListener('click', centerMapOnUserLocation);
             goToHome1Button?.addEventListener('click', () => calculateAndDisplayRouteTo(HOME1_COORDS));
@@ -6170,7 +6171,7 @@ const recitersIframe = document.getElementById('reciters-iframe');
     });
 migrateChannelData();
     loadGoogleMaps().then(initMap);
-    fetchWeatherData(); 
+    
     loadPrayerTimes();
     updateFullDateWidget(); // <-- أضف هذا السطر (استدعاء أولي)
 
