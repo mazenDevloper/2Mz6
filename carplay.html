@@ -2600,6 +2600,158 @@ async function displayLastWatchedVideo() {
         const WEATHER_API_KEY = '7acefc26deee4904a2393917252207'; 
         const GOOGLE_MAPS_API_KEY = 'AIzaSyBRqAHJ2elbE_Z7NXXYC50XZpqi6HbG6Rk';
 
+        // -------------------------------------------------------------
+// --- CONFIGURATION ---
+// -------------------------------------------------------------
+const ASTRONOMY_APP_ID = 'c3516253-f116-4943-9289-a4dd9dc86143';
+const ASTRONOMY_APP_SECRET = '1020031e0ae3c16286c2c5c41a1a7a76d3e95901663d18691d6b621106ca7593c3d6b625b6c5fd936987a14d2667d5d9f38e69246534180c1143655c8b12aeffb551450617ed03b4d7095b59bda2040955532d1fa245b15e98b8c2ebaf39bf2e06cc73a9bf66782f6769b278e056799a';
+const OBSERVER_LAT = 17.081667; // Salalah
+const OBSERVER_LON = 54.159722; // Salalah
+
+/**
+ * Helper function to base64 encode the credentials for Basic Auth.
+ * @returns {string|null} The Base64 hash string for Authorization header.
+ */
+// -------------------------------------------------------------
+// --- FIX: Ensure UTF-8 to Base64 Encoding for Basic Auth ---
+// -------------------------------------------------------------
+
+function getBasicAuthHash() {
+    const credentials = `${ASTRONOMY_APP_ID}:${ASTRONOMY_APP_SECRET}`;
+    
+    // ✅ الطريقة الأكثر أماناً لترميز Base64 في المتصفح (تعالج أحرف UTF-8)
+    try {
+        const utf8Bytes = new TextEncoder().encode(credentials);
+        const base64Hash = btoa(String.fromCharCode(...utf8Bytes));
+        return base64Hash;
+    } catch (e) {
+        console.error("Failed to encode credentials:", e);
+        return null;
+    }
+}
+
+// -------------------------------------------------------------
+// --- MODIFIED fetchMoonPhaseImage function (Uses FIXED Hash) ---
+// -------------------------------------------------------------
+async function fetchMoonPhaseImage(dateObj) {
+    const authHash = getBasicAuthHash();
+    if (!authHash) {
+        // Return static fallback if authentication setup failed
+        return 'https://cdn.weatherapi.com/weather/64x64/night/113.png'; 
+    }
+    
+    // ... (بقية منطق إنشاء requestBody كما هو) ...
+    const formattedDate = getTodayDateString(dateObj); 
+    const OBSERVER_LAT = 17.081667; 
+    const OBSERVER_LON = 54.159722;
+    
+    const requestBody = {
+        "format": "png",
+        "style": {
+            "moonStyle": "shaded", 
+            "backgroundStyle": "solid",
+            "backgroundColor": "black",
+        },
+        "observer": {
+            "latitude": OBSERVER_LAT, 
+            "longitude": OBSERVER_LON,
+            "date": formattedDate 
+        },
+        "view": {
+            "type": "portrait-simple"
+        }
+    };
+
+
+    try {
+        const response = await fetch('https://api.astronomyapi.com/api/v2/studio/moon-phase', {
+            method: 'POST',
+            headers: {
+                // ✅ استخدام الهاش الناتج عن الدالة المُصححة
+                'Authorization': `Basic ${authHash}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody),
+        });
+
+        if (!response.ok) {
+            console.error(`Astronomy API failed: Status ${response.status}. Falling back to static icon.`);
+            // 🛑 إذا حدث فشل، نعود إلى الصورة الثابتة
+            return 'hhttps://docs.astronomyapi.com/~gitbook/image?url=https%3A%2F%2F1238588302-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-legacy-files%2Fo%2Fassets%252F-MKQ7_I-c79Ln1c6Chop%252F-MLMcIv7WeAS5ac0ZVnC%252F-MLMfuVXwb-nvqU5Gd3F%252Fmoon.285d.png%3Falt%3Dmedia%26token%3D93c058ab-4d2a-462e-9bf4-4647c532448a&width=768&dpr=3&quality=100&sign=a5ccf4af&sv=2'; 
+        }
+
+        const data = await response.json();
+        return data.data.imageUrl; // الرابط النهائي للصورة الديناميكية
+    } catch (error) {
+        console.error("Network error during API call.", error);
+        return 'https://docs.astronomyapi.com/~gitbook/image?url=https%3A%2F%2F1238588302-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-legacy-files%2Fo%2Fassets%252F-MKQ7_I-c79Ln1c6Chop%252F-MLMcIv7WeAS5ac0ZVnC%252F-MLMfuVXwb-nvqU5Gd3F%252Fmoon.285d.png%3Falt%3Dmedia%26token%3D93c058ab-4d2a-462e-9bf4-4647c532448a&width=768&dpr=3&quality=100&sign=a5ccf4af&sv=2'; // Fallback on network error
+    }
+}
+
+/**
+ * Fetches the dynamic URL for today's moon phase image from AstronomyAPI via POST request.
+ *
+ * @param {Date} dateObj - The current Date object for today.
+ * @returns {Promise<string|null>} The dynamic image URL or null if failed.
+ */
+async function fetchMoonPhaseImage(dateObj) {
+    // ⚠️ يجب عليك استبدال هذا المتغير بالهاش الفعلي الخاص بك
+    const ASTRONOMY_HASH = 'YOUR_BASE64_ENCODED_BASIC_AUTH_HASH'; 
+
+    // إحداثيات صلالة (Salalah) الثابتة في تطبيقك
+    const OBSERVER_LAT = 17.081667; 
+    const OBSERVER_LON = 54.159722;
+    
+    if (ASTRONOMY_HASH === 'YOUR_BASE64_ENCODED_BASIC_AUTH_HASH') {
+        console.warn("ASTRONOMY_API_HASH is not set. Using fallback icon.");
+        return null; 
+    }
+
+    const formattedDate = getTodayDateString(dateObj); // تنسيق YYYY-MM-DD
+    const authString = `Basic ${ASTRONOMY_HASH}`;
+
+    const requestBody = {
+        "format": "png",
+        "style": {
+            "moonStyle": "shaded", // مظهر واقعي (shaded)
+            "backgroundStyle": "solid",
+            "backgroundColor": "black",
+        },
+        "observer": {
+            "latitude": OBSERVER_LAT, 
+            "longitude": OBSERVER_LON,
+            "date": formattedDate 
+        },
+        "view": {
+            "type": "portrait-simple" // قالب عرض بسيط
+        }
+    };
+
+    try {
+        const response = await fetch('https://api.astronomyapi.com/api/v2/studio/moon-phase', {
+            method: 'POST',
+            headers: {
+                'Authorization': authString,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody),
+        });
+
+        if (!response.ok) {
+            console.error(`Astronomy API failed: Status ${response.status}`);
+            return null;
+        }
+
+        const data = await response.json();
+        return data.data.imageUrl; // جلب رابط الصورة الديناميكي
+    } catch (error) {
+        console.error("Error generating moon phase image:", error);
+        return null;
+    }
+}
+
+
+
 const JSONBIN_API_KEY = '$2a$10$SYrYv.ct8hiMU9YeUxEQ.ecRkOrTqs.TDchJRV3wW.aKJnDXy2oVy';
 const JSONBIN_BIN_ID_REMINDERS = '68e3800cae596e708f07cf32';
 const JSONBIN_ACCESS_KEY_REMINDERS = '$2a$10$J8o3WrPtnqmKAd///uDw6.BOWnGIBekHFOImbeEZZwsJ/h/XPbVUy';
@@ -2856,75 +3008,99 @@ let favoritesM = [];
             }
         }
         
-        function updateUI() {
-    // --- Dashboard Weather Widget Updates ---
+       // -------------------------------------------------------------
+// --- MODIFIED updateUI function (Applies Icon Logic) ---
+// -------------------------------------------------------------
+function updateUI() {
     const tempEl = document.getElementById('dashboard-weather-temp');
     const descEl = document.getElementById('dashboard-weather-desc');
-    const iconEl = document.getElementById('dashboard-weather-icon');
+    const dashboardIcon = document.getElementById('dashboard-weather-icon');
     const locationEl = document.getElementById('dashboard-weather-location');
     
-    // NEW METRICS REFERENCES
     const dashMetricTemp = document.getElementById('dash-metric-temp');
     const dashMetricUV = document.getElementById('dash-metric-uv');
     const dashMetricHumidity = document.getElementById('dash-metric-humidity');
     
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+
     const tempValue = appState.weather.temperature;
     const uvValue = appState.weather.uvIndex;
     const humidityValue = appState.weather.humidity;
 
 
-    // Update main display
+    // 🛑 PERIOD FOR MOON TEST: 9:00 AM (09:00) to 12:00 PM (12:00)
+    const isMoonTestPeriod = (currentHour >= 9 && currentHour < 12); 
+    
+    let iconSrc = appState.weather.iconUrl || 'https://placehold.co/64x64/000000/FFFFFF?text=X';
+        
+    // --- 1. المنطق الزمني للأيقونة (يتم تنفيذه لتحديد أيقونة ودجت الطقس) ---
+    
+    // 1.1. تطبيق المنطق لفرض أيقونة القمر خلال فترة الاختبار أو الليل
+    if (appState.dynamicMoonImageUrl && (isMoonTestPeriod || currentHour >= 19 || currentHour < 6 || (currentHour === 6 && currentMinute === 0))) {
+        iconSrc = appState.dynamicMoonImageUrl; 
+    } 
+    // 1.2. تطبيق منطق الأيقونات الشمسية/الغيوم العادية (إذا لم يكن قمراً أو وقت اختبار)
+    else {
+        // نستخدم نفس المنطق من updateDigitalClock لتحديد أيقونة الوقت الزمني
+        if ((currentHour > 8 || (currentHour === 8 && currentMinute >= 30)) && (currentHour < 17)) { 
+            iconSrc = 'https://cdn.weatherapi.com/weather/64x64/day/113.png'; // Sun Icon
+        } else if ((currentHour >= 18 && currentHour < 19)) { 
+            iconSrc = 'https://cdn.weatherapi.com/weather/64x64/day/1087.png'; // Sunset Icon
+        } else if (currentHour === 6 && currentMinute > 0 && currentMinute <= 30) { 
+            iconSrc = 'https://cdn.weatherapi.com/weather/64x64/day/1087.png'; // Sunrise Icon
+        } else if ((currentHour === 6 && currentMinute > 30) || (currentHour === 7) || (currentHour === 8 && currentMinute <= 30) || (currentHour >= 17 && currentHour < 18)) { 
+            iconSrc = 'https://cdn.weatherapi.com/weather/64x64/day/116.png'; // Cloudy/Sun Icon
+        }
+    }
+
+    // 2. تطبيق الأيقونة النهائية
+    if (dashboardIcon) {
+        dashboardIcon.src = iconSrc;
+    }
+    
+    // --- 3. تحديث الواجهة الرئيسية والنصوص (Main Display and Metrics) ---
+
+    // Update main display text
     if (tempEl) {
         tempEl.textContent = tempValue !== null ? `${tempValue.toFixed(1)}°C` : '--°C';
     }
     if (descEl) {
         descEl.textContent = appState.weather.description || '--';
     }
-    if (iconEl) {
-        iconEl.src = appState.weather.iconUrl || 'https://placehold.co/64x64/000000/FFFFFF?text=X';
-    }
     if (locationEl) {
         locationEl.textContent = appState.weather.location;
     }
 
-    // --- NEW: Update Main Dashboard Metrics Grid ---
-    if (dashMetricTemp && tempValue !== null) {
+    // الحرارة
+    if (dashMetricTemp && tempValue !== null && !isNaN(tempValue)) {
         dashMetricTemp.textContent = `${Math.round(tempValue)}°C`;
-        // Apply color class using a helper function (assumed defined elsewhere)
         dashMetricTemp.className = `font-bold text-lg ${getTempTextColor(tempValue)}`;
     } else if (dashMetricTemp) { dashMetricTemp.textContent = '--°C'; dashMetricTemp.className = 'font-bold text-lg text-white/70'; }
 
-    if (dashMetricUV && uvValue !== null) {
+    // مؤشر UV
+    if (dashMetricUV && uvValue !== null && !isNaN(uvValue)) {
         dashMetricUV.textContent = `${uvValue}`;
         dashMetricUV.className = `font-bold text-lg ${getUvTextColor(uvValue)}`;
     } else if (dashMetricUV) { dashMetricUV.textContent = '--'; dashMetricUV.className = 'font-bold text-lg text-white/70'; }
 
-    if (dashMetricHumidity && humidityValue !== null) {
+    // الرطوبة
+    if (dashMetricHumidity && humidityValue !== null && !isNaN(humidityValue)) { 
         dashMetricHumidity.textContent = `${Math.round(humidityValue)}%`;
         dashMetricHumidity.className = `font-bold text-lg ${getHumidityTextColor(humidityValue)}`;
-    } else if (dashMetricHumidity) { dashMetricHumidity.textContent = '--%'; dashMetricHumidity.className = 'font-bold text-lg text-white/70'; }
-    // --- END NEW METRICS GRID UPDATE ---
-
-
-    // --- 3D Screen Weather Temp Update ---
-    const temp3dEl = document.getElementById('3d-screen-weather-temp');
-    if (temp3dEl) {
-        temp3dEl.textContent = tempValue !== null ? `${tempValue.toFixed(1)}°C` : '--°C';
+    } else if (dashMetricHumidity) { 
+        dashMetricHumidity.textContent = '--%'; 
+        dashMetricHumidity.className = 'font-bold text-lg text-white/70'; 
     }
-
-    // --- Weather Screen UV Update (If element exists) ---
-    const uvWeatherScreenEl = document.getElementById('weather-uv');
-    if (uvWeatherScreenEl) {
-        uvWeatherScreenEl.textContent = uvValue !== null ? uvValue : '--';
-        uvWeatherScreenEl.style.color = getUvIndexColor(uvValue);
-    }
-
-    // --- 360 Image Update ---
+    
+    // 360 Image Update
+    const car360Image = document.getElementById('car-360-image');
     if (car360Image) { 
         car360Image.src = appState.custom360Image || default360ImageSrc;
     }
 
-    // --- Start Trip Button Visibility ---
+    // Start Trip Button Visibility
     const startTripFloatingButton = document.getElementById('start-trip-floating-button');
     if (startTripFloatingButton) { 
         startTripFloatingButton.style.display = appState.destinationSet ? 'flex' : 'none';
@@ -4982,47 +5158,58 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
             }
         }
 
-        // --- Weather API Integration ---
-        async function fetchWeatherData() {
-            if (WEATHER_API_KEY.startsWith('YOUR_')) return showMessageBox('خطأ: لم يتم تعيين مفتاح WeatherAPI.');
-            try {
-                const locationQuery = appState.currentLocation ? `${appState.currentLocation.lat},${appState.currentLocation.lng}` : appState.weather.location.split(',')[0].trim();
-                const res = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=${WEATHER_API_KEY}&q=${locationQuery}&days=2&aqi=yes&alerts=no&lang=ar`);
-                if (!res.ok) throw new Error(`خطأ HTTP! الحالة: ${res.status}`);
-                const data = await res.json();
-                
-                // Update main state for Salalah
-                appState.weather.temperature = data.current.temp_c;
-                appState.weather.description = data.current.condition.text;
-                appState.weather.uvIndex = data.current.uv;
-                appState.weather.iconUrl = `https:${data.current.condition.icon}`;
-                appState.weather.location = `${data.location.name}, ${data.location.country}`;
-
-                appState.weather.humidity = data.current.humidity;
-                
-                // --- NEW: Handle hourly forecast ---
-                const hourlyData = [...data.forecast.forecastday[0].hour, ...data.forecast.forecastday[1]?.hour || []];
-                const now = new Date();
-                const currentHourData = {
-                    time: "الآن",
-                    temp_c: data.current.temp_c,
-                    condition: { icon: data.current.condition.icon }
-                };
-                const upcomingHours = hourlyData.filter(h => new Date(h.time_epoch * 1000) > now).slice(0, 6);
-                const forecastToRender = [currentHourData, ...upcomingHours];
-                renderHourlyForecast(forecastToRender);
-                
-                // --- NEW: Fetch other locations ---
-                renderAdvancedWeatherCards(data);
-
-                updateUI(); // Update other UI elements
-            } catch (err) {
-                console.error('Error fetching weather data:', err);
-            
-            }
-
-
+        /// -------------------------------------------------------------
+// --- MODIFIED fetchWeatherData function (Fetches Weather + Dynamic Moon) ---
+// -------------------------------------------------------------
+async function fetchWeatherData() {
+    // ⚠️ يتم افتراض أن الدوال المساعدة مثل getBasicAuthHash موجودة
+    const now = new Date(); // جلب الوقت الحالي لتمريره إلى API الطقس والقمر
+    
+    if (WEATHER_API_KEY.startsWith('YOUR_')) return showMessageBox('خطأ: لم يتم تعيين مفتاح WeatherAPI.');
+    
+    // 1. تحديد الموقع
+    try {
+        const locationQuery = appState.currentLocation ? `${appState.currentLocation.lat},${appState.currentLocation.lng}` : appState.weather.location.split(',')[0].trim();
+        const res = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=${WEATHER_API_KEY}&q=${locationQuery}&days=2&aqi=yes&alerts=no&lang=ar`);
+        
+        if (!res.ok) throw new Error(`خطأ HTTP! الحالة: ${res.status}`);
+        const data = await res.json();
+        
+        // 2. تحديث حالة الطقس الرئيسية
+        appState.weather.temperature = data.current.temp_c;
+        appState.weather.description = data.current.condition.text;
+        appState.weather.uvIndex = data.current.uv;
+        appState.weather.iconUrl = `https:${data.current.condition.icon}`;
+        appState.weather.location = `${data.location.name}, ${data.location.country}`;
+        appState.weather.humidity = data.current.humidity;
+        
+        // 3. جلب أيقونة القمر الديناميكية (يعمل بالتوازي مع تحديث الطقس)
+        const moonUrl = await fetchMoonPhaseImage(now);
+        if (moonUrl) {
+            appState.dynamicMoonImageUrl = moonUrl;
+        } else {
+             // في حالة فشل جلب القمر، نستخدم أيقونة القمر الثابتة
+            appState.dynamicMoonImageUrl = 'https://docs.astronomyapi.com/~gitbook/image?url=https%3A%2F%2F1238588302-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-legacy-files%2Fo%2Fassets%252F-MKQ7_I-c79Ln1c6Chop%252F-MLMcIv7WeAS5ac0ZVnC%252F-MLMfuVXwb-nvqU5Gd3F%252Fmoon.285d.png%3Falt%3Dmedia%26token%3D93c058ab-4d2a-462e-9bf4-4647c532448a&width=768&dpr=3&quality=100&sign=a5ccf4af&sv=2'; 
         }
+
+        // 4. تحديث الواجهات المرئية
+        const hourlyData = [...data.forecast.forecastday[0].hour, ...data.forecast.forecastday[1]?.hour || []];
+        const currentHourData = {
+            time: "الآن",
+            temp_c: data.current.temp_c,
+            condition: { icon: data.current.condition.icon }
+        };
+        const upcomingHours = hourlyData.filter(h => new Date(h.time_epoch * 1000) > now).slice(0, 6);
+        const forecastToRender = [currentHourData, ...upcomingHours];
+        
+        renderHourlyForecast(forecastToRender);
+        renderAdvancedWeatherCards(data);
+        updateUI(); // 🛑 استدعاء تحديث الواجهة بعد جلب كل البيانات
+        
+    } catch (err) {
+        console.error('Error fetching weather data:', err);
+    }
+}
 
         function renderHourlyForecast(forecastData) {
             const container = document.getElementById('hourly-forecast-container');
@@ -5511,62 +5698,60 @@ function determineNextPrayer() {
         
         // --- Digital Clock ---
         // --- Digital Clock ---
+/**
+ * Generates the current date string in YYYY-MM-DD format (e.g., 2025-11-03).
+ * This is crucial for dynamic APIs that require date input.
+ * @param {Date} date - The current Date object.
+ * @returns {string} The formatted date string.
+ */
+function getTodayDateString(date) {
+    const year = date.getFullYear();
+    // getMonth() is 0-indexed, so we add 1.
+    const month = (date.getMonth() + 1).toString().padStart(2, '0'); 
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
 function updateDigitalClock() {
+    // 1. Get current system time (Crucial for icon logic)
     const now = new Date();
-    
-    // --- 1. Get Hours and Minutes ---
-    const h24 = now.getHours(); // 🛑 نستخدم h24 (0-23) للمنطق الزمني
-    let h12 = h24;              // h12 للتنسيق المرئي
+    const h24 = now.getHours(); // 24-hour format (0-23)
+    let h12 = h24;
     const m = now.getMinutes();
     const s = now.getSeconds();
     
     // Convert to 12-hour format for display
     h12 = h12 % 12;
-    h12 = h12 ? h12 : 12; // The hour '0' should be '12'
+    h12 = h12 ? h12 : 12;
 
-    // --- 2. Update the Digital Display ---
+    // 2. Update the Digital Display
     digitalHoursSpan.textContent = h12; 
     digitalMinutesSpan.textContent = m.toString().padStart(2, '0');
     
     if (digitalSecondsSpan) {
-        // إذا كان العنصر موجوداً، اعرض الثواني (نظام 24 ساعة)
         digitalSecondsSpan.textContent = s.toString().padStart(2, '0');
     }
     
-    // --- 3. Update the TIME ICON based on the 24H time (h24) ---
+    // --- 3. Update the TIME ICON Container (#time-icon-container) ---
+    // هذا الجزء يعرض أيقونات الشمس/الغيوم/القمر حسب التوقيت (كما طلبت في السابق)
     const iconContainer = document.getElementById('time-icon-container');
     if (iconContainer) {
         let iconSrc = '';
         
-        // المنطق الزمني بناءً على الساعة 24
-        
-        // 1. النهار المشمس (8:30 AM - 4:59 PM)
+        // المنطق الزمني بناءً على الساعة 24 (h24)
         if ((h24 > 8 || (h24 === 8 && m >= 30)) && (h24 < 17)) { 
             iconSrc = 'https://cdn.weatherapi.com/weather/64x64/day/113.png'; // Sun Icon
-        } 
-        
-        // 2. الغروب (6:00 PM - 7:00 PM) (18:00 - 19:00)
-        else if ((h24 >= 18 && h24 < 19)) { 
-            iconSrc = 'https://cdn.weatherapi.com/weather/64x64/day/1087.png'; // Sunset Icon (Dusk)
-        } 
-        
-        // 3. الليل (7:01 PM - 6:00 AM) (19:01 - 06:00)
-        else if (h24 >= 19 || h24 < 6 || (h24 === 6 && m === 0)) {
-            iconSrc = 'https://cdn.weatherapi.com/weather/64x64/night/113.png'; // Moon Icon
-        } 
-        
-        // 4. الشروق (6:00 AM - 6:30 AM) (06:00 - 06:30)
-        else if (h24 === 6 && m > 0 && m <= 30) { 
-            iconSrc = 'https://cdn.weatherapi.com/weather/64x64/day/1087.png'; // Sunrise Icon (Dusk)
-        } 
-        
-        // 5. الغيوم الصباحية والمسائية (Morning Cloudy: 6:30 AM - 8:30 AM)
-        // (Pre-sunset Cloudy: 5:00 PM - 6:00 PM) (17:00 - 18:00)
-        else if ((h24 === 6 && m > 30) || (h24 === 7) || (h24 === 8 && m <= 30) || (h24 >= 17 && h24 < 18)) { 
-            iconSrc = 'https://cdn.weatherapi.com/weather/64x64/day/116.png'; // Cloudy/Overcast Icon
+        } else if ((h24 >= 18 && h24 < 19)) { 
+            iconSrc = 'https://cdn.weatherapi.com/weather/64x64/day/1087.png'; // Sunset Icon
+        } else if (h24 >= 19 || h24 < 6 || (h24 === 6 && m === 0)) {
+            // Night Time: Use a fixed moon icon (NOT the dynamic one, for simplicity)
+            iconSrc = 'https://cdn.weatherapi.com/weather/64x64/night/113.png'; 
+        } else if (h24 === 6 && m > 0 && m <= 30) { 
+            iconSrc = 'https://cdn.weatherapi.com/weather/64x64/day/1087.png'; // Sunrise Icon
+        } else if ((h24 === 6 && m > 30) || (h24 === 7) || (h24 === 8 && m <= 30) || (h24 >= 17 && h24 < 18)) { 
+            iconSrc = 'https://cdn.weatherapi.com/weather/64x64/day/116.png'; // Cloudy/Sun Icon
         }
         
-        // تحديث العنصر في DOM
         if (iconSrc) {
             iconContainer.innerHTML = `<img src="${iconSrc}" alt="Time Icon" class="w-8 h-8 inline-block ml-2" style="transform: translateY(4px);">`;
         } else {
@@ -5574,8 +5759,8 @@ function updateDigitalClock() {
         }
     }
     
-    // --- 4. Prayer Time Logic ---
-    // ... (بقية كود الصلاة) ...
+    // 4. Trigger Next Prayer Logic Updates
+    determineNextPrayer(now); 
 }
 
         // --- 360 Camera ---
