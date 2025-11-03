@@ -2189,6 +2189,9 @@ div#map{display:none}
         <button id="zoom-out-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="تصغير">
             <i data-lucide="zoom-out" class="w-5 h-5"></i>
         </button>
+        <button id="manual-update-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="تحديث يدوي للواجهة (UI)">
+        <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+    </button>
         <button id="remove-cache-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="مسح ذاكرة التخزين المؤقت">
             <i data-lucide="trash-2" class="w-5 h-5"></i>
         </button>
@@ -2412,6 +2415,9 @@ const observer = new MutationObserver(blockInPagePopups);
 // ابدأ المراقبة عند تحميل الصفحة
 // راقب جميع التغييرات في الجسم الرئيسي (body) والـ subtree (جميع العناصر الفرعية)
 document.addEventListener('DOMContentLoaded', () => {
+
+
+    
     // نفذ الدالة مرة واحدة عند التحميل الأولي
     blockInPagePopups(); 
 
@@ -6140,7 +6146,18 @@ if (!window.hasInitializedWeatherSpeaker) {
             goToHome1Button?.addEventListener('click', () => calculateAndDisplayRouteTo(HOME1_COORDS));
             goToHome2Button?.addEventListener('click', () => calculateAndDisplayRouteTo(HOME2_COORDS));
             floatingMediaButton?.addEventListener('click', () => switchApp('Media')); 
-            floatingMinimizedVideoButton?.addEventListener('click', restoreVideoPopup); // NEW listener
+            floatingMinimizedVideoButton?.addEventListener('click', restoreVideoPopup);
+            const layoutToggleButton = document.getElementById('layout-toggle-button');
+const manualUpdateButton = document.getElementById('manual-update-button');
+
+// NEW LISTENER ADDED HERE
+manualUpdateButton?.addEventListener('click', () => {
+    // 🛑 تنفيذ دالة تحديث الواجهة والودجت مباشرة
+    updateUI(); 
+    showMessageBox('تم تحديث الواجهة يدوياً (UI Refreshed).');
+});
+
+layoutToggleButton?.addEventListener('click', toggleLayoutMode); // NEW listener
             
 
     // ... (الكود الموجود لديك)
