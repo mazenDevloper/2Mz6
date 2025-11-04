@@ -40,13 +40,16 @@
 
 /* --- START: Last Watched & History Styles --- */
 /* --- START: Fullscreen Toggle Button Styles --- */
-
+img#dashboard-weather-icon {
+    border-radius: 50px;
+}
 .fullscreen-toggle-button {
     /* Positioning the button inside the section, usually top right */
     position: absolute; 
     bottom: 1rem;
     left: 1rem;
-    z-index: 99; /* Ensure it's above content but below floating buttons (like popup video) */
+    z-index: 99;
+     /* Ensure it's above content but below floating buttons (like popup video) */
     
     /* Aesthetic styling (can be adjusted to match your glass-surface style) */
     background-color: rgba(255, 255, 255, 0.1); 
@@ -68,6 +71,10 @@
     transform: scale(1.1);
 }
 
+
+#quran-go-button,#fullscreen-reciters-iframe-btn,#fullscreen-radio-iframe-btn{
+    z-index:999;
+}
 /* CRITICAL: The class that forces the section to cover the viewport 
 */
 .is-fullscreen {
@@ -566,7 +573,7 @@ div#\33 d-screen-weather-widget {
         /* Styles for individual app screens */
         .app-screen {
             display: none; /* Hidden by default */
-            animation: fadeIn 0.5s ease-in-out; /* Fade-in transition */
+            animation: fadeIn 0.1s ease-in-out; /* Fade-in transition */
             width: 100%;
             height: 100%;
             flex-direction: column;
@@ -1296,6 +1303,26 @@ div#youtube-readers-section {
             transition: transform 0.3s ease-in-out;
         }
 
+@media (max-width: 768px) {
+    /* ... (بقية الأكواد الخاصة بالهواتف المحمولة) ... */
+
+    /* 🛑 إخفاء أيقونات التطبيقات غير الضرورية في وضع الموبايل */
+    button[data-app="Map"] {
+        display: none !important; /* إخفاء أيقونة Map/3D Car (تمت إعادة تسميتها) */
+    }
+    button[data-app="Radio"] {
+        display: none !important; /* إخفاء أيقونة Radio */
+    }
+    
+    /* 🛑 إخفاء زر الوسائط العائم (مكرر مع شريط التنقل) */
+    #floating-media-button {
+        display: none !important;
+    }
+
+    /* ملاحظة: يتم بالفعل إخفاء floating-media-button عندما تكون شاشة Media نشطة في handleMediaViewSwitch */
+    
+    /* ... (بقية الأكواد) ... */
+}
 
         /* NEW: Responsive padding toggle */
         @media (min-width: 768px) {
@@ -1566,8 +1593,11 @@ section#screen-Dashboard{
   background: #00000084;   
 }
             body{
-              background:url('https://dmusera.netlify.app/tvbg.webp')!important;
-                background-size:cover!important;
+                      background: url(https://dmusera.netlify.app/tvbgc1.webp) !important;
+        background-size: contain !important;
+        background-color: black !important;
+        background-repeat: no-repeat !important;
+        background-position: center !important;
             }
 
             /* NEW: Date widget styles */
@@ -1739,18 +1769,29 @@ div#map{display:none}
                             <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center navigable grid-item" tabindex="0">
                         <div id="weather-widget-container" class="w-full h-full flex flex-col items-center justify-center">
     <img id="dashboard-weather-icon" src="" alt="Weather Icon" class="w-20 h-20 text-white mb-2" />
-    <p class="text-5xl font-extrabold mb-1" id="dashboard-weather-temp">--°C</p>
+   
     <p class="text-xl font-semibold text-white/80 mb-2" id="dashboard-weather-desc">--</p>
-    <p class="text-md text-white/70" id="dashboard-weather-humidity">💧 --%</p>
-    <p class="text-sm text-white/60" id="dashboard-weather-humidity-desc">--</p>
-    <p class="text-md text-white/70 mt-1" id="dashboard-weather-uv">☀️ UV: --</p>
-    <p class="text-md text-white/60 mt-1" id="dashboard-weather-location">--</p>
+    <div id="dashboard-weather-main-metrics" class="grid grid-cols-3 gap-2 text-sm w-full mt-3">
+        <div class="bg-black/20 p-2 rounded-lg text-center">
+            <div class="font-bold text-lg" id="dash-metric-temp">--°C</div>
+            <div class="text-xs opacity-90">الحرارة</div>
+        </div>
+        <div class="bg-black/20 p-2 rounded-lg text-center">
+            <div class="font-bold text-lg" id="dash-metric-uv">--</div>
+            <div class="text-xs opacity-90">UV</div>
+        </div>
+        <div class="bg-black/20 p-2 rounded-lg text-center">
+            <div class="font-bold text-lg" id="dash-metric-humidity">--%</div>
+            <div class="text-xs opacity-90">الرطوبة</div>
+        </div>
+    </div>
 </div>
                             </div>
                             <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center navigable grid-item" tabindex="0">
                                 <div id="digital-clock-widget" class="w-full h-full flex flex-col items-center justify-center text-center">
                                     <div id="digital-time">
-                                        <span class="hours">00</span>:<span class="minutes">00</span>:<span class="seconds">00</span>
+                                        
+                                        <span class="hours">00</span>:<span class="minutes">00</span><span id="time-icon-container"></span>
                                     </div>
                                     <div id="digital-date">
                                         <div id="digital-date-line1">  </div>
@@ -2173,6 +2214,92 @@ div#map{display:none}
  * (This function is generic and will work on 'reciters-iframe')
  * @param {string} targetId - The ID of the IFRAME element.
  */
+/**
+ * Converts a 24-hour time string (HH:MM) to a 12-hour time string (H:MM ص/م).
+ *
+ * @param {string} time24h - Time in 24-hour format (e.g., "15:36").
+ * @returns {string} Time in 12-hour format with 'ص' or 'م' (e.g., "3:36 م").
+ */
+function convertTo12HourWithAmPm(time24h) {
+    if (!time24h || typeof time24h !== 'string' || time24h === '--:--') {
+        return time24h; 
+    }
+
+    // Split the time string into hours and minutes
+    const [hours24, minutes] = time24h.split(':').map(str => parseInt(str, 10));
+    
+    // Determine AM/PM (ص/م)
+    const suffix = hours24 >= 12 ? 'م' : 'ص';
+    
+    // Convert to 12-hour format (0 = 12 AM, 13 = 1 PM)
+    let hours12 = hours24 % 12;
+    hours12 = hours12 ? hours12 : 12; // The hour '0' (midnight) should be '12'
+
+    // Return the formatted string
+    return `${hours12}:${minutes.toString().padStart(2, '0')} ${suffix}`;
+}
+// -------------------------------------------------------------
+// --- NEW updateTimerDisplay function ---
+// -------------------------------------------------------------
+/**
+ * UPDATED: Updates the digital clock countdown/count-up display separately.
+ * Runs every 2 seconds ONLY IF THE VIDEO POPUP IS NOT ACTIVE.
+ */
+function updateTimerDisplay() {
+    // 🛑 الشرط الحاسم: إذا كان المشغل المنبثق نشطاً، قم بالخروج فوراً لتجنب التقطيع
+    if (videoPopupContainer.classList.contains('active')) {
+        return;
+    }
+    
+    const now = new Date();
+    // تأكد من أن determineNextPrayer قد عملت مرة واحدة على الأقل
+    if (!appState.prayerTimes.nextPrayerIqamaTime) {
+        return;
+    }
+
+    const diff = appState.prayerTimes.nextPrayerIqamaTime - now;
+    const totalSecs = Math.floor(diff / 1000);
+    
+    // إعادة تعيين أنماط الألوان قبل التحديث
+    digitalDateLine1.classList.remove('countdown-azan', 'countdown-iqama', 'countdown-up');
+    digitalDateLine2.classList.remove('countdown-azan', 'countdown-iqama', 'countdown-up');
+
+    // 1. Logic for COUNT UP (after Iqama)
+    if (appState.prayerTimes.currentPrayer && appState.prayerTimes.currentPrayerIqamaTime && now > appState.prayerTimes.currentPrayerIqamaTime) {
+        const diffUp = now - appState.prayerTimes.currentPrayerIqamaTime;
+        const upSecs = Math.floor(diffUp / 1000);
+        const secs = upSecs % 60;
+        const mins = Math.floor(upSecs / 60);
+
+        digitalDateLine1.textContent = `انتهت اقامة الصلاة ${appState.prayerTimes.currentPrayer} منذ:`;
+        digitalDateLine2.textContent = `+${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        digitalDateLine1.classList.add('countdown-up');
+        digitalDateLine2.classList.add('countdown-up');
+        return;
+    }
+
+    // 2. Logic for COUNT DOWN (to Azan or Iqama)
+    if (totalSecs >= 0) {
+        const secs = totalSecs % 60;
+        const mins = Math.floor((totalSecs / 60) % 60);
+        const hrs = Math.floor(totalSecs / 3600);
+        
+        const isCountdownToIqama = (appState.prayerTimes.currentPrayer === appState.prayerTimes.nextPrayer);
+
+        if (isCountdownToIqama) {
+            digitalDateLine1.textContent = `إقامة صلاة ${appState.prayerTimes.currentPrayer} في:`;
+            digitalDateLine2.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            digitalDateLine1.classList.add('countdown-iqama');
+            digitalDateLine2.classList.add('countdown-iqama');
+        } else {
+            digitalDateLine1.textContent = `الأذان القادم: ${appState.prayerTimes.nextPrayer}`;
+            digitalDateLine2.textContent = hrs > 0 ? `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}` : `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            digitalDateLine1.classList.add('countdown-azan');
+            digitalDateLine2.classList.add('countdown-azan');
+        }
+    }
+}
+
 function toggleIframeFullscreen(targetId) {
     const targetElement = document.getElementById(targetId);
     const body = document.body;
@@ -2476,6 +2603,8 @@ async function displayLastWatchedVideo() {
         const WEATHER_API_KEY = '7acefc26deee4904a2393917252207'; 
         const GOOGLE_MAPS_API_KEY = 'AIzaSyBRqAHJ2elbE_Z7NXXYC50XZpqi6HbG6Rk';
 
+
+
 const JSONBIN_API_KEY = '$2a$10$SYrYv.ct8hiMU9YeUxEQ.ecRkOrTqs.TDchJRV3wW.aKJnDXy2oVy';
 const JSONBIN_BIN_ID_REMINDERS = '68e3800cae596e708f07cf32';
 const JSONBIN_ACCESS_KEY_REMINDERS = '$2a$10$J8o3WrPtnqmKAd///uDw6.BOWnGIBekHFOImbeEZZwsJ/h/XPbVUy';
@@ -2731,92 +2860,113 @@ let favoritesM = [];
                 }
             }
         }
-        function updateUI() {
-    // --- Dashboard Weather Widget Updates ---
+        
+       // -------------------------------------------------------------
+// --- MODIFIED updateUI function (Applies Icon Logic) ---
+// -------------------------------------------------------------
+function updateUI() {
     const tempEl = document.getElementById('dashboard-weather-temp');
     const descEl = document.getElementById('dashboard-weather-desc');
-    const iconEl = document.getElementById('dashboard-weather-icon');
+    const dashboardIcon = document.getElementById('dashboard-weather-icon');
     const locationEl = document.getElementById('dashboard-weather-location');
-    const humidityEl = document.getElementById('dashboard-weather-humidity');
-    const humidityDescEl = document.getElementById('dashboard-weather-humidity-desc');
-    const uvDashboardEl = document.getElementById('dashboard-weather-uv');
+    
+    // العناصر الجديدة التي تحتوي على المقاييس (Dash Metrics)
+    const dashMetricTemp = document.getElementById('dash-metric-temp');
+    const dashMetricUV = document.getElementById('dash-metric-uv');
+    const dashMetricHumidity = document.getElementById('dash-metric-humidity');
+    
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
 
+    // القيم المخزنة في حالة التطبيق (App State)
+    const tempValue = appState.weather.temperature;
+    const uvValue = appState.weather.uvIndex;
+    const humidityValue = appState.weather.humidity;
+
+
+    // 🛑 PERIOD FOR MOON DISPLAY (Night Time)
+    const isNightTimeOrTest = (currentHour >= 18 || currentHour < 6); 
+    
+    let iconSrc = appState.weather.iconUrl || 'https://placehold.co/64x64/000000/FFFFFF?text=X';
+        
+    // --- 1. تحديث أيقونة لوحة القيادة (Dashboard Weather Icon) ---
+    if (dashboardIcon) {
+        // 1.1. تطبيق المنطق الليلي (قمر NASA)
+        if (isNightTimeOrTest && appState.dynamicMoonImageUrl) {
+            iconSrc = appState.dynamicMoonImageUrl; 
+        } 
+        // 1.2. تطبيق منطق الأيقونات الشمسية/الغيوم العادية (أثناء النهار)
+        else {
+            if ((currentHour > 8 || (currentHour === 8 && currentMinute >= 30)) && (currentHour < 17)) { 
+                iconSrc = 'https://cdn.weatherapi.com/weather/64x64/day/113.png'; // Sun Icon
+            } else if ((currentHour >= 18 && currentHour < 19)) { 
+                iconSrc = 'https://cdn.weatherapi.com/weather/64x64/day/1087.png'; // Sunset Icon
+            } else if (currentHour === 6 && currentMinute > 0 && currentMinute <= 30) { 
+                iconSrc = 'https://cdn.weatherapi.com/weather/64x64/day/1087.png'; // Sunrise Icon
+            } else if ((currentHour === 6 && currentMinute > 30) || (currentHour === 7) || (currentHour === 8 && currentMinute <= 30) || (currentHour >= 17 && currentHour < 18)) { 
+                iconSrc = 'https://cdn.weatherapi.com/weather/64x64/day/116.png'; // Cloudy/Sun Icon
+            } else {
+                 iconSrc = appState.weather.iconUrl || 'https://placehold.co/64x64/000000/FFFFFF?text=X';
+            }
+        }
+        dashboardIcon.src = iconSrc;
+    }
+
+    // --- 2. تحديث الشاشات الرئيسية والنصوص ---
+    
+    // تحديث درجة الحرارة الكبيرة (التي لا تحتاج إلى toFixed إلا إذا كانت موجودة)
     if (tempEl) {
-        tempEl.textContent = appState.weather.temperature !== null ? `${appState.weather.temperature.toFixed(1)}°C` : '--°C';
+        const tempDisplay = tempValue !== null && !isNaN(tempValue) ? tempValue.toFixed(1) : '--';
+        tempEl.textContent = `${tempDisplay}°C`;
     }
+    
+    // وصف الطقس / مرحلة القمر
     if (descEl) {
-        descEl.textContent = appState.weather.description || '--';
+        if (isNightTimeOrTest && appState.moonData && appState.moonData.phase !== undefined) {
+            const phase = appState.moonData.phase.toFixed(1);
+            descEl.textContent = `القمر: ${phase}% مضاء`;
+        } else {
+            descEl.textContent = appState.weather.description || '--';
+        }
     }
-    if (iconEl) {
-        iconEl.src = appState.weather.iconUrl || 'https://placehold.co/64x64/000000/FFFFFF?text=X';
-    }
+    
     if (locationEl) {
         locationEl.textContent = appState.weather.location;
     }
 
-    // --- Humidity Logic & Update ---
-    const humidityValue = appState.weather.humidity; // Ensure this is set in fetchWeatherData
-    let humidityDesc = '--';
-    let humidityColorClass = 'text-white/70'; // Default color
+    // --- 3. تحديث المقاييس الموحدة الجديدة في لوحة القيادة ---
 
-    if (humidityValue !== undefined && humidityValue !== null) {
-        // Determine description and color based on value
-        if (humidityValue < 60) {
-            humidityDesc = 'منخفضة';
-            humidityColorClass = 'text-green-400';
-        } else if (humidityValue < 75) {
-            humidityDesc = 'معتدلة';
-            humidityColorClass = 'text-yellow-400';
-        } else if (humidityValue < 85) {
-            humidityDesc = 'مرتفعة';
-            humidityColorClass = 'text-orange-400';
-        } else {
-            humidityDesc = 'مرتفعة جداً';
-            humidityColorClass = 'text-red-400';
-        }
+    // الحرارة (Metric 1)
+    if (dashMetricTemp && tempValue !== null && !isNaN(tempValue)) {
+        dashMetricTemp.textContent = `${Math.round(tempValue)}°C`;
+        dashMetricTemp.className = `font-bold text-lg ${getTempTextColor(tempValue)}`;
+    } else if (dashMetricTemp) { dashMetricTemp.textContent = '--°C'; dashMetricTemp.className = 'font-bold text-lg text-white/70'; }
+
+    // مؤشر UV (Metric 2)
+    if (dashMetricUV && uvValue !== null && !isNaN(uvValue)) {
+        dashMetricUV.textContent = `${Math.round(uvValue)}`;
+        dashMetricUV.className = `font-bold text-lg ${getUvTextColor(uvValue)}`;
+    } else if (dashMetricUV) { dashMetricUV.textContent = '--'; dashMetricUV.className = 'font-bold text-lg text-white/70'; }
+
+    // الرطوبة (Metric 3)
+    if (dashMetricHumidity && humidityValue !== null && !isNaN(humidityValue)) { 
+        dashMetricHumidity.textContent = `${Math.round(humidityValue)}%`;
+        dashMetricHumidity.className = `font-bold text-lg ${getHumidityTextColor(humidityValue)}`;
+    } else if (dashMetricHumidity) { 
+        dashMetricHumidity.textContent = '--%'; 
+        dashMetricHumidity.className = 'font-bold text-lg text-white/70'; 
     }
 
-    if (humidityEl) {
-        humidityEl.textContent = humidityValue !== undefined ? `💧 ${humidityValue}%` : '💧 --%';
-        // Apply color class (adjust base classes if needed)
-        humidityEl.className = `text-md ${humidityColorClass}`;
-    }
-    if (humidityDescEl) {
-        humidityDescEl.textContent = humidityDesc;
-        // Apply color class (adjust base classes if needed)
-        humidityDescEl.className = `text-sm ${humidityColorClass}`;
-    }
-    // --- End Humidity Logic ---
-
-    // --- UV Index Update for Dashboard ---
-    if (uvDashboardEl) {
-        const uvValue = appState.weather.uvIndex;
-        uvDashboardEl.textContent = uvValue !== null ? `☀️ UV: ${uvValue}` : '☀️ UV: --';
-        uvDashboardEl.style.color = getUvIndexColor(uvValue); // Use your color function
-    }
-
-    // --- 3D Screen Weather Temp Update ---
-    const temp3dEl = document.getElementById('3d-screen-weather-temp');
-    if (temp3dEl) {
-        temp3dEl.textContent = appState.weather.temperature !== null ? `${appState.weather.temperature.toFixed(1)}°C` : '--°C';
-    }
-
-    // --- Weather Screen UV Update (If element exists) ---
-    const uvWeatherScreenEl = document.getElementById('weather-uv');
-    if (uvWeatherScreenEl) {
-        const uvValue = appState.weather.uvIndex;
-        uvWeatherScreenEl.textContent = uvValue !== null ? uvValue : '--';
-        uvWeatherScreenEl.style.color = getUvIndexColor(uvValue);
-    }
-
-    // --- 360 Image Update ---
-    if (car360Image) { // Check if car360Image exists
+    // 360 Image Update
+    const car360Image = document.getElementById('car-360-image');
+    if (car360Image) { 
         car360Image.src = appState.custom360Image || default360ImageSrc;
     }
 
-    // --- Start Trip Button Visibility ---
+    // Start Trip Button Visibility
     const startTripFloatingButton = document.getElementById('start-trip-floating-button');
-    if (startTripFloatingButton) { // Check if button exists
+    if (startTripFloatingButton) { 
         startTripFloatingButton.style.display = appState.destinationSet ? 'flex' : 'none';
     }
 }
@@ -3765,29 +3915,106 @@ async function hideVideoPopup() {
         }
 
         function onPlayerStateChange(event) {
-            if (event.data == YT.PlayerState.PLAYING) {
-                // When video starts playing, set quality to 144p ('tiny')
-                popupPlayer.setPlaybackQuality('tiny');
-
-                // Start tracking progress
-                progressInterval = setInterval(() => {
-                    const videoId = popupPlayer.getVideoData().video_id;
-                    const currentTime = popupPlayer.getCurrentTime();
-                    const duration = popupPlayer.getDuration();
-                    updateVideoProgress(videoId, currentTime, duration);
-                }, 5000); // Save progress every 5 seconds
-
-            } else if (event.data == YT.PlayerState.ENDED) {
-                if (progressInterval) clearInterval(progressInterval);
-                const videoId = popupPlayer.getVideoData().video_id;
-                markVideoAsWatched(videoId);
-            } else {
-                 if (progressInterval) {
-                    clearInterval(progressInterval);
-                    progressInterval = null;
-                }
-            }
+    if (event.data == YT.PlayerState.PLAYING) {
+        // ... (كود تشغيل وتتبع التقدم) ...
+    } else if (event.data == YT.PlayerState.ENDED) {
+        if (progressInterval) clearInterval(progressInterval);
+        const videoId = popupPlayer.getVideoData().video_id;
+        
+        markVideoAsWatched(videoId);
+        
+        // 🛑 NEW: قم بتدمير المشغل عند الانتهاء
+        if (popupPlayer) {
+            popupPlayer.destroy();
+            popupPlayer = null;
         }
+
+        // 🛑 NEW: أعد عرض المشغل لعرض الاقتراحات (Next Videos)
+        showNextVideoSuggestions(videoId); 
+
+    } else {
+        // ... (كود إيقاف المؤقت) ...
+    }
+}
+
+function createSuggestionCard(video, channelThumbnails) {
+    const card = document.createElement('div');
+    card.className = 'suggestion-card flex items-center gap-3 p-2 rounded-lg bg-white/10 cursor-pointer';
+    card.dataset.videoId = video.id;
+
+    // استخراج قناة الصورة المصغرة لتجنب أي تعارضات مع دوال أخرى
+    const channelThumbnail = channelThumbnails[video.snippet.channelId];
+    const duration = formatDuration(video.contentDetails.duration);
+    
+    card.innerHTML = `
+        <img src="${video.snippet.thumbnails.default.url}" alt="${video.snippet.title}" class="w-16 h-auto rounded-md flex-shrink-0">
+        <div class="flex flex-col min-w-0 flex-grow">
+            <h4 class="font-semibold text-sm truncate">${video.snippet.title}</h4>
+            <p class="text-xs text-white/70">${video.snippet.channelTitle}</p>
+        </div>
+        <span class="text-xs text-white/50">${duration}</span>
+    `;
+    return card;
+}
+
+/**
+ * Fetches and displays related video suggestions inside the popup container.
+ * This function replaces the ended video with a list of suggestions.
+ */
+async function showNextVideoSuggestions(lastVideoId) {
+    if (!lastVideoId) return;
+
+    videoPopupPlayerContainer.innerHTML = `<p class="text-center p-8">جاري تحميل مقترحات الفيديو...</p>`;
+    
+    // 1. إخفاء أزرار التحكم (مثل bookmark) أثناء عرض المقترحات
+    const bookmarkBtn = document.getElementById('video-popup-bookmark-button');
+    if (bookmarkBtn) { bookmarkBtn.style.display = 'none'; }
+
+    try {
+        // 2. جلب الفيديوهات ذات الصلة (YouTube API - relatedToVideoId)
+        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&relatedToVideoId=${lastVideoId}&type=video&key=${YOUTUBE_API_KEY}&maxResults=5`);
+        if (!res.ok) throw new Error('Failed to fetch suggestions.');
+        const data = await res.json();
+        
+        const videoIds = data.items.map(item => item.id.videoId);
+        const videoDetails = await fetchVideosDetails(videoIds); // جلب التفاصيل الكاملة
+        
+        if (!videoDetails || videoDetails.length === 0) {
+            videoPopupPlayerContainer.innerHTML = `<p class="text-center p-8">لا توجد مقترحات فيديو متاحة.</p>`;
+            return;
+        }
+
+        // 3. بناء واجهة المقترحات
+        let suggestionsHTML = `<h3 class="text-xl font-bold p-3">مقترحات:</h3><div class="flex flex-col gap-3 p-3">`;
+        
+        const channelIds = [...new Set(videoDetails.map(video => video.snippet.channelId))];
+        const channelThumbnails = await fetchChannelsDetails(channelIds);
+
+        videoDetails.forEach(video => {
+            const card = createSuggestionCard(video, channelThumbnails);
+            suggestionsHTML += card.outerHTML; // استخدام outerHTML لإضافة العنصر بالكامل
+        });
+        
+        suggestionsHTML += `</div>`;
+        videoPopupPlayerContainer.innerHTML = suggestionsHTML;
+        
+        // 4. ربط الأحداث لـ "تشغيل الفيديو التالي"
+        videoPopupPlayerContainer.querySelectorAll('.suggestion-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                const nextVideoId = e.currentTarget.dataset.videoId;
+                if (nextVideoId) {
+                    showVideoPopup(nextVideoId); // 🛑 تشغيل الفيديو الجديد داخل نفس النافذة
+                }
+            });
+        });
+
+        // 5. إعادة إظهار زر الحفظ إذا لزم الأمر
+        if (bookmarkBtn) { bookmarkBtn.style.display = 'flex'; }
+        
+    } catch (e) {
+        videoPopupPlayerContainer.innerHTML = `<p class="text-center p-8 text-red-500">حدث خطأ في عرض المقترحات.</p>`;
+    }
+}
 
         function handleFullScreenChange() {
             if (popupPlayer && typeof popupPlayer.getPlayerState === 'function' && popupPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
@@ -4872,45 +5099,203 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
             }
         }
 
-        // --- Weather API Integration ---
-        async function fetchWeatherData() {
-            if (WEATHER_API_KEY.startsWith('YOUR_')) return showMessageBox('خطأ: لم يتم تعيين مفتاح WeatherAPI.');
-            try {
-                const locationQuery = appState.currentLocation ? `${appState.currentLocation.lat},${appState.currentLocation.lng}` : appState.weather.location.split(',')[0].trim();
-                const res = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=${WEATHER_API_KEY}&q=${locationQuery}&days=2&aqi=yes&alerts=no&lang=ar`);
-                if (!res.ok) throw new Error(`خطأ HTTP! الحالة: ${res.status}`);
-                const data = await res.json();
-                
-                // Update main state for Salalah
-                appState.weather.temperature = data.current.temp_c;
-                appState.weather.description = data.current.condition.text;
-                appState.weather.uvIndex = data.current.uv;
-                appState.weather.iconUrl = `https:${data.current.condition.icon}`;
-                appState.weather.location = `${data.location.name}, ${data.location.country}`;
-                
-                // --- NEW: Handle hourly forecast ---
-                const hourlyData = [...data.forecast.forecastday[0].hour, ...data.forecast.forecastday[1]?.hour || []];
-                const now = new Date();
-                const currentHourData = {
-                    time: "الآن",
-                    temp_c: data.current.temp_c,
-                    condition: { icon: data.current.condition.icon }
-                };
-                const upcomingHours = hourlyData.filter(h => new Date(h.time_epoch * 1000) > now).slice(0, 6);
-                const forecastToRender = [currentHourData, ...upcomingHours];
-                renderHourlyForecast(forecastToRender);
-                
-                // --- NEW: Fetch other locations ---
-                renderAdvancedWeatherCards(data);
 
-                updateUI(); // Update other UI elements
-            } catch (err) {
-                console.error('Error fetching weather data:', err);
-            
-            }
+// -------------------------------------------------------------
+// --- MODIFIED fetchWeatherData function (Fetches Weather + NASA Moon) ---
+// -------------------------------------------------------------
+async function fetchWeatherData() {
+    const now = new Date(); // جلب الوقت الحالي لتمريره إلى API الطقس والقمر
+    
+    if (WEATHER_API_KEY.startsWith('YOUR_')) return showMessageBox('خطأ: لم يتم تعيين مفتاح WeatherAPI.');
+    
+    // 1. تحديد الموقع
+    try {
+        const locationQuery = appState.currentLocation ? `${appState.currentLocation.lat},${appState.currentLocation.lng}` : appState.weather.location.split(',')[0].trim();
+        const res = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=${WEATHER_API_KEY}&q=${locationQuery}&days=2&aqi=yes&alerts=no&lang=ar`);
+        
+        if (!res.ok) throw new Error(`خطأ HTTP! الحالة: ${res.status}`);
+        const data = await res.json();
+        
+        // 2. تحديث حالة الطقس الرئيسية
+        appState.weather.temperature = data.current.temp_c;
+        appState.weather.description = data.current.condition.text;
+        appState.weather.uvIndex = data.current.uv;
+        appState.weather.iconUrl = `https:${data.current.condition.icon}`;
+        appState.weather.location = `${data.location.name}, ${data.location.country}`;
+        appState.weather.humidity = data.current.humidity; // ✅ تحديث قيمة الرطوبة
 
-
+        // 3. جلب أيقونة القمر من NASA SVS (لا تحتاج مصادقة معقدة)
+        // ✅ استخدام الدالة الجديدة التي ترجع رابط صورة مباشر
+        const moonUrl = await fetchNasaMoonImage(now);
+        if (moonUrl) {
+            appState.dynamicMoonImageUrl = moonUrl;
+        } else {
+             // في حالة فشل جلب القمر، نستخدم أيقونة القمر الثابتة
+            appState.dynamicMoonImageUrl = 'https://cdn.weatherapi.com/weather/64x64/night/113.png'; 
         }
+
+        // 4. تحديث الواجهات المرئية
+        const hourlyData = [...data.forecast.forecastday[0].hour, ...data.forecast.forecastday[1]?.hour || []];
+        const currentHourData = {
+            time: "الآن",
+            temp_c: data.current.temp_c,
+            condition: { icon: data.current.condition.icon }
+        };
+        const upcomingHours = hourlyData.filter(h => new Date(h.time_epoch * 1000) > now).slice(0, 6);
+        const forecastToRender = [currentHourData, ...upcomingHours];
+        
+        renderHourlyForecast(forecastToRender);
+        renderAdvancedWeatherCards(data);
+        updateUI(); // 🛑 استدعاء تحديث الواجهة المرئية
+        
+    } catch (err) {
+        console.error('Error fetching weather data:', err);
+    }
+}
+
+/**
+ * Generates the current date/time string in NASA SVS format (YYYY-MM-DDT HH:MM).
+ */
+/**
+ * Generates the current date/time string in NASA SVS format (YYYY-MM-DDT HH:MM).
+ * NASA API uses the hour/minute of the current system time for the comparison.
+ */
+function getNasaDateTime(date) {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    
+    // YYYY-MM-DDT HH:MM format
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+
+/**
+ * Fetches the dynamic moon data object from the NASA SVS Dial-A-Moon API.
+ * * @param {Date} dateObj - The current Date object.
+ * @returns {Promise<object|null>} The moon data JSON object, or null if failed.
+ */
+async function fetchNasaMoonData(dateObj) {
+    const nasaDateString = getNasaDateTime(dateObj); 
+    const API_URL = `https://svs.gsfc.nasa.gov/api/dialamoon/${nasaDateString}`;
+
+    try {
+        const response = await fetch(API_URL);
+        
+        if (!response.ok) {
+            console.error(`NASA Dial-A-Moon API failed: Status ${response.status}.`);
+            return null;
+        }
+
+        const data = await response.json();
+        
+        // نرجع كائن البيانات كاملاً للاستفادة من 'phase' و 'image.url'
+        if (data && data.image && data.image.url) {
+            console.log("NASA SVS data fetched successfully.");
+            return data; 
+        }
+        
+        return null;
+        
+    } catch (error) {
+        console.error("Network error during NASA API call:", error);
+        return null;
+    }
+}
+
+/**
+ * Fetches the dynamic moon image URL using the NASA SVS Dial-A-Moon API.
+ */
+async function fetchNasaMoonImage(dateObj) {
+    const nasaDateString = getNasaDateTime(dateObj); 
+    const API_URL = `https://svs.gsfc.nasa.gov/api/dialamoon/${nasaDateString}`;
+    const FALLBACK_ICON = 'https://cdn.weatherapi.com/weather/64x64/night/113.png'; 
+
+    try {
+        const response = await fetch(API_URL);
+        
+        if (!response.ok) {
+            console.error(`NASA Dial-A-Moon API failed: Status ${response.status}.`);
+            return FALLBACK_ICON;
+        }
+
+        const data = await response.json();
+        
+        // استخراج رابط الصورة من المسار المحدد: data.image.url
+        if (data && data.image && data.image.url) {
+            console.log("NASA SVS image URL fetched successfully.");
+            return data.image.url; 
+        }
+        
+        return FALLBACK_ICON;
+        
+    } catch (error) {
+        console.error("Network error during NASA API call:", error);
+        return FALLBACK_ICON;
+    }
+}
+        /// -------------------------------------------------------------
+// --- MODIFIED fetchWeatherData function (Fetches Weather + Dynamic Moon) ---
+// -------------------------------------------------------------
+// -------------------------------------------------------------
+// --- MODIFIED fetchWeatherData function (Fetches Weather + NASA Moon) ---
+// -------------------------------------------------------------
+// -------------------------------------------------------------
+// --- MODIFIED fetchWeatherData function (Fetches Weather + NASA Moon) ---
+// -------------------------------------------------------------
+async function fetchWeatherData() {
+    const now = new Date(); 
+    
+    if (WEATHER_API_KEY.startsWith('YOUR_')) return showMessageBox('خطأ: لم يتم تعيين مفتاح WeatherAPI.');
+    
+    // 1. جلب بيانات الطقس
+    try {
+        const locationQuery = appState.currentLocation ? `${appState.currentLocation.lat},${appState.currentLocation.lng}` : appState.weather.location.split(',')[0].trim();
+        const res = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=${WEATHER_API_KEY}&q=${locationQuery}&days=2&aqi=yes&alerts=no&lang=ar`);
+        
+        if (!res.ok) throw new Error(`خطأ HTTP! الحالة: ${res.status}`);
+        const data = await res.json();
+        
+        // 2. تحديث حالة الطقس الرئيسية
+        appState.weather.temperature = data.current.temp_c;
+        appState.weather.description = data.current.condition.text;
+        appState.weather.uvIndex = data.current.uv;
+        appState.weather.iconUrl = `https:${data.current.condition.icon}`;
+        appState.weather.location = `${data.location.name}, ${data.location.country}`;
+        appState.weather.humidity = data.current.humidity; 
+
+        // 3. جلب بيانات القمر (Moon Data)
+        const moonResult = await fetchNasaMoonData(now); // ✅ نطلب كائن البيانات كاملاً
+
+        // 4. تحديث حالة القمر في AppState
+        if (moonResult) {
+            appState.dynamicMoonImageUrl = moonResult.image.url; // تخزين رابط الصورة
+            appState.moonData = moonResult; // ✅ تخزين كائن البيانات للحصول على حقل 'phase'
+        } else {
+            appState.dynamicMoonImageUrl = 'https://cdn.weatherapi.com/weather/64x64/night/113.png'; 
+            appState.moonData = null;
+        }
+
+        // 5. تحديث الواجهات المرئية
+        const hourlyData = [...data.forecast.forecastday[0].hour, ...data.forecast.forecastday[1]?.hour || []];
+        const currentHourData = {
+            time: "الآن",
+            temp_c: data.current.temp_c,
+            condition: { icon: data.current.condition.icon }
+        };
+        const upcomingHours = hourlyData.filter(h => new Date(h.time_epoch * 1000) > now).slice(0, 6);
+        const forecastToRender = [currentHourData, ...upcomingHours];
+        
+        renderHourlyForecast(forecastToRender);
+        renderAdvancedWeatherCards(data);
+        updateUI(); // 🛑 استدعاء تحديث الواجهة المرئية
+        
+    } catch (err) {
+        console.error('Error fetching weather data:', err);
+    }
+}
 
         function renderHourlyForecast(forecastData) {
             const container = document.getElementById('hourly-forecast-container');
@@ -5156,8 +5541,39 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
         }
 
         // --- Prayer Times Integration ---
-        const prayerTimes = [{"date":"2025-10-13","fajr":"05:04","sunrise":"06:16","dhuhr":"12:15","asr":"15:36","maghrib":"18:09","isha":"19:16"},{"date":"2025-10-14","fajr":"05:04","sunrise":"06:16","dhuhr":"12:15","asr":"15:36","maghrib":"18:08","isha":"19:15"},{"date":"2025-10-15","fajr":"05:04","sunrise":"06:16","dhuhr":"12:14","asr":"15:36","maghrib":"18:07","isha":"19:15"},{"date":"2025-10-16","fajr":"05:04","sunrise":"06:17","dhuhr":"12:14","asr":"15:35","maghrib":"18:07","isha":"19:14"},{"date":"2025-10-17","fajr":"05:05","sunrise":"06:17","dhuhr":"12:14","asr":"15:35","maghrib":"18:06","isha":"19:14"},{"date":"2025-10-18","fajr":"05:05","sunrise":"06:17","dhuhr":"12:14","asr":"15:35","maghrib":"18:05","isha":"19:13"},{"date":"2025-10-19","fajr":"05:05","sunrise":"06:18","dhuhr":"12:14","asr":"15:34","maghrib":"18:05","isha":"19:12"},{"date":"2025-10-20","fajr":"05:05","sunrise":"06:18","dhuhr":"12:13","asr":"15:34","maghrib":"18:04","isha":"19:12"},{"date":"2025-10-21","fajr":"05:05","sunrise":"06:18","dhuhr":"12:13","asr":"15:34","maghrib":"18:04","isha":"19:11"},{"date":"2025-10-22","fajr":"05:06","sunrise":"06:18","dhuhr":"12:13","asr":"15:33","maghrib":"18:03","isha":"19:11"},{"date":"2025-10-23","fajr":"05:06","sunrise":"06:19","dhuhr":"12:13","asr":"15:33","maghrib":"18:02","isha":"19:10"},{"date":"2025-10-24","fajr":"05:06","sunrise":"06:19","dhuhr":"12:13","asr":"15:33","maghrib":"18:02","isha":"19:10"},{"date":"2025-10-25","fajr":"05:06","sunrise":"06:19","dhuhr":"12:13","asr":"15:33","maghrib":"18:01","isha":"19:09"},{"date":"2025-10-26","fajr":"05:07","sunrise":"06:20","dhuhr":"12:13","asr":"15:32","maghrib":"18:01","isha":"19:09"},{"date":"2025-10-27","fajr":"05:07","sunrise":"06:20","dhuhr":"12:13","asr":"15:32","maghrib":"18:00","isha":"19:08"},{"date":"2025-10-28","fajr":"05:07","sunrise":"06:20","dhuhr":"12:12","asr":"15:32","maghrib":"18:00","isha":"19:08"},{"date":"2025-10-29","fajr":"05:07","sunrise":"06:21","dhuhr":"12:12","asr":"15:31","maghrib":"17:59","isha":"19:07"},{"date":"2025-10-30","fajr":"05:08","sunrise":"06:21","dhuhr":"12:12","asr":"15:31","maghrib":"17:59","isha":"19:07"},{"date":"2025-10-31","fajr":"05:08","sunrise":"06:21","dhuhr":"12:12","asr":"15:31","maghrib":"17:58","isha":"19:07"}];
+        const prayerTimes = [
 
+    {"date":"2025-11-01","fajr":"05:08","sunrise":"06:22","dhuhr":"12:12","asr":"15:31","maghrib":"17:58","isha":"19:06"},
+    {"date":"2025-11-02","fajr":"05:08","sunrise":"06:22","dhuhr":"12:12","asr":"15:30","maghrib":"17:57","isha":"19:06"},
+    {"date":"2025-11-03","fajr":"05:09","sunrise":"06:23","dhuhr":"12:12","asr":"15:30","maghrib":"17:57","isha":"19:06"},
+    {"date":"2025-11-04","fajr":"05:09","sunrise":"06:23","dhuhr":"12:12","asr":"15:30","maghrib":"17:57","isha":"19:05"},
+    {"date":"2025-11-05","fajr":"05:09","sunrise":"06:23","dhuhr":"12:12","asr":"15:30","maghrib":"17:56","isha":"19:05"},
+    {"date":"2025-11-06","fajr":"05:10","sunrise":"06:24","dhuhr":"12:12","asr":"15:30","maghrib":"17:56","isha":"19:05"},
+    {"date":"2025-11-07","fajr":"05:10","sunrise":"06:24","dhuhr":"12:12","asr":"15:29","maghrib":"17:55","isha":"19:04"},
+    {"date":"2025-11-08","fajr":"05:10","sunrise":"06:25","dhuhr":"12:12","asr":"15:29","maghrib":"17:55","isha":"19:04"},
+    {"date":"2025-11-09","fajr":"05:11","sunrise":"06:25","dhuhr":"12:12","asr":"15:29","maghrib":"17:55","isha":"19:04"},
+    {"date":"2025-11-10","fajr":"05:11","sunrise":"06:26","dhuhr":"12:13","asr":"15:29","maghrib":"17:55","isha":"19:04"},
+    {"date":"2025-11-11","fajr":"05:12","sunrise":"06:26","dhuhr":"12:13","asr":"15:29","maghrib":"17:54","isha":"19:04"},
+    {"date":"2025-11-12","fajr":"05:12","sunrise":"06:27","dhuhr":"12:13","asr":"15:29","maghrib":"17:54","isha":"19:04"},
+    {"date":"2025-11-13","fajr":"05:12","sunrise":"06:27","dhuhr":"12:13","asr":"15:29","maghrib":"17:54","isha":"19:03"},
+    {"date":"2025-11-14","fajr":"05:13","sunrise":"06:28","dhuhr":"12:13","asr":"15:29","maghrib":"17:54","isha":"19:03"},
+    {"date":"2025-11-15","fajr":"05:13","sunrise":"06:28","dhuhr":"12:13","asr":"15:29","maghrib":"17:53","isha":"19:03"},
+    {"date":"2025-11-16","fajr":"05:13","sunrise":"06:29","dhuhr":"12:13","asr":"15:29","maghrib":"17:53","isha":"19:03"},
+    {"date":"2025-11-17","fajr":"05:14","sunrise":"06:29","dhuhr":"12:14","asr":"15:28","maghrib":"17:53","isha":"19:03"},
+    {"date":"2025-11-18","fajr":"05:14","sunrise":"06:30","dhuhr":"12:14","asr":"15:28","maghrib":"17:53","isha":"19:03"},
+    {"date":"2025-11-19","fajr":"05:15","sunrise":"06:30","dhuhr":"12:14","asr":"15:28","maghrib":"17:53","isha":"19:03"},
+    {"date":"2025-11-20","fajr":"05:15","sunrise":"06:31","dhuhr":"12:14","asr":"15:28","maghrib":"17:53","isha":"19:03"},
+    {"date":"2025-11-21","fajr":"05:16","sunrise":"06:31","dhuhr":"12:14","asr":"15:29","maghrib":"17:53","isha":"19:03"},
+    {"date":"2025-11-22","fajr":"05:16","sunrise":"06:32","dhuhr":"12:15","asr":"15:29","maghrib":"17:53","isha":"19:03"},
+    {"date":"2025-11-23","fajr":"05:17","sunrise":"06:32","dhuhr":"12:15","asr":"15:29","maghrib":"17:53","isha":"19:03"},
+    {"date":"2025-11-24","fajr":"05:17","sunrise":"06:33","dhuhr":"12:15","asr":"15:29","maghrib":"17:53","isha":"19:04"},
+    {"date":"2025-11-25","fajr":"05:17","sunrise":"06:33","dhuhr":"12:16","asr":"15:29","maghrib":"17:53","isha":"19:04"},
+    {"date":"2025-11-26","fajr":"05:18","sunrise":"06:34","dhuhr":"12:16","asr":"15:29","maghrib":"17:53","isha":"19:04"},
+    {"date":"2025-11-27","fajr":"05:18","sunrise":"06:35","dhuhr":"12:16","asr":"15:29","maghrib":"17:53","isha":"19:04"},
+    {"date":"2025-11-28","fajr":"05:19","sunrise":"06:35","dhuhr":"12:17","asr":"15:29","maghrib":"17:53","isha":"19:04"},
+    {"date":"2025-11-29","fajr":"05:19","sunrise":"06:36","dhuhr":"12:17","asr":"15:29","maghrib":"17:53","isha":"19:04"},
+    {"date":"2025-11-30","fajr":"05:20","sunrise":"06:36","dhuhr":"12:17","asr":"15:30","maghrib":"17:53","isha":"19:05"}
+];
 /**
  * Converts a 24-hour time string (HH:MM) to a 12-hour time string (H:MM).
  * * @param {string} time24h - Time in 24-hour format (e.g., "15:36").
@@ -5188,28 +5604,32 @@ function convertTo12Hour(time24h) {
             if (data) {
                 appState.prayerTimes = { ...appState.prayerTimes, Fajr: data.fajr, Dhuhr: data.dhuhr, Asr: data.asr, Maghrib: data.maghrib, Isha: data.isha };
                 prayerTimesContainer.innerHTML = '';
-                const prayerOrder = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+               const prayerOrder = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
                 const prayerNames = { Fajr: 'الفجر', Dhuhr: 'الظهر', Asr: 'العصر', Maghrib: 'المغرب', Isha: 'العشاء' };
                 const iqamaOffsets = { Fajr: 25, Dhuhr: 20, Asr: 20, Maghrib: 5, Isha: 20 };
+                
                 prayerOrder.forEach(key => {
-    const item = document.createElement('div');
-    item.className = 'prayer-time-item navigable grid-item';
-    item.tabIndex = 0;
-    
-    // 1. Get the 24-hour time
-    const time24h = data[key.toLowerCase()]; 
-    
-    // 2. Convert to 12-hour time for display
-    const time12h = convertTo12Hour(time24h);
-    
-    // 3. Calculate Iqama time (still needs the 24h time for calculation)
-    const iqamaTime = addMinutes(time24h, iqamaOffsets[key]); 
-    
-    // 4. Update the inner HTML using the 12h format
-    item.innerHTML = `<span class="prayer-name">${prayerNames[key]}</span><span class="prayer-time">${time12h}</span><span class="prayer-iqama text-xs text-white/50">الإقامة: ${convertTo12Hour(iqamaTime)}</span>`;
-    
-    prayerTimesContainer.appendChild(item);
-});
+                    const item = document.createElement('div');
+                    item.className = 'prayer-time-item navigable grid-item';
+                    item.tabIndex = 0;
+                    
+                    // 1. Get the 24-hour time
+                    const time24h = data[key.toLowerCase()]; 
+                    
+                    // 2. Convert to 12-hour time (e.g., 3:30 م)
+                    const time12hDisplay = convertTo12HourWithAmPm(time24h); // ✅ استخدام الدالة الجديدة
+                    
+                    // 3. Calculate Iqama time (24h format string)
+                    const iqamaTime24h = addMinutes(time24h, iqamaOffsets[key]); 
+                    
+                    // 4. Convert Iqama time for display (e.g., 3:50 م)
+                    const iqamaTime12hDisplay = convertTo12HourWithAmPm(iqamaTime24h); // ✅ استخدام الدالة الجديدة
+                    
+                    // 5. Update the inner HTML using the 12h format
+                    item.innerHTML = `<span class="prayer-name">${prayerNames[key]}</span><span class="prayer-time">${time12hDisplay}</span><span class="prayer-iqama text-xs text-white/50">الإقامة: ${iqamaTime12hDisplay}</span>`;
+                    
+                    prayerTimesContainer.appendChild(item);
+                });
 
                 // Create a container for the action buttons
                 const buttonContainer = document.createElement('div');
@@ -5250,153 +5670,183 @@ function convertTo12Hour(time24h) {
             }
         }
         function addMinutes(time, min) { const [h, m] = time.split(':').map(Number); const d = new Date(); d.setHours(h, m + min, 0, 0); return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }); }
-        function timeToDate(time) { const [h, m] = time.split(':').map(Number); const d = new Date(); d.setHours(h, m, 0, 0); return d; }
-        function determineNextPrayer() {
-            const now = new Date();
-            const todayTimings = appState.prayerTimes;
-            if (!todayTimings.Fajr || todayTimings.Fajr === '--:--') return;
+// -------------------------------------------------------------
+// --- CORRECTED timeToDate function (Crucial for 24H -> Date conversion) ---
+// -------------------------------------------------------------
+// -------------------------------------------------------------
+// --- CORRECTED timeToDate function (Uses CURRENT System Date) ---
+// -------------------------------------------------------------
+function timeToDate(time) {
+    // 1. استخراج الساعات والدقائق (24-hour format)
+    const [h, m] = time.split(':').map(Number);
+    
+    // 2. إنشاء كائن Date جديد من الوقت والتاريخ الحاليين للنظام
+    const d = new Date();
+    
+    // 3. تعيين الساعات والدقائق
+    // هذا يضمن أن التاريخ هو التاريخ الفعلي للنظام، لكن التوقيت هو توقيت الصلاة (مثل 15:30)
+    d.setHours(h, m, 0, 0); 
+    
+    return d;
+}
 
-            const fajrTomorrowTime = timeToDate(todayTimings.Fajr);
-            fajrTomorrowTime.setDate(fajrTomorrowTime.getDate() + 1);
+// -------------------------------------------------------------
+// --- MODIFIED determineNextPrayer function (FINAL Time Context FIX) ---
+// -------------------------------------------------------------
+function determineNextPrayer() {
+    // الوقت الحالي الفعلي
+    const now = new Date();
+    const todayTimings = appState.prayerTimes;
+    if (!todayTimings.Fajr || todayTimings.Fajr === '--:--') return;
 
-            const prayers = [
-                { n: "الفجر", t: todayTimings.Fajr, o: 25, g: 5 },
-                { n: "الظهر", t: todayTimings.Dhuhr, o: 20, g: 15 },
-                { n: "العصر", t: todayTimings.Asr, o: 20, g: 20 },
-                { n: "المغرب", t: todayTimings.Maghrib, o: 5, g: 20 },
-                { n: "العشاء", t: todayTimings.Isha, o: 20, g: 15 }
-            ];
-            
-            // Reset state
-            appState.prayerTimes.currentPrayer = null;
-            appState.prayerTimes.nextPrayer = null;
-            appState.prayerTimes.nextPrayerIqamaTime = null; // This is for the *next* prayer's azan/iqama time
-            appState.prayerTimes.currentPrayerIqamaTime = null; // This is for the *current* prayer's iqama time (for count-up)
+    // 1. Define constants
+    const PRAYER_OFFSETS = { Fajr: 25, Dhuhr: 20, Asr: 20, Maghrib: 5, Isha: 15 }; // تم تعديل Isha graceEnd إلى 15 (افتراضي)
+    const PRAYER_GRACE = { Fajr: 5, Dhuhr: 15, Asr: 20, Maghrib: 20, Isha: 15 };
+    const PRAYER_NAMES = { Fajr: 'الفجر', Dhuhr: 'الظهر', Asr: 'العصر', Maghrib: 'المغرب', Isha: 'العشاء' };
+    const ORDER = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 
-            let currentPrayerData = null;
-            let nextPrayerData = null;
-            
-            // Check yesterday's Isha for post-midnight times before today's Fajr
-            const fajrTimeToday = timeToDate(todayTimings.Fajr);
-            if (now < fajrTimeToday) {
-                 const ishaPrayerInfo = prayers.find(p => p.n === "العشاء");
-                 const ishaTimeYesterday = timeToDate(ishaPrayerInfo.t);
-                 ishaTimeYesterday.setDate(ishaTimeYesterday.getDate() - 1);
-                 
-                 const iqamaTimeYesterday = new Date(ishaTimeYesterday.getTime() + ishaPrayerInfo.o * 60000);
-                 const graceEndYesterday = new Date(iqamaTimeYesterday.getTime() + ishaPrayerInfo.g * 60000);
+    let prayerEvents = [];
+    
+    // 2. Populate Events for TODAY
+    ORDER.forEach(key => {
+        // pTime يحمل تاريخ اليوم الفعلي وتوقيت الصلاة
+        const pTime = timeToDate(todayTimings[key]);
+        const iqamaTime = new Date(pTime.getTime() + PRAYER_OFFSETS[key] * 60000);
+        const graceEnd = new Date(iqamaTime.getTime() + PRAYER_GRACE[key] * 60000);
 
-                 if (now >= ishaTimeYesterday && now < graceEndYesterday) {
-                     currentPrayerData = { n: "العشاء", iqamaTime: iqamaTimeYesterday };
-                     nextPrayerData = { n: "الفجر", pTime: fajrTimeToday };
-                 }
-            }
+        prayerEvents.push({ 
+            name: PRAYER_NAMES[key], 
+            azan: pTime, 
+            iqama: iqamaTime, 
+            graceEnd: graceEnd 
+        });
+    });
 
-            // If not in the overnight period (or after its grace), run the normal logic for today.
-            if (!currentPrayerData) {
-                for (const p of prayers) {
-                    const pTime = timeToDate(p.t);
-                    const iqamaTime = timeToDate(addMinutes(p.t, p.o));
-                    const graceEnd = new Date(iqamaTime.getTime() + p.g * 60000);
-                    
-                    if (now >= pTime && now < graceEnd) {
-                        currentPrayerData = {...p, iqamaTime};
-                    }
-                    if (now < pTime && !nextPrayerData) {
-                        nextPrayerData = {...p, pTime};
-                    }
-                }
-            }
-            
-            // Now, set the state based on what was found.
-            if (currentPrayerData) {
-                appState.prayerTimes.currentPrayer = currentPrayerData.n;
-                
-                if (now < currentPrayerData.iqamaTime) { // Countdown to Iqama
-                    appState.prayerTimes.nextPrayer = currentPrayerData.n;
-                    appState.prayerTimes.nextPrayerIqamaTime = currentPrayerData.iqamaTime;
-                } else { // Count up from Iqama
-                    appState.prayerTimes.currentPrayerIqamaTime = currentPrayerData.iqamaTime; // Store the exact iqama time
-                    const nextP = nextPrayerData ? nextPrayerData : { n: "الفجر (غدًا)", pTime: fajrTomorrowTime };
-                    appState.prayerTimes.nextPrayer = nextP.n;
-                    appState.prayerTimes.nextPrayerIqamaTime = nextP.pTime; // Target for next event is the azan
-                }
-            } else if (nextPrayerData) { // Countdown to next Azan
-                appState.prayerTimes.nextPrayer = nextPrayerData.n;
-                appState.prayerTimes.nextPrayerIqamaTime = nextPrayerData.pTime;
-            } else { // After today's Isha grace period
-                 appState.prayerTimes.nextPrayer = "الفجر (غدًا)";
-                 appState.prayerTimes.nextPrayerIqamaTime = fajrTomorrowTime;
-            }
-            renderPrayerTimesHighlights();
+    // 3. Prepare Tomorrow's Fajr (Set to tomorrow's date based on current system time)
+    const fajrTomorrow = timeToDate(todayTimings.Fajr);
+    fajrTomorrow.setDate(fajrTomorrow.getDate() + 1); // التقدم ليوم واحد
+    
+    prayerEvents.push({
+        name: 'الفجر (غدًا)', azan: fajrTomorrow,
+        iqama: new Date(fajrTomorrow.getTime() + PRAYER_OFFSETS.Fajr * 60000),
+        graceEnd: new Date(fajrTomorrow.getTime() + PRAYER_OFFSETS.Fajr * 60000 + PRAYER_GRACE.Fajr * 60000)
+    });
+
+
+    // 4. Find CURRENT and NEXT States
+    appState.prayerTimes.currentPrayer = null;
+    appState.prayerTimes.currentPrayerIqamaTime = null;
+    let nextEvent = null;
+    let currentEvent = null;
+    
+    // Find CURRENT (Iterate backwards to find the latest active prayer)
+    for (let i = prayerEvents.length - 1; i >= 0; i--) {
+        const event = prayerEvents[i];
+        if (now >= event.azan && now < event.graceEnd) {
+             currentEvent = event;
+             break;
         }
+    }
+
+    // Find NEXT (First event whose Azan time is in the future)
+    nextEvent = prayerEvents.find(event => event.azan > now);
+
+    
+    // 5. Set Final Application State
+    
+    if (currentEvent) {
+        appState.prayerTimes.currentPrayer = currentEvent.name.replace(' (غدًا)', '');
+        appState.prayerTimes.currentPrayerIqamaTime = currentEvent.iqama;
+
+        if (now < currentEvent.iqama) {
+            // Case 1: Counting down TO Iqama 
+            appState.prayerTimes.nextPrayer = appState.prayerTimes.currentPrayer;
+            appState.prayerTimes.nextPrayerIqamaTime = currentEvent.iqama;
+        } else if (nextEvent) {
+            // Case 2: Iqama passed, waiting for the NEXT AZAN
+            appState.prayerTimes.nextPrayer = nextEvent.name;
+            appState.prayerTimes.nextPrayerIqamaTime = nextEvent.azan;
+        }
+    } else if (nextEvent) {
+        // Case 3: Outside any prayer window, waiting for the NEXT AZAN (Should be Asr/Maghrib)
+        appState.prayerTimes.nextPrayer = nextEvent.name;
+        appState.prayerTimes.nextPrayerIqamaTime = nextEvent.azan;
+    } else {
+        // Fallback: This means we are past tomorrow's Fajr (Shouldn't happen with the list logic)
+        appState.prayerTimes.nextPrayer = "الفجر (غدًا)";
+        appState.prayerTimes.nextPrayerIqamaTime = fajrTomorrow;
+    }
+    
+    // 6. Render Updates
+    renderPrayerTimesHighlights();
+}
        function renderPrayerTimesHighlights() { if (!prayerTimesContainer) return; document.querySelectorAll('.prayer-time-item').forEach(i => i.classList.remove('current-prayer', 'next-prayer')); if (appState.prayerTimes.currentPrayer) { const item = Array.from(prayerTimesContainer.querySelectorAll('.prayer-name')).find(s => s.textContent === appState.prayerTimes.currentPrayer)?.parentElement; if (item) item.classList.add('current-prayer'); } if (appState.prayerTimes.nextPrayer && appState.prayerTimes.nextPrayer !== appState.prayerTimes.currentPrayer) { const nextPrayerName = appState.prayerTimes.nextPrayer.replace(' (غدًا)', ''); const item = Array.from(prayerTimesContainer.querySelectorAll('.prayer-name')).find(s => s.textContent === nextPrayerName)?.parentElement; if (item && !item.classList.contains('current-prayer')) item.classList.add('next-prayer'); } }
         
         // --- Digital Clock ---
         // --- Digital Clock ---
+/**
+ * Generates the current date string in YYYY-MM-DD format (e.g., 2025-11-03).
+ * This is crucial for dynamic APIs that require date input.
+ * @param {Date} date - The current Date object.
+ * @returns {string} The formatted date string.
+ */
+function getTodayDateString(date) {
+    const year = date.getFullYear();
+    // getMonth() is 0-indexed, so we add 1.
+    const month = (date.getMonth() + 1).toString().padStart(2, '0'); 
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
 function updateDigitalClock() {
+    // 1. Get current system time (Crucial for icon logic)
     const now = new Date();
-    
-    // --- 1. Get Hours in 12-Hour Format ---
-    let h = now.getHours();
+    const h24 = now.getHours(); // 24-hour format (0-23)
+    let h12 = h24;
     const m = now.getMinutes();
     const s = now.getSeconds();
     
-    // Convert to 12-hour format (0 should be 12)
-    h = h % 12;
-    h = h ? h : 12; // The hour '0' should be '12'
+    // Convert to 12-hour format for display
+    h12 = h12 % 12;
+    h12 = h12 ? h12 : 12;
 
-    // --- 2. Update the Digital Display (Hours are not padded in 12h format) ---
-    digitalHoursSpan.textContent = h; 
+    // 2. Update the Digital Display
+    digitalHoursSpan.textContent = h12; 
     digitalMinutesSpan.textContent = m.toString().padStart(2, '0');
-    digitalSecondsSpan.textContent = s.toString().padStart(2, '0');
     
-    // --- 3. Clean up the AM/PM indicator if it exists ---
-    const ampmEl = document.getElementById('am-pm-indicator');
-    if (ampmEl) {
-        ampmEl.remove();
+    if (digitalSecondsSpan) {
+        digitalSecondsSpan.textContent = s.toString().padStart(2, '0');
     }
     
-    // --- 4. Prayer Time Logic ---
-    digitalDateLine1.classList.remove('countdown-azan', 'countdown-iqama', 'countdown-up');
-    digitalDateLine2.classList.remove('countdown-azan', 'countdown-iqama', 'countdown-up');
-
-    if (appState.prayerTimes.currentPrayer && appState.prayerTimes.currentPrayerIqamaTime) {
-        // State: Counting up from a prayer's iqama time
-        const diff = now - appState.prayerTimes.currentPrayerIqamaTime;
-        const totalSecs = Math.floor(diff / 1000);
-        const secs = totalSecs % 60;
-        const mins = Math.floor(totalSecs / 60);
-        digitalDateLine1.textContent = `انتهت اقامة الصلاة ${appState.prayerTimes.currentPrayer} منذ:`;
-        digitalDateLine2.textContent = `+${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-        digitalDateLine1.classList.add('countdown-up');
-        digitalDateLine2.classList.add('countdown-up');
-
-    } else if (appState.prayerTimes.nextPrayerIqamaTime) {
-        // State: Counting down to something (either iqama or azan)
-        const diff = appState.prayerTimes.nextPrayerIqamaTime - now;
-        const totalSecs = Math.floor(diff / 1000);
-        const secs = totalSecs % 60;
-        const mins = Math.floor((totalSecs / 60) % 60);
-        const hrs = Math.floor(totalSecs / 3600);
+    // --- 3. Update the TIME ICON Container (#time-icon-container) ---
+    // هذا الجزء يعرض أيقونات الشمس/الغيوم/القمر حسب التوقيت (كما طلبت في السابق)
+    const iconContainer = document.getElementById('time-icon-container');
+    if (iconContainer) {
+        let iconSrc = '';
         
-        const isCountdownToIqama = (appState.prayerTimes.currentPrayer === appState.prayerTimes.nextPrayer);
-
-        if (isCountdownToIqama) {
-            digitalDateLine1.textContent = `إقامة صلاة ${appState.prayerTimes.currentPrayer} في:`;
-            digitalDateLine2.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-            digitalDateLine1.classList.add('countdown-iqama');
-            digitalDateLine2.classList.add('countdown-iqama');
-        } else {
-            digitalDateLine1.textContent = `الأذان القادم: ${appState.prayerTimes.nextPrayer}`;
-            digitalDateLine2.textContent = hrs > 0 ? `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}` : `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-            digitalDateLine1.classList.add('countdown-azan');
-            digitalDateLine2.classList.add('countdown-azan');
+        // المنطق الزمني بناءً على الساعة 24 (h24)
+        if ((h24 > 8 || (h24 === 8 && m >= 30)) && (h24 < 17)) { 
+            iconSrc = 'https://cdn.weatherapi.com/weather/64x64/day/113.png'; // Sun Icon
+        } else if ((h24 >= 18 && h24 < 19)) { 
+            iconSrc = 'https://cdn.weatherapi.com/weather/64x64/day/1087.png'; // Sunset Icon
+        } else if (h24 >= 19 || h24 < 6 || (h24 === 6 && m === 0)) {
+            // Night Time: Use a fixed moon icon (NOT the dynamic one, for simplicity)
+            iconSrc = 'https://cdn.weatherapi.com/weather/64x64/night/113.png'; 
+        } else if (h24 === 6 && m > 0 && m <= 30) { 
+            iconSrc = 'https://cdn.weatherapi.com/weather/64x64/day/1087.png'; // Sunrise Icon
+        } else if ((h24 === 6 && m > 30) || (h24 === 7) || (h24 === 8 && m <= 30) || (h24 >= 17 && h24 < 18)) { 
+            iconSrc = 'https://cdn.weatherapi.com/weather/64x64/day/116.png'; // Cloudy/Sun Icon
         }
-    } else {
-        digitalDateLine1.textContent = 'جاري تحميل أوقات الصلاة...';
-        digitalDateLine2.textContent = '';
+        
+        if (iconSrc) {
+            iconContainer.innerHTML = `<img src="${iconSrc}" alt="Time Icon" class="w-8 h-8 inline-block ml-2" style="transform: translateY(4px);">`;
+        } else {
+            iconContainer.innerHTML = '';
+        }
     }
+    
+    // 4. Trigger Next Prayer Logic Updates
+    determineNextPrayer(now); 
 }
 
         // --- 360 Camera ---
@@ -5762,6 +6212,7 @@ if (!window.hasInitializedWeatherSpeaker) {
 
         // --- Initial Setup ---
         document.addEventListener('DOMContentLoaded', () => { 
+            fetchWeatherData(); 
             // Standard Listeners
             getMyLocationButtonDashboard?.addEventListener('click', centerMapOnUserLocation);
             goToHome1Button?.addEventListener('click', () => calculateAndDisplayRouteTo(HOME1_COORDS));
@@ -5797,18 +6248,19 @@ const recitersIframe = document.getElementById('reciters-iframe');
     });
 migrateChannelData();
     loadGoogleMaps().then(initMap);
-    fetchWeatherData(); 
+    
     loadPrayerTimes();
     updateFullDateWidget(); // <-- أضف هذا السطر (استدعاء أولي)
 
     // Play welcome message once after a short delay
-    setTimeout(playWelcomeMessage, 2000);
+    setTimeout(playWelcomeMessage, 20000);
 
-    setInterval(fetchWeatherData, 800000); 
+    setInterval(fetchWeatherData, 300000); 
     setInterval(updateDigitalClock, 1000); 
     setInterval(determineNextPrayer, 60000);
-    setInterval(updateFullDateWidget, 600000); // <-- أضف هذا السطر (تحديث دوري)
-    setInterval(simulateOtherCarData, 2000);
+    setInterval(updateFullDateWidget, 6000000); // <-- أضف هذا السطر (تحديث دوري)
+    setInterval(simulateOtherCarData, 6000);
+    setInterval(updateTimerDisplay, 2000);
 
     // ... (بقية الكود)
 
