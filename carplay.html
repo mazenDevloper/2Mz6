@@ -2618,6 +2618,11 @@ const JSONBIN_BIN_ID_CHANNELS = '68ef1b3dd0ea881f40a38bd1';
 const JSONBIN_ACCESS_KEY_CHANNELS = '$2a$10$J8o3WrPtnqmKAd///uDw6.BOWnGIBekHFOImbeEZZwsJ/h/XPbVUy';
 let localChannelsCache = []; // To store the list locally
 
+const JSONBIN_BIN_ID_RECITER = '6909c1cd43b1c97be997b522'; 
+const JSONBIN_ACCESS_KEY_RECITER = '$2a$10$J8o3WrPtnqmKAd///uDw6.BOWnGIBekHFOImbeEZZwsJ/h/XPbVUy'; 
+let localRecitersCache = [];
+
+
 let favoritesD = [];
 let favoritesM = [];
 
@@ -2703,6 +2708,288 @@ let favoritesM = [];
 
         const juzArabicNames = ["الأول", "الثاني", "الثالث", "الرابع", "الخامس", "السادس", "السابع", "الثامن", "التاسع", "العاشر", "الحادي عشر", "الثاني عشر", "الثالث عشر", "الرابع عشر", "الخامس عشر", "السادس عشر", "السابع عشر", "الثامن عشر", "التاسع عشر", "العشرون", "الحادي والعشرون", "الثاني والعشرون", "الثالث والعشرون", "الرابع والعشرون", "الخامس والعشرون", "السادس والعشرون", "السابع والعشرون", "الثامن والعشرون", "التاسع والعشرون", "الثلاثون"];
 
+       
+       /**
+ * Fetches the list of Reciters from JSONBin.io and updates the local cache.
+ * @returns {Promise<Array>} The list of reciters.
+ */
+async function fetchRecitersList() {
+    try {
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID_RECITER}/latest`, {
+            headers: { 'X-Access-Key': JSONBIN_ACCESS_KEY_RECITER }
+        });
+        if (res.status === 404) return []; // Bin is new/empty
+        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        const data = await res.json();
+        
+        // التأكد من أن القائمة هي مصفوفة وتحتوي على حقل clicks
+        const fetchedList = Array.isArray(data.record) ? data.record : [];
+        localRecitersCache = fetchedList.map(r => ({
+            ...r,
+            clicksreciter: parseInt(r.clicksreciter, 10) || 0 // تحويل Click Count إلى رقم
+        }));
+        
+        return localRecitersCache;
+    } catch (error) {
+        console.error(`Error fetching reciters list:`, error);
+        // في حالة الفشل، نستخدم القائمة الثابتة السابقة كاحتياطي (إذا كانت متوفرة)
+        return localRecitersCache || [];
+    }
+}
+
+/**
+ * Updates the Reciters list on JSONBin.io.
+ * @param {Array} newRecitersList - The updated list to send.
+ * @returns {Promise<boolean>} True if successful.
+ */
+async function updateRecitersList(newRecitersList) {
+    // تصفية للحفاظ على الخصائص الهامة فقط قبل الإرسال
+    const sanitizedList = newRecitersList.map(r => ({
+        name: r.name,
+        image: r.image,
+        clicksreciter: r.clicksreciter // يجب الاحتفاظ به كنص أو رقم
+    }));
+    
+    try {
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID_RECITER}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Master-Key': JSONBIN_API_KEY // استخدام المفتاح الرئيسي للتعديل
+            },
+            body: JSON.stringify(sanitizedList)
+        });
+        if (!res.ok) throw new Error(`Failed to update reciters list: ${res.status}`);
+        localRecitersCache = newRecitersList; // تحديث الذاكرة المؤقتة
+        return true;
+    } catch (error) {
+        console.error(`Error updating reciters list:`, error);
+        showMessageBox(`حدث خطأ أثناء تحديث قائمة القراء`);
+        return false;
+    }
+}
+
+/**
+ * Increments the click counter for a specific reciter.
+ * @param {string} reciterName - The name of the reciter.
+ */
+function incrementReciterClick(reciterName) {
+    if (!reciterName || !localRecitersCache) return;
+    
+    let reciterFound = false;
+    const updatedList = localRecitersCache.map(reciter => {
+        if (reciter && reciter.name === reciterName) {
+            reciterFound = true;
+            const currentClicks = parseInt(reciter.clicksreciter, 10) || 0;
+            return { ...reciter, clicksreciter: currentClicks + 1 };
+        }
+        return reciter;
+    });
+
+    if (reciterFound) {
+        localRecitersCache = updatedList;
+        // إرسال التحديث إلى الخادم في الخلفية
+        updateRecitersList(updatedList).catch(err => {
+            console.error("Failed to update reciter clicks in background:", err);
+        });
+    }
+}
+
+ /**
+ * Shows the prompt to add a new reciter to the list.
+ */
+/**
+ * NEW: Shows the modal prompt to add a new Reciter.
+ * It initiates a search flow (handleSearchForReciterChannel) against the YouTube API 
+ * filtered for Arabic channels, allowing the user to select and save a Reciter.
+ */
+/**
+ * REPLACED & COMPLETE: Shows the modal prompt to add a new Reciter by searching YouTube Channels.
+ * It dynamically creates the search interface and handles the event binding to the search function.
+ */
+function showAddReciterPrompt() {
+    const existingPrompt = document.getElementById('add-reciter-prompt');
+    if (existingPrompt) existingPrompt.remove();
+
+    // 1. هيكل النافذة المنبثقة (Modal Structure)
+    const promptHTML = `
+        <div id="add-reciter-prompt" class="fixed inset-0 bg-black/70 flex items-center justify-center z-[9999]">
+            <div id="add-reciter-prompt-content" class="glass-surface glass-surface--svg p-6 rounded-2xl w-full max-w-lg flex flex-col gap-4 transition-all duration-300">
+                <h3 class="text-xl font-bold text-center">إضافة قارئ/قناة جديدة</h3>
+                <p class="text-sm text-white/70 text-center">ابحث باسم القارئ (مثل: ياسر الدوسري) للعثور على قناته وإضافتها.</p>
+                <div class="flex gap-2 grid-container">
+                    <input type="text" id="new-reciter-name-input" placeholder="اسم القارئ..." class="flex-grow p-3 rounded-full bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 navigable grid-item" tabindex="0" />
+                    <button id="search-channel-confirm" class="bg-purple-600 hover:bg-purple-700 text-white font-bold p-3 rounded-full navigable grid-item" tabindex="0">
+                        <i data-lucide="search" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                
+                <div id="channel-search-results" class="mt-4 max-h-[50vh] overflow-y-auto flex flex-col gap-3 grid-container">
+                    <p class="text-center text-white/50">نتائج بحث قنوات القراء ستظهر هنا.</p>
+                </div>
+                
+                <button id="add-reciter-cancel" class="mt-2 bg-red-600/80 hover:bg-red-700/80 text-white font-bold py-2 px-4 rounded-full navigable grid-item self-center" tabindex="0">إغلاق</button>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', promptHTML);
+    lucide.createIcons();
+
+    // 2. ربط العناصر (Event Binding)
+    const promptEl = document.getElementById('add-reciter-prompt');
+    const nameInput = document.getElementById('new-reciter-name-input');
+    const searchBtn = document.getElementById('search-channel-confirm');
+    const cancelBtn = document.getElementById('add-reciter-cancel');
+
+    const closePrompt = () => {
+        promptEl.remove();
+        updateNavigableElements(); // تحديث عناصر التنقل بعد إزالة النافذة
+    };
+
+    // 🛑 ربط زر البحث بالدالة المخصصة للقراء
+    searchBtn.addEventListener('click', handleSearchForReciterChannel); 
+
+    // 🛑 دعم البحث بزر Enter
+    nameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleSearchForReciterChannel(); 
+        }
+    });
+
+    cancelBtn.addEventListener('click', closePrompt);
+    
+    // 3. إعداد التركيز والـ Escape
+    nameInput.focus();
+    setFocus(nameInput);
+    
+    const escapeHandler = (e) => {
+        if (e.key === 'Escape') {
+            closePrompt();
+            document.removeEventListener('keydown', escapeHandler);
+        }
+    };
+    document.addEventListener('keydown', escapeHandler);
+
+    updateNavigableElements(); // تحديث عناصر التنقل في النافذة المنبثقة
+}
+
+// -------------------------------------------------------------
+// * يجب أن تكون الدوال التالية مُعرفة عالمياً:
+// * handleSearchForReciterChannel()
+// * lucide.createIcons()
+// * setFocus()
+// * showMessageBox()
+// -------------------------------------------------------------
+
+/**
+ * Handles the addition of a new reciter to the JSONBin list.
+ */
+/**
+ * RENAMED & REFINED: Handles the search action specifically for finding a Reciter Channel.
+ * Applies strong filtering for 'type=channel' and 'relevanceLanguage=ar'.
+ */
+/**
+ * RENAMED & REFINED: Handles the search action specifically for finding a Reciter Channel.
+ * Applies strong filtering for 'type=channel' and 'relevanceLanguage=ar'.
+ */
+async function handleSearchForReciterChannel() {
+    // 🛑 نستخدم المُعرّفات الصحيحة من نافذة القراء المنبثقة
+    const inputEl = document.getElementById('new-reciter-name-input');
+    const resultsContainer = document.getElementById('channel-search-results');
+    const confirmBtn = document.getElementById('search-channel-confirm');
+    
+    const query = inputEl?.value.trim();
+
+    if (!query) {
+        showMessageBox("الرجاء إدخال اسم القارئ/القناة للبحث.");
+        return;
+    }
+
+    // 1. تعطيل الزر وعرض التحميل (CRITICAL FIX)
+    confirmBtn.disabled = true;
+    confirmBtn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i>`;
+    lucide.createIcons();
+    resultsContainer.innerHTML = '<p class="text-center text-white/70">...جاري البحث</p>';
+
+    try {
+        // 2. استدعاء API يوتيوب مع فلتر القنوات واللغة العربية
+        const API_URL = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=channel&key=${YOUTUBE_API_KEY}&maxResults=10&relevanceLanguage=ar`; 
+        
+        const response = await fetch(API_URL);
+        
+        if (!response.ok) {
+             const errorData = await response.json().catch(() => ({}));
+             if (errorData?.error?.message.includes('API key not valid') || response.status === 403) {
+                 throw new Error("API_KEY_INVALID");
+             }
+             throw new Error(`Network response was not ok. Status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // 3. عرض النتائج باستخدام الدالة المخصصة (يجب أن تكون هذه الدالة مُعرفة)
+        displayReciterSearchResults(data.items);
+        
+    } catch (error) {
+        console.error("Error searching for Reciter Channel:", error);
+        let errorMsg = "حدث خطأ في البحث. يرجى المحاولة مرة أخرى.";
+        if (error.message === "API_KEY_INVALID") {
+             errorMsg = "فشل البحث: مفتاح YouTube API غير صالح.";
+        }
+        showMessageBox(errorMsg);
+        resultsContainer.innerHTML = `<p class="text-center text-red-400">${errorMsg}</p>`;
+    } finally {
+        // 4. إعادة تفعيل زر البحث (CRITICAL FIX)
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = `<i data-lucide="search" class="w-5 h-5"></i>`;
+        lucide.createIcons();
+        updateNavigableElements(); // تحديث التنقل ليشمل نتائج البحث
+    }
+}
+
+async function handleAddReciter(name, image, buttonElement) {
+    if (localRecitersCache.some(r => r.name === name)) {
+        showMessageBox(`القارئ "${name}" موجود بالفعل في القائمة.`);
+        return;
+    }
+
+    buttonElement.disabled = true;
+    buttonElement.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 text-white animate-spin"></i>`;
+    lucide.createIcons();
+
+    const newReciter = {
+        name: name,
+        image: image || 'https://placehold.co/100x100/334155/ffffff?text=Q',
+        clicksreciter: 0
+    };
+
+    try {
+        const updatedList = [...localRecitersCache, newReciter];
+        const success = await updateRecitersList(updatedList);
+
+        if (success) {
+            showMessageBox(`تمت إضافة القارئ "${name}" بنجاح.`);
+            // إعادة تحميل تبويب الاقتراحات لتظهر التغييرات
+            const suggestionsContent = document.getElementById('suggestions-content');
+            if(suggestionsContent) {
+                 // Clear and re-populate the suggestions tabs
+                suggestionsContent.innerHTML = '';
+                await populateYoutubeSuggestions();
+                // Switch back to Reciters tab after successful update
+                document.getElementById('tab-reciters')?.click();
+            }
+        }
+    } catch (error) {
+        console.error("Error adding reciter:", error);
+        showMessageBox("حدث خطأ أثناء إضافة القارئ.");
+    } finally {
+        buttonElement.disabled = false;
+        buttonElement.innerHTML = `<i data-lucide="plus" class="w-5 h-5"></i> إضافة`;
+        lucide.createIcons();
+    }
+}      
+       
         // --- Utility Functions ---
         function showMessageBox(message) { const box = document.createElement('div'); box.style.cssText = `position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(0, 0, 0, 0.8); color: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); z-index: 1000; text-align: center; max-width: 80%; font-size: 1.1rem;`; box.innerHTML = `<p>${message}</p><button style="margin-top: 15px; padding: 8px 15px; background-color: #9333ea; border: none; border-radius: 5px; color: white; cursor: pointer;">إغلاق</button>`; document.body.appendChild(box); box.querySelector('button').addEventListener('click', () => document.body.removeChild(box)); }
 
@@ -4283,11 +4570,50 @@ container.innerHTML = cardsHTML;
             }, 100);
         }
 
+/**
+ * NEW: Removes a reciter entry from the global cache and updates the JSONBin Reciters list.
+ * @param {string} reciterName - The name of the reciter to remove.
+ */
+async function removeReciterFromList(reciterName) {
+    if (!reciterName) return;
 
+    try {
+        // 1. تصفية القائمة محليًا لإزالة القارئ
+        const updatedList = localRecitersCache.filter(r => r.name !== reciterName);
+        
+        // 2. إرسال القائمة المحدثة إلى JSONBin
+        const success = await updateRecitersList(updatedList); // نفترض أن updateRecitersList تقوم بالتحديث على الخادم و localRecitersCache
+        
+        if (success) {
+            showMessageBox(`تمت إزالة القارئ "${reciterName}" بنجاح.`);
+            
+            // 3. إعادة تحميل تبويب القراء لعرض التغيير
+            const suggestionsContent = document.getElementById('suggestions-content');
+            if(suggestionsContent) {
+                // Clear and re-populate the suggestions tabs
+                suggestionsContent.innerHTML = '';
+                await populateYoutubeSuggestions();
+                // إعادة التركيز على تبويب القراء
+                document.getElementById('tab-reciters')?.click();
+            }
+        }
+    } catch (error) {
+        console.error("Error removing reciter:", error);
+        showMessageBox(`حدث خطأ أثناء إزالة القارئ ${reciterName}.`);
+    }
+}
 // --- REPLACE THIS FUNCTION AGAIN ---
        // --- REPLACE THIS FUNCTION AGAIN ---
        // --- REPLACE THIS FUNCTION AGAIN ---
-   async function populateYoutubeSuggestions() {
+ /**
+ * REPLACED: Fetches and populates the content for the Media screen tabs (Reciters, Channels, Tools, Saved).
+ * The Reciters list is now dynamically fetched from JSONBin.io.
+ */
+/**
+ * REPLACED & COMPLETE: Fetches and populates the content for the Media screen tabs (Reciters, Channels, Tools, Saved).
+ * It uses the global cache (localRecitersCache) and falls back to fetching only if the cache is empty.
+ */
+async function populateYoutubeSuggestions() {
     const suggestionsContent = document.getElementById('suggestions-content');
     if (!suggestionsContent) {
         console.error("suggestions-content element not found!");
@@ -4298,19 +4624,19 @@ container.innerHTML = cardsHTML;
     suggestionsContent.innerHTML = '';
     suggestionsContent.className = 'flex flex-col gap-4 w-full';
 
-    // 1. Create Tab Structure (MODIFIED)
+    // 1. إنشاء هيكل التبويبات (Tab Structure)
     const tabContainer = document.createElement('div');
     tabContainer.className = 'tabs-container flex p-1 rounded-full bg-black/20 self-center';
 
     const recitersTabButton = document.createElement('button');
     recitersTabButton.id = 'tab-reciters';
-    recitersTabButton.className = 'tab-button navigable grid-item';
+    recitersTabButton.className = 'tab-button active navigable grid-item';
     recitersTabButton.tabIndex = 0;
     recitersTabButton.textContent = 'القراء';
 
-    const channTabButton = document.createElement('button'); // Default active
+    const channTabButton = document.createElement('button');
     channTabButton.id = 'tab-channels';
-    channTabButton.className = 'tab-button active navigable grid-item'; // Set Channels as active initially
+    channTabButton.className = 'tab-button navigable grid-item';
     channTabButton.tabIndex = 0;
     channTabButton.textContent = 'قنوات';
 
@@ -4320,45 +4646,39 @@ container.innerHTML = cardsHTML;
     toolsTabButton.tabIndex = 0;
     toolsTabButton.textContent = 'أدوات';
 
-    // --- NEW: Split Saved Tabs ---
-    
     const savedMTabButton = document.createElement('button');
     savedMTabButton.id = 'tab-saved-m';
     savedMTabButton.className = 'tab-button navigable grid-item';
     savedMTabButton.tabIndex = 0;
-    savedMTabButton.textContent = 'المتابعة في التلفاز'; // TV List
-    // --- END NEW ---
+    savedMTabButton.textContent = 'المتابعة في التلفاز';
 
     const savedDTabButton = document.createElement('button');
     savedDTabButton.id = 'tab-saved-d';
     savedDTabButton.className = 'tab-button navigable grid-item';
     savedDTabButton.tabIndex = 0;
-    savedDTabButton.textContent = 'متابعة  في السيارة'; // Car List
-
+    savedDTabButton.textContent = 'متابعة في السيارة';
 
     tabContainer.appendChild(recitersTabButton);
     tabContainer.appendChild(channTabButton);
     tabContainer.appendChild(toolsTabButton);
-    tabContainer.appendChild(savedMTabButton); // Add new M button
-     tabContainer.appendChild(savedDTabButton); // Add new D button
+    tabContainer.appendChild(savedMTabButton);
+    tabContainer.appendChild(savedDTabButton);
 
     const tabsContentContainer = document.createElement('div');
     tabsContentContainer.id = 'tabs-content-container';
     tabsContentContainer.className = 'flex-grow w-full overflow-y-auto';
 
-    console.log("[Debug] Created tab buttons and content container.");
-
-    // 2. Create Content Panels (MODIFIED)
+    // 2. إنشاء محتويات الألواح (Content Panels)
     const recitersContent = document.createElement('div');
     recitersContent.id = 'tab-content-reciters';
-    recitersContent.className = 'tab-content hidden'; // Hide initially
+    recitersContent.className = 'tab-content';
     const readerButtonsContainer = document.createElement('div');
     readerButtonsContainer.className = 'reader-container';
     recitersContent.appendChild(readerButtonsContainer);
 
-    const channContent = document.createElement('div'); // Default active content
+    const channContent = document.createElement('div');
     channContent.id = 'tab-content-channels';
-    channContent.className = 'tab-content'; // Show initially
+    channContent.className = 'tab-content hidden';
     const channButtonsContainer = document.createElement('div');
     channButtonsContainer.className = 'reader-container';
     channContent.appendChild(channButtonsContainer);
@@ -4370,39 +4690,91 @@ container.innerHTML = cardsHTML;
     toolsButtonsContainer.className = 'reader-container';
     toolsContent.appendChild(toolsButtonsContainer);
 
-    // --- NEW: Split Saved Content Divs ---
     const savedDContent = document.createElement('div');
     savedDContent.id = 'tab-content-saved-d';
-    savedDContent.className = 'tab-content hidden h-full'; // Initially hidden
-    savedDContent.innerHTML = `<div id="favorites-d-grid" class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4"></div>`; // Grid for D
+    savedDContent.className = 'tab-content hidden h-full';
+    savedDContent.innerHTML = `<div id="favorites-d-grid" class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4"></div>`;
 
     const savedMContent = document.createElement('div');
     savedMContent.id = 'tab-content-saved-m';
-    savedMContent.className = 'tab-content hidden h-full'; // Initially hidden
-    savedMContent.innerHTML = `<div id="favorites-m-grid" class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4"></div>`; // Grid for M
-    // --- END NEW ---
+    savedMContent.className = 'tab-content hidden h-full';
+    savedMContent.innerHTML = `<div id="favorites-m-grid" class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4"></div>`;
 
-
+    // 3. ملء المحتويات بالبيانات
     try {
-        console.log("[Debug] Populating Reciters...");
-        // --- Populate Reciters --- (Keep your existing code)
-        youtubeReaderSuggestions.forEach(reader => {
-             const card = document.createElement('div');
-             card.className = 'youtube-reader-card navigable grid-item';
-             card.tabIndex = 0;
-             card.innerHTML = `<h3>${reader.name}</h3><img src="${reader.image}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/100x100';">`;
-             card.addEventListener('click', () => handleReaderOrToolClick(reader.name, tabContainer, tabsContentContainer));
-             readerButtonsContainer.appendChild(card);
-        });
-        console.log("[Debug] Populated Reciters.");
+        console.log("[Debug] Populating Reciters from Cache...");
+        
+        let recitersList = localRecitersCache; 
 
-        console.log("[Debug] Populating Channels...");
-        // --- Populate Channels --- (Keep your existing code)
-        let channList = await fetchChannelsList();
-        if (Array.isArray(channList)) {
-             channList.sort((a, b) => (parseInt(b?.clickschannel, 10) || 0) - (parseInt(a?.clickschannel, 10) || 0));
+        // [احتياطي] إذا كانت الذاكرة المؤقتة فارغة، نقوم بالجلب الآن
+        if (!recitersList || recitersList.length === 0) {
+            recitersList = await fetchRecitersList();
+        }
+        
+        if (Array.isArray(recitersList)) {
+            recitersList.sort((a, b) => (parseInt(b?.clicksreciter, 10) || 0) - (parseInt(a?.clicksreciter, 10) || 0));
         } else {
-             console.error("fetchChannelsList did not return an array."); channList = [];
+            console.error("Reciters List is not an array, defaulting to empty."); 
+            recitersList = [];
+        }
+        
+        readerButtonsContainer.innerHTML = '';
+        
+        recitersList.forEach(reader => {
+            if (!reader || !reader.name) return;
+
+            const card = document.createElement('div');
+            card.className = 'youtube-reader-card navigable grid-item relative group';
+            card.tabIndex = 0;
+            const imageUrl = reader.image || 'https://placehold.co/100x100/334155/ffffff?text=Q';
+
+            // 🛑 إضافة زر الحذف بنفس ستايل زر القناة
+            card.innerHTML = `
+                <button class="delete-channel-btn absolute bottom-2 right-2 p-1.5 bg-red-600/80 hover:bg-red-500 rounded-full transition-colors z-10 navigable grid-item" title="حذف القارئ" tabindex="0">
+                    <i data-lucide="trash-2" class="w-4 h-4 text-white pointer-events-none"></i>
+                </button>
+                <h3>${reader.name}</h3>
+                <img src="${imageUrl}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/100x100';">
+            `;
+
+            card.addEventListener('click', (e) => {
+                // إذا تم النقر على زر الحذف، لا تنفذ إجراء القارئ
+                if (e.target.closest('.delete-channel-btn')) return; 
+
+                if (reader.name === "الرقية" || reader.name === "ربط الآيات") {
+                    handleReaderOrToolClick(reader.name, tabContainer, tabsContentContainer);
+                } else {
+                    incrementReciterClick(reader.name);
+                    handleReaderOrToolClick(reader.name, tabContainer, tabsContentContainer);
+                }
+            });
+            
+            // 🛑 ربط زر الحذف بدالة الحذف الجديدة
+            const deleteBtn = card.querySelector('.delete-channel-btn');
+            deleteBtn?.addEventListener('click', (e) => { 
+                e.stopPropagation(); 
+                removeReciterFromList(reader.name); // 👈 ربط الحذف
+            });
+
+            readerButtonsContainer.appendChild(card);
+        });
+
+        // 🛑 إضافة زر "إضافة قارئ جديد"
+        const addReciterCard = document.createElement('div');
+        addReciterCard.className = 'youtube-reader-card navigable grid-item';
+        addReciterCard.tabIndex = 0;
+        addReciterCard.innerHTML = `<h3>إضافة قارئ</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-dashed border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="plus" class="w-12 h-12 text-white/50"></i></div>`;
+        addReciterCard.addEventListener('click', showAddReciterPrompt);
+        readerButtonsContainer.appendChild(addReciterCard);
+
+        console.log("[Debug] Populated Reciters.");
+        
+        // --- Populating Channels (Existing Logic - يستخدم localChannelsCache) ---
+        let channList = localChannelsCache; 
+        if (Array.isArray(channList)) {
+            channList.sort((a, b) => (parseInt(b?.clickschannel, 10) || 0) - (parseInt(a?.clickschannel, 10) || 0));
+        } else {
+            channList = [];
         }
         const channelIdsToFetch = channList.filter(r => r && r.channelid).map(r => r.channelid);
         const channelThumbnails = channelIdsToFetch.length > 0 ? await fetchChannelsDetails(channelIdsToFetch) : {};
@@ -4426,8 +4798,8 @@ container.innerHTML = cardsHTML;
                      handleReaderOrToolClick(reader.name, tabContainer, tabsContentContainer);
                  }
              });
-             const deleteBtn = card.querySelector('.delete-channel-btn');
-             deleteBtn?.addEventListener('click', (e) => { e.stopPropagation(); removeChannelFromList(reader.channelid, reader.name); });
+             const deleteChannBtn = card.querySelector('.delete-channel-btn');
+             deleteChannBtn?.addEventListener('click', (e) => { e.stopPropagation(); removeChannelFromList(reader.channelid, reader.name); });
              channButtonsContainer.appendChild(card);
         });
         const addChannelCard = document.createElement('div');
@@ -4436,14 +4808,11 @@ container.innerHTML = cardsHTML;
         addChannelCard.innerHTML = `<h3>إضافة قناة</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-dashed border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="plus" class="w-12 h-12 text-white/50"></i></div>`;
         addChannelCard.addEventListener('click', showAddChannelPrompt);
         channButtonsContainer.appendChild(addChannelCard);
-        console.log("[Debug] Populated Channels.");
-
-
-        console.log("[Debug] Populating Tools...");
-        // --- Populate Tools --- (Keep your existing code)
+        
+        // --- Populating Tools (Existing Logic) ---
         const tools = [
-             { name: "الكلمات الصعبة في", icon: "help-circle" },
-             { name: "فقط السورة", icon: "book-open", specialAction: "JUST_SURAH" }
+            { name: "الكلمات الصعبة في", icon: "help-circle" },
+            { name: "فقط السورة", icon: "book-open", specialAction: "JUST_SURAH" }
         ];
         tools.forEach(tool => {
             const card = document.createElement('div');
@@ -4453,57 +4822,155 @@ container.innerHTML = cardsHTML;
             card.addEventListener('click', () => handleReaderOrToolClick(tool.specialAction || tool.name, tabContainer, tabsContentContainer));
             toolsButtonsContainer.appendChild(card);
         });
-        console.log("[Debug] Populated Tools.");
-
-
-        console.log("[Debug] Attaching click listeners to tab buttons...");
-
-        // --- Tab Switching Logic (MODIFIED) ---
-        const tabs = [recitersTabButton, channTabButton, toolsTabButton, savedDTabButton, savedMTabButton]; // Updated tabs array
-        const contents = [recitersContent, channContent, toolsContent, savedDContent, savedMContent];   // Updated contents array
+        
+        // --- Tab Switching Logic ---
+        const tabs = [recitersTabButton, channTabButton, toolsTabButton, savedDTabButton, savedMTabButton];
+        const contents = [recitersContent, channContent, toolsContent, savedDContent, savedMContent];
 
         tabs.forEach((tab, index) => {
             tab.addEventListener('click', () => {
-                console.log(`[Debug] ${tab.textContent} tab clicked!`);
                 tabs.forEach(t => t.classList.remove('active'));
                 contents.forEach(c => c.classList.add('hidden'));
                 tab.classList.add('active');
                 contents[index].classList.remove('hidden');
 
-                // --- Special actions for Saved tabs ---
-                if (tab.id === 'tab-saved-d') {
-                    loadSavedVideos('D'); // Load only D list
-                } else if (tab.id === 'tab-saved-m') {
-                    loadSavedVideos('M'); // Load only M list
-                }
-                // --- End Special actions ---
+                if (tab.id === 'tab-saved-d') { loadSavedVideos('D'); } 
+                else if (tab.id === 'tab-saved-m') { loadSavedVideos('M'); }
 
                 const firstItem = contents[index].querySelector('.grid-item');
                 if (firstItem) setFocus(firstItem); else setFocus(tab);
             });
         });
-        console.log("[Debug] Finished attaching click listeners.");
-
-
-        // 5. Append everything
-        suggestionsContent.appendChild(tabContainer);
-        tabsContentContainer.appendChild(recitersContent);
-        tabsContentContainer.appendChild(channContent);
-        tabsContentContainer.appendChild(toolsContent);
-        tabsContentContainer.appendChild(savedDContent); // Add new D content
-        tabsContentContainer.appendChild(savedMContent); // Add new M content
-        suggestionsContent.appendChild(tabsContentContainer);
-
-        // Set initial active tab (Channels is already set via class)
-
-        lucide.createIcons();
-        console.log("[Debug] Finished populateYoutubeSuggestions.");
-        updateNavigableElements();
 
     } catch (error) {
-        console.error("Error during populateYoutubeSuggestions:", error);
-        suggestionsContent.innerHTML = '<p class="text-red-500 text-center">Error loading suggestions.</p>';
+        console.log("[Debug] Error in populating tabs:", error);
     }
+    
+    // 4. تجميع وإضافة العناصر إلى الشاشة
+    suggestionsContent.appendChild(tabContainer);
+    tabsContentContainer.appendChild(recitersContent);
+    tabsContentContainer.appendChild(channContent);
+    tabsContentContainer.appendChild(toolsContent);
+    tabsContentContainer.appendChild(savedDContent);
+    tabsContentContainer.appendChild(savedMContent);
+    suggestionsContent.appendChild(tabsContentContainer);
+
+    lucide.createIcons();
+    updateNavigableElements();
+}
+
+/**
+ * RENAMED & REFINED: Handles the search action specifically for finding a Reciter Channel.
+ * Applies strong filtering for 'type=channel' and 'relevanceLanguage=ar'.
+ */
+async function handleSearchForReciterChannel() {
+    // 🛑 نستخدم هنا المُعرّف الصحيح من نافذة القراء المنبثقة
+    const inputEl = document.getElementById('new-reciter-name-input'); 
+    const resultsContainer = document.getElementById('channel-search-results'); // نفس اسم حاوية النتائج
+    const confirmBtn = document.getElementById('search-channel-confirm'); // نفس اسم زر البحث
+    const query = inputEl.value.trim();
+
+    if (!query) {
+        showMessageBox("الرجاء إدخال اسم القارئ/القناة للبحث.");
+        return;
+    }
+    // ... (بقية منطق التحميل والتأكد) ...
+    // ... (بقية منطق التحميل والتأكد) ...
+
+    try {
+        // 🛑 API Call: Filtered for Channel Type and Arabic Relevance
+        const API_URL = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=channel&key=${YOUTUBE_API_KEY}&maxResults=10&relevanceLanguage=ar`; 
+        
+        const response = await fetch(API_URL);
+        
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+        const data = await response.json();
+        
+        displayReciterSearchResults(data.items);
+        
+    } catch (error) {
+        // ... (بقية منطق الخطأ) ...
+    } finally {
+        // ... (بقية منطق التحميل) ...
+    }
+}
+
+/**
+ * NEW: Displays the search results (channels) inside the "Add Reciter" modal.
+ * It creates cards with an "Add" button, which calls handleAddReciter.
+ * @param {Array} channels - List of channel search results from YouTube API.
+ */
+function displayReciterSearchResults(channels) {
+    const resultsContainer = document.getElementById('channel-search-results');
+    resultsContainer.innerHTML = '';
+
+    if (!channels || channels.length === 0) {
+        resultsContainer.innerHTML = '<p class="text-center text-white/70">لم يتم العثور على قنوات بهذا الاسم باللغة العربية.</p>';
+        updateNavigableElements();
+        return;
+    }
+
+    channels.forEach(channel => {
+        const channelId = channel.id.channelId;
+        const channelTitle = channel.snippet.title;
+        const channelThumbnail = channel.snippet.thumbnails.default.url;
+        
+        // التحقق مما إذا كان القارئ (الاسم) موجوداً بالفعل في قائمة القراء
+        const isSaved = localRecitersCache.some(r => r.name === channelTitle); 
+
+        const resultCard = document.createElement('div');
+        resultCard.className = 'flex items-center gap-4 p-3 rounded-xl bg-white/5 navigable grid-item';
+        resultCard.tabIndex = 0; // لضمان التنقل بالريموت
+        
+        resultCard.innerHTML = `
+            <img src="${channelThumbnail}" alt="${channelTitle}" class="w-16 h-16 rounded-full object-cover flex-shrink-0" onerror="this.onerror=null;this.src='https://placehold.co/64x64';">
+            <div class="flex-grow min-w-0">
+                <h4 class="font-bold truncate text-lg">${channelTitle}</h4>
+                <p class="text-sm text-white/60 truncate">${channel.snippet.description || 'قناة يوتيوب'}</p>
+            </div>
+            <button 
+                class="add-reciter-from-search-btn p-2 rounded-full transition-colors flex-shrink-0 navigable grid-item" 
+                data-reciter-name="${channelTitle}" 
+                data-reciter-image="${channelThumbnail}"
+                ${isSaved ? 'disabled' : ''}
+                tabindex="0"
+                style="background-color: ${isSaved ? '#10B981' : '#9333ea'};"
+            >
+                <i data-lucide="${isSaved ? 'check' : 'plus'}" class="w-5 h-5 text-white"></i>
+            </button>
+        `;
+        resultsContainer.appendChild(resultCard);
+
+        // ربط حدث النقر على زر الإضافة
+        if (!isSaved) {
+            resultCard.querySelector('.add-reciter-from-search-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                const btn = e.currentTarget;
+                const name = btn.dataset.reciterName;
+                const image = btn.dataset.reciterImage;
+                handleAddReciter(name, image, btn); 
+            });
+            // ربط النقر على البطاقة نفسها بفتح القناة (ميزة إضافية)
+            resultCard.addEventListener('click', (e) => {
+                if(e.target.closest('button')) return; // لا تفعل شيئًا إذا تم النقر على الزر
+                showMessageBox(`لتشغيل فيديوهات القناة، انقر على زر الإضافة ثم ابحث باسم القارئ في الشاشة الرئيسية.`);
+            });
+        } else {
+             // إذا كان محفوظًا، اجعل النقر على البطاقة يفتح نافذة "تمت الإضافة"
+             resultCard.addEventListener('click', () => showMessageBox(`تمت إضافة القارئ "${channelTitle}" بالفعل. يمكنك الآن البحث به في شاشة الوسائط.`));
+        }
+    });
+    
+    lucide.createIcons();
+    // 🛑 يجب تحديث العناصر القابلة للتنقل بعد إضافة النتائج
+    updateNavigableElements();
+    
+    // نقل التركيز إلى أول نتيجة
+    setTimeout(() => {
+        const firstResult = resultsContainer.querySelector('.grid-item');
+        if (firstResult) setFocus(firstResult);
+    }, 50);
 }
 
         function showSurahSuggestions() {
@@ -6259,6 +6726,9 @@ if (!window.hasInitializedWeatherSpeaker) {
             floatingMediaButton?.addEventListener('click', () => switchApp('Media')); 
             floatingMinimizedVideoButton?.addEventListener('click', restoreVideoPopup); // NEW listener
             
+
+
+
 
     // ... (الكود الموجود لديك)
 const recitersIframe = document.getElementById('reciters-iframe');
