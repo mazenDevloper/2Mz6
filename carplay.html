@@ -3591,7 +3591,7 @@ function updateUI() {
         
         async function searchYouTubeVideos(query) {
             try {
-                const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&key=${YOUTUBE_API_KEY}&maxResults=50`);
+                const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&key=${YOUTUBE_API_KEY}&maxResults=25`);
                 if (!res.ok) {
                     const errorData = await res.json().catch(() => ({}));
                     console.error("YouTube API error (search):", errorData?.error?.message || res.status);
@@ -3678,7 +3678,7 @@ function updateUI() {
                 }
 
                 // Step 2: Get the video items from the uploads playlist
-                const playlistRes = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${uploadsPlaylistId}&key=${YOUTUBE_API_KEY}&maxResults=50`);
+                const playlistRes = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${uploadsPlaylistId}&key=${YOUTUBE_API_KEY}&maxResults=25`);
                  if (!playlistRes.ok) {
                     throw new Error("Failed to fetch videos from the channel's playlist.");
                 }
@@ -3914,30 +3914,140 @@ async function hideVideoPopup() {
             setFocus(videoPopupCloseButton);
         }
 
-        function onPlayerStateChange(event) {
-            if (event.data == YT.PlayerState.PLAYING) {
-                // When video starts playing, set quality to 144p ('tiny')
-                popupPlayer.setPlaybackQuality('tiny');
+       function onPlayerStateChange(event) {
+    if (event.data == YT.PlayerState.PLAYING) {
+        // 1. إعداد جودة التشغيل والتتبع
+        popupPlayer.setPlaybackQuality('tiny');
 
-                // Start tracking progress
-                progressInterval = setInterval(() => {
-                    const videoId = popupPlayer.getVideoData().video_id;
-                    const currentTime = popupPlayer.getCurrentTime();
-                    const duration = popupPlayer.getDuration();
-                    updateVideoProgress(videoId, currentTime, duration);
-                }, 5000); // Save progress every 5 seconds
+        // Start tracking progress (كل 5 ثوانٍ)
+        progressInterval = setInterval(() => {
+            const videoId = popupPlayer.getVideoData().video_id;
+            const currentTime = popupPlayer.getCurrentTime();
+            const duration = popupPlayer.getDuration();
+            updateVideoProgress(videoId, currentTime, duration);
+        }, 5000); 
 
-            } else if (event.data == YT.PlayerState.ENDED) {
-                if (progressInterval) clearInterval(progressInterval);
-                const videoId = popupPlayer.getVideoData().video_id;
-                markVideoAsWatched(videoId);
-            } else {
-                 if (progressInterval) {
-                    clearInterval(progressInterval);
-                    progressInterval = null;
-                }
-            }
+    } else if (event.data == YT.PlayerState.ENDED) {
+        if (progressInterval) clearInterval(progressInterval);
+        
+        // 1. التقاط مُعرِّف الفيديو المنتهي وإتمام التحديث
+        const videoData = popupPlayer.getVideoData();
+        const videoId = videoData ? videoData.video_id : null;
+        markVideoAsWatched(videoId);
+        
+        // 2. تدمير المشغل (مهم لإزالة iframe وعرض محتوى جديد)
+        if (popupPlayer) {
+            popupPlayer.destroy();
+            popupPlayer = null;
         }
+        
+        // 3. 🚀 الإجراء الحاسم: عرض قائمة المفضلة في السيارة داخل النافذة المنبثقة
+        showFavoritesInPopup('D'); 
+        
+        // 4. مسح مؤقت التقدم من AppState (لا حاجة لـ cleanup إضافي)
+
+    } else {
+         if (progressInterval) {
+            clearInterval(progressInterval);
+            progressInterval = null;
+        }
+    }
+}
+
+
+
+/**
+ * Creates a single HTML card for a related video suggestion inside the popup player.
+ * * @param {object} video - Detailed video object from YouTube API fetch.
+ * @param {object} channelThumbnails - Map of channel IDs to their thumbnail URLs.
+ * @returns {HTMLElement} The complete suggestion card DIV element.
+ */
+
+
+
+/**
+ * Helper function to create a simplified card for display inside the popup.
+ */
+function createSimpleSuggestionCard(video, type) {
+    const card = document.createElement('div');
+    card.className = 'simple-suggestion-card flex items-center gap-3 p-2 rounded-lg bg-white/10 cursor-pointer navigable grid-item';
+    card.tabIndex = 0;
+    card.dataset.videoId = video.id;
+    card.dataset.progress = video.progress; // لتمرير تقدم المشاهدة
+
+    card.innerHTML = `
+        <img src="${video.thumbnail}" class="w-12 h-auto rounded-md flex-shrink-0" onerror="this.onerror=null;this.src='https://placehold.co/64x36';">
+        <div class="min-w-0 flex-grow">
+            <h4 class="font-semibold text-sm truncate text-white">${video.title}</h4>
+            <p class="text-xs text-white/70">${video.channelTitle || ''}</p>
+        </div>
+        <span class="text-xs text-white/50 flex-shrink-0">${video.duration || '--:--'}</span>
+    `;
+    return card;
+}
+
+/**
+ * Executes after a video ends to show the default destination list (Favorites D).
+ */
+async function showFavoritesInPopup(type) {
+    const container = videoPopupPlayerContainer;
+    // تحديد القائمة المطلوبة بناءً على 'D' أو 'M'
+    let favoritesList = (type === 'D' ? favoritesD : favoritesM);
+    const listName = (type === 'D' ? 'قائمة المتابعة في السيارة' : 'قائمة المتابعة في التلفاز');
+
+    // 1. عرض شاشة تحميل و التأكد من ظهور النافذة
+    container.innerHTML = `<div class="p-8 text-center">
+                              <p>جاري تحميل...</p>
+                           </div>`;
+    videoPopupContainer.style.display = 'flex';
+    videoPopupContainer.classList.add('active');
+
+    try {
+        // 2. ضمان تحديث قائمة المفضلة من السيرفر
+        if (favoritesList.length === 0 || !Array.isArray(favoritesList)) {
+            const fetched = await fetchFavorites(type);
+            favoritesList = fetched;
+        }
+
+        if (favoritesList.length === 0) {
+            container.innerHTML = `<p class="p-8 text-center text-white/70">لا توجد فيديوهات محفوظة في ${listName}.</p>`;
+            return;
+        }
+
+        // 3. بناء كروت المقترحات
+        let cardsHTML = `<h3 class="text-xl font-bold p-3 text-center">المقترحات: ${listName}</h3><div id="favorites-popup-grid" class="flex flex-col gap-3 p-3 overflow-y-auto">`;
+        
+        favoritesList.forEach(video => {
+            // نستخدم دالة createSimpleSuggestionCard لإنشاء كارت بسيط
+            cardsHTML += createSimpleSuggestionCard(video, type).outerHTML; 
+        });
+        
+        container.innerHTML = cardsHTML + '</div>';
+
+        // 4. ربط أحداث النقر لتشغيل الفيديو التالي
+        container.querySelectorAll('.simple-suggestion-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                const nextVideoId = e.currentTarget.dataset.videoId;
+                const progress = parseFloat(e.currentTarget.dataset.progress || 0);
+                if (nextVideoId) {
+                    showVideoPopup(nextVideoId, progress); // تشغيل الفيديو الجديد
+                }
+            });
+        });
+        
+        // 5. إعادة إظهار زر الحفظ (إذا كان قد اختفى)
+        const bookmarkBtn = document.getElementById('video-popup-bookmark-button');
+        if (bookmarkBtn) { bookmarkBtn.style.display = 'flex'; }
+
+
+    } catch (e) {
+        console.error("Error displaying favorites in popup:", e);
+        container.innerHTML = `<p class="p-8 text-center text-red-500">حدث خطأ في تحميل القائمة.</p>`;
+    }
+}
+/**
+ * Fetches and displays related video suggestions inside the popup container.
+ */
 
         function handleFullScreenChange() {
             if (popupPlayer && typeof popupPlayer.getPlayerState === 'function' && popupPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
@@ -4207,12 +4317,7 @@ async function hideVideoPopup() {
     toolsTabButton.textContent = 'أدوات';
 
     // --- NEW: Split Saved Tabs ---
-    const savedDTabButton = document.createElement('button');
-    savedDTabButton.id = 'tab-saved-d';
-    savedDTabButton.className = 'tab-button navigable grid-item';
-    savedDTabButton.tabIndex = 0;
-    savedDTabButton.textContent = 'متابعة  في السيارة'; // Car List
-
+    
     const savedMTabButton = document.createElement('button');
     savedMTabButton.id = 'tab-saved-m';
     savedMTabButton.className = 'tab-button navigable grid-item';
@@ -4220,11 +4325,18 @@ async function hideVideoPopup() {
     savedMTabButton.textContent = 'المتابعة في التلفاز'; // TV List
     // --- END NEW ---
 
+    const savedDTabButton = document.createElement('button');
+    savedDTabButton.id = 'tab-saved-d';
+    savedDTabButton.className = 'tab-button navigable grid-item';
+    savedDTabButton.tabIndex = 0;
+    savedDTabButton.textContent = 'متابعة  في السيارة'; // Car List
+
+
     tabContainer.appendChild(recitersTabButton);
     tabContainer.appendChild(channTabButton);
     tabContainer.appendChild(toolsTabButton);
-    tabContainer.appendChild(savedDTabButton); // Add new D button
     tabContainer.appendChild(savedMTabButton); // Add new M button
+     tabContainer.appendChild(savedDTabButton); // Add new D button
 
     const tabsContentContainer = document.createElement('div');
     tabsContentContainer.id = 'tabs-content-container';
