@@ -3916,10 +3916,10 @@ async function hideVideoPopup() {
 
        function onPlayerStateChange(event) {
     if (event.data == YT.PlayerState.PLAYING) {
-        // When video starts playing, set quality to 144p ('tiny')
+        // 1. إعداد جودة التشغيل والتتبع
         popupPlayer.setPlaybackQuality('tiny');
 
-        // Start tracking progress (every 5 seconds)
+        // Start tracking progress (كل 5 ثوانٍ)
         progressInterval = setInterval(() => {
             const videoId = popupPlayer.getVideoData().video_id;
             const currentTime = popupPlayer.getCurrentTime();
@@ -3930,29 +3930,21 @@ async function hideVideoPopup() {
     } else if (event.data == YT.PlayerState.ENDED) {
         if (progressInterval) clearInterval(progressInterval);
         
-        // 1. التقاط مُعرِّف الفيديو المنتهي بأمان
+        // 1. التقاط مُعرِّف الفيديو المنتهي وإتمام التحديث
         const videoData = popupPlayer.getVideoData();
         const videoId = videoData ? videoData.video_id : null;
-        
         markVideoAsWatched(videoId);
         
-        // 2. تدمير المشغل وإغلاق النافذة المنبثقة
+        // 2. تدمير المشغل (مهم لإزالة iframe وعرض محتوى جديد)
         if (popupPlayer) {
             popupPlayer.destroy();
             popupPlayer = null;
         }
         
-        // 3. 🛑 الإجراء الحاسم: إغلاق النافذة المنبثقة والتحويل إلى قائمة المفضلة في السيارة
+        // 3. 🚀 الإجراء الحاسم: عرض قائمة المفضلة في السيارة داخل النافذة المنبثقة
+        showFavoritesInPopup('D'); 
         
-        // أ. مسح حالة المشغل المنبثق
-        videoPopupContainer.classList.remove('active');
-        videoPopupContainer.style.display = 'none';
-        
-        // ب. التحويل مباشرة إلى شاشة Media
-        switchApp('Media'); 
-        
-        // ج. عرض قائمة المفضلة في السيارة (Favorites D)
-        showFavoritesDAfterVideo(); 
+        // 4. مسح مؤقت التقدم من AppState (لا حاجة لـ cleanup إضافي)
 
     } else {
          if (progressInterval) {
@@ -3963,33 +3955,6 @@ async function hideVideoPopup() {
 }
 
 
-/**
- * Helper function to switch to Media screen and activate the Favorites D tab.
- * ⚠️ Note: This relies on document.getElementById('tab-saved-d') existing.
- */
-function showFavoritesDAfterVideo() {
-    const mediaScreen = document.getElementById('screen-Media');
-    if (!mediaScreen) return;
-    
-    // 1. إخفاء أي شاشات بحث/قوائم أخرى
-    youtubeVideoListView.classList.add('hidden');
-    youtubeSearchResultsView.classList.add('hidden');
-    youtubeSuggestionsDiv.style.display = 'flex'; // إظهار حاوية التبويبات
-
-    // 2. تفعيل تبويب "متابعة في السيارة"
-    const savedDTabButton = document.getElementById('tab-saved-d');
-    if (savedDTabButton) {
-        savedDTabButton.click(); 
-    } else {
-        // في حال عدم وجود زر التبويب، نضمن تحميل القائمة D يدوياً
-        loadSavedVideos('D');
-    }
-    
-    // 3. إعادة التركيز إلى زر التبويب الجديد
-    setTimeout(() => {
-        if (savedDTabButton) setFocus(savedDTabButton);
-    }, 150); 
-}
 
 /**
  * Creates a single HTML card for a related video suggestion inside the popup player.
@@ -3997,69 +3962,88 @@ function showFavoritesDAfterVideo() {
  * @param {object} channelThumbnails - Map of channel IDs to their thumbnail URLs.
  * @returns {HTMLElement} The complete suggestion card DIV element.
  */
-function createSuggestionCard(video, channelThumbnails) {
-    const card = document.createElement('div');
-    // نستخدم class 'suggestion-card' لتطبيق تنسيقات بسيطة
-    card.className = 'suggestion-card flex items-center gap-3 p-2 rounded-lg bg-white/10 cursor-pointer navigable grid-item';
-    card.tabIndex = 0; // لتمكين التوجيه عبر لوحة التحكم
-    card.dataset.videoId = video.id;
 
-    // استخراج البيانات بأمان
-    const channelId = video.snippet.channelId;
-    const channelThumbnail = channelThumbnails[channelId] || 'https://placehold.co/24x24/334155/ffffff?text=?';
-    
-    // يجب أن تكون الدالة formatDuration موجودة ومعرفة
-    const duration = formatDuration(video.contentDetails.duration || 'PT0S'); 
-    
+
+
+/**
+ * Helper function to create a simplified card for display inside the popup.
+ */
+function createSimpleSuggestionCard(video, type) {
+    const card = document.createElement('div');
+    card.className = 'simple-suggestion-card flex items-center gap-3 p-2 rounded-lg bg-white/10 cursor-pointer navigable grid-item';
+    card.tabIndex = 0;
+    card.dataset.videoId = video.id;
+    card.dataset.progress = video.progress; // لتمرير تقدم المشاهدة
+
     card.innerHTML = `
-        <div class="thumbnail-container relative flex-shrink-0">
-            <img src="${video.snippet.thumbnails.default.url}" 
-                 alt="${video.snippet.title}" 
-                 class="w-16 h-auto rounded-md object-cover"
-                 onerror="this.onerror=null;this.src='https://placehold.co/64x36';"
-            >
+        <img src="${video.thumbnail}" class="w-12 h-auto rounded-md flex-shrink-0" onerror="this.onerror=null;this.src='https://placehold.co/64x36';">
+        <div class="min-w-0 flex-grow">
+            <h4 class="font-semibold text-sm truncate text-white">${video.title}</h4>
+            <p class="text-xs text-white/70">${video.channelTitle || ''}</p>
         </div>
-        <div class="flex flex-col min-w-0 flex-grow">
-            <h4 class="font-semibold text-sm truncate text-white">${video.snippet.title}</h4>
-            <div class="flex items-center gap-1 mt-1">
-                <img src="${channelThumbnail}" class="w-4 h-4 rounded-full object-cover">
-                <p class="text-xs text-white/70 truncate">${video.snippet.channelTitle}</p>
-            </div>
-        </div>
-        <span class="text-xs text-white/50 flex-shrink-0">${duration}</span>
+        <span class="text-xs text-white/50 flex-shrink-0">${video.duration || '--:--'}</span>
     `;
-    
-    // لا نحتاج لإضافة مستمع النقر هنا، لأنه تتم إضافته في دالة showNextVideoSuggestions
-    
     return card;
 }
-
 
 /**
  * Executes after a video ends to show the default destination list (Favorites D).
  */
-function showFavoritesDAfterVideo() {
-    // 1. التأكد من أن شاشة Media هي النشطة
-    const mediaScreen = document.getElementById('screen-Media');
-    if (!mediaScreen || !mediaScreen.classList.contains('active')) {
-        // إذا لم تكن شاشة Media هي النشطة، فلا يمكننا عرض التبويبات
-        return; 
-    }
-    
-    // 2. إخفاء أي شاشات بحث/قوائم أخرى
-    youtubeVideoListView.classList.add('hidden');
-    youtubeSearchResultsView.classList.add('hidden');
-    youtubeSuggestionsDiv.style.display = 'flex'; // إظهار حاوية الاقتراحات التي تضم التبويبات
+async function showFavoritesInPopup(type) {
+    const container = videoPopupPlayerContainer;
+    // تحديد القائمة المطلوبة بناءً على 'D' أو 'M'
+    let favoritesList = (type === 'D' ? favoritesD : favoritesM);
+    const listName = (type === 'D' ? 'قائمة المتابعة في السيارة' : 'قائمة المتابعة في التلفاز');
 
-    // 3. تفعيل تبويب "متابعة في السيارة"
-    const savedDTabButton = document.getElementById('tab-saved-d');
-    if (savedDTabButton) {
-        // إذا كانت التبويبات موجودة، نضغط على زر قائمة السيارة
-        savedDTabButton.click(); 
-    } else {
-        // إذا لم يتم بناء التبويبات بعد، نعتمد على أن populateYoutubeSuggestions ستقوم ببنائها
-        // وسنقوم ببدء تحميل قائمة D مباشرة.
-        loadSavedVideos('D');
+    // 1. عرض شاشة تحميل و التأكد من ظهور النافذة
+    container.innerHTML = `<div class="p-8 text-center">
+                              <h3 class="font-bold text-xl mb-3">مقترحات: ${listName}</h3>
+                              <p>جاري تحميل...</p>
+                           </div>`;
+    videoPopupContainer.style.display = 'flex';
+    videoPopupContainer.classList.add('active');
+
+    try {
+        // 2. ضمان تحديث قائمة المفضلة من السيرفر
+        if (favoritesList.length === 0 || !Array.isArray(favoritesList)) {
+            const fetched = await fetchFavorites(type);
+            favoritesList = fetched;
+        }
+
+        if (favoritesList.length === 0) {
+            container.innerHTML = `<p class="p-8 text-center text-white/70">لا توجد فيديوهات محفوظة في ${listName}.</p>`;
+            return;
+        }
+
+        // 3. بناء كروت المقترحات
+        let cardsHTML = `<h3 class="text-xl font-bold p-3 text-center">المقترحات: ${listName}</h3><div id="favorites-popup-grid" class="flex flex-col gap-3 p-3 overflow-y-auto">`;
+        
+        favoritesList.forEach(video => {
+            // نستخدم دالة createSimpleSuggestionCard لإنشاء كارت بسيط
+            cardsHTML += createSimpleSuggestionCard(video, type).outerHTML; 
+        });
+        
+        container.innerHTML = cardsHTML + '</div>';
+
+        // 4. ربط أحداث النقر لتشغيل الفيديو التالي
+        container.querySelectorAll('.simple-suggestion-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                const nextVideoId = e.currentTarget.dataset.videoId;
+                const progress = parseFloat(e.currentTarget.dataset.progress || 0);
+                if (nextVideoId) {
+                    showVideoPopup(nextVideoId, progress); // تشغيل الفيديو الجديد
+                }
+            });
+        });
+        
+        // 5. إعادة إظهار زر الحفظ (إذا كان قد اختفى)
+        const bookmarkBtn = document.getElementById('video-popup-bookmark-button');
+        if (bookmarkBtn) { bookmarkBtn.style.display = 'flex'; }
+
+
+    } catch (e) {
+        console.error("Error displaying favorites in popup:", e);
+        container.innerHTML = `<p class="p-8 text-center text-red-500">حدث خطأ في تحميل القائمة.</p>`;
     }
 }
 /**
