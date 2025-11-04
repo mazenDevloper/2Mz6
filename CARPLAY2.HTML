@@ -3937,88 +3937,104 @@ async function hideVideoPopup() {
     }
 }
 
+/**
+ * Creates a single HTML card for a related video suggestion inside the popup player.
+ * * @param {object} video - Detailed video object from YouTube API fetch.
+ * @param {object} channelThumbnails - Map of channel IDs to their thumbnail URLs.
+ * @returns {HTMLElement} The complete suggestion card DIV element.
+ */
 function createSuggestionCard(video, channelThumbnails) {
     const card = document.createElement('div');
-    card.className = 'suggestion-card flex items-center gap-3 p-2 rounded-lg bg-white/10 cursor-pointer';
+    // نستخدم class 'suggestion-card' لتطبيق تنسيقات بسيطة
+    card.className = 'suggestion-card flex items-center gap-3 p-2 rounded-lg bg-white/10 cursor-pointer navigable grid-item';
+    card.tabIndex = 0; // لتمكين التوجيه عبر لوحة التحكم
     card.dataset.videoId = video.id;
 
-    // استخراج قناة الصورة المصغرة لتجنب أي تعارضات مع دوال أخرى
-    const channelThumbnail = channelThumbnails[video.snippet.channelId];
-    const duration = formatDuration(video.contentDetails.duration);
+    // استخراج البيانات بأمان
+    const channelId = video.snippet.channelId;
+    const channelThumbnail = channelThumbnails[channelId] || 'https://placehold.co/24x24/334155/ffffff?text=?';
+    
+    // يجب أن تكون الدالة formatDuration موجودة ومعرفة
+    const duration = formatDuration(video.contentDetails.duration || 'PT0S'); 
     
     card.innerHTML = `
-        <img src="${video.snippet.thumbnails.default.url}" alt="${video.snippet.title}" class="w-16 h-auto rounded-md flex-shrink-0">
-        <div class="flex flex-col min-w-0 flex-grow">
-            <h4 class="font-semibold text-sm truncate">${video.snippet.title}</h4>
-            <p class="text-xs text-white/70">${video.snippet.channelTitle}</p>
+        <div class="thumbnail-container relative flex-shrink-0">
+            <img src="${video.snippet.thumbnails.default.url}" 
+                 alt="${video.snippet.title}" 
+                 class="w-16 h-auto rounded-md object-cover"
+                 onerror="this.onerror=null;this.src='https://placehold.co/64x36';"
+            >
         </div>
-        <span class="text-xs text-white/50">${duration}</span>
+        <div class="flex flex-col min-w-0 flex-grow">
+            <h4 class="font-semibold text-sm truncate text-white">${video.snippet.title}</h4>
+            <div class="flex items-center gap-1 mt-1">
+                <img src="${channelThumbnail}" class="w-4 h-4 rounded-full object-cover">
+                <p class="text-xs text-white/70 truncate">${video.snippet.channelTitle}</p>
+            </div>
+        </div>
+        <span class="text-xs text-white/50 flex-shrink-0">${duration}</span>
     `;
+    
+    // لا نحتاج لإضافة مستمع النقر هنا، لأنه تتم إضافته في دالة showNextVideoSuggestions
+    
     return card;
 }
 
 /**
  * Fetches and displays related video suggestions inside the popup container.
- * This function replaces the ended video with a list of suggestions.
- */
-/**
- * Fetches and displays related video suggestions inside the popup container.
- * This function replaces the ended video with a list of suggestions.
- */
-/**
- * Fetches and displays related video suggestions inside the popup container.
- * This function replaces the ended video with a list of suggestions.
  */
 async function showNextVideoSuggestions(lastVideoId) {
     if (!lastVideoId) return;
 
-    const currentContainer = videoPopupPlayerContainer; // لتجنب إعادة التعيين
+    const currentContainer = videoPopupPlayerContainer; 
     currentContainer.innerHTML = `<p class="text-center p-8">جاري تحميل مقترحات الفيديو...</p>`;
     
-    // 1. إخفاء أزرار التحكم (مثل bookmark) أثناء عرض المقترحات
     const bookmarkBtn = document.getElementById('video-popup-bookmark-button');
     if (bookmarkBtn) { bookmarkBtn.style.display = 'none'; }
 
     try {
-        // 2. جلب الفيديوهات ذات الصلة (YouTube API - relatedToVideoId)
+        // 1. طلب قائمة مقترحات الفيديو (للحصول على videoIds)
         const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&relatedToVideoId=${lastVideoId}&type=video&key=${YOUTUBE_API_KEY}&maxResults=5`);
         
-        // 🛑 إذا لم يكن الاتصال ناجحًا (4xx أو 5xx)
         if (!res.ok) {
              const errorDetails = await res.json().catch(() => ({}));
              console.error("YouTube Search Error:", errorDetails);
              throw new Error('فشل في جلب المقترحات من YouTube.');
         }
         
-        // ✅ استخدام المتغير الصحيح (res)
-        const data = await res.json(); 
+        const searchData = await res.json(); 
+        const videoIds = searchData.items.map(item => item.id.videoId).filter(id => id);
         
-        // 3. جلب التفاصيل الكاملة
-        const videoIds = data.items.map(item => item.id.videoId);
+        if (videoIds.length === 0) {
+             currentContainer.innerHTML = `<p class="text-center p-8">لا توجد مقترحات فيديو متاحة.</p>`;
+             return;
+        }
+
+        // 2. جلب التفاصيل الكاملة (المدة، الإحصائيات)
         const videoDetails = await fetchVideosDetails(videoIds); 
         
         if (!videoDetails || videoDetails.length === 0) {
-            currentContainer.innerHTML = `<p class="text-center p-8">لا توجد مقترحات فيديو متاحة.</p>`;
+            currentContainer.innerHTML = `<p class="text-center p-8">تعذر الحصول على تفاصيل المقترحات.</p>`;
             return;
         }
+
+        // 3. جلب صور القنوات
+        const channelIds = [...new Set(videoDetails.map(video => video.snippet.channelId))];
+        const channelThumbnails = await fetchChannelsDetails(channelIds);
 
         // 4. بناء واجهة المقترحات
         let suggestionsHTML = `<h3 class="text-xl font-bold p-3">مقترحات:</h3><div class="flex flex-col gap-3 p-3">`;
         
-        const channelIds = [...new Set(videoDetails.map(video => video.snippet.channelId))];
-        const channelThumbnails = await fetchChannelsDetails(channelIds);
-
         videoDetails.forEach(video => {
-            if (video && video.contentDetails) {
-                 const card = createSuggestionCard(video, channelThumbnails);
-                 suggestionsHTML += card.outerHTML;
-            }
+            // ✅ يجب أن تكون الدالة createSuggestionCard موجودة
+            const card = createSuggestionCard(video, channelThumbnails); 
+            suggestionsHTML += card.outerHTML;
         });
         
         suggestionsHTML += `</div>`;
         currentContainer.innerHTML = suggestionsHTML;
         
-        // 5. ربط الأحداث
+        // 5. ربط الأحداث (للنقر)
         currentContainer.querySelectorAll('.suggestion-card').forEach(card => {
             card.addEventListener('click', (e) => {
                 const nextVideoId = e.currentTarget.dataset.videoId;
@@ -4028,12 +4044,11 @@ async function showNextVideoSuggestions(lastVideoId) {
             });
         });
 
-        // 6. إعادة إظهار زر الحفظ إذا لزم الأمر
+        // 6. إعادة إظهار زر الحفظ
         if (bookmarkBtn) { bookmarkBtn.style.display = 'flex'; }
         
     } catch (e) {
         console.error("Error displaying next video suggestions:", e);
-        // عرض رسالة خطأ مع التفاصيل الفنية
         currentContainer.innerHTML = `<p class="text-center p-8 text-red-500">حدث خطأ في عرض المقترحات. (${e.message})</p>`;
     }
 }
