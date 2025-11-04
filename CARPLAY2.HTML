@@ -3591,7 +3591,7 @@ function updateUI() {
         
         async function searchYouTubeVideos(query) {
             try {
-                const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&key=${YOUTUBE_API_KEY}&maxResults=50`);
+                const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&key=${YOUTUBE_API_KEY}&maxResults=25`);
                 if (!res.ok) {
                     const errorData = await res.json().catch(() => ({}));
                     console.error("YouTube API error (search):", errorData?.error?.message || res.status);
@@ -3678,7 +3678,7 @@ function updateUI() {
                 }
 
                 // Step 2: Get the video items from the uploads playlist
-                const playlistRes = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${uploadsPlaylistId}&key=${YOUTUBE_API_KEY}&maxResults=50`);
+                const playlistRes = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${uploadsPlaylistId}&key=${YOUTUBE_API_KEY}&maxResults=25`);
                  if (!playlistRes.ok) {
                     throw new Error("Failed to fetch videos from the channel's playlist.");
                 }
