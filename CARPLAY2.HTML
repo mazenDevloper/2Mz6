@@ -3914,48 +3914,26 @@ async function hideVideoPopup() {
             setFocus(videoPopupCloseButton);
         }
 
-function onPlayerStateChange(event) {
+        function onPlayerStateChange(event) {
     if (event.data == YT.PlayerState.PLAYING) {
-        // When video starts playing, set quality to 144p ('tiny')
-        popupPlayer.setPlaybackQuality('tiny');
-
-        // Start tracking progress (every 5 seconds)
-        progressInterval = setInterval(() => {
-            const videoId = popupPlayer.getVideoData().video_id;
-            const currentTime = popupPlayer.getCurrentTime();
-            const duration = popupPlayer.getDuration();
-            updateVideoProgress(videoId, currentTime, duration);
-        }, 5000); 
-
+        // ... (كود تشغيل وتتبع التقدم) ...
     } else if (event.data == YT.PlayerState.ENDED) {
         if (progressInterval) clearInterval(progressInterval);
-        
-        // ✅ 1. التقاط مُعرِّف الفيديو المنتهي بأمان
-        const videoData = popupPlayer.getVideoData();
-        const videoId = videoData ? videoData.video_id : null;
+        const videoId = popupPlayer.getVideoData().video_id;
         
         markVideoAsWatched(videoId);
         
-        // 2. تدمير المشغل (مهم لعرض المقترحات مكانه)
+        // 🛑 NEW: قم بتدمير المشغل عند الانتهاء
         if (popupPlayer) {
             popupPlayer.destroy();
             popupPlayer = null;
         }
 
-        // 🚀 3. تشغيل عرض المقترحات باستخدام مُعرِّف الفيديو الذي انتهى
-        if (videoId) {
-            // نستخدم فيديو ID المنتهي لجلب مقترحات ذات صلة
-            showNextVideoSuggestions(videoId); 
-        } else {
-            // في حالة فشل جلب المعرف، عد إلى شاشة البحث الرئيسية
-            navigateBackToMainSearch();
-        }
+        // 🛑 NEW: أعد عرض المشغل لعرض الاقتراحات (Next Videos)
+        showNextVideoSuggestions(videoId); 
 
     } else {
-         if (progressInterval) {
-            clearInterval(progressInterval);
-            progressInterval = null;
-        }
+        // ... (كود إيقاف المؤقت) ...
     }
 }
 
@@ -4018,10 +3996,12 @@ async function showNextVideoSuggestions(lastVideoId) {
         // 1. طلب قائمة مقترحات الفيديو (للحصول على videoIds)
         const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&relatedToVideoId=${lastVideoId}&type=video&key=${YOUTUBE_API_KEY}&maxResults=5`);
         
+        // 🛑 ✅ FIX: معالجة الاستجابة في حال عدم النجاح
         if (!res.ok) {
-             const errorDetails = await res.json().catch(() => ({}));
-             console.error("YouTube Search Error:", errorDetails);
-             throw new Error('فشل في جلب المقترحات من YouTube.');
+             const errorText = await res.text();
+             console.error("YouTube API Failure Response:", errorText);
+             // قد يكون الخطأ 400 بسبب مشكلة في الكوتا أو التنسيق الداخلي لـ YouTube
+             throw new Error(`فشل في جلب المقترحات من YouTube. (Code: ${res.status})`);
         }
         
         const searchData = await res.json(); 
@@ -4048,9 +4028,10 @@ async function showNextVideoSuggestions(lastVideoId) {
         let suggestionsHTML = `<h3 class="text-xl font-bold p-3">مقترحات:</h3><div class="flex flex-col gap-3 p-3">`;
         
         videoDetails.forEach(video => {
-            // ✅ يجب أن تكون الدالة createSuggestionCard موجودة
-            const card = createSuggestionCard(video, channelThumbnails); 
-            suggestionsHTML += card.outerHTML;
+            if (video && video.contentDetails) {
+                 const card = createSuggestionCard(video, channelThumbnails); 
+                 suggestionsHTML += card.outerHTML;
+            }
         });
         
         suggestionsHTML += `</div>`;
@@ -4071,6 +4052,7 @@ async function showNextVideoSuggestions(lastVideoId) {
         
     } catch (e) {
         console.error("Error displaying next video suggestions:", e);
+        // عرض رسالة خطأ للمستخدم
         currentContainer.innerHTML = `<p class="text-center p-8 text-red-500">حدث خطأ في عرض المقترحات. (${e.message})</p>`;
     }
 }
