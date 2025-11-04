@@ -1039,11 +1039,23 @@ div#\33 d-screen-weather-widget {
         }
         /* NEW: Surah Buttons Scrollable Container */
         .surah-buttons-scrollable {
-            max-height: 77%;
-            overflow-y: auto;
-            padding-right: 8px; 
-            padding-left: 8px; 
-        }
+    /* 🛑 التعديل الحاسم: إزالة max-height وتعيين height: 100% */
+    height: 100% !important; /* تأخذ كامل الارتفاع المتاح من الأب */
+    overflow-y: auto;
+    padding-right: 8px; 
+    padding-left: 8px; 
+    /* ... (بقية التنسيقات) */
+}
+
+/* ملاحظة: قد تحتاج إلى التأكد من أن العنصر الأبوي:
+   #tabs-content-container-surah
+   يحتوي على height: 100% أو flex-grow ليعطي مساحة كافية. 
+*/
+#tabs-content-container-surah {
+    height: 100%; /* تأكيد أن الحاوية الأبوية تعطي الارتفاع الكامل */
+    display: flex;
+    flex-direction: column;
+}
         .surah-buttons-scrollable::-webkit-scrollbar { width: 6px; }
         .surah-buttons-scrollable::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
         .surah-buttons-scrollable::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.4); border-radius: 10px; }
