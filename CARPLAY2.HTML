@@ -3961,6 +3961,10 @@ function createSuggestionCard(video, channelThumbnails) {
  * Fetches and displays related video suggestions inside the popup container.
  * This function replaces the ended video with a list of suggestions.
  */
+/**
+ * Fetches and displays related video suggestions inside the popup container.
+ * This function replaces the ended video with a list of suggestions.
+ */
 async function showNextVideoSuggestions(lastVideoId) {
     if (!lastVideoId) return;
 
@@ -3973,46 +3977,52 @@ async function showNextVideoSuggestions(lastVideoId) {
     try {
         // 2. جلب الفيديوهات ذات الصلة (YouTube API - relatedToVideoId)
         const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&relatedToVideoId=${lastVideoId}&type=video&key=${YOUTUBE_API_KEY}&maxResults=5`);
-        if (!res.ok) throw new Error('Failed to fetch suggestions.');
-        const data = await res.json();
+        if (!res.ok) throw new Error('فشل في جلب المقترحات من YouTube.');
+        const data = await response.json(); // 🛑 تصحيح: يجب استخدام response.json() وليس data.json()
         
+        // 3. جلب التفاصيل الكاملة
         const videoIds = data.items.map(item => item.id.videoId);
-        const videoDetails = await fetchVideosDetails(videoIds); // جلب التفاصيل الكاملة
+        const videoDetails = await fetchVideosDetails(videoIds); 
         
         if (!videoDetails || videoDetails.length === 0) {
             videoPopupPlayerContainer.innerHTML = `<p class="text-center p-8">لا توجد مقترحات فيديو متاحة.</p>`;
             return;
         }
 
-        // 3. بناء واجهة المقترحات
+        // 4. بناء واجهة المقترحات
         let suggestionsHTML = `<h3 class="text-xl font-bold p-3">مقترحات:</h3><div class="flex flex-col gap-3 p-3">`;
         
         const channelIds = [...new Set(videoDetails.map(video => video.snippet.channelId))];
         const channelThumbnails = await fetchChannelsDetails(channelIds);
 
         videoDetails.forEach(video => {
-            const card = createSuggestionCard(video, channelThumbnails);
-            suggestionsHTML += card.outerHTML; // استخدام outerHTML لإضافة العنصر بالكامل
+            // ✅ التحقق من وجود تفاصيل الفيديو (خاصة contentDetails)
+            if (video && video.contentDetails) {
+                 const card = createSuggestionCard(video, channelThumbnails);
+                 suggestionsHTML += card.outerHTML;
+            }
         });
         
         suggestionsHTML += `</div>`;
         videoPopupPlayerContainer.innerHTML = suggestionsHTML;
         
-        // 4. ربط الأحداث لـ "تشغيل الفيديو التالي"
+        // 5. ربط الأحداث
         videoPopupPlayerContainer.querySelectorAll('.suggestion-card').forEach(card => {
             card.addEventListener('click', (e) => {
                 const nextVideoId = e.currentTarget.dataset.videoId;
                 if (nextVideoId) {
-                    showVideoPopup(nextVideoId); // 🛑 تشغيل الفيديو الجديد داخل نفس النافذة
+                    showVideoPopup(nextVideoId); 
                 }
             });
         });
 
-        // 5. إعادة إظهار زر الحفظ إذا لزم الأمر
+        // 6. إعادة إظهار زر الحفظ إذا لزم الأمر
         if (bookmarkBtn) { bookmarkBtn.style.display = 'flex'; }
         
     } catch (e) {
-        videoPopupPlayerContainer.innerHTML = `<p class="text-center p-8 text-red-500">حدث خطأ في عرض المقترحات.</p>`;
+        console.error("Error displaying next video suggestions:", e);
+        // ✅ رسالة خطأ واضحة للمستخدم
+        videoPopupPlayerContainer.innerHTML = `<p class="text-center p-8 text-red-500">حدث خطأ في عرض المقترحات. (Error: ${e.message})</p>`;
     }
 }
 
