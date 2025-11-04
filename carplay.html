@@ -4015,14 +4015,18 @@ async function showFavoritesInPopup(type) {
         }
 
         // 3. بناء كروت المقترحات
-        let cardsHTML = <div id="favorites-popup-grid" class="flex flex-col gap-3 p-3 overflow-y-auto">`;
-        
-        favoritesList.forEach(video => {
-            // نستخدم دالة createSimpleSuggestionCard لإنشاء كارت بسيط
-            cardsHTML += createSimpleSuggestionCard(video, type).outerHTML; 
-        });
-        
-        container.innerHTML = cardsHTML + '</div>';
+       let cardsHTML = `<h3 class="text-xl font-bold p-3 text-center">المقترحات: ${listName}</h3>`; // إضافة العنوان
+cardsHTML += `<div id="favorites-popup-grid" class="flex flex-col gap-3 p-3 overflow-y-auto">`; // بدء حاوية Grid
+
+favoritesList.forEach(video => {
+    // نستخدم outerHTML لضمان تحويل العنصر إلى سلسلة نصية قابلة للدمج
+    cardsHTML += createSimpleSuggestionCard(video, type).outerHTML; 
+});
+
+// 🛑 ✅ FIX: يجب إنهاء وسم DIV لحاوية Grid قبل تعيين innerHTML
+cardsHTML += '</div>';
+
+container.innerHTML = cardsHTML;
 
         // 4. ربط أحداث النقر لتشغيل الفيديو التالي
         container.querySelectorAll('.simple-suggestion-card').forEach(card => {
