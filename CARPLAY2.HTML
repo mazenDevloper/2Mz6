@@ -3914,27 +3914,81 @@ async function hideVideoPopup() {
             setFocus(videoPopupCloseButton);
         }
 
-        function onPlayerStateChange(event) {
+       function onPlayerStateChange(event) {
     if (event.data == YT.PlayerState.PLAYING) {
-        // ... (كود تشغيل وتتبع التقدم) ...
+        // When video starts playing, set quality to 144p ('tiny')
+        popupPlayer.setPlaybackQuality('tiny');
+
+        // Start tracking progress (every 5 seconds)
+        progressInterval = setInterval(() => {
+            const videoId = popupPlayer.getVideoData().video_id;
+            const currentTime = popupPlayer.getCurrentTime();
+            const duration = popupPlayer.getDuration();
+            updateVideoProgress(videoId, currentTime, duration);
+        }, 5000); 
+
     } else if (event.data == YT.PlayerState.ENDED) {
         if (progressInterval) clearInterval(progressInterval);
-        const videoId = popupPlayer.getVideoData().video_id;
+        
+        // 1. التقاط مُعرِّف الفيديو المنتهي بأمان
+        const videoData = popupPlayer.getVideoData();
+        const videoId = videoData ? videoData.video_id : null;
         
         markVideoAsWatched(videoId);
         
-        // 🛑 NEW: قم بتدمير المشغل عند الانتهاء
+        // 2. تدمير المشغل وإغلاق النافذة المنبثقة
         if (popupPlayer) {
             popupPlayer.destroy();
             popupPlayer = null;
         }
-
-        // 🛑 NEW: أعد عرض المشغل لعرض الاقتراحات (Next Videos)
-        showNextVideoSuggestions(videoId); 
+        
+        // 3. 🛑 الإجراء الحاسم: إغلاق النافذة المنبثقة والتحويل إلى قائمة المفضلة في السيارة
+        
+        // أ. مسح حالة المشغل المنبثق
+        videoPopupContainer.classList.remove('active');
+        videoPopupContainer.style.display = 'none';
+        
+        // ب. التحويل مباشرة إلى شاشة Media
+        switchApp('Media'); 
+        
+        // ج. عرض قائمة المفضلة في السيارة (Favorites D)
+        showFavoritesDAfterVideo(); 
 
     } else {
-        // ... (كود إيقاف المؤقت) ...
+         if (progressInterval) {
+            clearInterval(progressInterval);
+            progressInterval = null;
+        }
     }
+}
+
+
+/**
+ * Helper function to switch to Media screen and activate the Favorites D tab.
+ * ⚠️ Note: This relies on document.getElementById('tab-saved-d') existing.
+ */
+function showFavoritesDAfterVideo() {
+    const mediaScreen = document.getElementById('screen-Media');
+    if (!mediaScreen) return;
+    
+    // 1. إخفاء أي شاشات بحث/قوائم أخرى
+    youtubeVideoListView.classList.add('hidden');
+    youtubeSearchResultsView.classList.add('hidden');
+    youtubeSuggestionsDiv.style.display = 'flex'; // إظهار حاوية التبويبات
+
+    // 2. تفعيل تبويب "متابعة في السيارة"
+    const savedDTabButton = document.getElementById('tab-saved-d');
+    if (savedDTabButton) {
+        savedDTabButton.click(); 
+    } else {
+        // في حال عدم وجود زر التبويب، نضمن تحميل القائمة D يدوياً
+        loadSavedVideos('D');
+    }
+    
+    // 3. إعادة التركيز إلى زر التبويب الجديد
+    setTimeout(() => {
+        if (savedDTabButton) setFocus(savedDTabButton);
+    }, 150); 
 }
 
 /**
@@ -3982,81 +4036,30 @@ function createSuggestionCard(video, channelThumbnails) {
 
 
 /**
- * Fetches and displays related video suggestions inside the popup container.
- * This function uses the YouTube Search endpoint with 'relatedToVideoId'.
+ * Executes after a video ends to show the default destination list (Favorites D).
  */
-async function showNextVideoSuggestions(lastVideoId) {
-    if (!lastVideoId) return;
-
-    const currentContainer = videoPopupPlayerContainer; 
-    currentContainer.innerHTML = `<p class="text-center p-8">جاري تحميل مقترحات الفيديو...</p>`;
+function showFavoritesDAfterVideo() {
+    // 1. التأكد من أن شاشة Media هي النشطة
+    const mediaScreen = document.getElementById('screen-Media');
+    if (!mediaScreen || !mediaScreen.classList.contains('active')) {
+        // إذا لم تكن شاشة Media هي النشطة، فلا يمكننا عرض التبويبات
+        return; 
+    }
     
-    const bookmarkBtn = document.getElementById('video-popup-bookmark-button');
-    if (bookmarkBtn) { bookmarkBtn.style.display = 'none'; }
+    // 2. إخفاء أي شاشات بحث/قوائم أخرى
+    youtubeVideoListView.classList.add('hidden');
+    youtubeSearchResultsView.classList.add('hidden');
+    youtubeSuggestionsDiv.style.display = 'flex'; // إظهار حاوية الاقتراحات التي تضم التبويبات
 
-    try {
-        // 1. 🛑 الخطوة 1: استخدام نقطة النهاية /search للحصول على المعرفات ذات الصلة
-        // هذا الطلب لا يزال حساساً لـ 400 Bad Request إذا كان الفيديو الأصلي محذوفاً.
-        const resSearch = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&relatedToVideoId=${lastVideoId}&type=video&key=${YOUTUBE_API_KEY}&maxResults=5`);
-        
-        if (!resSearch.ok) {
-             const errorDetails = await resSearch.json().catch(() => ({}));
-             console.error("YouTube Search Failed (4xx):", errorDetails);
-             // إذا فشل الطلب، نعود إلى شاشة البحث بدلاً من الانهيار
-             throw new Error(`فشل في جلب المقترحات من YouTube. (Code: ${resSearch.status})`);
-        }
-        
-        const searchData = await resSearch.json(); 
-        const videoIds = searchData.items.map(item => item.id.videoId).filter(id => id);
-        
-        if (videoIds.length === 0) {
-             currentContainer.innerHTML = `<p class="text-center p-8">لا توجد مقترحات فيديو متاحة.</p>`;
-             return;
-        }
-
-        // 2. ✅ الخطوة 2: استخدام videoIds التي تم جلبها للحصول على التفاصيل الغنية (المدة)
-        const videoDetails = await fetchVideosDetails(videoIds); 
-        
-        if (!videoDetails || videoDetails.length === 0) {
-            currentContainer.innerHTML = `<p class="text-center p-8">تعذر الحصول على تفاصيل المقترحات.</p>`;
-            return;
-        }
-
-        // 3. جلب صور القنوات والبناء (كود سليم)
-        const channelIds = [...new Set(videoDetails.map(video => video.snippet.channelId))];
-        const channelThumbnails = await fetchChannelsDetails(channelIds);
-
-        // 4. بناء واجهة المقترحات
-        let suggestionsHTML = `<h3 class="text-xl font-bold p-3">مقترحات:</h3><div class="flex flex-col gap-3 p-3">`;
-        
-        videoDetails.forEach(video => {
-            if (video && video.contentDetails) {
-                 const card = createSuggestionCard(video, channelThumbnails); 
-                 suggestionsHTML += card.outerHTML;
-            }
-        });
-        
-        suggestionsHTML += `</div>`;
-        currentContainer.innerHTML = suggestionsHTML;
-        
-        // 5. ربط الأحداث
-        currentContainer.querySelectorAll('.suggestion-card').forEach(card => {
-            card.addEventListener('click', (e) => {
-                const nextVideoId = e.currentTarget.dataset.videoId;
-                if (nextVideoId) {
-                    showVideoPopup(nextVideoId); 
-                }
-            });
-        });
-
-        // 6. إعادة إظهار زر الحفظ
-        if (bookmarkBtn) { bookmarkBtn.style.display = 'flex'; }
-        
-    } catch (e) {
-        console.error("Error displaying next video suggestions:", e);
-        // العودة الهادئة إلى شاشة البحث الرئيسية
-        navigateBackToMainSearch();
-        showMessageBox(`تعذر جلب المقترحات. (${e.message})`);
+    // 3. تفعيل تبويب "متابعة في السيارة"
+    const savedDTabButton = document.getElementById('tab-saved-d');
+    if (savedDTabButton) {
+        // إذا كانت التبويبات موجودة، نضغط على زر قائمة السيارة
+        savedDTabButton.click(); 
+    } else {
+        // إذا لم يتم بناء التبويبات بعد، نعتمد على أن populateYoutubeSuggestions ستقوم ببنائها
+        // وسنقوم ببدء تحميل قائمة D مباشرة.
+        loadSavedVideos('D');
     }
 }
 /**
