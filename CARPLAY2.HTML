@@ -3965,10 +3965,15 @@ function createSuggestionCard(video, channelThumbnails) {
  * Fetches and displays related video suggestions inside the popup container.
  * This function replaces the ended video with a list of suggestions.
  */
+/**
+ * Fetches and displays related video suggestions inside the popup container.
+ * This function replaces the ended video with a list of suggestions.
+ */
 async function showNextVideoSuggestions(lastVideoId) {
     if (!lastVideoId) return;
 
-    videoPopupPlayerContainer.innerHTML = `<p class="text-center p-8">جاري تحميل مقترحات الفيديو...</p>`;
+    const currentContainer = videoPopupPlayerContainer; // لتجنب إعادة التعيين
+    currentContainer.innerHTML = `<p class="text-center p-8">جاري تحميل مقترحات الفيديو...</p>`;
     
     // 1. إخفاء أزرار التحكم (مثل bookmark) أثناء عرض المقترحات
     const bookmarkBtn = document.getElementById('video-popup-bookmark-button');
@@ -3977,15 +3982,23 @@ async function showNextVideoSuggestions(lastVideoId) {
     try {
         // 2. جلب الفيديوهات ذات الصلة (YouTube API - relatedToVideoId)
         const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&relatedToVideoId=${lastVideoId}&type=video&key=${YOUTUBE_API_KEY}&maxResults=5`);
-        if (!res.ok) throw new Error('فشل في جلب المقترحات من YouTube.');
-        const data = await response.json(); // 🛑 تصحيح: يجب استخدام response.json() وليس data.json()
+        
+        // 🛑 إذا لم يكن الاتصال ناجحًا (4xx أو 5xx)
+        if (!res.ok) {
+             const errorDetails = await res.json().catch(() => ({}));
+             console.error("YouTube Search Error:", errorDetails);
+             throw new Error('فشل في جلب المقترحات من YouTube.');
+        }
+        
+        // ✅ استخدام المتغير الصحيح (res)
+        const data = await res.json(); 
         
         // 3. جلب التفاصيل الكاملة
         const videoIds = data.items.map(item => item.id.videoId);
         const videoDetails = await fetchVideosDetails(videoIds); 
         
         if (!videoDetails || videoDetails.length === 0) {
-            videoPopupPlayerContainer.innerHTML = `<p class="text-center p-8">لا توجد مقترحات فيديو متاحة.</p>`;
+            currentContainer.innerHTML = `<p class="text-center p-8">لا توجد مقترحات فيديو متاحة.</p>`;
             return;
         }
 
@@ -3996,7 +4009,6 @@ async function showNextVideoSuggestions(lastVideoId) {
         const channelThumbnails = await fetchChannelsDetails(channelIds);
 
         videoDetails.forEach(video => {
-            // ✅ التحقق من وجود تفاصيل الفيديو (خاصة contentDetails)
             if (video && video.contentDetails) {
                  const card = createSuggestionCard(video, channelThumbnails);
                  suggestionsHTML += card.outerHTML;
@@ -4004,10 +4016,10 @@ async function showNextVideoSuggestions(lastVideoId) {
         });
         
         suggestionsHTML += `</div>`;
-        videoPopupPlayerContainer.innerHTML = suggestionsHTML;
+        currentContainer.innerHTML = suggestionsHTML;
         
         // 5. ربط الأحداث
-        videoPopupPlayerContainer.querySelectorAll('.suggestion-card').forEach(card => {
+        currentContainer.querySelectorAll('.suggestion-card').forEach(card => {
             card.addEventListener('click', (e) => {
                 const nextVideoId = e.currentTarget.dataset.videoId;
                 if (nextVideoId) {
@@ -4021,11 +4033,10 @@ async function showNextVideoSuggestions(lastVideoId) {
         
     } catch (e) {
         console.error("Error displaying next video suggestions:", e);
-        // ✅ رسالة خطأ واضحة للمستخدم
-        videoPopupPlayerContainer.innerHTML = `<p class="text-center p-8 text-red-500">حدث خطأ في عرض المقترحات. (Error: ${e.message})</p>`;
+        // عرض رسالة خطأ مع التفاصيل الفنية
+        currentContainer.innerHTML = `<p class="text-center p-8 text-red-500">حدث خطأ في عرض المقترحات. (${e.message})</p>`;
     }
 }
-
         function handleFullScreenChange() {
             if (popupPlayer && typeof popupPlayer.getPlayerState === 'function' && popupPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
                 const isFullScreen = document.fullscreenElement === popupPlayer.getIframe() || document.webkitFullscreenElement === popupPlayer.getIframe();
