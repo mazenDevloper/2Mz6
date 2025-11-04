@@ -4015,7 +4015,7 @@ async function showFavoritesInPopup(type) {
         }
 
         // 3. بناء كروت المقترحات
-        let cardsHTML = `<h3 class="text-xl font-bold p-3 text-center">المقترحات: ${listName}</h3><div id="favorites-popup-grid" class="flex flex-col gap-3 p-3 overflow-y-auto">`;
+        let cardsHTML = <div id="favorites-popup-grid" class="flex flex-col gap-3 p-3 overflow-y-auto">`;
         
         favoritesList.forEach(video => {
             // نستخدم دالة createSimpleSuggestionCard لإنشاء كارت بسيط
