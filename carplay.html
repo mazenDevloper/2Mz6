@@ -65,6 +65,9 @@ img#dashboard-weather-icon {
     backdrop-filter: blur(5px);
     transition: all 0.3s ease;
 }
+div#add-reciter-prompt-content {
+    max-width: 98%;
+}
 
 .fullscreen-toggle-button:hover {
     background-color: rgba(255, 255, 255, 0.2);
@@ -4613,6 +4616,10 @@ async function removeReciterFromList(reciterName) {
  * REPLACED & COMPLETE: Fetches and populates the content for the Media screen tabs (Reciters, Channels, Tools, Saved).
  * It uses the global cache (localRecitersCache) and falls back to fetching only if the cache is empty.
  */
+/**
+ * REPLACED & COMPLETE: Fetches and populates the content for the Media screen tabs 
+ * (Reciters, Channels, Tools, Saved). It uses the global cache for data consistency.
+ */
 async function populateYoutubeSuggestions() {
     const suggestionsContent = document.getElementById('suggestions-content');
     if (!suggestionsContent) {
@@ -4702,11 +4709,12 @@ async function populateYoutubeSuggestions() {
 
     // 3. ملء المحتويات بالبيانات
     try {
+        // -----------------------------------------------------
+        // 🚀 تبويب القراء (Reciters) - معالج التكرار والحذف
+        // -----------------------------------------------------
         console.log("[Debug] Populating Reciters from Cache...");
         
         let recitersList = localRecitersCache; 
-
-        // [احتياطي] إذا كانت الذاكرة المؤقتة فارغة، نقوم بالجلب الآن
         if (!recitersList || recitersList.length === 0) {
             recitersList = await fetchRecitersList();
         }
@@ -4718,7 +4726,7 @@ async function populateYoutubeSuggestions() {
             recitersList = [];
         }
         
-        readerButtonsContainer.innerHTML = '';
+        readerButtonsContainer.innerHTML = ''; // مسح محتوى القراء
         
         recitersList.forEach(reader => {
             if (!reader || !reader.name) return;
@@ -4728,7 +4736,6 @@ async function populateYoutubeSuggestions() {
             card.tabIndex = 0;
             const imageUrl = reader.image || 'https://placehold.co/100x100/334155/ffffff?text=Q';
 
-            // 🛑 إضافة زر الحذف بنفس ستايل زر القناة
             card.innerHTML = `
                 <button class="delete-channel-btn absolute bottom-2 right-2 p-1.5 bg-red-600/80 hover:bg-red-500 rounded-full transition-colors z-10 navigable grid-item" title="حذف القارئ" tabindex="0">
                     <i data-lucide="trash-2" class="w-4 h-4 text-white pointer-events-none"></i>
@@ -4738,7 +4745,6 @@ async function populateYoutubeSuggestions() {
             `;
 
             card.addEventListener('click', (e) => {
-                // إذا تم النقر على زر الحذف، لا تنفذ إجراء القارئ
                 if (e.target.closest('.delete-channel-btn')) return; 
 
                 if (reader.name === "الرقية" || reader.name === "ربط الآيات") {
@@ -4749,17 +4755,16 @@ async function populateYoutubeSuggestions() {
                 }
             });
             
-            // 🛑 ربط زر الحذف بدالة الحذف الجديدة
             const deleteBtn = card.querySelector('.delete-channel-btn');
             deleteBtn?.addEventListener('click', (e) => { 
                 e.stopPropagation(); 
-                removeReciterFromList(reader.name); // 👈 ربط الحذف
+                removeReciterFromList(reader.name); 
             });
 
             readerButtonsContainer.appendChild(card);
         });
 
-        // 🛑 إضافة زر "إضافة قارئ جديد"
+        // زر إضافة قارئ
         const addReciterCard = document.createElement('div');
         addReciterCard.className = 'youtube-reader-card navigable grid-item';
         addReciterCard.tabIndex = 0;
@@ -4769,16 +4774,28 @@ async function populateYoutubeSuggestions() {
 
         console.log("[Debug] Populated Reciters.");
         
-        // --- Populating Channels (Existing Logic - يستخدم localChannelsCache) ---
+        // -----------------------------------------------------
+        // 🌐 تبويب القنوات (Channels) - معالج التكرار والحذف
+        // -----------------------------------------------------
+        console.log("[Debug] Populating Channels from Cache...");
+        // 🛑 الإصلاح: استخدام localChannelsCache مباشرة
         let channList = localChannelsCache; 
+        
+        if (!channList || channList.length === 0) {
+             // احتياطي: إذا لم يتم تحميلها في Init، نجلبها الآن
+             channList = await fetchChannelsList(); 
+        }
+
         if (Array.isArray(channList)) {
             channList.sort((a, b) => (parseInt(b?.clickschannel, 10) || 0) - (parseInt(a?.clickschannel, 10) || 0));
         } else {
             channList = [];
         }
+        
         const channelIdsToFetch = channList.filter(r => r && r.channelid).map(r => r.channelid);
         const channelThumbnails = channelIdsToFetch.length > 0 ? await fetchChannelsDetails(channelIdsToFetch) : {};
-        channButtonsContainer.innerHTML = '';
+        channButtonsContainer.innerHTML = ''; // مسح محتوى القنوات
+        
         channList.forEach(reader => {
              if (!reader || typeof reader !== 'object') return;
              const card = document.createElement('div');
@@ -4802,12 +4819,16 @@ async function populateYoutubeSuggestions() {
              deleteChannBtn?.addEventListener('click', (e) => { e.stopPropagation(); removeChannelFromList(reader.channelid, reader.name); });
              channButtonsContainer.appendChild(card);
         });
+        
+        // زر إضافة قناة
         const addChannelCard = document.createElement('div');
         addChannelCard.className = 'youtube-reader-card navigable grid-item';
         addChannelCard.tabIndex = 0;
         addChannelCard.innerHTML = `<h3>إضافة قناة</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-dashed border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="plus" class="w-12 h-12 text-white/50"></i></div>`;
         addChannelCard.addEventListener('click', showAddChannelPrompt);
         channButtonsContainer.appendChild(addChannelCard);
+        
+        console.log("[Debug] Populated Channels.");
         
         // --- Populating Tools (Existing Logic) ---
         const tools = [
