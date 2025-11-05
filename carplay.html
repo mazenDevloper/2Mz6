@@ -81,7 +81,7 @@ div#add-reciter-prompt-content {
 /* CRITICAL: The class that forces the section to cover the viewport 
 */
   .reader-container {
-    direction: rtl;
+    direction: rtl!important;
 }
         
 .is-fullscreen {
@@ -4697,6 +4697,7 @@ async function populateYoutubeSuggestions() {
     recitersContent.className = 'tab-content';
     const readerButtonsContainer = document.createElement('div');
     readerButtonsContainer.className = 'reader-container';
+    readerButtonsContainer.dir = 'rtl';
     recitersContent.appendChild(readerButtonsContainer);
 
     const channContent = document.createElement('div');
@@ -4704,6 +4705,7 @@ async function populateYoutubeSuggestions() {
     channContent.className = 'tab-content hidden';
     const channButtonsContainer = document.createElement('div');
     channButtonsContainer.className = 'reader-container';
+    channButtonsContainer.dir = 'rtl';
     channContent.appendChild(channButtonsContainer);
 
     const toolsContent = document.createElement('div');
@@ -4726,10 +4728,8 @@ async function populateYoutubeSuggestions() {
     // 3. ملء المحتويات بالبيانات
     try {
         // -----------------------------------------------------
-        // 🚀 تبويب القراء (Reciters) - معالج التكرار والحذف
+        // 🚀 تبويب القراء (Reciters) - الترتيب الثاني لزر الإضافة
         // -----------------------------------------------------
-        console.log("[Debug] Populating Reciters from Cache...");
-        
         let recitersList = localRecitersCache; 
         if (!recitersList || recitersList.length === 0) {
             recitersList = await fetchRecitersList();
@@ -4738,18 +4738,21 @@ async function populateYoutubeSuggestions() {
         if (Array.isArray(recitersList)) {
             recitersList.sort((a, b) => (parseInt(b?.clicksreciter, 10) || 0) - (parseInt(a?.clicksreciter, 10) || 0));
         } else {
-            console.error("Reciters List is not an array, defaulting to empty."); 
             recitersList = [];
         }
         
-        readerButtonsContainer.innerHTML = ''; // مسح محتوى القراء
+        readerButtonsContainer.innerHTML = '';
+        let displayElements = [];
         
-        recitersList.forEach(reader => {
+        recitersList.forEach((reader, index) => {
             if (!reader || !reader.name) return;
 
             const card = document.createElement('div');
             card.className = 'youtube-reader-card navigable grid-item relative group';
             card.tabIndex = 0;
+            // 💡 الترتيب: العنصر الأول يأخذ order: 1، والبقية تبدأ من 3 (لتفسح المجال لزر الإضافة)
+            card.style.order = (index < 1) ? 1 : index + 2; 
+
             const imageUrl = reader.image || 'https://placehold.co/100x100/334155/ffffff?text=Q';
 
             card.innerHTML = `
@@ -4777,28 +4780,28 @@ async function populateYoutubeSuggestions() {
                 removeReciterFromList(reader.name); 
             });
 
-            readerButtonsContainer.appendChild(card);
+            displayElements.push(card);
         });
 
-        // زر إضافة قارئ
+        // 🛑 إنشاء زر "إضافة قارئ" ووضعه في الترتيب الثاني (order: 2)
         const addReciterCard = document.createElement('div');
         addReciterCard.className = 'youtube-reader-card navigable grid-item';
         addReciterCard.tabIndex = 0;
+        addReciterCard.style.order = 2; // 👈 الترتيب الثاني: يظهر بعد العنصر ذي الترتيب 1
         addReciterCard.innerHTML = `<h3>إضافة قارئ</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-dashed border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="plus" class="w-12 h-12 text-white/50"></i></div>`;
         addReciterCard.addEventListener('click', showAddReciterPrompt);
-        readerButtonsContainer.appendChild(addReciterCard);
+        
+        displayElements.push(addReciterCard);
+        
+        // إضافة جميع العناصر المرتبة إلى الحاوية
+        displayElements.forEach(el => readerButtonsContainer.appendChild(el));
 
-        console.log("[Debug] Populated Reciters.");
-        
+
         // -----------------------------------------------------
-        // 🌐 تبويب القنوات (Channels) - معالج التكرار والحذف
+        // 🌐 تبويب القنوات (Channels) - الترتيب الثاني لزر الإضافة
         // -----------------------------------------------------
-        console.log("[Debug] Populating Channels from Cache...");
-        // 🛑 الإصلاح: استخدام localChannelsCache مباشرة
         let channList = localChannelsCache; 
-        
         if (!channList || channList.length === 0) {
-             // احتياطي: إذا لم يتم تحميلها في Init، نجلبها الآن
              channList = await fetchChannelsList(); 
         }
 
@@ -4810,18 +4813,22 @@ async function populateYoutubeSuggestions() {
         
         const channelIdsToFetch = channList.filter(r => r && r.channelid).map(r => r.channelid);
         const channelThumbnails = channelIdsToFetch.length > 0 ? await fetchChannelsDetails(channelIdsToFetch) : {};
-        channButtonsContainer.innerHTML = ''; // مسح محتوى القنوات
+        channButtonsContainer.innerHTML = '';
         
-        channList.forEach(reader => {
+        let channelDisplayElements = [];
+
+        channList.forEach((reader, index) => {
              if (!reader || typeof reader !== 'object') return;
              const card = document.createElement('div');
              card.className = 'youtube-reader-card navigable grid-item relative group';
              card.tabIndex = 0;
+             card.style.order = (index < 1) ? 1 : index + 2; // 👈 الترتيب: 1، 3، 4، 5...
              const imageUrl = reader.channelid ? (channelThumbnails[reader.channelid] || 'https://placehold.co/100x100/334155/ffffff?text=?') : (reader.image || 'https://placehold.co/100x100/334155/ffffff?text=?');
              card.innerHTML = `
                  <button class="delete-channel-btn absolute bottom-2 right-2 p-1.5 bg-red-600/80 hover:bg-red-500 rounded-full transition-colors z-10 navigable grid-item" title="حذف القناة" tabindex="0"><i data-lucide="trash-2" class="w-4 h-4 text-white pointer-events-none"></i></button>
                  <h3>${reader.name}</h3>
                  <img src="${imageUrl}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';">`;
+             
              card.addEventListener('click', (e) => {
                  if (e.target.closest('.delete-channel-btn')) return;
                  if (reader.channelid && reader.channeltitle) {
@@ -4833,19 +4840,22 @@ async function populateYoutubeSuggestions() {
              });
              const deleteChannBtn = card.querySelector('.delete-channel-btn');
              deleteChannBtn?.addEventListener('click', (e) => { e.stopPropagation(); removeChannelFromList(reader.channelid, reader.name); });
-             channButtonsContainer.appendChild(card);
+             
+             channelDisplayElements.push(card);
         });
-        
-        // زر إضافة قناة
+
+        // زر إضافة قناة ووضعه في الترتيب الثاني
         const addChannelCard = document.createElement('div');
         addChannelCard.className = 'youtube-reader-card navigable grid-item';
         addChannelCard.tabIndex = 0;
+        addChannelCard.style.order = 2; // 👈 الترتيب الثاني
         addChannelCard.innerHTML = `<h3>إضافة قناة</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-dashed border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="plus" class="w-12 h-12 text-white/50"></i></div>`;
         addChannelCard.addEventListener('click', showAddChannelPrompt);
-        channButtonsContainer.appendChild(addChannelCard);
         
-        console.log("[Debug] Populated Channels.");
+        channelDisplayElements.push(addChannelCard);
         
+        channelDisplayElements.forEach(el => channButtonsContainer.appendChild(el)); // إضافة جميع العناصر
+
         // --- Populating Tools (Existing Logic) ---
         const tools = [
             { name: "الكلمات الصعبة في", icon: "help-circle" },
