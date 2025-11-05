@@ -74,7 +74,28 @@ div#add-reciter-prompt-content {
     transform: scale(1.1);
 }
 
+
 /* --- CSS لإنشاء شكل البوصلة الدائري الخارجي المتناظر --- */
+#direction-controls-3d button.active-direction {
+    /* 1. التوهج والحد: إضاءة زرقاء قوية */
+    outline: 3px solid #0A84FF !important; 
+    box-shadow: 0 0 18px rgba(10, 132, 255, 0.8), /* توهج خارجي قوي */
+                inset 0 0 8px rgba(255, 255, 255, 0.3); /* إضاءة داخلية */
+                
+    /* 2. اللون والخلفية: خلفية شفافة زرقاء */
+    background-color: rgba(10, 132, 255, 0.4) !important; 
+    color: white !important;
+    
+    /* 3. الحركة: تكبير خفيف */
+    transform: scale(1.08); /* تكبير ملحوظ */
+}
+
+/* 💡 الحفاظ على التفاعل عند مرور الفأرة (Hover) */
+#direction-controls-3d button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.4); 
+    cursor: pointer;
+}
 
 /* 1. إعدادات الحاوية Grid */
 #direction-controls-3d {
@@ -665,7 +686,7 @@ div#\33 d-screen-weather-widget {
 
 
 section#screen-Map>.w-full.h-full.bg-black2.rounded-3xl.flex.items-center.justify-center.p-1.overflow\:hidden {
-    background: black;
+   
  /* 2. إعدادات الحد الأساسية */
     border: 3px solid transparent; /* 🛑 هام: يجب تحديد عرض الحد */
     border-radius: 1.5rem; /* يجب أن يتطابق مع تصميمك */
@@ -1809,6 +1830,9 @@ section#screen-Dashboard{
         
         /* NEW: Show next button on even wider screens */
         @media (min-width: 1080px) {
+            section#screen-Map {
+    background: linear-gradient(45deg, black 66%, transparent);
+}
             [data-app="Map"],                  /* إخفاء أيقونة خريطة الـ 3D من شريط التنقل */
             #car-360-image {
                 display:none
