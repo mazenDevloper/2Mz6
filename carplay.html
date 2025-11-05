@@ -74,6 +74,68 @@ div#add-reciter-prompt-content {
     transform: scale(1.1);
 }
 
+/* --- CSS لإنشاء شكل البوصلة الدائري الخارجي المتناظر --- */
+
+/* 1. إعدادات الحاوية Grid */
+#direction-controls-3d {
+    transform:scale(0.9);
+    /* 🛑 يجب أن تكون الأبعاد متناظرة (مثلاً: 50px لكل زر و 10px مسافة) */
+    grid-template-columns: repeat(3, 50px) !important; 
+    width: 170px !important; /* 3*50px + 2*10px gap = 170px */
+    height: 170px !important; 
+    gap: 10px !important; 
+  /* تثبيت الموقع في اليمين */
+    /* الترتيب الافتراضي للعناصر هنا (1, 2, 3, 4, 5, 6, 7, 8, 9) */
+}
+
+/* 2. ضمان الشكل الدائري والحجم الثابت لكل زر */
+#direction-controls-3d button {
+    width: 50px !important; 
+    height: 50px !important; 
+    border-radius: 50% !important; 
+    margin: 0 !important; /* إلغاء الهوامش السلبية السابقة */
+    padding: 0; 
+}
+
+/* 🚀 3. تطبيق الإزاحة (Transform) لإنشاء محيط دائري وهمي */
+/* المسافة المراد إزاحتها هي (عرض الزر + المسافة) / 2 = (50px + 10px) / 2 = 30px */
+/*
+   الترتيب (RTL Grid Index):
+   [1] NE | [2] N | [3] NW
+   [4] E  | [5] X | [6] W
+   [7] SE | [8] S | [9] SW
+*/
+
+/* N (الترتيب 2): إزاحة للأسفل فقط */
+#direction-controls-3d button:nth-child(2) { transform: translate(-50px,-20px); }
+
+/* S (الترتيب 8): إزاحة للأعلى فقط */
+#direction-controls-3d button:nth-child(8) { transform: translate(-112px,20px); }
+
+/* E (الترتيب 4): إزاحة لليسار فقط (نحو المركز) */
+#direction-controls-3d button:nth-child(4) { transform: translate(-20px, 0px); }
+
+/* W (الترتيب 6): إزاحة لليمين فقط (نحو المركز) */
+#direction-controls-3d button:nth-child(6) { transform: translate(-140px, -0px); }
+
+
+/* العناصر القطرية (تتطلب إزاحة على كلا المحورين X و Y) */
+/* NE (الترتيب 1): للأسفل (Y+) ولليسار (X-) */
+#direction-controls-3d button:nth-child(1) { transform: translate(-50px, 3px); }
+
+/* NW (الترتيب 3): للأسفل (Y+) ولليمين (X+) */
+#direction-controls-3d button:nth-child(3) { transform: translate(-50px, 1px); }
+
+/* SE (الترتيب 7): للأعلى (Y-) ولليسار (X-) */
+#direction-controls-3d button:nth-child(7) { transform:  translate(70px, 60px); }
+
+/* SW (الترتيب 9): للأعلى (Y-) ولليمين (X+) */
+#direction-controls-3d button:nth-child(9) { transform: translate(-110px, -5px); }
+
+/* 4. إخفاء الفاصل المركزي */
+#direction-controls-3d .center-spacer {
+    display: none;
+}
 
 #quran-go-button,#fullscreen-reciters-iframe-btn,#fullscreen-radio-iframe-btn{
     z-index:999;
@@ -561,6 +623,28 @@ div#\33 d-screen-weather-widget {
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
+
+section#screen-Map>.w-full.h-full.bg-black2.rounded-3xl.flex.items-center.justify-center.p-1.overflow\:hidden {
+    background: black;
+ /* 2. إعدادات الحد الأساسية */
+    border: 3px solid transparent; /* 🛑 هام: يجب تحديد عرض الحد */
+    border-radius: 1.5rem; /* يجب أن يتطابق مع تصميمك */
+    
+    /* 3. تطبيق الحد المتدرج (Gradient Border) */
+    border-image: linear-gradient(45deg, #00ffff05,#00ffff99 15%, #8a2be200, #ff00ffd9,#00ffff99 , #000000) 1;
+    /* الشرح:
+      linear-gradient(45deg, #00FFFF, #8A2BE2, #FF00FF, #000000): يحدد الألوان.
+      1: يحدد عرض شريحة الحد (slice width).
+    */
+    
+    /* 4. التأكد من أن الخلفية لا تمتد عبر الحد */
+    background-clip: padding-box;
+}
+
+
+
+
+.w-full.h-full.bg-black2.rounded-3xl.flex.items-center.justify-center.p-1.overflow\:hidden {}
 
 
         /* Keyframe animation for the background gradient */
@@ -1588,6 +1672,10 @@ div#bottom-left-controls {
             overflow: hidden;
         }
 
+.w-full.h-full.bg-black2.rounded-3xl.flex.items-center.justify-center.p-1.overflow\:hidden {
+    background: linear-gradient(45deg, black, #00000024) !important;
+}
+
             .carousel-nav-button.prev {
                 display: flex;
             }
@@ -2079,11 +2167,22 @@ div#map{display:none}
                         <iframe id="cardash" title="LEXSUS ES" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share WIDTH="80%" HEIGHT="80%" src="https://sketchfab.com/models/17ed331fd31f491fa3907156f0b0b55e/embed?autostart=1&preload=1&annotations_visible=0&annotation=0&annotation_cycle=6&transparent=1&ui_theme=dark"> </iframe>
                     </div>
                     <!-- Right side widget -->
-                    <div id="3d-screen-weather-widget" class="absolute top-8 right-8 p-4 rounded-2xl text-center flex items-center gap-3 z-10 navigable grid-item" tabindex="0">
-                        <!-- MODIFIED: Replaced icon with user-provided SVG -->
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="thermometer" class="lucide lucide-thermometer w-8 h-8 text-red-400"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path></svg>
-                        <span class="text-3xl font-bold" id="3d-screen-weather-temp">--°C</span>
-                    </div>
+                    <div id="right-side-info-widgets" class="absolute top-8 right-8 flex flex-col gap-3 z-10">
+    
+    <div id="3d-screen-weather-widget" class="p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item glass-surface glass-surface--svg" tabindex="0">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="thermometer" class="lucide lucide-thermometer w-8 h-8 text-red-400"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path></svg>
+        <span class="text-3xl font-bold" id="3d-screen-weather-temp">--°C</span>
+    </div>
+    
+    <div id="3d-screen-moon-widget" class="p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item glass-surface glass-surface--svg" tabindex="0">
+        <img id="3d-moon-icon" src="https://cdn.weatherapi.com/weather/64x64/night/113.png" alt="Moon Phase" class="w-8 h-8 flex-shrink-0" />
+        <div>
+            <div class="text-sm text-white/70">القمر</div>
+            <div class="text-xl font-bold" id="3d-moon-phase">--%</div>
+        </div>
+    </div>
+</div>
+                    
                     <!-- NEW: Left side widgets -->
                     <div id="3d-screen-info-widgets" class="absolute top-8 left-8 flex flex-col gap-3 z-10">
                         <div class="p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
@@ -2093,6 +2192,8 @@ div#map{display:none}
                                 <div class="text-xl font-bold" id="3d-screen-next-prayer">--</div>
                             </div>
                         </div>
+
+
                         <div class="p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
                             <i data-lucide="gauge-circle" class="w-7 h-7 text-green-400"></i>
                             <div>
@@ -2117,17 +2218,18 @@ div#map{display:none}
                         </div>
                     </div>
                     <!-- NEW: Sticky Directional Controls -->
-                    <div id="direction-controls-3d" class="absolute top-1/2 -translate-y-1/2 right-8 grid grid-cols-3 gap-2 w-[120px] z-10">
-                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">NW</button>
-                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">N</button>
-                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">NE</button>
-                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">W</button>
-                        <div class="w-10 h-10"></div> <!-- Spacer -->
-                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">E</button>
-                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">SW</button>
-                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">S</button>
-                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">SE</button>
-                    </div>
+                    <div id="direction-controls-3d" class="absolute top-1/2 -translate-y-1/2 right-8 grid grid-cols-3 z-10">
+    <button data-dir="NE" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">NE</button>
+    <button data-dir="N" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">N</button>
+    <button data-dir="NW" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">NW</button>
+    
+    <button data-dir="E" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">E</button>
+    <div class="center-spacer w-10 h-10"></div> <button data-dir="W" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">W</button>
+    
+    <button data-dir="SE" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">SE</button>
+    <button data-dir="S" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">S</button>
+    <button data-dir="SW" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">SW</button>
+</div>
                 </section>
 
                 <!-- Electronic Quran App Screen -->
@@ -2264,6 +2366,31 @@ function convertTo12HourWithAmPm(time24h) {
  * UPDATED: Updates the digital clock countdown/count-up display separately.
  * Runs every 2 seconds ONLY IF THE VIDEO POPUP IS NOT ACTIVE.
  */
+
+/**
+ * NEW: Updates the directional buttons (the compass) to highlight the current direction.
+ * This is called immediately after appState.car.direction is updated.
+ */
+function updateDirectionButtons() {
+    const controlsContainer = document.getElementById('direction-controls-3d');
+    if (!controlsContainer) return;
+
+    const currentDir = appState.car.direction; // N, NE, E, SE, S, SW, W, NW, or '--'
+    const buttons = controlsContainer.querySelectorAll('button');
+
+    // 1. إزالة حالة النشاط من جميع الأزرار
+    buttons.forEach(btn => btn.classList.remove('active-direction'));
+
+    if (currentDir === '--') return;
+
+    // 2. تطبيق حالة النشاط على الزر الموافق للاتجاه الحالي
+    buttons.forEach(btn => {
+        if (btn.textContent.trim() === currentDir) {
+            btn.classList.add('active-direction');
+        }
+    });
+}
+
 function updateTimerDisplay() {
     // 🛑 الشرط الحاسم: إذا كان المشغل المنبثق نشطاً، قم بالخروج فوراً لتجنب التقطيع
     if (videoPopupContainer.classList.contains('active')) {
@@ -3192,7 +3319,7 @@ function updateUI() {
 
 
     // 🛑 PERIOD FOR MOON DISPLAY (Night Time)
-    const isNightTimeOrTest = (currentHour >= 18 || currentHour < 6); 
+    const isNightTimeOrTest = (currentHour >= 17 || currentHour < 6); 
     
     let iconSrc = appState.weather.iconUrl || 'https://placehold.co/64x64/000000/FFFFFF?text=X';
         
@@ -4567,27 +4694,44 @@ container.innerHTML = cardsHTML;
             populateYoutubeSuggestions(); // This will populate #suggestions-content
         }
         
-        function handleReaderOrToolClick(selection, tabContainer, tabsContentContainer) {
-            if (selection === "الكلمات الصعبة في") {
-                selectedReaderName = ''; // Clear reader name
-                youtubeSearchInput.value = 'الكلمات الصعبة في ';
-            } else if (selection === "JUST_SURAH") {
-                selectedReaderName = ''; 
-                youtubeSearchInput.value = '';
-            } else {
-                selectedReaderName = selection;
-                youtubeSearchInput.value = selection + ' ';
-            }
+        /**
+ * UPDATED: Handles the click event for readers, channels, and special tools.
+ * Applies specific formatting for the 'BALWASL' tool.
+ */
+function handleReaderOrToolClick(selection, tabContainer, tabsContentContainer) {
+    let newInputValue = '';
 
-            // Hide the tabs and show surahs
-            tabContainer.style.display = 'none';
-            tabsContentContainer.style.display = 'none';
-            showSurahSuggestions();
-            setTimeout(() => {
-                const firstSurahButton = document.querySelector('#youtube-surah-section .grid-item');
-                if (firstSurahButton) setFocus(firstSurahButton);
-            }, 100);
-        }
+    if (selection === "الكلمات الصعبة في") {
+        selectedReaderName = '';
+        newInputValue = 'الكلمات الصعبة في ';
+    } else if (selection === "JUST_SURAH") {
+        selectedReaderName = '';
+        newInputValue = '';
+    } else if (selection === "BALWASL") { // 🛑 NEW LOGIC FOR "بالوصل"
+        selectedReaderName = 'بالوصل'; // نحفظ 'بالوصل' كقارئ ليتم استخدامها لاحقا
+        newInputValue = 'بالوصل '; // السورة ستأتي قبل هذه الكلمة
+    } else if (selection === "قصص" || selection === "أسباب النزول" || selection === "أحكام التجويد" || selection === "المتشابهات" || selection === "ربط الآيات") {
+        selectedReaderName = selection;
+        newInputValue = selection + ' '; // الأدوات العادية: اسم الأداة + مسافة
+    } else {
+        // إذا كان قارئاً عادياً
+        selectedReaderName = selection;
+        newInputValue = selection + ' ';
+    }
+    
+    // تحديث حقل الإدخال
+    youtubeSearchInput.value = newInputValue;
+
+    // إخفاء التبويبات وإظهار السور (كما كان في الكود الأصلي)
+    tabContainer.style.display = 'none';
+    tabsContentContainer.style.display = 'none';
+    showSurahSuggestions();
+    
+    setTimeout(() => {
+        const firstSurahButton = document.querySelector('#youtube-surah-section .grid-item');
+        if (firstSurahButton) setFocus(firstSurahButton);
+    }, 100);
+}
 
 /**
  * NEW: Removes a reciter entry from the global cache and updates the JSONBin Reciters list.
@@ -4858,15 +5002,28 @@ async function populateYoutubeSuggestions() {
 
         // --- Populating Tools (Existing Logic) ---
         const tools = [
-            { name: "الكلمات الصعبة في", icon: "help-circle" },
+            { name: "ربط الآيات", icon: "link", action: "ربط الآيات" },
+            { name: "قصص", icon: "book-open-check", action: "قصص" },
+            { name: "أسباب النزول", icon: "feather", action: "أسباب النزول" },
+            { name: "أحكام التجويد", icon: "volume-2", action: "أحكام التجويد" },
+            { name: "المتشابهات", icon: "layers-3", action: "المتشابهات" },
+            { name: "بالوصل", icon: "type", specialAction: "BALWASL" }, // 👈 الأداة ذات التنسيق الخاص
             { name: "فقط السورة", icon: "book-open", specialAction: "JUST_SURAH" }
         ];
-        tools.forEach(tool => {
+
+        toolsButtonsContainer.innerHTML = '';
+
+       tools.forEach(tool => {
             const card = document.createElement('div');
             card.className = 'youtube-reader-card navigable grid-item';
             card.tabIndex = 0;
+            
+            // استخدام action أو specialAction لتحديد القيمة التي سيتم تمريرها
+            const selectionValue = tool.specialAction || tool.action; 
+
             card.innerHTML = `<h3>${tool.name}</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="${tool.icon}" class="w-12 h-12 text-white/50"></i></div>`;
-            card.addEventListener('click', () => handleReaderOrToolClick(tool.specialAction || tool.name, tabContainer, tabsContentContainer));
+            
+            card.addEventListener('click', () => handleReaderOrToolClick(selectionValue, tabContainer, tabsContentContainer));
             toolsButtonsContainer.appendChild(card);
         });
         
@@ -5074,19 +5231,29 @@ function displayReciterSearchResults(channels) {
                 button.tabIndex = 0;
                 button.innerHTML = `<span class="surah-name-text">${name}</span> <span class="juz-badge">${surahToJuzMap[name] || '?'}</span>`;
                 button.style.backgroundColor = juzColors[(surahToJuzMap[name] || 1) - 1];
-                button.addEventListener('click', () => {
-                    let query = '';
-                    const currentInput = youtubeSearchInput.value.trim();
-                    if (youtubeSearchInput.value.startsWith('الكلمات الصعبة في')) {
-                        query = 'الكلمات الصعبة في سورة ' + name;
-                    } else if (currentInput === '') {
-                        query = 'سورة ' + name;
-                    } else {
-                        query = selectedReaderName + ' سورة ' + name;
-                    }
-                    youtubeSearchInput.value = query;
-                    searchYouTubeVideos(query);
-                });
+                // داخل دالة showSurahSuggestions()، في حلقة youtubeSurahSuggestions.forEach(name => { ...
+
+button.addEventListener('click', () => {
+    let query = '';
+    const currentInput = youtubeSearchInput.value.trim();
+    const surahName = name; // اسم السورة
+
+    if (currentInput.includes('بالوصل')) { // 🛑 NEW: إذا كان الوضع هو 'بالوصل'
+        // التنسيق: سورة {السورة} بالوصل
+        query = `سورة ${surahName} بالوصل`; 
+        
+    } else if (youtubeSearchInput.value.startsWith('الكلمات الصعبة في')) {
+        query = 'الكلمات الصعبة في سورة ' + surahName;
+    } else if (currentInput === '') {
+        query = 'سورة ' + surahName;
+    } else {
+        // التنسيق العادي: {القارئ/الأداة} سورة {السورة}
+        query = selectedReaderName + ' سورة ' + surahName;
+    }
+    
+    youtubeSearchInput.value = query;
+    searchYouTubeVideos(query);
+});
                 surahButtonsContainer.appendChild(button);
             });
             scrollableSurahContainer.appendChild(surahButtonsContainer);
@@ -5699,6 +5866,7 @@ async function fetchWeatherData() {
         
         renderHourlyForecast(forecastToRender);
         renderAdvancedWeatherCards(data);
+        update3dMoonWidget();
         updateUI(); // 🛑 استدعاء تحديث الواجهة المرئية
         
     } catch (err) {
@@ -5713,15 +5881,34 @@ async function fetchWeatherData() {
  * Generates the current date/time string in NASA SVS format (YYYY-MM-DDT HH:MM).
  * NASA API uses the hour/minute of the current system time for the comparison.
  */
+/**
+ * REPLACED: Generates the date string for NASA SVS API based on the current hour.
+ * Ensures that if it's past 18:00 UTC, it fetches the next day's data (if needed).
+ * Since the API updates at 18:00, we fetch the CURRENT date until 18:00 local time.
+ */
 function getNasaDateTime(date) {
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const hours = date.getHours();
+    let targetDate = new Date(date);
+
+    // 🛑 المنطق الحاسم: إذا كنا قبل 18:00 (وقت تحديث NASA)، نستخدم بيانات اليوم السابق
+    // إذا كنا بعد 18:00، نبدأ في استخدام بيانات اليوم الحالي
+    if (hours < 18) {
+        // إذا كان الوقت قبل 6 مساءً، نرجع إلى تاريخ الأمس للحصول على "آخر صورة مستقرة"
+        targetDate.setDate(targetDate.getDate() - 1);
+    } 
+    // ملاحظة: بما أن التحديث يخص الصورة ليوم كامل، سنستخدم بيانات الأمس حتى وقت التحديث.
+    // (يجب أن يتم تعديلها حسب توقيت UTC إذا كانت NASA تستخدم UTC)
+
+    const year = targetDate.getFullYear();
+    const month = (targetDate.getMonth() + 1).toString().padStart(2, '0'); 
+    const day = targetDate.getDate().toString().padStart(2, '0');
     
-    // YYYY-MM-DDT HH:MM format
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
+    // سنستخدم 18:00 كـ Time Marker لضمان الحصول على صورة اليوم كاملاً
+    const markerHours = 18; 
+    const markerMinutes = 0; 
+
+    // YYYY-MM-DDT 18:00 format (لضمان جلب الصورة النهائية لهذا اليوم)
+    return `${year}-${month}-${day}T${markerHours.toString().padStart(2, '0')}:${markerMinutes.toString().padStart(2, '0')}`;
 }
 
 
@@ -5824,8 +6011,9 @@ async function fetchWeatherData() {
 
         // 4. تحديث حالة القمر في AppState
         if (moonResult) {
-            appState.dynamicMoonImageUrl = moonResult.image.url; // تخزين رابط الصورة
-            appState.moonData = moonResult; // ✅ تخزين كائن البيانات للحصول على حقل 'phase'
+    appState.dynamicMoonImageUrl = moonResult.image.url;
+    appState.moonData = moonResult; // ✅ تخزين كائن البيانات للحصول على حقل 'phase'
+    appState.moonData.fetchDate = new Date();
         } else {
             appState.dynamicMoonImageUrl = 'https://cdn.weatherapi.com/weather/64x64/night/113.png'; 
             appState.moonData = null;
@@ -6408,16 +6596,85 @@ function updateDigitalClock() {
 
         // --- NEW: 3D Screen Widgets Update ---
         function update3dScreenWidgets() {
-            const nextPrayerEl = document.getElementById('3d-screen-next-prayer');
-            const speedEl = document.getElementById('3d-screen-speed');
-            const gearEl = document.getElementById('3d-screen-gear');
-            const dirEl = document.getElementById('3d-screen-dir');
+    // مراجع العناصر (التي تم نقلها إلى الجانب الأيمن)
+    const weatherTempEl = document.getElementById('3d-screen-weather-temp'); // داخل #3d-screen-weather-widget
+    const nextPrayerEl = document.getElementById('3d-screen-next-prayer');
+    const speedEl = document.getElementById('3d-screen-speed');
+    const gearEl = document.getElementById('3d-screen-gear');
+    const dirEl = document.getElementById('3d-screen-dir');
 
-            if (nextPrayerEl) nextPrayerEl.textContent = appState.prayerTimes.nextPrayer || '--';
-            if (speedEl) speedEl.textContent = `${appState.car.speed} km/h`;
-            if (gearEl) gearEl.textContent = appState.car.gear;
-            if (dirEl) dirEl.textContent = appState.car.direction;
-        }
+    // --- 1. تحديث الطقس (Temperature) ---
+    if (weatherTempEl) {
+        // نستخدم القيمة المخزنة في appState.weather.temperature (التي جلبتها fetchWeatherData)
+        const temp = appState.weather.temperature !== null ? Math.round(appState.weather.temperature) : '--';
+        weatherTempEl.textContent = `${temp}°C`;
+    }
+    
+    // --- 2. تحديث معلومات القيادة (الجانب الأيسر) ---
+    if (nextPrayerEl) nextPrayerEl.textContent = appState.prayerTimes.nextPrayer || '--';
+    if (speedEl) speedEl.textContent = `${appState.car.speed} km/h`;
+    if (gearEl) gearEl.textContent = appState.car.gear;
+    if (dirEl) dirEl.textContent = appState.car.direction;
+
+    // --- 3. استدعاء الدوال الحركية (CRITICAL) ---
+
+    // 🚀 تحديث أزرار البوصلة (Direction Buttons)
+    updateDirectionButtons(); 
+    
+    // 🌙 تحديث ويدجت القمر (يجب أن يعرض قمر الأمس إذا لم تحن الساعة 18:00)
+    update3dMoonWidget(); 
+}
+        /**
+ * NEW: Updates the Moon Widget in the 3D screen using data from fetchWeatherData.
+ */
+/**
+ * UPDATED: Updates the Moon Widget in the 3D screen (screen-Map).
+ * It shows dynamic NASA Moon data ONLY during local nighttime (18:00 to 06:00).
+ * Otherwise, it shows an inactive state.
+ */
+function update3dMoonWidget() {
+    // 🛑 مراجع العناصر في شاشة screen-Map (الجانب الأيمن)
+    const moonIcon = document.getElementById('3d-moon-icon');
+    const moonPhase = document.getElementById('3d-moon-phase');
+    const moonWidgetContainer = document.getElementById('3d-screen-moon-widget'); 
+
+    if (!moonIcon || !moonPhase || !moonWidgetContainer) {
+        // إذا لم يتم العثور على العناصر (قد تكون في شاشة أخرى)، لا تفعل شيئاً
+        return;
+    }
+
+    const now = new Date();
+    const currentHour = now.getHours();
+    
+    // تحديد إذا كنا في فترة ليل (6 مساءً حتى 6 صباحاً)
+    const isNightTime = (currentHour >= 12 || currentHour < 6);
+
+    if (isNightTime && appState.moonData && appState.moonData.phase !== undefined) {
+        // 1. الوضع الليلي (عرض البيانات الديناميكية)
+        
+        // يجب التأكد من أن مرحلة القمر (phase) تم تخزينها كـ رقم في fetchNasaMoonData
+        const phaseValue = appState.moonData.phase ? appState.moonData.phase.toFixed(1) : '--';
+        
+        // الصورة يتم جلبها مسبقاً وتخزينها كـ appState.dynamicMoonImageUrl
+        moonIcon.src = appState.dynamicMoonImageUrl || 'https://cdn.weatherapi.com/weather/64x64/night/113.png';
+        moonPhase.textContent = `${phaseValue}%`; 
+        
+        // إظهار الويدجت بحالة نشطة
+        moonWidgetContainer.style.opacity = '1';
+        moonWidgetContainer.style.display = 'flex'; 
+
+    } else {
+        // 2. الوضع النهاري (عرض حالة الخمول/عدم النشاط)
+        
+        // عرض أيقونة قمر ثابتة (للتصنيف) مع بيانات فارغة
+        moonIcon.src = 'https://cdn.weatherapi.com/weather/64x64/night/113.png'; 
+        moonPhase.textContent = '--%';
+        
+        // 💡 إظهار الويدجت بشفافية منخفضة ليدل على أنه غير نشط الآن (ولكنه موجود في الـ Layout)
+        moonWidgetContainer.style.opacity = '0.3'; 
+        moonWidgetContainer.style.display = 'flex'; 
+    }
+}
 
         // --- Draggable/Resizable Popup Logic ---
         let isDragging = false;
@@ -6807,7 +7064,7 @@ migrateChannelData();
     
     loadPrayerTimes();
     updateFullDateWidget(); // <-- أضف هذا السطر (استدعاء أولي)
-
+    fetchWeatherData();
     // Play welcome message once after a short delay
     setTimeout(playWelcomeMessage, 20000);
 
