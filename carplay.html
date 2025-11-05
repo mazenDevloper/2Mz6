@@ -78,7 +78,7 @@ div#add-reciter-prompt-content {
 
 /* 1. إعدادات الحاوية Grid */
 #direction-controls-3d {
-    transform:scale(0.9);
+    transform:scale(0.8);
     /* 🛑 يجب أن تكون الأبعاد متناظرة (مثلاً: 50px لكل زر و 10px مسافة) */
     grid-template-columns: repeat(3, 50px) !important; 
     width: 170px !important; /* 3*50px + 2*10px gap = 170px */
@@ -246,6 +246,10 @@ h3.video-title {
 .carousel-nav-button:hover {
     background-color: rgba(0, 0, 0, 0.6);
     transform: translateY(-50%) scale(1.1);
+}
+section#screen-Map {
+    width: 100% !important;
+    height: 100% !important;
 }
 .carousel-nav-button.prev {
     right: 10px;
@@ -530,6 +534,42 @@ button#tab-tarteel {
     overflow: scroll;
 }
 
+/* --- NEW CSS for LARGE Moon Widget --- */
+
+/* زيادة حجم صورة القمر داخل الـ widget */
+.moon-icon-large {
+    width: 80px;  /* 👈 حجم أكبر للصورة */
+    height: 80px; 
+    border-radius: 50%; /* 👈 ضمان دائريتها */
+    object-fit: cover;
+    /* إضافة حدود بسيطة لتعزيز المظهر الجمالي */
+    border: 2px solid rgba(255, 255, 255, 0.2); 
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+    transition: all 0.3s;
+}
+
+/* زيادة الـ Border Radius لويدجت القمر لجعله أكثر نعومة */
+#3d-screen-moon-widget {
+    /* 👈 زيادة الـ padding للحاوية */
+    padding: 1.5rem !important; 
+    
+    /* 👈 زيادة الـ Border Radius للعنصر نفسه */
+    border-radius: 2.5rem !important; 
+}
+
+/* 💡 تعديل هام: ضمان أن ويدجت الحرارة صغير الحجم */
+#3d-screen-weather-widget {
+    width: 140px; 
+    height: auto; 
+    justify-content: flex-start;
+}
+#3d-screen-weather-widget span {
+    font-size: 1.5rem !important; /* تصغير خط الحرارة */
+}
+#3d-screen-weather-widget svg {
+    margin-right: 5px;
+}
+
 .glass-surface.glass-surface--svg.youtube-video-card.navigable.grid-item {
     direction: ltr!important;
 }
@@ -550,7 +590,7 @@ button#tab-tarteel {
 }
 
 div#\33 d-screen-weather-widget {
-    height: 115px;
+    height: 85px;
     width: 116px;
 }
         .glass-surface--svg {
@@ -1673,8 +1713,11 @@ div#bottom-left-controls {
         }
 
 .w-full.h-full.bg-black2.rounded-3xl.flex.items-center.justify-center.p-1.overflow\:hidden {
-    background: linear-gradient(45deg, black, #00000024) !important;
+    background: linear-gradient(45deg, black, #00000024) ;
 }
+
+section#screen-Map>.w-full.h-full.bg-black2.rounded-3xl.flex.items-center.justify-center.p-1.overflow\:hidden {
+    background: linear-gradient(45deg, black, transparent);!important}
 
             .carousel-nav-button.prev {
                 display: flex;
@@ -2164,22 +2207,20 @@ div#map{display:none}
         <i class="fas fa-expand"></i> 
     </button>
                     <div class="w-full h-full bg-black2 rounded-3xl flex items-center justify-center p-1 overflow:hidden">
-                        <iframe id="cardash" title="LEXSUS ES" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share WIDTH="80%" HEIGHT="80%" src="https://sketchfab.com/models/17ed331fd31f491fa3907156f0b0b55e/embed?autostart=1&preload=1&annotations_visible=0&annotation=0&annotation_cycle=6&transparent=1&ui_theme=dark"> </iframe>
+                        <iframe id="cardash" title="LEXSUS ES" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share WIDTH="95%" HEIGHT="95%" src="https://sketchfab.com/models/17ed331fd31f491fa3907156f0b0b55e/embed?autostart=1&preload=1&annotations_visible=0&annotation=0&annotation_cycle=6&transparent=1&ui_theme=dark"> </iframe>
                     </div>
                     <!-- Right side widget -->
                     <div id="right-side-info-widgets" class="absolute top-8 right-8 flex flex-col gap-3 z-10">
     
-    <div id="3d-screen-weather-widget" class="p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item glass-surface glass-surface--svg" tabindex="0">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="thermometer" class="lucide lucide-thermometer w-8 h-8 text-red-400"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path></svg>
-        <span class="text-3xl font-bold" id="3d-screen-weather-temp">--°C</span>
+    <div id="3d-screen-weather-widget" class="p-3 rounded-2xl text-center flex items-center gap-2 navigable grid-item" tabindex="0" style="background-color: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="thermometer" class="lucide lucide-thermometer w-6 h-6 text-red-400"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path></svg>
+        <span class="text-xl font-bold" id="3d-screen-weather-temp">--°C</span>
     </div>
     
-    <div id="3d-screen-moon-widget" class="p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item glass-surface glass-surface--svg" tabindex="0">
-        <img id="3d-moon-icon" src="https://cdn.weatherapi.com/weather/64x64/night/113.png" alt="Moon Phase" class="w-8 h-8 flex-shrink-0" />
-        <div>
-            <div class="text-sm text-white/70">القمر</div>
-            <div class="text-xl font-bold" id="3d-moon-phase">--%</div>
-        </div>
+    <div id="3d-screen-moon-widget" class="p-4 rounded-2xl text-center flex flex-col items-center justify-center navigable grid-item glass-surface glass-surface--svg" tabindex="0">
+        <img id="3d-moon-icon" src="https://cdn.weatherapi.com/weather/64x64/night/113.png" alt="Moon Phase" class="moon-icon-large mb-2" />
+        <div class="text-sm text-white/70">القمر (إضاءة)</div>
+        <div class="text-2xl font-bold" id="3d-moon-phase">--%</div>
     </div>
 </div>
                     
