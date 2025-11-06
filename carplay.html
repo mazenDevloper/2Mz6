@@ -7166,7 +7166,112 @@ function update3dMoonWidget() {
                     speak(text);
                 }
             }
-// 1. التحقق من "الحارس العالمي" أولاً
+// 1. التحق
+
+
+
+            
+            // NEW/UPDATED: Event listener for the floating back button
+            backToSearchFloatingButton.addEventListener('click', () => {
+                // If we are on the suggestions screen AND we have a previous search to go back to...
+                if (activeMediaView === 'suggestions' && lastSuccessfulSearchQuery) {
+                    searchYouTubeVideos(lastSuccessfulSearchQuery); // ...then re-run that search.
+                } else {
+                    // Otherwise (i.e., we are on the search results screen), perform the original "back" action.
+                    navigateBackToMainSearch();
+                }
+            });
+
+            startTripFloatingButton?.addEventListener('click', () => { if (appState.destinationSet) calculateAndDisplayRoute(); else showMessageBox('الرجاء تحديد وجهة أولاً.'); }); 
+            upload360ImageButton?.addEventListener('click', () => upload360ImageInput.click()); 
+            upload360ImageInput?.addEventListener('change', handleImageUpload); 
+            reset360ImageButton?.addEventListener('click', resetImageToDefault); 
+            document.addEventListener('keydown', handleRemoteControlInput);
+            document.addEventListener('fullscreenchange', handleFullScreenChange);
+            document.addEventListener('webkitfullscreenchange', handleFullScreenChange); // For Safari
+            
+            videoPopupCloseButton.addEventListener('click', hideVideoPopup);
+            backToPlaylistsFromVideosButton.addEventListener('click', navigateBackToMainSearch);
+            backToPlaylistsBottomButton.addEventListener('click', navigateBackToMainSearch);
+            backToPlaylistsBottomButtonSearch.addEventListener('click', navigateBackToMainSearch);
+            floatingKeyboardButton.addEventListener('click', () => { 
+                youtubeSearchInput.readOnly = !youtubeSearchInput.readOnly; 
+                if (!youtubeSearchInput.readOnly) {
+                    youtubeSearchInput.focus(); 
+                } else {
+                    youtubeSearchInput.blur();
+                    // Return focus to the search button after disabling keyboard
+                    setFocus(youtubeSearchButton);
+                }
+                floatingKeyboardButton.classList.toggle('active-keyboard', !youtubeSearchInput.readOnly); 
+                floatingKeyboardButton.classList.toggle('inactive-keyboard', youtubeSearchInput.readOnly); 
+            });
+            
+            // UPDATED: Clear button logic
+            clearSearchButton.addEventListener('click', () => {
+                youtubeSearchInput.value = ''; // Clear input immediately
+                lastSuccessfulSearchQuery = null; // NEW: Clear the last search memory
+                navigateBackToMainSearch();
+            });
+
+            youtubeSearchInput.addEventListener('focus', () => { if (youtubeSearchInput.value.trim() === '') { resetYoutubeSearchUI(); } });
+            youtubeSearchButton.addEventListener('click', () => { const query = youtubeSearchInput.value.trim(); if (query) searchYouTubeVideos(query); else showMessageBox('الرجاء إدخال كلمة للبحث.'); });
+            
+            // UPDATED: Auto-search for Tarteel channel with pre-click effect
+            youtubeSearchInput.addEventListener('input', () => {
+                const targetText = 'ترتيل-@TarteelArabic';
+                const currentText = youtubeSearchInput.value;
+
+                if (currentText.includes(targetText + ' ')) {
+                    // If text with space is present, visually confirm and trigger the click
+                    youtubeSearchButton.classList.add('tv-focus'); 
+                    setTimeout(() => {
+                        youtubeSearchButton.click();
+                        // Optional: remove focus style after click to reset state
+                        setTimeout(() => youtubeSearchButton.classList.remove('tv-focus'), 100);
+                    }, 50);
+                } else if (currentText.includes(targetText)) {
+                    // If only the text (no space) is present, show pre-click effect
+                    youtubeSearchButton.classList.add('tv-focus');
+                } else {
+                    // If the text is not present, remove the effect
+                    youtubeSearchButton.classList.remove('tv-focus');
+                }
+            });
+
+            // NEW Listeners for Animation and Zoom Controls
+            pauseAnimationButton.addEventListener('click', () => {
+                document.body.classList.toggle('animation-paused');
+                const isPaused = document.body.classList.contains('animation-paused');
+                const playIcon = pauseAnimationButton.querySelector('[data-lucide="play"]');
+                const pauseIcon = pauseAnimationButton.querySelector('[data-lucide="pause"]');
+                playIcon.classList.toggle('hidden', !isPaused);
+                pauseIcon.classList.toggle('hidden', isPaused);
+            });
+
+            removeCacheButton.addEventListener('click', () => {
+                localStorage.clear();
+                showMessageBox('تم مسح ذاكرة التخزين المؤقت بنجاح. سيتم إعادة تحميل التطبيق.');
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
+            });
+
+            zoomInButton.addEventListener('click', () => {
+                if (currentFontSize < maxFontSize) {
+                    currentFontSize += fontSizeStep;
+                    document.documentElement.style.fontSize = `${currentFontSize}px`;
+                }
+            });
+
+            zoomOutButton.addEventListener('click', () => {
+                if (currentFontSize > minFontSize) {
+                    currentFontSize -= fontSizeStep;
+                    document.documentElement.style.fontSize = `${currentFontSize}px`;
+                }
+            });
+
+
 if (!window.hasInitializedWeatherSpeaker) {
 
     // 2. إذا لم يتم التشغيل من قبل، قم بتعيين الحارس فوراً
