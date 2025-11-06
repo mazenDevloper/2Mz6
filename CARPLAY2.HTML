@@ -65,6 +65,9 @@ img#dashboard-weather-icon {
     backdrop-filter: blur(5px);
     transition: all 0.3s ease;
 }
+div#add-reciter-prompt-content {
+    max-width: 98%;
+}
 
 .fullscreen-toggle-button:hover {
     background-color: rgba(255, 255, 255, 0.2);
@@ -72,11 +75,98 @@ img#dashboard-weather-icon {
 }
 
 
+/* --- CSS لإنشاء شكل البوصلة الدائري الخارجي المتناظر --- */
+#direction-controls-3d button.active-direction {
+    /* 1. التوهج والحد: إضاءة زرقاء قوية */
+    outline: 3px solid #0A84FF !important; 
+    box-shadow: 0 0 18px rgba(10, 132, 255, 0.8), /* توهج خارجي قوي */
+                inset 0 0 8px rgba(255, 255, 255, 0.3); /* إضاءة داخلية */
+                
+    /* 2. اللون والخلفية: خلفية شفافة زرقاء */
+    background-color: rgba(10, 132, 255, 0.4) !important; 
+    color: white !important;
+    
+    /* 3. الحركة: تكبير خفيف */
+    transform: scale(1.08); /* تكبير ملحوظ */
+}
+
+/* 💡 الحفاظ على التفاعل عند مرور الفأرة (Hover) */
+#direction-controls-3d button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.4); 
+    cursor: pointer;
+}
+
+/* 1. إعدادات الحاوية Grid */
+#direction-controls-3d {
+    transform:scale(0.8);
+    /* 🛑 يجب أن تكون الأبعاد متناظرة (مثلاً: 50px لكل زر و 10px مسافة) */
+    grid-template-columns: repeat(3, 50px) !important; 
+    width: 170px !important; /* 3*50px + 2*10px gap = 170px */
+    height: 170px !important; 
+    gap: 10px !important; 
+  /* تثبيت الموقع في اليمين */
+    /* الترتيب الافتراضي للعناصر هنا (1, 2, 3, 4, 5, 6, 7, 8, 9) */
+}
+
+/* 2. ضمان الشكل الدائري والحجم الثابت لكل زر */
+#direction-controls-3d button {
+    width: 50px !important; 
+    height: 50px !important; 
+    border-radius: 50% !important; 
+    margin: 0 !important; /* إلغاء الهوامش السلبية السابقة */
+    padding: 0; 
+}
+
+/* 🚀 3. تطبيق الإزاحة (Transform) لإنشاء محيط دائري وهمي */
+/* المسافة المراد إزاحتها هي (عرض الزر + المسافة) / 2 = (50px + 10px) / 2 = 30px */
+/*
+   الترتيب (RTL Grid Index):
+   [1] NE | [2] N | [3] NW
+   [4] E  | [5] X | [6] W
+   [7] SE | [8] S | [9] SW
+*/
+
+/* N (الترتيب 2): إزاحة للأسفل فقط */
+#direction-controls-3d button:nth-child(2) { transform: translate(-50px,-20px); }
+
+/* S (الترتيب 8): إزاحة للأعلى فقط */
+#direction-controls-3d button:nth-child(8) { transform: translate(-112px,20px); }
+
+/* E (الترتيب 4): إزاحة لليسار فقط (نحو المركز) */
+#direction-controls-3d button:nth-child(4) { transform: translate(-20px, 0px); }
+
+/* W (الترتيب 6): إزاحة لليمين فقط (نحو المركز) */
+#direction-controls-3d button:nth-child(6) { transform: translate(-140px, -0px); }
+
+
+/* العناصر القطرية (تتطلب إزاحة على كلا المحورين X و Y) */
+/* NE (الترتيب 1): للأسفل (Y+) ولليسار (X-) */
+#direction-controls-3d button:nth-child(1) { transform: translate(-50px, 3px); }
+
+/* NW (الترتيب 3): للأسفل (Y+) ولليمين (X+) */
+#direction-controls-3d button:nth-child(3) { transform: translate(-50px, 1px); }
+
+/* SE (الترتيب 7): للأعلى (Y-) ولليسار (X-) */
+#direction-controls-3d button:nth-child(7) { transform:  translate(70px, 60px); }
+
+/* SW (الترتيب 9): للأعلى (Y-) ولليمين (X+) */
+#direction-controls-3d button:nth-child(9) { transform: translate(-110px, -5px); }
+
+/* 4. إخفاء الفاصل المركزي */
+#direction-controls-3d .center-spacer {
+    display: none;
+}
+
 #quran-go-button,#fullscreen-reciters-iframe-btn,#fullscreen-radio-iframe-btn{
     z-index:999;
 }
 /* CRITICAL: The class that forces the section to cover the viewport 
 */
+  .reader-container {
+    direction: rtl!important;
+}
+        
 .is-fullscreen {
     /* Overrides parent containers and positions relative to the viewport */
     position: fixed !important; 
@@ -177,6 +267,10 @@ h3.video-title {
 .carousel-nav-button:hover {
     background-color: rgba(0, 0, 0, 0.6);
     transform: translateY(-50%) scale(1.1);
+}
+section#screen-Map {
+    width: 100% !important;
+    height: 100% !important;
 }
 .carousel-nav-button.prev {
     right: 10px;
@@ -461,6 +555,42 @@ button#tab-tarteel {
     overflow: scroll;
 }
 
+/* --- NEW CSS for LARGE Moon Widget --- */
+
+/* زيادة حجم صورة القمر داخل الـ widget */
+.moon-icon-large {
+    width: 80px;  /* 👈 حجم أكبر للصورة */
+    height: 80px; 
+    border-radius: 50%; /* 👈 ضمان دائريتها */
+    object-fit: cover;
+    /* إضافة حدود بسيطة لتعزيز المظهر الجمالي */
+    border: 2px solid rgba(255, 255, 255, 0.2); 
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+    transition: all 0.3s;
+}
+
+/* زيادة الـ Border Radius لويدجت القمر لجعله أكثر نعومة */
+#3d-screen-moon-widget {
+    /* 👈 زيادة الـ padding للحاوية */
+    padding: 1.5rem !important; 
+    
+    /* 👈 زيادة الـ Border Radius للعنصر نفسه */
+    border-radius: 2.5rem !important; 
+}
+
+/* 💡 تعديل هام: ضمان أن ويدجت الحرارة صغير الحجم */
+#3d-screen-weather-widget {
+    width: 140px; 
+    height: auto; 
+    justify-content: flex-start;
+}
+#3d-screen-weather-widget span {
+    font-size: 1.5rem !important; /* تصغير خط الحرارة */
+}
+#3d-screen-weather-widget svg {
+    margin-right: 5px;
+}
+
 .glass-surface.glass-surface--svg.youtube-video-card.navigable.grid-item {
     direction: ltr!important;
 }
@@ -481,7 +611,7 @@ button#tab-tarteel {
 }
 
 div#\33 d-screen-weather-widget {
-    height: 115px;
+    height: 85px;
     width: 116px;
 }
         .glass-surface--svg {
@@ -554,6 +684,28 @@ div#\33 d-screen-weather-widget {
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
+
+section#screen-Map>.w-full.h-full.bg-black2.rounded-3xl.flex.items-center.justify-center.p-1.overflow\:hidden {
+   
+ /* 2. إعدادات الحد الأساسية */
+    border: 3px solid transparent; /* 🛑 هام: يجب تحديد عرض الحد */
+    border-radius: 1.5rem; /* يجب أن يتطابق مع تصميمك */
+    
+    /* 3. تطبيق الحد المتدرج (Gradient Border) */
+    border-image: linear-gradient(45deg, #00ffff05,#00ffff99 15%, #8a2be200, #ff00ffd9,#00ffff99 , #000000) 1;
+    /* الشرح:
+      linear-gradient(45deg, #00FFFF, #8A2BE2, #FF00FF, #000000): يحدد الألوان.
+      1: يحدد عرض شريحة الحد (slice width).
+    */
+    
+    /* 4. التأكد من أن الخلفية لا تمتد عبر الحد */
+    background-clip: padding-box;
+}
+
+
+
+
+.w-full.h-full.bg-black2.rounded-3xl.flex.items-center.justify-center.p-1.overflow\:hidden {}
 
 
         /* Keyframe animation for the background gradient */
@@ -1036,11 +1188,23 @@ div#\33 d-screen-weather-widget {
         }
         /* NEW: Surah Buttons Scrollable Container */
         .surah-buttons-scrollable {
-            max-height: 77%;
-            overflow-y: auto;
-            padding-right: 8px; 
-            padding-left: 8px; 
-        }
+    /* 🛑 التعديل الحاسم: إزالة max-height وتعيين height: 100% */
+    height: 100% !important; /* تأخذ كامل الارتفاع المتاح من الأب */
+    overflow-y: auto;
+    padding-right: 8px; 
+    padding-left: 8px; 
+    /* ... (بقية التنسيقات) */
+}
+
+/* ملاحظة: قد تحتاج إلى التأكد من أن العنصر الأبوي:
+   #tabs-content-container-surah
+   يحتوي على height: 100% أو flex-grow ليعطي مساحة كافية. 
+*/
+#tabs-content-container-surah {
+    height: 100%; /* تأكيد أن الحاوية الأبوية تعطي الارتفاع الكامل */
+    display: flex;
+    flex-direction: column;
+}
         .surah-buttons-scrollable::-webkit-scrollbar { width: 6px; }
         .surah-buttons-scrollable::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
         .surah-buttons-scrollable::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.4); border-radius: 10px; }
@@ -1569,6 +1733,13 @@ div#bottom-left-controls {
             overflow: hidden;
         }
 
+.w-full.h-full.bg-black2.rounded-3xl.flex.items-center.justify-center.p-1.overflow\:hidden {
+    background: linear-gradient(45deg, black, #00000024) ;
+}
+
+section#screen-Map>.w-full.h-full.bg-black2.rounded-3xl.flex.items-center.justify-center.p-1.overflow\:hidden {
+    background: linear-gradient(45deg, black, transparent);!important}
+
             .carousel-nav-button.prev {
                 display: flex;
             }
@@ -1659,6 +1830,9 @@ section#screen-Dashboard{
         
         /* NEW: Show next button on even wider screens */
         @media (min-width: 1080px) {
+            section#screen-Map {
+    background: linear-gradient(45deg, black 66%, transparent);
+}
             [data-app="Map"],                  /* إخفاء أيقونة خريطة الـ 3D من شريط التنقل */
             #car-360-image {
                 display:none
@@ -2057,14 +2231,23 @@ div#map{display:none}
         <i class="fas fa-expand"></i> 
     </button>
                     <div class="w-full h-full bg-black2 rounded-3xl flex items-center justify-center p-1 overflow:hidden">
-                        <iframe id="cardash" title="LEXSUS ES" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share WIDTH="80%" HEIGHT="80%" src="https://sketchfab.com/models/17ed331fd31f491fa3907156f0b0b55e/embed?autostart=1&preload=1&annotations_visible=0&annotation=0&annotation_cycle=6&transparent=1&ui_theme=dark"> </iframe>
+                        <iframe id="cardash" title="LEXSUS ES" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share WIDTH="95%" HEIGHT="95%" src="https://sketchfab.com/models/17ed331fd31f491fa3907156f0b0b55e/embed?autostart=1&preload=1&annotations_visible=0&annotation=0&annotation_cycle=6&transparent=1&ui_theme=dark"> </iframe>
                     </div>
                     <!-- Right side widget -->
-                    <div id="3d-screen-weather-widget" class="absolute top-8 right-8 p-4 rounded-2xl text-center flex items-center gap-3 z-10 navigable grid-item" tabindex="0">
-                        <!-- MODIFIED: Replaced icon with user-provided SVG -->
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="thermometer" class="lucide lucide-thermometer w-8 h-8 text-red-400"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path></svg>
-                        <span class="text-3xl font-bold" id="3d-screen-weather-temp">--°C</span>
-                    </div>
+                    <div id="right-side-info-widgets" class="absolute top-8 right-8 flex flex-col gap-3 z-10">
+    
+    <div id="3d-screen-weather-widget" class="p-3 rounded-2xl text-center flex items-center gap-2 navigable grid-item" tabindex="0" style="background-color: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="thermometer" class="lucide lucide-thermometer w-6 h-6 text-red-400"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path></svg>
+        <span class="text-xl font-bold" id="3d-screen-weather-temp">--°C</span>
+    </div>
+    
+    <div id="3d-screen-moon-widget" class="p-4 rounded-2xl text-center flex flex-col items-center justify-center navigable grid-item glass-surface glass-surface--svg" tabindex="0">
+        <img id="3d-moon-icon" src="https://cdn.weatherapi.com/weather/64x64/night/113.png" alt="Moon Phase" class="moon-icon-large mb-2" />
+        <div class="text-sm text-white/70">القمر (إضاءة)</div>
+        <div class="text-2xl font-bold" id="3d-moon-phase">--%</div>
+    </div>
+</div>
+                    
                     <!-- NEW: Left side widgets -->
                     <div id="3d-screen-info-widgets" class="absolute top-8 left-8 flex flex-col gap-3 z-10">
                         <div class="p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
@@ -2074,6 +2257,8 @@ div#map{display:none}
                                 <div class="text-xl font-bold" id="3d-screen-next-prayer">--</div>
                             </div>
                         </div>
+
+
                         <div class="p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
                             <i data-lucide="gauge-circle" class="w-7 h-7 text-green-400"></i>
                             <div>
@@ -2098,17 +2283,18 @@ div#map{display:none}
                         </div>
                     </div>
                     <!-- NEW: Sticky Directional Controls -->
-                    <div id="direction-controls-3d" class="absolute top-1/2 -translate-y-1/2 right-8 grid grid-cols-3 gap-2 w-[120px] z-10">
-                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">NW</button>
-                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">N</button>
-                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">NE</button>
-                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">W</button>
-                        <div class="w-10 h-10"></div> <!-- Spacer -->
-                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">E</button>
-                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">SW</button>
-                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">S</button>
-                        <button class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">SE</button>
-                    </div>
+                    <div id="direction-controls-3d" class="absolute top-1/2 -translate-y-1/2 right-8 grid grid-cols-3 z-10">
+    <button data-dir="NE" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">NE</button>
+    <button data-dir="N" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">N</button>
+    <button data-dir="NW" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">NW</button>
+    
+    <button data-dir="E" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">E</button>
+    <div class="center-spacer w-10 h-10"></div> <button data-dir="W" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">W</button>
+    
+    <button data-dir="SE" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">SE</button>
+    <button data-dir="S" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">S</button>
+    <button data-dir="SW" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">SW</button>
+</div>
                 </section>
 
                 <!-- Electronic Quran App Screen -->
@@ -2205,6 +2391,172 @@ div#map{display:none}
     </div>
 
     <script>
+
+        // --- المتغيرات العامة لتتبع حالة المؤقتات (يجب أن تُضاف في بداية الكود) ---
+let weatherIntervalId = null;       // 5 دقائق (للطقس)
+let clockIntervalId = null;         // 1 ثانية (للساعة)
+let timerDisplayIntervalId = null;  // 2 ثانية (للعد التنازلي للصلاة)
+let nextPrayerIntervalId = null;    // 1 دقيقة (لتحديد الصلاة القادمة)
+let carSimulationIntervalId = null; // 2 ثانية (لمحاكاة السيارة/الاتجاه)
+let fullDateIntervalId = null;      // 6 مليون مللي ثانية (لتحديث التاريخ)
+// --- دوال التحكم في تتبع الموقع (يجب أن تُضاف في بداية الكود) ---
+let locationWatchId = null; // متغير لحفظ معرف الـ watchPosition
+
+function startDashboardLocationTracking() {
+    // 🛑 يتم تشغيل التتبع المستمر للموقع فقط عند فتح Dashboard/Map
+    if (navigator.geolocation && locationWatchId === null) {
+        locationWatchId = navigator.geolocation.watchPosition(
+            (pos) => {
+                // تحديث الموقع والقيادة والبوصلة
+                updateGoogleMapLocation(pos); 
+                // 💡 بما أن updateGoogleMapLocation تستدعي update3dScreenWidgets()، 
+                // فهذا يشمل تحديث البوصلة.
+
+                // 💡 بما أننا في Dashboard، نضمن تحديث مؤقتات الساعة/الصلاة أيضًا
+                updateDigitalClock();
+                updateTimerDisplay();
+
+            },
+            (err) => {
+                // معالجة الأخطاء
+            },
+            { enableHighAccuracy: true, timeout: 5000, maximumAge: 5000 } // تحديث كل 5 ثوانٍ
+        );
+    }
+}
+
+function stopDashboardLocationTracking() {
+    if (locationWatchId !== null) {
+        navigator.geolocation.clearWatch(locationWatchId);
+        locationWatchId = null;
+    }
+}
+
+function startWeatherUpdates() {
+    if (weatherIntervalId === null) {
+        // نُشغِّل الجلب الأولي أولاً
+        fetchWeatherData();
+        // 🛑 ثم نُنشئ المؤقت
+        weatherIntervalId = setInterval(fetchWeatherData, 300000); // كل 5 دقائق
+    }
+}
+function stopWeatherUpdates() {
+    if (weatherIntervalId !== null) {
+        clearInterval(weatherIntervalId);
+        weatherIntervalId = null;
+    }
+}
+
+function startCarSimulation() {
+    if (carSimulationIntervalId === null) {
+        carSimulationIntervalId = setInterval(simulateOtherCarData, 2000); // كل 2 ثانية
+    }
+}
+function stopCarSimulation() {
+    if (carSimulationIntervalId !== null) {
+        clearInterval(carSimulationIntervalId);
+        carSimulationIntervalId = null;
+    }
+}
+
+function startClockAndTimer() {
+    updateDigitalClock(); 
+    updateTimerDisplay();
+
+    if (clockIntervalId === null) {
+        clockIntervalId = setInterval(updateDigitalClock, 1000); // كل 1 ثانية
+    }
+    if (timerDisplayIntervalId === null) {
+        // 🚀 التشغيل بـ 1000 مللي ثانية (1 ثانية) ليتزامن مع تحديث الساعة
+        timerDisplayIntervalId = setInterval(updateTimerDisplay, 1000); 
+    }
+
+    if (clockIntervalId === null) {
+        clockIntervalId = setInterval(updateDigitalClock, 1000);
+         // تحديث الساعة كل 1 ثانية
+    }
+    if (timerDisplayIntervalId === null) {
+        timerDisplayIntervalId = setInterval(updateTimerDisplay, 1000); // تحديث عداد الصلاة كل 2 ثانية
+    }
+}
+function stopClockAndTimer() {
+    if (clockIntervalId !== null) {
+        clearInterval(clockIntervalId);
+        clockIntervalId = null;
+    }
+    if (timerDisplayIntervalId !== null) {
+        clearInterval(timerDisplayIntervalId);
+        timerDisplayIntervalId = null;
+    }
+
+    if (clockIntervalId !== null) {
+        clearInterval(clockIntervalId);
+        clockIntervalId = null;
+    }
+    if (timerDisplayIntervalId !== null) {
+        clearInterval(timerDisplayIntervalId);
+        timerDisplayIntervalId = null;
+    }
+}
+
+// --- دوال التحكم للمؤقتات البطيئة (التي كانت تعمل بـ setInterval) ---
+function startNextPrayerDetermination() {
+    if (nextPrayerIntervalId === null) {
+        determineNextPrayer(); // تشغيل فوري
+        nextPrayerIntervalId = setInterval(determineNextPrayer, 60000); // كل 1 دقيقة
+    }
+}
+function stopNextPrayerDetermination() {
+    if (nextPrayerIntervalId !== null) {
+        clearInterval(nextPrayerIntervalId);
+        nextPrayerIntervalId = null;
+    }
+}
+function startFullDateUpdates() {
+    if (fullDateIntervalId === null) {
+        updateFullDateWidget(); // تشغيل فوري
+        fullDateIntervalId = setInterval(updateFullDateWidget, 6000000); // كل 100 دقيقة
+    }
+}
+// لا نحتاج لـ stopFullDateUpdates حيث أنها تعمل ببطء شديد
+
+function switchApp(appName) {
+    // 1. الإيقاف العام لجميع المؤقتات الشرطية
+    stopClockAndTimer();
+    stopCarSimulation();
+    stopWeatherUpdates(); 
+    stopDashboardLocationTracking(); // 👈 إيقاف تتبع الموقع
+
+    // 2. تحديث الشاشة النشطة ... (منطقك الأصلي) ...
+
+    // 3. التشغيل الشرطي (Conditional Start)
+
+    // A. المؤقتات المطلوبة في Dashboard
+    if (appName === 'Dashboard') {
+        // 🛑 CRITICAL: جلب الطقس لمرة واحدة (عند فتح الشاشة)
+        fetchWeatherData(); 
+        
+        // 🛑 CRITICAL: بدء تتبع الموقع (يُستبدل بـ simulateOtherCarData)
+        startDashboardLocationTracking(); 
+        
+        startClockAndTimer(); // ساعة + عداد صلاة
+    }
+    
+    // B. تحديث الطقس (مطلوب في Dashboard, Weather, Map)
+    if (appName === 'Dashboard' || appName === 'Weather' || appName === 'Map') {
+        // 💡 نستخدم مؤقت الطقس البطيء هنا، لكن في حالة Dashboard نعتمد على startDashboardLocationTracking للجلب الأسرع
+        // سنعتمد على startWeatherUpdates للتحديث الدوري البطيء في الخلفية:
+        startWeatherUpdates(); 
+    }
+    
+    // C. مؤقتات القيادة (Map/3D Screen) - لا يزال مطلوبًا لتحديث البوصلة وRPM
+    if (appName === 'Map') {
+        startCarSimulation(); // محاكاة القيادة (لتحديث البوصلة/RPM)
+    }
+
+    // ... (بقية منطق switchApp)
+}
+
         /**
  * Toggles a section element between its normal state and fullscreen mode.
  * * @param {string} sectionId - The ID of the section element (e.g., 'screen-Dashboard').
@@ -2245,6 +2597,35 @@ function convertTo12HourWithAmPm(time24h) {
  * UPDATED: Updates the digital clock countdown/count-up display separately.
  * Runs every 2 seconds ONLY IF THE VIDEO POPUP IS NOT ACTIVE.
  */
+
+/**
+ * NEW: Updates the directional buttons (the compass) to highlight the current direction.
+ * This is called immediately after appState.car.direction is updated.
+ */
+function updateDirectionButtons() {
+    const controlsContainer = document.getElementById('direction-controls-3d');
+    if (!controlsContainer) return;
+
+    const currentDir = appState.car.direction; // N, NE, E, SE, S, SW, W, NW, or '--'
+    const buttons = controlsContainer.querySelectorAll('button');
+
+    // 1. إزالة حالة النشاط من جميع الأزرار
+    buttons.forEach(btn => btn.classList.remove('active-direction'));
+
+    if (currentDir === '--') return;
+
+    // 2. تطبيق حالة النشاط على الزر الموافق للاتجاه الحالي
+    buttons.forEach(btn => {
+        if (btn.textContent.trim() === currentDir) {
+            btn.classList.add('active-direction');
+        }
+    });
+}
+
+/**
+ * UPDATED: Updates the digital clock countdown/count-up display separately.
+ * CRITICAL FIX: Countdown to Azan is now hidden unless it's within 20 minutes of the prayer time.
+ */
 function updateTimerDisplay() {
     // 🛑 الشرط الحاسم: إذا كان المشغل المنبثق نشطاً، قم بالخروج فوراً لتجنب التقطيع
     if (videoPopupContainer.classList.contains('active')) {
@@ -2252,14 +2633,14 @@ function updateTimerDisplay() {
     }
     
     const now = new Date();
+    
     // تأكد من أن determineNextPrayer قد عملت مرة واحدة على الأقل
     if (!appState.prayerTimes.nextPrayerIqamaTime) {
+        digitalDateLine1.textContent = ''; // مسح المحتوى إذا لم يتم التهيئة
+        digitalDateLine2.textContent = '';
         return;
     }
 
-    const diff = appState.prayerTimes.nextPrayerIqamaTime - now;
-    const totalSecs = Math.floor(diff / 1000);
-    
     // إعادة تعيين أنماط الألوان قبل التحديث
     digitalDateLine1.classList.remove('countdown-azan', 'countdown-iqama', 'countdown-up');
     digitalDateLine2.classList.remove('countdown-azan', 'countdown-iqama', 'countdown-up');
@@ -2279,6 +2660,26 @@ function updateTimerDisplay() {
     }
 
     // 2. Logic for COUNT DOWN (to Azan or Iqama)
+    const diff = appState.prayerTimes.nextPrayerIqamaTime - now;
+    const totalSecs = Math.floor(diff / 1000);
+    
+    // 🛑 شرط الإخفاء الجديد: إذا كان الوقت المتبقي أكبر من 20 دقيقة (1200 ثانية)
+    const MAX_COUNTDOWN_SECS = 10 * 60; 
+
+    if (totalSecs > MAX_COUNTDOWN_SECS && appState.prayerTimes.currentPrayer !== appState.prayerTimes.nextPrayer) {
+        // إذا كان العد التنازلي للأذان وأكثر من 20 دقيقة، قم بالإخفاء
+        digitalDateLine1.textContent = `الأذان القادم: ${appState.prayerTimes.nextPrayer}`;
+        digitalDateLine2.textContent = appState.prayerTimes.nextPrayerIqamaTime.toLocaleTimeString('ar-SA', { hour: 'numeric', minute: '2-digit', hour12: true }); 
+        
+        // 💡 عرض الوقت الفعلي للأذان بدلاً من العد التنازلي عندما يكون بعيداً
+        // يمكننا هنا اختيار عرض الوقت بدلاً من إظهار "متبقي X ساعة"
+        digitalDateLine1.classList.remove('countdown-azan');
+        digitalDateLine2.classList.remove('countdown-azan');
+
+        return; // الخروج وعدم عرض العد التنازلي بالثواني
+    }
+
+    // المنطق يستمر فقط إذا كان الوقت المتبقي <= 20 دقيقة أو عد تنازلي للإقامة
     if (totalSecs >= 0) {
         const secs = totalSecs % 60;
         const mins = Math.floor((totalSecs / 60) % 60);
@@ -2287,11 +2688,13 @@ function updateTimerDisplay() {
         const isCountdownToIqama = (appState.prayerTimes.currentPrayer === appState.prayerTimes.nextPrayer);
 
         if (isCountdownToIqama) {
+            // العد التنازلي للإقامة (في وقت الصلاة)
             digitalDateLine1.textContent = `إقامة صلاة ${appState.prayerTimes.currentPrayer} في:`;
             digitalDateLine2.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
             digitalDateLine1.classList.add('countdown-iqama');
             digitalDateLine2.classList.add('countdown-iqama');
         } else {
+            // العد التنازلي للأذان (الآن داخل نطاق الـ 20 دقيقة)
             digitalDateLine1.textContent = `الأذان القادم: ${appState.prayerTimes.nextPrayer}`;
             digitalDateLine2.textContent = hrs > 0 ? `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}` : `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
             digitalDateLine1.classList.add('countdown-azan');
@@ -2598,7 +3001,7 @@ async function displayLastWatchedVideo() {
         lucide.createIcons();
 
         // --- API Keys ---
-        const YOUTUBE_API_KEY = 'AIzaSyBYThRM6tVnzgFgdHOUAN6DN8jQd54OKeg'; 
+        const YOUTUBE_API_KEY = 'AIzaSyB7QdfI0br5BfP71hOr36hz2dRWG_l0G8k'; 
         const AI_ASSISTANT_API_KEY = 'AIzaSyBMmtON9ww4dJxMHrl1wKyWTvI0ipJXJws'; 
         const WEATHER_API_KEY = '7acefc26deee4904a2393917252207'; 
         const GOOGLE_MAPS_API_KEY = 'AIzaSyBRqAHJ2elbE_Z7NXXYC50XZpqi6HbG6Rk';
@@ -2617,6 +3020,11 @@ const JSONBIN_BIN_ID_FAV_D = '68e4ac2e43b1c97be95d24af';
 const JSONBIN_BIN_ID_CHANNELS = '68ef1b3dd0ea881f40a38bd1';
 const JSONBIN_ACCESS_KEY_CHANNELS = '$2a$10$J8o3WrPtnqmKAd///uDw6.BOWnGIBekHFOImbeEZZwsJ/h/XPbVUy';
 let localChannelsCache = []; // To store the list locally
+
+const JSONBIN_BIN_ID_RECITER = '6909c1cd43b1c97be997b522'; 
+const JSONBIN_ACCESS_KEY_RECITER = '$2a$10$J8o3WrPtnqmKAd///uDw6.BOWnGIBekHFOImbeEZZwsJ/h/XPbVUy'; 
+let localRecitersCache = [];
+
 
 let favoritesD = [];
 let favoritesM = [];
@@ -2703,6 +3111,288 @@ let favoritesM = [];
 
         const juzArabicNames = ["الأول", "الثاني", "الثالث", "الرابع", "الخامس", "السادس", "السابع", "الثامن", "التاسع", "العاشر", "الحادي عشر", "الثاني عشر", "الثالث عشر", "الرابع عشر", "الخامس عشر", "السادس عشر", "السابع عشر", "الثامن عشر", "التاسع عشر", "العشرون", "الحادي والعشرون", "الثاني والعشرون", "الثالث والعشرون", "الرابع والعشرون", "الخامس والعشرون", "السادس والعشرون", "السابع والعشرون", "الثامن والعشرون", "التاسع والعشرون", "الثلاثون"];
 
+       
+       /**
+ * Fetches the list of Reciters from JSONBin.io and updates the local cache.
+ * @returns {Promise<Array>} The list of reciters.
+ */
+async function fetchRecitersList() {
+    try {
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID_RECITER}/latest`, {
+            headers: { 'X-Access-Key': JSONBIN_ACCESS_KEY_RECITER }
+        });
+        if (res.status === 404) return []; // Bin is new/empty
+        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        const data = await res.json();
+        
+        // التأكد من أن القائمة هي مصفوفة وتحتوي على حقل clicks
+        const fetchedList = Array.isArray(data.record) ? data.record : [];
+        localRecitersCache = fetchedList.map(r => ({
+            ...r,
+            clicksreciter: parseInt(r.clicksreciter, 10) || 0 // تحويل Click Count إلى رقم
+        }));
+        
+        return localRecitersCache;
+    } catch (error) {
+        console.error(`Error fetching reciters list:`, error);
+        // في حالة الفشل، نستخدم القائمة الثابتة السابقة كاحتياطي (إذا كانت متوفرة)
+        return localRecitersCache || [];
+    }
+}
+
+/**
+ * Updates the Reciters list on JSONBin.io.
+ * @param {Array} newRecitersList - The updated list to send.
+ * @returns {Promise<boolean>} True if successful.
+ */
+async function updateRecitersList(newRecitersList) {
+    // تصفية للحفاظ على الخصائص الهامة فقط قبل الإرسال
+    const sanitizedList = newRecitersList.map(r => ({
+        name: r.name,
+        image: r.image,
+        clicksreciter: r.clicksreciter // يجب الاحتفاظ به كنص أو رقم
+    }));
+    
+    try {
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID_RECITER}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Master-Key': JSONBIN_API_KEY // استخدام المفتاح الرئيسي للتعديل
+            },
+            body: JSON.stringify(sanitizedList)
+        });
+        if (!res.ok) throw new Error(`Failed to update reciters list: ${res.status}`);
+        localRecitersCache = newRecitersList; // تحديث الذاكرة المؤقتة
+        return true;
+    } catch (error) {
+        console.error(`Error updating reciters list:`, error);
+        showMessageBox(`حدث خطأ أثناء تحديث قائمة القراء`);
+        return false;
+    }
+}
+
+/**
+ * Increments the click counter for a specific reciter.
+ * @param {string} reciterName - The name of the reciter.
+ */
+function incrementReciterClick(reciterName) {
+    if (!reciterName || !localRecitersCache) return;
+    
+    let reciterFound = false;
+    const updatedList = localRecitersCache.map(reciter => {
+        if (reciter && reciter.name === reciterName) {
+            reciterFound = true;
+            const currentClicks = parseInt(reciter.clicksreciter, 10) || 0;
+            return { ...reciter, clicksreciter: currentClicks + 1 };
+        }
+        return reciter;
+    });
+
+    if (reciterFound) {
+        localRecitersCache = updatedList;
+        // إرسال التحديث إلى الخادم في الخلفية
+        updateRecitersList(updatedList).catch(err => {
+            console.error("Failed to update reciter clicks in background:", err);
+        });
+    }
+}
+
+ /**
+ * Shows the prompt to add a new reciter to the list.
+ */
+/**
+ * NEW: Shows the modal prompt to add a new Reciter.
+ * It initiates a search flow (handleSearchForReciterChannel) against the YouTube API 
+ * filtered for Arabic channels, allowing the user to select and save a Reciter.
+ */
+/**
+ * REPLACED & COMPLETE: Shows the modal prompt to add a new Reciter by searching YouTube Channels.
+ * It dynamically creates the search interface and handles the event binding to the search function.
+ */
+function showAddReciterPrompt() {
+    const existingPrompt = document.getElementById('add-reciter-prompt');
+    if (existingPrompt) existingPrompt.remove();
+
+    // 1. هيكل النافذة المنبثقة (Modal Structure)
+    const promptHTML = `
+        <div id="add-reciter-prompt" class="fixed inset-0 bg-black/70 flex items-center justify-center z-[9999]">
+            <div id="add-reciter-prompt-content" class="glass-surface glass-surface--svg p-6 rounded-2xl w-full max-w-lg flex flex-col gap-4 transition-all duration-300">
+                <h3 class="text-xl font-bold text-center">إضافة قارئ/قناة جديدة</h3>
+                <p class="text-sm text-white/70 text-center">ابحث باسم القارئ (مثل: ياسر الدوسري) للعثور على قناته وإضافتها.</p>
+                <div class="flex gap-2 grid-container">
+                    <input type="text" id="new-reciter-name-input" placeholder="اسم القارئ..." class="flex-grow p-3 rounded-full bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 navigable grid-item" tabindex="0" />
+                    <button id="search-channel-confirm" class="bg-purple-600 hover:bg-purple-700 text-white font-bold p-3 rounded-full navigable grid-item" tabindex="0">
+                        <i data-lucide="search" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                
+                <div id="channel-search-results" class="mt-4 max-h-[50vh] overflow-y-auto flex flex-col gap-3 grid-container">
+                    <p class="text-center text-white/50">نتائج بحث قنوات القراء ستظهر هنا.</p>
+                </div>
+                
+                <button id="add-reciter-cancel" class="mt-2 bg-red-600/80 hover:bg-red-700/80 text-white font-bold py-2 px-4 rounded-full navigable grid-item self-center" tabindex="0">إغلاق</button>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', promptHTML);
+    lucide.createIcons();
+
+    // 2. ربط العناصر (Event Binding)
+    const promptEl = document.getElementById('add-reciter-prompt');
+    const nameInput = document.getElementById('new-reciter-name-input');
+    const searchBtn = document.getElementById('search-channel-confirm');
+    const cancelBtn = document.getElementById('add-reciter-cancel');
+
+    const closePrompt = () => {
+        promptEl.remove();
+        updateNavigableElements(); // تحديث عناصر التنقل بعد إزالة النافذة
+    };
+
+    // 🛑 ربط زر البحث بالدالة المخصصة للقراء
+    searchBtn.addEventListener('click', handleSearchForReciterChannel); 
+
+    // 🛑 دعم البحث بزر Enter
+    nameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleSearchForReciterChannel(); 
+        }
+    });
+
+    cancelBtn.addEventListener('click', closePrompt);
+    
+    // 3. إعداد التركيز والـ Escape
+    nameInput.focus();
+    setFocus(nameInput);
+    
+    const escapeHandler = (e) => {
+        if (e.key === 'Escape') {
+            closePrompt();
+            document.removeEventListener('keydown', escapeHandler);
+        }
+    };
+    document.addEventListener('keydown', escapeHandler);
+
+    updateNavigableElements(); // تحديث عناصر التنقل في النافذة المنبثقة
+}
+
+// -------------------------------------------------------------
+// * يجب أن تكون الدوال التالية مُعرفة عالمياً:
+// * handleSearchForReciterChannel()
+// * lucide.createIcons()
+// * setFocus()
+// * showMessageBox()
+// -------------------------------------------------------------
+
+/**
+ * Handles the addition of a new reciter to the JSONBin list.
+ */
+/**
+ * RENAMED & REFINED: Handles the search action specifically for finding a Reciter Channel.
+ * Applies strong filtering for 'type=channel' and 'relevanceLanguage=ar'.
+ */
+/**
+ * RENAMED & REFINED: Handles the search action specifically for finding a Reciter Channel.
+ * Applies strong filtering for 'type=channel' and 'relevanceLanguage=ar'.
+ */
+async function handleSearchForReciterChannel() {
+    // 🛑 نستخدم المُعرّفات الصحيحة من نافذة القراء المنبثقة
+    const inputEl = document.getElementById('new-reciter-name-input');
+    const resultsContainer = document.getElementById('channel-search-results');
+    const confirmBtn = document.getElementById('search-channel-confirm');
+    
+    const query = inputEl?.value.trim();
+
+    if (!query) {
+        showMessageBox("الرجاء إدخال اسم القارئ/القناة للبحث.");
+        return;
+    }
+
+    // 1. تعطيل الزر وعرض التحميل (CRITICAL FIX)
+    confirmBtn.disabled = true;
+    confirmBtn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i>`;
+    lucide.createIcons();
+    resultsContainer.innerHTML = '<p class="text-center text-white/70">...جاري البحث</p>';
+
+    try {
+        // 2. استدعاء API يوتيوب مع فلتر القنوات واللغة العربية
+        const API_URL = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=channel&key=${YOUTUBE_API_KEY}&maxResults=10&relevanceLanguage=ar`; 
+        
+        const response = await fetch(API_URL);
+        
+        if (!response.ok) {
+             const errorData = await response.json().catch(() => ({}));
+             if (errorData?.error?.message.includes('API key not valid') || response.status === 403) {
+                 throw new Error("API_KEY_INVALID");
+             }
+             throw new Error(`Network response was not ok. Status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // 3. عرض النتائج باستخدام الدالة المخصصة (يجب أن تكون هذه الدالة مُعرفة)
+        displayReciterSearchResults(data.items);
+        
+    } catch (error) {
+        console.error("Error searching for Reciter Channel:", error);
+        let errorMsg = "حدث خطأ في البحث. يرجى المحاولة مرة أخرى.";
+        if (error.message === "API_KEY_INVALID") {
+             errorMsg = "فشل البحث: مفتاح YouTube API غير صالح.";
+        }
+        showMessageBox(errorMsg);
+        resultsContainer.innerHTML = `<p class="text-center text-red-400">${errorMsg}</p>`;
+    } finally {
+        // 4. إعادة تفعيل زر البحث (CRITICAL FIX)
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = `<i data-lucide="search" class="w-5 h-5"></i>`;
+        lucide.createIcons();
+        updateNavigableElements(); // تحديث التنقل ليشمل نتائج البحث
+    }
+}
+
+async function handleAddReciter(name, image, buttonElement) {
+    if (localRecitersCache.some(r => r.name === name)) {
+        showMessageBox(`القارئ "${name}" موجود بالفعل في القائمة.`);
+        return;
+    }
+
+    buttonElement.disabled = true;
+    buttonElement.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 text-white animate-spin"></i>`;
+    lucide.createIcons();
+
+    const newReciter = {
+        name: name,
+        image: image || 'https://placehold.co/100x100/334155/ffffff?text=Q',
+        clicksreciter: 0
+    };
+
+    try {
+        const updatedList = [...localRecitersCache, newReciter];
+        const success = await updateRecitersList(updatedList);
+
+        if (success) {
+            showMessageBox(`تمت إضافة القارئ "${name}" بنجاح.`);
+            // إعادة تحميل تبويب الاقتراحات لتظهر التغييرات
+            const suggestionsContent = document.getElementById('suggestions-content');
+            if(suggestionsContent) {
+                 // Clear and re-populate the suggestions tabs
+                suggestionsContent.innerHTML = '';
+                await populateYoutubeSuggestions();
+                // Switch back to Reciters tab after successful update
+                document.getElementById('tab-reciters')?.click();
+            }
+        }
+    } catch (error) {
+        console.error("Error adding reciter:", error);
+        showMessageBox("حدث خطأ أثناء إضافة القارئ.");
+    } finally {
+        buttonElement.disabled = false;
+        buttonElement.innerHTML = `<i data-lucide="plus" class="w-5 h-5"></i> إضافة`;
+        lucide.createIcons();
+    }
+}      
+       
         // --- Utility Functions ---
         function showMessageBox(message) { const box = document.createElement('div'); box.style.cssText = `position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(0, 0, 0, 0.8); color: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); z-index: 1000; text-align: center; max-width: 80%; font-size: 1.1rem;`; box.innerHTML = `<p>${message}</p><button style="margin-top: 15px; padding: 8px 15px; background-color: #9333ea; border: none; border-radius: 5px; color: white; cursor: pointer;">إغلاق</button>`; document.body.appendChild(box); box.querySelector('button').addEventListener('click', () => document.body.removeChild(box)); }
 
@@ -2886,7 +3576,7 @@ function updateUI() {
 
 
     // 🛑 PERIOD FOR MOON DISPLAY (Night Time)
-    const isNightTimeOrTest = (currentHour >= 18 || currentHour < 6); 
+    const isNightTimeOrTest = (currentHour >= 17 || currentHour < 6); 
     
     let iconSrc = appState.weather.iconUrl || 'https://placehold.co/64x64/000000/FFFFFF?text=X';
         
@@ -3591,7 +4281,7 @@ function updateUI() {
         
         async function searchYouTubeVideos(query) {
             try {
-                const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&key=${YOUTUBE_API_KEY}&maxResults=50`);
+                const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&key=${YOUTUBE_API_KEY}&maxResults=25`);
                 if (!res.ok) {
                     const errorData = await res.json().catch(() => ({}));
                     console.error("YouTube API error (search):", errorData?.error?.message || res.status);
@@ -3678,7 +4368,7 @@ function updateUI() {
                 }
 
                 // Step 2: Get the video items from the uploads playlist
-                const playlistRes = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${uploadsPlaylistId}&key=${YOUTUBE_API_KEY}&maxResults=50`);
+                const playlistRes = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${uploadsPlaylistId}&key=${YOUTUBE_API_KEY}&maxResults=25`);
                  if (!playlistRes.ok) {
                     throw new Error("Failed to fetch videos from the channel's playlist.");
                 }
@@ -3914,107 +4604,144 @@ async function hideVideoPopup() {
             setFocus(videoPopupCloseButton);
         }
 
-        function onPlayerStateChange(event) {
+       function onPlayerStateChange(event) {
     if (event.data == YT.PlayerState.PLAYING) {
-        // ... (كود تشغيل وتتبع التقدم) ...
+        // 1. إعداد جودة التشغيل والتتبع
+        popupPlayer.setPlaybackQuality('tiny');
+
+        // Start tracking progress (كل 5 ثوانٍ)
+        progressInterval = setInterval(() => {
+            const videoId = popupPlayer.getVideoData().video_id;
+            const currentTime = popupPlayer.getCurrentTime();
+            const duration = popupPlayer.getDuration();
+            updateVideoProgress(videoId, currentTime, duration);
+        }, 5000); 
+
     } else if (event.data == YT.PlayerState.ENDED) {
         if (progressInterval) clearInterval(progressInterval);
-        const videoId = popupPlayer.getVideoData().video_id;
         
+        // 1. التقاط مُعرِّف الفيديو المنتهي وإتمام التحديث
+        const videoData = popupPlayer.getVideoData();
+        const videoId = videoData ? videoData.video_id : null;
         markVideoAsWatched(videoId);
         
-        // 🛑 NEW: قم بتدمير المشغل عند الانتهاء
+        // 2. تدمير المشغل (مهم لإزالة iframe وعرض محتوى جديد)
         if (popupPlayer) {
             popupPlayer.destroy();
             popupPlayer = null;
         }
-
-        // 🛑 NEW: أعد عرض المشغل لعرض الاقتراحات (Next Videos)
-        showNextVideoSuggestions(videoId); 
+        
+        // 3. 🚀 الإجراء الحاسم: عرض قائمة المفضلة في السيارة داخل النافذة المنبثقة
+        showFavoritesInPopup('D'); 
+        
+        // 4. مسح مؤقت التقدم من AppState (لا حاجة لـ cleanup إضافي)
 
     } else {
-        // ... (كود إيقاف المؤقت) ...
+         if (progressInterval) {
+            clearInterval(progressInterval);
+            progressInterval = null;
+        }
     }
 }
 
-function createSuggestionCard(video, channelThumbnails) {
-    const card = document.createElement('div');
-    card.className = 'suggestion-card flex items-center gap-3 p-2 rounded-lg bg-white/10 cursor-pointer';
-    card.dataset.videoId = video.id;
 
-    // استخراج قناة الصورة المصغرة لتجنب أي تعارضات مع دوال أخرى
-    const channelThumbnail = channelThumbnails[video.snippet.channelId];
-    const duration = formatDuration(video.contentDetails.duration);
-    
+
+/**
+ * Creates a single HTML card for a related video suggestion inside the popup player.
+ * * @param {object} video - Detailed video object from YouTube API fetch.
+ * @param {object} channelThumbnails - Map of channel IDs to their thumbnail URLs.
+ * @returns {HTMLElement} The complete suggestion card DIV element.
+ */
+
+
+
+/**
+ * Helper function to create a simplified card for display inside the popup.
+ */
+function createSimpleSuggestionCard(video, type) {
+    const card = document.createElement('div');
+    card.className = 'simple-suggestion-card flex items-center gap-3 p-2 rounded-lg bg-white/10 cursor-pointer navigable grid-item';
+    card.tabIndex = 0;
+    card.dataset.videoId = video.id;
+    card.dataset.progress = video.progress; // لتمرير تقدم المشاهدة
+
     card.innerHTML = `
-        <img src="${video.snippet.thumbnails.default.url}" alt="${video.snippet.title}" class="w-16 h-auto rounded-md flex-shrink-0">
-        <div class="flex flex-col min-w-0 flex-grow">
-            <h4 class="font-semibold text-sm truncate">${video.snippet.title}</h4>
-            <p class="text-xs text-white/70">${video.snippet.channelTitle}</p>
+        <img src="${video.thumbnail}" class="w-12 h-auto rounded-md flex-shrink-0" onerror="this.onerror=null;this.src='https://placehold.co/64x36';">
+        <div class="min-w-0 flex-grow">
+            <h4 class="font-semibold text-sm truncate text-white">${video.title}</h4>
+            <p class="text-xs text-white/70">${video.channelTitle || ''}</p>
         </div>
-        <span class="text-xs text-white/50">${duration}</span>
+        <span class="text-xs text-white/50 flex-shrink-0">${video.duration || '--:--'}</span>
     `;
     return card;
 }
 
 /**
- * Fetches and displays related video suggestions inside the popup container.
- * This function replaces the ended video with a list of suggestions.
+ * Executes after a video ends to show the default destination list (Favorites D).
  */
-async function showNextVideoSuggestions(lastVideoId) {
-    if (!lastVideoId) return;
+async function showFavoritesInPopup(type) {
+    const container = videoPopupPlayerContainer;
+    // تحديد القائمة المطلوبة بناءً على 'D' أو 'M'
+    let favoritesList = (type === 'D' ? favoritesD : favoritesM);
+    const listName = (type === 'D' ? 'قائمة المتابعة في السيارة' : 'قائمة المتابعة في التلفاز');
 
-    videoPopupPlayerContainer.innerHTML = `<p class="text-center p-8">جاري تحميل مقترحات الفيديو...</p>`;
-    
-    // 1. إخفاء أزرار التحكم (مثل bookmark) أثناء عرض المقترحات
-    const bookmarkBtn = document.getElementById('video-popup-bookmark-button');
-    if (bookmarkBtn) { bookmarkBtn.style.display = 'none'; }
+    // 1. عرض شاشة تحميل و التأكد من ظهور النافذة
+    container.innerHTML = `<div class="p-8 text-center">
+                              <p>جاري تحميل...</p>
+                           </div>`;
+    videoPopupContainer.style.display = 'flex';
+    videoPopupContainer.classList.add('active');
 
     try {
-        // 2. جلب الفيديوهات ذات الصلة (YouTube API - relatedToVideoId)
-        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&relatedToVideoId=${lastVideoId}&type=video&key=${YOUTUBE_API_KEY}&maxResults=5`);
-        if (!res.ok) throw new Error('Failed to fetch suggestions.');
-        const data = await res.json();
-        
-        const videoIds = data.items.map(item => item.id.videoId);
-        const videoDetails = await fetchVideosDetails(videoIds); // جلب التفاصيل الكاملة
-        
-        if (!videoDetails || videoDetails.length === 0) {
-            videoPopupPlayerContainer.innerHTML = `<p class="text-center p-8">لا توجد مقترحات فيديو متاحة.</p>`;
+        // 2. ضمان تحديث قائمة المفضلة من السيرفر
+        if (favoritesList.length === 0 || !Array.isArray(favoritesList)) {
+            const fetched = await fetchFavorites(type);
+            favoritesList = fetched;
+        }
+
+        if (favoritesList.length === 0) {
+            container.innerHTML = `<p class="p-8 text-center text-white/70">لا توجد فيديوهات محفوظة في ${listName}.</p>`;
             return;
         }
 
-        // 3. بناء واجهة المقترحات
-        let suggestionsHTML = `<h3 class="text-xl font-bold p-3">مقترحات:</h3><div class="flex flex-col gap-3 p-3">`;
-        
-        const channelIds = [...new Set(videoDetails.map(video => video.snippet.channelId))];
-        const channelThumbnails = await fetchChannelsDetails(channelIds);
+        // 3. بناء كروت المقترحات
+       let cardsHTML = ``; // إضافة العنوان
+cardsHTML += `<div id="favorites-popup-grid" class="flex flex-col gap-3 p-3 overflow-y-auto">`; // بدء حاوية Grid
 
-        videoDetails.forEach(video => {
-            const card = createSuggestionCard(video, channelThumbnails);
-            suggestionsHTML += card.outerHTML; // استخدام outerHTML لإضافة العنصر بالكامل
-        });
-        
-        suggestionsHTML += `</div>`;
-        videoPopupPlayerContainer.innerHTML = suggestionsHTML;
-        
-        // 4. ربط الأحداث لـ "تشغيل الفيديو التالي"
-        videoPopupPlayerContainer.querySelectorAll('.suggestion-card').forEach(card => {
+favoritesList.forEach(video => {
+    // نستخدم outerHTML لضمان تحويل العنصر إلى سلسلة نصية قابلة للدمج
+    cardsHTML += createSimpleSuggestionCard(video, type).outerHTML; 
+});
+
+// 🛑 ✅ FIX: يجب إنهاء وسم DIV لحاوية Grid قبل تعيين innerHTML
+cardsHTML += '</div>';
+
+container.innerHTML = cardsHTML;
+
+        // 4. ربط أحداث النقر لتشغيل الفيديو التالي
+        container.querySelectorAll('.simple-suggestion-card').forEach(card => {
             card.addEventListener('click', (e) => {
                 const nextVideoId = e.currentTarget.dataset.videoId;
+                const progress = parseFloat(e.currentTarget.dataset.progress || 0);
                 if (nextVideoId) {
-                    showVideoPopup(nextVideoId); // 🛑 تشغيل الفيديو الجديد داخل نفس النافذة
+                    showVideoPopup(nextVideoId, progress); // تشغيل الفيديو الجديد
                 }
             });
         });
-
-        // 5. إعادة إظهار زر الحفظ إذا لزم الأمر
-        if (bookmarkBtn) { bookmarkBtn.style.display = 'flex'; }
         
+        // 5. إعادة إظهار زر الحفظ (إذا كان قد اختفى)
+        const bookmarkBtn = document.getElementById('video-popup-bookmark-button');
+        if (bookmarkBtn) { bookmarkBtn.style.display = 'flex'; }
+
+
     } catch (e) {
-        videoPopupPlayerContainer.innerHTML = `<p class="text-center p-8 text-red-500">حدث خطأ في عرض المقترحات.</p>`;
+        console.error("Error displaying favorites in popup:", e);
+        container.innerHTML = `<p class="p-8 text-center text-red-500">حدث خطأ في تحميل القائمة.</p>`;
     }
 }
+/**
+ * Fetches and displays related video suggestions inside the popup container.
+ */
 
         function handleFullScreenChange() {
             if (popupPlayer && typeof popupPlayer.getPlayerState === 'function' && popupPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
@@ -4224,33 +4951,93 @@ async function showNextVideoSuggestions(lastVideoId) {
             populateYoutubeSuggestions(); // This will populate #suggestions-content
         }
         
-        function handleReaderOrToolClick(selection, tabContainer, tabsContentContainer) {
-            if (selection === "الكلمات الصعبة في") {
-                selectedReaderName = ''; // Clear reader name
-                youtubeSearchInput.value = 'الكلمات الصعبة في ';
-            } else if (selection === "JUST_SURAH") {
-                selectedReaderName = ''; 
-                youtubeSearchInput.value = '';
-            } else {
-                selectedReaderName = selection;
-                youtubeSearchInput.value = selection + ' ';
+        /**
+ * UPDATED: Handles the click event for readers, channels, and special tools.
+ * Applies specific formatting for the 'BALWASL' tool.
+ */
+function handleReaderOrToolClick(selection, tabContainer, tabsContentContainer) {
+    let newInputValue = '';
+
+    if (selection === "الكلمات الصعبة في") {
+        selectedReaderName = '';
+        newInputValue = 'الكلمات الصعبة في ';
+    } else if (selection === "JUST_SURAH") {
+        selectedReaderName = '';
+        newInputValue = '';
+    } else if (selection === "BALWASL") { // 🛑 NEW LOGIC FOR "بالوصل"
+        selectedReaderName = 'بالوصل'; // نحفظ 'بالوصل' كقارئ ليتم استخدامها لاحقا
+        newInputValue = 'بالوصل '; // السورة ستأتي قبل هذه الكلمة
+    } else if (selection === "قصص" || selection === "أسباب النزول" || selection === "أحكام التجويد" || selection === "المتشابهات" || selection === "ربط الآيات") {
+        selectedReaderName = selection;
+        newInputValue = selection + ' '; // الأدوات العادية: اسم الأداة + مسافة
+    } else {
+        // إذا كان قارئاً عادياً
+        selectedReaderName = selection;
+        newInputValue = selection + ' ';
+    }
+    
+    // تحديث حقل الإدخال
+    youtubeSearchInput.value = newInputValue;
+
+    // إخفاء التبويبات وإظهار السور (كما كان في الكود الأصلي)
+    tabContainer.style.display = 'none';
+    tabsContentContainer.style.display = 'none';
+    showSurahSuggestions();
+    
+    setTimeout(() => {
+        const firstSurahButton = document.querySelector('#youtube-surah-section .grid-item');
+        if (firstSurahButton) setFocus(firstSurahButton);
+    }, 100);
+}
+
+/**
+ * NEW: Removes a reciter entry from the global cache and updates the JSONBin Reciters list.
+ * @param {string} reciterName - The name of the reciter to remove.
+ */
+async function removeReciterFromList(reciterName) {
+    if (!reciterName) return;
+
+    try {
+        // 1. تصفية القائمة محليًا لإزالة القارئ
+        const updatedList = localRecitersCache.filter(r => r.name !== reciterName);
+        
+        // 2. إرسال القائمة المحدثة إلى JSONBin
+        const success = await updateRecitersList(updatedList); // نفترض أن updateRecitersList تقوم بالتحديث على الخادم و localRecitersCache
+        
+        if (success) {
+            showMessageBox(`تمت إزالة القارئ "${reciterName}" بنجاح.`);
+            
+            // 3. إعادة تحميل تبويب القراء لعرض التغيير
+            const suggestionsContent = document.getElementById('suggestions-content');
+            if(suggestionsContent) {
+                // Clear and re-populate the suggestions tabs
+                suggestionsContent.innerHTML = '';
+                await populateYoutubeSuggestions();
+                // إعادة التركيز على تبويب القراء
+                document.getElementById('tab-reciters')?.click();
             }
-
-            // Hide the tabs and show surahs
-            tabContainer.style.display = 'none';
-            tabsContentContainer.style.display = 'none';
-            showSurahSuggestions();
-            setTimeout(() => {
-                const firstSurahButton = document.querySelector('#youtube-surah-section .grid-item');
-                if (firstSurahButton) setFocus(firstSurahButton);
-            }, 100);
         }
-
-
+    } catch (error) {
+        console.error("Error removing reciter:", error);
+        showMessageBox(`حدث خطأ أثناء إزالة القارئ ${reciterName}.`);
+    }
+}
 // --- REPLACE THIS FUNCTION AGAIN ---
        // --- REPLACE THIS FUNCTION AGAIN ---
        // --- REPLACE THIS FUNCTION AGAIN ---
-   async function populateYoutubeSuggestions() {
+ /**
+ * REPLACED: Fetches and populates the content for the Media screen tabs (Reciters, Channels, Tools, Saved).
+ * The Reciters list is now dynamically fetched from JSONBin.io.
+ */
+/**
+ * REPLACED & COMPLETE: Fetches and populates the content for the Media screen tabs (Reciters, Channels, Tools, Saved).
+ * It uses the global cache (localRecitersCache) and falls back to fetching only if the cache is empty.
+ */
+/**
+ * REPLACED & COMPLETE: Fetches and populates the content for the Media screen tabs 
+ * (Reciters, Channels, Tools, Saved). It uses the global cache for data consistency.
+ */
+async function populateYoutubeSuggestions() {
     const suggestionsContent = document.getElementById('suggestions-content');
     if (!suggestionsContent) {
         console.error("suggestions-content element not found!");
@@ -4261,19 +5048,19 @@ async function showNextVideoSuggestions(lastVideoId) {
     suggestionsContent.innerHTML = '';
     suggestionsContent.className = 'flex flex-col gap-4 w-full';
 
-    // 1. Create Tab Structure (MODIFIED)
+    // 1. إنشاء هيكل التبويبات (Tab Structure)
     const tabContainer = document.createElement('div');
     tabContainer.className = 'tabs-container flex p-1 rounded-full bg-black/20 self-center';
 
     const recitersTabButton = document.createElement('button');
     recitersTabButton.id = 'tab-reciters';
-    recitersTabButton.className = 'tab-button navigable grid-item';
+    recitersTabButton.className = 'tab-button active navigable grid-item';
     recitersTabButton.tabIndex = 0;
     recitersTabButton.textContent = 'القراء';
 
-    const channTabButton = document.createElement('button'); // Default active
+    const channTabButton = document.createElement('button');
     channTabButton.id = 'tab-channels';
-    channTabButton.className = 'tab-button active navigable grid-item'; // Set Channels as active initially
+    channTabButton.className = 'tab-button navigable grid-item';
     channTabButton.tabIndex = 0;
     channTabButton.textContent = 'قنوات';
 
@@ -4283,45 +5070,43 @@ async function showNextVideoSuggestions(lastVideoId) {
     toolsTabButton.tabIndex = 0;
     toolsTabButton.textContent = 'أدوات';
 
-    // --- NEW: Split Saved Tabs ---
-    const savedDTabButton = document.createElement('button');
-    savedDTabButton.id = 'tab-saved-d';
-    savedDTabButton.className = 'tab-button navigable grid-item';
-    savedDTabButton.tabIndex = 0;
-    savedDTabButton.textContent = 'متابعة  في السيارة'; // Car List
-
     const savedMTabButton = document.createElement('button');
     savedMTabButton.id = 'tab-saved-m';
     savedMTabButton.className = 'tab-button navigable grid-item';
     savedMTabButton.tabIndex = 0;
-    savedMTabButton.textContent = 'المتابعة في التلفاز'; // TV List
-    // --- END NEW ---
+    savedMTabButton.textContent = 'المتابعة في التلفاز';
+
+    const savedDTabButton = document.createElement('button');
+    savedDTabButton.id = 'tab-saved-d';
+    savedDTabButton.className = 'tab-button navigable grid-item';
+    savedDTabButton.tabIndex = 0;
+    savedDTabButton.textContent = 'متابعة في السيارة';
 
     tabContainer.appendChild(recitersTabButton);
     tabContainer.appendChild(channTabButton);
     tabContainer.appendChild(toolsTabButton);
-    tabContainer.appendChild(savedDTabButton); // Add new D button
-    tabContainer.appendChild(savedMTabButton); // Add new M button
+    tabContainer.appendChild(savedMTabButton);
+    tabContainer.appendChild(savedDTabButton);
 
     const tabsContentContainer = document.createElement('div');
     tabsContentContainer.id = 'tabs-content-container';
     tabsContentContainer.className = 'flex-grow w-full overflow-y-auto';
 
-    console.log("[Debug] Created tab buttons and content container.");
-
-    // 2. Create Content Panels (MODIFIED)
+    // 2. إنشاء محتويات الألواح (Content Panels)
     const recitersContent = document.createElement('div');
     recitersContent.id = 'tab-content-reciters';
-    recitersContent.className = 'tab-content hidden'; // Hide initially
+    recitersContent.className = 'tab-content';
     const readerButtonsContainer = document.createElement('div');
     readerButtonsContainer.className = 'reader-container';
+    readerButtonsContainer.dir = 'rtl';
     recitersContent.appendChild(readerButtonsContainer);
 
-    const channContent = document.createElement('div'); // Default active content
+    const channContent = document.createElement('div');
     channContent.id = 'tab-content-channels';
-    channContent.className = 'tab-content'; // Show initially
+    channContent.className = 'tab-content hidden';
     const channButtonsContainer = document.createElement('div');
     channButtonsContainer.className = 'reader-container';
+    channButtonsContainer.dir = 'rtl';
     channContent.appendChild(channButtonsContainer);
 
     const toolsContent = document.createElement('div');
@@ -4331,53 +5116,120 @@ async function showNextVideoSuggestions(lastVideoId) {
     toolsButtonsContainer.className = 'reader-container';
     toolsContent.appendChild(toolsButtonsContainer);
 
-    // --- NEW: Split Saved Content Divs ---
     const savedDContent = document.createElement('div');
     savedDContent.id = 'tab-content-saved-d';
-    savedDContent.className = 'tab-content hidden h-full'; // Initially hidden
-    savedDContent.innerHTML = `<div id="favorites-d-grid" class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4"></div>`; // Grid for D
+    savedDContent.className = 'tab-content hidden h-full';
+    savedDContent.innerHTML = `<div id="favorites-d-grid" class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4"></div>`;
 
     const savedMContent = document.createElement('div');
     savedMContent.id = 'tab-content-saved-m';
-    savedMContent.className = 'tab-content hidden h-full'; // Initially hidden
-    savedMContent.innerHTML = `<div id="favorites-m-grid" class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4"></div>`; // Grid for M
-    // --- END NEW ---
+    savedMContent.className = 'tab-content hidden h-full';
+    savedMContent.innerHTML = `<div id="favorites-m-grid" class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4"></div>`;
 
-
+    // 3. ملء المحتويات بالبيانات
     try {
-        console.log("[Debug] Populating Reciters...");
-        // --- Populate Reciters --- (Keep your existing code)
-        youtubeReaderSuggestions.forEach(reader => {
-             const card = document.createElement('div');
-             card.className = 'youtube-reader-card navigable grid-item';
-             card.tabIndex = 0;
-             card.innerHTML = `<h3>${reader.name}</h3><img src="${reader.image}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/100x100';">`;
-             card.addEventListener('click', () => handleReaderOrToolClick(reader.name, tabContainer, tabsContentContainer));
-             readerButtonsContainer.appendChild(card);
-        });
-        console.log("[Debug] Populated Reciters.");
-
-        console.log("[Debug] Populating Channels...");
-        // --- Populate Channels --- (Keep your existing code)
-        let channList = await fetchChannelsList();
-        if (Array.isArray(channList)) {
-             channList.sort((a, b) => (parseInt(b?.clickschannel, 10) || 0) - (parseInt(a?.clickschannel, 10) || 0));
-        } else {
-             console.error("fetchChannelsList did not return an array."); channList = [];
+        // -----------------------------------------------------
+        // 🚀 تبويب القراء (Reciters) - الترتيب الثاني لزر الإضافة
+        // -----------------------------------------------------
+        let recitersList = localRecitersCache; 
+        if (!recitersList || recitersList.length === 0) {
+            recitersList = await fetchRecitersList();
         }
+        
+        if (Array.isArray(recitersList)) {
+            recitersList.sort((a, b) => (parseInt(b?.clicksreciter, 10) || 0) - (parseInt(a?.clicksreciter, 10) || 0));
+        } else {
+            recitersList = [];
+        }
+        
+        readerButtonsContainer.innerHTML = '';
+        let displayElements = [];
+        
+        recitersList.forEach((reader, index) => {
+            if (!reader || !reader.name) return;
+
+            const card = document.createElement('div');
+            card.className = 'youtube-reader-card navigable grid-item relative group';
+            card.tabIndex = 0;
+            // 💡 الترتيب: العنصر الأول يأخذ order: 1، والبقية تبدأ من 3 (لتفسح المجال لزر الإضافة)
+            card.style.order = (index < 1) ? 1 : index + 2; 
+
+            const imageUrl = reader.image || 'https://placehold.co/100x100/334155/ffffff?text=Q';
+
+            card.innerHTML = `
+                <button class="delete-channel-btn absolute bottom-2 right-2 p-1.5 bg-red-600/80 hover:bg-red-500 rounded-full transition-colors z-10 navigable grid-item" title="حذف القارئ" tabindex="0">
+                    <i data-lucide="trash-2" class="w-4 h-4 text-white pointer-events-none"></i>
+                </button>
+                <h3>${reader.name}</h3>
+                <img src="${imageUrl}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/100x100';">
+            `;
+
+            card.addEventListener('click', (e) => {
+                if (e.target.closest('.delete-channel-btn')) return; 
+
+                if (reader.name === "الرقية" || reader.name === "ربط الآيات") {
+                    handleReaderOrToolClick(reader.name, tabContainer, tabsContentContainer);
+                } else {
+                    incrementReciterClick(reader.name);
+                    handleReaderOrToolClick(reader.name, tabContainer, tabsContentContainer);
+                }
+            });
+            
+            const deleteBtn = card.querySelector('.delete-channel-btn');
+            deleteBtn?.addEventListener('click', (e) => { 
+                e.stopPropagation(); 
+                removeReciterFromList(reader.name); 
+            });
+
+            displayElements.push(card);
+        });
+
+        // 🛑 إنشاء زر "إضافة قارئ" ووضعه في الترتيب الثاني (order: 2)
+        const addReciterCard = document.createElement('div');
+        addReciterCard.className = 'youtube-reader-card navigable grid-item';
+        addReciterCard.tabIndex = 0;
+        addReciterCard.style.order = 2; // 👈 الترتيب الثاني: يظهر بعد العنصر ذي الترتيب 1
+        addReciterCard.innerHTML = `<h3>إضافة قارئ</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-dashed border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="plus" class="w-12 h-12 text-white/50"></i></div>`;
+        addReciterCard.addEventListener('click', showAddReciterPrompt);
+        
+        displayElements.push(addReciterCard);
+        
+        // إضافة جميع العناصر المرتبة إلى الحاوية
+        displayElements.forEach(el => readerButtonsContainer.appendChild(el));
+
+
+        // -----------------------------------------------------
+        // 🌐 تبويب القنوات (Channels) - الترتيب الثاني لزر الإضافة
+        // -----------------------------------------------------
+        let channList = localChannelsCache; 
+        if (!channList || channList.length === 0) {
+             channList = await fetchChannelsList(); 
+        }
+
+        if (Array.isArray(channList)) {
+            channList.sort((a, b) => (parseInt(b?.clickschannel, 10) || 0) - (parseInt(a?.clickschannel, 10) || 0));
+        } else {
+            channList = [];
+        }
+        
         const channelIdsToFetch = channList.filter(r => r && r.channelid).map(r => r.channelid);
         const channelThumbnails = channelIdsToFetch.length > 0 ? await fetchChannelsDetails(channelIdsToFetch) : {};
         channButtonsContainer.innerHTML = '';
-        channList.forEach(reader => {
+        
+        let channelDisplayElements = [];
+
+        channList.forEach((reader, index) => {
              if (!reader || typeof reader !== 'object') return;
              const card = document.createElement('div');
              card.className = 'youtube-reader-card navigable grid-item relative group';
              card.tabIndex = 0;
+             card.style.order = (index < 1) ? 1 : index + 2; // 👈 الترتيب: 1، 3، 4، 5...
              const imageUrl = reader.channelid ? (channelThumbnails[reader.channelid] || 'https://placehold.co/100x100/334155/ffffff?text=?') : (reader.image || 'https://placehold.co/100x100/334155/ffffff?text=?');
              card.innerHTML = `
                  <button class="delete-channel-btn absolute bottom-2 right-2 p-1.5 bg-red-600/80 hover:bg-red-500 rounded-full transition-colors z-10 navigable grid-item" title="حذف القناة" tabindex="0"><i data-lucide="trash-2" class="w-4 h-4 text-white pointer-events-none"></i></button>
                  <h3>${reader.name}</h3>
                  <img src="${imageUrl}" alt="${reader.name}" onerror="this.onerror=null;this.src='https://placehold.co/64x64';">`;
+             
              card.addEventListener('click', (e) => {
                  if (e.target.closest('.delete-channel-btn')) return;
                  if (reader.channelid && reader.channeltitle) {
@@ -4387,84 +5239,199 @@ async function showNextVideoSuggestions(lastVideoId) {
                      handleReaderOrToolClick(reader.name, tabContainer, tabsContentContainer);
                  }
              });
-             const deleteBtn = card.querySelector('.delete-channel-btn');
-             deleteBtn?.addEventListener('click', (e) => { e.stopPropagation(); removeChannelFromList(reader.channelid, reader.name); });
-             channButtonsContainer.appendChild(card);
+             const deleteChannBtn = card.querySelector('.delete-channel-btn');
+             deleteChannBtn?.addEventListener('click', (e) => { e.stopPropagation(); removeChannelFromList(reader.channelid, reader.name); });
+             
+             channelDisplayElements.push(card);
         });
+
+        // زر إضافة قناة ووضعه في الترتيب الثاني
         const addChannelCard = document.createElement('div');
         addChannelCard.className = 'youtube-reader-card navigable grid-item';
         addChannelCard.tabIndex = 0;
+        addChannelCard.style.order = 2; // 👈 الترتيب الثاني
         addChannelCard.innerHTML = `<h3>إضافة قناة</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-dashed border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="plus" class="w-12 h-12 text-white/50"></i></div>`;
         addChannelCard.addEventListener('click', showAddChannelPrompt);
-        channButtonsContainer.appendChild(addChannelCard);
-        console.log("[Debug] Populated Channels.");
+        
+        channelDisplayElements.push(addChannelCard);
+        
+        channelDisplayElements.forEach(el => channButtonsContainer.appendChild(el)); // إضافة جميع العناصر
 
-
-        console.log("[Debug] Populating Tools...");
-        // --- Populate Tools --- (Keep your existing code)
+        // --- Populating Tools (Existing Logic) ---
         const tools = [
-             { name: "الكلمات الصعبة في", icon: "help-circle" },
-             { name: "فقط السورة", icon: "book-open", specialAction: "JUST_SURAH" }
+            { name: "ربط الآيات", icon: "link", action: "ربط الآيات" },
+            { name: "قصص", icon: "book-open-check", action: "قصص" },
+            { name: "أسباب النزول", icon: "feather", action: "أسباب النزول" },
+            { name: "أحكام التجويد", icon: "volume-2", action: "أحكام التجويد" },
+            { name: "المتشابهات", icon: "layers-3", action: "المتشابهات" },
+            { name: "بالوصل", icon: "type", specialAction: "BALWASL" }, // 👈 الأداة ذات التنسيق الخاص
+            { name: "فقط السورة", icon: "book-open", specialAction: "JUST_SURAH" }
         ];
-        tools.forEach(tool => {
+
+        toolsButtonsContainer.innerHTML = '';
+
+       tools.forEach(tool => {
             const card = document.createElement('div');
             card.className = 'youtube-reader-card navigable grid-item';
             card.tabIndex = 0;
+            
+            // استخدام action أو specialAction لتحديد القيمة التي سيتم تمريرها
+            const selectionValue = tool.specialAction || tool.action; 
+
             card.innerHTML = `<h3>${tool.name}</h3><div class="w-[100px] h-[100px] rounded-full border-2 border-white/30 flex items-center justify-center bg-black/20"><i data-lucide="${tool.icon}" class="w-12 h-12 text-white/50"></i></div>`;
-            card.addEventListener('click', () => handleReaderOrToolClick(tool.specialAction || tool.name, tabContainer, tabsContentContainer));
+            
+            card.addEventListener('click', () => handleReaderOrToolClick(selectionValue, tabContainer, tabsContentContainer));
             toolsButtonsContainer.appendChild(card);
         });
-        console.log("[Debug] Populated Tools.");
-
-
-        console.log("[Debug] Attaching click listeners to tab buttons...");
-
-        // --- Tab Switching Logic (MODIFIED) ---
-        const tabs = [recitersTabButton, channTabButton, toolsTabButton, savedDTabButton, savedMTabButton]; // Updated tabs array
-        const contents = [recitersContent, channContent, toolsContent, savedDContent, savedMContent];   // Updated contents array
+        
+        // --- Tab Switching Logic ---
+        const tabs = [recitersTabButton, channTabButton, toolsTabButton, savedDTabButton, savedMTabButton];
+        const contents = [recitersContent, channContent, toolsContent, savedDContent, savedMContent];
 
         tabs.forEach((tab, index) => {
             tab.addEventListener('click', () => {
-                console.log(`[Debug] ${tab.textContent} tab clicked!`);
                 tabs.forEach(t => t.classList.remove('active'));
                 contents.forEach(c => c.classList.add('hidden'));
                 tab.classList.add('active');
                 contents[index].classList.remove('hidden');
 
-                // --- Special actions for Saved tabs ---
-                if (tab.id === 'tab-saved-d') {
-                    loadSavedVideos('D'); // Load only D list
-                } else if (tab.id === 'tab-saved-m') {
-                    loadSavedVideos('M'); // Load only M list
-                }
-                // --- End Special actions ---
+                if (tab.id === 'tab-saved-d') { loadSavedVideos('D'); } 
+                else if (tab.id === 'tab-saved-m') { loadSavedVideos('M'); }
 
                 const firstItem = contents[index].querySelector('.grid-item');
                 if (firstItem) setFocus(firstItem); else setFocus(tab);
             });
         });
-        console.log("[Debug] Finished attaching click listeners.");
-
-
-        // 5. Append everything
-        suggestionsContent.appendChild(tabContainer);
-        tabsContentContainer.appendChild(recitersContent);
-        tabsContentContainer.appendChild(channContent);
-        tabsContentContainer.appendChild(toolsContent);
-        tabsContentContainer.appendChild(savedDContent); // Add new D content
-        tabsContentContainer.appendChild(savedMContent); // Add new M content
-        suggestionsContent.appendChild(tabsContentContainer);
-
-        // Set initial active tab (Channels is already set via class)
-
-        lucide.createIcons();
-        console.log("[Debug] Finished populateYoutubeSuggestions.");
-        updateNavigableElements();
 
     } catch (error) {
-        console.error("Error during populateYoutubeSuggestions:", error);
-        suggestionsContent.innerHTML = '<p class="text-red-500 text-center">Error loading suggestions.</p>';
+        console.log("[Debug] Error in populating tabs:", error);
     }
+    
+    // 4. تجميع وإضافة العناصر إلى الشاشة
+    suggestionsContent.appendChild(tabContainer);
+    tabsContentContainer.appendChild(recitersContent);
+    tabsContentContainer.appendChild(channContent);
+    tabsContentContainer.appendChild(toolsContent);
+    tabsContentContainer.appendChild(savedDContent);
+    tabsContentContainer.appendChild(savedMContent);
+    suggestionsContent.appendChild(tabsContentContainer);
+
+    lucide.createIcons();
+    updateNavigableElements();
+}
+
+/**
+ * RENAMED & REFINED: Handles the search action specifically for finding a Reciter Channel.
+ * Applies strong filtering for 'type=channel' and 'relevanceLanguage=ar'.
+ */
+async function handleSearchForReciterChannel() {
+    // 🛑 نستخدم هنا المُعرّف الصحيح من نافذة القراء المنبثقة
+    const inputEl = document.getElementById('new-reciter-name-input'); 
+    const resultsContainer = document.getElementById('channel-search-results'); // نفس اسم حاوية النتائج
+    const confirmBtn = document.getElementById('search-channel-confirm'); // نفس اسم زر البحث
+    const query = inputEl.value.trim();
+
+    if (!query) {
+        showMessageBox("الرجاء إدخال اسم القارئ/القناة للبحث.");
+        return;
+    }
+    // ... (بقية منطق التحميل والتأكد) ...
+    // ... (بقية منطق التحميل والتأكد) ...
+
+    try {
+        // 🛑 API Call: Filtered for Channel Type and Arabic Relevance
+        const API_URL = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=channel&key=${YOUTUBE_API_KEY}&maxResults=10&relevanceLanguage=ar`; 
+        
+        const response = await fetch(API_URL);
+        
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+        const data = await response.json();
+        
+        displayReciterSearchResults(data.items);
+        
+    } catch (error) {
+        // ... (بقية منطق الخطأ) ...
+    } finally {
+        // ... (بقية منطق التحميل) ...
+    }
+}
+
+/**
+ * NEW: Displays the search results (channels) inside the "Add Reciter" modal.
+ * It creates cards with an "Add" button, which calls handleAddReciter.
+ * @param {Array} channels - List of channel search results from YouTube API.
+ */
+function displayReciterSearchResults(channels) {
+    const resultsContainer = document.getElementById('channel-search-results');
+    resultsContainer.innerHTML = '';
+
+    if (!channels || channels.length === 0) {
+        resultsContainer.innerHTML = '<p class="text-center text-white/70">لم يتم العثور على قنوات بهذا الاسم باللغة العربية.</p>';
+        updateNavigableElements();
+        return;
+    }
+
+    channels.forEach(channel => {
+        const channelId = channel.id.channelId;
+        const channelTitle = channel.snippet.title;
+        const channelThumbnail = channel.snippet.thumbnails.default.url;
+        
+        // التحقق مما إذا كان القارئ (الاسم) موجوداً بالفعل في قائمة القراء
+        const isSaved = localRecitersCache.some(r => r.name === channelTitle); 
+
+        const resultCard = document.createElement('div');
+        resultCard.className = 'flex items-center gap-4 p-3 rounded-xl bg-white/5 navigable grid-item';
+        resultCard.tabIndex = 0; // لضمان التنقل بالريموت
+        
+        resultCard.innerHTML = `
+            <img src="${channelThumbnail}" alt="${channelTitle}" class="w-16 h-16 rounded-full object-cover flex-shrink-0" onerror="this.onerror=null;this.src='https://placehold.co/64x64';">
+            <div class="flex-grow min-w-0">
+                <h4 class="font-bold truncate text-lg">${channelTitle}</h4>
+                <p class="text-sm text-white/60 truncate">${channel.snippet.description || 'قناة يوتيوب'}</p>
+            </div>
+            <button 
+                class="add-reciter-from-search-btn p-2 rounded-full transition-colors flex-shrink-0 navigable grid-item" 
+                data-reciter-name="${channelTitle}" 
+                data-reciter-image="${channelThumbnail}"
+                ${isSaved ? 'disabled' : ''}
+                tabindex="0"
+                style="background-color: ${isSaved ? '#10B981' : '#9333ea'};"
+            >
+                <i data-lucide="${isSaved ? 'check' : 'plus'}" class="w-5 h-5 text-white"></i>
+            </button>
+        `;
+        resultsContainer.appendChild(resultCard);
+
+        // ربط حدث النقر على زر الإضافة
+        if (!isSaved) {
+            resultCard.querySelector('.add-reciter-from-search-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                const btn = e.currentTarget;
+                const name = btn.dataset.reciterName;
+                const image = btn.dataset.reciterImage;
+                handleAddReciter(name, image, btn); 
+            });
+            // ربط النقر على البطاقة نفسها بفتح القناة (ميزة إضافية)
+            resultCard.addEventListener('click', (e) => {
+                if(e.target.closest('button')) return; // لا تفعل شيئًا إذا تم النقر على الزر
+                showMessageBox(`لتشغيل فيديوهات القناة، انقر على زر الإضافة ثم ابحث باسم القارئ في الشاشة الرئيسية.`);
+            });
+        } else {
+             // إذا كان محفوظًا، اجعل النقر على البطاقة يفتح نافذة "تمت الإضافة"
+             resultCard.addEventListener('click', () => showMessageBox(`تمت إضافة القارئ "${channelTitle}" بالفعل. يمكنك الآن البحث به في شاشة الوسائط.`));
+        }
+    });
+    
+    lucide.createIcons();
+    // 🛑 يجب تحديث العناصر القابلة للتنقل بعد إضافة النتائج
+    updateNavigableElements();
+    
+    // نقل التركيز إلى أول نتيجة
+    setTimeout(() => {
+        const firstResult = resultsContainer.querySelector('.grid-item');
+        if (firstResult) setFocus(firstResult);
+    }, 50);
 }
 
         function showSurahSuggestions() {
@@ -4521,19 +5488,29 @@ async function showNextVideoSuggestions(lastVideoId) {
                 button.tabIndex = 0;
                 button.innerHTML = `<span class="surah-name-text">${name}</span> <span class="juz-badge">${surahToJuzMap[name] || '?'}</span>`;
                 button.style.backgroundColor = juzColors[(surahToJuzMap[name] || 1) - 1];
-                button.addEventListener('click', () => {
-                    let query = '';
-                    const currentInput = youtubeSearchInput.value.trim();
-                    if (youtubeSearchInput.value.startsWith('الكلمات الصعبة في')) {
-                        query = 'الكلمات الصعبة في سورة ' + name;
-                    } else if (currentInput === '') {
-                        query = 'سورة ' + name;
-                    } else {
-                        query = selectedReaderName + ' سورة ' + name;
-                    }
-                    youtubeSearchInput.value = query;
-                    searchYouTubeVideos(query);
-                });
+                // داخل دالة showSurahSuggestions()، في حلقة youtubeSurahSuggestions.forEach(name => { ...
+
+button.addEventListener('click', () => {
+    let query = '';
+    const currentInput = youtubeSearchInput.value.trim();
+    const surahName = name; // اسم السورة
+
+    if (currentInput.includes('بالوصل')) { // 🛑 NEW: إذا كان الوضع هو 'بالوصل'
+        // التنسيق: سورة {السورة} بالوصل
+        query = `سورة ${surahName} بالوصل`; 
+        
+    } else if (youtubeSearchInput.value.startsWith('الكلمات الصعبة في')) {
+        query = 'الكلمات الصعبة في سورة ' + surahName;
+    } else if (currentInput === '') {
+        query = 'سورة ' + surahName;
+    } else {
+        // التنسيق العادي: {القارئ/الأداة} سورة {السورة}
+        query = selectedReaderName + ' سورة ' + surahName;
+    }
+    
+    youtubeSearchInput.value = query;
+    searchYouTubeVideos(query);
+});
                 surahButtonsContainer.appendChild(button);
             });
             scrollableSurahContainer.appendChild(surahButtonsContainer);
@@ -5146,6 +6123,7 @@ async function fetchWeatherData() {
         
         renderHourlyForecast(forecastToRender);
         renderAdvancedWeatherCards(data);
+        update3dMoonWidget();
         updateUI(); // 🛑 استدعاء تحديث الواجهة المرئية
         
     } catch (err) {
@@ -5160,15 +6138,34 @@ async function fetchWeatherData() {
  * Generates the current date/time string in NASA SVS format (YYYY-MM-DDT HH:MM).
  * NASA API uses the hour/minute of the current system time for the comparison.
  */
+/**
+ * REPLACED: Generates the date string for NASA SVS API based on the current hour.
+ * Ensures that if it's past 18:00 UTC, it fetches the next day's data (if needed).
+ * Since the API updates at 18:00, we fetch the CURRENT date until 18:00 local time.
+ */
 function getNasaDateTime(date) {
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const hours = date.getHours();
+    let targetDate = new Date(date);
+
+    // 🛑 المنطق الحاسم: إذا كنا قبل 18:00 (وقت تحديث NASA)، نستخدم بيانات اليوم السابق
+    // إذا كنا بعد 18:00، نبدأ في استخدام بيانات اليوم الحالي
+    if (hours < 18) {
+        // إذا كان الوقت قبل 6 مساءً، نرجع إلى تاريخ الأمس للحصول على "آخر صورة مستقرة"
+        targetDate.setDate(targetDate.getDate() - 1);
+    } 
+    // ملاحظة: بما أن التحديث يخص الصورة ليوم كامل، سنستخدم بيانات الأمس حتى وقت التحديث.
+    // (يجب أن يتم تعديلها حسب توقيت UTC إذا كانت NASA تستخدم UTC)
+
+    const year = targetDate.getFullYear();
+    const month = (targetDate.getMonth() + 1).toString().padStart(2, '0'); 
+    const day = targetDate.getDate().toString().padStart(2, '0');
     
-    // YYYY-MM-DDT HH:MM format
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
+    // سنستخدم 18:00 كـ Time Marker لضمان الحصول على صورة اليوم كاملاً
+    const markerHours = 18; 
+    const markerMinutes = 0; 
+
+    // YYYY-MM-DDT 18:00 format (لضمان جلب الصورة النهائية لهذا اليوم)
+    return `${year}-${month}-${day}T${markerHours.toString().padStart(2, '0')}:${markerMinutes.toString().padStart(2, '0')}`;
 }
 
 
@@ -5271,8 +6268,9 @@ async function fetchWeatherData() {
 
         // 4. تحديث حالة القمر في AppState
         if (moonResult) {
-            appState.dynamicMoonImageUrl = moonResult.image.url; // تخزين رابط الصورة
-            appState.moonData = moonResult; // ✅ تخزين كائن البيانات للحصول على حقل 'phase'
+    appState.dynamicMoonImageUrl = moonResult.image.url;
+    appState.moonData = moonResult; // ✅ تخزين كائن البيانات للحصول على حقل 'phase'
+    appState.moonData.fetchDate = new Date();
         } else {
             appState.dynamicMoonImageUrl = 'https://cdn.weatherapi.com/weather/64x64/night/113.png'; 
             appState.moonData = null;
@@ -5855,16 +6853,85 @@ function updateDigitalClock() {
 
         // --- NEW: 3D Screen Widgets Update ---
         function update3dScreenWidgets() {
-            const nextPrayerEl = document.getElementById('3d-screen-next-prayer');
-            const speedEl = document.getElementById('3d-screen-speed');
-            const gearEl = document.getElementById('3d-screen-gear');
-            const dirEl = document.getElementById('3d-screen-dir');
+    // مراجع العناصر (التي تم نقلها إلى الجانب الأيمن)
+    const weatherTempEl = document.getElementById('3d-screen-weather-temp'); // داخل #3d-screen-weather-widget
+    const nextPrayerEl = document.getElementById('3d-screen-next-prayer');
+    const speedEl = document.getElementById('3d-screen-speed');
+    const gearEl = document.getElementById('3d-screen-gear');
+    const dirEl = document.getElementById('3d-screen-dir');
 
-            if (nextPrayerEl) nextPrayerEl.textContent = appState.prayerTimes.nextPrayer || '--';
-            if (speedEl) speedEl.textContent = `${appState.car.speed} km/h`;
-            if (gearEl) gearEl.textContent = appState.car.gear;
-            if (dirEl) dirEl.textContent = appState.car.direction;
-        }
+    // --- 1. تحديث الطقس (Temperature) ---
+    if (weatherTempEl) {
+        // نستخدم القيمة المخزنة في appState.weather.temperature (التي جلبتها fetchWeatherData)
+        const temp = appState.weather.temperature !== null ? Math.round(appState.weather.temperature) : '--';
+        weatherTempEl.textContent = `${temp}°C`;
+    }
+    
+    // --- 2. تحديث معلومات القيادة (الجانب الأيسر) ---
+    if (nextPrayerEl) nextPrayerEl.textContent = appState.prayerTimes.nextPrayer || '--';
+    if (speedEl) speedEl.textContent = `${appState.car.speed} km/h`;
+    if (gearEl) gearEl.textContent = appState.car.gear;
+    if (dirEl) dirEl.textContent = appState.car.direction;
+
+    // --- 3. استدعاء الدوال الحركية (CRITICAL) ---
+
+    // 🚀 تحديث أزرار البوصلة (Direction Buttons)
+    updateDirectionButtons(); 
+    
+    // 🌙 تحديث ويدجت القمر (يجب أن يعرض قمر الأمس إذا لم تحن الساعة 18:00)
+    update3dMoonWidget(); 
+}
+        /**
+ * NEW: Updates the Moon Widget in the 3D screen using data from fetchWeatherData.
+ */
+/**
+ * UPDATED: Updates the Moon Widget in the 3D screen (screen-Map).
+ * It shows dynamic NASA Moon data ONLY during local nighttime (18:00 to 06:00).
+ * Otherwise, it shows an inactive state.
+ */
+function update3dMoonWidget() {
+    // 🛑 مراجع العناصر في شاشة screen-Map (الجانب الأيمن)
+    const moonIcon = document.getElementById('3d-moon-icon');
+    const moonPhase = document.getElementById('3d-moon-phase');
+    const moonWidgetContainer = document.getElementById('3d-screen-moon-widget'); 
+
+    if (!moonIcon || !moonPhase || !moonWidgetContainer) {
+        // إذا لم يتم العثور على العناصر (قد تكون في شاشة أخرى)، لا تفعل شيئاً
+        return;
+    }
+
+    const now = new Date();
+    const currentHour = now.getHours();
+    
+    // تحديد إذا كنا في فترة ليل (6 مساءً حتى 6 صباحاً)
+    const isNightTime = (currentHour >= 12 || currentHour < 6);
+
+    if (isNightTime && appState.moonData && appState.moonData.phase !== undefined) {
+        // 1. الوضع الليلي (عرض البيانات الديناميكية)
+        
+        // يجب التأكد من أن مرحلة القمر (phase) تم تخزينها كـ رقم في fetchNasaMoonData
+        const phaseValue = appState.moonData.phase ? appState.moonData.phase.toFixed(1) : '--';
+        
+        // الصورة يتم جلبها مسبقاً وتخزينها كـ appState.dynamicMoonImageUrl
+        moonIcon.src = appState.dynamicMoonImageUrl || 'https://cdn.weatherapi.com/weather/64x64/night/113.png';
+        moonPhase.textContent = `${phaseValue}%`; 
+        
+        // إظهار الويدجت بحالة نشطة
+        moonWidgetContainer.style.opacity = '1';
+        moonWidgetContainer.style.display = 'flex'; 
+
+    } else {
+        // 2. الوضع النهاري (عرض حالة الخمول/عدم النشاط)
+        
+        // عرض أيقونة قمر ثابتة (للتصنيف) مع بيانات فارغة
+        moonIcon.src = 'https://cdn.weatherapi.com/weather/64x64/night/113.png'; 
+        moonPhase.textContent = '--%';
+        
+        // 💡 إظهار الويدجت بشفافية منخفضة ليدل على أنه غير نشط الآن (ولكنه موجود في الـ Layout)
+        moonWidgetContainer.style.opacity = '0.3'; 
+        moonWidgetContainer.style.display = 'flex'; 
+    }
+}
 
         // --- Draggable/Resizable Popup Logic ---
         let isDragging = false;
@@ -6211,412 +7278,41 @@ if (!window.hasInitializedWeatherSpeaker) {
         }
 
         // --- Initial Setup ---
-        document.addEventListener('DOMContentLoaded', () => { 
-            fetchWeatherData(); 
-            // Standard Listeners
-            getMyLocationButtonDashboard?.addEventListener('click', centerMapOnUserLocation);
-            goToHome1Button?.addEventListener('click', () => calculateAndDisplayRouteTo(HOME1_COORDS));
-            goToHome2Button?.addEventListener('click', () => calculateAndDisplayRouteTo(HOME2_COORDS));
-            floatingMediaButton?.addEventListener('click', () => switchApp('Media')); 
-            floatingMinimizedVideoButton?.addEventListener('click', restoreVideoPopup); // NEW listener
-            
+      document.addEventListener('DOMContentLoaded', () => {
+    // 1. الجلب الأولي لبيانات JSONBin (قبل عرض أي شيء)
+    Promise.all([
+        fetchRecitersList(),
+        fetchChannelsList(),
+        fetchFavorites('D'),
+        fetchFavorites('M')
+    ]).then(() => {
+        console.log("Initialization: External data fetched and ready.");
+        
+        // 2. تشغيل جلب الطقس الأولي لملء AppState
+        fetchWeatherData(); 
 
-    // ... (الكود الموجود لديك)
-const recitersIframe = document.getElementById('reciters-iframe');
-    const iframeSrcButtons = document.querySelectorAll('#screen-Reciters .iframe-src-button');
-
-    if (recitersIframe && iframeSrcButtons.length > 0) {
-        iframeSrcButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const newSrc = button.dataset.src;
-                if (newSrc && recitersIframe.src !== newSrc) {
-                    console.log(`Changing iframe src to: ${newSrc}`);
-                    recitersIframe.src = newSrc; // Change the iframe source
-
-                    // Update active button state
-                    iframeSrcButtons.forEach(btn => btn.classList.remove('active'));
-                    button.classList.add('active');
-                }
-            });
-        });
-    }
-    // Initial Calls
-   
-    Promise.all([fetchFavorites('D'), fetchFavorites('M')]).then(([d, m]) => {
-        favoritesD = d;
-        favoritesM = m;
+        // 3. تهيئة واجهة المستخدم الخاصة بالـ Media
+        populateYoutubeSuggestions();
     });
-migrateChannelData();
+
+    // 4. تشغيل المؤقتات البطيئة والأساسية (تعمل باستمرار)
+    loadPrayerTimes();
+    startNextPrayerDetermination(); // تحديث تحديد الصلاة (كل 1 دقيقة)
+    startFullDateUpdates();
+    updateTimerDisplay();        // تحديث التاريخ (كل 100 دقيقة)
+
+    // 5. تهيئة الخرائط وبدء تتبع الموقع
     loadGoogleMaps().then(initMap);
     
-    loadPrayerTimes();
-    updateFullDateWidget(); // <-- أضف هذا السطر (استدعاء أولي)
-
-    // Play welcome message once after a short delay
-    setTimeout(playWelcomeMessage, 20000);
-
-    setInterval(fetchWeatherData, 300000); 
-    setInterval(updateDigitalClock, 1000); 
-    setInterval(determineNextPrayer, 60000);
-    setInterval(updateFullDateWidget, 6000000); // <-- أضف هذا السطر (تحديث دوري)
-    setInterval(simulateOtherCarData, 6000);
-    setInterval(updateTimerDisplay, 2000);
-
-    // ... (بقية الكود)
-
-
-            
-            // NEW/UPDATED: Event listener for the floating back button
-            backToSearchFloatingButton.addEventListener('click', () => {
-                // If we are on the suggestions screen AND we have a previous search to go back to...
-                if (activeMediaView === 'suggestions' && lastSuccessfulSearchQuery) {
-                    searchYouTubeVideos(lastSuccessfulSearchQuery); // ...then re-run that search.
-                } else {
-                    // Otherwise (i.e., we are on the search results screen), perform the original "back" action.
-                    navigateBackToMainSearch();
-                }
-            });
-
-            startTripFloatingButton?.addEventListener('click', () => { if (appState.destinationSet) calculateAndDisplayRoute(); else showMessageBox('الرجاء تحديد وجهة أولاً.'); }); 
-            upload360ImageButton?.addEventListener('click', () => upload360ImageInput.click()); 
-            upload360ImageInput?.addEventListener('change', handleImageUpload); 
-            reset360ImageButton?.addEventListener('click', resetImageToDefault); 
-            document.addEventListener('keydown', handleRemoteControlInput);
-            document.addEventListener('fullscreenchange', handleFullScreenChange);
-            document.addEventListener('webkitfullscreenchange', handleFullScreenChange); // For Safari
-            
-            videoPopupCloseButton.addEventListener('click', hideVideoPopup);
-            backToPlaylistsFromVideosButton.addEventListener('click', navigateBackToMainSearch);
-            backToPlaylistsBottomButton.addEventListener('click', navigateBackToMainSearch);
-            backToPlaylistsBottomButtonSearch.addEventListener('click', navigateBackToMainSearch);
-            floatingKeyboardButton.addEventListener('click', () => { 
-                youtubeSearchInput.readOnly = !youtubeSearchInput.readOnly; 
-                if (!youtubeSearchInput.readOnly) {
-                    youtubeSearchInput.focus(); 
-                } else {
-                    youtubeSearchInput.blur();
-                    // Return focus to the search button after disabling keyboard
-                    setFocus(youtubeSearchButton);
-                }
-                floatingKeyboardButton.classList.toggle('active-keyboard', !youtubeSearchInput.readOnly); 
-                floatingKeyboardButton.classList.toggle('inactive-keyboard', youtubeSearchInput.readOnly); 
-            });
-            
-            // UPDATED: Clear button logic
-            clearSearchButton.addEventListener('click', () => {
-                youtubeSearchInput.value = ''; // Clear input immediately
-                lastSuccessfulSearchQuery = null; // NEW: Clear the last search memory
-                navigateBackToMainSearch();
-            });
-
-            youtubeSearchInput.addEventListener('focus', () => { if (youtubeSearchInput.value.trim() === '') { resetYoutubeSearchUI(); } });
-            youtubeSearchButton.addEventListener('click', () => { const query = youtubeSearchInput.value.trim(); if (query) searchYouTubeVideos(query); else showMessageBox('الرجاء إدخال كلمة للبحث.'); });
-            
-            // UPDATED: Auto-search for Tarteel channel with pre-click effect
-            youtubeSearchInput.addEventListener('input', () => {
-                const targetText = 'ترتيل-@TarteelArabic';
-                const currentText = youtubeSearchInput.value;
-
-                if (currentText.includes(targetText + ' ')) {
-                    // If text with space is present, visually confirm and trigger the click
-                    youtubeSearchButton.classList.add('tv-focus'); 
-                    setTimeout(() => {
-                        youtubeSearchButton.click();
-                        // Optional: remove focus style after click to reset state
-                        setTimeout(() => youtubeSearchButton.classList.remove('tv-focus'), 100);
-                    }, 50);
-                } else if (currentText.includes(targetText)) {
-                    // If only the text (no space) is present, show pre-click effect
-                    youtubeSearchButton.classList.add('tv-focus');
-                } else {
-                    // If the text is not present, remove the effect
-                    youtubeSearchButton.classList.remove('tv-focus');
-                }
-            });
-
-            // NEW Listeners for Animation and Zoom Controls
-            pauseAnimationButton.addEventListener('click', () => {
-                document.body.classList.toggle('animation-paused');
-                const isPaused = document.body.classList.contains('animation-paused');
-                const playIcon = pauseAnimationButton.querySelector('[data-lucide="play"]');
-                const pauseIcon = pauseAnimationButton.querySelector('[data-lucide="pause"]');
-                playIcon.classList.toggle('hidden', !isPaused);
-                pauseIcon.classList.toggle('hidden', isPaused);
-            });
-
-            removeCacheButton.addEventListener('click', () => {
-                localStorage.clear();
-                showMessageBox('تم مسح ذاكرة التخزين المؤقت بنجاح. سيتم إعادة تحميل التطبيق.');
-                setTimeout(() => {
-                    location.reload();
-                }, 2000);
-            });
-
-            zoomInButton.addEventListener('click', () => {
-                if (currentFontSize < maxFontSize) {
-                    currentFontSize += fontSizeStep;
-                    document.documentElement.style.fontSize = `${currentFontSize}px`;
-                }
-            });
-
-            zoomOutButton.addEventListener('click', () => {
-                if (currentFontSize > minFontSize) {
-                    currentFontSize -= fontSizeStep;
-                    document.documentElement.style.fontSize = `${currentFontSize}px`;
-                }
-            });
-
-            // Initial Calls
-           
-            loadGoogleMaps().then(initMap);
-            fetchWeatherData(); 
-            loadPrayerTimes();
-            setInterval(fetchWeatherData, 300000); 
-            setInterval(updateDigitalClock, 1000); 
-            setInterval(determineNextPrayer, 60000);
-            setInterval(simulateOtherCarData, 2000); // Call the modified simulation
-            switchApp('Dashboard'); 
-            
-            // Play welcome message once after a short delay
-            setTimeout(playWelcomeMessage, 1500);
-
-            // --- START: Islamic Daily Reminders Logic ---
-            // NEW: Helper functions for managing manual states
-            // --- دوال جديدة للتعامل مع الحالات بشكل محلي ---
-
-// --- NEW & CORRECTED: Helper functions for managing manual states via Server ---
-
-async function getManualReminderStates() {
-    try {
-        const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID_REMINDERS}/latest`, {
-            headers: {
-                'X-Access-Key': JSONBIN_ACCESS_KEY_REMINDERS
-            }
-        });
-        if (!response.ok) {
-            console.error('Failed to fetch reminder states:', response.statusText);
-            return {};
-        }
-        const data = await response.json();
-        const states = data.record || {};
-        
-        // If the only thing in the bin is our placeholder, return an empty object
-        if (Object.keys(states).length === 1 && states._init) {
-            return {};
-        }
-        return states;
-
-    } catch (error) {
-        if (error instanceof SyntaxError) {
-             console.log("Bin is likely empty or invalid. Returning default state.");
-             return {};
-        }
-        console.error('Error in getManualReminderStates:', error);
-        return {};
-    }
-}
-
-async function setManualReminderState(reminderId, state) {
-    let currentStates = await getManualReminderStates();
+    // 6. تشغيل الشاشة الافتراضية، مما يبدأ المؤقتات الشرطية
+    switchApp('Dashboard'); 
     
-    if (state === 'auto') {
-        delete currentStates[reminderId];
-    } else {
-        currentStates[reminderId] = state;
-    }
-
-    // ✅ THE FIX: If the object becomes empty, add a placeholder
-    if (Object.keys(currentStates).length === 0) {
-        currentStates = { "_init": true };
-    }
-
-    try {
-        await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID_REMINDERS}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Master-Key': JSONBIN_API_KEY
-            },
-            body: JSON.stringify(currentStates)
-        });
-    } catch (error) {
-        console.error('Error writing to JSONBin:', error);
-        showMessageBox('حدث خطأ أثناء حفظ الحالة.');
-    }
+    // 7. المستمعات (Listeners) لمرة واحدة
+    // ... (منطق ربط getMyLocationButtonDashboard, floatingMediaButton, etc.)
+    // ... (منطق ربط iframeSrcButtons)
     
-    // We pass the *real* state (without the placeholder) to the renderer
-    if (currentStates._init) {
-        renderDailyReminders({});
-    } else {
-        renderDailyReminders(currentStates);
-    }
-    closeAllDropdowns();
-}
-
-            // NEW: Function to create and manage the dropdown
-            function createReminderDropdown(reminderId, parentElement) {
-                closeAllDropdowns(); // Close any other open dropdowns first
-
-                const dropdown = document.createElement('div');
-                dropdown.className = 'reminder-status-dropdown show';
-                dropdown.innerHTML = `
-                    <button data-state="active" class="navigable grid-item" tabindex="0">حالي</button>
-                    <button data-state="completed" class="navigable grid-item" tabindex="0">منتهي</button>
-                    <button data-state="missed" class="navigable grid-item" tabindex="0">فائت</button>
-                    <hr class="border-white/10 my-1">
-                    <button data-state="auto" class="navigable grid-item" tabindex="0">تلقائي</button>
-                `;
-                parentElement.appendChild(dropdown);
-
-                dropdown.querySelectorAll('button').forEach(button => {
-                    button.addEventListener('click', (e) => {
-                        e.stopPropagation(); // Prevent the main click listener from firing again
-                        const state = button.dataset.state;
-                        setManualReminderState(reminderId, state);
-                    });
-                });
-                 // Focus the first button in the dropdown
-                const firstButton = dropdown.querySelector('button');
-                if (firstButton) setFocus(firstButton);
-            }
-
-            function closeAllDropdowns() {
-                document.querySelectorAll('.reminder-status-dropdown').forEach(d => d.remove());
-            }
-
-            // 1. تعريف قائمة الأذكار والعبادات مع الشروط الخاصة بها
-            const dailyReminders = [
-    { id: 'adhkar_morning', name: 'أذكار الصباح', icon: 'sunrise', isActive: (now, times) => now >= times.Fajr && now < times.Dhuhr, getStartTime: (now, times) => times.Fajr, getEndTime: (now, times) => times.Dhuhr, action: () => { switchApp('Media'); searchYouTubeVideos('أذكار الصباح كاملة'); } },
-    { id: 'salat_duha', name: 'صلاة الضحى', icon: 'sun', isActive: (now, times) => { if (!times.Sunrise || !times.Dhuhr) return false; const sunriseTime = new Date(times.Sunrise.getTime() + 20 * 60000); const dhuhrTime = new Date(times.Dhuhr.getTime() - 10 * 60000); return now >= sunriseTime && now < dhuhrTime; }, getStartTime: (now, times) => { if (!times.Sunrise) return null; return new Date(times.Sunrise.getTime() + 20 * 60000); }, getEndTime: (now, times) => { if (!times.Dhuhr) return null; return new Date(times.Dhuhr.getTime() - 10 * 60000); }, action: () => showMessageBox('صلاة الضحى سنة مؤكدة، ووقتها من بعد شروق الشمس وارتفاعها قدر رمح إلى قبيل وقت صلاة الظهر.') },
-    { id: 'sunan_rawatib', name: 'السنن الرواتب', icon: 'calendar-check', isActive: (now, times) => { if (!times.Fajr || !times.Dhuhr || !times.Maghrib || !times.Isha) return false; const tenMinutes = 10 * 60 * 1000; if (now < times.Fajr && (times.Fajr.getTime() - now.getTime()) <= tenMinutes) return true; if (now < times.Dhuhr && (times.Dhuhr.getTime() - now.getTime()) <= tenMinutes) return true; if (now > times.Dhuhr && (now.getTime() - times.Dhuhr.getTime()) <= tenMinutes) return true; if (now > times.Maghrib && (now.getTime() - times.Maghrib.getTime()) <= tenMinutes) return true; if (now > times.Isha && (now.getTime() - times.Isha.getTime()) <= tenMinutes) return true; return false; }, getStartTime: null, getEndTime: null, action: () => showMessageBox('السنن الرواتب: ركعتان قبل الفجر، أربع قبل الظهر، ركعتان بعده، ركعتان بعد المغرب، وركعتان بعد العشاء.') },
-    { id: 'adhkar_evening', name: 'أذكار المساء', icon: 'sunset', isActive: (now, times) => now >= times.Asr && now.getHours() < 23, getStartTime: (now, times) => times.Asr, getEndTime: (now, times) => { const d = new Date(now); d.setHours(22, 59, 59, 999); return d; }, action: () => { switchApp('Media'); searchYouTubeVideos('أذكار المساء كاملة'); } },
-    { id: 'wird_daily', name: 'الورد اليومي', icon: 'book-marked', isActive: (now, times) => true, getStartTime: null, getEndTime: null, action: () => switchApp('Quran') },
-    { id: 'surah_mulk', name: 'سورة الملك', icon: 'moon', isActive: (now, times) => now >= times.Isha || now < times.Fajr, getStartTime: (now, times) => times.Isha, getEndTime: (now, times) => { if (now < times.Fajr) return times.Fajr; return new Date(times.Fajr.getTime() + 24 * 60 * 60 * 1000); }, action: () => { switchApp('Media'); searchYouTubeVideos('سورة الملك كاملة'); } },
-                { id: 'salat_witr', name: 'صلاة الوتر', icon: 'star', isActive: (now, times) => now >= times.Isha || now < times.Fajr, getStartTime: (now, times) => times.Isha, getEndTime: (now, times) => { if (now < times.Fajr) return times.Fajr; return new Date(times.Fajr.getTime() + 24 * 60 * 60 * 1000); }, action: () => showMessageBox('صلاة الوتر سنة مؤكدة، وأقلها ركعة واحدة، ووقتها من بعد صلاة العشاء إلى طلوع الفجر.') },
-                { id: 'adhkar_sleep', name: 'قيام الليل ', icon: 'bed', isActive: (now, times) => now.getHours() >= 23, getStartTime: (now, times) => { const d = new Date(now); d.setHours(23, 0, 0, 0); return d; }, getEndTime: (now, times) => { const d = new Date(now); d.setHours(23, 59, 59, 999); return d; }, action: () => { switchApp('Media'); searchYouTubeVideos('أذكار النوم'); } }
-            ];
-
-            // 2. دالة لإنشاء وعرض القائمة (MODIFIED)
-         // ✅ Corrected Version of the function
-async function renderDailyReminders(states) { // We added 'async' and 'states' here
-    const container = document.getElementById('tv');
-    if (!container || !appState.prayerTimes.Fajr || appState.prayerTimes.Fajr === '--:--') return;
-
-    // If no states are passed in, fetch them. Otherwise, use the states that were passed.
-    const manualStates = states || await getManualReminderStates(); // We added 'await' here
-
-    const now = new Date();
-    const prayerDateTimes = {
-        Fajr: timeToDate(appState.prayerTimes.Fajr),
-        Sunrise: timeToDate(appState.prayerTimes.Sunrise || '06:15'),
-        Dhuhr: timeToDate(appState.prayerTimes.Dhuhr),
-        Asr: timeToDate(appState.prayerTimes.Asr),
-        Maghrib: timeToDate(appState.prayerTimes.Maghrib),
-        Isha: timeToDate(appState.prayerTimes.Isha)
-    };
-
-    container.innerHTML = '';
-    const grid = document.createElement('div');
-    grid.className = 'reminders-grid grid-container'; // Added grid-container for navigation
-    grid.id = 'reminders-grid-container';
-
-    dailyReminders.forEach(reminder => {
-        const manualState = manualStates[reminder.id];
-        let classList = 'reminder-item navigable grid-item';
-        let iconName = '';
-
-        if (manualState) {
-            classList += ` ${manualState}`;
-            switch (manualState) {
-                case 'active':    iconName = 'clock'; break;
-                case 'completed': iconName = 'check-check'; break;
-                case 'missed':    iconName = 'x-circle'; break;
-            }
-        } else {
-            const isActive = reminder.isActive(now, prayerDateTimes);
-            let isUpcoming = false;
-            if (reminder.getStartTime && !isActive) {
-                const startTime = reminder.getStartTime(now, prayerDateTimes);
-                if (startTime && startTime > now) { isUpcoming = true; }
-            }
-            let isCompleted = false;
-            if (!isActive && !isUpcoming && reminder.getEndTime) {
-                const endTime = reminder.getEndTime(now, prayerDateTimes);
-                if (endTime && now > endTime) { isCompleted = true; }
-            }
-
-            if (isActive) { classList += ' active'; iconName = 'play-circle'; } 
-            else if (isUpcoming) { classList += ' upcoming'; iconName = 'bell'; } 
-            else if (isCompleted) { classList += ' completed'; iconName = 'check-check'; } 
-            else { iconName = 'circle'; }
-        }
-
-        const item = document.createElement('div');
-        item.className = classList;
-        item.dataset.reminderId = reminder.id;
-        item.tabIndex = 0;
-
-        item.innerHTML = `
-            <div class="icon-wrapper relative">
-                <i data-lucide="${iconName || 'circle'}" class="icon w-12 h-12"></i>
-            </div>
-            <span class="text">${reminder.name}</span>
-        `;
-        grid.appendChild(item);
-    });
-
-    container.appendChild(grid);
-    lucide.createIcons();
-}
-
-            // --- الكود الجديد ---
-// 3. إضافة مستمع نقر واحد للتعامل مع كل الأزرار (MODIFIED)
-document.addEventListener('click', (e) => {
-    const reminderItem = e.target.closest('.reminder-item');
-    const dropdownButton = e.target.closest('.reminder-status-dropdown button');
-
-    // إذا تم النقر على زر داخل القائمة المنسدلة، دعه يعمل (المستمع الخاص به سيعمل)
-    if (dropdownButton) {
-        return;
-    }
-
-    // إذا تم النقر خارج عنصر تذكير وخارج قائمة منسدلة، أغلق جميع القوائم
-    if (!reminderItem && !e.target.closest('.reminder-status-dropdown')) {
-        closeAllDropdowns();
-        return;
-    }
-
-    // إذا لم يتم النقر على عنصر تذكير، توقف هنا
-    if (!reminderItem) return;
-
-    // --- الجزء الرئيسي للتعديل ---
-    // أوقف انتشار الحدث لمنع أي إجراءات افتراضية أخرى
-    e.stopPropagation();
-
-    const reminderId = reminderItem.dataset.reminderId;
-    const iconWrapper = reminderItem.querySelector('.icon-wrapper'); // ابحث عن حاوية الأيقونة
-
-    if (!iconWrapper) return; // تأكد من وجود حاوية الأيقونة
-
-    // تحقق مما إذا كانت القائمة المنسدلة لهذا العنصر مفتوحة بالفعل
-    const existingDropdown = reminderItem.querySelector('.reminder-status-dropdown');
-
-    if (existingDropdown) {
-        // إذا كانت مفتوحة، أغلقها
-        existingDropdown.remove();
-    } else {
-        // إذا كانت مغلقة، أغلق أي قوائم أخرى وافتح هذه القائمة
-        closeAllDropdowns(); // أغلق القوائم الأخرى أولاً
-        createReminderDropdown(reminderId, iconWrapper); // افتح القائمة الجديدة بالنسبة لحاوية الأيقونة
-    }
-    // --- نهاية التعديل ---
-
-    // تم إزالة الجزء الخاص بتنفيذ الإجراء الافتراضي (مثل البحث في يوتيوب)
+    setTimeout(playWelcomeMessage, 1500);
 });
-            
-            renderDailyReminders(); // الاستدعاء الأول
-            setInterval(renderDailyReminders, 60000); // تحديث كل 60 ثانية
-        });
 
         // --- Athkar App Logic ---
         const tabSabah = document.getElementById('tab-sabah');
