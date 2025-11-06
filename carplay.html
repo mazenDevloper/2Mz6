@@ -2391,6 +2391,125 @@ div#map{display:none}
     </div>
 
     <script>
+
+        // --- المتغيرات العامة لتتبع حالة المؤقتات (يجب أن تُضاف في بداية الكود) ---
+let weatherIntervalId = null;       // 5 دقائق (للطقس)
+let clockIntervalId = null;         // 1 ثانية (للساعة)
+let timerDisplayIntervalId = null;  // 2 ثانية (للعد التنازلي للصلاة)
+let nextPrayerIntervalId = null;    // 1 دقيقة (لتحديد الصلاة القادمة)
+let carSimulationIntervalId = null; // 2 ثانية (لمحاكاة السيارة/الاتجاه)
+let fullDateIntervalId = null;      // 6 مليون مللي ثانية (لتحديث التاريخ)
+
+function startWeatherUpdates() {
+    if (weatherIntervalId === null) {
+        // نُشغِّل الجلب الأولي أولاً
+        fetchWeatherData();
+        // 🛑 ثم نُنشئ المؤقت
+        weatherIntervalId = setInterval(fetchWeatherData, 300000); // كل 5 دقائق
+    }
+}
+function stopWeatherUpdates() {
+    if (weatherIntervalId !== null) {
+        clearInterval(weatherIntervalId);
+        weatherIntervalId = null;
+    }
+}
+
+function startCarSimulation() {
+    if (carSimulationIntervalId === null) {
+        carSimulationIntervalId = setInterval(simulateOtherCarData, 2000); // كل 2 ثانية
+    }
+}
+function stopCarSimulation() {
+    if (carSimulationIntervalId !== null) {
+        clearInterval(carSimulationIntervalId);
+        carSimulationIntervalId = null;
+    }
+}
+
+function startClockAndTimer() {
+    if (clockIntervalId === null) {
+        clockIntervalId = setInterval(updateDigitalClock, 1000); // تحديث الساعة كل 1 ثانية
+    }
+    if (timerDisplayIntervalId === null) {
+        timerDisplayIntervalId = setInterval(updateTimerDisplay, 1000); // تحديث عداد الصلاة كل 2 ثانية
+    }
+}
+function stopClockAndTimer() {
+    if (clockIntervalId !== null) {
+        clearInterval(clockIntervalId);
+        clockIntervalId = null;
+    }
+    if (timerDisplayIntervalId !== null) {
+        clearInterval(timerDisplayIntervalId);
+        timerDisplayIntervalId = null;
+    }
+}
+
+// --- دوال التحكم للمؤقتات البطيئة (التي كانت تعمل بـ setInterval) ---
+function startNextPrayerDetermination() {
+    if (nextPrayerIntervalId === null) {
+        determineNextPrayer(); // تشغيل فوري
+        nextPrayerIntervalId = setInterval(determineNextPrayer, 60000); // كل 1 دقيقة
+    }
+}
+function stopNextPrayerDetermination() {
+    if (nextPrayerIntervalId !== null) {
+        clearInterval(nextPrayerIntervalId);
+        nextPrayerIntervalId = null;
+    }
+}
+function startFullDateUpdates() {
+    if (fullDateIntervalId === null) {
+        updateFullDateWidget(); // تشغيل فوري
+        fullDateIntervalId = setInterval(updateFullDateWidget, 6000000); // كل 100 دقيقة
+    }
+}
+// لا نحتاج لـ stopFullDateUpdates حيث أنها تعمل ببطء شديد
+
+function switchApp(appName) {
+    // 1. الإيقاف العام لجميع المؤقتات ذات التردد العالي
+    stopClockAndTimer();      
+    stopCarSimulation();
+    stopWeatherUpdates(); 
+
+    // 2. تحديث الشاشة النشطة (منطقك الأصلي)
+    const newIndex = appOrder.indexOf(appName);
+    if (newIndex === -1) return;
+    currentAppIndex = newIndex;
+    appScreens.forEach(s => s.classList.remove('active'));
+    sidebarIcons.forEach(i => i.classList.remove('active'));
+    const screen = document.getElementById(`screen-${appName}`);
+    if (screen) screen.classList.add('active');
+    const icon = document.querySelector(`.app-icon[data-app="${appName}"]`);
+    if (icon) icon.classList.add('active');
+
+
+    // 3. التشغيل الشرطي (Conditional Start)
+
+    // A. المؤقتات المطلوبة في Dashboard
+    if (appName === 'Dashboard') {
+        startClockAndTimer(); // 1s و 2s مؤقتات عالية التردد
+        startWeatherUpdates();
+        updateTimerDisplay(); // الطقس (جلب كل 5 دقائق)
+    }
+    
+    // B. المؤقتات المطلوبة في شاشة 3D (Map)
+    if (appName === 'Map') {
+        startCarSimulation(); // محاكاة القيادة (2 ثانية)
+        startWeatherUpdates(); // الطقس (جلب كل 5 دقائق)
+    }
+
+    // C. المؤقتات المطلوبة في شاشة Weather
+    if (appName === 'Weather') {
+        startWeatherUpdates();
+    }
+    
+    // 💡 ملاحظة: شاشات Media, Radio, Athkar, Quran لن تقوم بتشغيل أي مؤقت عالي التردد
+
+    // ... (بقية منطق switchApp)
+}
+
         /**
  * Toggles a section element between its normal state and fullscreen mode.
  * * @param {string} sectionId - The ID of the section element (e.g., 'screen-Dashboard').
@@ -2456,6 +2575,10 @@ function updateDirectionButtons() {
     });
 }
 
+/**
+ * UPDATED: Updates the digital clock countdown/count-up display separately.
+ * CRITICAL FIX: Countdown to Azan is now hidden unless it's within 20 minutes of the prayer time.
+ */
 function updateTimerDisplay() {
     // 🛑 الشرط الحاسم: إذا كان المشغل المنبثق نشطاً، قم بالخروج فوراً لتجنب التقطيع
     if (videoPopupContainer.classList.contains('active')) {
@@ -2463,14 +2586,14 @@ function updateTimerDisplay() {
     }
     
     const now = new Date();
+    
     // تأكد من أن determineNextPrayer قد عملت مرة واحدة على الأقل
     if (!appState.prayerTimes.nextPrayerIqamaTime) {
+        digitalDateLine1.textContent = ''; // مسح المحتوى إذا لم يتم التهيئة
+        digitalDateLine2.textContent = '';
         return;
     }
 
-    const diff = appState.prayerTimes.nextPrayerIqamaTime - now;
-    const totalSecs = Math.floor(diff / 1000);
-    
     // إعادة تعيين أنماط الألوان قبل التحديث
     digitalDateLine1.classList.remove('countdown-azan', 'countdown-iqama', 'countdown-up');
     digitalDateLine2.classList.remove('countdown-azan', 'countdown-iqama', 'countdown-up');
@@ -2490,6 +2613,26 @@ function updateTimerDisplay() {
     }
 
     // 2. Logic for COUNT DOWN (to Azan or Iqama)
+    const diff = appState.prayerTimes.nextPrayerIqamaTime - now;
+    const totalSecs = Math.floor(diff / 1000);
+    
+    // 🛑 شرط الإخفاء الجديد: إذا كان الوقت المتبقي أكبر من 20 دقيقة (1200 ثانية)
+    const MAX_COUNTDOWN_SECS = 10 * 60; 
+
+    if (totalSecs > MAX_COUNTDOWN_SECS && appState.prayerTimes.currentPrayer !== appState.prayerTimes.nextPrayer) {
+        // إذا كان العد التنازلي للأذان وأكثر من 20 دقيقة، قم بالإخفاء
+        digitalDateLine1.textContent = `الأذان القادم: ${appState.prayerTimes.nextPrayer}`;
+        digitalDateLine2.textContent = appState.prayerTimes.nextPrayerIqamaTime.toLocaleTimeString('ar-SA', { hour: 'numeric', minute: '2-digit', hour12: true }); 
+        
+        // 💡 عرض الوقت الفعلي للأذان بدلاً من العد التنازلي عندما يكون بعيداً
+        // يمكننا هنا اختيار عرض الوقت بدلاً من إظهار "متبقي X ساعة"
+        digitalDateLine1.classList.remove('countdown-azan');
+        digitalDateLine2.classList.remove('countdown-azan');
+
+        return; // الخروج وعدم عرض العد التنازلي بالثواني
+    }
+
+    // المنطق يستمر فقط إذا كان الوقت المتبقي <= 20 دقيقة أو عد تنازلي للإقامة
     if (totalSecs >= 0) {
         const secs = totalSecs % 60;
         const mins = Math.floor((totalSecs / 60) % 60);
@@ -2498,11 +2641,13 @@ function updateTimerDisplay() {
         const isCountdownToIqama = (appState.prayerTimes.currentPrayer === appState.prayerTimes.nextPrayer);
 
         if (isCountdownToIqama) {
+            // العد التنازلي للإقامة (في وقت الصلاة)
             digitalDateLine1.textContent = `إقامة صلاة ${appState.prayerTimes.currentPrayer} في:`;
             digitalDateLine2.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
             digitalDateLine1.classList.add('countdown-iqama');
             digitalDateLine2.classList.add('countdown-iqama');
         } else {
+            // العد التنازلي للأذان (الآن داخل نطاق الـ 20 دقيقة)
             digitalDateLine1.textContent = `الأذان القادم: ${appState.prayerTimes.nextPrayer}`;
             digitalDateLine2.textContent = hrs > 0 ? `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}` : `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
             digitalDateLine1.classList.add('countdown-azan');
@@ -7086,415 +7231,42 @@ if (!window.hasInitializedWeatherSpeaker) {
         }
 
         // --- Initial Setup ---
-        document.addEventListener('DOMContentLoaded', () => { 
-            fetchWeatherData(); 
-            // Standard Listeners
-            getMyLocationButtonDashboard?.addEventListener('click', centerMapOnUserLocation);
-            goToHome1Button?.addEventListener('click', () => calculateAndDisplayRouteTo(HOME1_COORDS));
-            goToHome2Button?.addEventListener('click', () => calculateAndDisplayRouteTo(HOME2_COORDS));
-            floatingMediaButton?.addEventListener('click', () => switchApp('Media')); 
-            floatingMinimizedVideoButton?.addEventListener('click', restoreVideoPopup); // NEW listener
-            
+      document.addEventListener('DOMContentLoaded', () => {
+    // 1. الجلب الأولي لبيانات JSONBin (قبل عرض أي شيء)
+    Promise.all([
+        fetchRecitersList(),
+        fetchChannelsList(),
+        fetchFavorites('D'),
+        fetchFavorites('M')
+    ]).then(() => {
+        console.log("Initialization: External data fetched and ready.");
+        
+        // 2. تشغيل جلب الطقس الأولي لملء AppState
+        fetchWeatherData(); 
 
-
-
-
-    // ... (الكود الموجود لديك)
-const recitersIframe = document.getElementById('reciters-iframe');
-    const iframeSrcButtons = document.querySelectorAll('#screen-Reciters .iframe-src-button');
-
-    if (recitersIframe && iframeSrcButtons.length > 0) {
-        iframeSrcButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const newSrc = button.dataset.src;
-                if (newSrc && recitersIframe.src !== newSrc) {
-                    console.log(`Changing iframe src to: ${newSrc}`);
-                    recitersIframe.src = newSrc; // Change the iframe source
-
-                    // Update active button state
-                    iframeSrcButtons.forEach(btn => btn.classList.remove('active'));
-                    button.classList.add('active');
-                }
-            });
-        });
-    }
-    // Initial Calls
-   
-    Promise.all([fetchFavorites('D'), fetchFavorites('M')]).then(([d, m]) => {
-        favoritesD = d;
-        favoritesM = m;
+        // 3. تهيئة واجهة المستخدم الخاصة بالـ Media
+        populateYoutubeSuggestions();
     });
-migrateChannelData();
+
+    // 4. تشغيل المؤقتات البطيئة والأساسية (تعمل باستمرار)
+    loadPrayerTimes();
+    startNextPrayerDetermination(); // تحديث تحديد الصلاة (كل 1 دقيقة)
+    startFullDateUpdates();
+    updateTimerDisplay();        // تحديث التاريخ (كل 100 دقيقة)
+
+    // 5. تهيئة الخرائط وبدء تتبع الموقع
     loadGoogleMaps().then(initMap);
     
-    loadPrayerTimes();
-    updateFullDateWidget(); // <-- أضف هذا السطر (استدعاء أولي)
-    fetchWeatherData();
-    // Play welcome message once after a short delay
-    setTimeout(playWelcomeMessage, 20000);
-
-    setInterval(fetchWeatherData, 300000); 
-    setInterval(updateDigitalClock, 1000); 
-    setInterval(determineNextPrayer, 60000);
-    setInterval(updateFullDateWidget, 6000000); // <-- أضف هذا السطر (تحديث دوري)
-    setInterval(simulateOtherCarData, 6000);
-    setInterval(updateTimerDisplay, 2000);
-
-    // ... (بقية الكود)
-
-
-            
-            // NEW/UPDATED: Event listener for the floating back button
-            backToSearchFloatingButton.addEventListener('click', () => {
-                // If we are on the suggestions screen AND we have a previous search to go back to...
-                if (activeMediaView === 'suggestions' && lastSuccessfulSearchQuery) {
-                    searchYouTubeVideos(lastSuccessfulSearchQuery); // ...then re-run that search.
-                } else {
-                    // Otherwise (i.e., we are on the search results screen), perform the original "back" action.
-                    navigateBackToMainSearch();
-                }
-            });
-
-            startTripFloatingButton?.addEventListener('click', () => { if (appState.destinationSet) calculateAndDisplayRoute(); else showMessageBox('الرجاء تحديد وجهة أولاً.'); }); 
-            upload360ImageButton?.addEventListener('click', () => upload360ImageInput.click()); 
-            upload360ImageInput?.addEventListener('change', handleImageUpload); 
-            reset360ImageButton?.addEventListener('click', resetImageToDefault); 
-            document.addEventListener('keydown', handleRemoteControlInput);
-            document.addEventListener('fullscreenchange', handleFullScreenChange);
-            document.addEventListener('webkitfullscreenchange', handleFullScreenChange); // For Safari
-            
-            videoPopupCloseButton.addEventListener('click', hideVideoPopup);
-            backToPlaylistsFromVideosButton.addEventListener('click', navigateBackToMainSearch);
-            backToPlaylistsBottomButton.addEventListener('click', navigateBackToMainSearch);
-            backToPlaylistsBottomButtonSearch.addEventListener('click', navigateBackToMainSearch);
-            floatingKeyboardButton.addEventListener('click', () => { 
-                youtubeSearchInput.readOnly = !youtubeSearchInput.readOnly; 
-                if (!youtubeSearchInput.readOnly) {
-                    youtubeSearchInput.focus(); 
-                } else {
-                    youtubeSearchInput.blur();
-                    // Return focus to the search button after disabling keyboard
-                    setFocus(youtubeSearchButton);
-                }
-                floatingKeyboardButton.classList.toggle('active-keyboard', !youtubeSearchInput.readOnly); 
-                floatingKeyboardButton.classList.toggle('inactive-keyboard', youtubeSearchInput.readOnly); 
-            });
-            
-            // UPDATED: Clear button logic
-            clearSearchButton.addEventListener('click', () => {
-                youtubeSearchInput.value = ''; // Clear input immediately
-                lastSuccessfulSearchQuery = null; // NEW: Clear the last search memory
-                navigateBackToMainSearch();
-            });
-
-            youtubeSearchInput.addEventListener('focus', () => { if (youtubeSearchInput.value.trim() === '') { resetYoutubeSearchUI(); } });
-            youtubeSearchButton.addEventListener('click', () => { const query = youtubeSearchInput.value.trim(); if (query) searchYouTubeVideos(query); else showMessageBox('الرجاء إدخال كلمة للبحث.'); });
-            
-            // UPDATED: Auto-search for Tarteel channel with pre-click effect
-            youtubeSearchInput.addEventListener('input', () => {
-                const targetText = 'ترتيل-@TarteelArabic';
-                const currentText = youtubeSearchInput.value;
-
-                if (currentText.includes(targetText + ' ')) {
-                    // If text with space is present, visually confirm and trigger the click
-                    youtubeSearchButton.classList.add('tv-focus'); 
-                    setTimeout(() => {
-                        youtubeSearchButton.click();
-                        // Optional: remove focus style after click to reset state
-                        setTimeout(() => youtubeSearchButton.classList.remove('tv-focus'), 100);
-                    }, 50);
-                } else if (currentText.includes(targetText)) {
-                    // If only the text (no space) is present, show pre-click effect
-                    youtubeSearchButton.classList.add('tv-focus');
-                } else {
-                    // If the text is not present, remove the effect
-                    youtubeSearchButton.classList.remove('tv-focus');
-                }
-            });
-
-            // NEW Listeners for Animation and Zoom Controls
-            pauseAnimationButton.addEventListener('click', () => {
-                document.body.classList.toggle('animation-paused');
-                const isPaused = document.body.classList.contains('animation-paused');
-                const playIcon = pauseAnimationButton.querySelector('[data-lucide="play"]');
-                const pauseIcon = pauseAnimationButton.querySelector('[data-lucide="pause"]');
-                playIcon.classList.toggle('hidden', !isPaused);
-                pauseIcon.classList.toggle('hidden', isPaused);
-            });
-
-            removeCacheButton.addEventListener('click', () => {
-                localStorage.clear();
-                showMessageBox('تم مسح ذاكرة التخزين المؤقت بنجاح. سيتم إعادة تحميل التطبيق.');
-                setTimeout(() => {
-                    location.reload();
-                }, 2000);
-            });
-
-            zoomInButton.addEventListener('click', () => {
-                if (currentFontSize < maxFontSize) {
-                    currentFontSize += fontSizeStep;
-                    document.documentElement.style.fontSize = `${currentFontSize}px`;
-                }
-            });
-
-            zoomOutButton.addEventListener('click', () => {
-                if (currentFontSize > minFontSize) {
-                    currentFontSize -= fontSizeStep;
-                    document.documentElement.style.fontSize = `${currentFontSize}px`;
-                }
-            });
-
-            // Initial Calls
-           
-            loadGoogleMaps().then(initMap);
-            fetchWeatherData(); 
-            loadPrayerTimes();
-            setInterval(fetchWeatherData, 300000); 
-            setInterval(updateDigitalClock, 1000); 
-            setInterval(determineNextPrayer, 60000);
-            setInterval(simulateOtherCarData, 2000); // Call the modified simulation
-            switchApp('Dashboard'); 
-            
-            // Play welcome message once after a short delay
-            setTimeout(playWelcomeMessage, 1500);
-
-            // --- START: Islamic Daily Reminders Logic ---
-            // NEW: Helper functions for managing manual states
-            // --- دوال جديدة للتعامل مع الحالات بشكل محلي ---
-
-// --- NEW & CORRECTED: Helper functions for managing manual states via Server ---
-
-async function getManualReminderStates() {
-    try {
-        const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID_REMINDERS}/latest`, {
-            headers: {
-                'X-Access-Key': JSONBIN_ACCESS_KEY_REMINDERS
-            }
-        });
-        if (!response.ok) {
-            console.error('Failed to fetch reminder states:', response.statusText);
-            return {};
-        }
-        const data = await response.json();
-        const states = data.record || {};
-        
-        // If the only thing in the bin is our placeholder, return an empty object
-        if (Object.keys(states).length === 1 && states._init) {
-            return {};
-        }
-        return states;
-
-    } catch (error) {
-        if (error instanceof SyntaxError) {
-             console.log("Bin is likely empty or invalid. Returning default state.");
-             return {};
-        }
-        console.error('Error in getManualReminderStates:', error);
-        return {};
-    }
-}
-
-async function setManualReminderState(reminderId, state) {
-    let currentStates = await getManualReminderStates();
+    // 6. تشغيل الشاشة الافتراضية، مما يبدأ المؤقتات الشرطية
+    switchApp('Dashboard'); 
     
-    if (state === 'auto') {
-        delete currentStates[reminderId];
-    } else {
-        currentStates[reminderId] = state;
-    }
-
-    // ✅ THE FIX: If the object becomes empty, add a placeholder
-    if (Object.keys(currentStates).length === 0) {
-        currentStates = { "_init": true };
-    }
-
-    try {
-        await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID_REMINDERS}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Master-Key': JSONBIN_API_KEY
-            },
-            body: JSON.stringify(currentStates)
-        });
-    } catch (error) {
-        console.error('Error writing to JSONBin:', error);
-        showMessageBox('حدث خطأ أثناء حفظ الحالة.');
-    }
+    // 7. المستمعات (Listeners) لمرة واحدة
+    // ... (منطق ربط getMyLocationButtonDashboard, floatingMediaButton, etc.)
+    // ... (منطق ربط iframeSrcButtons)
     
-    // We pass the *real* state (without the placeholder) to the renderer
-    if (currentStates._init) {
-        renderDailyReminders({});
-    } else {
-        renderDailyReminders(currentStates);
-    }
-    closeAllDropdowns();
-}
-
-            // NEW: Function to create and manage the dropdown
-            function createReminderDropdown(reminderId, parentElement) {
-                closeAllDropdowns(); // Close any other open dropdowns first
-
-                const dropdown = document.createElement('div');
-                dropdown.className = 'reminder-status-dropdown show';
-                dropdown.innerHTML = `
-                    <button data-state="active" class="navigable grid-item" tabindex="0">حالي</button>
-                    <button data-state="completed" class="navigable grid-item" tabindex="0">منتهي</button>
-                    <button data-state="missed" class="navigable grid-item" tabindex="0">فائت</button>
-                    <hr class="border-white/10 my-1">
-                    <button data-state="auto" class="navigable grid-item" tabindex="0">تلقائي</button>
-                `;
-                parentElement.appendChild(dropdown);
-
-                dropdown.querySelectorAll('button').forEach(button => {
-                    button.addEventListener('click', (e) => {
-                        e.stopPropagation(); // Prevent the main click listener from firing again
-                        const state = button.dataset.state;
-                        setManualReminderState(reminderId, state);
-                    });
-                });
-                 // Focus the first button in the dropdown
-                const firstButton = dropdown.querySelector('button');
-                if (firstButton) setFocus(firstButton);
-            }
-
-            function closeAllDropdowns() {
-                document.querySelectorAll('.reminder-status-dropdown').forEach(d => d.remove());
-            }
-
-            // 1. تعريف قائمة الأذكار والعبادات مع الشروط الخاصة بها
-            const dailyReminders = [
-    { id: 'adhkar_morning', name: 'أذكار الصباح', icon: 'sunrise', isActive: (now, times) => now >= times.Fajr && now < times.Dhuhr, getStartTime: (now, times) => times.Fajr, getEndTime: (now, times) => times.Dhuhr, action: () => { switchApp('Media'); searchYouTubeVideos('أذكار الصباح كاملة'); } },
-    { id: 'salat_duha', name: 'صلاة الضحى', icon: 'sun', isActive: (now, times) => { if (!times.Sunrise || !times.Dhuhr) return false; const sunriseTime = new Date(times.Sunrise.getTime() + 20 * 60000); const dhuhrTime = new Date(times.Dhuhr.getTime() - 10 * 60000); return now >= sunriseTime && now < dhuhrTime; }, getStartTime: (now, times) => { if (!times.Sunrise) return null; return new Date(times.Sunrise.getTime() + 20 * 60000); }, getEndTime: (now, times) => { if (!times.Dhuhr) return null; return new Date(times.Dhuhr.getTime() - 10 * 60000); }, action: () => showMessageBox('صلاة الضحى سنة مؤكدة، ووقتها من بعد شروق الشمس وارتفاعها قدر رمح إلى قبيل وقت صلاة الظهر.') },
-    { id: 'sunan_rawatib', name: 'السنن الرواتب', icon: 'calendar-check', isActive: (now, times) => { if (!times.Fajr || !times.Dhuhr || !times.Maghrib || !times.Isha) return false; const tenMinutes = 10 * 60 * 1000; if (now < times.Fajr && (times.Fajr.getTime() - now.getTime()) <= tenMinutes) return true; if (now < times.Dhuhr && (times.Dhuhr.getTime() - now.getTime()) <= tenMinutes) return true; if (now > times.Dhuhr && (now.getTime() - times.Dhuhr.getTime()) <= tenMinutes) return true; if (now > times.Maghrib && (now.getTime() - times.Maghrib.getTime()) <= tenMinutes) return true; if (now > times.Isha && (now.getTime() - times.Isha.getTime()) <= tenMinutes) return true; return false; }, getStartTime: null, getEndTime: null, action: () => showMessageBox('السنن الرواتب: ركعتان قبل الفجر، أربع قبل الظهر، ركعتان بعده، ركعتان بعد المغرب، وركعتان بعد العشاء.') },
-    { id: 'adhkar_evening', name: 'أذكار المساء', icon: 'sunset', isActive: (now, times) => now >= times.Asr && now.getHours() < 23, getStartTime: (now, times) => times.Asr, getEndTime: (now, times) => { const d = new Date(now); d.setHours(22, 59, 59, 999); return d; }, action: () => { switchApp('Media'); searchYouTubeVideos('أذكار المساء كاملة'); } },
-    { id: 'wird_daily', name: 'الورد اليومي', icon: 'book-marked', isActive: (now, times) => true, getStartTime: null, getEndTime: null, action: () => switchApp('Quran') },
-    { id: 'surah_mulk', name: 'سورة الملك', icon: 'moon', isActive: (now, times) => now >= times.Isha || now < times.Fajr, getStartTime: (now, times) => times.Isha, getEndTime: (now, times) => { if (now < times.Fajr) return times.Fajr; return new Date(times.Fajr.getTime() + 24 * 60 * 60 * 1000); }, action: () => { switchApp('Media'); searchYouTubeVideos('سورة الملك كاملة'); } },
-                { id: 'salat_witr', name: 'صلاة الوتر', icon: 'star', isActive: (now, times) => now >= times.Isha || now < times.Fajr, getStartTime: (now, times) => times.Isha, getEndTime: (now, times) => { if (now < times.Fajr) return times.Fajr; return new Date(times.Fajr.getTime() + 24 * 60 * 60 * 1000); }, action: () => showMessageBox('صلاة الوتر سنة مؤكدة، وأقلها ركعة واحدة، ووقتها من بعد صلاة العشاء إلى طلوع الفجر.') },
-                { id: 'adhkar_sleep', name: 'قيام الليل ', icon: 'bed', isActive: (now, times) => now.getHours() >= 23, getStartTime: (now, times) => { const d = new Date(now); d.setHours(23, 0, 0, 0); return d; }, getEndTime: (now, times) => { const d = new Date(now); d.setHours(23, 59, 59, 999); return d; }, action: () => { switchApp('Media'); searchYouTubeVideos('أذكار النوم'); } }
-            ];
-
-            // 2. دالة لإنشاء وعرض القائمة (MODIFIED)
-         // ✅ Corrected Version of the function
-async function renderDailyReminders(states) { // We added 'async' and 'states' here
-    const container = document.getElementById('tv');
-    if (!container || !appState.prayerTimes.Fajr || appState.prayerTimes.Fajr === '--:--') return;
-
-    // If no states are passed in, fetch them. Otherwise, use the states that were passed.
-    const manualStates = states || await getManualReminderStates(); // We added 'await' here
-
-    const now = new Date();
-    const prayerDateTimes = {
-        Fajr: timeToDate(appState.prayerTimes.Fajr),
-        Sunrise: timeToDate(appState.prayerTimes.Sunrise || '06:15'),
-        Dhuhr: timeToDate(appState.prayerTimes.Dhuhr),
-        Asr: timeToDate(appState.prayerTimes.Asr),
-        Maghrib: timeToDate(appState.prayerTimes.Maghrib),
-        Isha: timeToDate(appState.prayerTimes.Isha)
-    };
-
-    container.innerHTML = '';
-    const grid = document.createElement('div');
-    grid.className = 'reminders-grid grid-container'; // Added grid-container for navigation
-    grid.id = 'reminders-grid-container';
-
-    dailyReminders.forEach(reminder => {
-        const manualState = manualStates[reminder.id];
-        let classList = 'reminder-item navigable grid-item';
-        let iconName = '';
-
-        if (manualState) {
-            classList += ` ${manualState}`;
-            switch (manualState) {
-                case 'active':    iconName = 'clock'; break;
-                case 'completed': iconName = 'check-check'; break;
-                case 'missed':    iconName = 'x-circle'; break;
-            }
-        } else {
-            const isActive = reminder.isActive(now, prayerDateTimes);
-            let isUpcoming = false;
-            if (reminder.getStartTime && !isActive) {
-                const startTime = reminder.getStartTime(now, prayerDateTimes);
-                if (startTime && startTime > now) { isUpcoming = true; }
-            }
-            let isCompleted = false;
-            if (!isActive && !isUpcoming && reminder.getEndTime) {
-                const endTime = reminder.getEndTime(now, prayerDateTimes);
-                if (endTime && now > endTime) { isCompleted = true; }
-            }
-
-            if (isActive) { classList += ' active'; iconName = 'play-circle'; } 
-            else if (isUpcoming) { classList += ' upcoming'; iconName = 'bell'; } 
-            else if (isCompleted) { classList += ' completed'; iconName = 'check-check'; } 
-            else { iconName = 'circle'; }
-        }
-
-        const item = document.createElement('div');
-        item.className = classList;
-        item.dataset.reminderId = reminder.id;
-        item.tabIndex = 0;
-
-        item.innerHTML = `
-            <div class="icon-wrapper relative">
-                <i data-lucide="${iconName || 'circle'}" class="icon w-12 h-12"></i>
-            </div>
-            <span class="text">${reminder.name}</span>
-        `;
-        grid.appendChild(item);
-    });
-
-    container.appendChild(grid);
-    lucide.createIcons();
-}
-
-            // --- الكود الجديد ---
-// 3. إضافة مستمع نقر واحد للتعامل مع كل الأزرار (MODIFIED)
-document.addEventListener('click', (e) => {
-    const reminderItem = e.target.closest('.reminder-item');
-    const dropdownButton = e.target.closest('.reminder-status-dropdown button');
-
-    // إذا تم النقر على زر داخل القائمة المنسدلة، دعه يعمل (المستمع الخاص به سيعمل)
-    if (dropdownButton) {
-        return;
-    }
-
-    // إذا تم النقر خارج عنصر تذكير وخارج قائمة منسدلة، أغلق جميع القوائم
-    if (!reminderItem && !e.target.closest('.reminder-status-dropdown')) {
-        closeAllDropdowns();
-        return;
-    }
-
-    // إذا لم يتم النقر على عنصر تذكير، توقف هنا
-    if (!reminderItem) return;
-
-    // --- الجزء الرئيسي للتعديل ---
-    // أوقف انتشار الحدث لمنع أي إجراءات افتراضية أخرى
-    e.stopPropagation();
-
-    const reminderId = reminderItem.dataset.reminderId;
-    const iconWrapper = reminderItem.querySelector('.icon-wrapper'); // ابحث عن حاوية الأيقونة
-
-    if (!iconWrapper) return; // تأكد من وجود حاوية الأيقونة
-
-    // تحقق مما إذا كانت القائمة المنسدلة لهذا العنصر مفتوحة بالفعل
-    const existingDropdown = reminderItem.querySelector('.reminder-status-dropdown');
-
-    if (existingDropdown) {
-        // إذا كانت مفتوحة، أغلقها
-        existingDropdown.remove();
-    } else {
-        // إذا كانت مغلقة، أغلق أي قوائم أخرى وافتح هذه القائمة
-        closeAllDropdowns(); // أغلق القوائم الأخرى أولاً
-        createReminderDropdown(reminderId, iconWrapper); // افتح القائمة الجديدة بالنسبة لحاوية الأيقونة
-    }
-    // --- نهاية التعديل ---
-
-    // تم إزالة الجزء الخاص بتنفيذ الإجراء الافتراضي (مثل البحث في يوتيوب)
+    setTimeout(playWelcomeMessage, 1500);
+    setInterval(updateTimerDisplay,1000);
 });
-            
-            renderDailyReminders(); // الاستدعاء الأول
-            setInterval(renderDailyReminders, 60000); // تحديث كل 60 ثانية
-        });
 
         // --- Athkar App Logic ---
         const tabSabah = document.getElementById('tab-sabah');
