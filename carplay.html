@@ -2400,6 +2400,9 @@ div#map{display:none}
             <button id="video-popup-close-button" title="إغلاق الفيديو" class="navigable grid-item" tabindex="0">
                 <i data-lucide="x" class="w-4 h-4"></i>
             </button>
+            <button id="video-popup-minimize-button" title="تصغير إلى كبسولة" class="navigable grid-item" tabindex="0">
+            <i data-lucide="chevrons-down-up" class="w-4 h-4"></i>
+        </button>
         </div>
     </div>
 
@@ -4395,105 +4398,109 @@ function updateUI() {
             }
         }
         
-        async function showVideoPopup(videoId, startOverride = null) {
-            const start = startOverride !== null ? startOverride : (() => {
-                const history = getWatchedHistory();
-                const watchedInfo = history[videoId];
-                // إذا كان المستخدم قد شاهد أكثر من 5 ثوانٍ، استأنف التشغيل، وإلا ابدأ من الصفر
-                return (watchedInfo && watchedInfo.progress > 5) ? watchedInfo.progress : 0;
-            })();
+        /**
+ * Asynchronously loads and displays the YouTube video player in a floating popup window.
+ * It determines the start time from local history unless overridden.
+ *
+ * @param {string} videoId - The YouTube video ID.
+ * @param {number|null} startOverride - Optional time (in seconds) to override history playback position.
+ */
+async function showVideoPopup(videoId, startOverride = null) {
+    // 1. تحديد نقطة بداية التشغيل (استئناف من السجل أو البدء من الصفر)
+    const start = startOverride !== null ? startOverride : (() => {
+        const history = getWatchedHistory();
+        const watchedInfo = history[videoId];
+        // استئناف التشغيل إذا تم مشاهدة أكثر من 5 ثوانٍ
+        return (watchedInfo && watchedInfo.progress > 5) ? watchedInfo.progress : 0;
+    })();
     
-            // UPDATED: Pause background animations and update control button icon
-            document.body.classList.add('animation-paused');
-            const playIcon = pauseAnimationButton.querySelector('[data-lucide="play"]');
-            const pauseIcon = pauseAnimationButton.querySelector('[data-lucide="pause"]');
-            if (playIcon && pauseIcon) {
-                playIcon.classList.remove('hidden'); // Show play icon (indicating animations are paused)
-                pauseIcon.classList.add('hidden');
+    // 2. إدارة حالة واجهة المستخدم والرسوم المتحركة
+    // إيقاف حركة الخلفية عند تشغيل الفيديو
+    document.body.classList.add('animation-paused');
+    const playIcon = pauseAnimationButton.querySelector('[data-lucide="play"]');
+    const pauseIcon = pauseAnimationButton.querySelector('[data-lucide="pause"]');
+    if (playIcon && pauseIcon) {
+        playIcon.classList.remove('hidden'); // إظهار أيقونة التشغيل (لأن الحركة متوقفة)
+        pauseIcon.classList.add('hidden');
+    }
+
+    if (!isYouTubeApiReady) {
+        console.warn("YouTube API not ready, delaying popup.");
+        return setTimeout(() => showVideoPopup(videoId, start), 100);
+    }
+    
+    currentPlayingVideoId = videoId;
+    videoPopupContainer.style.display = 'flex'; 
+    videoPopupContainer.classList.add('active');
+    
+    // إخفاء الكبسولة المصغرة إذا كانت نشطة
+    floatingMinimizedVideoButton.style.display = 'none';
+    appState.isVideoPlayerMinimized = false;
+
+    // 3. ربط أزرار التحكم الديناميكية (مثل Bookmark و Minimize)
+    const controlsContainer = videoPopupCloseButton.parentElement;
+    
+    // إنشاء زر الحفظ (Bookmark) إذا لم يكن موجوداً
+    let bookmarkBtn = document.getElementById('video-popup-bookmark-button');
+    if (controlsContainer && !bookmarkBtn) {
+        // ... (منطق إنشاء زر Bookmark وإضافة مستمعي الأحداث) ...
+        bookmarkBtn = document.createElement('button');
+        bookmarkBtn.id = 'video-popup-bookmark-button';
+        bookmarkBtn.className = 'navigable grid-item p-3 rounded-full glass-surface glass-surface--svg hover:bg-white/20 transition-colors';
+        bookmarkBtn.innerHTML = `<i data-lucide="bookmark" class="w-6 h-6"></i>`;
+        bookmarkBtn.tabIndex = 0;
+        
+        // (يجب تحديث حالة الزر هنا بناءً على favoritesD/M)
+        
+        bookmarkBtn.onclick = async (e) => {
+             e.stopPropagation();
+             const videoDetailsList = await fetchVideosDetails([currentPlayingVideoId]);
+             if (videoDetailsList && videoDetailsList.length > 0) {
+                 showFavoritesMenu(e.currentTarget, videoDetailsList[0]);
+             } else {
+                 showMessageBox("خطأ في جلب تفاصيل الفيديو للحفظ.");
+             }
+        };
+        controlsContainer.insertBefore(bookmarkBtn, videoPopupCloseButton);
+    }
+    
+    // 🛑 ربط زر التصغير (CRITICAL BINDING)
+    const videoPopupMinimizeButton = document.getElementById('video-popup-minimize-button');
+    if (videoPopupMinimizeButton) {
+        // نستخدم 'onclick' هنا لضمان تجاوز أي مستمع سابق وتجنب تكرار الربط
+        videoPopupMinimizeButton.onclick = (e) => {
+            e.stopPropagation();
+            minimizeVideoPopup(); // 👈 استدعاء وظيفة التصغير
+        };
+    }
+
+
+    // 4. تهيئة وتشغيل مشغل يوتيوب (YT.Player)
+    if (popupPlayer) {
+        // إذا كان المشغل موجوداً، حمّل الفيديو الجديد
+        popupPlayer.loadVideoById({ videoId, startSeconds: start });
+    } else {
+        // إذا لم يكن موجوداً، قم بإنشاء مشغل جديد
+        videoPopupPlayerContainer.innerHTML = '<div id="video-popup-player"></div>';
+        popupPlayer = new YT.Player('video-popup-player', {
+            height: '100%', width: '100%', videoId,
+            playerVars: { 
+                'autoplay': 1, 
+                'controls': 1, 
+                'start': Math.floor(start),
+                'origin': 'https://dmusera.netlify.app'
+            },
+            events: { 
+                'onReady': (e) => e.target.playVideo(),
+                'onStateChange': onPlayerStateChange // 👈 لمعالجة PROGRESS و ENDED
             }
+        });
+    }
 
-            if (!isYouTubeApiReady) return setTimeout(() => showVideoPopup(videoId, start), 100);
-            currentPlayingVideoId = videoId;
-            videoPopupContainer.style.display = 'flex'; // Ensure it's visible
-            videoPopupContainer.classList.add('active');
-            // Hide the minimized button when showing the main player
-            floatingMinimizedVideoButton.style.display = 'none';
-            appState.isVideoPlayerMinimized = false;
-
-            // --- START: NEW BOOKMARK BUTTON LOGIC ---
-            const controlsContainer = videoPopupCloseButton.parentElement;
-            if (controlsContainer && !document.getElementById('video-popup-bookmark-button')) {
-                const bookmarkBtn = document.createElement('button');
-                bookmarkBtn.id = 'video-popup-bookmark-button';
-                bookmarkBtn.className = 'navigable grid-item p-3 rounded-full glass-surface glass-surface--svg hover:bg-white/20 transition-colors';
-                bookmarkBtn.innerHTML = `<i data-lucide="bookmark" class="w-6 h-6"></i>`;
-                bookmarkBtn.tabIndex = 0;
-
-                // Set initial state
-                const isSavedD = favoritesD.some(fav => fav.id === videoId);
-                const isSavedM = favoritesM.some(fav => fav.id === videoId);
-                if (isSavedD && isSavedM) bookmarkBtn.classList.add('saved-both');
-                else if (isSavedD) bookmarkBtn.classList.add('saved-d');
-                else if (isSavedM) bookmarkBtn.classList.add('saved-m');
-
-                // Add click listener to fetch details and show menu
-                bookmarkBtn.onclick = async (e) => {
-                    e.stopPropagation();
-                    const currentVideoId = currentPlayingVideoId; // Use the stored ID
-                    if (!currentVideoId) return;
-
-                    // Fetch details on demand
-                    const videoDetailsList = await fetchVideosDetails([currentVideoId]);
-                    if (!videoDetailsList || videoDetailsList.length === 0) {
-                        showMessageBox("خطأ: لم يتم العثور على تفاصيل الفيديو.");
-                        return;
-                    }
-                    const videoDetails = videoDetailsList[0];
-                    const channelThumbnails = await fetchChannelsDetails([videoDetails.snippet.channelId]);
-
-                    // Reconstruct the videoData object
-                    const videoData = {
-                        id: videoDetails.id,
-                        title: videoDetails.snippet.title,
-                        thumbnail: videoDetails.snippet.thumbnails.medium.url,
-                        channelTitle: videoDetails.snippet.channelTitle,
-                        channelId: videoDetails.snippet.channelId,
-                        channelThumbnail: channelThumbnails[videoDetails.snippet.channelId],
-                        viewCount: formatViewCount(videoDetails.statistics.viewCount),
-                        publishedAt: formatTimeAgo(videoDetails.snippet.publishedAt),
-                        duration: formatDuration(videoDetails.contentDetails.duration)
-                    };
-
-                    // Show the menu
-                    showFavoritesMenu(bookmarkBtn, videoData);
-                };
-
-                // Insert the button before the close button
-                controlsContainer.insertBefore(bookmarkBtn, videoPopupCloseButton);
-                lucide.createIcons();
-            }
-            // --- END: NEW BOOKMARK BUTTON LOGIC ---
-
-            if (popupPlayer) {
-                popupPlayer.loadVideoById({ videoId, startSeconds: start });
-            } else {
-                videoPopupPlayerContainer.innerHTML = '<div id="video-popup-player"></div>';
-                popupPlayer = new YT.Player('video-popup-player', {
-                    height: '100%', width: '100%', videoId,
-                    playerVars: { 
-                        'autoplay': 1, 
-                        'controls': 1, 
-                        'start': Math.floor(start),
-                        'origin': 'https://dmusera.netlify.app'
-                    },
-                    events: { 
-                        'onReady': (e) => e.target.playVideo(),
-                        'onStateChange': onPlayerStateChange 
-                    }
-                });
-            }
-            setTimeout(() => setFocus(videoPopupCloseButton), 100);
-        }
+    // 5. نقل التركيز
+    setTimeout(() => setFocus(videoPopupCloseButton), 100);
+    lucide.createIcons(); // لتحديث أي أيقونات أضيفت حديثًا
+}
 async function hideVideoPopup() {
             if (progressInterval) clearInterval(progressInterval);
 
@@ -4554,34 +4561,74 @@ const minimizedPlaybackSpeed = document.getElementById('minimized-playback-speed
 // ...
 
 
-// 💡 يتم استدعاؤها عند النقر على زر التصغير في المشغل الرئيسي
+/**
+ * REPLACED & FINALIZED: Minimizes the active YouTube popup player into the 
+ * floating audio capsule. Reduces playback quality to 'tiny' for resource saving.
+ */
 function minimizeVideoPopup() {
     if (!videoPopupContainer.classList.contains('active')) return;
     
+    // 🛑 1. ضبط جودة التشغيل على أدنى حد للتركيز على الصوت وتوفير الموارد
+    if (popupPlayer && typeof popupPlayer.setPlaybackQuality === 'function') {
+        popupPlayer.setPlaybackQuality('tiny'); 
+    }
+    
+    // 2. إخفاء المشغل الكبير وإظهار الكبسولة
     videoPopupContainer.style.display = 'none';
     floatingMinimizedVideoButton.style.display = 'flex';
     floatingMinimizedVideoButton.classList.add('active'); // تفعيل الكبسولة
 
-    // تحديث عنوان الكبسولة
-    const videoData = popupPlayer.getVideoData();
-    const titleElement = floatingMinimizedVideoButton.querySelector('.minimized-title');
-    if(titleElement) titleElement.textContent = videoData.title || 'الصوت يعمل...';
-
+    // 3. تحديث الحالة
     appState.isVideoPlayerMinimized = true;
-    setFocus(floatingMinimizedVideoButton);
-
-    // 🛑 ضبط حالة زر التشغيل/الإيقاف وسرعة التشغيل
+    
+    // 4. تحديث حالة أيقونات التشغيل والسرعة في الكبسولة
     updateMinimizedControlsState(); 
+
+    // 5. تحديث عنوان الكبسولة
+    const videoData = popupPlayer ? popupPlayer.getVideoData() : null;
+    const titleElement = floatingMinimizedVideoButton.querySelector('.minimized-title');
+    if(titleElement) titleElement.textContent = (videoData && videoData.title) ? videoData.title : 'الصوت يعمل...';
+    
+    // 6. نقل التركيز إلى الكبسولة
+    setFocus(floatingMinimizedVideoButton);
 }
 
 // 💡 يتم استدعاؤها عند النقر على زر التكبير في الكبسولة المصغرة
+/**
+ * REPLACED: Restores the YouTube video popup from the minimized audio capsule.
+ */
+/**
+ * REPLACED & FINALIZED: Restores the YouTube video popup from the minimized audio capsule.
+ * Ensures the video screen reappears and playback quality is restored.
+ */
 function restoreVideoPopup() {
+    // 1. شروط الأمان
     if (!appState.isVideoPlayerMinimized) return;
-    videoPopupContainer.style.display = 'flex';
-    floatingMinimizedVideoButton.style.display = 'none';
-    floatingMinimizedVideoButton.classList.remove('active'); // إلغاء تفعيل الكبسولة
+    
+    // 2. تغيير حالة العرض
+    videoPopupContainer.style.display = 'flex'; // 👈 إظهار المشغل الرئيسي (حل مشكلة الشاشة السوداء)
+    floatingMinimizedVideoButton.style.display = 'none'; // إخفاء الكبسولة المصغرة
+    floatingMinimizedVideoButton.classList.remove('active');
+    
+    // 3. تحديث الحالة
     appState.isVideoPlayerMinimized = false;
-    setFocus(videoPopupCloseButton);
+    
+    // 🛑 FIX: استئناف التشغيل بالجودة المناسبة وضمان تحديث الـ iframe
+    if (popupPlayer && typeof popupPlayer.playVideo === 'function') {
+        // نطلب جودة متوسطة لإعادة تنشيط العرض
+        popupPlayer.setPlaybackQuality('medium'); 
+        popupPlayer.playVideo();
+    }
+    
+    // 4. تحديد التركيز (Focus) 
+    // نركز على زر الإغلاق في المشغل الرئيسي لتمكين التحكم بالريموت
+    const videoPopupCloseButton = document.getElementById('video-popup-close-button'); 
+    
+    if (videoPopupCloseButton) {
+        setFocus(videoPopupCloseButton);
+    } else {
+        setFocus(videoPopupContainer); 
+    }
 }
 
 /**
@@ -7404,13 +7451,13 @@ if (!window.hasInitializedWeatherSpeaker) {
         }
 
         // --- Initial Setup ---
-      document.addEventListener('DOMContentLoaded', () => {
-    // 1. الجلب الأولي لبيانات JSONBin (قبل عرض أي شيء)
+     document.addEventListener('DOMContentLoaded', () => {
+    // 1. **الجلب الأولي لجميع بيانات JSONBin (ASYNCHRONOUS)**
     Promise.all([
-        fetchRecitersList(),
-        fetchChannelsList(),
-        fetchFavorites('D'),
-        fetchFavorites('M')
+        fetchRecitersList(), 
+        fetchChannelsList(), 
+        fetchFavorites('D'),  
+        fetchFavorites('M')   
     ]).then(() => {
         console.log("Initialization: External data fetched and ready.");
         
@@ -7419,54 +7466,113 @@ if (!window.hasInitializedWeatherSpeaker) {
 
         // 3. تهيئة واجهة المستخدم الخاصة بالـ Media
         populateYoutubeSuggestions();
+        
+        // 4. تهيئة الخرائط وبدء تتبع الموقع
+        loadGoogleMaps().then(initMap);
+        loadPrayerTimes();
+        migrateChannelData();
+        
+        // 🛑 تشغيل المؤقتات البطيئة الأساسية فقط:
+        // (determineNextPrayer ستُشغَّل أيضاً في startNextPrayerDetermination)
+        startNextPrayerDetermination(); // تحديث تحديد الصلاة (كل 1 دقيقة)
+        startFullDateUpdates();         // تحديث التاريخ (كل 100 دقيقة)
+
+        // 5. تشغيل الشاشة الافتراضية، مما يبدأ المؤقتات الشرطية (الكفاءة)
+        switchApp('Dashboard'); 
+
+    }).catch(error => {
+        console.error("Critical Initialization Failure:", error);
+        showMessageBox("فشل تحميل البيانات الأساسية. يرجى التحقق من مفاتيح API واتصال الإنترنت.");
     });
 
-    // 4. تشغيل المؤقتات البطيئة والأساسية (تعمل باستمرار)
-    loadPrayerTimes();
-    startNextPrayerDetermination(); // تحديث تحديد الصلاة (كل 1 دقيقة)
-    startFullDateUpdates();
-    updateTimerDisplay();        // تحديث التاريخ (كل 100 دقيقة)
 
-    // 5. تهيئة الخرائط وبدء تتبع الموقع
-    loadGoogleMaps().then(initMap);
+    // 6. **تفعيل المستمعات والأزرار (Listeners & Button Bindings)**
     
-    // 6. تشغيل الشاشة الافتراضية، مما يبدأ المؤقتات الشرطية
-    switchApp('Dashboard'); 
-    
-    // 7. المستمعات (Listeners) لمرة واحدة
-    // ... (منطق ربط getMyLocationButtonDashboard, floatingMediaButton, etc.)
-    // ... (منطق ربط iframeSrcButtons)
-    
-    setTimeout(playWelcomeMessage, 1500);
-    setInterval(updateTimerDisplay,1000);
-      renderDailyReminders(); // الاستدعاء الأول
-            setInterval(renderDailyReminders, 60000);
-            
-            
-            // 🛑 يجب ربط هذا الكود في نهاية السكريبت (DOMContentLoaded) 🛑
+    // المستمعات القياسية (Standard Listeners)
+    getMyLocationButtonDashboard?.addEventListener('click', centerMapOnUserLocation);
+    goToHome1Button?.addEventListener('click', () => calculateAndDisplayRouteTo(HOME1_COORDS));
+    goToHome2Button?.addEventListener('click', () => calculateAndDisplayRouteTo(HOME2_COORDS));
+    floatingMediaButton?.addEventListener('click', () => switchApp('Media'));
+    floatingMinimizedVideoButton?.addEventListener('click', restoreVideoPopup); 
 
-// 1. زر التشغيل/الإيقاف المؤقت
-minimizedPlayPauseBtn?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (popupPlayer) {
-        const playerState = popupPlayer.getPlayerState();
-        if (playerState === YT.PlayerState.PLAYING) {
-            popupPlayer.pauseVideo();
-        } else {
-            popupPlayer.playVideo();
+    // 🛑 ربط أزرار التحكم في الشاشة المصغرة والمكبرة
+    const minimizedRestoreBtn = document.getElementById('minimized-restore-btn');
+    const minimizedPlayPauseBtn = document.getElementById('minimized-play-pause-btn');
+    const videoPopupMinimizeButton = document.getElementById('video-popup-minimize-button');
+
+    // Listener الاستعادة من الكبسولة (التكبير)
+    minimizedRestoreBtn?.addEventListener('click', restoreVideoPopup); 
+    floatingMinimizedVideoButton?.addEventListener('click', restoreVideoPopup);
+    
+    // 🛑 CRITICAL FIX 3: ربط سرعة التشغيل
+    const minimizedPlaybackSpeed = document.getElementById('minimized-playback-speed');
+    minimizedPlaybackSpeed?.addEventListener('click', togglePlaybackRate);
+    
+    // ... (بقية الكود)
+    // Listener زر التشغيل/الإيقاف المؤقت داخل الكبسولة
+    minimizedPlayPauseBtn?.addEventListener('click', (e) => {
+        e.stopPropagation(); // 👈 منع النقر من الوصول إلى الحاوية الأبوية (floatingMinimizedVideoButton)
+        if (popupPlayer) {
+            const playerState = popupPlayer.getPlayerState();
+            if (playerState === YT.PlayerState.PLAYING) {
+                popupPlayer.pauseVideo();
+            } else {
+                popupPlayer.playVideo();
+            }
         }
+    });
+
+    // 🛑 Listener زر التصغير من المشغل المنبثق
+    videoPopupMinimizeButton?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        minimizeVideoPopup();
+    });
+
+    // ربط IFRAME Source Buttons (لشاشة Reciters)
+    const recitersIframe = document.getElementById('reciters-iframe');
+    const iframeSrcButtons = document.querySelectorAll('#screen-Reciters .iframe-src-button');
+
+    if (recitersIframe && iframeSrcButtons.length > 0) {
+        iframeSrcButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const newSrc = button.dataset.src;
+                if (newSrc && recitersIframe.src !== newSrc) {
+                    console.log(`Changing iframe src to: ${newSrc}`);
+                    recitersIframe.src = newSrc;
+                    iframeSrcButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                }
+            });
+        });
     }
-});
 
-// 2. زر الاستعادة
-minimizedRestoreBtn?.addEventListener('click', restoreVideoPopup);
+    // 7. **المؤقتات والإجراءات المتأخرة**
+    setTimeout(playWelcomeMessage, 1500); 
 
-// 3. ربط النقر على الكبسولة نفسها بالاستعادة أيضاً
-floatingMinimizedVideoButton?.addEventListener('click', restoreVideoPopup);
+    // 🛑 يجب إزالة جميع الأسطر الـ setInterval المكررة التي تسبب استهلاكاً للموارد:
+    // setInterval(updateDigitalClock, 1000); 
+    // setInterval(simulateOtherCarData, 2000);
+    // setInterval(updateTimerDisplay, 1000);
+    // setInterval(fetchWeatherData, 300000);
+    // ...
+    const PLAYBACK_RATES = [1.0, 1.25, 1.5, 1.65];
 
-// 4. تحديث حالة الكبسولة عند تغيير حالة المشغل الرئيسي
-// (يجب أن يتم استدعاء updateMinimizedControlsState() داخل onPlayerStateChange) // تحديث كل 60 ثانية
-        
+function togglePlaybackRate() {
+    if (!popupPlayer || !minimizedPlaybackSpeed) return;
+
+    const currentRate = popupPlayer.getPlaybackRate();
+    const currentIndex = PLAYBACK_RATES.indexOf(currentRate);
+    
+    // تحديد السرعة التالية في المصفوفة
+    const nextIndex = (currentIndex + 1) % PLAYBACK_RATES.length;
+    const nextRate = PLAYBACK_RATES[nextIndex];
+    
+    // تطبيق السرعة الجديدة على المشغل
+    popupPlayer.setPlaybackRate(nextRate);
+    
+    // تحديث النص في الكبسولة فوراً
+    updateMinimizedControlsState(); 
+}
 });
 
 
