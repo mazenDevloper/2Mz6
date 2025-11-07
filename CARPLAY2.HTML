@@ -1,8 +1,6 @@
 
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" style="
-    
-">
+<html lang="ar" dir="rtl" style="zoom:90%;">
 <head>
     <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#000000">
@@ -831,32 +829,37 @@ section#screen-Map>.w-full.h-full.bg-black2.rounded-3xl.flex.items-center.justif
         }
 
         /* NEW: Style for the minimized video player button */
-        #floating-minimized-video-button {
-            position: fixed;
-            bottom: 1rem;
-            left: 1rem;
-            background-color: rgba(245, 158, 11, 0.7); /* Amber/Yellow color */
-            color: white;
-            padding: 0.75rem 1.25rem;
-            border-radius: 9999px; /* Pill shape */
-            display: none; /* Hidden by default */
-            align-items: center;
-            gap: 0.75rem;
-            font-weight: bold;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
-            cursor: pointer;
-            z-index: 105;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            max-width: 250px; /* Prevent it from getting too wide */
-        }
-        #floating-minimized-video-button .minimized-title {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+       /* --- CSS لتحويل زر التصغير إلى كبسولة أفقية --- */
+
+#floating-minimized-video-button {
+    /* 🛑 يجب أن تظهر في الزاوية اليسرى السفلية */
+    position: fixed;
+    bottom: 1rem;
+    left: 1rem;
+    right: auto;
+    
+    /* تنسيق الكبسولة */
+    display: flex; /* 👈 ضروري لترتيب العناصر أفقياً */
+    align-items: center;
+    gap: 0.5rem;
+    width: 250px; /* عرض ثابت للكبسولة */
+    height: 60px; /* ارتفاع ثابت */
+    padding: 0.5rem;
+    
+    /* تنسيق Glassmorphism (يجب أن يكون موجوداً) */
+    border-radius: 9999px; /* شكل كبسولة (Pill Shape) */
+    z-index: 105;
+    
+    /* 💡 التوهج ليدل على أنها تعمل في الخلفية */
+    box-shadow: 0 0 15px rgba(255, 255, 0, 0.4); 
+    transition: all 0.3s ease;
+}
+
+/* 💡 ويدجت درجة الحرارة الذي تم نقله إلى اليمين يجب أن يكون مكانه آمناً */
+#right-side-info-widgets {
+    z-index: 100; /* يجب أن يكون أقل من الكبسولة */
+}
+        
 
 
         /* Top bar positioning and transition */
@@ -2358,10 +2361,21 @@ div#map{display:none}
     </button>
 
     <!-- NEW: Minimized Video Button -->
-    <button id="floating-minimized-video-button" class="navigable grid-item" tabindex="0">
-        <i data-lucide="arrow-up-right" class="w-5 h-5 flex-shrink-0"></i>
-        <span class="minimized-title">...</span>
+    <div id="floating-minimized-video-button" class="navigable grid-item glass-surface glass-surface--svg" tabindex="0">
+    <button id="minimized-play-pause-btn" title="تشغيل/إيقاف" class="p-2 rounded-full bg-white/20 text-white/90 hover:bg-white/30 transition-colors navigable grid-item">
+        <i data-lucide="play" class="w-5 h-5 play-icon"></i>
+        <i data-lucide="pause" class="w-5 h-5 pause-icon hidden"></i>
     </button>
+    
+    <div class="flex flex-col items-start overflow-hidden flex-grow px-2 min-w-0">
+        <span class="minimized-title font-semibold text-sm truncate w-full">جاري تشغيل الصوت...</span>
+        <span id="minimized-playback-speed" class="text-xs text-yellow-400 font-bold">1.0x</span>
+    </div>
+    
+    <button id="minimized-restore-btn" title="تكبير/استعادة" class="p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors navigable grid-item">
+        <i data-lucide="maximize-2" class="w-5 h-5"></i> 
+    </button>
+</div>
 
     <!-- NEW: Bottom Left Controls -->
     <div id="bottom-left-controls" class="fixed bottom-4 left-4 flex flex-row gap-2 z-[100] grid-container">
@@ -2399,38 +2413,6 @@ let timerDisplayIntervalId = null;  // 2 ثانية (للعد التنازلي �
 let nextPrayerIntervalId = null;    // 1 دقيقة (لتحديد الصلاة القادمة)
 let carSimulationIntervalId = null; // 2 ثانية (لمحاكاة السيارة/الاتجاه)
 let fullDateIntervalId = null;      // 6 مليون مللي ثانية (لتحديث التاريخ)
-// --- دوال التحكم في تتبع الموقع (يجب أن تُضاف في بداية الكود) ---
-let locationWatchId = null; // متغير لحفظ معرف الـ watchPosition
-
-function startDashboardLocationTracking() {
-    // 🛑 يتم تشغيل التتبع المستمر للموقع فقط عند فتح Dashboard/Map
-    if (navigator.geolocation && locationWatchId === null) {
-        locationWatchId = navigator.geolocation.watchPosition(
-            (pos) => {
-                // تحديث الموقع والقيادة والبوصلة
-                updateGoogleMapLocation(pos); 
-                // 💡 بما أن updateGoogleMapLocation تستدعي update3dScreenWidgets()، 
-                // فهذا يشمل تحديث البوصلة.
-
-                // 💡 بما أننا في Dashboard، نضمن تحديث مؤقتات الساعة/الصلاة أيضًا
-                updateDigitalClock();
-                updateTimerDisplay();
-
-            },
-            (err) => {
-                // معالجة الأخطاء
-            },
-            { enableHighAccuracy: true, timeout: 5000, maximumAge: 5000 } // تحديث كل 5 ثوانٍ
-        );
-    }
-}
-
-function stopDashboardLocationTracking() {
-    if (locationWatchId !== null) {
-        navigator.geolocation.clearWatch(locationWatchId);
-        locationWatchId = null;
-    }
-}
 
 function startWeatherUpdates() {
     if (weatherIntervalId === null) {
@@ -2460,35 +2442,14 @@ function stopCarSimulation() {
 }
 
 function startClockAndTimer() {
-    updateDigitalClock(); 
-    updateTimerDisplay();
-
     if (clockIntervalId === null) {
-        clockIntervalId = setInterval(updateDigitalClock, 1000); // كل 1 ثانية
-    }
-    if (timerDisplayIntervalId === null) {
-        // 🚀 التشغيل بـ 1000 مللي ثانية (1 ثانية) ليتزامن مع تحديث الساعة
-        timerDisplayIntervalId = setInterval(updateTimerDisplay, 1000); 
-    }
-
-    if (clockIntervalId === null) {
-        clockIntervalId = setInterval(updateDigitalClock, 1000);
-         // تحديث الساعة كل 1 ثانية
+        clockIntervalId = setInterval(updateDigitalClock, 1000); // تحديث الساعة كل 1 ثانية
     }
     if (timerDisplayIntervalId === null) {
         timerDisplayIntervalId = setInterval(updateTimerDisplay, 1000); // تحديث عداد الصلاة كل 2 ثانية
     }
 }
 function stopClockAndTimer() {
-    if (clockIntervalId !== null) {
-        clearInterval(clockIntervalId);
-        clockIntervalId = null;
-    }
-    if (timerDisplayIntervalId !== null) {
-        clearInterval(timerDisplayIntervalId);
-        timerDisplayIntervalId = null;
-    }
-
     if (clockIntervalId !== null) {
         clearInterval(clockIntervalId);
         clockIntervalId = null;
@@ -2521,38 +2482,44 @@ function startFullDateUpdates() {
 // لا نحتاج لـ stopFullDateUpdates حيث أنها تعمل ببطء شديد
 
 function switchApp(appName) {
-    // 1. الإيقاف العام لجميع المؤقتات الشرطية
-    stopClockAndTimer();
+    // 1. الإيقاف العام لجميع المؤقتات ذات التردد العالي
+    stopClockAndTimer();      
     stopCarSimulation();
     stopWeatherUpdates(); 
-    stopDashboardLocationTracking(); // 👈 إيقاف تتبع الموقع
 
-    // 2. تحديث الشاشة النشطة ... (منطقك الأصلي) ...
+    // 2. تحديث الشاشة النشطة (منطقك الأصلي)
+    const newIndex = appOrder.indexOf(appName);
+    if (newIndex === -1) return;
+    currentAppIndex = newIndex;
+    appScreens.forEach(s => s.classList.remove('active'));
+    sidebarIcons.forEach(i => i.classList.remove('active'));
+    const screen = document.getElementById(`screen-${appName}`);
+    if (screen) screen.classList.add('active');
+    const icon = document.querySelector(`.app-icon[data-app="${appName}"]`);
+    if (icon) icon.classList.add('active');
+
 
     // 3. التشغيل الشرطي (Conditional Start)
 
     // A. المؤقتات المطلوبة في Dashboard
     if (appName === 'Dashboard') {
-        // 🛑 CRITICAL: جلب الطقس لمرة واحدة (عند فتح الشاشة)
-        fetchWeatherData(); 
-        
-        // 🛑 CRITICAL: بدء تتبع الموقع (يُستبدل بـ simulateOtherCarData)
-        startDashboardLocationTracking(); 
-        
-        startClockAndTimer(); // ساعة + عداد صلاة
+        startClockAndTimer(); // 1s و 2s مؤقتات عالية التردد
+        startWeatherUpdates();
+        updateTimerDisplay(); // الطقس (جلب كل 5 دقائق)
     }
     
-    // B. تحديث الطقس (مطلوب في Dashboard, Weather, Map)
-    if (appName === 'Dashboard' || appName === 'Weather' || appName === 'Map') {
-        // 💡 نستخدم مؤقت الطقس البطيء هنا، لكن في حالة Dashboard نعتمد على startDashboardLocationTracking للجلب الأسرع
-        // سنعتمد على startWeatherUpdates للتحديث الدوري البطيء في الخلفية:
-        startWeatherUpdates(); 
-    }
-    
-    // C. مؤقتات القيادة (Map/3D Screen) - لا يزال مطلوبًا لتحديث البوصلة وRPM
+    // B. المؤقتات المطلوبة في شاشة 3D (Map)
     if (appName === 'Map') {
-        startCarSimulation(); // محاكاة القيادة (لتحديث البوصلة/RPM)
+        startCarSimulation(); // محاكاة القيادة (2 ثانية)
+        startWeatherUpdates(); // الطقس (جلب كل 5 دقائق)
     }
+
+    // C. المؤقتات المطلوبة في شاشة Weather
+    if (appName === 'Weather') {
+        startWeatherUpdates();
+    }
+    
+    // 💡 ملاحظة: شاشات Media, Radio, Athkar, Quran لن تقوم بتشغيل أي مؤقت عالي التردد
 
     // ... (بقية منطق switchApp)
 }
@@ -4581,28 +4548,65 @@ async function hideVideoPopup() {
         }
         
         // NEW: Functions to minimize and restore the video popup
-        function minimizeVideoPopup() {
-            if (!videoPopupContainer.classList.contains('active')) return;
-            videoPopupContainer.style.display = 'none';
-            floatingMinimizedVideoButton.style.display = 'flex';
-            
-            const videoData = popupPlayer.getVideoData();
-            const titleElement = floatingMinimizedVideoButton.querySelector('.minimized-title');
-            if(titleElement) titleElement.textContent = videoData.title || '...';
+       // ... (تعريف العناصر في البداية)
+const minimizedPlayPauseBtn = document.getElementById('minimized-play-pause-btn');
+const minimizedRestoreBtn = document.getElementById('minimized-restore-btn');
+const minimizedPlaybackSpeed = document.getElementById('minimized-playback-speed');
+// ...
 
-            appState.isVideoPlayerMinimized = true;
-            // Focus the restore button for accessibility
-            setFocus(floatingMinimizedVideoButton);
-        }
 
-        function restoreVideoPopup() {
-            if (!appState.isVideoPlayerMinimized) return;
-            videoPopupContainer.style.display = 'flex';
-            floatingMinimizedVideoButton.style.display = 'none';
-            appState.isVideoPlayerMinimized = false;
-             // Return focus to the close button inside the player
-            setFocus(videoPopupCloseButton);
-        }
+// 💡 يتم استدعاؤها عند النقر على زر التصغير في المشغل الرئيسي
+function minimizeVideoPopup() {
+    if (!videoPopupContainer.classList.contains('active')) return;
+    
+    videoPopupContainer.style.display = 'none';
+    floatingMinimizedVideoButton.style.display = 'flex';
+    floatingMinimizedVideoButton.classList.add('active'); // تفعيل الكبسولة
+
+    // تحديث عنوان الكبسولة
+    const videoData = popupPlayer.getVideoData();
+    const titleElement = floatingMinimizedVideoButton.querySelector('.minimized-title');
+    if(titleElement) titleElement.textContent = videoData.title || 'الصوت يعمل...';
+
+    appState.isVideoPlayerMinimized = true;
+    setFocus(floatingMinimizedVideoButton);
+
+    // 🛑 ضبط حالة زر التشغيل/الإيقاف وسرعة التشغيل
+    updateMinimizedControlsState(); 
+}
+
+// 💡 يتم استدعاؤها عند النقر على زر التكبير في الكبسولة المصغرة
+function restoreVideoPopup() {
+    if (!appState.isVideoPlayerMinimized) return;
+    videoPopupContainer.style.display = 'flex';
+    floatingMinimizedVideoButton.style.display = 'none';
+    floatingMinimizedVideoButton.classList.remove('active'); // إلغاء تفعيل الكبسولة
+    appState.isVideoPlayerMinimized = false;
+    setFocus(videoPopupCloseButton);
+}
+
+/**
+ * NEW: Updates the state (Play/Pause Icon and Speed Text) of the minimized capsule.
+ */
+function updateMinimizedControlsState() {
+    if (!popupPlayer || !minimizedPlayPauseBtn || !minimizedPlaybackSpeed) return;
+    
+    const playerState = popupPlayer.getPlayerState();
+    const isPlaying = (playerState === YT.PlayerState.PLAYING);
+
+    // 1. تحديث أيقونة التشغيل/الإيقاف
+    const playIcon = minimizedPlayPauseBtn.querySelector('.play-icon');
+    const pauseIcon = minimizedPlayPauseBtn.querySelector('.pause-icon');
+    
+    if (playIcon && pauseIcon) {
+        playIcon.classList.toggle('hidden', isPlaying);
+        pauseIcon.classList.toggle('hidden', !isPlaying);
+    }
+    
+    // 2. تحديث سرعة التشغيل
+    const currentSpeed = popupPlayer.getPlaybackRate();
+    minimizedPlaybackSpeed.textContent = `${currentSpeed.toFixed(1)}x`;
+}
 
        function onPlayerStateChange(event) {
     if (event.data == YT.PlayerState.PLAYING) {
@@ -7215,7 +7219,129 @@ function update3dMoonWidget() {
                     speak(text);
                 }
             }
-// 1. التحقق من "الحارس العالمي" أولاً
+// 1. التحق
+const recitersIframe = document.getElementById('reciters-iframe');
+    const iframeSrcButtons = document.querySelectorAll('#screen-Reciters .iframe-src-button');
+
+    if (recitersIframe && iframeSrcButtons.length > 0) {
+        iframeSrcButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const newSrc = button.dataset.src;
+                if (newSrc && recitersIframe.src !== newSrc) {
+                    console.log(`Changing iframe src to: ${newSrc}`);
+                    recitersIframe.src = newSrc; // Change the iframe source
+
+                    // Update active button state
+                    iframeSrcButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                }
+            });
+        });
+    }
+
+
+            
+            // NEW/UPDATED: Event listener for the floating back button
+            backToSearchFloatingButton.addEventListener('click', () => {
+                // If we are on the suggestions screen AND we have a previous search to go back to...
+                if (activeMediaView === 'suggestions' && lastSuccessfulSearchQuery) {
+                    searchYouTubeVideos(lastSuccessfulSearchQuery); // ...then re-run that search.
+                } else {
+                    // Otherwise (i.e., we are on the search results screen), perform the original "back" action.
+                    navigateBackToMainSearch();
+                }
+            });
+
+            startTripFloatingButton?.addEventListener('click', () => { if (appState.destinationSet) calculateAndDisplayRoute(); else showMessageBox('الرجاء تحديد وجهة أولاً.'); }); 
+            upload360ImageButton?.addEventListener('click', () => upload360ImageInput.click()); 
+            upload360ImageInput?.addEventListener('change', handleImageUpload); 
+            reset360ImageButton?.addEventListener('click', resetImageToDefault); 
+            document.addEventListener('keydown', handleRemoteControlInput);
+            document.addEventListener('fullscreenchange', handleFullScreenChange);
+            document.addEventListener('webkitfullscreenchange', handleFullScreenChange); // For Safari
+            
+            videoPopupCloseButton.addEventListener('click', hideVideoPopup);
+            backToPlaylistsFromVideosButton.addEventListener('click', navigateBackToMainSearch);
+            backToPlaylistsBottomButton.addEventListener('click', navigateBackToMainSearch);
+            backToPlaylistsBottomButtonSearch.addEventListener('click', navigateBackToMainSearch);
+            floatingKeyboardButton.addEventListener('click', () => { 
+                youtubeSearchInput.readOnly = !youtubeSearchInput.readOnly; 
+                if (!youtubeSearchInput.readOnly) {
+                    youtubeSearchInput.focus(); 
+                } else {
+                    youtubeSearchInput.blur();
+                    // Return focus to the search button after disabling keyboard
+                    setFocus(youtubeSearchButton);
+                }
+                floatingKeyboardButton.classList.toggle('active-keyboard', !youtubeSearchInput.readOnly); 
+                floatingKeyboardButton.classList.toggle('inactive-keyboard', youtubeSearchInput.readOnly); 
+            });
+            
+            // UPDATED: Clear button logic
+            clearSearchButton.addEventListener('click', () => {
+                youtubeSearchInput.value = ''; // Clear input immediately
+                lastSuccessfulSearchQuery = null; // NEW: Clear the last search memory
+                navigateBackToMainSearch();
+            });
+
+            youtubeSearchInput.addEventListener('focus', () => { if (youtubeSearchInput.value.trim() === '') { resetYoutubeSearchUI(); } });
+            youtubeSearchButton.addEventListener('click', () => { const query = youtubeSearchInput.value.trim(); if (query) searchYouTubeVideos(query); else showMessageBox('الرجاء إدخال كلمة للبحث.'); });
+            
+            // UPDATED: Auto-search for Tarteel channel with pre-click effect
+            youtubeSearchInput.addEventListener('input', () => {
+                const targetText = 'ترتيل-@TarteelArabic';
+                const currentText = youtubeSearchInput.value;
+
+                if (currentText.includes(targetText + ' ')) {
+                    // If text with space is present, visually confirm and trigger the click
+                    youtubeSearchButton.classList.add('tv-focus'); 
+                    setTimeout(() => {
+                        youtubeSearchButton.click();
+                        // Optional: remove focus style after click to reset state
+                        setTimeout(() => youtubeSearchButton.classList.remove('tv-focus'), 100);
+                    }, 50);
+                } else if (currentText.includes(targetText)) {
+                    // If only the text (no space) is present, show pre-click effect
+                    youtubeSearchButton.classList.add('tv-focus');
+                } else {
+                    // If the text is not present, remove the effect
+                    youtubeSearchButton.classList.remove('tv-focus');
+                }
+            });
+
+            // NEW Listeners for Animation and Zoom Controls
+            pauseAnimationButton.addEventListener('click', () => {
+                document.body.classList.toggle('animation-paused');
+                const isPaused = document.body.classList.contains('animation-paused');
+                const playIcon = pauseAnimationButton.querySelector('[data-lucide="play"]');
+                const pauseIcon = pauseAnimationButton.querySelector('[data-lucide="pause"]');
+                playIcon.classList.toggle('hidden', !isPaused);
+                pauseIcon.classList.toggle('hidden', isPaused);
+            });
+
+            removeCacheButton.addEventListener('click', () => {
+                localStorage.clear();
+                showMessageBox('تم مسح ذاكرة التخزين المؤقت بنجاح. سيتم إعادة تحميل التطبيق.');
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
+            });
+
+            zoomInButton.addEventListener('click', () => {
+                if (currentFontSize < maxFontSize) {
+                    currentFontSize += fontSizeStep;
+                    document.documentElement.style.fontSize = `${currentFontSize}px`;
+                }
+            });
+
+            zoomOutButton.addEventListener('click', () => {
+                if (currentFontSize > minFontSize) {
+                    currentFontSize -= fontSizeStep;
+                    document.documentElement.style.fontSize = `${currentFontSize}px`;
+                }
+            });
+
+
 if (!window.hasInitializedWeatherSpeaker) {
 
     // 2. إذا لم يتم التشغيل من قبل، قم بتعيين الحارس فوراً
@@ -7312,7 +7438,267 @@ if (!window.hasInitializedWeatherSpeaker) {
     // ... (منطق ربط iframeSrcButtons)
     
     setTimeout(playWelcomeMessage, 1500);
+    setInterval(updateTimerDisplay,1000);
+      renderDailyReminders(); // الاستدعاء الأول
+            setInterval(renderDailyReminders, 60000);
+            
+            
+            // 🛑 يجب ربط هذا الكود في نهاية السكريبت (DOMContentLoaded) 🛑
+
+// 1. زر التشغيل/الإيقاف المؤقت
+minimizedPlayPauseBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (popupPlayer) {
+        const playerState = popupPlayer.getPlayerState();
+        if (playerState === YT.PlayerState.PLAYING) {
+            popupPlayer.pauseVideo();
+        } else {
+            popupPlayer.playVideo();
+        }
+    }
 });
+
+// 2. زر الاستعادة
+minimizedRestoreBtn?.addEventListener('click', restoreVideoPopup);
+
+// 3. ربط النقر على الكبسولة نفسها بالاستعادة أيضاً
+floatingMinimizedVideoButton?.addEventListener('click', restoreVideoPopup);
+
+// 4. تحديث حالة الكبسولة عند تغيير حالة المشغل الرئيسي
+// (يجب أن يتم استدعاء updateMinimizedControlsState() داخل onPlayerStateChange) // تحديث كل 60 ثانية
+        
+});
+
+
+async function getManualReminderStates() {
+    try {
+        const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID_REMINDERS}/latest`, {
+            headers: {
+                'X-Access-Key': JSONBIN_ACCESS_KEY_REMINDERS
+            }
+        });
+        if (!response.ok) {
+            console.error('Failed to fetch reminder states:', response.statusText);
+            return {};
+        }
+        const data = await response.json();
+        const states = data.record || {};
+        
+        // If the only thing in the bin is our placeholder, return an empty object
+        if (Object.keys(states).length === 1 && states._init) {
+            return {};
+        }
+        return states;
+
+    } catch (error) {
+        if (error instanceof SyntaxError) {
+             console.log("Bin is likely empty or invalid. Returning default state.");
+             return {};
+        }
+        console.error('Error in getManualReminderStates:', error);
+        return {};
+    }
+}
+
+async function setManualReminderState(reminderId, state) {
+    let currentStates = await getManualReminderStates();
+    
+    if (state === 'auto') {
+        delete currentStates[reminderId];
+    } else {
+        currentStates[reminderId] = state;
+    }
+
+    // ✅ THE FIX: If the object becomes empty, add a placeholder
+    if (Object.keys(currentStates).length === 0) {
+        currentStates = { "_init": true };
+    }
+
+    try {
+        await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID_REMINDERS}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Master-Key': JSONBIN_API_KEY
+            },
+            body: JSON.stringify(currentStates)
+        });
+    } catch (error) {
+        console.error('Error writing to JSONBin:', error);
+        showMessageBox('حدث خطأ أثناء حفظ الحالة.');
+    }
+    
+    // We pass the *real* state (without the placeholder) to the renderer
+    if (currentStates._init) {
+        renderDailyReminders({});
+    } else {
+        renderDailyReminders(currentStates);
+    }
+    closeAllDropdowns();
+}
+
+            // NEW: Function to create and manage the dropdown
+            function createReminderDropdown(reminderId, parentElement) {
+                closeAllDropdowns(); // Close any other open dropdowns first
+
+                const dropdown = document.createElement('div');
+                dropdown.className = 'reminder-status-dropdown show';
+                dropdown.innerHTML = `
+                    <button data-state="active" class="navigable grid-item" tabindex="0">حالي</button>
+                    <button data-state="completed" class="navigable grid-item" tabindex="0">منتهي</button>
+                    <button data-state="missed" class="navigable grid-item" tabindex="0">فائت</button>
+                    <hr class="border-white/10 my-1">
+                    <button data-state="auto" class="navigable grid-item" tabindex="0">تلقائي</button>
+                `;
+                parentElement.appendChild(dropdown);
+
+                dropdown.querySelectorAll('button').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        e.stopPropagation(); // Prevent the main click listener from firing again
+                        const state = button.dataset.state;
+                        setManualReminderState(reminderId, state);
+                    });
+                });
+                 // Focus the first button in the dropdown
+                const firstButton = dropdown.querySelector('button');
+                if (firstButton) setFocus(firstButton);
+            }
+
+            function closeAllDropdowns() {
+                document.querySelectorAll('.reminder-status-dropdown').forEach(d => d.remove());
+            }
+
+            // 1. تعريف قائمة الأذكار والعبادات مع الشروط الخاصة بها
+            const dailyReminders = [
+    { id: 'adhkar_morning', name: 'أذكار الصباح', icon: 'sunrise', isActive: (now, times) => now >= times.Fajr && now < times.Dhuhr, getStartTime: (now, times) => times.Fajr, getEndTime: (now, times) => times.Dhuhr, action: () => { switchApp('Media'); searchYouTubeVideos('أذكار الصباح كاملة'); } },
+    { id: 'salat_duha', name: 'صلاة الضحى', icon: 'sun', isActive: (now, times) => { if (!times.Sunrise || !times.Dhuhr) return false; const sunriseTime = new Date(times.Sunrise.getTime() + 20 * 60000); const dhuhrTime = new Date(times.Dhuhr.getTime() - 10 * 60000); return now >= sunriseTime && now < dhuhrTime; }, getStartTime: (now, times) => { if (!times.Sunrise) return null; return new Date(times.Sunrise.getTime() + 20 * 60000); }, getEndTime: (now, times) => { if (!times.Dhuhr) return null; return new Date(times.Dhuhr.getTime() - 10 * 60000); }, action: () => showMessageBox('صلاة الضحى سنة مؤكدة، ووقتها من بعد شروق الشمس وارتفاعها قدر رمح إلى قبيل وقت صلاة الظهر.') },
+    { id: 'sunan_rawatib', name: 'السنن الرواتب', icon: 'calendar-check', isActive: (now, times) => { if (!times.Fajr || !times.Dhuhr || !times.Maghrib || !times.Isha) return false; const tenMinutes = 10 * 60 * 1000; if (now < times.Fajr && (times.Fajr.getTime() - now.getTime()) <= tenMinutes) return true; if (now < times.Dhuhr && (times.Dhuhr.getTime() - now.getTime()) <= tenMinutes) return true; if (now > times.Dhuhr && (now.getTime() - times.Dhuhr.getTime()) <= tenMinutes) return true; if (now > times.Maghrib && (now.getTime() - times.Maghrib.getTime()) <= tenMinutes) return true; if (now > times.Isha && (now.getTime() - times.Isha.getTime()) <= tenMinutes) return true; return false; }, getStartTime: null, getEndTime: null, action: () => showMessageBox('السنن الرواتب: ركعتان قبل الفجر، أربع قبل الظهر، ركعتان بعده، ركعتان بعد المغرب، وركعتان بعد العشاء.') },
+    { id: 'adhkar_evening', name: 'أذكار المساء', icon: 'sunset', isActive: (now, times) => now >= times.Asr && now.getHours() < 23, getStartTime: (now, times) => times.Asr, getEndTime: (now, times) => { const d = new Date(now); d.setHours(22, 59, 59, 999); return d; }, action: () => { switchApp('Media'); searchYouTubeVideos('أذكار المساء كاملة'); } },
+    { id: 'wird_daily', name: 'الورد اليومي', icon: 'book-marked', isActive: (now, times) => true, getStartTime: null, getEndTime: null, action: () => switchApp('Quran') },
+    { id: 'surah_mulk', name: 'سورة الملك', icon: 'moon', isActive: (now, times) => now >= times.Isha || now < times.Fajr, getStartTime: (now, times) => times.Isha, getEndTime: (now, times) => { if (now < times.Fajr) return times.Fajr; return new Date(times.Fajr.getTime() + 24 * 60 * 60 * 1000); }, action: () => { switchApp('Media'); searchYouTubeVideos('سورة الملك كاملة'); } },
+                { id: 'salat_witr', name: 'صلاة الوتر', icon: 'star', isActive: (now, times) => now >= times.Isha || now < times.Fajr, getStartTime: (now, times) => times.Isha, getEndTime: (now, times) => { if (now < times.Fajr) return times.Fajr; return new Date(times.Fajr.getTime() + 24 * 60 * 60 * 1000); }, action: () => showMessageBox('صلاة الوتر سنة مؤكدة، وأقلها ركعة واحدة، ووقتها من بعد صلاة العشاء إلى طلوع الفجر.') },
+                { id: 'adhkar_sleep', name: 'قيام الليل ', icon: 'bed', isActive: (now, times) => now.getHours() >= 23, getStartTime: (now, times) => { const d = new Date(now); d.setHours(23, 0, 0, 0); return d; }, getEndTime: (now, times) => { const d = new Date(now); d.setHours(23, 59, 59, 999); return d; }, action: () => { switchApp('Media'); searchYouTubeVideos('أذكار النوم'); } }
+            ];
+
+            // 2. دالة لإنشاء وعرض القائمة (MODIFIED)
+         // ✅ Corrected Version of the function
+async function renderDailyReminders(states) { // We added 'async' and 'states' here
+    const container = document.getElementById('tv');
+    if (!container || !appState.prayerTimes.Fajr || appState.prayerTimes.Fajr === '--:--') return;
+
+    // If no states are passed in, fetch them. Otherwise, use the states that were passed.
+    const manualStates = states || await getManualReminderStates(); // We added 'await' here
+
+    const now = new Date();
+    const prayerDateTimes = {
+        Fajr: timeToDate(appState.prayerTimes.Fajr),
+        Sunrise: timeToDate(appState.prayerTimes.Sunrise || '06:15'),
+        Dhuhr: timeToDate(appState.prayerTimes.Dhuhr),
+        Asr: timeToDate(appState.prayerTimes.Asr),
+        Maghrib: timeToDate(appState.prayerTimes.Maghrib),
+        Isha: timeToDate(appState.prayerTimes.Isha)
+    };
+
+    container.innerHTML = '';
+    const grid = document.createElement('div');
+    grid.className = 'reminders-grid grid-container'; // Added grid-container for navigation
+    grid.id = 'reminders-grid-container';
+
+    dailyReminders.forEach(reminder => {
+        const manualState = manualStates[reminder.id];
+        let classList = 'reminder-item navigable grid-item';
+        let iconName = '';
+
+        if (manualState) {
+            classList += ` ${manualState}`;
+            switch (manualState) {
+                case 'active':    iconName = 'clock'; break;
+                case 'completed': iconName = 'check-check'; break;
+                case 'missed':    iconName = 'x-circle'; break;
+            }
+        } else {
+            const isActive = reminder.isActive(now, prayerDateTimes);
+            let isUpcoming = false;
+            if (reminder.getStartTime && !isActive) {
+                const startTime = reminder.getStartTime(now, prayerDateTimes);
+                if (startTime && startTime > now) { isUpcoming = true; }
+            }
+            let isCompleted = false;
+            if (!isActive && !isUpcoming && reminder.getEndTime) {
+                const endTime = reminder.getEndTime(now, prayerDateTimes);
+                if (endTime && now > endTime) { isCompleted = true; }
+            }
+
+            if (isActive) { classList += ' active'; iconName = 'play-circle'; } 
+            else if (isUpcoming) { classList += ' upcoming'; iconName = 'bell'; } 
+            else if (isCompleted) { classList += ' completed'; iconName = 'check-check'; } 
+            else { iconName = 'circle'; }
+        }
+
+        const item = document.createElement('div');
+        item.className = classList;
+        item.dataset.reminderId = reminder.id;
+        item.tabIndex = 0;
+
+        item.innerHTML = `
+            <div class="icon-wrapper relative">
+                <i data-lucide="${iconName || 'circle'}" class="icon w-12 h-12"></i>
+            </div>
+            <span class="text">${reminder.name}</span>
+        `;
+        grid.appendChild(item);
+    });
+
+    container.appendChild(grid);
+    lucide.createIcons();
+}
+
+document.addEventListener('click', (e) => {
+    const reminderItem = e.target.closest('.reminder-item');
+    const dropdownButton = e.target.closest('.reminder-status-dropdown button');
+
+    // إذا تم النقر على زر داخل القائمة المنسدلة، دعه يعمل (المستمع الخاص به سيعمل)
+    if (dropdownButton) {
+        return;
+    }
+
+    // إذا تم النقر خارج عنصر تذكير وخارج قائمة منسدلة، أغلق جميع القوائم
+    if (!reminderItem && !e.target.closest('.reminder-status-dropdown')) {
+        closeAllDropdowns();
+        return;
+    }
+
+    // إذا لم يتم النقر على عنصر تذكير، توقف هنا
+    if (!reminderItem) return;
+
+    // --- الجزء الرئيسي للتعديل ---
+    // أوقف انتشار الحدث لمنع أي إجراءات افتراضية أخرى
+    e.stopPropagation();
+
+    const reminderId = reminderItem.dataset.reminderId;
+    const iconWrapper = reminderItem.querySelector('.icon-wrapper'); // ابحث عن حاوية الأيقونة
+
+    if (!iconWrapper) return; // تأكد من وجود حاوية الأيقونة
+
+    // تحقق مما إذا كانت القائمة المنسدلة لهذا العنصر مفتوحة بالفعل
+    const existingDropdown = reminderItem.querySelector('.reminder-status-dropdown');
+
+    if (existingDropdown) {
+        // إذا كانت مفتوحة، أغلقها
+        existingDropdown.remove();
+    } else {
+        // إذا كانت مغلقة، أغلق أي قوائم أخرى وافتح هذه القائمة
+        closeAllDropdowns(); // أغلق القوائم الأخرى أولاً
+        createReminderDropdown(reminderId, iconWrapper); // افتح القائمة الجديدة بالنسبة لحاوية الأيقونة
+    }
+    // --- نهاية التعديل ---
+
+    // تم إزالة الجزء الخاص بتنفيذ الإجراء الافتراضي (مثل البحث في يوتيوب)
+});
+            
+          
+            // --- الكود الجديد ---
+// 3. إضافة مستمع نقر واحد للتعامل مع كل الأزرار (MODIFIED)
 
         // --- Athkar App Logic ---
         const tabSabah = document.getElementById('tab-sabah');
