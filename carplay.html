@@ -863,7 +863,7 @@ section#screen-Map>.w-full.h-full.bg-black2.rounded-3xl.flex.items-center.justif
     display: flex; /* 👈 ضروري لترتيب العناصر أفقياً */
     align-items: center;
     gap: 0.5rem;
-    width: 250px; /* عرض ثابت للكبسولة */
+    width: 35%; /* عرض ثابت للكبسولة */
     height: 60px; /* ارتفاع ثابت */
     padding: 0.5rem;
     
@@ -2382,23 +2382,23 @@ div#map{display:none}
     </button>
 
     <!-- NEW: Minimized Video Button -->
-    <div id="floating-minimized-video-button" class="navigable grid-item glass-surface glass-surface--svg" tabindex="0">
+   <div id="floating-minimized-video-button" class="navigable grid-item glass-surface glass-surface--svg" tabindex="0">
     
-    <button id="minimized-play-pause-btn" title="تشغيل/إيقاف" class="p-2 rounded-full bg-white/20 text-white/90 hover:bg-white/30 transition-colors navigable grid-item">
-        <i data-lucide="play" class="w-5 h-5 play-icon"></i>
-        <i data-lucide="pause" class="w-5 h-5 pause-icon hidden"></i>
-    </button>
     
-    <div class="flex flex-col items-start overflow-hidden flex-grow px-1 min-w-0">
+    
+    <button id="minimized-restore-btn" title="تكبير/استعادة" class="p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors navigable grid-item">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="maximize-2" class="lucide lucide-maximize-2 w-5 h-5"><path d="M15 3h6v6"></path><path d="m21 3-7 7"></path><path d="m3 21 7-7"></path><path d="M9 21H3v-6"></path></svg> 
+    </button><div class="flex flex-col items-start overflow-hidden flex-grow px-1 min-w-0">
         <span class="minimized-title font-semibold text-sm truncate w-full">جاري تشغيل الصوت...</span>
     </div>
     
-    <button id="minimized-restore-btn" title="تكبير/استعادة" class="p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors navigable grid-item">
-        <i data-lucide="maximize-2" class="w-5 h-5"></i> 
-    </button>
     
     
-    <button id="minimized-playback-speed-btn" title="تغيير سرعة التشغيل" class="playback-rate-toggle-btn navigable grid-item">
+    
+    <button id="minimized-play-pause-btn" title="تشغيل/إيقاف" class="p-2 rounded-full bg-white/20 text-white/90 hover:bg-white/30 transition-colors navigable grid-item">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="play" class="lucide lucide-play w-5 h-5 play-icon"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"></path></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="pause" class="lucide lucide-pause w-5 h-5 pause-icon hidden"><rect x="14" y="3" width="5" height="18" rx="1"></rect><rect x="5" y="3" width="5" height="18" rx="1"></rect></svg>
+    </button><button id="minimized-playback-speed-btn" title="تغيير سرعة التشغيل" class="playback-rate-toggle-btn navigable grid-item">
         1.0x
     </button>
 </div>
@@ -4661,8 +4661,16 @@ function restoreVideoPopup() {
 /**
  * NEW: Updates the state (Play/Pause Icon and Speed Text) of the minimized capsule.
  */
+/**
+ * FINALIZED: Updates the state (Play/Pause Icon and Speed Text) of the minimized capsule.
+ * Reads the current playback rate from the YT Player and updates the interactive button text.
+ */
 function updateMinimizedControlsState() {
-    if (!popupPlayer || !minimizedPlayPauseBtn || !minimizedPlaybackSpeed) return;
+    // 🛑 مراجع العناصر الجديدة (يجب جلبها داخل الدالة لضمان التحديث)
+    const minimizedPlayPauseBtn = document.getElementById('minimized-play-pause-btn');
+    const minimizedPlaybackSpeedBtn = document.getElementById('minimized-playback-speed-btn'); // 👈 الزر الدائري الجديد
+    
+    if (!popupPlayer || !minimizedPlayPauseBtn || !minimizedPlaybackSpeedBtn) return;
     
     const playerState = popupPlayer.getPlayerState();
     const isPlaying = (playerState === YT.PlayerState.PLAYING);
@@ -4676,9 +4684,18 @@ function updateMinimizedControlsState() {
         pauseIcon.classList.toggle('hidden', !isPlaying);
     }
     
-    // 2. تحديث سرعة التشغيل
+    // 2. تحديث سرعة التشغيل (CRITICAL FIX)
     const currentSpeed = popupPlayer.getPlaybackRate();
-    minimizedPlaybackSpeed.textContent = `${currentSpeed.toFixed(1)}x`;
+    
+    // 🛑 تحديث نص الزر الدائري الجديد
+    minimizedPlaybackSpeedBtn.textContent = `${currentSpeed.toFixed(2)}x`; // 👈 تم التغيير إلى toFixed(2)
+    
+    // 3. تحديث قائمة السرعة المنسدلة في المشغل الكبير (للتزامن)
+    const playbackSelect = document.getElementById('playback-rate-select');
+    if (playbackSelect) {
+         // نستخدم toFixed(1) للتطابق مع خيارات القائمة المنسدلة
+         playbackSelect.value = currentSpeed.toFixed(1).toString(); 
+    }
 }
 
        function onPlayerStateChange(event) {
@@ -5953,6 +5970,21 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
             return card;
         }
 
+function directionToDegrees(direction) {
+    const directionsMap = {
+        'N': 0,
+        'NE': 45,
+        'E': 90,
+        'SE': 135,
+        'S': 180,
+        'SW': 225,
+        'W': 270,
+        'NW': 315
+    };
+    // استخدام 0 (الشمال) كقيمة افتراضية إذا لم يتم العثور على الاتجاه
+    return directionsMap[direction.toUpperCase()] || 0; 
+}
+
         // --- Google Map and Geolocation (REFACTORED FOR RELIABILITY) ---
         function loadGoogleMaps() {
             if (googleMapsPromise) return googleMapsPromise;
@@ -5990,6 +6022,9 @@ async function loadSavedVideos(type) { // Added 'type' parameter ('D', 'M', or u
                     disableDefaultUI: true,
                     mapTypeId: 'satellite',
                 });
+
+const trafficLayer = new google.maps.TrafficLayer();
+        trafficLayer.setMap(dashboardGoogleMap); // 👈 هذا السطر هو المفتاح
 
                 dashboardGoogleMarker = new google.maps.Marker({
                     position: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon },
@@ -6930,33 +6965,55 @@ function updateDigitalClock() {
         function resetImageToDefault() { appState.custom360Image = null; localStorage.removeItem('custom360Image'); updateUI(); }
 
         // --- NEW: 3D Screen Widgets Update ---
-        function update3dScreenWidgets() {
-    // مراجع العناصر (التي تم نقلها إلى الجانب الأيمن)
-    const weatherTempEl = document.getElementById('3d-screen-weather-temp'); // داخل #3d-screen-weather-widget
+        /**
+ * UPDATED & FINAL: Updates the informational widgets on the 3D Map/Screen-Map.
+ * Ensures the Car data, Weather Temp, Moon widget, and Direction Buttons are synchronized.
+ * CRITICAL FIX: Applies the current car direction (N, NE, etc.) as the heading
+ * to the Google Map object in the Dashboard for an oriented view.
+ */
+function update3dScreenWidgets() {
+    // مراجع عناصر ويدجت الشاشة 3D
+    const weatherTempEl = document.getElementById('3d-screen-weather-temp');
     const nextPrayerEl = document.getElementById('3d-screen-next-prayer');
     const speedEl = document.getElementById('3d-screen-speed');
     const gearEl = document.getElementById('3d-screen-gear');
     const dirEl = document.getElementById('3d-screen-dir');
 
-    // --- 1. تحديث الطقس (Temperature) ---
+    // 1. تحديث معلومات القيادة والطقس (الجانب الأيسر والأيمن)
+    
+    // تحديث درجة الحرارة
     if (weatherTempEl) {
-        // نستخدم القيمة المخزنة في appState.weather.temperature (التي جلبتها fetchWeatherData)
         const temp = appState.weather.temperature !== null ? Math.round(appState.weather.temperature) : '--';
         weatherTempEl.textContent = `${temp}°C`;
     }
     
-    // --- 2. تحديث معلومات القيادة (الجانب الأيسر) ---
+    // تحديث معلومات القيادة
+    const currentCarDirection = appState.car.direction; // N, NE, E, etc.
+    
     if (nextPrayerEl) nextPrayerEl.textContent = appState.prayerTimes.nextPrayer || '--';
     if (speedEl) speedEl.textContent = `${appState.car.speed} km/h`;
     if (gearEl) gearEl.textContent = appState.car.gear;
-    if (dirEl) dirEl.textContent = appState.car.direction;
+    if (dirEl) dirEl.textContent = currentCarDirection; // لعرض الاتجاه الحرفي
 
-    // --- 3. استدعاء الدوال الحركية (CRITICAL) ---
+    // --- 2. 🧭 تطبيق Heading على خريطة Dashboard ---
+    if (dashboardGoogleMap) {
+        // تحويل الاتجاه الحرفي (N, SW) إلى درجة رقمية (0-360)
+        const numericHeading = directionToDegrees(currentCarDirection); 
+        
+        // 🛑 الخطوة الحاسمة: تطبيق Heading على الخريطة
+        dashboardGoogleMap.setHeading(numericHeading); 
+        
+        // 💡 للحصول على تأثير أفضل، يجب أن تركز الخريطة على الموقع الحالي أيضاً
+        if (appState.currentLocation) {
+            dashboardGoogleMap.setCenter(appState.currentLocation);
+        }
+    }
 
-    // 🚀 تحديث أزرار البوصلة (Direction Buttons)
+    // --- 3. تحديث ويدجت البوصلة و القمر ---
+    // تحديث أزرار البوصلة (Direction Buttons) لإضاءة الزر المناظر
     updateDirectionButtons(); 
     
-    // 🌙 تحديث ويدجت القمر (يجب أن يعرض قمر الأمس إذا لم تحن الساعة 18:00)
+    // تحديث ويدجت القمر (يظهر فقط ليلاً)
     update3dMoonWidget(); 
 }
         /**
@@ -7594,6 +7651,27 @@ minimizedPlaybackSpeedBtn?.addEventListener('click', (e) => {
     // setInterval(fetchWeatherData, 300000);
     // ...
     const PLAYBACK_RATES = [1.0, 1.25, 1.5, 1.65];
+
+    function setPlaybackRateFromSelect(rateValue) {
+    if (!popupPlayer) {
+        console.warn("Cannot set playback rate: YouTube player is not initialized.");
+        return;
+    }
+
+    const rate = parseFloat(rateValue);
+
+    if (PLAYBACK_RATES.includes(rate)) {
+        // 1. تطبيق السرعة على المشغل الفعلي
+        popupPlayer.setPlaybackRate(rate);
+        
+        // 2. تحديث الحالة البصرية للكبسولة والقائمة المنسدلة
+        updateMinimizedControlsState(); 
+        
+        console.log(`Playback rate set to: ${rate}x`);
+    } else {
+        console.warn(`Invalid playback rate received: ${rateValue}`);
+    }
+}
 
 function togglePlaybackRate() {
     if (!popupPlayer) return;
