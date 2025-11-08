@@ -6026,18 +6026,23 @@ function directionToDegrees(direction) {
 const trafficLayer = new google.maps.TrafficLayer();
         trafficLayer.setMap(dashboardGoogleMap); // 👈 هذا السطر هو المفتاح
 
-                dashboardGoogleMarker = new google.maps.Marker({
-                    position: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon },
-                    map: dashboardGoogleMap,
-                    icon: {
-                        path: google.maps.SymbolPath.CIRCLE,
-                        scale: 7,
-                        fillColor: "#4285F4",
-                        fillOpacity: 1,
-                        strokeColor: "white",
-                        strokeWeight: 2,
-                    },
-                });
+                const customCarIcon = {
+            url: 'https://dmusera.netlify.app/3606.png', // 👈 رابط الصورة المخصصة
+            
+            // تحديد الأبعاد (ScaledSize)
+            scaledSize: new google.maps.Size(48, 48), // 👈 مثال: تحديد العرض 48px والارتفاع 48px
+            
+            // نقطة الارتكاز (Anchor): لمركزة الصورة على الموقع
+            anchor: new google.maps.Point(24, 24) 
+        };
+
+        dashboardGoogleMarker = new google.maps.Marker({
+            position: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon },
+            map: dashboardGoogleMap,
+            
+            // 🛑 استخدام كائن الأيقونة المخصص بدلاً من المسار الدائري الافتراضي
+            icon: customCarIcon, 
+        });
 
                 // Initialize Directions Service and Renderer
                 directionsService = new google.maps.DirectionsService();
