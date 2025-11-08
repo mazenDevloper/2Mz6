@@ -6008,56 +6008,73 @@ function directionToDegrees(direction) {
         }
 
         async function initMap() {
-             if (mapsInitialized) return;
-             mapsInitialized = true;
-            try {
-                const mapElement = document.getElementById('dashboard-google-map');
-                if (!mapElement) {
-                    console.error("Map container 'dashboard-google-map' not found.");
-                    return;
-                }
-                dashboardGoogleMap = new google.maps.Map(mapElement, {
-                    center: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon },
-                    zoom: appState.mapLocation.zoom,
-                    disableDefaultUI: true,
-                    mapTypeId: 'satellite',
-                });
-
-const trafficLayer = new google.maps.TrafficLayer();
-        trafficLayer.setMap(dashboardGoogleMap); // 👈 هذا السطر هو المفتاح
-
-                const customCarIcon = {
-            url: 'https://dmusera.netlify.app/3606.png', // 👈 رابط الصورة المخصصة
+    // التحقق المزدوج لضمان عدم تهيئة الخريطة أكثر من مرة
+    if (mapsInitialized) return;
+    mapsInitialized = true;
+    
+    try {
+        const mapElement = document.getElementById('dashboard-google-map');
+        if (!mapElement) {
+            console.error("Map container 'dashboard-google-map' not found.");
+            return;
+        }
+        
+        // 1. 🖼️ تحديد الأيقونة المخصصة للسيارة
+        const customCarIcon = {
+            url: 'https://imgs.search.brave.com/JrjKdRHeChOCBZZK6WmayWmsgqQSTtiHFpne57B9K2o/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/aWNvbnNjb3V0LmNv/bS9pY29uL3ByZW1p/dW0vcG5nLTI1Ni10/aHVtYi9sb2NhdGlv/bi1pY29uLXN2Zy1k/b3dubG9hZC1wbmct/MTA5Mjc1NzgucG5n/P2Y9d2VicCZ3PTEy/OA', // رابط الصورة المخصصة
             
             // تحديد الأبعاد (ScaledSize)
-            scaledSize: new google.maps.Size(48, 48), // 👈 مثال: تحديد العرض 48px والارتفاع 48px
+            scaledSize: new google.maps.Size(48, 48), 
             
             // نقطة الارتكاز (Anchor): لمركزة الصورة على الموقع
             anchor: new google.maps.Point(24, 24) 
         };
 
+        // 2. 🌍 تهيئة كائن الخريطة (Map Object)
+        dashboardGoogleMap = new google.maps.Map(mapElement, {
+            center: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon },
+            zoom: appState.mapLocation.zoom,
+            disableDefaultUI: true, // إخفاء عناصر التحكم الافتراضية
+            mapTypeId: 'satellite',
+            
+            // 🛑 FIX: تفعيل الميل (Tilt) لضمان عمل الدوران (Heading Rotation)
+            tilt: 45, 
+            heading: 0, 
+        });
+
+        // 3. 🚦 إضافة طبقة الازدحام (Traffic Layer)
+        const trafficLayer = new google.maps.TrafficLayer();
+        trafficLayer.setMap(dashboardGoogleMap); 
+        
+        // 4. وضع علامة السيارة المخصصة (Marker)
         dashboardGoogleMarker = new google.maps.Marker({
             position: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon },
             map: dashboardGoogleMap,
-            
-            // 🛑 استخدام كائن الأيقونة المخصص بدلاً من المسار الدائري الافتراضي
-            icon: customCarIcon, 
+            icon: customCarIcon, // 👈 استخدام الأيقونة المخصصة
         });
 
-                // Initialize Directions Service and Renderer
-                directionsService = new google.maps.DirectionsService();
-                directionsRenderer = new google.maps.DirectionsRenderer({
-                    map: dashboardGoogleMap,
-                    suppressMarkers: true // We use our custom marker
-                });
+        // 5. تهيئة خدمة التوجيهات (Directions Service)
+        directionsService = new google.maps.DirectionsService();
+        directionsRenderer = new google.maps.DirectionsRenderer({
+            map: dashboardGoogleMap,
+            suppressMarkers: true 
+        });
 
-                dashboardGoogleMap.addListener('zoom_changed', () => { if (dashboardGoogleMap.getZoom() !== appState.mapLocation.zoom) appState.mapZoomChangedByUser = true; }); 
-                startContinuousLocationTracking();
-            } catch (error) {
-                console.error("Failed to initialize map due to API load error:", error);
-                showGeolocationErrorOnMap("تعذر تحميل خرائط جوجل. يرجى التحقق من اتصالك بالإنترنت ومفتاح API.");
+        // 6. تفعيل مستمع تغيير التكبير (Zoom Change Listener)
+        dashboardGoogleMap.addListener('zoom_changed', () => { 
+            if (dashboardGoogleMap.getZoom() !== appState.mapLocation.zoom) {
+                appState.mapZoomChangedByUser = true;
             }
-        }
+        }); 
+        
+        // 7. بدء تتبع الموقع (لاستقبال Heading)
+        startContinuousLocationTracking();
+        
+    } catch (error) {
+        console.error("Failed to initialize map due to API load error:", error);
+        showGeolocationErrorOnMap("تعذر تحميل خرائط جوجل. يرجى التحقق من اتصالك بالإنترنت ومفتاح API.");
+    }
+}
 
         // Helper function to calculate distance between two lat/lng points
         function haversineDistance(coords1, coords2) {
@@ -6080,73 +6097,124 @@ const trafficLayer = new google.maps.TrafficLayer();
             return directions[index];
         }
 
-        function updateGoogleMapLocation(pos) {
-            const { latitude: lat, longitude: lng, heading } = pos.coords;
-            appState.currentLocation = { lat, lng };
-            const newLatLng = { lat, lng };
+        /**
+ * Processes new geolocation position data, updates the car state, and rotates the Dashboard Map.
+ *
+ * @param {object} pos - The position object returned by watchPosition.
+ */
+/**
+ * Processes new geolocation position data, updates the car state, 
+ * and applies rotation to the Dashboard Map using the calculated direction string 
+ * for reliable rotation (Heading Up mode).
+ *
+ * @param {object} pos - The position object returned by watchPosition.
+ */
+function updateGoogleMapLocation(pos) {
+    // 1. استخراج البيانات الخام
+    const { latitude: lat, longitude: lng, heading } = pos.coords;
+    const newLatLng = { lat, lng };
+    
+    appState.currentLocation = { lat, lng };
 
-            // Logic for speed, gear, and direction based on movement
-            if (appState.previousLocation) {
-                const distance = haversineDistance(appState.previousLocation, newLatLng);
-                if (distance > 2) {
-                    appState.car.gear = 'D';
-                    appState.car.speed = (Math.random() * 60 + 40).toFixed(0);
-                } else {
-                    appState.car.gear = 'P';
-                    appState.car.speed = 0;
-                }
-            } else {
-                appState.car.gear = 'P';
-                appState.car.speed = 0;
-            }
-            appState.previousLocation = newLatLng;
-            appState.car.direction = bearingToDirection(heading); // Update direction
-            update3dScreenWidgets(); // Update UI immediately
-
-            if (dashboardGoogleMap && dashboardGoogleMarker) {
-                dashboardGoogleMarker.setPosition(newLatLng);
-                if (!appState.mapZoomChangedByUser) {
-                    dashboardGoogleMap.setCenter(newLatLng);
-                    dashboardGoogleMap.setZoom(appState.mapLocation.zoom);
-                }
-            }
-            if (typeof heading === 'number' && !isNaN(heading)) {
-                if (dashboardGoogleMap) dashboardGoogleMap.setHeading(heading);
-            }
+    // 2. منطق محاكاة حركة السيارة (يظل يعتمد على الموقع السابق)
+    if (appState.previousLocation) {
+        const distance = haversineDistance(appState.previousLocation, newLatLng);
+        if (distance > 2) {
+            appState.car.gear = 'D';
+            appState.car.speed = (Math.random() * 60 + 40).toFixed(0);
+        } else {
+            appState.car.gear = 'P';
+            appState.car.speed = 0;
         }
-        function startContinuousLocationTracking() {
-            if (navigator.geolocation) {
-                watchId = navigator.geolocation.watchPosition(
-                    (pos) => { 
-                        const overlay = document.getElementById('geolocation-error-overlay');
-                        if (overlay) overlay.classList.add('hidden');
-                        const mapControls = document.querySelector('#dashboard-google-map ~ .absolute');
-                        if (mapControls) mapControls.style.display = 'flex';
-                        
-                        updateGoogleMapLocation(pos); 
-                        appState.hasShownGeolocationError = false; 
-
-                        // Fetch weather for the first time with accurate location
-                        if (!initialLocationFetched) {
-                            fetchWeatherData();
-                            initialLocationFetched = true;
-                        }
-                    }, 
-                    (err) => { 
-                        if (err.code === 1) { // PERMISSION_DENIED
-                            showGeolocationErrorOnMap('تم رفض إذن تحديد الموقع. يرجى تمكينه في إعدادات المتصفح.');
-                        } else if (!appState.hasShownGeolocationError) {
-                            let msg = 'تعذر تتبع موقعك. يرجى التحقق من أذونات الموقع.';
-                            showMessageBox(msg); 
-                            appState.hasShownGeolocationError = true; 
-                        }
-                    }, 
-                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
-                );
-            } else {
-                showGeolocationErrorOnMap('خدمة تحديد المواقع غير مدعومة في هذا المتصفح.');
-            }
+    } else {
+        appState.car.gear = 'P';
+        appState.car.speed = 0;
+    }
+    appState.previousLocation = newLatLng;
+    
+    // 3. تحديث الاتجاه الحرفي للبوصلة التفاعلية
+    // 💡 نستخدم bearingToDirection(heading) لتحويل قيمة Heading الخام (0-360) إلى قيمة حرفية (N, NE, SW, etc.).
+    appState.car.direction = bearingToDirection(heading); 
+    
+    // 4. 🧭 تطبيق Heading على خريطة Dashboard (CRITICAL FIX)
+    if (dashboardGoogleMap) {
+        // 🛑 FIX: نستخدم الاتجاه الحرفي المخزن لضمان الحصول على قيمة رقمية مستقرة للتدوير
+        const directionString = appState.car.direction; 
+        const numericHeading = directionToDegrees(directionString); // تحويل (N, NE...) إلى (0, 45...)
+        
+        // تطبيق Heading على الخريطة
+        dashboardGoogleMap.setHeading(numericHeading); 
+        
+        // 💡 للحفاظ على تتبع الموقع، نركز الخريطة على الموقع الجديد
+        if (!appState.mapZoomChangedByUser) {
+             dashboardGoogleMap.setCenter(newLatLng);
         }
+    }
+
+    // 5. تحديث موقع العلامة (Marker)
+    if (dashboardGoogleMap && dashboardGoogleMarker) {
+        dashboardGoogleMarker.setPosition(newLatLng);
+    }
+    
+    // 6. تحديث جميع ويدجت الشاشة 3D (لتضيء البوصلة)
+    // هذا الاستدعاء يضمن أن البوصلة تضيء بعد تحديث الاتجاه في الخطوة 3
+    update3dScreenWidgets(); 
+}
+        // --- المتغير العام لحفظ مُعرّف الـ watchPosition ---
+let locationWatchId = null;
+
+/**
+ * Starts continuous geolocation tracking (watchPosition) to get live coordinates
+ * and heading data, ensuring high accuracy for map rotation.
+ */
+function startContinuousLocationTracking() {
+    // نوقف أي تتبع سابق لضمان عدم تكرار المؤقت
+    stopDashboardLocationTracking(); 
+    
+    if (navigator.geolocation) {
+        // 🛑 CRITICAL: تمكين الدقة العالية لتمكين قراءة Heading
+        locationWatchId = navigator.geolocation.watchPosition(
+            (pos) => { 
+                const overlay = document.getElementById('geolocation-error-overlay');
+                if (overlay) overlay.classList.add('hidden');
+                const mapControls = document.querySelector('#dashboard-google-map ~ .absolute');
+                if (mapControls) mapControls.style.display = 'flex';
+                
+                // 👈 استدعاء تحديث الموقع وتدوير الخريطة
+                updateGoogleMapLocation(pos); 
+                appState.hasShownGeolocationError = false; 
+
+                if (!initialLocationFetched) {
+                    fetchWeatherData();
+                    initialLocationFetched = true;
+                }
+            }, 
+            (err) => { 
+                if (err.code === 1) { // PERMISSION_DENIED
+                    showGeolocationErrorOnMap('تم رفض إذن تحديد الموقع. يرجى تمكينه في إعدادات المتصفح.');
+                } else if (!appState.hasShownGeolocationError) {
+                    let msg = 'تعذر تتبع موقعك. يرجى التحقق من أذونات الموقع.';
+                    showMessageBox(msg); 
+                    appState.hasShownGeolocationError = true; 
+                }
+            }, 
+            // 💡 الإعدادات: طلب دقة عالية والحد الأقصى لعمر القراءة 5 ثواني
+            { enableHighAccuracy: true, timeout: 5000, maximumAge: 5000 } 
+        );
+    } else {
+        showGeolocationErrorOnMap('خدمة تحديد المواقع غير مدعومة في هذا المتصفح.');
+    }
+}
+
+/**
+ * Stops the continuous geolocation watch process.
+ */
+function stopDashboardLocationTracking() {
+    if (locationWatchId !== null) {
+        navigator.geolocation.clearWatch(locationWatchId);
+        locationWatchId = null;
+    }
+}
         function centerMapOnUserLocation() { 
             if (navigator.geolocation) { 
                 navigator.geolocation.getCurrentPosition(
