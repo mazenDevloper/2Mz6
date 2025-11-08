@@ -1,6 +1,6 @@
 
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" style="zoom:99%;">
+<html lang="ar" dir="rtl" style="zoom:90%;">
 <head>
     <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#000000">
@@ -63,6 +63,28 @@ img#dashboard-weather-icon {
     backdrop-filter: blur(5px);
     transition: all 0.3s ease;
 }
+
+/* --- CSS لتنسيق زر سرعة التشغيل التفاعلي --- */
+
+/* 💡 تنسيق الزر الدائري للسرعة */
+#floating-minimized-video-button .playback-rate-toggle-btn {
+    width: 40px !important;
+    height: 40px !important;
+    font-size: 0.75rem; /* حجم خط صغير */
+    font-weight: bold;
+    color: black;
+    
+    /* 🛑 اللون: لجعله بارزاً ومختلفاً */
+    background-color: #000000 !important; /* لون أصفر/ذهبي بارز */
+    color:white;
+    border-radius: 50% !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background-color 0.1s ease;
+}
+
 div#add-reciter-prompt-content {
     max-width: 98%;
 }
@@ -841,7 +863,7 @@ section#screen-Map>.w-full.h-full.bg-black2.rounded-3xl.flex.items-center.justif
     display: flex; /* 👈 ضروري لترتيب العناصر أفقياً */
     align-items: center;
     gap: 0.5rem;
-    width: 35%; /* عرض ثابت للكبسولة */
+    width: 250px; /* عرض ثابت للكبسولة */
     height: 60px; /* ارتفاع ثابت */
     padding: 0.5rem;
     
@@ -2361,18 +2383,23 @@ div#map{display:none}
 
     <!-- NEW: Minimized Video Button -->
     <div id="floating-minimized-video-button" class="navigable grid-item glass-surface glass-surface--svg" tabindex="0">
+    
     <button id="minimized-play-pause-btn" title="تشغيل/إيقاف" class="p-2 rounded-full bg-white/20 text-white/90 hover:bg-white/30 transition-colors navigable grid-item">
         <i data-lucide="play" class="w-5 h-5 play-icon"></i>
         <i data-lucide="pause" class="w-5 h-5 pause-icon hidden"></i>
     </button>
     
-    <div class="flex flex-col items-start overflow-hidden flex-grow px-2 min-w-0">
+    <div class="flex flex-col items-start overflow-hidden flex-grow px-1 min-w-0">
         <span class="minimized-title font-semibold text-sm truncate w-full">جاري تشغيل الصوت...</span>
-        <span id="minimized-playback-speed" class="text-xs text-yellow-400 font-bold">1.0x</span>
     </div>
     
     <button id="minimized-restore-btn" title="تكبير/استعادة" class="p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors navigable grid-item">
         <i data-lucide="maximize-2" class="w-5 h-5"></i> 
+    </button>
+    
+    
+    <button id="minimized-playback-speed-btn" title="تغيير سرعة التشغيل" class="playback-rate-toggle-btn navigable grid-item">
+        1.0x
     </button>
 </div>
 
@@ -7476,9 +7503,10 @@ if (!window.hasInitializedWeatherSpeaker) {
         // (determineNextPrayer ستُشغَّل أيضاً في startNextPrayerDetermination)
         startNextPrayerDetermination(); // تحديث تحديد الصلاة (كل 1 دقيقة)
         startFullDateUpdates();         // تحديث التاريخ (كل 100 دقيقة)
-
+        updateTimerDisplay(); 
+        renderDailyReminders();
         // 5. تشغيل الشاشة الافتراضية، مما يبدأ المؤقتات الشرطية (الكفاءة)
-        switchApp('Dashboard'); 
+        switchApp('Dashboard');
 
     }).catch(error => {
         console.error("Critical Initialization Failure:", error);
@@ -7499,7 +7527,8 @@ if (!window.hasInitializedWeatherSpeaker) {
     const minimizedRestoreBtn = document.getElementById('minimized-restore-btn');
     const minimizedPlayPauseBtn = document.getElementById('minimized-play-pause-btn');
     const videoPopupMinimizeButton = document.getElementById('video-popup-minimize-button');
-
+    // ... (في قسم DOM Element References)
+const minimizedPlaybackSpeedBtn = document.getElementById('minimized-playback-speed-btn'); // 👈 الزر الجديد
     // Listener الاستعادة من الكبسولة (التكبير)
     minimizedRestoreBtn?.addEventListener('click', restoreVideoPopup); 
     floatingMinimizedVideoButton?.addEventListener('click', restoreVideoPopup);
@@ -7528,6 +7557,13 @@ if (!window.hasInitializedWeatherSpeaker) {
         minimizeVideoPopup();
     });
 
+    // ابحث عن ربط حدث النقر لـ minimizedPlaybackSpeedBtn (الذي يستدعي togglePlaybackRate)
+
+minimizedPlaybackSpeedBtn?.addEventListener('click', (e) => {
+    e.stopPropagation(); // 👈 هذا هو السطر الحاسم! يضمن أن النقر لا يصل للحاوية الأبوية (RESTORE)
+    togglePlaybackRate();
+});
+
     // ربط IFRAME Source Buttons (لشاشة Reciters)
     const recitersIframe = document.getElementById('reciters-iframe');
     const iframeSrcButtons = document.querySelectorAll('#screen-Reciters .iframe-src-button');
@@ -7547,7 +7583,8 @@ if (!window.hasInitializedWeatherSpeaker) {
     }
 
     // 7. **المؤقتات والإجراءات المتأخرة**
-    setTimeout(playWelcomeMessage, 1500); 
+    setTimeout(playWelcomeMessage, 1500);
+     
 
     // 🛑 يجب إزالة جميع الأسطر الـ setInterval المكررة التي تسبب استهلاكاً للموارد:
     // setInterval(updateDigitalClock, 1000); 
@@ -7558,7 +7595,7 @@ if (!window.hasInitializedWeatherSpeaker) {
     const PLAYBACK_RATES = [1.0, 1.25, 1.5, 1.65];
 
 function togglePlaybackRate() {
-    if (!popupPlayer || !minimizedPlaybackSpeed) return;
+    if (!popupPlayer) return;
 
     const currentRate = popupPlayer.getPlaybackRate();
     const currentIndex = PLAYBACK_RATES.indexOf(currentRate);
@@ -7570,7 +7607,7 @@ function togglePlaybackRate() {
     // تطبيق السرعة الجديدة على المشغل
     popupPlayer.setPlaybackRate(nextRate);
     
-    // تحديث النص في الكبسولة فوراً
+    // تحديث نص الزر في الكبسولة فوراً
     updateMinimizedControlsState(); 
 }
 });
