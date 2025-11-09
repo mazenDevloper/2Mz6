@@ -1,6 +1,6 @@
 
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" style="zoom:99%;">
+<html lang="ar" dir="rtl" style="zoom:90%;">
 <head>
     <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#000000">
@@ -3114,12 +3114,52 @@ let favoritesM = [];
         // --- Home Locations ---
         // UPDATED: Coordinates for Home 1 and Home 2
         // 💡 تحديد مواقع المنازل الثابتة (يجب أن تكون معرفة عالمياً)
-const HOME1_COORDS = { lat: 17.0, lng: 54.159722 }; 
-const HOME2_COORDS = { lat: 17.048560, lng: 54.159616 };
+const HOME1_COORDS = {lat: 17.067330, lng: 54.160190, zoom: 18}; 
+const HOME2_COORDS = {lat: 17.081852, lng: 54.158345, zoom: 18};
 
 /**
  * NEW: Determines the color class for traffic status based on the delay percentage.
  */
+/**
+ * NEW: Displays a marker for a specific location on the Dashboard Google Map.
+ *
+ * @param {object} coords - The {lat, lng} coordinates of the location (HOME1_COORDS or HOME2_COORDS).
+ * @param {string} title - The title for the marker's infowindow.
+ */
+function displayLocationMarker(coords, title) {
+    if (!dashboardGoogleMap || !window.google || !window.google.maps) {
+        showMessageBox('الخريطة غير مهيأة بعد أو خدمات جوجل غير متاحة.');
+        return;
+    }
+    
+    // 1. إنشاء علامة موقع جديدة مؤقتة
+    const tempMarker = new google.maps.Marker({
+        position: coords,
+        map: dashboardGoogleMap,
+        title: title,
+        // استخدام أيقونة علم لتمييز الوجهة
+        icon: {
+            path: google.maps.SymbolPath.FLAG, 
+            scale: 5,
+            fillColor: "#FF00FF",
+            fillOpacity: 0.8,
+            strokeColor: "#FFFFFF",
+            strokeWeight: 1
+        }
+    });
+
+    // 2. تركيز الخريطة على الموقع الجديد وتكبيره
+    dashboardGoogleMap.setCenter(coords);
+    dashboardGoogleMap.setZoom(16); 
+    
+    showMessageBox(`تم تحديد وجهة "${title}". يمكنك رؤية الازدحام عليها.`);
+    
+    // 3. إزالة العلامة المؤقتة بعد 10 ثوانٍ (لتنظيف الخريطة)
+    setTimeout(() => {
+        tempMarker.setMap(null); 
+    }, 10000); 
+}
+
 function getTrafficColorClass(delayPercentage) {
     if (delayPercentage === -1) return 'traffic-unknown';
     // أقل من 5% تأخير: ازدحام خفيف (أخضر)
@@ -3175,34 +3215,48 @@ async function fetchTrafficStatus(origin, destination) {
  * NEW: Master function to fetch and update the traffic indicators on home buttons.
  * This is the function that should run every 10 minutes.
  */
+/**
+ * FINAL: Fetches and updates the traffic indicators on home buttons in the Dashboard.
+ * It uses the Directions API to calculate delay percentage and colors the buttons accordingly.
+ */
+/**
+ * FINAL: Fetches and updates the traffic indicators on home buttons in the Dashboard.
+ */
 async function updateTrafficIndicators() {
-    if (!appState.currentLocation || !window.google || !directionsService) {
-        console.warn("Cannot update traffic: Prerequisites not ready.");
-        return;
+    const origin = appState.currentLocation || HOME1_COORDS; // Fallback Origin
+
+    // 1. التحقق من جاهزية خدمات Google Maps
+    if (!window.google || !window.google.maps || !directionsService) {
+         console.warn("Traffic update postponed: Google Maps services not ready.");
+         // 💡 نُحدِّث الأزرار فوراً لحالة عدم المعرفة
+         document.getElementById('go-to-home-1-button')?.classList.add('traffic-unknown');
+         document.getElementById('go-to-home-2-button')?.classList.add('traffic-unknown');
+         return;
     }
 
-    // 1. حساب مؤشرات الازدحام
-    const home1Promise = fetchTrafficStatus(appState.currentLocation, HOME1_COORDS);
-    const home2Promise = fetchTrafficStatus(appState.currentLocation, HOME2_COORDS);
-    
+    // 2. حساب مؤشرات الازدحام
+    const home1Promise = fetchTrafficStatus(origin, HOME1_COORDS);
+    const home2Promise = fetchTrafficStatus(origin, HOME2_COORDS);
     const [delay1, delay2] = await Promise.all([home1Promise, home2Promise]);
     
-    // 2. تحديث زر Home 1
+    // 3. تحديث زر 'إشارات ق' (Home 1)
     const btn1 = document.getElementById('go-to-home-1-button');
     if (btn1) {
         const colorClass = getTrafficColorClass(delay1);
         btn1.classList.remove('traffic-red', 'traffic-yellow', 'traffic-green', 'traffic-unknown');
         btn1.classList.add(colorClass);
-        btn1.innerHTML = `المنزل 1 (${delay1 !== -1 ? delay1 + '%' : '--'})`;
+        // 🛑 التحديث باسم "إشارات ق"
+        btn1.innerHTML = `إشارات ق (${delay1 !== -1 ? delay1 + '%' : '--'})`;
     }
 
-    // 3. تحديث زر Home 2
+    // 4. تحديث زر 'تقاطع ش' (Home 2)
     const btn2 = document.getElementById('go-to-home-2-button');
     if (btn2) {
         const colorClass = getTrafficColorClass(delay2);
         btn2.classList.remove('traffic-red', 'traffic-yellow', 'traffic-green', 'traffic-unknown');
         btn2.classList.add(colorClass);
-        btn2.innerHTML = `المنزل 2 (${delay2 !== -1 ? delay2 + '%' : '--'})`;
+        // 🛑 التحديث باسم "تقاطع ش"
+        btn2.innerHTML = `تقاطع ش (${delay2 !== -1 ? delay2 + '%' : '--'})`;
     }
 }
         // --- DOM Element References ---
@@ -7812,8 +7866,8 @@ if (!window.hasInitializedWeatherSpeaker) {
         }
 switchApp('Dashboard');
         // --- Initial Setup ---
-     document.addEventListener('DOMContentLoaded', () => {
-    // 1. **الجلب الأولي لجميع بيانات JSONBin (ASYNCHRONOUS)**
+  document.addEventListener('DOMContentLoaded', () => {
+    // 1. **الجلب الأولي لبيانات JSONBin (ASYNCHRONOUS)**
     Promise.all([
         fetchRecitersList(), 
         fetchChannelsList(), 
@@ -7821,11 +7875,9 @@ switchApp('Dashboard');
         fetchFavorites('M')   
     ]).then(() => {
         console.log("Initialization: External data fetched and ready.");
-
         
         // 2. تشغيل جلب الطقس الأولي لملء AppState
         fetchWeatherData(); 
-
 
         // 3. تهيئة واجهة المستخدم الخاصة بالـ Media
         populateYoutubeSuggestions();
@@ -7836,48 +7888,54 @@ switchApp('Dashboard');
         migrateChannelData();
         
         // 🛑 تشغيل المؤقتات البطيئة الأساسية فقط:
-        // (determineNextPrayer ستُشغَّل أيضاً في startNextPrayerDetermination)
         startNextPrayerDetermination(); // تحديث تحديد الصلاة (كل 1 دقيقة)
         startFullDateUpdates();         // تحديث التاريخ (كل 100 دقيقة)
-        updateTimerDisplay(); 
-        renderDailyReminders();
-        // 5. تشغيل الشاشة الافتراضية، مما يبدأ المؤقتات الشرطية (الكفاءة)
-        
+
+        // 5. تشغيل الشاشة الافتراضية، مما يبدأ المؤقتات الشرطية
+        switchApp('Dashboard'); 
 
     }).catch(error => {
         console.error("Critical Initialization Failure:", error);
         showMessageBox("فشل تحميل البيانات الأساسية. يرجى التحقق من مفاتيح API واتصال الإنترنت.");
     });
 
-
     // 6. **تفعيل المستمعات والأزرار (Listeners & Button Bindings)**
     
-    // المستمعات القياسية (Standard Listeners)
-    getMyLocationButtonDashboard?.addEventListener('click', centerMapOnUserLocation);
-    goToHome1Button?.addEventListener('click', () => calculateAndDisplayRouteTo(HOME1_COORDS));
-    goToHome2Button?.addEventListener('click', () => calculateAndDisplayRouteTo(HOME2_COORDS));
-    floatingMediaButton?.addEventListener('click', () => switchApp('Media'));
-    floatingMinimizedVideoButton?.addEventListener('click', restoreVideoPopup); 
-
-
-    // 🛑 ربط أزرار التحكم في الشاشة المصغرة والمكبرة
+    // مراجع الأزرار الأساسية (يجب أن تكون معرفة عالمياً في مكان آخر)
+    const getMyLocationButtonDashboard = document.getElementById('get-my-location-button-dashboard');
+    const goToHome1Button = document.getElementById('go-to-home-1-button');
+    const goToHome2Button = document.getElementById('go-to-home-2-button');
     const minimizedRestoreBtn = document.getElementById('minimized-restore-btn');
     const minimizedPlayPauseBtn = document.getElementById('minimized-play-pause-btn');
     const videoPopupMinimizeButton = document.getElementById('video-popup-minimize-button');
-    // ... (في قسم DOM Element References)
-const minimizedPlaybackSpeedBtn = document.getElementById('minimized-playback-speed-btn'); // 👈 الزر الجديد
-    // Listener الاستعادة من الكبسولة (التكبير)
+    const floatingMinimizedVideoButton = document.getElementById('floating-minimized-video-button');
+    const minimizedPlaybackSpeedBtn = document.getElementById('minimized-playback-speed-btn'); // الزر الدائري للسرعة
+
+    // المستمعات القياسية
+    getMyLocationButtonDashboard?.addEventListener('click', centerMapOnUserLocation);
+    floatingMediaButton?.addEventListener('click', () => switchApp('Media'));
+
+    // 🛑 ربط أزرار الموقع الجديدة (لتعيين Marker والبدء)
+    goToHome1Button?.addEventListener('click', () => {
+        displayLocationMarker(HOME1_COORDS, 'المنزل 1'); 
+    });
+    goToHome2Button?.addEventListener('click', () => {
+        displayLocationMarker(HOME2_COORDS, 'المنزل 2');
+    });
+
+    // 🛑 ربط أزرار التحكم في الكبسولة (Minimize/Restore Logic)
     minimizedRestoreBtn?.addEventListener('click', restoreVideoPopup); 
     floatingMinimizedVideoButton?.addEventListener('click', restoreVideoPopup);
+
+    // Listener زر التصغير من المشغل المنبثق
+    videoPopupMinimizeButton?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        minimizeVideoPopup();
+    });
     
-    // 🛑 CRITICAL FIX 3: ربط سرعة التشغيل
-    const minimizedPlaybackSpeed = document.getElementById('minimized-playback-speed');
-    minimizedPlaybackSpeed?.addEventListener('click', togglePlaybackRate);
-    
-    // ... (بقية الكود)
-    // Listener زر التشغيل/الإيقاف المؤقت داخل الكبسولة
+    // Listener زر التشغيل/الإيقاف المؤقت داخل الكبسولة (يمنع الاستعادة)
     minimizedPlayPauseBtn?.addEventListener('click', (e) => {
-        e.stopPropagation(); // 👈 منع النقر من الوصول إلى الحاوية الأبوية (floatingMinimizedVideoButton)
+        e.stopPropagation(); 
         if (popupPlayer) {
             const playerState = popupPlayer.getPlayerState();
             if (playerState === YT.PlayerState.PLAYING) {
@@ -7888,86 +7946,22 @@ const minimizedPlaybackSpeedBtn = document.getElementById('minimized-playback-sp
         }
     });
 
-    // 🛑 Listener زر التصغير من المشغل المنبثق
-    videoPopupMinimizeButton?.addEventListener('click', (e) => {
-        e.stopPropagation();
-        minimizeVideoPopup();
+    // Listener زر تبديل السرعة في الكبسولة (يمنع الاستعادة)
+    minimizedPlaybackSpeedBtn?.addEventListener('click', (e) => {
+        e.stopPropagation(); 
+        togglePlaybackRate();
     });
 
-    // ابحث عن ربط حدث النقر لـ minimizedPlaybackSpeedBtn (الذي يستدعي togglePlaybackRate)
-
-minimizedPlaybackSpeedBtn?.addEventListener('click', (e) => {
-    e.stopPropagation(); // 👈 هذا هو السطر الحاسم! يضمن أن النقر لا يصل للحاوية الأبوية (RESTORE)
-    togglePlaybackRate();
-});
-
-    // ربط IFRAME Source Buttons (لشاشة Reciters)
-    const recitersIframe = document.getElementById('reciters-iframe');
-    const iframeSrcButtons = document.querySelectorAll('#screen-Reciters .iframe-src-button');
-
-    if (recitersIframe && iframeSrcButtons.length > 0) {
-        iframeSrcButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const newSrc = button.dataset.src;
-                if (newSrc && recitersIframe.src !== newSrc) {
-                    console.log(`Changing iframe src to: ${newSrc}`);
-                    recitersIframe.src = newSrc;
-                    iframeSrcButtons.forEach(btn => btn.classList.remove('active'));
-                    button.classList.add('active');
-                }
-            });
-        });
-    }
-
     // 7. **المؤقتات والإجراءات المتأخرة**
-    setTimeout(playWelcomeMessage, 1500);
-     
+    setTimeout(playWelcomeMessage, 1500); 
 
-    // 🛑 يجب إزالة جميع الأسطر الـ setInterval المكررة التي تسبب استهلاكاً للموارد:
-    // setInterval(updateDigitalClock, 1000); 
-    // setInterval(simulateOtherCarData, 2000);
-     setInterval(updateTimerDisplay, 1000);
-    // setInterval(fetchWeatherData, 300000);
-    // ...
-    const PLAYBACK_RATES = [1.0, 1.25, 1.5, 1.65];
-
-    function setPlaybackRateFromSelect(rateValue) {
-    if (!popupPlayer) {
-        console.warn("Cannot set playback rate: YouTube player is not initialized.");
-        return;
-    }
-
-    const rate = parseFloat(rateValue);
-
-    if (PLAYBACK_RATES.includes(rate)) {
-        // 1. تطبيق السرعة على المشغل الفعلي
-        popupPlayer.setPlaybackRate(rate);
-        
-        // 2. تحديث الحالة البصرية للكبسولة والقائمة المنسدلة
-        updateMinimizedControlsState(); 
-        
-        console.log(`Playback rate set to: ${rate}x`);
-    } else {
-        console.warn(`Invalid playback rate received: ${rateValue}`);
-    }
-}
-
-function togglePlaybackRate() {
-    if (!popupPlayer) return;
-
-    const currentRate = popupPlayer.getPlaybackRate();
-    const currentIndex = PLAYBACK_RATES.indexOf(currentRate);
+    // 💡 نُضيف هذه الاستدعاءات لضمان التحديث الأولي للمرة الأولى (قبل أن تبدأ switchApp)
+    updateTimerDisplay();
+    renderDailyReminders();
     
-    // تحديد السرعة التالية في المصفوفة
-    const nextIndex = (currentIndex + 1) % PLAYBACK_RATES.length;
-    const nextRate = PLAYBACK_RATES[nextIndex];
+    // 8. المستمعات الإضافية (منطقك الأصلي)
+    // ... (بقية ربط الأحداث العامة: backToSearchFloatingButton, clearSearchButton, الخ)
     
-    // تطبيق السرعة الجديدة على المشغل
-    popupPlayer.setPlaybackRate(nextRate);
-    
-    // تحديث نص الزر في الكبسولة فوراً
-    updateMinimizedControlsState(); 
-}
 });
 
 
