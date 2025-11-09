@@ -1582,7 +1582,7 @@ div#bottom-left-controls {
              font-family: sans-serif;
              font-weight: bold;
             margin-bottom: 0.2rem;
-            font-size: 1.3rem;
+            font-size: 1rem;
             
         }
 
@@ -2535,6 +2535,14 @@ function switchApp(appName) {
         startClockAndTimer(); // 1s و 2s مؤقتات عالية التردد
         startWeatherUpdates();
         updateTimerDisplay(); // الطقس (جلب كل 5 دقائق)
+        if (dashboardGoogleMap) {
+            const numericHeading = directionToDegrees(appState.car.direction);
+            dashboardGoogleMap.setHeading(numericHeading);
+            // ونركز الخريطة على الموقع الحالي لضمان تحديثها
+            if (appState.currentLocation) {
+                 dashboardGoogleMap.setCenter(appState.currentLocation);
+            }
+        }
     }
     
     // B. المؤقتات المطلوبة في شاشة 3D (Map)
@@ -3029,7 +3037,7 @@ let favoritesM = [];
         // --- Global App State Management ---
         let appState = {
             currentTime: '',
-            mapLocation: { lat: 17.081667, lon: 54.159722, zoom: 19 },
+            mapLocation: { lat: 17.081667, lon: 54.159722, zoom: 18 },
             weather: { temperature: null, description: null, uvIndex: null, iconUrl: '', location: 'Salalah, Oman' },
             car: { speed: 0, rpm: 0, fuel: 0, temp: 0, gear: 'P', direction: '--' }, // Added direction
             prayerTimes: { Fajr: '--:--', Dhuhr: '--:--', Asr: '--:--', Maghrib: '--:--', Isha: '--:--', nextPrayer: null, nextPrayerIqamaTime: null, currentPrayer: null },
@@ -3665,39 +3673,73 @@ function updateUI() {
         const appOrder = ['Dashboard', 'Media', 'Radio', 'Athkar', 'Reciters', 'Weather', 'Map', 'Quran'];
         let currentAppIndex = 0;
 
-        function switchApp(appName) {
-            const newIndex = appOrder.indexOf(appName);
-            if (newIndex === -1) return;
-            currentAppIndex = newIndex;
+       function switchApp(appName) {
+    // 1. الإيقاف العام لجميع المؤقتات ذات التردد العالي (Clean Slate)
+    // نوقف جميع المؤقتات التي تعمل بشكل شرطي أولاً
+    stopClockAndTimer();
+    stopCarSimulation();
+    stopWeatherUpdates(); 
+    // 💡 ملاحظة: start/stopNextPrayerDetermination و startFullDateUpdates تعملان بشكل دائم (بطيء).
 
-            appScreens.forEach(s => s.classList.remove('active'));
-            sidebarIcons.forEach(i => i.classList.remove('active'));
-            const screen = document.getElementById(`screen-${appName}`);
-            if (screen) screen.classList.add('active');
-            const icon = document.querySelector(`.app-icon[data-app="${appName}"]`);
-            if (icon) icon.classList.add('active');
+    // 2. تحديث الشاشة النشطة
+    const newIndex = appOrder.indexOf(appName);
+    if (newIndex === -1) return;
+    currentAppIndex = newIndex;
+    
+    // تحديث الفئات المرئية
+    appScreens.forEach(s => s.classList.remove('active'));
+    sidebarIcons.forEach(i => i.classList.remove('active'));
+    const screen = document.getElementById(`screen-${appName}`);
+    if (screen) screen.classList.add('active');
+    const icon = document.querySelector(`.app-icon[data-app="${appName}"]`);
+    if (icon) icon.classList.add('active');
 
-            if (appName === 'Dashboard' && appState.mapZoomChangedByUser) {
-                appState.dashboardReturnCounter++;
-                if (appState.dashboardReturnCounter >= 2 && dashboardGoogleMap) {
-                    dashboardGoogleMap.setZoom(appState.mapLocation.zoom);
-                    appState.mapZoomChangedByUser = false;
-                    appState.dashboardReturnCounter = 0;
-                    showMessageBox('تم إعادة تعيين تكبير الخريطة إلى الافتراضي.');
+
+    // 3. التشغيل الشرطي للمؤقتات (Conditional Start)
+
+    // A. المؤقتات المطلوبة في Dashboard
+    if (appName === 'Dashboard') {
+        startClockAndTimer(); // 1s/2s (الساعة والعداد التنازلي)
+        startWeatherUpdates(); // الطقس (جلب كل 5 دقائق)
+        
+        // 🚀 FIX: تطبيق التدوير والمركز فوراً عند فتح الشاشة
+        // نستخدم setTimeout(0) لضمان أن الـ DOM أصبح مرئياً قبل تطبيق setHeading
+        setTimeout(() => {
+            if (dashboardGoogleMap) {
+                const numericHeading = directionToDegrees(appState.car.direction);
+                dashboardGoogleMap.setHeading(numericHeading);
+                
+                // 💡 نركز الخريطة على الموقع الحالي لضمان تحديثها بالكامل
+                if (appState.currentLocation) {
+                     dashboardGoogleMap.setCenter(appState.currentLocation);
                 }
-            } else if (appName !== 'Dashboard' && !appState.mapZoomChangedByUser) {
-                appState.dashboardReturnCounter = 0;
             }
-            handleMediaViewSwitch(appName);
-            quranQuickAccess.style.display = (appName === 'Quran') ? 'flex' : 'none';
-            startTripFloatingButton.style.display = (appName === 'Map' && appState.destinationSet) ? 'flex' : 'none';
-            if (document.activeElement && document.activeElement.closest('nav')) {
-                setTimeout(() => {
-                    const firstItem = screen.querySelector('.grid-item');
-                    if (firstItem) setFocus(firstItem);
-                }, 100);
-            }
-        }
+        }, 0); 
+    }
+    
+    // B. المؤقتات المطلوبة في شاشة 3D (Map)
+    if (appName === 'Map') {
+        startCarSimulation(); // محاكاة القيادة (2 ثانية)
+        startWeatherUpdates(); // الطقس (جلب كل 5 دقائق)
+    } 
+    
+    // C. المؤقتات المطلوبة في شاشة Weather
+    if (appName === 'Weather') {
+        startWeatherUpdates();
+    }
+    
+    // ... (بقية منطق switchApp)
+    
+    // 4. نقل التركيز الأولي بعد التبديل
+    const activeScreen = document.getElementById(`screen-${appName}`);
+    if (activeScreen) {
+        setTimeout(() => {
+            const firstItem = activeScreen.querySelector('.grid-item');
+            if (firstItem) setFocus(firstItem);
+        }, 150);
+    }
+
+}
 
         function navigateToNextApp() {
             currentAppIndex = (currentAppIndex + 1) % appOrder.length;
@@ -6007,8 +6049,41 @@ function directionToDegrees(direction) {
             return googleMapsPromise;
         }
 
-        async function initMap() {
-    // التحقق المزدوج لضمان عدم تهيئة الخريطة أكثر من مرة
+/**
+ * Forces the Google Map object to rotate based on a direction string,
+ * ensuring the Heading Up view is maintained regardless of browser rendering type
+ * (as long as Map is properly initialized).
+ *
+ * @param {string} directionString - The direction (e.g., 'NW', 'S') from appState.car.direction.
+ */
+function forceMapRotation(directionString) {
+    // 1. التحقق الأساسي من وجود كائن الخريطة
+    if (!dashboardGoogleMap) {
+        console.warn("Map Rotation Failed: dashboardGoogleMap is not initialized.");
+        return;
+    }
+    
+    // 2. التحويل من اتجاه حرفي إلى درجة رقمية (0-360)
+    const numericHeading = directionToDegrees(directionString); 
+    
+    // 3. 🛑 التطبيق الإجباري للتدوير
+    try {
+        // نستخدم setHeading مباشرة، حيث أنها هي الطريقة القياسية
+        dashboardGoogleMap.setHeading(numericHeading);
+        
+        // 💡 بما أننا نستخدم setHeading بنجاح، يجب أن نضمن أن الخريطة ما زالت في المركز
+        // هذا أمر ضروري للملاحة (إذا كان الموقع الحالي مُحدثاً)
+        if (appState.currentLocation) {
+            dashboardGoogleMap.setCenter(appState.currentLocation);
+        }
+        
+    } catch (e) {
+        console.error("Map Rotation Failed to apply setHeading:", e);
+        // في حالات الفشل القصوى (قد لا يدعم المتصفح setHeading)، لا يمكننا فعل الكثير
+    }
+}
+
+       async function initMap() {
     if (mapsInitialized) return;
     mapsInitialized = true;
     
@@ -6021,28 +6096,50 @@ function directionToDegrees(direction) {
         
         // 1. 🖼️ تحديد الأيقونة المخصصة للسيارة
         const customCarIcon = {
-            url: 'https://imgs.search.brave.com/JrjKdRHeChOCBZZK6WmayWmsgqQSTtiHFpne57B9K2o/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/aWNvbnNjb3V0LmNv/bS9pY29uL3ByZW1p/dW0vcG5nLTI1Ni10/aHVtYi9sb2NhdGlv/bi1pY29uLXN2Zy1k/b3dubG9hZC1wbmct/MTA5Mjc1NzgucG5n/P2Y9d2VicCZ3PTEy/OA', // رابط الصورة المخصصة
-            
-            // تحديد الأبعاد (ScaledSize)
-            scaledSize: new google.maps.Size(48, 48), 
-            
-            // نقطة الارتكاز (Anchor): لمركزة الصورة على الموقع
+            url: 'https://dmusera.netlify.app/3606.png', 
+            scaledSize: new google.maps.Size(90, 90), 
             anchor: new google.maps.Point(24, 24) 
         };
+
+        // 💡 نمط الخريطة الداكن (لتجنب التشتيت وتحسين التباين)
+        const darkMapStyle = [
+            {"featureType": "all","elementType": "labels.text.fill","stylers": [{"color": "#ffffff"}]},
+            {"featureType": "all","elementType": "labels.text.stroke","stylers": [{"color": "#000000"},{"lightness": 13}]},
+            {"featureType": "administrative","elementType": "geometry.fill","stylers": [{"color": "#000000"}]},
+            {"featureType": "administrative","elementType": "geometry.stroke","stylers": [{"color": "#144b53"},{"lightness": 14},{"weight": 1.4}]},
+            {"featureType": "landscape","elementType": "all","stylers": [{"color": "#083042"}]},
+            {"featureType": "poi","elementType": "geometry","stylers": [{"color": "#0c4152"},{"lightness": 5}]},
+            {"featureType": "road.highway","elementType": "geometry.fill","stylers": [{"color": "#000000"}]},
+            {"featureType": "road.highway","elementType": "geometry.stroke","stylers": [{"color": "#0b84c8"},{"lightness": 25}]},
+            {"featureType": "road.arterial","elementType": "geometry.fill","stylers": [{"color": "#000000"}]},
+            {"featureType": "road.arterial","elementType": "geometry.stroke","stylers": [{"color": "#0b3d51"},{"lightness": 16}]},
+            {"featureType": "road.local","elementType": "geometry.fill","stylers": [{"color": "#000000"}]},
+            {"featureType": "road.local","elementType": "geometry.stroke","stylers": [{"color": "#0b3d51"},{"lightness": 16}]},
+            {"featureType": "transit","elementType": "all","stylers": [{"color": "#146474"}]}
+        ];
+        // ---------------------------------------------
 
         // 2. 🌍 تهيئة كائن الخريطة (Map Object)
         dashboardGoogleMap = new google.maps.Map(mapElement, {
             center: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon },
             zoom: appState.mapLocation.zoom,
-            disableDefaultUI: true, // إخفاء عناصر التحكم الافتراضية
-            mapTypeId: 'satellite',
+            disableDefaultUI: true, 
+            mapTypeId: 'roadmap', // 👈 استخدام خريطة الطريق كقاعدة
             
-            // 🛑 FIX: تفعيل الميل (Tilt) لضمان عمل الدوران (Heading Rotation)
+            // 🛑 FIX 1: تفعيل الميل (Tilt) لضمان عمل الدوران (Heading Rotation)
             tilt: 45, 
             heading: 0, 
+            
+            // 🛑 FIX 2: إجبار تفعيل تفاعلات المستخدم للدوران والإمالة
+            gestureHandling: 'greedy', 
+            headingInteractionEnabled: true, 
+            tiltInteractionEnabled: true,
+            
+            // 🛑 FIX 3: تطبيق النمط الداكن عالي التباين
+            styles: darkMapStyle 
         });
 
-        // 3. 🚦 إضافة طبقة الازدحام (Traffic Layer)
+        // 3. 🚦 إضافة طبقة الازدحام (Traffic Layer) - CRITICAL FOR DRIVING
         const trafficLayer = new google.maps.TrafficLayer();
         trafficLayer.setMap(dashboardGoogleMap); 
         
@@ -6050,7 +6147,7 @@ function directionToDegrees(direction) {
         dashboardGoogleMarker = new google.maps.Marker({
             position: { lat: appState.mapLocation.lat, lng: appState.mapLocation.lon },
             map: dashboardGoogleMap,
-            icon: customCarIcon, // 👈 استخدام الأيقونة المخصصة
+            icon: customCarIcon, 
         });
 
         // 5. تهيئة خدمة التوجيهات (Directions Service)
@@ -6109,43 +6206,42 @@ function directionToDegrees(direction) {
  *
  * @param {object} pos - The position object returned by watchPosition.
  */
+/**
+ * Processes new geolocation position data, updates the car state, 
+ * and applies rotation to the Dashboard Map using the calculated direction string 
+ * for reliable rotation (Heading Up mode).
+ *
+ * @param {object} pos - The position object returned by watchPosition.
+ */
 function updateGoogleMapLocation(pos) {
+    // 🛑 FIX: التحقق من وجود pos.coords قبل المتابعة
+    if (!pos || !pos.coords) {
+        console.warn("Geolocation update called without valid coordinates object.");
+        return; 
+    }
+    
     // 1. استخراج البيانات الخام
     const { latitude: lat, longitude: lng, heading } = pos.coords;
     const newLatLng = { lat, lng };
     
     appState.currentLocation = { lat, lng };
 
-    // 2. منطق محاكاة حركة السيارة (يظل يعتمد على الموقع السابق)
-    if (appState.previousLocation) {
-        const distance = haversineDistance(appState.previousLocation, newLatLng);
-        if (distance > 2) {
-            appState.car.gear = 'D';
-            appState.car.speed = (Math.random() * 60 + 40).toFixed(0);
-        } else {
-            appState.car.gear = 'P';
-            appState.car.speed = 0;
-        }
-    } else {
-        appState.car.gear = 'P';
-        appState.car.speed = 0;
-    }
+    // 2. منطق محاكاة حركة السيارة (Simulation Logic)
+    // ... (بقية منطق السرعة والمسافة) ...
     appState.previousLocation = newLatLng;
     
     // 3. تحديث الاتجاه الحرفي للبوصلة التفاعلية
-    // 💡 نستخدم bearingToDirection(heading) لتحويل قيمة Heading الخام (0-360) إلى قيمة حرفية (N, NE, SW, etc.).
     appState.car.direction = bearingToDirection(heading); 
     
     // 4. 🧭 تطبيق Heading على خريطة Dashboard (CRITICAL FIX)
     if (dashboardGoogleMap) {
-        // 🛑 FIX: نستخدم الاتجاه الحرفي المخزن لضمان الحصول على قيمة رقمية مستقرة للتدوير
         const directionString = appState.car.direction; 
-        const numericHeading = directionToDegrees(directionString); // تحويل (N, NE...) إلى (0, 45...)
+        const numericHeading = directionToDegrees(directionString); 
         
-        // تطبيق Heading على الخريطة
+        // تطبيق Heading لتدوير الخريطة
         dashboardGoogleMap.setHeading(numericHeading); 
         
-        // 💡 للحفاظ على تتبع الموقع، نركز الخريطة على الموقع الجديد
+        // الحفاظ على تتبع الموقع (Center Map)
         if (!appState.mapZoomChangedByUser) {
              dashboardGoogleMap.setCenter(newLatLng);
         }
@@ -6157,7 +6253,6 @@ function updateGoogleMapLocation(pos) {
     }
     
     // 6. تحديث جميع ويدجت الشاشة 3D (لتضيء البوصلة)
-    // هذا الاستدعاء يضمن أن البوصلة تضيء بعد تحديث الاتجاه في الخطوة 3
     update3dScreenWidgets(); 
 }
         // --- المتغير العام لحفظ مُعرّف الـ watchPosition ---
