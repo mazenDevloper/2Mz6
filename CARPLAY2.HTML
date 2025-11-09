@@ -6477,19 +6477,29 @@ function stopDashboardLocationTracking() {
     }
 }
         function centerMapOnUserLocation() { 
-            if (navigator.geolocation) { 
-                navigator.geolocation.getCurrentPosition(
-                    (pos) => { 
-                        updateGoogleMapLocation(pos); 
-                        showMessageBox(`تم تحديث الخريطة.`); 
-                    }, 
-                    () => {
-                        showGeolocationErrorOnMap('تعذر الحصول على موقعك الحالي. يرجى التحقق من الأذونات.');
-                    }, 
-                    { enableHighAccuracy: true }
-                ); 
-            } 
-        }
+    if (navigator.geolocation) { 
+        navigator.geolocation.getCurrentPosition(
+            // 🛑 النجاح: تم الحصول على الموقع (pos)
+            (pos) => { 
+                // استدعاء دالة تحديث الخريطة الرئيسية
+                updateGoogleMapLocation(pos); 
+                showMessageBox(`تم تحديث الخريطة.`); 
+            }, 
+            // 🛑 الفشل: خطأ في الوصول
+            (err) => {
+                let msg = 'تعذر الحصول على موقعك الحالي. يرجى التحقق من الأذونات.';
+                if (err.code === 1) { // PERMISSION_DENIED
+                     msg = 'تم رفض إذن تحديد الموقع. يرجى تمكينه في الإعدادات.';
+                }
+                showGeolocationErrorOnMap(msg); 
+                console.error("Geolocation Error Code:", err.code);
+            }, 
+            { enableHighAccuracy: true }
+        ); 
+    } else { 
+        showGeolocationErrorOnMap('خدمة تحديد المواقع غير مدعومة في هذا المتصفح.');
+    }
+}
         
         async function calculateAndDisplayRouteTo(destinationCoords) {
             if (!appState.currentLocation) {
@@ -7895,7 +7905,8 @@ updateTrafficIndicators();
         startFullDateUpdates();         // تحديث التاريخ (كل 100 دقيقة)
 
         // 5. تشغيل الشاشة الافتراضية، مما يبدأ المؤقتات الشرطية
-        switchApp('Dashboard'); 
+        switchApp('Dashboard');
+        centerMapOnUserLocation(); 
 
     }).catch(error => {
         console.error("Critical Initialization Failure:", error);
