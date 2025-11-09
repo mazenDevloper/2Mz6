@@ -4757,7 +4757,6 @@ async function showVideoPopup(videoId, startOverride = null) {
     if (popupPlayer) {
         // إذا كان المشغل موجوداً، حمّل الفيديو الجديد
         popupPlayer.loadVideoById({ videoId, startSeconds: start });
-        popupPlayer.addEventListener('onPlaybackRateChange', handlePlaybackRateChange);
     } else {
         // إذا لم يكن موجوداً، قم بإنشاء مشغل جديد
         videoPopupPlayerContainer.innerHTML = '<div id="video-popup-player"></div>';
@@ -4771,9 +4770,7 @@ async function showVideoPopup(videoId, startOverride = null) {
             },
             events: { 
                 'onReady': (e) => e.target.playVideo(),
-                'onStateChange': onPlayerStateChange, 
-                // 🚀 CRITICAL FIX: ربط المستمع الخاص بتغيير السرعة
-                'onPlaybackRateChange': handlePlaybackRateChange // 👈 لمعالجة PROGRESS و ENDED
+                'onStateChange': onPlayerStateChange // 👈 لمعالجة PROGRESS و ENDED
             }
         });
     }
@@ -8020,11 +8017,7 @@ function togglePlaybackRate() {
     popupPlayer.setPlaybackRate(nextRate);
     
     // تحديث العرض في كل من القائمة المنسدلة والكبسولة
- 
-}
-
-function handlePlaybackRateChange(event) {
-    updateMinimizedControlsState(); // 👈 تحديث حالة الزر عند حدوث تغيير فعلي في سرعة التشغيل
+    updateMinimizedControlsState(); 
 }
 
 
