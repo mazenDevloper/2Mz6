@@ -6083,6 +6083,35 @@ function forceMapRotation(directionString) {
     }
 }
 
+/**
+ * CRITICAL FIX: Forces Map Tilt to 67.5 degrees after a slight delay.
+ * This ensures the map switches to WebGL/3D rendering, enabling setHeading() and two-finger rotation.
+ */
+/**
+ * CRITICAL FIX: Forces Map Tilt to 67.5 degrees after a slight delay (500ms).
+ * This ensures the map switches to WebGL/3D rendering, enabling setHeading() and two-finger rotation.
+ */
+function forceMapTiltAndRotation() {
+    if (!dashboardGoogleMap) return;
+
+    // 🛑 إجبار تعيين الميل (Tilt) إلى قيمة عالية (لإجبار وضع WebGL)
+    if (dashboardGoogleMap.getTilt() < 45) {
+        dashboardGoogleMap.setTilt(67.5); 
+        console.log("✅ FORCED: Map tilt set to 67.5 degrees to enable rotation.");
+    }
+    
+    // 💡 تطبيق التدوير بالاتجاه المخزن بالفعل (لإكمال الدورة)
+    // نستخدم appState.car.direction لضمان أننا نطبق القيمة التي أضاءت الزر.
+    const directionString = appState.car.direction || 'N';
+    const numericHeading = directionToDegrees(directionString);
+    dashboardGoogleMap.setHeading(numericHeading);
+    
+    // 💡 نركز الخريطة لضمان تحديث عرض الخريطة
+    if (appState.currentLocation) {
+        dashboardGoogleMap.setCenter(appState.currentLocation);
+    }
+}
+
        async function initMap() {
     if (mapsInitialized) return;
     mapsInitialized = true;
@@ -6127,7 +6156,7 @@ function forceMapRotation(directionString) {
             mapTypeId: 'roadmap', // 👈 استخدام خريطة الطريق كقاعدة
             
             // 🛑 FIX 1: تفعيل الميل (Tilt) لضمان عمل الدوران (Heading Rotation)
-            tilt: 45, 
+            tilt: 67.5, 
             heading: 0, 
             
             // 🛑 FIX 2: إجبار تفعيل تفاعلات المستخدم للدوران والإمالة
@@ -6162,10 +6191,20 @@ function forceMapRotation(directionString) {
             if (dashboardGoogleMap.getZoom() !== appState.mapLocation.zoom) {
                 appState.mapZoomChangedByUser = true;
             }
+
+            //7
+            
+
+
+            //7
         }); 
         
         // 7. بدء تتبع الموقع (لاستقبال Heading)
         startContinuousLocationTracking();
+        
+        // 🛑 NEW: إجبار الميل والتدوير بعد فترة قصيرة
+        // نستخدم setTimeout لتشغيلها بعد أن يصبح كائن الخريطة مستقراً
+        setTimeout(forceMapTiltAndRotation, 500);
         
     } catch (error) {
         console.error("Failed to initialize map due to API load error:", error);
