@@ -3906,6 +3906,7 @@ function updateUI() {
                      dashboardGoogleMap.setCenter(appState.currentLocation);
                 }
             }
+            
         }, 0); 
     }
     
@@ -7865,6 +7866,8 @@ if (!window.hasInitializedWeatherSpeaker) {
             }
         }
 switchApp('Dashboard');
+updateTrafficIndicators();
+
         // --- Initial Setup ---
   document.addEventListener('DOMContentLoaded', () => {
     // 1. **الجلب الأولي لبيانات JSONBin (ASYNCHRONOUS)**
