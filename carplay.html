@@ -7998,10 +7998,11 @@ updateTrafficIndicators();
     
 
 // يجب أن تكون مُعرّفة عالمياً
-const PLAYBACK_RATES = [1.25, 1.50, 2.0,1.00]; 
+const PLAYBACK_RATES = [1.00,1.25, 1.50, 2.0]; 
 
 function togglePlaybackRate() {
     if (!popupPlayer) return;
+    updateMinimizedControlsState(); 
 
     const currentRate = popupPlayer.getPlaybackRate();
     // 💡 نستخدم toFixed(2) للقراءة من المشغل لضمان الدقة في الفاصلة العائمة
