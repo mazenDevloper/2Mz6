@@ -7955,6 +7955,7 @@ updateTrafficIndicators();
         // 5. تشغيل الشاشة الافتراضية، مما يبدأ المؤقتات الشرطية
         switchApp('Dashboard');
         centerMapOnUserLocation(); 
+        renderDailyReminders();
 
     }).catch(error => {
         console.error("Critical Initialization Failure:", error);
@@ -8019,7 +8020,7 @@ updateTrafficIndicators();
 
     // 💡 نُضيف هذه الاستدعاءات لضمان التحديث الأولي للمرة الأولى (قبل أن تبدأ switchApp)
     updateTimerDisplay();
-    renderDailyReminders();
+
     
     // 8. المستمعات الإضافية (منطقك الأصلي)
     // ... (بقية ربط الأحداث العامة: backToSearchFloatingButton, clearSearchButton, الخ)
