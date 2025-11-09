@@ -1,6 +1,6 @@
 
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" style="zoom:90%;">
+<html lang="ar" dir="rtl" style="zoom:99%;">
 <head>
     <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#000000">
@@ -64,6 +64,22 @@ img#dashboard-weather-icon {
     transition: all 0.3s ease;
 }
 
+/* --- CSS Required for Traffic Buttons --- */
+
+.home-traffic-btn {
+    width: 100%;
+    padding: 1rem 0;
+    font-size: 1.5rem;
+    font-weight: bold;
+    border-radius: 12px;
+    transition: background-color 0.3s ease;
+}
+
+/* 🛑 ألوان حالة الازدحام (تم تعريفها في JavaScript) */
+.traffic-green { background-color: #10B981; color: white; }
+.traffic-yellow { background-color: #FBBF24; color: black; }
+.traffic-red { background-color: #EF4444; color: white; }
+.traffic-unknown { background-color: #6B7280; color: white; }
 /* --- CSS لتنسيق زر سرعة التشغيل التفاعلي --- */
 
 /* 💡 تنسيق الزر الدائري للسرعة */
@@ -1757,6 +1773,22 @@ div#bottom-left-controls {
             overflow: hidden;
         }
 
+button.youtube-suggestion-button.navigable.grid-item {
+    font-size: 1rem;
+}
+
+div#youtube-surah-section {
+    min-height: 547px;
+}
+
+button.youtube-suggestion-button.navigable.grid-item {
+    height: 50px;
+}
+
+span.surah-name-text {
+    font-size: 1rem;
+}
+
 .w-full.h-full.bg-black2.rounded-3xl.flex.items-center.justify-center.p-1.overflow\:hidden {
     background: linear-gradient(45deg, black, #00000024) ;
 }
@@ -1934,16 +1966,19 @@ div#map{display:none}
                                 <p class="text-sm text-white/80">يرجى تمكين أذونات الموقع في إعدادات المتصفح لهذا الموقع للاستفادة من ميزات الخريطة.</p>
                             </div>
                             <div class="absolute bottom-4 left-4 flex gap-2">
-                                <button id="get-my-location-button-dashboard" class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center text-sm navigable grid-item" tabindex="0" title="تحديث الموقع">
-                                    <i data-lucide="map-pin" class="w-5 h-5"></i>
-                                </button>
-                                <button id="go-to-home-1-button" class="bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center text-sm navigable grid-item" tabindex="0" title="الذهاب الى المنزل 1">
-                                    <i data-lucide="home" class="w-5 h-5"></i>
-                                </button>
-                                <button id="go-to-home-2-button" class="bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center text-sm navigable grid-item" tabindex="0" title="الذهاب الى المنزل 2">
-                                    <i data-lucide="building-2" class="w-5 h-5"></i>
-                                </button>
-                            </div>
+    
+    <button id="get-my-location-button-dashboard" class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center text-sm navigable grid-item" tabindex="0" title="تحديث الموقع">
+        <i data-lucide="map-pin" class="w-5 h-5"></i>
+    </button>
+    
+    <button id="go-to-home-1-button" class="home-traffic-btn navigable grid-item" tabindex="0" title="المنزل 1">
+        المنزل 1 (--%) 
+    </button>
+    
+    <button id="go-to-home-2-button" class="home-traffic-btn navigable grid-item" tabindex="0" title="المنزل 2">
+        المنزل 2 (--%)
+    </button>
+</div>
                         </div>
 
                         <!-- 360 Camera View (Stays in middle) -->
@@ -2442,6 +2477,23 @@ let timerDisplayIntervalId = null;  // 2 ثانية (للعد التنازلي �
 let nextPrayerIntervalId = null;    // 1 دقيقة (لتحديد الصلاة القادمة)
 let carSimulationIntervalId = null; // 2 ثانية (لمحاكاة السيارة/الاتجاه)
 let fullDateIntervalId = null;      // 6 مليون مللي ثانية (لتحديث التاريخ)
+let trafficIntervalId = null; 
+
+function startTrafficUpdates() {
+    if (trafficIntervalId === null) {
+        // 🛑 التشغيل الفوري عند فتح Dashboard
+        updateTrafficIndicators(); 
+        // 🛑 المؤقت البطيء للتحديث الدوري
+        trafficIntervalId = setInterval(updateTrafficIndicators, 600000); // كل 10 دقائق
+    }
+}
+function stopTrafficUpdates() {
+    if (trafficIntervalId !== null) {
+        clearInterval(trafficIntervalId);
+        trafficIntervalId = null;
+    }
+}
+
 
 function startWeatherUpdates() {
     if (weatherIntervalId === null) {
@@ -2511,15 +2563,18 @@ function startFullDateUpdates() {
 // لا نحتاج لـ stopFullDateUpdates حيث أنها تعمل ببطء شديد
 
 function switchApp(appName) {
-    // 1. الإيقاف العام لجميع المؤقتات ذات التردد العالي
-    stopClockAndTimer();      
+    // 1. الإيقاف العام لجميع المؤقتات ذات التردد العالي والمنخفض (Clean Slate)
+    stopClockAndTimer();
     stopCarSimulation();
     stopWeatherUpdates(); 
+    stopDashboardLocationTracking(); // 👈 إيقاف تتبع الموقع
 
-    // 2. تحديث الشاشة النشطة (منطقك الأصلي)
+    // 2. تحديث الشاشة النشطة
     const newIndex = appOrder.indexOf(appName);
     if (newIndex === -1) return;
     currentAppIndex = newIndex;
+    
+    // تحديث الفئات المرئية (إخفاء الشاشات وإظهار الشاشة الجديدة)
     appScreens.forEach(s => s.classList.remove('active'));
     sidebarIcons.forEach(i => i.classList.remove('active'));
     const screen = document.getElementById(`screen-${appName}`);
@@ -2528,37 +2583,51 @@ function switchApp(appName) {
     if (icon) icon.classList.add('active');
 
 
-    // 3. التشغيل الشرطي (Conditional Start)
+    // 3. التشغيل الشرطي للمؤقتات (Conditional Start)
 
     // A. المؤقتات المطلوبة في Dashboard
     if (appName === 'Dashboard') {
-        startClockAndTimer(); // 1s و 2s مؤقتات عالية التردد
-        startWeatherUpdates();
-        updateTimerDisplay(); // الطقس (جلب كل 5 دقائق)
-        if (dashboardGoogleMap) {
-            const numericHeading = directionToDegrees(appState.car.direction);
-            dashboardGoogleMap.setHeading(numericHeading);
-            // ونركز الخريطة على الموقع الحالي لضمان تحديثها
-            if (appState.currentLocation) {
-                 dashboardGoogleMap.setCenter(appState.currentLocation);
+        startClockAndTimer();       // 1s (الساعة والعداد التنازلي)
+        startWeatherUpdates();      // الطقس (جلب كل 5 دقائق)
+        startDashboardLocationTracking(); // تتبع الموقع للـ Heading وتحديث الخريطة
+
+        // 🚀 FIX: تطبيق التدوير والمركز فوراً عند فتح الشاشة
+        // نستخدم setTimeout(0) لضمان أن الـ DOM أصبح مرئياً قبل تطبيق setHeading
+        setTimeout(() => {
+            if (dashboardGoogleMap) {
+                const numericHeading = directionToDegrees(appState.car.direction);
+                dashboardGoogleMap.setHeading(numericHeading);
+                
+                // نركز الخريطة على الموقع الحالي لضمان تحديثها بالكامل
+                if (appState.currentLocation) {
+                     dashboardGoogleMap.setCenter(appState.currentLocation);
+                }
             }
-        }
+            // 💡 تحديث مؤشرات الازدحام فوراً عند فتح الشاشة
+            updateTrafficIndicators(); 
+        }, 0); 
     }
     
     // B. المؤقتات المطلوبة في شاشة 3D (Map)
     if (appName === 'Map') {
-        startCarSimulation(); // محاكاة القيادة (2 ثانية)
-        startWeatherUpdates(); // الطقس (جلب كل 5 دقائق)
-    }
-
+        startCarSimulation();       // محاكاة القيادة (2 ثانية)
+        startWeatherUpdates();      // الطقس (جلب كل 5 دقائق)
+        startDashboardLocationTracking(); // تتبع الموقع للخريطة/Heading
+    } 
+    
     // C. المؤقتات المطلوبة في شاشة Weather
     if (appName === 'Weather') {
         startWeatherUpdates();
     }
     
-    // 💡 ملاحظة: شاشات Media, Radio, Athkar, Quran لن تقوم بتشغيل أي مؤقت عالي التردد
-
-    // ... (بقية منطق switchApp)
+    // 4. نقل التركيز الأولي بعد التبديل
+    const activeScreen = document.getElementById(`screen-${appName}`);
+    if (activeScreen) {
+        setTimeout(() => {
+            const firstItem = activeScreen.querySelector('.grid-item');
+            if (firstItem) setFocus(firstItem);
+        }, 150);
+    }
 }
 
         /**
@@ -2830,6 +2899,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+
+
 // يمكنك أيضًا تشغيل الدالة بشكل دوري كل 5 ثوانٍ كطبقة حماية إضافية
 // setInterval(blockInPagePopups, 5000);
 // دالة جديدة لتحديث ودجت التاريخ الكامل في شاشة الحاسوب/التلفاز
@@ -3058,9 +3129,152 @@ let favoritesM = [];
 
         // --- Home Locations ---
         // UPDATED: Coordinates for Home 1 and Home 2
-        const HOME1_COORDS = { lat: 17.0, lng: 54.159722 }; // 17°04'54.0"N 54°09'35.0"E
-        const HOME2_COORDS = { lat: 17.048560, lng: 54.159616 };
+        // 💡 تحديد مواقع المنازل الثابتة (يجب أن تكون معرفة عالمياً)
+const HOME1_COORDS = {lat: 17.067330, lng: 54.160190, zoom: 18}; 
+const HOME2_COORDS = {lat: 17.081852, lng: 54.158345, zoom: 18};
 
+/**
+ * NEW: Determines the color class for traffic status based on the delay percentage.
+ */
+/**
+ * NEW: Displays a marker for a specific location on the Dashboard Google Map.
+ *
+ * @param {object} coords - The {lat, lng} coordinates of the location (HOME1_COORDS or HOME2_COORDS).
+ * @param {string} title - The title for the marker's infowindow.
+ */
+function displayLocationMarker(coords, title) {
+    if (!dashboardGoogleMap || !window.google || !window.google.maps) {
+        showMessageBox('الخريطة غير مهيأة بعد أو خدمات جوجل غير متاحة.');
+        return;
+    }
+    
+    // 1. إنشاء علامة موقع جديدة مؤقتة
+    const tempMarker = new google.maps.Marker({
+        position: coords,
+        map: dashboardGoogleMap,
+        title: title,
+        // استخدام أيقونة علم لتمييز الوجهة
+        icon: {
+            path: google.maps.SymbolPath.FLAG, 
+            scale: 5,
+            fillColor: "#FF00FF",
+            fillOpacity: 0.8,
+            strokeColor: "#FFFFFF",
+            strokeWeight: 1
+        }
+    });
+
+    // 2. تركيز الخريطة على الموقع الجديد وتكبيره
+    dashboardGoogleMap.setCenter(coords);
+    dashboardGoogleMap.setZoom(16); 
+    
+    showMessageBox(`تم تحديد وجهة "${title}". يمكنك رؤية الازدحام عليها.`);
+    
+    // 3. إزالة العلامة المؤقتة بعد 10 ثوانٍ (لتنظيف الخريطة)
+    setTimeout(() => {
+        tempMarker.setMap(null); 
+    }, 10000); 
+}
+
+function getTrafficColorClass(delayPercentage) {
+    if (delayPercentage === -1) return 'traffic-unknown';
+    // أقل من 5% تأخير: ازدحام خفيف (أخضر)
+    if (delayPercentage < 5) return 'traffic-green';    
+    // 5% - 20% تأخير: ازدحام متوسط (أصفر)
+    if (delayPercentage < 20) return 'traffic-yellow';   
+    // أكثر من 20% تأخير: ازدحام شديد (أحمر)
+    return 'traffic-red';                                
+}
+
+/**
+ * NEW: Fetches the current traffic status from the user's location to a destination.
+ * * @param {object} origin - {lat, lng} of the starting point (appState.currentLocation).
+ * @param {object} destination - {lat, lng} of the destination (HOME_COORDS).
+ * @returns {Promise<number>} Returns the duration difference percentage (0-100) or -1 on failure.
+ */
+async function fetchTrafficStatus(origin, destination) {
+    // يجب أن يكون directionsService مهيأ في initMap()
+    if (!window.google || !window.google.maps || !directionsService || !origin) return -1;
+
+    const request = {
+        origin: origin,
+        destination: destination,
+        travelMode: google.maps.TravelMode.DRIVING,
+        drivingOptions: {
+            departureTime: new Date(Date.now()),
+            trafficModel: 'bestguess'
+        },
+        unitSystem: google.maps.UnitSystem.METRIC
+    };
+
+    try {
+        const response = await directionsService.route(request);
+        if (response.status === 'OK') {
+            const route = response.routes[0].legs[0];
+            const durationInTraffic = route.duration_in_traffic.value; // بالثواني مع الازدحام
+            const predictedDuration = route.duration.value;          // بالثواني بدون ازدحام (افتراضي)
+
+            if (predictedDuration > 0) {
+                const trafficDelaySecs = durationInTraffic - predictedDuration;
+                // حساب نسبة التأخير
+                return Math.min(100, Math.round((trafficDelaySecs / predictedDuration) * 100));
+            }
+        }
+        return -1;
+    } catch (e) {
+        console.error("Traffic status fetch failed:", e);
+        return -1;
+    }
+}
+
+/**
+ * NEW: Master function to fetch and update the traffic indicators on home buttons.
+ * This is the function that should run every 10 minutes.
+ */
+/**
+ * FINAL: Fetches and updates the traffic indicators on home buttons in the Dashboard.
+ * It uses the Directions API to calculate delay percentage and colors the buttons accordingly.
+ */
+/**
+ * FINAL: Fetches and updates the traffic indicators on home buttons in the Dashboard.
+ */
+async function updateTrafficIndicators() {
+    const origin = appState.currentLocation || HOME1_COORDS; // Fallback Origin
+
+    // 1. التحقق من جاهزية خدمات Google Maps
+    if (!window.google || !window.google.maps || !directionsService) {
+         console.warn("Traffic update postponed: Google Maps services not ready.");
+         // 💡 نُحدِّث الأزرار فوراً لحالة عدم المعرفة
+         document.getElementById('go-to-home-1-button')?.classList.add('traffic-unknown');
+         document.getElementById('go-to-home-2-button')?.classList.add('traffic-unknown');
+         return;
+    }
+
+    // 2. حساب مؤشرات الازدحام
+    const home1Promise = fetchTrafficStatus(origin, HOME1_COORDS);
+    const home2Promise = fetchTrafficStatus(origin, HOME2_COORDS);
+    const [delay1, delay2] = await Promise.all([home1Promise, home2Promise]);
+    
+    // 3. تحديث زر 'إشارات ق' (Home 1)
+    const btn1 = document.getElementById('go-to-home-1-button');
+    if (btn1) {
+        const colorClass = getTrafficColorClass(delay1);
+        btn1.classList.remove('traffic-red', 'traffic-yellow', 'traffic-green', 'traffic-unknown');
+        btn1.classList.add(colorClass);
+        // 🛑 التحديث باسم "إشارات ق"
+        btn1.innerHTML = `إشارات ق (${delay1 !== -1 ? delay1 + '%' : '--'})`;
+    }
+
+    // 4. تحديث زر 'تقاطع ش' (Home 2)
+    const btn2 = document.getElementById('go-to-home-2-button');
+    if (btn2) {
+        const colorClass = getTrafficColorClass(delay2);
+        btn2.classList.remove('traffic-red', 'traffic-yellow', 'traffic-green', 'traffic-unknown');
+        btn2.classList.add(colorClass);
+        // 🛑 التحديث باسم "تقاطع ش"
+        btn2.innerHTML = `تقاطع ش (${delay2 !== -1 ? delay2 + '%' : '--'})`;
+    }
+}
         // --- DOM Element References ---
         const appButtons = document.querySelectorAll('button[data-app]');
         const appScreens = document.querySelectorAll('.app-screen');
@@ -3087,7 +3301,6 @@ let favoritesM = [];
         const floatingMinimizedVideoButton = document.getElementById('floating-minimized-video-button');
         const backToSearchFloatingButton = document.getElementById('back-to-search-floating-button'); // NEW
         const clearSearchButton = document.getElementById('clear-search-button');
-        const startTripFloatingButton = document.getElementById('start-trip-floating-button');
         const prayerTimesContainer = document.getElementById('prayer-times-container');
         const digitalHoursSpan = document.querySelector('#digital-time .hours');
         const digitalMinutesSpan = document.querySelector('#digital-time .minutes');
@@ -3658,11 +3871,6 @@ function updateUI() {
         car360Image.src = appState.custom360Image || default360ImageSrc;
     }
 
-    // Start Trip Button Visibility
-    const startTripFloatingButton = document.getElementById('start-trip-floating-button');
-    if (startTripFloatingButton) { 
-        startTripFloatingButton.style.display = appState.destinationSet ? 'flex' : 'none';
-    }
 }
 
 // Make sure appState includes humidity (it should already if fetchWeatherData is correct)
@@ -3714,6 +3922,7 @@ function updateUI() {
                      dashboardGoogleMap.setCenter(appState.currentLocation);
                 }
             }
+            
         }, 0); 
     }
     
@@ -6049,68 +6258,6 @@ function directionToDegrees(direction) {
             return googleMapsPromise;
         }
 
-/**
- * Forces the Google Map object to rotate based on a direction string,
- * ensuring the Heading Up view is maintained regardless of browser rendering type
- * (as long as Map is properly initialized).
- *
- * @param {string} directionString - The direction (e.g., 'NW', 'S') from appState.car.direction.
- */
-function forceMapRotation(directionString) {
-    // 1. التحقق الأساسي من وجود كائن الخريطة
-    if (!dashboardGoogleMap) {
-        console.warn("Map Rotation Failed: dashboardGoogleMap is not initialized.");
-        return;
-    }
-    
-    // 2. التحويل من اتجاه حرفي إلى درجة رقمية (0-360)
-    const numericHeading = directionToDegrees(directionString); 
-    
-    // 3. 🛑 التطبيق الإجباري للتدوير
-    try {
-        // نستخدم setHeading مباشرة، حيث أنها هي الطريقة القياسية
-        dashboardGoogleMap.setHeading(numericHeading);
-        
-        // 💡 بما أننا نستخدم setHeading بنجاح، يجب أن نضمن أن الخريطة ما زالت في المركز
-        // هذا أمر ضروري للملاحة (إذا كان الموقع الحالي مُحدثاً)
-        if (appState.currentLocation) {
-            dashboardGoogleMap.setCenter(appState.currentLocation);
-        }
-        
-    } catch (e) {
-        console.error("Map Rotation Failed to apply setHeading:", e);
-        // في حالات الفشل القصوى (قد لا يدعم المتصفح setHeading)، لا يمكننا فعل الكثير
-    }
-}
-
-/**
- * CRITICAL FIX: Forces Map Tilt to 67.5 degrees after a slight delay.
- * This ensures the map switches to WebGL/3D rendering, enabling setHeading() and two-finger rotation.
- */
-/**
- * CRITICAL FIX: Forces Map Tilt to 67.5 degrees after a slight delay (500ms).
- * This ensures the map switches to WebGL/3D rendering, enabling setHeading() and two-finger rotation.
- */
-function forceMapTiltAndRotation() {
-    if (!dashboardGoogleMap) return;
-
-    // 🛑 إجبار تعيين الميل (Tilt) إلى قيمة عالية (لإجبار وضع WebGL)
-    if (dashboardGoogleMap.getTilt() < 45) {
-        dashboardGoogleMap.setTilt(67.5); 
-        console.log("✅ FORCED: Map tilt set to 67.5 degrees to enable rotation.");
-    }
-    
-    // 💡 تطبيق التدوير بالاتجاه المخزن بالفعل (لإكمال الدورة)
-    // نستخدم appState.car.direction لضمان أننا نطبق القيمة التي أضاءت الزر.
-    const directionString = appState.car.direction || 'N';
-    const numericHeading = directionToDegrees(directionString);
-    dashboardGoogleMap.setHeading(numericHeading);
-    
-    // 💡 نركز الخريطة لضمان تحديث عرض الخريطة
-    if (appState.currentLocation) {
-        dashboardGoogleMap.setCenter(appState.currentLocation);
-    }
-}
 
        async function initMap() {
     if (mapsInitialized) return;
@@ -6192,11 +6339,7 @@ function forceMapTiltAndRotation() {
                 appState.mapZoomChangedByUser = true;
             }
 
-            //7
-            
-
-
-            //7
+        
         }); 
         
         // 7. بدء تتبع الموقع (لاستقبال Heading)
@@ -6204,7 +6347,7 @@ function forceMapTiltAndRotation() {
         
         // 🛑 NEW: إجبار الميل والتدوير بعد فترة قصيرة
         // نستخدم setTimeout لتشغيلها بعد أن يصبح كائن الخريطة مستقراً
-        setTimeout(forceMapTiltAndRotation, 500);
+        
         
     } catch (error) {
         console.error("Failed to initialize map due to API load error:", error);
@@ -6349,20 +6492,62 @@ function stopDashboardLocationTracking() {
         locationWatchId = null;
     }
 }
-        function centerMapOnUserLocation() { 
-            if (navigator.geolocation) { 
-                navigator.geolocation.getCurrentPosition(
-                    (pos) => { 
-                        updateGoogleMapLocation(pos); 
-                        showMessageBox(`تم تحديث الخريطة.`); 
-                    }, 
-                    () => {
-                        showGeolocationErrorOnMap('تعذر الحصول على موقعك الحالي. يرجى التحقق من الأذونات.');
-                    }, 
-                    { enableHighAccuracy: true }
-                ); 
-            } 
-        }
+        /**
+ * REPLACED & FINALIZED: Gets the user's current geolocation (One-Time Fetch), 
+ * centers the map, and immediately updates the traffic indicators. 
+ * CRITICAL FIX: Uses a fallback location if permission is denied.
+ */
+async function centerMapOnUserLocation() { 
+    if (navigator.geolocation) { 
+        navigator.geolocation.getCurrentPosition(
+            // 🛑 النجاح: تم الحصول على الموقع (pos)
+            async (pos) => { 
+                // 1. تحديث الخريطة ومتغيرات AppState (يجب أن يتم أولاً)
+                updateGoogleMapLocation(pos); 
+                
+                // 2. الانتظار لتحديث مؤشرات الازدحام باستخدام الموقع الجديد
+                await updateTrafficIndicators(); 
+                
+                showMessageBox(`تم تحديث الخريطة ومؤشرات الازدحام بنجاح.`); 
+            }, 
+            // 🛑 الفشل: خطأ في الوصول
+            async (err) => { // 👈 يجب أن تكون الدالة async للتعامل مع await
+                let msg = 'تعذر الحصول على موقعك الحالي. يرجى التحقق من الأذونات.';
+                
+                if (err.code === 1) { // PERMISSION_DENIED
+                     msg = 'تم رفض إذن تحديد الموقع. سيتم عرض موقع افتراضي.';
+                } else if (err.code === 2) {
+                     msg = 'تعذر تحديد الموقع. سيتم عرض موقع افتراضي.';
+                }
+                
+                // 1. 🚀 FIX: تعيين موقع افتراضي يدويًا (Fallback Logic)
+                const FALLBACK_COORDS = { lat: 17.067330, lng: 54.160190 }; // HOME1_COORDS
+
+                appState.currentLocation = FALLBACK_COORDS; // تعيين الموقع الافتراضي
+                
+                // 2. تحديث الخريطة بـ الموقع الافتراضي (لضمان عمل setCenter/setHeading)
+                // يجب أن نرسل كائن 'pos' مبسط يحتوي على الإحداثيات الافتراضية للتعامل مع updateGoogleMapLocation
+                const fallbackPos = {
+                    coords: {
+                        latitude: FALLBACK_COORDS.lat, 
+                        longitude: FALLBACK_COORDS.lng, 
+                        heading: 0 // Heading افتراضي (شمال)
+                    }
+                };
+                updateGoogleMapLocation(fallbackPos);
+                
+                // 3. تحديث مؤشرات الازدحام باستخدام الموقع الافتراضي
+                await updateTrafficIndicators(); 
+
+                showMessageBox(msg); 
+                console.error("Geolocation Error Code:", err.code);
+            }, 
+            { enableHighAccuracy: true } 
+        ); 
+    } else { 
+        showGeolocationErrorOnMap('خدمة تحديد المواقع غير مدعومة في هذا المتصفح.');
+    }
+}
         
         async function calculateAndDisplayRouteTo(destinationCoords) {
             if (!appState.currentLocation) {
@@ -6852,8 +7037,7 @@ async function fetchWeatherData() {
 
         // --- Simulated Car Data ---
         function simulateOtherCarData() { 
-            appState.car.rpm = (Math.random() * 4200 + 800).toFixed(0); 
-            appState.car.fuel = (Math.random() * 100).toFixed(0); 
+            
             appState.car.temp = (Math.random() * 30 + 70).toFixed(1); 
             update3dScreenWidgets(); 
         }
@@ -7590,7 +7774,6 @@ const recitersIframe = document.getElementById('reciters-iframe');
                 }
             });
 
-            startTripFloatingButton?.addEventListener('click', () => { if (appState.destinationSet) calculateAndDisplayRoute(); else showMessageBox('الرجاء تحديد وجهة أولاً.'); }); 
             upload360ImageButton?.addEventListener('click', () => upload360ImageInput.click()); 
             upload360ImageInput?.addEventListener('change', handleImageUpload); 
             reset360ImageButton?.addEventListener('click', resetImageToDefault); 
@@ -7741,9 +7924,11 @@ if (!window.hasInitializedWeatherSpeaker) {
             }
         }
 switchApp('Dashboard');
+updateTrafficIndicators();
+
         // --- Initial Setup ---
-     document.addEventListener('DOMContentLoaded', () => {
-    // 1. **الجلب الأولي لجميع بيانات JSONBin (ASYNCHRONOUS)**
+  document.addEventListener('DOMContentLoaded', () => {
+    // 1. **الجلب الأولي لبيانات JSONBin (ASYNCHRONOUS)**
     Promise.all([
         fetchRecitersList(), 
         fetchChannelsList(), 
@@ -7755,7 +7940,6 @@ switchApp('Dashboard');
         // 2. تشغيل جلب الطقس الأولي لملء AppState
         fetchWeatherData(); 
 
-
         // 3. تهيئة واجهة المستخدم الخاصة بالـ Media
         populateYoutubeSuggestions();
         
@@ -7765,47 +7949,55 @@ switchApp('Dashboard');
         migrateChannelData();
         
         // 🛑 تشغيل المؤقتات البطيئة الأساسية فقط:
-        // (determineNextPrayer ستُشغَّل أيضاً في startNextPrayerDetermination)
         startNextPrayerDetermination(); // تحديث تحديد الصلاة (كل 1 دقيقة)
         startFullDateUpdates();         // تحديث التاريخ (كل 100 دقيقة)
-        updateTimerDisplay(); 
-        renderDailyReminders();
-        // 5. تشغيل الشاشة الافتراضية، مما يبدأ المؤقتات الشرطية (الكفاءة)
-        
+
+        // 5. تشغيل الشاشة الافتراضية، مما يبدأ المؤقتات الشرطية
+        switchApp('Dashboard');
+        centerMapOnUserLocation(); 
 
     }).catch(error => {
         console.error("Critical Initialization Failure:", error);
         showMessageBox("فشل تحميل البيانات الأساسية. يرجى التحقق من مفاتيح API واتصال الإنترنت.");
     });
 
-
     // 6. **تفعيل المستمعات والأزرار (Listeners & Button Bindings)**
     
-    // المستمعات القياسية (Standard Listeners)
-    getMyLocationButtonDashboard?.addEventListener('click', centerMapOnUserLocation);
-    goToHome1Button?.addEventListener('click', () => calculateAndDisplayRouteTo(HOME1_COORDS));
-    goToHome2Button?.addEventListener('click', () => calculateAndDisplayRouteTo(HOME2_COORDS));
-    floatingMediaButton?.addEventListener('click', () => switchApp('Media'));
-    floatingMinimizedVideoButton?.addEventListener('click', restoreVideoPopup); 
-
-    // 🛑 ربط أزرار التحكم في الشاشة المصغرة والمكبرة
+    // مراجع الأزرار الأساسية (يجب أن تكون معرفة عالمياً في مكان آخر)
+    const getMyLocationButtonDashboard = document.getElementById('get-my-location-button-dashboard');
+    const goToHome1Button = document.getElementById('go-to-home-1-button');
+    const goToHome2Button = document.getElementById('go-to-home-2-button');
     const minimizedRestoreBtn = document.getElementById('minimized-restore-btn');
     const minimizedPlayPauseBtn = document.getElementById('minimized-play-pause-btn');
     const videoPopupMinimizeButton = document.getElementById('video-popup-minimize-button');
-    // ... (في قسم DOM Element References)
-const minimizedPlaybackSpeedBtn = document.getElementById('minimized-playback-speed-btn'); // 👈 الزر الجديد
-    // Listener الاستعادة من الكبسولة (التكبير)
+    const floatingMinimizedVideoButton = document.getElementById('floating-minimized-video-button');
+    const minimizedPlaybackSpeedBtn = document.getElementById('minimized-playback-speed-btn'); // الزر الدائري للسرعة
+
+    // المستمعات القياسية
+    getMyLocationButtonDashboard?.addEventListener('click', centerMapOnUserLocation);
+    floatingMediaButton?.addEventListener('click', () => switchApp('Media'));
+
+    // 🛑 ربط أزرار الموقع الجديدة (لتعيين Marker والبدء)
+    goToHome1Button?.addEventListener('click', () => {
+        displayLocationMarker(HOME1_COORDS, 'المنزل 1'); 
+    });
+    goToHome2Button?.addEventListener('click', () => {
+        displayLocationMarker(HOME2_COORDS, 'المنزل 2');
+    });
+
+    // 🛑 ربط أزرار التحكم في الكبسولة (Minimize/Restore Logic)
     minimizedRestoreBtn?.addEventListener('click', restoreVideoPopup); 
     floatingMinimizedVideoButton?.addEventListener('click', restoreVideoPopup);
+
+    // Listener زر التصغير من المشغل المنبثق
+    videoPopupMinimizeButton?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        minimizeVideoPopup();
+    });
     
-    // 🛑 CRITICAL FIX 3: ربط سرعة التشغيل
-    const minimizedPlaybackSpeed = document.getElementById('minimized-playback-speed');
-    minimizedPlaybackSpeed?.addEventListener('click', togglePlaybackRate);
-    
-    // ... (بقية الكود)
-    // Listener زر التشغيل/الإيقاف المؤقت داخل الكبسولة
+    // Listener زر التشغيل/الإيقاف المؤقت داخل الكبسولة (يمنع الاستعادة)
     minimizedPlayPauseBtn?.addEventListener('click', (e) => {
-        e.stopPropagation(); // 👈 منع النقر من الوصول إلى الحاوية الأبوية (floatingMinimizedVideoButton)
+        e.stopPropagation(); 
         if (popupPlayer) {
             const playerState = popupPlayer.getPlayerState();
             if (playerState === YT.PlayerState.PLAYING) {
@@ -7816,86 +8008,22 @@ const minimizedPlaybackSpeedBtn = document.getElementById('minimized-playback-sp
         }
     });
 
-    // 🛑 Listener زر التصغير من المشغل المنبثق
-    videoPopupMinimizeButton?.addEventListener('click', (e) => {
-        e.stopPropagation();
-        minimizeVideoPopup();
+    // Listener زر تبديل السرعة في الكبسولة (يمنع الاستعادة)
+    minimizedPlaybackSpeedBtn?.addEventListener('click', (e) => {
+        e.stopPropagation(); 
+        togglePlaybackRate();
     });
 
-    // ابحث عن ربط حدث النقر لـ minimizedPlaybackSpeedBtn (الذي يستدعي togglePlaybackRate)
-
-minimizedPlaybackSpeedBtn?.addEventListener('click', (e) => {
-    e.stopPropagation(); // 👈 هذا هو السطر الحاسم! يضمن أن النقر لا يصل للحاوية الأبوية (RESTORE)
-    togglePlaybackRate();
-});
-
-    // ربط IFRAME Source Buttons (لشاشة Reciters)
-    const recitersIframe = document.getElementById('reciters-iframe');
-    const iframeSrcButtons = document.querySelectorAll('#screen-Reciters .iframe-src-button');
-
-    if (recitersIframe && iframeSrcButtons.length > 0) {
-        iframeSrcButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const newSrc = button.dataset.src;
-                if (newSrc && recitersIframe.src !== newSrc) {
-                    console.log(`Changing iframe src to: ${newSrc}`);
-                    recitersIframe.src = newSrc;
-                    iframeSrcButtons.forEach(btn => btn.classList.remove('active'));
-                    button.classList.add('active');
-                }
-            });
-        });
-    }
-
     // 7. **المؤقتات والإجراءات المتأخرة**
-    setTimeout(playWelcomeMessage, 1500);
-     
+    setTimeout(playWelcomeMessage, 1500); 
 
-    // 🛑 يجب إزالة جميع الأسطر الـ setInterval المكررة التي تسبب استهلاكاً للموارد:
-    // setInterval(updateDigitalClock, 1000); 
-    // setInterval(simulateOtherCarData, 2000);
-     setInterval(updateTimerDisplay, 1000);
-    // setInterval(fetchWeatherData, 300000);
-    // ...
-    const PLAYBACK_RATES = [1.0, 1.25, 1.5, 1.65];
-
-    function setPlaybackRateFromSelect(rateValue) {
-    if (!popupPlayer) {
-        console.warn("Cannot set playback rate: YouTube player is not initialized.");
-        return;
-    }
-
-    const rate = parseFloat(rateValue);
-
-    if (PLAYBACK_RATES.includes(rate)) {
-        // 1. تطبيق السرعة على المشغل الفعلي
-        popupPlayer.setPlaybackRate(rate);
-        
-        // 2. تحديث الحالة البصرية للكبسولة والقائمة المنسدلة
-        updateMinimizedControlsState(); 
-        
-        console.log(`Playback rate set to: ${rate}x`);
-    } else {
-        console.warn(`Invalid playback rate received: ${rateValue}`);
-    }
-}
-
-function togglePlaybackRate() {
-    if (!popupPlayer) return;
-
-    const currentRate = popupPlayer.getPlaybackRate();
-    const currentIndex = PLAYBACK_RATES.indexOf(currentRate);
+    // 💡 نُضيف هذه الاستدعاءات لضمان التحديث الأولي للمرة الأولى (قبل أن تبدأ switchApp)
+    updateTimerDisplay();
+    renderDailyReminders();
     
-    // تحديد السرعة التالية في المصفوفة
-    const nextIndex = (currentIndex + 1) % PLAYBACK_RATES.length;
-    const nextRate = PLAYBACK_RATES[nextIndex];
+    // 8. المستمعات الإضافية (منطقك الأصلي)
+    // ... (بقية ربط الأحداث العامة: backToSearchFloatingButton, clearSearchButton, الخ)
     
-    // تطبيق السرعة الجديدة على المشغل
-    popupPlayer.setPlaybackRate(nextRate);
-    
-    // تحديث نص الزر في الكبسولة فوراً
-    updateMinimizedControlsState(); 
-}
 });
 
 
