@@ -7430,7 +7430,7 @@ function update3dMoonWidget() {
     const currentHour = now.getHours();
     
     // تحديد إذا كنا في فترة ليل (6 مساءً حتى 6 صباحاً)
-    const isNightTime = (currentHour >= 12 || currentHour < 6);
+    const isNightTime = (currentHour >= 9 || currentHour < 6);
 
     if (isNightTime && appState.moonData && appState.moonData.phase !== undefined) {
         // 1. الوضع الليلي (عرض البيانات الديناميكية)
@@ -7706,7 +7706,7 @@ function update3dMoonWidget() {
         function playWelcomeMessage() {
             const today = new Date();
             today.setFullYear(2025);
-            const gregorianDate = new Intl.DateTimeFormat('en-UK', {  year: 'numeric', month: 'long', day: 'numeric' }).format(today);
+            const gregorianDate = new Intl.DateTimeFormat('en-UK', { month: 'long', day: 'numeric' }).format(today);
             const hijriDate = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', { weekday: 'long'}).format(today);
 
             let welcomeText = '';
