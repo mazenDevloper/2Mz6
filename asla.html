@@ -8,9 +8,10 @@
     <!-- استدعاء الخطوط العربية المطلوبة -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700;900&family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700;900&family=Tajawal:wght@700;900&display=swap" rel="stylesheet">
     
     <!-- مكتبات التعامل مع الوقت (Moment.js و Moment-Hijri) -->
+    <!-- تم الاحتفاظ بالمكتبات لأنها ضرورية لبقية الدوال (العد التنازلي والصلوات) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-hijri/2.1.2/moment-hijri.min.js"></script>
     <!-- إضافة اللغة العربية لـ Moment.js -->
@@ -49,7 +50,9 @@
             background-position: center;
 
             color: var(--text-white);
+            /* الخط الأساسي الآن يتضمن وزناً جريئاً */
             font-family: 'Tajawal', sans-serif;
+            font-weight: 700; 
             
             padding: 10px; 
             
@@ -61,19 +64,15 @@
 
         /* --- الإطار الرئيسي (SVG) --- */
         .main-frame {
-            /* SVG نفسه يجب أن يأخذ كامل الحجم المتاح ويحافظ على Aspect Ratio */
             width: 100%;
             max-width: calc(100vw - 20px);
             height: auto;
             max-height: calc(100vh - 20px);
             aspect-ratio: 500 / 281;
-            /* للتأكد من أن المحتوى الداخلي يملأ الـ foreignObject */
             display: block;
         }
         
-        /* تنسيق عام للحاويات داخل الـ foreignObject */
         .content-box {
-            /* يجب أن يأخذ 100% من أبعاد الـ foreignObject */
             width: 100%;
             height: 100%;
             background: transparent;
@@ -87,16 +86,14 @@
         /* --- R1: الساعة --- */
         .header-clock-section {
             justify-content: flex-start;
-            /* يتم ضبط Padding بشكل ثابت (4px) ليعمل جيداً مع الـ foreignObject */
             padding-left: 4px;
         }
 
         #digital-clock {
-            /* يتم تحديد حجم الخط بناءً على الحجم الأساسي (500x281) */
             font-size: 28px;
-            font-weight: 900;
+            font-weight: 900; /* خط عريض جداً */
             color: var(--text-white);
-            font-family: 'Courier New', Courier, monospace;
+            font-family: 'Tajawal', sans-serif;
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
             letter-spacing: 1px;
         }
@@ -109,25 +106,61 @@
             padding: 0 5px;
         }
         
-        .sunrise-box { width: 43px; text-align: center; }
-        .gregorian-date-box { width: 93px; text-align: center; }
-
-        /* --- R10: التاريخ الهجري --- */
-        .hijri-box {
-            flex-direction: column;
-            line-height: 1; /* تقليل التباعد بين الأسطر */
-            padding-top: 5px;
+        .sunrise-box, .gregorian-date-box {
+             font-weight: bold; /* ضمان الخط العريض */
+             /* تحديد العرض كما كان في التصميم */
+             width: 48px; text-align: center; 
         }
 
-        .hijri-month { font-size: 14px; color: var(--text-white); }
-        .hijri-day { font-size: 28px; font-weight: bold; color: var(--text-white); line-height: 1.1; }
-        .hijri-year { font-size: 14px; color: var(--border-gold); }
+        /* --- R10: التاريخ الهجري (تم تحديثه) --- */
+        
+        /* الحاوية الرئيسية لتوزيع اليوم والشهر/السنة أفقياً */
+        .hijri-date-container {
+            display: flex;
+            justify-content: space-between; 
+            align-items: center;
+            direction: rtl; 
+            width: 100%;
+            height: 100%;
+            padding: 0 5px; /* إضافة مسافة داخلية */
+        }
+        
+        /* رقم اليوم (كبير وبارز) */
+        #hijri-day { 
+            font-size: 40px; 
+            font-weight: 900;
+            line-height: 1; 
+            color: var(--text-white);
+            width: 40%;
+            text-align: center; 
+        }
+
+        /* مكدس النص للشهر والسنة (عمودي) */
+        .hijri-text-stack {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center; 
+            width: 60%;
+            line-height: 1.2;
+        }
+        
+        .hijri-month { 
+            font-size: 14px; 
+            color: var(--text-white); 
+            font-weight: 900; 
+            margin-bottom: 2px;
+        }
+        .hijri-year { 
+            font-size: 14px; 
+            color: var(--border-gold); 
+            font-weight: 900; 
+        }
 
         /* --- R11: العد التنازلي و R4: التسمية --- */
         .countdown-box {
             flex-direction: column;
             text-align: center;
-            /* استخدام positioning داخلي لتوزيع العداد والتسمية */
             position: relative; 
         }
 
@@ -135,8 +168,9 @@
             font-size: 12px; 
             color: #ccc;
             position: absolute;
-            bottom: -15px; /* وضع التسمية خارج الـ Rect R11 وتحت R4 */
+            bottom: -15px; 
             width: 100%;
+            font-weight: 700;
         }
 
         .countdown-timer-wrapper { 
@@ -154,19 +188,20 @@
             color: var(--border-gold);
             font-family: 'Tajawal', sans-serif;
             margin-bottom: 5px;
+            font-weight: 900;
         }
 
         #countdown-display {
             font-size: 24px; 
             color: var(--text-white); 
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 900; /* خط عريض جداً */
         }
 
         /* --- R9-R5: جدول الصلوات (الحاوية الكلية) --- */
         .prayers-table-section {
             flex-direction: column;
-            justify-content: flex-start; /* نبدأ من الأعلى */
+            justify-content: flex-start; 
             align-items: stretch;
             padding: 0 2px; 
             position: relative;
@@ -183,12 +218,12 @@
             font-size: 10px;
             padding: 0 5px;
             height: 20px;
+            font-weight: 700;
         }
 
         /* حاوية صفوف الصلوات */
         #prayers-container {
             width: 100%;
-            /* الارتفاع الإجمالي 126px، يتم توزيعه على 5 صفوف */
             height: 100%;
             display: flex;
             flex-direction: column;
@@ -203,7 +238,6 @@
             background: transparent;
             padding: 2px 5px;
             width: 100%;
-            /* الارتفاع 24px لكل صف تقريباً */
             height: 24px; 
             transition: all 0.3s ease;
         }
@@ -215,33 +249,33 @@
             color: var(--text-white);
             width: 30%;
             text-align: center;
-            font-weight: bold;
+            font-weight: 900; /* خط عريض جداً */
         }
 
         /* لون أحمر للأذان */
         .prayer-time-adhan {
-            font-size: 16px;
-            font-weight: bold;
+            font-size: 18px;
+            font-weight: 900; /* خط عريض جداً */
             color: var(--text-red);
             width: 35%;
             text-align: center;
-            font-family: 'Courier New', monospace;
+            font-family: 'Tajawal', sans-serif;
         }
 
         /* لون أخضر للإقامة */
         .prayer-time-iqamah {
-            font-size: 16px;
-            font-weight: bold;
+            font-size: 18px;
+            font-weight: 900; /* خط عريض جداً */
             color: var(--text-green);
             width: 35%;
             text-align: center;
-            font-family: 'Courier New', monospace;
+            font-family: 'Tajawal', sans-serif;
         }
 
         /* تظليل الصلاة القادمة */
         .next-prayer-highlight {
             background: rgba(212, 175, 55, 0.15); 
-            border: 1px solid rgba(212, 175, 55, 0.5); 
+            border: 3px solid rgba(212, 175, 55, 0.5); 
             transform: scale(1.02);
             animation: pulse 2s infinite;
             border-radius: 3px;
@@ -265,7 +299,7 @@
 
         <!-- 1. الساعة (R1) -->
         <!-- Rect: x="61.5" y="45.5" width="168" height="37" -->
-        <foreignObject x="61.5" y="45.5" width="168" height="37">
+        <foreignObject x="80" y="45.5" width="168" height="37">
             <div class="content-box header-clock-section">
                 <div id="digital-clock">00:00:00</div>
             </div>
@@ -306,10 +340,14 @@
         <!-- 4. التاريخ الهجري (R10) -->
         <!-- Rect: x="280" y="92" width="154" height="49" -->
         <foreignObject x="280" y="92" width="154" height="49">
-            <div class="content-box hijri-box">
-                <div id="hijri-month" class="hijri-month">الشهر الهجري</div>
-                <div id="hijri-day" class="hijri-day">--</div>
-                <div id="hijri-year" class="hijri-year">----</div>
+            <div class="content-box hijri-date-container">
+                <!-- Day is now dominant (ID kept for JS) -->
+                <div id="hijri-day" class="hijri-day">--</div> 
+                <!-- Month and Year are stacked next to it -->
+                <div class="hijri-text-stack">
+                    <div id="hijri-month" class="hijri-month">الشهر الهجري</div>
+                    <div id="hijri-year" class="hijri-year">----</div>
+                </div>
             </div>
         </foreignObject>
 
@@ -335,7 +373,6 @@
 
     <script>
         // --- (1) البيانات التي أدخلتها ---
-        // بيانات مواقيت الصلاة لشهر نوفمبر 2025 (تم تركها كما هي لغرض المحاكاة)
         const prayerTimesData = [
             {"date":"2025-11-01","fajr":"05:08","sunrise":"06:22","dhuhr":"12:12","asr":"15:31","maghrib":"17:58","isha":"19:06"},
             {"date":"2025-11-02","fajr":"05:08","sunrise":"06:22","dhuhr":"12:12","asr":"15:30","maghrib":"17:57","isha":"19:06"},
@@ -380,11 +417,11 @@
             isha: 20   // 20 دقيقة بعد أذان العشاء
         };
 
-        // أسماء الصلوات للعرض
+        // أسماء الصلوات للعرض (الأسماء الافتراضية)
         const prayerNames = {
             fajr: "الفجر",
             sunrise: "الشروق",
-            dhuhr: "الظهر",
+            dhuhr: "الظهر", // هذا هو الاسم الافتراضي
             asr: "العصر",
             maghrib: "المغرب",
             isha: "العشاء"
@@ -424,11 +461,10 @@
         // دالة لتحديث الساعة والعد التنازلي
         function updateClockAndCountdown() {
             const now = moment();
+            // استخدام locale('en') لضمان ظهور الأرقام الإنجليزية في الساعة
+            document.getElementById('digital-clock').innerText = now.clone().locale('en').format('HH:mm:ss');
             
-            // 1. تحديث الساعة الكبيرة
-            document.getElementById('digital-clock').innerText = now.format('HH:mm:ss');
-            
-            // 2. تحديث العد التنازلي
+            // تحديث العد التنازلي
             updateNextPrayerCountdown(now);
         }
 
@@ -436,12 +472,22 @@
         function loadDailyData() {
             console.log('تحميل بيانات اليوم الجديد...');
             
-            // ضبط لغة moment.js للعربية
+            // نستخدم 'ar-sa' لتهيئة أسماء الأيام والشهور العربية
             moment.locale('ar-sa');
             const now = moment();
             
             // نحصل على التاريخ بالأرقام الإنجليزية للمقارنة
             const todayStr = now.clone().locale('en').format('YYYY-MM-DD');
+
+            // --- منطق تحديد يوم الجمعة وتحديث اسم الصلاة ---
+            const isFriday = now.day() === 5; // 5 يمثل يوم الجمعة في Moment.js
+            
+            // إنشاء نسخة جديدة من أسماء الصلوات
+            const prayerNamesToday = { ...prayerNames };
+            if (isFriday) {
+                prayerNamesToday.dhuhr = "الجمعة";
+            }
+            // ------------------------------------------------
 
             // البحث عن بيانات اليوم في المصفوفة
             const todayData = prayerTimesData.find(p => p.date === todayStr);
@@ -456,27 +502,60 @@
             renderDates(now, todayData.sunrise); 
             
             // عرض جدول الصلوات
-            renderPrayerTable(todayData);
+            renderPrayerTable(todayData, prayerNamesToday); // تمرير الأسماء المحدثة
             
             // معالجة الأوقات لتجهيزها للعد التنازلي (الآن تركز على الإقامة فقط)
-            processPrayerTimesForCountdown(todayData);
+            processPrayerTimesForCountdown(todayData, prayerNamesToday); // تمرير الأسماء المحدثة
         }
 
         // دالة عرض التواريخ (الميلادي، الهجري، الشروق)
         function renderDates(now, sunriseTime) {
+            
+            // نستخدم نسخة locale('en') للأرقام الإنجليزية
+            const enNow = now.clone().locale('en');
+            const todayDate = now.toDate(); // كائن التاريخ الأصلي لواجهة Intl
+
             // التاريخ الميلادي (أعلى اليمين)
             document.getElementById('gregorian-day-name').innerText = now.format('dddd');
-            document.getElementById('gregorian-date').innerText = now.format('YYYY-MM-DD');
-            document.getElementById('sunrise-time').innerText = sunriseTime;
+            document.getElementById('gregorian-date').innerText = enNow.format('YYYY-MM-DD'); // أرقام إنجليزية
+            document.getElementById('sunrise-time').innerText = sunriseTime; // أرقام إنجليزية (تأتي من البيانات)
 
-            // التاريخ الهجري (الوسط اليمين)
-            document.getElementById('hijri-month').innerText = now.format('iMMMM'); // اسم الشهر الهجري
-            document.getElementById('hijri-day').innerText = now.format('iDD'); // يوم الشهر الهجري
-            document.getElementById('hijri-year').innerText = now.format('iYYYY'); // السنة الهجرية
+            // ------------------------------------------------------------------
+            // التاريخ الهجري (الوسط اليمين) - باستخدام Intl.DateTimeFormat
+            
+            // 1. استخلاص اسم الشهر الهجري باللغة العربية (مهمة منفصلة للنص)
+            const hijriMonthFormatter = new Intl.DateTimeFormat('ar-SA', {
+                calendar: 'islamic-umalqura',
+                month: 'long',
+            });
+            const formattedMonth = hijriMonthFormatter.format(todayDate);
+
+            // 2. استخلاص اليوم والسنة بأرقام إنجليزية (مهمة منفصلة للأرقام)
+            const hijriPartsFormatter = new Intl.DateTimeFormat('en-US', {
+                calendar: 'islamic-umalqura',
+                day: 'numeric',
+                year: 'numeric'
+            });
+            
+            const hijriParts = hijriPartsFormatter.formatToParts(todayDate);
+
+            let hijriDay = '';
+            let hijriYear = '';
+
+            hijriParts.forEach(part => {
+                if (part.type === 'day') hijriDay = part.value;
+                if (part.type === 'year') hijriYear = part.value.replace(' AH', ''); // إزالة ' AH'
+            });
+
+            // تحديث العناصر
+            document.getElementById('hijri-month').innerText = formattedMonth; 
+            document.getElementById('hijri-day').innerText = hijriDay; 
+            document.getElementById('hijri-year').innerText = hijriYear; 
+            // ------------------------------------------------------------------
         }
 
         // دالة عرض جدول الصلوات
-        function renderPrayerTable(data) {
+        function renderPrayerTable(data, currentPrayerNames) {
             const container = document.getElementById('prayers-container');
             container.innerHTML = ''; // إفراغ الحاوية قبل التعبئة
 
@@ -488,13 +567,16 @@
                 const adhanMoment = moment(data.date + ' ' + adhanTime, 'YYYY-MM-DD HH:mm');
                 const iqamahMoment = adhanMoment.clone().add(iqamahOffsets[key], 'minutes');
                 
+                // تنسيق وقت الإقامة باستخدام locale('en') للحصول على أرقام إنجليزية
+                const iqamahTimeFormatted = iqamahMoment.clone().locale('en').format('HH:mm');
+                
                 const row = document.createElement('div');
                 row.className = 'prayer-row';
                 row.id = `row-${key}`; // إضافة ID لتمييز الصف
 
                 row.innerHTML = `
-                    <div class="prayer-time-iqamah">${iqamahMoment.format('HH:mm')}</div>
-                    <div class="prayer-name">${prayerNames[key]}</div>
+                    <div class="prayer-time-iqamah">${iqamahTimeFormatted}</div>
+                    <div class="prayer-name">${currentPrayerNames[key]}</div>
                     <div class="prayer-time-adhan">${adhanTime}</div>
                 `;
                 container.appendChild(row);
@@ -502,7 +584,7 @@
         }
         
         // دالة تجهيز مصفوفة أوقات الإقامة فقط للعد التنازلي
-        function processPrayerTimesForCountdown(data) {
+        function processPrayerTimesForCountdown(data, currentPrayerNames) {
             processedPrayerTimes = []; // إفراغ المصفوفة
             const order = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
             
@@ -510,11 +592,11 @@
                 const adhanTime = data[key];
                 const adhanMoment = moment(data.date + ' ' + adhanTime, 'YYYY-MM-DD HH:mm');
                 
-                // يتم إضافة وقت الإقامة فقط (حسب طلب المستخدم)
+                // يتم إضافة وقت الإقامة فقط 
                 const iqamahMoment = adhanMoment.clone().add(iqamahOffsets[key], 'minutes');
                 processedPrayerTimes.push({
                     type: 'iqamah',
-                    name: prayerNames[key],
+                    name: currentPrayerNames[key],
                     key: key,
                     time: iqamahMoment
                 });
@@ -527,7 +609,7 @@
                 const nextDayFajrIqamah = nextDayFajrAdhan.clone().add(iqamahOffsets['fajr'], 'minutes');
                  processedPrayerTimes.push({
                     type: 'iqamah',
-                    name: prayerNames['fajr'],
+                    name: prayerNames['fajr'], // نستخدم الاسم الافتراضي للفجر
                     key: 'fajr',
                     time: nextDayFajrIqamah
                 });
@@ -558,13 +640,13 @@
             const diff = nextEvent.time.diff(now);
             const duration = moment.duration(diff);
             
-            // استخدام الأرقام الإنجليزية في العد التنازلي لضمان تناسق الخط
+            // استخدام الأرقام الإنجليزية في العد التنازلي 
             const hours = String(Math.floor(duration.asHours())).padStart(2, '0');
             const minutes = String(duration.minutes()).padStart(2, '0');
             const seconds = String(duration.seconds()).padStart(2, '0');
             
             // تحديد نوع الحدث للعرض (ثابت الآن على إقامة)
-            const eventLabel = 'إقامة'; // بما أننا نركز على الإقامة فقط، يمكن تثبيت التسمية
+            const eventLabel = 'إقامة'; 
 
             // 2. عرض العد التنازلي
             document.getElementById('next-prayer-name').innerText = `المتبقي لـ ${eventLabel} ${nextEvent.name}`;
