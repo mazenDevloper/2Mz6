@@ -164,24 +164,6 @@
             position: relative; 
         }
 
-        .countdown-label { 
-            font-size: 12px; 
-            color: #ccc;
-            position: absolute;
-            bottom: -15px; 
-            width: 100%;
-            font-weight: 700;
-        }
-
-        .countdown-timer-wrapper { 
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
         #next-prayer-name {
             font-size: 12px;
             display: block;
@@ -197,6 +179,36 @@
             font-family: 'Tajawal', sans-serif;
             font-weight: 900; /* خط عريض جداً */
         }
+        
+        /* الحاوية الجديدة للأذكار النشطة (شبكة 2x2) */
+        #active-reminders-box {
+            display: flex;
+            flex-wrap: wrap; 
+            justify-content: space-around; 
+            align-content: flex-start; 
+            direction: rtl;
+            padding: 0 2px;
+        }
+
+        .reminder-item {
+            width: 50%; /* 2 عمود */
+            height: 50%; /* 2 صفوف */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 10px; /* أصغر كما طلب */
+            color: var(--border-gold);
+            padding: 1px 0;
+            line-height: 1.1;
+            font-weight: 700;
+        }
+        /* تصميم للعناصر غير النشطة لتكون أكثر خفوتاً */
+        .reminder-item.inactive {
+            color: #555;
+            font-weight: 400;
+        }
+
 
         /* --- R9-R5: جدول الصلوات (الحاوية الكلية) --- */
         .prayers-table-section {
@@ -263,11 +275,11 @@
         }
 
         /* لون أخضر للإقامة */
+    
         .prayer-time-iqamah {
             font-size: 18px;
             color: #00c100!important;
             font-weight: 900; /* خط عريض جداً */
-            color: var(--text-green);
             width: 35%;
             text-align: center;
             font-family: 'Tajawal', sans-serif;
@@ -275,11 +287,11 @@
 
         /* تظليل الصلاة القادمة */
         .next-prayer-highlight {
-            background: rgba(212, 175, 55, 0.15); 
-            border: 3px solid rgba(212, 175, 55, 0.5); 
+            background: rgba(212, 175, 55, 0.45); 
+            border: 2.3px solid rgba(212, 175, 55); 
             transform: scale(1.02);
             animation: pulse 2s infinite;
-            border-radius: 3px;
+            border-radius: 13px;
         }
 
         /* --- تأثير نبض لتمييز الصلاة القادمة --- */
@@ -363,10 +375,10 @@
             </div>
         </foreignObject>
         
-        <!-- 6. تسمية العد التنازلي (R4) - Rect: x="272" y="205" width="166" height="31" -->
+        <!-- 6. الأذكار والسنن النشطة (R4) - Rect: x="272" y="205" width="166" height="31" -->
         <foreignObject x="272" y="205" width="166" height="31">
-            <div class="content-box" style="justify-content: center;">
-                   <div class="countdown-label" style="position: static; color: #ccc;">المتبقي للصلاة القادمة</div>
+            <div class="content-box" id="active-reminders-box">
+                <!-- سيتم ملؤها ديناميكياً بـ 4 عناصر بحد أقصى -->
             </div>
         </foreignObject>
         
@@ -428,17 +440,86 @@
             isha: "العشاء"
         };
         
+        // قائمة الأذكار والسنن بترتيب الأولوية للعرض
+        const REMINDER_LIST = [
+            "أذكار الصباح", "صلاة الضحى", "السنن الرواتب", 
+            "أذكار المساء", "الورد اليومي", "سورة الملك", 
+            "صلاة الوتر", "قيام الليل"
+        ];
+
         // متغير عالمي لتخزين أوقات الصلاة المعالجة لليوم الحالي
         let processedPrayerTimes = [];
+        let reminderMoments = {}; // لتخزين لحظات الأذكار والسنن
 
         // --- (3) دوال النظام ---
+
+        // دالة لحساب اللحظات الهامة للأذكار والسنن
+        function calculateReminderMoments(data) {
+            const today = data.date;
+            const tomorrow = moment(today).add(1, 'days').format('YYYY-MM-DD');
+
+            // الحصول على اللحظات الهامة لليوم الحالي
+            const FajrAdhan = moment(today + ' ' + data.fajr, 'YYYY-MM-DD HH:mm');
+            const FajrIqamah = FajrAdhan.clone().add(iqamahOffsets.fajr, 'minutes');
+            const Sunrise = moment(today + ' ' + data.sunrise, 'YYYY-MM-DD HH:mm');
+            const DhuhrAdhan = moment(today + ' ' + data.dhuhr, 'YYYY-MM-DD HH:mm');
+            const DhuhrIqamah = DhuhrAdhan.clone().add(iqamahOffsets.dhuhr, 'minutes');
+            const AsrIqamah = moment(today + ' ' + data.asr, 'YYYY-MM-DD HH:mm').add(iqamahOffsets.asr, 'minutes');
+            const MaghribAdhan = moment(today + ' ' + data.maghrib, 'YYYY-MM-DD HH:mm');
+            const MaghribIqamah = MaghribAdhan.clone().add(iqamahOffsets.maghrib, 'minutes');
+            const IshaAdhan = moment(today + ' ' + data.isha, 'YYYY-MM-DD HH:mm');
+            const IshaIqamah = IshaAdhan.clone().add(iqamahOffsets.isha, 'minutes');
+
+            // الحصول على أذان فجر اليوم التالي لتحديد نهاية وقت الليل
+            const tomorrowData = prayerTimesData.find(p => p.date === tomorrow);
+            const NextDayFajrAdhan = tomorrowData ? moment(tomorrow + ' ' + tomorrowData.fajr, 'YYYY-MM-DD HH:mm') : null;
+
+            // تحديد اللحظات الخاصة بالليل (22:00 و 00:00)
+            const PM10Today = moment(today + ' 22:00', 'YYYY-MM-DD HH:mm');
+            // بداية اليوم التالي (منتصف الليل)
+            const MidnightToday = moment(today + ' 00:00', 'YYYY-MM-DD HH:mm').add(1, 'day'); 
+            
+            reminderMoments = {
+                // أذكار الصباح: من إقامة الفجر حتى قبل أذان الظهر بـ 15 دقيقة
+                MorningAzkarStart: FajrIqamah,
+                MorningAzkarEnd: DhuhrAdhan.clone().subtract(15, 'minutes'), 
+
+                // صلاة الضحى: من بعد شروق الشمس بـ 15 دقيقة حتى أذان الظهر
+                DuhaStart: Sunrise.clone().add(15, 'minutes'),
+                DuhaEnd: DhuhrAdhan, 
+
+                // السنن الرواتب: تفعيلها قبل أذان كل صلاة فرض بـ 10 دقائق وبعد الإقامة بـ 10 دقائق 
+                DhuhrRawatibStart: DhuhrAdhan.clone().subtract(10, 'minutes'),
+                DhuhrRawatibEnd: DhuhrIqamah.clone().add(10, 'minutes'),
+                MaghribRawatibStart: MaghribAdhan.clone().subtract(10, 'minutes'),
+                MaghribRawatibEnd: MaghribIqamah.clone().add(10, 'minutes'),
+                IshaRawatibStart: IshaAdhan.clone().subtract(10, 'minutes'),
+                IshaRawatibEnd: IshaIqamah.clone().add(10, 'minutes'),
+
+                // أذكار المساء: من إقامة العصر حتى أذان المغرب
+                EveningAzkarStart: AsrIqamah,
+                EveningAzkarEnd: MaghribAdhan, 
+                
+                // الأنشطة الليلية المخصصة (النهاية المشتركة هي أذان الفجر التالي)
+                NightEnd: NextDayFajrAdhan,
+                
+                // سورة الملك: 10 مساءً حتى الفجر
+                MulkStart: PM10Today,
+                
+                // صلاة الوتر: بعد إقامة العشاء حتى الفجر
+                WitrStart: IshaIqamah,
+                
+                // قيام الليل: بعد 12 ص حتى الفجر
+                QiyamStart: MidnightToday
+            };
+        }
 
         // الدالة الرئيسية التي تبدأ كل شيء
         function init() {
             // تحميل بيانات الصلاة والتاريخ لأول مرة
             loadDailyData();
             
-            // تحديث الساعة والعد التنازلي كل ثانية
+            // تحديث الساعة والعد التنازلي والأذكار كل ثانية
             setInterval(updateClockAndCountdown, 1000);
             
             // تحقق من إعادة تحميل البيانات عند منتصف الليل
@@ -459,7 +540,7 @@
         }
 
 
-        // دالة لتحديث الساعة والعد التنازلي
+        // دالة لتحديث الساعة والعد التنازلي والأذكار
         function updateClockAndCountdown() {
             const now = moment();
             // استخدام locale('en') لضمان ظهور الأرقام الإنجليزية في الساعة
@@ -467,7 +548,100 @@
             
             // تحديث العد التنازلي
             updateNextPrayerCountdown(now);
+
+            // تحديث قائمة الأذكار
+            updateOptionalReminders(now);
         }
+
+        // دالة تحديث قائمة الأذكار والسنن النشطة
+        function updateOptionalReminders(now) {
+            if (!reminderMoments.MorningAzkarStart) return;
+
+            const reminders = [];
+            
+            // Helper to check if now is between start and end moments
+            const isActive = (start, end) => start && end && now.isSameOrAfter(start) && now.isBefore(end);
+            
+            // 1. الورد اليومي (طول اليوم)
+            reminders.push("الورد اليومي"); 
+
+            // 2. أذكار الصباح: إقامة الفجر حتى قبل الظهر بـ 15 دقيقة
+            if (isActive(reminderMoments.MorningAzkarStart, reminderMoments.MorningAzkarEnd)) {
+                reminders.push("أذكار الصباح");
+            }
+
+            // 3. صلاة الضحى: بعد شروق الشمس بـ 15 دقيقة حتى أذان الظهر
+            if (isActive(reminderMoments.DuhaStart, reminderMoments.DuhaEnd)) {
+                reminders.push("صلاة الضحى");
+            }
+
+            // 4. أذكار المساء: من إقامة العصر حتى أذان المغرب
+            if (isActive(reminderMoments.EveningAzkarStart, reminderMoments.EveningAzkarEnd)) {
+                reminders.push("أذكار المساء");
+            }
+            
+            // 5. السنن الرواتب (حول الصلوات)
+            if (isActive(reminderMoments.DhuhrRawatibStart, reminderMoments.DhuhrRawatibEnd) ||
+                isActive(reminderMoments.MaghribRawatibStart, reminderMoments.MaghribRawatibEnd) ||
+                isActive(reminderMoments.IshaRawatibStart, reminderMoments.IshaRawatibEnd)) {
+                reminders.push("السنن الرواتب");
+            }
+
+            // 6. سورة الملك: 10 مساءً حتى الفجر
+            if (isActive(reminderMoments.MulkStart, reminderMoments.NightEnd)) {
+                reminders.push("سورة الملك");
+            }
+
+            // 7. صلاة الوتر: بعد العشاء حتى الفجر
+            if (isActive(reminderMoments.WitrStart, reminderMoments.NightEnd)) {
+                reminders.push("صلاة الوتر");
+            }
+
+            // 8. قيام الليل: بعد 12 ص حتى الفجر
+            if (isActive(reminderMoments.QiyamStart, reminderMoments.NightEnd)) {
+                reminders.push("قيام الليل");
+            }
+
+
+            // ----------------------------------------------------
+            // إخراج المهام النشطة (4 عناصر كحد أقصى)
+            // ----------------------------------------------------
+            const remindersContainer = document.getElementById('active-reminders-box');
+            
+            // قائمة الأذكار بترتيب الأولوية
+            const priorityList = REMINDER_LIST.slice(); 
+            const activeRemindersSet = new Set(reminders);
+            
+            const activeRemindersToShow = [];
+
+            // تجميع العناصر النشطة حسب الترتيب المحدد، بحد أقصى 4
+            for (const item of priorityList) {
+                if (activeRemindersSet.has(item)) {
+                    activeRemindersToShow.push(item);
+                }
+                if (activeRemindersToShow.length >= 4) {
+                    break;
+                }
+            }
+
+            remindersContainer.innerHTML = ''; // إفراغ الحاوية
+
+            if (activeRemindersToShow.length > 0) {
+                activeRemindersToShow.forEach(item => {
+                    // نستخدم نفس فئة التصميم للـ 2x2
+                    const div = document.createElement('div');
+                    div.className = 'reminder-item';
+                    div.innerText = item;
+                    remindersContainer.appendChild(div);
+                });
+            } else {
+                // رسالة عامة عند عدم وجود مهام نشطة
+                remindersContainer.style.justifyContent = 'center';
+                remindersContainer.style.alignItems = 'center';
+                remindersContainer.innerHTML = '<div style="font-size: 11px; color: #aaa;">اللهم تقبل طاعتنا</div>';
+            }
+        }
+
 
         // دالة لتحميل بيانات اليوم وعرضها
         function loadDailyData() {
@@ -498,6 +672,9 @@
                 document.getElementById('prayers-container').innerHTML = `<div style="color:var(--text-red); text-align:center; padding: 20px; font-size: 14px;">لا توجد بيانات مواقيت لهذا اليوم</div>`;
                 return;
             }
+
+            // حساب لحظات الأذكار والسنن
+            calculateReminderMoments(todayData);
 
             // عرض التاريخ (الميلادي والهجري)
             renderDates(now, todayData.sunrise); 
