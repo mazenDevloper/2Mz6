@@ -291,7 +291,7 @@
             border: 2.3px solid rgba(212, 175, 55); 
             transform: scale(1.02);
             animation: pulse 2s infinite;
-            border-radius: 13px;
+            border-radius: px;
         }
 
         /* --- تأثير نبض لتمييز الصلاة القادمة --- */
@@ -682,7 +682,7 @@
             // عرض جدول الصلوات
             renderPrayerTable(todayData, prayerNamesToday); // تمرير الأسماء المحدثة
             
-            // معالجة الأوقات لتجهيزها للعد التنازلي (الآن تركز على الإقامة فقط)
+            // معالجة الأوقات لتجهيزها للعد التنازلي (الآن تشمل الأذان والإقامة)
             processPrayerTimesForCountdown(todayData, prayerNamesToday); // تمرير الأسماء المحدثة
         }
 
@@ -761,7 +761,7 @@
             });
         }
         
-        // دالة تجهيز مصفوفة أوقات الإقامة فقط للعد التنازلي
+        // دالة تجهيز مصفوفة أوقات الأذان والإقامة للعد التنازلي
         function processPrayerTimesForCountdown(data, currentPrayerNames) {
             processedPrayerTimes = []; // إفراغ المصفوفة
             const order = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
@@ -770,7 +770,15 @@
                 const adhanTime = data[key];
                 const adhanMoment = moment(data.date + ' ' + adhanTime, 'YYYY-MM-DD HH:mm');
                 
-                // يتم إضافة وقت الإقامة فقط 
+                // 1. إضافة وقت الأذان
+                processedPrayerTimes.push({
+                    type: 'adhan',
+                    name: currentPrayerNames[key],
+                    key: key,
+                    time: adhanMoment
+                });
+                
+                // 2. إضافة وقت الإقامة
                 const iqamahMoment = adhanMoment.clone().add(iqamahOffsets[key], 'minutes');
                 processedPrayerTimes.push({
                     type: 'iqamah',
@@ -780,10 +788,19 @@
                 });
             });
             
-            // إضافة إقامة فجر اليوم التالي لتغطية الفترة ما بعد العشاء
+            // إضافة أذان وإقامة فجر اليوم التالي لتغطية الفترة ما بعد العشاء
             const tomorrowData = prayerTimesData.find(p => p.date === moment(data.date).add(1, 'days').format('YYYY-MM-DD'));
             if (tomorrowData) {
                 const nextDayFajrAdhan = moment(tomorrowData.date + ' ' + tomorrowData.fajr, 'YYYY-MM-DD HH:mm'); 
+                
+                // إضافة أذان فجر اليوم التالي
+                 processedPrayerTimes.push({
+                    type: 'adhan',
+                    name: prayerNames['fajr'], 
+                    key: 'fajr',
+                    time: nextDayFajrAdhan
+                });
+                
                 const nextDayFajrIqamah = nextDayFajrAdhan.clone().add(iqamahOffsets['fajr'], 'minutes');
                  processedPrayerTimes.push({
                     type: 'iqamah',
@@ -804,7 +821,7 @@
             // إزالة التظليل من جميع الصفوف أولاً
             document.querySelectorAll('.prayer-row').forEach(r => r.classList.remove('next-prayer-highlight'));
 
-            // البحث عن أول حدث (وهو الآن إقامة بالتأكيد) وقته "بعد" الوقت الحالي
+            // البحث عن أول حدث (أذان أو إقامة) وقته "بعد" الوقت الحالي
             let nextEvent = processedPrayerTimes.find(p => p.time.isAfter(now));
 
             if (!nextEvent) {
@@ -823,15 +840,15 @@
             const minutes = String(duration.minutes()).padStart(2, '0');
             const seconds = String(duration.seconds()).padStart(2, '0');
             
-            // تحديد نوع الحدث للعرض (ثابت الآن على إقامة)
-            const eventLabel = 'إقامة'; 
+            // تحديد نوع الحدث للعرض (ديناميكي بين أذان وإقامة)
+            const eventLabel = nextEvent.type === 'adhan' ? 'أذان' : 'إقامة'; 
 
             // 2. عرض العد التنازلي
             document.getElementById('next-prayer-name').innerText = `المتبقي لـ ${eventLabel} ${nextEvent.name}`;
             document.getElementById('countdown-display').innerText = `${hours}:${minutes}:${seconds}`;
 
             // 3. تظليل الصف (هايلايت)
-            // إضافة التظليل للصف الذي يحتوي على الصلاة القادمة (الإقامة)
+            // إضافة التظليل للصف الذي يحتوي على الصلاة القادمة (الإقامة أو الأذان)
             const activeRow = document.getElementById(`row-${nextEvent.key}`);
             if(activeRow) {
                 activeRow.classList.add('next-prayer-highlight');
