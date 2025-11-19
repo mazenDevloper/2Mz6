@@ -41,6 +41,55 @@
 img#dashboard-weather-icon {
     border-radius: 50px;
 }
+
+/* --- CSS لتنسيق أزرار سرعة التشغيل المنفصلة --- */
+
+/* --- CSS لتنسيق أزرار سرعة التشغيل المنفصلة --- */
+
+#floating-minimized-video-button {
+    width: 320px; /* زيادة العرض لاستيعاب 3 أزرار */
+    height: auto;
+    padding: 0.4rem;
+    gap: 0.4rem;
+    display: flex;
+    align-items: center;
+    border-radius: 9999px; /* شكل كبسولة */
+    /* ... (بقية تنسيق الكبسولة) ... */
+}
+
+#floating-minimized-video-button .rate-btn {
+    /* تنسيق مربع صغير ومدمج */
+    width: 40px !important;
+    height: 40px !important;
+    padding: 0;
+    font-size: 0.65rem; 
+    font-weight: bold;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.4); /* خلفية خاملة */
+    border: none;
+    border-radius: 6px;
+    opacity: 0.7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+/* 🚀 تنسيق الزر النشط (Active Rate Style) - يجعل الزر يبرز */
+#floating-minimized-video-button .rate-btn.active-rate {
+    background-color: #FACC15 !important; /* لون أصفر ساطع */
+    color: black !important;
+    opacity: 1;
+    box-shadow: 0 0 8px rgba(250, 204, 21, 0.8); /* توهج بارز */
+}
+/* 🚀 تنسيق الزر النشط (Active Rate Style) - CRITICAL */
+
+
+div#channel-search-results {
+    width: 100%;
+}
+
 .fullscreen-toggle-button {
     /* Positioning the button inside the section, usually top right */
     position: absolute; 
@@ -83,23 +132,7 @@ img#dashboard-weather-icon {
 /* --- CSS لتنسيق زر سرعة التشغيل التفاعلي --- */
 
 /* 💡 تنسيق الزر الدائري للسرعة */
-#floating-minimized-video-button .playback-rate-toggle-btn {
-    width: 40px !important;
-    height: 40px !important;
-    font-size: 0.75rem; /* حجم خط صغير */
-    font-weight: bold;
-    color: black;
-    
-    /* 🛑 اللون: لجعله بارزاً ومختلفاً */
-    background-color: #000000 !important; /* لون أصفر/ذهبي بارز */
-    color:white;
-    border-radius: 50% !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    transition: background-color 0.1s ease;
-}
+
 
 div#add-reciter-prompt-content {
     max-width: 98%;
@@ -1510,6 +1543,22 @@ div#youtube-readers-section {
 @media (max-width: 768px) {
     /* ... (بقية الأكواد الخاصة بالهواتف المحمولة) ... */
 
+button.youtube-suggestion-button.navigable.grid-item {
+    font-size: 1rem;
+}
+
+div#youtube-surah-section {
+    min-height: 547px;
+}
+
+button.youtube-suggestion-button.navigable.grid-item {
+    height: 50px;
+}
+
+span.surah-name-text {
+    font-size: 1rem;
+}
+
     /* 🛑 إخفاء أيقونات التطبيقات غير الضرورية في وضع الموبايل */
     button[data-app="Map"] {
         display: none !important; /* إخفاء أيقونة Map/3D Car (تمت إعادة تسميتها) */
@@ -2418,24 +2467,25 @@ div#map{display:none}
 
     <!-- NEW: Minimized Video Button -->
    <div id="floating-minimized-video-button" class="navigable grid-item glass-surface glass-surface--svg" tabindex="0">
-    
-    
-    
+  
     <button id="minimized-restore-btn" title="تكبير/استعادة" class="p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors navigable grid-item">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="maximize-2" class="lucide lucide-maximize-2 w-5 h-5"><path d="M15 3h6v6"></path><path d="m21 3-7 7"></path><path d="m3 21 7-7"></path><path d="M9 21H3v-6"></path></svg> 
-    </button><div class="flex flex-col items-start overflow-hidden flex-grow px-1 min-w-0">
+        <i data-lucide="maximize-2" class="w-5 h-5"></i> 
+    </button>
+    
+    <div class="flex flex-col items-start overflow-hidden flex-grow px-1 min-w-0">
         <span class="minimized-title font-semibold text-sm truncate w-full">جاري تشغيل الصوت...</span>
     </div>
     
     
-    
-    
     <button id="minimized-play-pause-btn" title="تشغيل/إيقاف" class="p-2 rounded-full bg-white/20 text-white/90 hover:bg-white/30 transition-colors navigable grid-item">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="play" class="lucide lucide-play w-5 h-5 play-icon"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"></path></svg>
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="pause" class="lucide lucide-pause w-5 h-5 pause-icon hidden"><rect x="14" y="3" width="5" height="18" rx="1"></rect><rect x="5" y="3" width="5" height="18" rx="1"></rect></svg>
-    </button><button id="minimized-playback-speed-btn" title="تغيير سرعة التشغيل" class="playback-rate-toggle-btn navigable grid-item">
-        1.0x
+        <i data-lucide="play" class="w-5 h-5 play-icon"></i>
+        <i data-lucide="pause" class="w-5 h-5 pause-icon hidden"></i>
     </button>
+      <div id="playback-rates-group" class="flex gap-1 flex-shrink-0">
+        <button data-rate="1.0" class="rate-btn active-rate navigable grid-item" tabindex="0">1.0x</button>
+        <button data-rate="1.25" class="rate-btn navigable grid-item" tabindex="0">1.25x</button>
+        <button data-rate="1.65" class="rate-btn navigable grid-item" tabindex="0">1.65x</button>
+    </div>
 </div>
 
     <!-- NEW: Bottom Left Controls -->
@@ -2469,7 +2519,54 @@ div#map{display:none}
     </div>
 
     <script>
+// 💡 يجب أن تكون هذه المصفوفة مُعرَّفة عالمياً في بداية الكود
+const PLAYBACK_RATES = [1.0, 1.25, 1.5, 1.65]; // يمكنك استخدام 1.65 بدلاً من 2.0 إذا أردت
 
+/**
+ * FINAL: Sets the playback rate to a specific value based on the selected rate.
+ * This is called directly by the individual speed buttons (1.0x, 1.25x, etc.).
+ * * @param {string} rateValue - The rate string (e.g., "1.25").
+ */
+function setSpecificPlaybackRate(rateValue) {
+    if (!popupPlayer || typeof popupPlayer.setPlaybackRate !== 'function') return; // التحقق من وجود المشغل
+
+    const rate = parseFloat(rateValue);
+
+    if (PLAYBACK_RATES.includes(rate)) {
+        popupPlayer.setPlaybackRate(rate);
+        
+        // نعتمد على مستمع onPlaybackRateChange لتحديث UI
+        // (يمكن استدعاء updateMinimizedControlsState() هنا أيضاً كإجراء احتياطي)
+        updateMinimizedControlsState(); 
+    }
+}
+
+/**
+ * Toggles the playback rate to the next speed in the defined sequence 
+ * (نستخدمها لربط الزر الدائري في الكبسولة إذا أردت التبديل بزر واحد).
+ */
+function togglePlaybackRate() {
+    if (!popupPlayer || typeof popupPlayer.getPlaybackRate !== 'function') return;
+
+    const currentRate = popupPlayer.getPlaybackRate();
+    const currentRateFixed = parseFloat(currentRate.toFixed(2));
+
+    const currentIndex = PLAYBACK_RATES.indexOf(currentRateFixed);
+    
+    const nextIndex = (currentIndex === -1) ? 0 : (currentIndex + 1) % PLAYBACK_RATES.length;
+    const nextRate = PLAYBACK_RATES[nextIndex];
+    
+    popupPlayer.setPlaybackRate(nextRate);
+    updateMinimizedControlsState(); 
+}
+
+/**
+ * Event handler that fires when YouTube player confirms the playback rate has changed.
+ */
+function handlePlaybackRateChange(event) {
+    // يجب استدعاء هذه الدالة عندما يتغير المشغل السرعة (مربوطة في showVideoPopup)
+    updateMinimizedControlsState(); 
+}
         // --- المتغيرات العامة لتتبع حالة المؤقتات (يجب أن تُضاف في بداية الكود) ---
 let weatherIntervalId = null;       // 5 دقائق (للطقس)
 let clockIntervalId = null;         // 1 ثانية (للساعة)
@@ -4693,12 +4790,11 @@ async function showVideoPopup(videoId, startOverride = null) {
     })();
     
     // 2. إدارة حالة واجهة المستخدم والرسوم المتحركة
-    // إيقاف حركة الخلفية عند تشغيل الفيديو
     document.body.classList.add('animation-paused');
     const playIcon = pauseAnimationButton.querySelector('[data-lucide="play"]');
     const pauseIcon = pauseAnimationButton.querySelector('[data-lucide="pause"]');
     if (playIcon && pauseIcon) {
-        playIcon.classList.remove('hidden'); // إظهار أيقونة التشغيل (لأن الحركة متوقفة)
+        playIcon.classList.remove('hidden'); 
         pauseIcon.classList.add('hidden');
     }
 
@@ -4721,14 +4817,11 @@ async function showVideoPopup(videoId, startOverride = null) {
     // إنشاء زر الحفظ (Bookmark) إذا لم يكن موجوداً
     let bookmarkBtn = document.getElementById('video-popup-bookmark-button');
     if (controlsContainer && !bookmarkBtn) {
-        // ... (منطق إنشاء زر Bookmark وإضافة مستمعي الأحداث) ...
         bookmarkBtn = document.createElement('button');
         bookmarkBtn.id = 'video-popup-bookmark-button';
         bookmarkBtn.className = 'navigable grid-item p-3 rounded-full glass-surface glass-surface--svg hover:bg-white/20 transition-colors';
         bookmarkBtn.innerHTML = `<i data-lucide="bookmark" class="w-6 h-6"></i>`;
         bookmarkBtn.tabIndex = 0;
-        
-        // (يجب تحديث حالة الزر هنا بناءً على favoritesD/M)
         
         bookmarkBtn.onclick = async (e) => {
              e.stopPropagation();
@@ -4745,20 +4838,22 @@ async function showVideoPopup(videoId, startOverride = null) {
     // 🛑 ربط زر التصغير (CRITICAL BINDING)
     const videoPopupMinimizeButton = document.getElementById('video-popup-minimize-button');
     if (videoPopupMinimizeButton) {
-        // نستخدم 'onclick' هنا لضمان تجاوز أي مستمع سابق وتجنب تكرار الربط
         videoPopupMinimizeButton.onclick = (e) => {
             e.stopPropagation();
-            minimizeVideoPopup(); // 👈 استدعاء وظيفة التصغير
+            minimizeVideoPopup(); 
         };
     }
 
 
     // 4. تهيئة وتشغيل مشغل يوتيوب (YT.Player)
-    if (popupPlayer) {
-        // إذا كان المشغل موجوداً، حمّل الفيديو الجديد
+    // 🛑 FIX 1: التحقق من أن المشغل موجود وبه دالة loadVideoById قبل الاستخدام
+    if (popupPlayer && typeof popupPlayer.loadVideoById === 'function') { 
+        // إذا كان المشغل موجوداً وصالحاً، حمّل الفيديو الجديد
         popupPlayer.loadVideoById({ videoId, startSeconds: start });
+        // 🛑 FIX 2: إعادة ربط مستمع السرعة عند إعادة تحميل الفيديو
+        popupPlayer.addEventListener('onPlaybackRateChange', handlePlaybackRateChange);
     } else {
-        // إذا لم يكن موجوداً، قم بإنشاء مشغل جديد
+        // 5. إذا لم يكن موجوداً أو صالحاً، قم بإنشاء مشغل جديد
         videoPopupPlayerContainer.innerHTML = '<div id="video-popup-player"></div>';
         popupPlayer = new YT.Player('video-popup-player', {
             height: '100%', width: '100%', videoId,
@@ -4770,14 +4865,16 @@ async function showVideoPopup(videoId, startOverride = null) {
             },
             events: { 
                 'onReady': (e) => e.target.playVideo(),
-                'onStateChange': onPlayerStateChange // 👈 لمعالجة PROGRESS و ENDED
+                'onStateChange': onPlayerStateChange, 
+                // 🚀 CRITICAL FIX 3: ربط المستمع الخاص بتغيير السرعة
+                'onPlaybackRateChange': handlePlaybackRateChange 
             }
         });
     }
 
-    // 5. نقل التركيز
+    // 6. نقل التركيز
     setTimeout(() => setFocus(videoPopupCloseButton), 100);
-    lucide.createIcons(); // لتحديث أي أيقونات أضيفت حديثًا
+    lucide.createIcons(); 
 }
 async function hideVideoPopup() {
             if (progressInterval) clearInterval(progressInterval);
@@ -4916,17 +5013,48 @@ function restoreVideoPopup() {
  * FINALIZED: Updates the state (Play/Pause Icon and Speed Text) of the minimized capsule.
  * Reads the current playback rate from the YT Player and updates the interactive button text.
  */
+/**
+ * FINALIZED: Updates the state (Play/Pause Icon, Speed Buttons, and Select List) 
+ * of the minimized capsule and the main popup's controls.
+ */
+/**
+ * FINALIZED: Updates the state (Play/Pause Icon, Speed Buttons, and Select List) 
+ * of the minimized capsule and the main popup's controls.
+ */
 function updateMinimizedControlsState() {
-    // 🛑 مراجع العناصر الجديدة (يجب جلبها داخل الدالة لضمان التحديث)
+    // 🛑 1. التحقق من وجود المشغل وتهيئته
+    if (!popupPlayer || typeof popupPlayer.getPlayerState !== 'function') return;
+
+    // 2. جلب المراجع الحالية للعناصر
     const minimizedPlayPauseBtn = document.getElementById('minimized-play-pause-btn');
-    const minimizedPlaybackSpeedBtn = document.getElementById('minimized-playback-speed-btn'); // 👈 الزر الدائري الجديد
-    
-    if (!popupPlayer || !minimizedPlayPauseBtn || !minimizedPlaybackSpeedBtn) return;
+    const minimizedPlaybackSpeedBtn = document.getElementById('minimized-playback-speed-btn');
+    const playbackSelect = document.getElementById('playback-rate-select');
+    const rateButtons = document.querySelectorAll('#playback-rates-group .rate-btn');
+
+    if (!minimizedPlayPauseBtn || !minimizedPlaybackSpeedBtn) return;
+
+    const currentRate = popupPlayer.getPlaybackRate();
+    // 🚀 الإصلاح الحرج: تحويل سرعة المشغل إلى نص ثابت بـ 2 منزلة عشرية للمقارنة
+    const currentRateString = currentRate.toFixed(2); 
     
     const playerState = popupPlayer.getPlayerState();
     const isPlaying = (playerState === YT.PlayerState.PLAYING);
+    
+    // --- تحديث أزرار السرعة المنفصلة (1.0x, 1.25x, etc.) ---
+    rateButtons.forEach(btn => {
+        // الخطوة 1: إزالة الفئة النشطة من جميع الأزرار
+        btn.classList.remove('active-rate');
+        
+        // 🚀 الإصلاح الحرج: تحويل قيمة data-rate للزر إلى نص ثابت بـ 2 منزلة عشرية للمقارنة
+        const btnRateString = parseFloat(btn.dataset.rate).toFixed(2);
+        
+        // الخطوة 2: المقارنة الآن تتم بين النصوص، وهي مضمونة الدقة
+        if (btnRateString === currentRateString) { 
+            btn.classList.add('active-rate');
+        }
+    });
 
-    // 1. تحديث أيقونة التشغيل/الإيقاف
+    // --- تحديث أيقونات التشغيل/الإيقاف (Play/Pause Icons) ---
     const playIcon = minimizedPlayPauseBtn.querySelector('.play-icon');
     const pauseIcon = minimizedPlayPauseBtn.querySelector('.pause-icon');
     
@@ -4935,17 +5063,15 @@ function updateMinimizedControlsState() {
         pauseIcon.classList.toggle('hidden', !isPlaying);
     }
     
-    // 2. تحديث سرعة التشغيل (CRITICAL FIX)
-    const currentSpeed = popupPlayer.getPlaybackRate();
+    // --- تحديث مؤشر السرعة في الكبسولة وقائمة التحديد (Select List) ---
     
-    // 🛑 تحديث نص الزر الدائري الجديد
-    minimizedPlaybackSpeedBtn.textContent = `${currentSpeed.toFixed(2)}x`; // 👈 تم التغيير إلى toFixed(2)
+    // تحديث نص زر السرعة الدائري (minimizedPlaybackSpeedBtn)
+    minimizedPlaybackSpeedBtn.textContent = `${currentRateString}x`; 
     
-    // 3. تحديث قائمة السرعة المنسدلة في المشغل الكبير (للتزامن)
-    const playbackSelect = document.getElementById('playback-rate-select');
+    // تحديث قائمة السرعة المنسدلة (للتزامن)
     if (playbackSelect) {
          // نستخدم toFixed(1) للتطابق مع خيارات القائمة المنسدلة
-         playbackSelect.value = currentSpeed.toFixed(1).toString(); 
+         playbackSelect.value = currentRate.toFixed(1).toString(); 
     }
 }
 
@@ -7926,8 +8052,7 @@ if (!window.hasInitializedWeatherSpeaker) {
 switchApp('Dashboard');
 updateTrafficIndicators();
 
-        // --- Initial Setup ---
-  document.addEventListener('DOMContentLoaded', () => {
+ document.addEventListener('DOMContentLoaded', () => {
     // 1. **الجلب الأولي لبيانات JSONBin (ASYNCHRONOUS)**
     Promise.all([
         fetchRecitersList(), 
@@ -7953,8 +8078,13 @@ updateTrafficIndicators();
         startFullDateUpdates();         // تحديث التاريخ (كل 100 دقيقة)
 
         // 5. تشغيل الشاشة الافتراضية، مما يبدأ المؤقتات الشرطية
-        switchApp('Dashboard');
+        switchApp('Dashboard'); 
+        
+        // 💡 تحديث الموقع مرة واحدة لضمان تهيئة الخريطة ومؤشرات الازدحام
         centerMapOnUserLocation(); 
+
+        // 💡 تحديث العرض الأولي للساعة والتذكيرات
+        updateTimerDisplay();
         renderDailyReminders();
 
     }).catch(error => {
@@ -7962,9 +8092,10 @@ updateTrafficIndicators();
         showMessageBox("فشل تحميل البيانات الأساسية. يرجى التحقق من مفاتيح API واتصال الإنترنت.");
     });
 
+
     // 6. **تفعيل المستمعات والأزرار (Listeners & Button Bindings)**
     
-    // مراجع الأزرار الأساسية (يجب أن تكون معرفة عالمياً في مكان آخر)
+    // مراجع الأزرار الأساسية
     const getMyLocationButtonDashboard = document.getElementById('get-my-location-button-dashboard');
     const goToHome1Button = document.getElementById('go-to-home-1-button');
     const goToHome2Button = document.getElementById('go-to-home-2-button');
@@ -7972,18 +8103,18 @@ updateTrafficIndicators();
     const minimizedPlayPauseBtn = document.getElementById('minimized-play-pause-btn');
     const videoPopupMinimizeButton = document.getElementById('video-popup-minimize-button');
     const floatingMinimizedVideoButton = document.getElementById('floating-minimized-video-button');
-    const minimizedPlaybackSpeedBtn = document.getElementById('minimized-playback-speed-btn'); // الزر الدائري للسرعة
+    const minimizedPlaybackSpeedBtn = document.getElementById('minimized-playback-speed-btn'); 
 
     // المستمعات القياسية
     getMyLocationButtonDashboard?.addEventListener('click', centerMapOnUserLocation);
     floatingMediaButton?.addEventListener('click', () => switchApp('Media'));
 
-    // 🛑 ربط أزرار الموقع الجديدة (لتعيين Marker والبدء)
+    // 🛑 ربط أزرار الموقع الجديدة (لتعيين Marker وعرض الازدحام)
     goToHome1Button?.addEventListener('click', () => {
-        displayLocationMarker(HOME1_COORDS, 'المنزل 1'); 
+        displayLocationMarker(HOME1_COORDS, 'إشارات ق'); 
     });
     goToHome2Button?.addEventListener('click', () => {
-        displayLocationMarker(HOME2_COORDS, 'المنزل 2');
+        displayLocationMarker(HOME2_COORDS, 'تقاطع ش');
     });
 
     // 🛑 ربط أزرار التحكم في الكبسولة (Minimize/Restore Logic)
@@ -7996,36 +8127,10 @@ updateTrafficIndicators();
         minimizeVideoPopup();
     });
     
-
-// يجب أن تكون مُعرّفة عالمياً
-const PLAYBACK_RATES = [1.00,1.25, 1.50, 2.0]; 
-
-function togglePlaybackRate() {
-    if (!popupPlayer) return;
-    updateMinimizedControlsState(); 
-
-    const currentRate = popupPlayer.getPlaybackRate();
-    // 💡 نستخدم toFixed(2) للقراءة من المشغل لضمان الدقة في الفاصلة العائمة
-    const currentRateFixed = parseFloat(currentRate.toFixed(2));
-    
-    const currentIndex = PLAYBACK_RATES.indexOf(currentRateFixed);
-    
-    // إذا لم يتم العثور على السرعة الحالية في المصفوفة (عادةً 1.0)، نبدأ من الصفر
-    const nextIndex = (currentIndex === -1) ? 1 : (currentIndex + 1) % PLAYBACK_RATES.length;
-    const nextRate = PLAYBACK_RATES[nextIndex];
-    
-    // تطبيق السرعة الجديدة على المشغل
-    popupPlayer.setPlaybackRate(nextRate);
-    
-    // تحديث العرض في كل من القائمة المنسدلة والكبسولة
-    updateMinimizedControlsState(); 
-}
-
-
     // Listener زر التشغيل/الإيقاف المؤقت داخل الكبسولة (يمنع الاستعادة)
     minimizedPlayPauseBtn?.addEventListener('click', (e) => {
         e.stopPropagation(); 
-        if (popupPlayer) {
+        if (popupPlayer && typeof popupPlayer.getPlayerState === 'function') {
             const playerState = popupPlayer.getPlayerState();
             if (playerState === YT.PlayerState.PLAYING) {
                 popupPlayer.pauseVideo();
@@ -8035,22 +8140,25 @@ function togglePlaybackRate() {
         }
     });
 
-    // Listener زر تبديل السرعة في الكبسولة (يمنع الاستعادة)
-    minimizedPlaybackSpeedBtn?.addEventListener('click', (e) => {
-        e.stopPropagation(); 
-        togglePlaybackRate();
+    // 🚀 ربط أزرار السرعة المنفصلة (يتم استخدام data-rate في HTML)
+  // ... (داخل DOMContentLoaded)
+
+    // 🚀 ربط أزرار السرعة المنفصلة
+    document.querySelectorAll('#playback-rates-group .rate-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation(); // منع الاستعادة
+            const rateValue = e.currentTarget.dataset.rate; 
+            // 🛑 لن يظهر خطأ الآن
+            setSpecificPlaybackRate(rateValue); 
+        });
     });
+
+// ...
 
     // 7. **المؤقتات والإجراءات المتأخرة**
     setTimeout(playWelcomeMessage, 1500); 
 
-    // 💡 نُضيف هذه الاستدعاءات لضمان التحديث الأولي للمرة الأولى (قبل أن تبدأ switchApp)
-    updateTimerDisplay();
-
-    
-    // 8. المستمعات الإضافية (منطقك الأصلي)
-    // ... (بقية ربط الأحداث العامة: backToSearchFloatingButton, clearSearchButton, الخ)
-    
+    // ... (بقية المستمعات العامة: zoom, keyboard, etc.) ...
 });
 
 
