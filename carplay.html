@@ -1578,6 +1578,62 @@ span.surah-name-text {
 
         /* NEW: Responsive padding toggle */
         @media (min-width: 768px) {
+
+        button.youtube-suggestion-button {
+    font-size: 1rem;
+}
+
+.youtube-suggestion-button {
+            color: white;
+            padding: 0.25rem 0.75rem; /* Zoomed out padding */
+            border-radius: 9999px;
+            font-size: 0.75rem; /* Zoomed out font */
+            font-weight: bold;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            /* NEW: Switched to inline-flex for variable width */
+            display: inline-flex;
+            width: auto;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden; /* Keep overflow hidden on the button itself */
+        }
+        .youtube-suggestion-button:hover {
+            transform: translateY(-1px) scale(1.02);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .youtube-suggestion-button:active {
+            transform: translateY(0);
+        }
+        
+        /* NEW: Style for the Surah name text to handle long names */
+        .surah-name-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: right; /* Align text to the right for RTL */
+        }
+
+        /* NEW: Badge for Juz number */
+        .youtube-suggestion-button .juz-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 9999px;
+            background-color: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+            flex-shrink: 0; /* Prevent badge from shrinking */
+            line-height: 1;
+            position: relative; /* Allow z-index */
+            z-index: 2; /* Ensure it's on top */
+        }
+            
             body.small-padding .md\:p-6 {
                 padding: 1.5rem !important;
             }
