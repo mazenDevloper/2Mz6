@@ -4774,12 +4774,11 @@ async function showVideoPopup(videoId, startOverride = null) {
     })();
     
     // 2. إدارة حالة واجهة المستخدم والرسوم المتحركة
-    // إيقاف حركة الخلفية عند تشغيل الفيديو
     document.body.classList.add('animation-paused');
     const playIcon = pauseAnimationButton.querySelector('[data-lucide="play"]');
     const pauseIcon = pauseAnimationButton.querySelector('[data-lucide="pause"]');
     if (playIcon && pauseIcon) {
-        playIcon.classList.remove('hidden'); // إظهار أيقونة التشغيل (لأن الحركة متوقفة)
+        playIcon.classList.remove('hidden'); 
         pauseIcon.classList.add('hidden');
     }
 
@@ -4802,14 +4801,11 @@ async function showVideoPopup(videoId, startOverride = null) {
     // إنشاء زر الحفظ (Bookmark) إذا لم يكن موجوداً
     let bookmarkBtn = document.getElementById('video-popup-bookmark-button');
     if (controlsContainer && !bookmarkBtn) {
-        // ... (منطق إنشاء زر Bookmark وإضافة مستمعي الأحداث) ...
         bookmarkBtn = document.createElement('button');
         bookmarkBtn.id = 'video-popup-bookmark-button';
         bookmarkBtn.className = 'navigable grid-item p-3 rounded-full glass-surface glass-surface--svg hover:bg-white/20 transition-colors';
         bookmarkBtn.innerHTML = `<i data-lucide="bookmark" class="w-6 h-6"></i>`;
         bookmarkBtn.tabIndex = 0;
-        
-        // (يجب تحديث حالة الزر هنا بناءً على favoritesD/M)
         
         bookmarkBtn.onclick = async (e) => {
              e.stopPropagation();
@@ -4826,20 +4822,22 @@ async function showVideoPopup(videoId, startOverride = null) {
     // 🛑 ربط زر التصغير (CRITICAL BINDING)
     const videoPopupMinimizeButton = document.getElementById('video-popup-minimize-button');
     if (videoPopupMinimizeButton) {
-        // نستخدم 'onclick' هنا لضمان تجاوز أي مستمع سابق وتجنب تكرار الربط
         videoPopupMinimizeButton.onclick = (e) => {
             e.stopPropagation();
-            minimizeVideoPopup(); // 👈 استدعاء وظيفة التصغير
+            minimizeVideoPopup(); 
         };
     }
 
 
     // 4. تهيئة وتشغيل مشغل يوتيوب (YT.Player)
-    if (popupPlayer) {
-        // إذا كان المشغل موجوداً، حمّل الفيديو الجديد
+    // 🛑 FIX 1: التحقق من أن المشغل موجود وبه دالة loadVideoById قبل الاستخدام
+    if (popupPlayer && typeof popupPlayer.loadVideoById === 'function') { 
+        // إذا كان المشغل موجوداً وصالحاً، حمّل الفيديو الجديد
         popupPlayer.loadVideoById({ videoId, startSeconds: start });
+        // 🛑 FIX 2: إعادة ربط مستمع السرعة عند إعادة تحميل الفيديو
+        popupPlayer.addEventListener('onPlaybackRateChange', handlePlaybackRateChange);
     } else {
-        // إذا لم يكن موجوداً، قم بإنشاء مشغل جديد
+        // 5. إذا لم يكن موجوداً أو صالحاً، قم بإنشاء مشغل جديد
         videoPopupPlayerContainer.innerHTML = '<div id="video-popup-player"></div>';
         popupPlayer = new YT.Player('video-popup-player', {
             height: '100%', width: '100%', videoId,
@@ -4851,14 +4849,16 @@ async function showVideoPopup(videoId, startOverride = null) {
             },
             events: { 
                 'onReady': (e) => e.target.playVideo(),
-                'onStateChange': onPlayerStateChange // 👈 لمعالجة PROGRESS و ENDED
+                'onStateChange': onPlayerStateChange, 
+                // 🚀 CRITICAL FIX 3: ربط المستمع الخاص بتغيير السرعة
+                'onPlaybackRateChange': handlePlaybackRateChange 
             }
         });
     }
 
-    // 5. نقل التركيز
+    // 6. نقل التركيز
     setTimeout(() => setFocus(videoPopupCloseButton), 100);
-    lucide.createIcons(); // لتحديث أي أيقونات أضيفت حديثًا
+    lucide.createIcons(); 
 }
 async function hideVideoPopup() {
             if (progressInterval) clearInterval(progressInterval);
