@@ -1,6 +1,6 @@
-
+]
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" style="zoom:90%;">
+<html lang="ar" dir="rtl" style="zoom:99%;">
 <head>
     <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#000000">
@@ -41,6 +41,35 @@
 img#dashboard-weather-icon {
     border-radius: 50px;
 }
+
+/* --- CSS لتنسيق أزرار سرعة التشغيل المنفصلة --- */
+
+#floating-minimized-video-button .rate-btn {
+    /* تنسيق مربع صغير ومدمج */
+    width: 40px !important;
+    height: 40px !important;
+    padding: 0;
+    font-size: 0.65rem; 
+    font-weight: bold;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.4); /* خلفية خاملة */
+    border: none;
+    border-radius: 6px;
+    opacity: 0.7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+/* 🚀 تنسيق الزر النشط (Active Rate Style) - CRITICAL */
+#floating-minimized-video-button .rate-btn.active-rate {
+    background-color: #FACC15 !important; /* لون أصفر ساطع */
+    color: black !important;
+    opacity: 1;
+    box-shadow: 0 0 8px rgba(250, 204, 21, 0.8); /* توهج بارز */
+}
+
 .fullscreen-toggle-button {
     /* Positioning the button inside the section, usually top right */
     position: absolute; 
@@ -69,7 +98,7 @@ img#dashboard-weather-icon {
 .home-traffic-btn {
     width: 100%;
     padding: 1rem 0;
-    font-size: 1.5rem;
+    font-size: 0.8rem;
     font-weight: bold;
     border-radius: 12px;
     transition: background-color 0.3s ease;
@@ -872,7 +901,7 @@ section#screen-Map>.w-full.h-full.bg-black2.rounded-3xl.flex.items-center.justif
 #floating-minimized-video-button {
     /* 🛑 يجب أن تظهر في الزاوية اليسرى السفلية */
     position: fixed;
-    bottom: 5rem;
+    bottom: 7rem;
     right: 5rem;
     
     /* تنسيق الكبسولة */
@@ -1773,6 +1802,22 @@ div#bottom-left-controls {
             overflow: hidden;
         }
 
+button.youtube-suggestion-button.navigable.grid-item {
+    font-size: 1rem;
+}
+
+div#youtube-surah-section {
+    min-height: 547px;
+}
+
+button.youtube-suggestion-button.navigable.grid-item {
+    height: 50px;
+}
+
+span.surah-name-text {
+    font-size: 1rem;
+}
+
 .w-full.h-full.bg-black2.rounded-3xl.flex.items-center.justify-center.p-1.overflow\:hidden {
     background: linear-gradient(45deg, black, #00000024) ;
 }
@@ -2192,11 +2237,11 @@ div#map{display:none}
     >
         
     </button>
-<iframe id="reciters-iframe"
+    <iframe id="reciters-iframe"
             class="full-iframe flex-grow"
             onclick="toggleIframeFullscreen('reciters-iframe')"  class="fullscreen-toggle-button navigable grid-item"
             title="Reciters/TV"
-            src="https://www.bein-live.com/"
+            src="https://yallalive.sx/"
             allow="geolocation; fullscreen"  allowfullscreen="true"          webkitallowfullscreen="true"    mozallowfullscreen="true">  
             <i class="fas fa-expand"></i> 
                 </iframe>
@@ -2204,20 +2249,20 @@ div#map{display:none}
     <div class="mb-4 flex flex-wrap justify-center gap-2 flex-shrink-0 grid-container" style="
     transform: scale(1.1);
 ">
-        <button data-src="https://www.bein-live.com/" class="iframe-src-button bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item active" tabindex="0">
+        <button data-src="https://yallalive.sx/" class="iframe-src-button bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item active" tabindex="0">
             مباريات
         </button>
-        <button data-src="https://tgyh.kora1goal.com/albaplayer/sports-c1/" class="iframe-src-button bg-black-600 hover:bg-black-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
+        <button data-src="https://direct.aflam4you.net/playeraf.php?vid=9311&aflam_s=1&aflam_k=ff09665543234455" class="iframe-src-button bg-black-600 hover:bg-black-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
             ثمانية 1
         </button>
          <button data-src="https://direct.aflam4you.net/zremb472.php?vid=68&aflam_s=1&aflam_w=360&aflam_h=250&aflam_k=1831551111111" class="iframe-src-button bg-purple-700 hover:bg-purple-800 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
             beIN 1
         </button>
-        <button data-src="hhttps://direct.aflam4you.net/playeraf.php?vid=2&aflam_s=1&aflam_k=345543234455" class="iframe-src-button bg-purple-700 hover:bg-purple-800 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
+        <button data-src="https://direct.aflam4you.net//zremb472.php?vid=2&aflam_s=1&aflam_w=360&aflam_h=250&aflam_k=183871551111" class="iframe-src-button bg-purple-700 hover:bg-purple-800 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
             beIN 2
         </button>
 
-        <button data-src="https://tgyh.kora1goal.com/albaplayer/sports-3/" class="iframe-src-button bg-purple-700 hover:bg-purple-800 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
+        <button data-src="https://direct.aflam4you.net/playeraf.php?vid=1&aflam_s=1&aflam_k=ff09665543234455" class="iframe-src-button bg-purple-700 hover:bg-purple-800 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
             beIN 3
         </button>
         <button data-src="https://player.mangomolo.com/v1/live?id=MTY4&channelid=MTYx&countries=Q0M=&w=100%25&h=100%25&filter=DENY&signature=3fd1e8dd84138a41bf33d93afd4a7f09&language=en&app_id=&fullscreen=yes&player_profile=&base_url=aHR0cHM6Ly9heW4ub20vbGl2ZS8xNjEvJUQ5JTgyJUQ5JTg2JUQ4JUE3JUQ4JUE5LSVEOCVCOSVEOSU4NSVEOCVBNyVEOSU4Ni0lRDklODUlRDglQTglRDglQTclRDglQjQlRDglQjE=&autoplay=true&vast=true" class="iframe-src-button bg-red-800 hover:bg-red-900 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
@@ -2226,14 +2271,14 @@ div#map{display:none}
         <button data-src="https://play.arab-stream.live/p/mbc-1-ksa.html" class="iframe-src-button bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
             MBC 1
         </button>
-        <button data-src="https://www.youtube.com/embed/Vs5yyRNUY2Q?rel=0&autoplay=1" class="iframe-src-button bg-yellow-800 hover:bg-yellow-900 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
+        <button data-src="https://direct.aflam4you.net/playeraf.php?vid=51&aflam_s=1&aflam_k=ff09665543234455" class="iframe-src-button bg-yellow-800 hover:bg-yellow-900 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
             القران الكريم
         </button>
     
-        <button data-src="https://tgyh.kora1goal.com/albaplayer/sports-c2/" class="iframe-src-button bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
+        <button data-src="https://direct.aflam4you.net/playeraf.php?vid=4834&aflam_s=1&aflam_k=ff09665543234455" class="iframe-src-button bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
             ثمانية 2
         </button>
-        <button data-src="https://tgyh.kora1goal.com/albaplayer/sports-c3/" class="iframe-src-button bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
+        <button data-src="https://direct.aflam4you.net/playeraf.php?vid=94&aflam_s=1&aflam_k=ff09665543234455" class="iframe-src-button bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
             ثمانية 3
         </button>
        
@@ -2403,7 +2448,7 @@ div#map{display:none}
     <!-- NEW: Minimized Video Button -->
    <div id="floating-minimized-video-button" class="navigable grid-item glass-surface glass-surface--svg" tabindex="0">
     
-    
+   
     
     <button id="minimized-restore-btn" title="تكبير/استعادة" class="p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors navigable grid-item">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="maximize-2" class="lucide lucide-maximize-2 w-5 h-5"><path d="M15 3h6v6"></path><path d="m21 3-7 7"></path><path d="m3 21 7-7"></path><path d="M9 21H3v-6"></path></svg> 
@@ -2417,9 +2462,11 @@ div#map{display:none}
     <button id="minimized-play-pause-btn" title="تشغيل/إيقاف" class="p-2 rounded-full bg-white/20 text-white/90 hover:bg-white/30 transition-colors navigable grid-item">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="play" class="lucide lucide-play w-5 h-5 play-icon"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"></path></svg>
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="pause" class="lucide lucide-pause w-5 h-5 pause-icon hidden"><rect x="14" y="3" width="5" height="18" rx="1"></rect><rect x="5" y="3" width="5" height="18" rx="1"></rect></svg>
-    </button><button id="minimized-playback-speed-btn" title="تغيير سرعة التشغيل" class="playback-rate-toggle-btn navigable grid-item">
-        1.0x
-    </button>
+    </button> <div id="playback-rates-group" class="flex gap-1 flex-shrink-0">
+        <button data-rate="1.0" class="rate-btn active-rate navigable grid-item" tabindex="0">1.0x</button>
+        <button data-rate="1.25" class="rate-btn navigable grid-item" tabindex="0">1.25x</button>
+        <button data-rate="1.65" class="rate-btn navigable grid-item" tabindex="0">1.65x</button>
+    </div>
 </div>
 
     <!-- NEW: Bottom Left Controls -->
@@ -6476,25 +6523,57 @@ function stopDashboardLocationTracking() {
         locationWatchId = null;
     }
 }
-        function centerMapOnUserLocation() { 
+        /**
+ * REPLACED & FINALIZED: Gets the user's current geolocation (One-Time Fetch), 
+ * centers the map, and immediately updates the traffic indicators. 
+ * CRITICAL FIX: Uses a fallback location if permission is denied.
+ */
+async function centerMapOnUserLocation() { 
     if (navigator.geolocation) { 
         navigator.geolocation.getCurrentPosition(
             // 🛑 النجاح: تم الحصول على الموقع (pos)
-            (pos) => { 
-                // استدعاء دالة تحديث الخريطة الرئيسية
+            async (pos) => { 
+                // 1. تحديث الخريطة ومتغيرات AppState (يجب أن يتم أولاً)
                 updateGoogleMapLocation(pos); 
-                showMessageBox(`تم تحديث الخريطة.`); 
+                
+                // 2. الانتظار لتحديث مؤشرات الازدحام باستخدام الموقع الجديد
+                await updateTrafficIndicators(); 
+                
+                showMessageBox(`تم تحديث الخريطة ومؤشرات الازدحام بنجاح.`); 
             }, 
             // 🛑 الفشل: خطأ في الوصول
-            (err) => {
+            async (err) => { // 👈 يجب أن تكون الدالة async للتعامل مع await
                 let msg = 'تعذر الحصول على موقعك الحالي. يرجى التحقق من الأذونات.';
+                
                 if (err.code === 1) { // PERMISSION_DENIED
-                     msg = 'تم رفض إذن تحديد الموقع. يرجى تمكينه في الإعدادات.';
+                     msg = 'تم رفض إذن تحديد الموقع. سيتم عرض موقع افتراضي.';
+                } else if (err.code === 2) {
+                     msg = 'تعذر تحديد الموقع. سيتم عرض موقع افتراضي.';
                 }
-                showGeolocationErrorOnMap(msg); 
+                
+                // 1. 🚀 FIX: تعيين موقع افتراضي يدويًا (Fallback Logic)
+                const FALLBACK_COORDS = { lat: 17.067330, lng: 54.160190 }; // HOME1_COORDS
+
+                appState.currentLocation = FALLBACK_COORDS; // تعيين الموقع الافتراضي
+                
+                // 2. تحديث الخريطة بـ الموقع الافتراضي (لضمان عمل setCenter/setHeading)
+                // يجب أن نرسل كائن 'pos' مبسط يحتوي على الإحداثيات الافتراضية للتعامل مع updateGoogleMapLocation
+                const fallbackPos = {
+                    coords: {
+                        latitude: FALLBACK_COORDS.lat, 
+                        longitude: FALLBACK_COORDS.lng, 
+                        heading: 0 // Heading افتراضي (شمال)
+                    }
+                };
+                updateGoogleMapLocation(fallbackPos);
+                
+                // 3. تحديث مؤشرات الازدحام باستخدام الموقع الافتراضي
+                await updateTrafficIndicators(); 
+
+                showMessageBox(msg); 
                 console.error("Geolocation Error Code:", err.code);
             }, 
-            { enableHighAccuracy: true }
+            { enableHighAccuracy: true } 
         ); 
     } else { 
         showGeolocationErrorOnMap('خدمة تحديد المواقع غير مدعومة في هذا المتصفح.');
@@ -7382,7 +7461,7 @@ function update3dMoonWidget() {
     const currentHour = now.getHours();
     
     // تحديد إذا كنا في فترة ليل (6 مساءً حتى 6 صباحاً)
-    const isNightTime = (currentHour >= 12 || currentHour < 6);
+    const isNightTime = (currentHour >= 9 || currentHour < 6);
 
     if (isNightTime && appState.moonData && appState.moonData.phase !== undefined) {
         // 1. الوضع الليلي (عرض البيانات الديناميكية)
@@ -7658,7 +7737,7 @@ function update3dMoonWidget() {
         function playWelcomeMessage() {
             const today = new Date();
             today.setFullYear(2025);
-            const gregorianDate = new Intl.DateTimeFormat('en-UK', {  year: 'numeric', month: 'long', day: 'numeric' }).format(today);
+            const gregorianDate = new Intl.DateTimeFormat('en-UK', { month: 'long', day: 'numeric' }).format(today);
             const hijriDate = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', { weekday: 'long'}).format(today);
 
             let welcomeText = '';
@@ -7878,8 +7957,7 @@ if (!window.hasInitializedWeatherSpeaker) {
 switchApp('Dashboard');
 updateTrafficIndicators();
 
-        // --- Initial Setup ---
-  document.addEventListener('DOMContentLoaded', () => {
+ document.addEventListener('DOMContentLoaded', () => {
     // 1. **الجلب الأولي لبيانات JSONBin (ASYNCHRONOUS)**
     Promise.all([
         fetchRecitersList(), 
@@ -7905,17 +7983,24 @@ updateTrafficIndicators();
         startFullDateUpdates();         // تحديث التاريخ (كل 100 دقيقة)
 
         // 5. تشغيل الشاشة الافتراضية، مما يبدأ المؤقتات الشرطية
-        switchApp('Dashboard');
+        switchApp('Dashboard'); 
+        
+        // 💡 تحديث الموقع مرة واحدة لضمان تهيئة الخريطة ومؤشرات الازدحام
         centerMapOnUserLocation(); 
+
+        // 💡 تحديث العرض الأولي للساعة والتذكيرات
+        updateTimerDisplay();
+        renderDailyReminders();
 
     }).catch(error => {
         console.error("Critical Initialization Failure:", error);
         showMessageBox("فشل تحميل البيانات الأساسية. يرجى التحقق من مفاتيح API واتصال الإنترنت.");
     });
 
+
     // 6. **تفعيل المستمعات والأزرار (Listeners & Button Bindings)**
     
-    // مراجع الأزرار الأساسية (يجب أن تكون معرفة عالمياً في مكان آخر)
+    // مراجع الأزرار الأساسية
     const getMyLocationButtonDashboard = document.getElementById('get-my-location-button-dashboard');
     const goToHome1Button = document.getElementById('go-to-home-1-button');
     const goToHome2Button = document.getElementById('go-to-home-2-button');
@@ -7923,18 +8008,18 @@ updateTrafficIndicators();
     const minimizedPlayPauseBtn = document.getElementById('minimized-play-pause-btn');
     const videoPopupMinimizeButton = document.getElementById('video-popup-minimize-button');
     const floatingMinimizedVideoButton = document.getElementById('floating-minimized-video-button');
-    const minimizedPlaybackSpeedBtn = document.getElementById('minimized-playback-speed-btn'); // الزر الدائري للسرعة
+    const minimizedPlaybackSpeedBtn = document.getElementById('minimized-playback-speed-btn'); 
 
     // المستمعات القياسية
     getMyLocationButtonDashboard?.addEventListener('click', centerMapOnUserLocation);
     floatingMediaButton?.addEventListener('click', () => switchApp('Media'));
 
-    // 🛑 ربط أزرار الموقع الجديدة (لتعيين Marker والبدء)
+    // 🛑 ربط أزرار الموقع الجديدة (لتعيين Marker وعرض الازدحام)
     goToHome1Button?.addEventListener('click', () => {
-        displayLocationMarker(HOME1_COORDS, 'المنزل 1'); 
+        displayLocationMarker(HOME1_COORDS, 'إشارات ق'); 
     });
     goToHome2Button?.addEventListener('click', () => {
-        displayLocationMarker(HOME2_COORDS, 'المنزل 2');
+        displayLocationMarker(HOME2_COORDS, 'تقاطع ش');
     });
 
     // 🛑 ربط أزرار التحكم في الكبسولة (Minimize/Restore Logic)
@@ -7950,7 +8035,7 @@ updateTrafficIndicators();
     // Listener زر التشغيل/الإيقاف المؤقت داخل الكبسولة (يمنع الاستعادة)
     minimizedPlayPauseBtn?.addEventListener('click', (e) => {
         e.stopPropagation(); 
-        if (popupPlayer) {
+        if (popupPlayer && typeof popupPlayer.getPlayerState === 'function') {
             const playerState = popupPlayer.getPlayerState();
             if (playerState === YT.PlayerState.PLAYING) {
                 popupPlayer.pauseVideo();
@@ -7960,22 +8045,19 @@ updateTrafficIndicators();
         }
     });
 
-    // Listener زر تبديل السرعة في الكبسولة (يمنع الاستعادة)
-    minimizedPlaybackSpeedBtn?.addEventListener('click', (e) => {
-        e.stopPropagation(); 
-        togglePlaybackRate();
+    // 🚀 ربط أزرار السرعة المنفصلة (يتم استخدام data-rate في HTML)
+    document.querySelectorAll('#playback-rates-group .rate-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation(); // منع الاستعادة
+            const rateValue = e.currentTarget.dataset.rate; // 1.0, 1.25, 1.65
+            setSpecificPlaybackRate(rateValue); 
+        });
     });
 
     // 7. **المؤقتات والإجراءات المتأخرة**
     setTimeout(playWelcomeMessage, 1500); 
 
-    // 💡 نُضيف هذه الاستدعاءات لضمان التحديث الأولي للمرة الأولى (قبل أن تبدأ switchApp)
-    updateTimerDisplay();
-    renderDailyReminders();
-    
-    // 8. المستمعات الإضافية (منطقك الأصلي)
-    // ... (بقية ربط الأحداث العامة: backToSearchFloatingButton, clearSearchButton, الخ)
-    
+    // ... (بقية المستمعات العامة: zoom, keyboard, etc.) ...
 });
 
 
