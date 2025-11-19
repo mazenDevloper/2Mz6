@@ -2504,7 +2504,7 @@ div#map{display:none}
 
     <script>
 // 💡 يجب أن تكون هذه المصفوفة مُعرَّفة عالمياً في بداية الكود
-const PLAYBACK_RATES = [1.0, 1.25, 1.5, 2.0]; // يمكنك استخدام 1.65 بدلاً من 2.0 إذا أردت
+const PLAYBACK_RATES = [1.0, 1.25, 1.5, 1.65]; // يمكنك استخدام 1.65 بدلاً من 2.0 إذا أردت
 
 /**
  * FINAL: Sets the playback rate to a specific value based on the selected rate.
@@ -4997,17 +4997,28 @@ function restoreVideoPopup() {
  * FINALIZED: Updates the state (Play/Pause Icon and Speed Text) of the minimized capsule.
  * Reads the current playback rate from the YT Player and updates the interactive button text.
  */
+/**
+ * FINALIZED: Updates the state (Play/Pause Icon, Speed Buttons, and Select List) 
+ * of the minimized capsule and the main popup's controls.
+ */
 function updateMinimizedControlsState() {
-    // 🛑 مراجع العناصر الجديدة (يجب جلبها داخل الدالة لضمان التحديث)
+    // 🛑 1. التحقق من وجود المشغل وتهيئته
+    if (!popupPlayer || typeof popupPlayer.getPlayerState !== 'function') return;
+
+    // 2. جلب المراجع الحالية للعناصر
     const minimizedPlayPauseBtn = document.getElementById('minimized-play-pause-btn');
-    const minimizedPlaybackSpeedBtn = document.getElementById('minimized-playback-speed-btn'); // 👈 الزر الدائري الجديد
-    
-    if (!popupPlayer || !minimizedPlayPauseBtn || !minimizedPlaybackSpeedBtn) return;
-    
+    const minimizedPlaybackSpeedBtn = document.getElementById('minimized-playback-speed-btn');
+    const playbackSelect = document.getElementById('playback-rate-select');
+    const rateButtons = document.querySelectorAll('#playback-rates-group .rate-btn');
+
+    if (!minimizedPlayPauseBtn || !minimizedPlaybackSpeedBtn) return; // التحقق من العناصر الأساسية
+
+    const currentRate = popupPlayer.getPlaybackRate();
+    const currentRateFixed = parseFloat(currentRate.toFixed(2)); // السرعة الحالية للدقة
     const playerState = popupPlayer.getPlayerState();
     const isPlaying = (playerState === YT.PlayerState.PLAYING);
-
-    // 1. تحديث أيقونة التشغيل/الإيقاف
+    
+    // --- تحديث أيقونات التشغيل/الإيقاف (Play/Pause Icons) ---
     const playIcon = minimizedPlayPauseBtn.querySelector('.play-icon');
     const pauseIcon = minimizedPlayPauseBtn.querySelector('.pause-icon');
     
@@ -5016,17 +5027,28 @@ function updateMinimizedControlsState() {
         pauseIcon.classList.toggle('hidden', !isPlaying);
     }
     
-    // 2. تحديث سرعة التشغيل (CRITICAL FIX)
-    const currentSpeed = popupPlayer.getPlaybackRate();
+    // --- تحديث أزرار السرعة المنفصلة (1.0x, 1.25x, etc.) ---
+    rateButtons.forEach(btn => {
+        // الخطوة 1: إزالة الفئة النشطة من جميع الأزرار
+        btn.classList.remove('active-rate');
+        
+        const btnRate = parseFloat(btn.dataset.rate);
+        
+        // الخطوة 2: تطبيق الفئة النشطة على الزر الذي يطابق السرعة
+        if (btnRate === currentRateFixed) { 
+            btn.classList.add('active-rate');
+        }
+    });
+
+    // --- تحديث مؤشر السرعة في الكبسولة وقائمة التحديد (Select List) ---
     
-    // 🛑 تحديث نص الزر الدائري الجديد
-    minimizedPlaybackSpeedBtn.textContent = `${currentSpeed.toFixed(2)}x`; // 👈 تم التغيير إلى toFixed(2)
+    // تحديث نص زر السرعة الدائري (minimizedPlaybackSpeedBtn)
+    minimizedPlaybackSpeedBtn.textContent = `${currentRate.toFixed(2)}x`; 
     
-    // 3. تحديث قائمة السرعة المنسدلة في المشغل الكبير (للتزامن)
-    const playbackSelect = document.getElementById('playback-rate-select');
+    // تحديث قائمة السرعة المنسدلة (للتزامن)
     if (playbackSelect) {
          // نستخدم toFixed(1) للتطابق مع خيارات القائمة المنسدلة
-         playbackSelect.value = currentSpeed.toFixed(1).toString(); 
+         playbackSelect.value = currentRate.toFixed(1).toString(); 
     }
 }
 
