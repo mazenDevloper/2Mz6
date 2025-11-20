@@ -1,4 +1,3 @@
-]
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" style="zoom:99%;">
 <head>
@@ -1543,6 +1542,77 @@ div#youtube-readers-section {
 @media (max-width: 768px) {
     /* ... (بقية الأكواد الخاصة بالهواتف المحمولة) ... */
 
+button.youtube-suggestion-button {
+    font-size: 1rem;
+}
+
+.youtube-suggestion-button {
+            color: white;
+            padding: 0.25rem 0.75rem; /* Zoomed out padding */
+            border-radius: 9999px;
+            font-size: 0.75rem; /* Zoomed out font */
+            font-weight: bold;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            /* NEW: Switched to inline-flex for variable width */
+            display: inline-flex;
+            width: auto;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden; /* Keep overflow hidden on the button itself */
+        }
+        .youtube-suggestion-button:hover {
+            transform: translateY(-1px) scale(1.02);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .youtube-suggestion-button:active {
+            transform: translateY(0);
+        }
+        
+        /* NEW: Style for the Surah name text to handle long names */
+        .surah-name-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: right; /* Align text to the right for RTL */
+        }
+
+        /* NEW: Badge for Juz number */
+        .youtube-suggestion-button .juz-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 9999px;
+            background-color: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+            flex-shrink: 0; /* Prevent badge from shrinking */
+            line-height: 1;
+            position: relative; /* Allow z-index */
+            z-index: 2; /* Ensure it's on top */
+        }
+
+button.youtube-suggestion-button.navigable.grid-item {
+    font-size: 1rem;
+}
+
+div#youtube-surah-section {
+    min-height: 547px;
+}
+
+button.youtube-suggestion-button.navigable.grid-item {
+    height: 50px;
+}
+
+span.surah-name-text {
+    font-size: 1rem;
+}
+
     /* 🛑 إخفاء أيقونات التطبيقات غير الضرورية في وضع الموبايل */
     button[data-app="Map"] {
         display: none !important; /* إخفاء أيقونة Map/3D Car (تمت إعادة تسميتها) */
@@ -1563,6 +1633,63 @@ div#youtube-readers-section {
 
         /* NEW: Responsive padding toggle */
         @media (min-width: 768px) {
+
+
+            button.youtube-suggestion-button {
+    font-size: 1rem;
+}
+
+.youtube-suggestion-button {
+            color: white;
+            padding: 0.25rem 0.75rem; /* Zoomed out padding */
+            border-radius: 9999px;
+            font-size: 0.75rem; /* Zoomed out font */
+            font-weight: bold;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            /* NEW: Switched to inline-flex for variable width */
+            display: inline-flex;
+            width: auto;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden; /* Keep overflow hidden on the button itself */
+        }
+        .youtube-suggestion-button:hover {
+            transform: translateY(-1px) scale(1.02);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .youtube-suggestion-button:active {
+            transform: translateY(0);
+        }
+        
+        /* NEW: Style for the Surah name text to handle long names */
+        .surah-name-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: right; /* Align text to the right for RTL */
+        }
+
+        /* NEW: Badge for Juz number */
+        .youtube-suggestion-button .juz-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 9999px;
+            background-color: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+            flex-shrink: 0; /* Prevent badge from shrinking */
+            line-height: 1;
+            position: relative; /* Allow z-index */
+            z-index: 2; /* Ensure it's on top */
+        }
+
             body.small-padding .md\:p-6 {
                 padding: 1.5rem !important;
             }
@@ -2466,7 +2593,7 @@ div#map{display:none}
         <i data-lucide="pause" class="w-5 h-5 pause-icon hidden"></i>
     </button>
       <div id="playback-rates-group" class="flex gap-1 flex-shrink-0">
-        <button data-rate="1.0" class="rate-btn active-rate navigable grid-item" tabindex="0">1.0x</button>
+        <button data-rate="1.0" class="rate-btn  navigable grid-item" tabindex="0">1.0x</button>
         <button data-rate="1.25" class="rate-btn navigable grid-item" tabindex="0">1.25x</button>
         <button data-rate="1.65" class="rate-btn navigable grid-item" tabindex="0">1.65x</button>
     </div>
@@ -5001,24 +5128,45 @@ function restoreVideoPopup() {
  * FINALIZED: Updates the state (Play/Pause Icon, Speed Buttons, and Select List) 
  * of the minimized capsule and the main popup's controls.
  */
+/**
+ * FINALIZED: Updates the state (Play/Pause Icon, Speed Buttons, and Select List) 
+ * of the minimized capsule and the main popup's controls.
+ */
+/**
+ * FINALIZED: Reads the current playback rate from the YT Player and updates the interactive button text 
+ * (minimizedPlaybackSpeedBtn) and the main Select list.
+ */
 function updateMinimizedControlsState() {
     // 🛑 1. التحقق من وجود المشغل وتهيئته
-    if (!popupPlayer || typeof popupPlayer.getPlayerState !== 'function') return;
+    if (!popupPlayer || typeof popupPlayer.getPlayerState !== 'function') return; 
 
     // 2. جلب المراجع الحالية للعناصر
     const minimizedPlayPauseBtn = document.getElementById('minimized-play-pause-btn');
-    const minimizedPlaybackSpeedBtn = document.getElementById('minimized-playback-speed-btn');
-    const playbackSelect = document.getElementById('playback-rate-select');
-    const rateButtons = document.querySelectorAll('#playback-rates-group .rate-btn');
-
-    if (!minimizedPlayPauseBtn || !minimizedPlaybackSpeedBtn) return; // التحقق من العناصر الأساسية
+    const rateButtons = document.querySelectorAll('#playback-rates-group .rate-btn'); 
+    
+    if (!minimizedPlayPauseBtn || rateButtons.length === 0) return;
 
     const currentRate = popupPlayer.getPlaybackRate();
-    const currentRateFixed = parseFloat(currentRate.toFixed(2)); // السرعة الحالية للدقة
+    // 💡 نستخدم toFixed(2) لضمان الدقة في الفاصلة العائمة والمقارنة
+    const currentRateFixed = parseFloat(currentRate.toFixed(2));
+    
     const playerState = popupPlayer.getPlayerState();
     const isPlaying = (playerState === YT.PlayerState.PLAYING);
-    
-    // --- تحديث أيقونات التشغيل/الإيقاف (Play/Pause Icons) ---
+
+    // --- 3. تطبيق التلوين (CRITICAL FIX) ---
+    rateButtons.forEach(btn => {
+        // الخطوة 1: إزالة الفئة النشطة من جميع الأزرار في كل تحديث
+        btn.classList.remove('active-rate');
+        
+        // 💡 استخدام التحقق الدقيق من القيمة النصية للزر
+        const btnRateString = parseFloat(btn.dataset.rate).toFixed(2);
+        
+        if (btnRateString === currentRateFixed.toFixed(2)) { // المقارنة بين النصوص الموحدة
+            btn.classList.add('active-rate');
+        }
+    });
+
+    // --- 4. تحديث أيقونات التشغيل/الإيقاف (Play/Pause Icons) ---
     const playIcon = minimizedPlayPauseBtn.querySelector('.play-icon');
     const pauseIcon = minimizedPlayPauseBtn.querySelector('.pause-icon');
     
@@ -5027,27 +5175,9 @@ function updateMinimizedControlsState() {
         pauseIcon.classList.toggle('hidden', !isPlaying);
     }
     
-    // --- تحديث أزرار السرعة المنفصلة (1.0x, 1.25x, etc.) ---
-    rateButtons.forEach(btn => {
-        // الخطوة 1: إزالة الفئة النشطة من جميع الأزرار
-        btn.classList.remove('active-rate');
-        
-        const btnRate = parseFloat(btn.dataset.rate);
-        
-        // الخطوة 2: تطبيق الفئة النشطة على الزر الذي يطابق السرعة
-        if (btnRate === currentRateFixed) { 
-            btn.classList.add('active-rate');
-        }
-    });
-
-    // --- تحديث مؤشر السرعة في الكبسولة وقائمة التحديد (Select List) ---
-    
-    // تحديث نص زر السرعة الدائري (minimizedPlaybackSpeedBtn)
-    minimizedPlaybackSpeedBtn.textContent = `${currentRate.toFixed(2)}x`; 
-    
-    // تحديث قائمة السرعة المنسدلة (للتزامن)
+    // --- 5. تحديث قائمة السرعة المنسدلة في المشغل الكبير (للتزامن) ---
+    const playbackSelect = document.getElementById('playback-rate-select');
     if (playbackSelect) {
-         // نستخدم toFixed(1) للتطابق مع خيارات القائمة المنسدلة
          playbackSelect.value = currentRate.toFixed(1).toString(); 
     }
 }
