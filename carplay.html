@@ -2800,7 +2800,8 @@ function switchApp(appName) {
     if (appName === 'Dashboard') {
         startClockAndTimer();       // 1s (الساعة والعداد التنازلي)
         startWeatherUpdates();      // الطقس (جلب كل 5 دقائق)
-        startDashboardLocationTracking(); // تتبع الموقع للـ Heading وتحديث الخريطة
+        startDashboardLocationTracking();
+        updateTimerDisplay(); // تتبع الموقع للـ Heading وتحديث الخريطة
 
         // 🚀 FIX: تطبيق التدوير والمركز فوراً عند فتح الشاشة
         // نستخدم setTimeout(0) لضمان أن الـ DOM أصبح مرئياً قبل تطبيق setHeading
