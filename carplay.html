@@ -914,7 +914,7 @@ section#screen-Map>.w-full.h-full.bg-black2.rounded-3xl.flex.items-center.justif
     display: flex; /* 👈 ضروري لترتيب العناصر أفقياً */
     align-items: center;
     gap: 0.5rem;
-    width: 35%; /* عرض ثابت للكبسولة */
+    width: 44%; /* عرض ثابت للكبسولة */
     height: 60px; /* ارتفاع ثابت */
     padding: 0.5rem;
     
@@ -2633,6 +2633,41 @@ div#map{display:none}
     </div>
 
     <script>
+
+/**
+ * Executes Text-to-Speech (TTS) for the specified message using an Arabic voice.
+ * (Requires window.speechSynthesis to be available)
+ *
+ * @param {string} message - The message to be spoken.
+ */
+function playSpeechAnnouncement(message) {
+    if (!('speechSynthesis' in window) || !message) {
+        console.warn("TTS not supported or message is empty.");
+        return;
+    }
+
+    const utterance = new SpeechSynthesisUtterance(message);
+    const voices = window.speechSynthesis.getVoices();
+    
+    // محاولة العثور على صوت عربي ذكر (لجودة أفضل)
+    let arabicVoice = voices.find(voice => voice.lang.startsWith('ar') && (voice.name.includes('male') || voice.name.includes('Arabic')));
+    
+    if (arabicVoice) {
+        utterance.voice = arabicVoice;
+    } else {
+        arabicVoice = voices.find(voice => voice.lang.startsWith('ar'));
+        if (arabicVoice) utterance.voice = arabicVoice;
+    }
+    
+    utterance.lang = 'ar-SA';
+    utterance.rate = 1.0; 
+    
+    window.speechSynthesis.speak(utterance);
+}
+
+
+
+
 // 💡 يجب أن تكون هذه المصفوفة مُعرَّفة عالمياً في بداية الكود
 const PLAYBACK_RATES = [1.0, 1.25, 1.5, 1.65]; // يمكنك استخدام 1.65 بدلاً من 2.0 إذا أردت
 
@@ -7433,22 +7468,21 @@ function timeToDate(time) {
 // --- MODIFIED determineNextPrayer function (FINAL Time Context FIX) ---
 // -------------------------------------------------------------
 function determineNextPrayer() {
-    // الوقت الحالي الفعلي
     const now = new Date();
     const todayTimings = appState.prayerTimes;
     if (!todayTimings.Fajr || todayTimings.Fajr === '--:--') return;
 
     // 1. Define constants
-    const PRAYER_OFFSETS = { Fajr: 25, Dhuhr: 20, Asr: 20, Maghrib: 5, Isha: 15 }; // تم تعديل Isha graceEnd إلى 15 (افتراضي)
+    const PRAYER_OFFSETS = { Fajr: 25, Dhuhr: 20, Asr: 20, Maghrib: 5, Isha: 15 };
     const PRAYER_GRACE = { Fajr: 5, Dhuhr: 15, Asr: 20, Maghrib: 20, Isha: 15 };
     const PRAYER_NAMES = { Fajr: 'الفجر', Dhuhr: 'الظهر', Asr: 'العصر', Maghrib: 'المغرب', Isha: 'العشاء' };
     const ORDER = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+    const FIVE_MINUTES = 5 * 60 * 1000;
 
     let prayerEvents = [];
     
     // 2. Populate Events for TODAY
     ORDER.forEach(key => {
-        // pTime يحمل تاريخ اليوم الفعلي وتوقيت الصلاة
         const pTime = timeToDate(todayTimings[key]);
         const iqamaTime = new Date(pTime.getTime() + PRAYER_OFFSETS[key] * 60000);
         const graceEnd = new Date(iqamaTime.getTime() + PRAYER_GRACE[key] * 60000);
@@ -7461,9 +7495,9 @@ function determineNextPrayer() {
         });
     });
 
-    // 3. Prepare Tomorrow's Fajr (Set to tomorrow's date based on current system time)
+    // 3. Prepare Tomorrow's Fajr (and Iqama)
     const fajrTomorrow = timeToDate(todayTimings.Fajr);
-    fajrTomorrow.setDate(fajrTomorrow.getDate() + 1); // التقدم ليوم واحد
+    fajrTomorrow.setDate(fajrTomorrow.getDate() + 1);
     
     prayerEvents.push({
         name: 'الفجر (غدًا)', azan: fajrTomorrow,
@@ -7478,47 +7512,57 @@ function determineNextPrayer() {
     let nextEvent = null;
     let currentEvent = null;
     
-    // Find CURRENT (Iterate backwards to find the latest active prayer)
     for (let i = prayerEvents.length - 1; i >= 0; i--) {
         const event = prayerEvents[i];
         if (now >= event.azan && now < event.graceEnd) {
-             currentEvent = event;
-             break;
+              currentEvent = event;
+              break;
         }
     }
-
-    // Find NEXT (First event whose Azan time is in the future)
     nextEvent = prayerEvents.find(event => event.azan > now);
 
     
     // 5. Set Final Application State
-    
     if (currentEvent) {
         appState.prayerTimes.currentPrayer = currentEvent.name.replace(' (غدًا)', '');
         appState.prayerTimes.currentPrayerIqamaTime = currentEvent.iqama;
 
         if (now < currentEvent.iqama) {
-            // Case 1: Counting down TO Iqama 
             appState.prayerTimes.nextPrayer = appState.prayerTimes.currentPrayer;
             appState.prayerTimes.nextPrayerIqamaTime = currentEvent.iqama;
         } else if (nextEvent) {
-            // Case 2: Iqama passed, waiting for the NEXT AZAN
             appState.prayerTimes.nextPrayer = nextEvent.name;
             appState.prayerTimes.nextPrayerIqamaTime = nextEvent.azan;
         }
     } else if (nextEvent) {
-        // Case 3: Outside any prayer window, waiting for the NEXT AZAN (Should be Asr/Maghrib)
         appState.prayerTimes.nextPrayer = nextEvent.name;
         appState.prayerTimes.nextPrayerIqamaTime = nextEvent.azan;
     } else {
-        // Fallback: This means we are past tomorrow's Fajr (Shouldn't happen with the list logic)
         appState.prayerTimes.nextPrayer = "الفجر (غدًا)";
         appState.prayerTimes.nextPrayerIqamaTime = fajrTomorrow;
+    }
+
+    // 🚀 CRITICAL FIX: تنبيه صوتي قبل 5 دقائق من وقت الإقامة
+    if (nextEvent && nextEvent.iqama) {
+        const diffToIqama = nextEvent.iqama.getTime() - now.getTime();
+        
+        // 🛑 إذا كان الوقت بين 0 و 5 دقائق (300,000 مللي ثانية)
+        if (diffToIqama > 0 && diffToIqama <= FIVE_MINUTES) {
+            const nextPrayerName = nextEvent.name.replace(' (غدًا)', '');
+            const alertKey = `iqama_alert_${nextPrayerName}_${nextEvent.iqama.getHours()}`;
+            
+            // نستخدم localStorage لتتبع التنبيه وإطلاقه مرة واحدة فقط
+            if (localStorage.getItem(alertKey) !== 'sent') {
+                playSpeechAnnouncement(`تنبيه: تبقى أقل من خمس دقائق على إقامة صلاة ${nextPrayerName}.`);
+                localStorage.setItem(alertKey, 'sent');
+            }
+        }
     }
     
     // 6. Render Updates
     renderPrayerTimesHighlights();
 }
+
        function renderPrayerTimesHighlights() { if (!prayerTimesContainer) return; document.querySelectorAll('.prayer-time-item').forEach(i => i.classList.remove('current-prayer', 'next-prayer')); if (appState.prayerTimes.currentPrayer) { const item = Array.from(prayerTimesContainer.querySelectorAll('.prayer-name')).find(s => s.textContent === appState.prayerTimes.currentPrayer)?.parentElement; if (item) item.classList.add('current-prayer'); } if (appState.prayerTimes.nextPrayer && appState.prayerTimes.nextPrayer !== appState.prayerTimes.currentPrayer) { const nextPrayerName = appState.prayerTimes.nextPrayer.replace(' (غدًا)', ''); const item = Array.from(prayerTimesContainer.querySelectorAll('.prayer-name')).find(s => s.textContent === nextPrayerName)?.parentElement; if (item && !item.classList.contains('current-prayer')) item.classList.add('next-prayer'); } }
         
         // --- Digital Clock ---
@@ -8216,7 +8260,20 @@ updateTrafficIndicators();
     const floatingMinimizedVideoButton = document.getElementById('floating-minimized-video-button');
     const minimizedPlaybackSpeedBtn = document.getElementById('minimized-playback-speed-btn'); 
 
-    // المستمعات القياسية
+
+const todayDate = new Date().toLocaleDateString('en-US');
+const lastReset = localStorage.getItem('lastPrayerAlertReset');
+
+if (lastReset !== todayDate) {
+    // إذا تغير اليوم، قم بمسح جميع تنبيهات الصلاة من التخزين المحلي
+    for (const key in localStorage) {
+        if (key.startsWith('iqama_alert_')) {
+            localStorage.removeItem(key);
+        }
+    }
+    localStorage.setItem('lastPrayerAlertReset', todayDate);
+}
+
     getMyLocationButtonDashboard?.addEventListener('click', centerMapOnUserLocation);
     floatingMediaButton?.addEventListener('click', () => switchApp('Media'));
 
