@@ -41,9 +41,76 @@ img#dashboard-weather-icon {
     border-radius: 50px;
 }
 
-/* --- CSS لتنسيق أزرار سرعة التشغيل المنفصلة --- */
+div#favorites-popup-grid {
+    display: grid;
+    /* تحديد عمودين متساويين الحجم (2xN) */
+    grid-template-columns: repeat(2, 1fr); 
+    /* السماح للصفوف بالتمدد تلقائيًا */
+    grid-auto-rows: minmax(min-content, 1fr); 
+    gap: 1rem; 
+    
+    /* 🚀 التمرير الرأسي (CRITICAL) */
+    overflow-y: auto; 
+    overflow-x: hidden; 
+    
+    /* يجب تحديد ارتفاع للحاوية (في HTML أو CSS) لكي يعمل التمرير */
+    /* إذا كانت الحاوية الأب لا تمتلك ارتفاعًا ثابتاً، قد تحتاج لتعيين height: 100% هنا. */
+}
 
-/* --- CSS لتنسيق أزرار سرعة التشغيل المنفصلة --- */
+/* 1. تنسيق البطاقة (تعتمد على تنسيقاتك الخاصة، ولكن هذا يضمن ملء الشبكة) */
+.favorites-popup-card {
+    position: relative;
+    width: 100%;
+    height: auto; /* يجب أن يكون مرناً ليسمح بالتكرار الرأسي */
+    cursor: pointer;
+    overflow: hidden;
+    z-index: 5;
+    /* ... (بقية تنسيق البطاقة) ... */
+}
+
+/* 2. الأيقونة/الصورة */
+.favorites-popup-card .thumbnail-container {
+    width: 100%;
+    /* 💡 استخدام نسبة أبعاد (مثلاً 16:9) لضمان اتساق الصور */
+    aspect-ratio: 16 / 9; 
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* 🚀 3. غطاء العنوان المثبت مع التدرج اللوني */
+.favorites-popup-card .title-overlay {
+    /* 🛑 FIX: تطبيق التدرج الأسود الشفاف من الأسفل */
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%);
+    
+    /* تثبيت العنوان في الأسفل */
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.75rem 0.5rem;
+    color: white;
+    
+    /* 🛑 FIX: ضمان مرور النقر لتشغيل الفيديو */
+    pointer-events: none; 
+    z-index: 10; 
+}
+
+/* 4. تنسيق النص الداخلي */
+.favorites-popup-card .title-overlay h4 {
+    font-weight: bold;
+    font-size: 1rem; 
+}
+.favorites-popup-card .title-overlay p {
+    font-size: 0.8rem; 
+}
+
+/* 5. زر الإزالة (جعله قابلاً للنقر فوق الغطاء) */
+.favorites-popup-card .remove-favorite-button {
+    z-index: 11; 
+    pointer-events: all; /* 🛑 هام: لجعل زر الحذف هو الوحيد القابل للنقر */
+}
+
 
 #floating-minimized-video-button {
     width: 320px; /* زيادة العرض لاستيعاب 3 أزرار */
@@ -5262,47 +5329,41 @@ function updateMinimizedControlsState() {
     updateMinimizedControlsState();
 }
 
+
+
+/**
+ * Creates a single HTML card for a related video suggestion inside the popup player.
+ * * @param {object} video - Detailed video object from YouTube API fetch.
+ * @param {object} channelThumbnails - Map of channel IDs to their thumbnail URLs.
+ * @returns {HTMLElement} The complete suggestion card DIV element.
+ */
+
+
+
+/**
+ * Helper function to create a simplified card for display inside the popup.
+ */
 function createSimpleSuggestionCard(video, type) {
     const card = document.createElement('div');
-    // 💡 إضافة فئة جديدة للشبكة 2x2 والتصميم
-    card.className = 'favorites-popup-card navigable grid-item'; 
+    card.className = 'simple-suggestion-card flex items-center gap-3 p-2 rounded-lg bg-white/10 cursor-pointer navigable grid-item';
     card.tabIndex = 0;
     card.dataset.videoId = video.id;
-    card.dataset.progress = video.progress; 
+    card.dataset.progress = video.progress; // لتمرير تقدم المشاهدة
 
-    // 🛑 الهيكل الجديد: الصورة والعنوان مُدمجان
     card.innerHTML = `
-        <div class="thumbnail-container relative overflow-hidden rounded-xl">
-            <img src="${video.thumbnail}" alt="${video.title}" class="card-thumbnail w-full h-full object-cover" onerror="this.onerror=null;this.src='https://placehold.co/180x101';">
-            
-            <div class="title-overlay absolute bottom-0 left-0 right-0 p-2">
-                <h4 class="font-bold text-sm text-white">${video.title}</h4>
-                <p class="text-xs text-white/70">${video.channelTitle || 'غير معروف'}</p>
-            </div>
-            
-            <button class="remove-favorite-button absolute top-2 right-2 p-1 rounded-full bg-red-600/80 hover:bg-red-500 z-10" title="إزالة من المفضلة" data-video-id="${video.id}">
-                <i data-lucide="trash-2" class="w-4 h-4 text-white"></i>
-            </button>
+        <img src="${video.thumbnail}" class="w-12 h-auto rounded-md flex-shrink-0" onerror="this.onerror=null;this.src='https://placehold.co/64x36';">
+        <div class="min-w-0 flex-grow">
+            <h4 class="font-semibold text-sm truncate text-white">${video.title}</h4>
+            <p class="text-xs text-white/70">${video.channelTitle || ''}</p>
         </div>
+        <span class="text-xs text-white/50 flex-shrink-0">${video.duration || '--:--'}</span>
     `;
-
-    // ربط الحدث (النقر لتشغيل الفيديو)
-    card.addEventListener('click', (e) => {
-        if (e.target.closest('.remove-favorite-button')) return; // تجاهل النقر إذا كان على زر الحذف
-        showVideoPopup(video.id, parseFloat(video.progress || 0));
-    });
-    
-    // ربط حدث الإزالة (Remove)
-    card.querySelector('.remove-favorite-button').addEventListener('click', (e) => {
-        e.stopPropagation();
-        removeVideoFromFavorites(video.id, type);
-    });
-
-    lucide.createIcons();
     return card;
 }
 
-
+/**
+ * Executes after a video ends to show the default destination list (Favorites D).
+ */
 async function showFavoritesInPopup(type) {
     const container = videoPopupPlayerContainer;
     // تحديد القائمة المطلوبة بناءً على 'D' أو 'M'
