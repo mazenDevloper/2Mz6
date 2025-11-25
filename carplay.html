@@ -35,15 +35,72 @@
         /* NEW: Import Amiri font for Thuluth-like style */
         @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
 
-/* --- START: Last Watched & History Styles --- */
-/* --- START: Fullscreen Toggle Button Styles --- */
 img#dashboard-weather-icon {
     border-radius: 50px;
 }
 
-/* --- CSS لتنسيق أزرار سرعة التشغيل المنفصلة --- */
+/* --- CSS Required for Favorites Popup Grid --- */
 
-/* --- CSS لتنسيق أزرار سرعة التشغيل المنفصلة --- */
+/* 1. تنسيق حاوية الشبكة 2x2 (CRITICAL) */
+div#favorites-popup-grid {
+    display: grid;
+    /* 💡 إنشاء شبكة بعمودين وصفين مع تباعد 1rem */
+    grid-template-columns: repeat(2, 1fr); 
+    grid-template-rows: repeat(2, 1fr); 
+    gap: 1rem; 
+    height: 100%;
+    overflow-y: scroll; /* للسماح بالتمرير إذا تجاوزت 4 عناصر */
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+/* 2. تنسيق بطاقة العنصر */
+.favorites-popup-card {
+    /* تجعل البطاقة ممتلئة داخل خلية الشبكة */
+    width: 100%;
+    height: 100%;
+    background-color: transparent !important;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative; /* هام لترتيب Z-index */
+}
+
+/* 3. تنسيق حاوية الصورة والتدرج اللوني */
+.favorites-popup-card .thumbnail-container {
+    height: 100%; 
+    position: relative;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+}
+
+/* 🚀 4. التدرج اللوني والتثبيت في الأسفل */
+.favorites-popup-card .title-overlay {
+    /* 🛑 FIX: تطبيق التدرج الأسود الشفاف */
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 30%, rgba(0, 0, 0, 0) 100%);
+    
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.75rem 0.5rem;
+    pointer-events: none; /* للسماح بالنقر على العنصر الأب */
+    color: white;
+}
+
+/* 5. FIX: جعل العنوان بارزاً */
+.favorites-popup-card .title-overlay h4 {
+    font-weight: bold;
+    font-size: 0.8rem; 
+    line-height: 1.2;
+    margin-bottom: 0.2rem;
+}
+
+.title-overlay.absolute.bottom-0.left-0.right-0.p-2>p.text-xs.text-white\/70 {
+    display: none;
+}
+
+
 
 #floating-minimized-video-button {
     width: 320px; /* زيادة العرض لاستيعاب 3 أزرار */
@@ -5276,7 +5333,7 @@ function createSimpleSuggestionCard(video, type) {
             
             <div class="title-overlay absolute bottom-0 left-0 right-0 p-2">
                 <h4 class="font-bold text-sm text-white">${video.title}</h4>
-                <p class="text-xs text-white/70">${video.channelTitle || 'غير معروف'}</p>
+                
             </div>
             
             <button class="remove-favorite-button absolute top-2 right-2 p-1 rounded-full bg-red-600/80 hover:bg-red-500 z-10" title="إزالة من المفضلة" data-video-id="${video.id}">
@@ -5299,25 +5356,26 @@ function createSimpleSuggestionCard(video, type) {
     lucide.createIcons();
     return card;
 }
-
 async function showFavoritesInPopup(type) {
     const container = videoPopupPlayerContainer;
     // تحديد القائمة المطلوبة بناءً على 'D' أو 'M'
     let favoritesList = (type === 'D' ? favoritesD : favoritesM);
-    const listName = (type === 'D' ? 'قائمة المتابعة في السيارة' : 'قائمة المتابعة في التلفاز');
+    const listName = (type === 'D' ? 'قائمة متابعة السيارة' : 'قائمة متابعة التلفاز');
 
     // 1. عرض شاشة تحميل و التأكد من ظهور النافذة
-    container.innerHTML = `<div class="p-8 text-center">
-                              <p>جاري تحميل...</p>
+    container.innerHTML = `<div class="p-8 text-center text-white/70">
+                                <i data-lucide="loader-2" class="w-8 h-8 animate-spin mx-auto mb-3"></i>
+                                <p>جاري تحميل ${listName}...</p>
                            </div>`;
     videoPopupContainer.style.display = 'flex';
     videoPopupContainer.classList.add('active');
+    lucide.createIcons();
 
     try {
-        // 2. ضمان تحديث قائمة المفضلة من السيرفر
-        if (favoritesList.length === 0 || !Array.isArray(favoritesList)) {
-            const fetched = await fetchFavorites(type);
-            favoritesList = fetched;
+        // 2. ضمان تحديث قائمة المفضلة من السيرفر (إذا كانت القائمة المحلية فارغة)
+        if (!Array.isArray(favoritesList) || favoritesList.length === 0 || !favoritesList[0].duration) {
+            favoritesList = await fetchFavorites(type);
+            if (type === 'D') { favoritesD = favoritesList; } else { favoritesM = favoritesList; }
         }
 
         if (favoritesList.length === 0) {
@@ -5325,45 +5383,35 @@ async function showFavoritesInPopup(type) {
             return;
         }
 
-        // 3. بناء كروت المقترحات
-       let cardsHTML = ``; // إضافة العنوان
-cardsHTML += `<div id="favorites-popup-grid" class="flex flex-col gap-3 p-3 overflow-y-auto">`; // بدء حاوية Grid
-
-favoritesList.forEach(video => {
-    // نستخدم outerHTML لضمان تحويل العنصر إلى سلسلة نصية قابلة للدمج
-    cardsHTML += createSimpleSuggestionCard(video, type).outerHTML; 
-});
-
-// 🛑 ✅ FIX: يجب إنهاء وسم DIV لحاوية Grid قبل تعيين innerHTML
-cardsHTML += '</div>';
-
-container.innerHTML = cardsHTML;
-
-        // 4. ربط أحداث النقر لتشغيل الفيديو التالي
-        container.querySelectorAll('.simple-suggestion-card').forEach(card => {
-            card.addEventListener('click', (e) => {
-                const nextVideoId = e.currentTarget.dataset.videoId;
-                const progress = parseFloat(e.currentTarget.dataset.progress || 0);
-                if (nextVideoId) {
-                    showVideoPopup(nextVideoId, progress); // تشغيل الفيديو الجديد
-                }
-            });
+        // 3. بناء كروت المقترحات (نقتصر على أول 4 عناصر لعرض 2x2)
+        let cardsHTML = ``; 
+        
+        // 🛑 نستخدم splice(0, 4) لعرض العناصر الأربعة الأحدث فقط في شبكة 2x2
+        favoritesList.slice(0, 4).forEach(video => {
+            cardsHTML += createSimpleSuggestionCard(video, type).outerHTML;  
         });
         
-        // 5. إعادة إظهار زر الحفظ (إذا كان قد اختفى)
-        const bookmarkBtn = document.getElementById('video-popup-bookmark-button');
-        if (bookmarkBtn) { bookmarkBtn.style.display = 'flex'; }
+        // 🛑 FIX: تعيين innerHTML لحاوية الشبكة مع الهيكل المطلوب
+        container.innerHTML = `
+            <h2 class="text-xl font-bold text-center text-white p-3">${listName}</h2>
+            <div id="favorites-popup-grid" class="flex-grow">
+                ${cardsHTML} 
+            </div>
+        `;
 
+        // 4. ربط أحداث النقر لتشغيل الفيديو التالي (يتم ربطها داخل createSimpleSuggestionCard)
+        
+        // 5. نقل التركيز
+        setTimeout(() => {
+            const firstCard = document.querySelector('#favorites-popup-grid .favorites-popup-card');
+            if (firstCard) setFocus(firstCard);
+        }, 50);
 
     } catch (e) {
         console.error("Error displaying favorites in popup:", e);
         container.innerHTML = `<p class="p-8 text-center text-red-500">حدث خطأ في تحميل القائمة.</p>`;
     }
 }
-/**
- * Fetches and displays related video suggestions inside the popup container.
- */
-
         function handleFullScreenChange() {
             if (popupPlayer && typeof popupPlayer.getPlayerState === 'function' && popupPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
                 const isFullScreen = document.fullscreenElement === popupPlayer.getIframe() || document.webkitFullscreenElement === popupPlayer.getIframe();
