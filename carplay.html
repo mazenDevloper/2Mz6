@@ -41,31 +41,18 @@ img#dashboard-weather-icon {
 
 /* --- CSS Required for Favorites Popup Grid --- */
 
-/* 1. تنسيق حاوية الشبكة 2x2 (CRITICAL) */
-div#favorites-popup-grid {
-    display: grid;
-    /* 💡 إنشاء شبكة بعمودين وصفين مع تباعد 1rem */
-    grid-template-columns: repeat(2, 1fr); 
-    grid-template-rows: repeat(2, 1fr); 
-    gap: 1rem; 
-    height: 100%;
-    overflow-y: scroll; /* للسماح بالتمرير إذا تجاوزت 4 عناصر */
-    padding: 1rem;
-    box-sizing: border-box;
-}
-
-/* 2. تنسيق بطاقة العنصر */
+/* 1. التنسيق الأساسي للبطاقة (يسمح بالنقر على المساحة بأكملها) */
 .favorites-popup-card {
-    /* تجعل البطاقة ممتلئة داخل خلية الشبكة */
     width: 100%;
     height: 100%;
-    background-color: transparent !important;
-    overflow: hidden;
-    cursor: pointer;
     position: relative; /* هام لترتيب Z-index */
+    cursor: pointer;
+    overflow: hidden;
+    z-index: 5;
+    background-color: transparent !important;
 }
 
-/* 3. تنسيق حاوية الصورة والتدرج اللوني */
+/* 2. تنسيق حاوية الصورة والتدرج اللوني */
 .favorites-popup-card .thumbnail-container {
     height: 100%; 
     position: relative;
@@ -74,27 +61,31 @@ div#favorites-popup-grid {
     overflow: hidden;
 }
 
-/* 🚀 4. التدرج اللوني والتثبيت في الأسفل */
+/* 3. غطاء العنوان والتدرج اللوني (CRITICAL) */
 .favorites-popup-card .title-overlay {
-    /* 🛑 FIX: تطبيق التدرج الأسود الشفاف */
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 30%, rgba(0, 0, 0, 0) 100%);
+    /* تطبيق التدرج الأسود الشفاف من الأسفل */
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%);
     
+    /* تثبيت العنوان في الأسفل */
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
     padding: 0.75rem 0.5rem;
-    pointer-events: none; /* للسماح بالنقر على العنصر الأب */
     color: white;
+    
+    /* 🛑 FIX: ضمان مرور النقر إلى العنصر الأب */
+    pointer-events: none; 
+    z-index: 10; 
 }
-
-/* 5. FIX: جعل العنوان بارزاً */
+/* تنسيق النص الداخلي لغطاء العنوان */
 .favorites-popup-card .title-overlay h4 {
     font-weight: bold;
-    font-size: 0.8rem; 
+    font-size: 1rem; 
     line-height: 1.2;
     margin-bottom: 0.2rem;
 }
+
 
 .title-overlay.absolute.bottom-0.left-0.right-0.p-2>p.text-xs.text-white\/70 {
     display: none;
@@ -5318,9 +5309,16 @@ function updateMinimizedControlsState() {
     }
     updateMinimizedControlsState();
 }
+/**
+ * REPLACED & FINALIZED: Helper function to create a simplified card for display inside the popup.
+ * It uses a responsive structure with a sticky, gradient-covered title overlay.
+ *
+ * @param {object} video - Video data object.
+ * @param {string} type - 'D' or 'M' for favorites list type.
+ * @returns {HTMLElement} The complete suggestion card DIV element.
+ */
 function createSimpleSuggestionCard(video, type) {
     const card = document.createElement('div');
-    // 💡 إضافة فئة جديدة للشبكة 2x2 والتصميم
     card.className = 'favorites-popup-card navigable grid-item'; 
     card.tabIndex = 0;
     card.dataset.videoId = video.id;
@@ -5328,28 +5326,31 @@ function createSimpleSuggestionCard(video, type) {
 
     // 🛑 الهيكل الجديد: الصورة والعنوان مُدمجان
     card.innerHTML = `
-        <div class="thumbnail-container relative overflow-hidden rounded-xl">
-            <img src="${video.thumbnail}" alt="${video.title}" class="card-thumbnail w-full h-full object-cover" onerror="this.onerror=null;this.src='https://placehold.co/180x101';">
+        <div class="thumbnail-container relative w-full h-full rounded-xl">
+            <img src="${video.thumbnail}" class="card-thumbnail w-full h-full object-cover" onerror="this.onerror=null;this.src='https://placehold.co/180x101';">
             
-            <div class="title-overlay absolute bottom-0 left-0 right-0 p-2">
+            <div class="title-overlay">
                 <h4 class="font-bold text-sm text-white">${video.title}</h4>
-                
+                <p class="text-xs text-white/70">${video.channelTitle || 'غير معروف'}</p>
             </div>
             
-            <button class="remove-favorite-button absolute top-2 right-2 p-1 rounded-full bg-red-600/80 hover:bg-red-500 z-10" title="إزالة من المفضلة" data-video-id="${video.id}">
+            <button class="remove-favorite-button absolute top-2 right-2 p-1 rounded-full bg-red-600/80 hover:bg-red-500 z-11" title="إزالة من المفضلة" data-video-id="${video.id}">
                 <i data-lucide="trash-2" class="w-4 h-4 text-white"></i>
             </button>
         </div>
     `;
 
-    // ربط الحدث (النقر لتشغيل الفيديو)
+    // 1. ربط حدث النقر لتشغيل الفيديو (على البطاقة بأكملها)
     card.addEventListener('click', (e) => {
-        if (e.target.closest('.remove-favorite-button')) return; // تجاهل النقر إذا كان على زر الحذف
+        // 🛑 FIX: نتحقق مجدداً في حال فشل pointer-events، لكن النقر على البطاقة يشغل الفيديو
+        if (e.target.closest('.remove-favorite-button')) return; 
+        
         showVideoPopup(video.id, parseFloat(video.progress || 0));
     });
-
+    
+    // 2. ربط حدث الإزالة (Remove) بشكل منفصل
     card.querySelector('.remove-favorite-button').addEventListener('click', (e) => {
-        e.stopPropagation();
+        e.stopPropagation(); // 👈 منع الحدث من الوصول إلى البطاقة الأب (card)
         removeVideoFromFavorites(video.id, type);
     });
 
