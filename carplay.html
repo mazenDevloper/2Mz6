@@ -5261,42 +5261,45 @@ function updateMinimizedControlsState() {
     }
     updateMinimizedControlsState();
 }
-
-
-
-/**
- * Creates a single HTML card for a related video suggestion inside the popup player.
- * * @param {object} video - Detailed video object from YouTube API fetch.
- * @param {object} channelThumbnails - Map of channel IDs to their thumbnail URLs.
- * @returns {HTMLElement} The complete suggestion card DIV element.
- */
-
-
-
-/**
- * Helper function to create a simplified card for display inside the popup.
- */
 function createSimpleSuggestionCard(video, type) {
     const card = document.createElement('div');
-    card.className = 'simple-suggestion-card flex items-center gap-3 p-2 rounded-lg bg-white/10 cursor-pointer navigable grid-item';
+    // 💡 إضافة فئة جديدة للشبكة 2x2 والتصميم
+    card.className = 'favorites-popup-card navigable grid-item'; 
     card.tabIndex = 0;
     card.dataset.videoId = video.id;
-    card.dataset.progress = video.progress; // لتمرير تقدم المشاهدة
+    card.dataset.progress = video.progress; 
 
+    // 🛑 الهيكل الجديد: الصورة والعنوان مُدمجان
     card.innerHTML = `
-        <img src="${video.thumbnail}" class="w-12 h-auto rounded-md flex-shrink-0" onerror="this.onerror=null;this.src='https://placehold.co/64x36';">
-        <div class="min-w-0 flex-grow">
-            <h4 class="font-semibold text-sm truncate text-white">${video.title}</h4>
-            <p class="text-xs text-white/70">${video.channelTitle || ''}</p>
+        <div class="thumbnail-container relative overflow-hidden rounded-xl">
+            <img src="${video.thumbnail}" alt="${video.title}" class="card-thumbnail w-full h-full object-cover" onerror="this.onerror=null;this.src='https://placehold.co/180x101';">
+            
+            <div class="title-overlay absolute bottom-0 left-0 right-0 p-2">
+                <h4 class="font-bold text-sm text-white">${video.title}</h4>
+                <p class="text-xs text-white/70">${video.channelTitle || 'غير معروف'}</p>
+            </div>
+            
+            <button class="remove-favorite-button absolute top-2 right-2 p-1 rounded-full bg-red-600/80 hover:bg-red-500 z-10" title="إزالة من المفضلة" data-video-id="${video.id}">
+                <i data-lucide="trash-2" class="w-4 h-4 text-white"></i>
+            </button>
         </div>
-        <span class="text-xs text-white/50 flex-shrink-0">${video.duration || '--:--'}</span>
     `;
+
+    // ربط الحدث (النقر لتشغيل الفيديو)
+    card.addEventListener('click', (e) => {
+        if (e.target.closest('.remove-favorite-button')) return; // تجاهل النقر إذا كان على زر الحذف
+        showVideoPopup(video.id, parseFloat(video.progress || 0));
+    });
+
+    card.querySelector('.remove-favorite-button').addEventListener('click', (e) => {
+        e.stopPropagation();
+        removeVideoFromFavorites(video.id, type);
+    });
+
+    lucide.createIcons();
     return card;
 }
 
-/**
- * Executes after a video ends to show the default destination list (Favorites D).
- */
 async function showFavoritesInPopup(type) {
     const container = videoPopupPlayerContainer;
     // تحديد القائمة المطلوبة بناءً على 'D' أو 'M'
@@ -8294,8 +8297,7 @@ if (lastReset !== todayDate) {
         e.stopPropagation();
         minimizeVideoPopup();
     });
-    
-    // Listener زر التشغيل/الإيقاف المؤقت داخل الكبسولة (يمنع الاستعادة)
+ 
     minimizedPlayPauseBtn?.addEventListener('click', (e) => {
         e.stopPropagation(); 
         if (popupPlayer && typeof popupPlayer.getPlayerState === 'function') {
@@ -8308,10 +8310,7 @@ if (lastReset !== todayDate) {
         }
     });
 
-    // 🚀 ربط أزرار السرعة المنفصلة (يتم استخدام data-rate في HTML)
-  // ... (داخل DOMContentLoaded)
-
-    // 🚀 ربط أزرار السرعة المنفصلة
+   
     document.querySelectorAll('#playback-rates-group .rate-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.stopPropagation(); // منع الاستعادة
@@ -8321,12 +8320,8 @@ if (lastReset !== todayDate) {
         });
     });
 
-// ...
-
-    // 7. **المؤقتات والإجراءات المتأخرة**
     setTimeout(playWelcomeMessage, 1500); 
 
-    // ... (بقية المستمعات العامة: zoom, keyboard, etc.) ...
 });
 
 
@@ -8369,7 +8364,6 @@ async function setManualReminderState(reminderId, state) {
         currentStates[reminderId] = state;
     }
 
-    // ✅ THE FIX: If the object becomes empty, add a placeholder
     if (Object.keys(currentStates).length === 0) {
         currentStates = { "_init": true };
     }
@@ -8387,8 +8381,7 @@ async function setManualReminderState(reminderId, state) {
         console.error('Error writing to JSONBin:', error);
         showMessageBox('حدث خطأ أثناء حفظ الحالة.');
     }
-    
-    // We pass the *real* state (without the placeholder) to the renderer
+
     if (currentStates._init) {
         renderDailyReminders({});
     } else {
@@ -8428,7 +8421,6 @@ async function setManualReminderState(reminderId, state) {
                 document.querySelectorAll('.reminder-status-dropdown').forEach(d => d.remove());
             }
 
-            // 1. تعريف قائمة الأذكار والعبادات مع الشروط الخاصة بها
             const dailyReminders = [
     { id: 'adhkar_morning', name: 'أذكار الصباح', icon: 'sunrise', isActive: (now, times) => now >= times.Fajr && now < times.Dhuhr, getStartTime: (now, times) => times.Fajr, getEndTime: (now, times) => times.Dhuhr, action: () => { switchApp('Media'); searchYouTubeVideos('أذكار الصباح كاملة'); } },
     { id: 'salat_duha', name: 'صلاة الضحى', icon: 'sun', isActive: (now, times) => { if (!times.Sunrise || !times.Dhuhr) return false; const sunriseTime = new Date(times.Sunrise.getTime() + 20 * 60000); const dhuhrTime = new Date(times.Dhuhr.getTime() - 10 * 60000); return now >= sunriseTime && now < dhuhrTime; }, getStartTime: (now, times) => { if (!times.Sunrise) return null; return new Date(times.Sunrise.getTime() + 20 * 60000); }, getEndTime: (now, times) => { if (!times.Dhuhr) return null; return new Date(times.Dhuhr.getTime() - 10 * 60000); }, action: () => showMessageBox('صلاة الضحى سنة مؤكدة، ووقتها من بعد شروق الشمس وارتفاعها قدر رمح إلى قبيل وقت صلاة الظهر.') },
@@ -8440,8 +8432,6 @@ async function setManualReminderState(reminderId, state) {
                 { id: 'adhkar_sleep', name: 'قيام الليل ', icon: 'bed', isActive: (now, times) => now.getHours() >= 23, getStartTime: (now, times) => { const d = new Date(now); d.setHours(23, 0, 0, 0); return d; }, getEndTime: (now, times) => { const d = new Date(now); d.setHours(23, 59, 59, 999); return d; }, action: () => { switchApp('Media'); searchYouTubeVideos('أذكار النوم'); } }
             ];
 
-            // 2. دالة لإنشاء وعرض القائمة (MODIFIED)
-         // ✅ Corrected Version of the function
 async function renderDailyReminders(states) { // We added 'async' and 'states' here
     const container = document.getElementById('tv');
     if (!container || !appState.prayerTimes.Fajr || appState.prayerTimes.Fajr === '--:--') return;
@@ -8517,7 +8507,6 @@ document.addEventListener('click', (e) => {
     const reminderItem = e.target.closest('.reminder-item');
     const dropdownButton = e.target.closest('.reminder-status-dropdown button');
 
-    // إذا تم النقر على زر داخل القائمة المنسدلة، دعه يعمل (المستمع الخاص به سيعمل)
     if (dropdownButton) {
         return;
     }
@@ -8528,11 +8517,8 @@ document.addEventListener('click', (e) => {
         return;
     }
 
-    // إذا لم يتم النقر على عنصر تذكير، توقف هنا
     if (!reminderItem) return;
 
-    // --- الجزء الرئيسي للتعديل ---
-    // أوقف انتشار الحدث لمنع أي إجراءات افتراضية أخرى
     e.stopPropagation();
 
     const reminderId = reminderItem.dataset.reminderId;
@@ -8544,23 +8530,16 @@ document.addEventListener('click', (e) => {
     const existingDropdown = reminderItem.querySelector('.reminder-status-dropdown');
 
     if (existingDropdown) {
-        // إذا كانت مفتوحة، أغلقها
+
         existingDropdown.remove();
     } else {
         // إذا كانت مغلقة، أغلق أي قوائم أخرى وافتح هذه القائمة
         closeAllDropdowns(); // أغلق القوائم الأخرى أولاً
         createReminderDropdown(reminderId, iconWrapper); // افتح القائمة الجديدة بالنسبة لحاوية الأيقونة
     }
-    // --- نهاية التعديل ---
 
-    // تم إزالة الجزء الخاص بتنفيذ الإجراء الافتراضي (مثل البحث في يوتيوب)
 });
-            
-          
-            // --- الكود الجديد ---
-// 3. إضافة مستمع نقر واحد للتعامل مع كل الأزرار (MODIFIED)
 
-        // --- Athkar App Logic ---
         const tabSabah = document.getElementById('tab-sabah');
         const tabMasaa = document.getElementById('tab-masaa');
         const athkarSabahContent = document.getElementById('athkar-sabah-content');
