@@ -7525,11 +7525,11 @@ function determineNextPrayer() {
     if (!todayTimings.Fajr || todayTimings.Fajr === '--:--') return;
 
     // 1. Define constants
-    const PRAYER_OFFSETS = { Fajr: 25, Dhuhr: 20, Asr: 20, Maghrib: 5, Isha: 15 };
+    const PRAYER_OFFSETS = { Fajr: 25, Dhuhr: 20, Asr: 20, Maghrib: 5, Isha: 20 };
     const PRAYER_GRACE = { Fajr: 5, Dhuhr: 15, Asr: 20, Maghrib: 20, Isha: 15 };
     const PRAYER_NAMES = { Fajr: 'الفجر', Dhuhr: 'الظهر', Asr: 'العصر', Maghrib: 'المغرب', Isha: 'العشاء' };
     const ORDER = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
-    const FIVE_MINUTES = 5 * 60 * 1000;
+    const FIVE_MINUTES = 0 * 60 * 1000;
 
     let prayerEvents = [];
     
