@@ -4787,41 +4787,68 @@ function promptAddVideoByUrl() {
  * NEW: Extracts video ID from URL and adds the video to the Car Favorites List (D).
  * * @param {string} url - The URL or video ID provided by the user.
  */
-// 💡 يجب أن تكون هذه الدالة مُعرَّفة في النطاق العام
-async function saveVideoToFavorites(video, type) {
-    // 1. تحديد القائمة الحالية في الذاكرة (سواء D أو M)
-    let favoritesList = type === 'D' ? favoritesD : favoritesM;
+async function addVideoFromUrl(url) {
+    // 1. استخراج الـ ID من الرابط
+    const videoIdMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/)|youtu\.be\/|youtube\.com\/(?:shorts\/))([\w-]{11})/);
+    const videoId = videoIdMatch ? videoIdMatch[1] : url.trim();
+
+    if (videoId.length !== 11) {
+        showMessageBox("الرابط غير صالح. يرجى إدخال رابط يوتيوب صحيح أو مُعرّف فيديو (ID).");
+        return;
+    }
     
-    // 2. التحقق من التكرار وإزالته إذا وجد (لإضافة النسخة الأحدث في البداية)
-    const filteredList = favoritesList.filter(fav => fav.id !== video.id);
+    const confirmBtn = document.getElementById('add-video-confirm');
+    confirmBtn.disabled = true;
+    confirmBtn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i>`;
+    lucide.createIcons();
 
-    // 3. تجهيز بيانات الحفظ
-    const videoToSave = {
-        id: video.id,
-        title: video.snippet.title,
-        thumbnail: video.snippet.thumbnails.medium.url,
-        channelTitle: video.snippet.channelTitle,
-        channelId: video.snippet.channelId,
-        duration: video.duration,
-        progress: 0 // يتم تعيين التقدم إلى 0 عند الإضافة الجديدة
-    };
+    try {
+        // 2. جلب تفاصيل الفيديو باستخدام الـ ID
+        const videoDetailsList = await fetchVideosDetails([videoId]);
 
-    // 🚀 الخطوة الحاسمة: إضافة الفيديو الجديد إلى بداية القائمة المفلترة (الأحدث أولاً)
-    const updatedList = [videoToSave, ...filteredList];
-    
-    // 4. إرسال التحديث إلى الخادم
-    const success = await updateFavorites(type, updatedList);
-
-    if (success) {
-        // 5. تحديث الذاكرة العامة للقائمة
-        if (type === 'D') favoritesD = updatedList; else favoritesM = updatedList;
-        showMessageBox(`تم حفظ الفيديو في المفضلة ${type}`);
-
-        // 6. تحديث الواجهة إذا كانت شاشة المفضلة مفتوحة
-        const activeTab = document.querySelector('#screen-Media .tab-button.active')?.id;
-        if ((type === 'D' && activeTab === 'tab-saved-d') || (type === 'M' && activeTab === 'tab-saved-m')) {
-             loadSavedVideos(type);
+        if (!videoDetailsList || videoDetailsList.length === 0) {
+            showMessageBox("تعذر العثور على الفيديو. تأكد من أن الرابط صحيح وعام.");
+            return;
         }
+
+        const video = videoDetailsList[0];
+        
+        // 3. تجهيز بيانات الحفظ
+        const videoToSave = {
+            id: video.id,
+            title: video.snippet.title,
+            thumbnail: video.snippet.thumbnails.medium.url,
+            channelTitle: video.snippet.channelTitle,
+            channelId: video.snippet.channelId,
+            duration: formatDuration(video.contentDetails.duration),
+            progress: 0 // يبدأ من الصفر
+        };
+
+        // 4. حفظ الفيديو إلى قائمة السيارة (D)
+        const favoritesList = favoritesD;
+        if (favoritesList.some(fav => fav.id === video.id)) {
+            showMessageBox("هذا الفيديو موجود بالفعل في قائمة المتابعة في السيارة.");
+            return;
+        }
+
+        const updatedList = [videoToSave, ...favoritesList];
+        const success = await updateFavorites('D', updatedList);
+
+        if (success) {
+            favoritesD = updatedList; // تحديث القائمة العامة
+            showMessageBox(`تمت إضافة الفيديو "${video.snippet.title}" إلى قائمة السيارة.`);
+            
+            // إعادة تحميل المفضلة إذا كانت الشاشة مفتوحة
+            const activeTab = document.querySelector('#screen-Media .tab-button.active')?.id;
+            if (activeTab === 'tab-saved-d') { loadSavedVideos('D'); }
+        }
+        
+    } catch (error) {
+        console.error("Error adding video by URL:", error);
+        showMessageBox("حدث خطأ أثناء إضافة الفيديو. يرجى التحقق من مفتاح API.");
+    } finally {
+        document.getElementById('add-video-prompt').remove();
+        updateNavigableElements();
     }
 }
 
@@ -6514,43 +6541,54 @@ button.addEventListener('click', () => {
             }
         }
 
-       // 💡 يجب أن تكون هذه الدالة مُعرَّفة في النطاق العام
-async function saveVideoToFavorites(video, type) {
-    // 1. تحديد القائمة الحالية في الذاكرة (سواء D أو M)
-    let favoritesList = type === 'D' ? favoritesD : favoritesM;
-    
-    // 2. التحقق من التكرار وإزالته إذا وجد (لإضافة النسخة الأحدث في البداية)
-    const filteredList = favoritesList.filter(fav => fav.id !== video.id);
+        async function saveVideoToFavorites(video, type) {
+            const favoritesList = type === 'D' ? favoritesD : favoritesM;
+            if (favoritesList.some(fav => fav.id === video.id)) {
+                showMessageBox(`الفيديو موجود بالفعل في المفضلة ${type}`);
+                return;
+            }
+            const history = getWatchedHistory();
+            const watchedInfo = history[video.id];
+            const progress = (watchedInfo && watchedInfo.progress > 0) ? watchedInfo.progress : 0;
 
-    // 3. تجهيز بيانات الحفظ
-    const videoToSave = {
-        id: video.id,
-        title: video.snippet.title,
-        thumbnail: video.snippet.thumbnails.medium.url,
-        channelTitle: video.snippet.channelTitle,
-        channelId: video.snippet.channelId,
-        duration: video.duration,
-        progress: 0 // يتم تعيين التقدم إلى 0 عند الإضافة الجديدة
-    };
+            const videoToSave = {
+                id: video.id,
+                title: video.title,
+                thumbnail: video.thumbnail,
+                channelTitle: video.channelTitle,
+                channelId: video.channelId,
+                duration: video.duration,
+                progress: progress
+            };
 
-    // 🚀 الخطوة الحاسمة: إضافة الفيديو الجديد إلى بداية القائمة المفلترة (الأحدث أولاً)
-    const updatedList = [videoToSave, ...filteredList];
-    
-    // 4. إرسال التحديث إلى الخادم
-    const success = await updateFavorites(type, updatedList);
+            // [تعديل] إضافة الفيديو الجديد في بداية القائمة (الأحدث أولاً)
+            const updatedList = [videoToSave, ...favoritesList];
+            
+            const success = await updateFavorites(type, updatedList);
 
-    if (success) {
-        // 5. تحديث الذاكرة العامة للقائمة
-        if (type === 'D') favoritesD = updatedList; else favoritesM = updatedList;
-        showMessageBox(`تم حفظ الفيديو في المفضلة ${type}`);
+            if (success) {
+                if (type === 'D') favoritesD = updatedList; else favoritesM = updatedList;
+                showMessageBox(`تم حفظ الفيديو في المفضلة ${type}`);
+                
+                // تحديث زر الحفظ في الكارت
+                const bookmarkBtn = document.querySelector(`.bookmark-button[data-video-id="${video.id}"]`);
+                if(bookmarkBtn) {
+                    bookmarkBtn.classList.remove('saved-d', 'saved-m', 'saved-both');
+                    if (favoritesD.some(fav => fav.id === video.id) && favoritesM.some(fav => fav.id === video.id)) bookmarkBtn.classList.add('saved-both');
+                    else if (favoritesD.some(fav => fav.id === video.id)) bookmarkBtn.classList.add('saved-d');
+                    else if (favoritesM.some(fav => fav.id === video.id)) bookmarkBtn.classList.add('saved-m');
+                }
 
-        // 6. تحديث الواجهة إذا كانت شاشة المفضلة مفتوحة
-        const activeTab = document.querySelector('#screen-Media .tab-button.active')?.id;
-        if ((type === 'D' && activeTab === 'tab-saved-d') || (type === 'M' && activeTab === 'tab-saved-m')) {
-             loadSavedVideos(type);
-        }
-    }
-}
+                // [إضافة] تحديث زر الحفظ في نافذة الفيديو المنبثقة إذا كانت مفتوحة
+                const popupBookmarkBtn = document.getElementById('video-popup-bookmark-button');
+                if (popupBookmarkBtn && currentPlayingVideoId === video.id) {
+                     popupBookmarkBtn.classList.remove('saved-d', 'saved-m', 'saved-both');
+                    if (favoritesD.some(fav => fav.id === video.id) && favoritesM.some(fav => fav.id === video.id)) popupBookmarkBtn.classList.add('saved-both');
+                    else if (favoritesD.some(fav => fav.id === video.id)) popupBookmarkBtn.classList.add('saved-d');
+                    else if (favoritesM.some(fav => fav.id === video.id)) popupBookmarkBtn.classList.add('saved-m');
+                }
+            }
+        }
 
         async function removeVideoFromFavorites(videoId, type) {
             const favoritesList = type === 'D' ? favoritesD : favoritesM;
