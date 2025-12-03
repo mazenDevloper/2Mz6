@@ -102,7 +102,7 @@ h4.font-semibold.text-sm.truncate.text-white {
     font-size: 0.8rem; 
 }
 
-.min-w-0.flex-grow {
+.simple-suggestion-card>.min-w-0.flex-grow{
     position: absolute;
     bottom: 2px;
     background: linear-gradient(45deg, black, #2a1f1f91);
@@ -1617,6 +1617,48 @@ div#youtube-readers-section {
 
 @media (max-width: 768px) {
     /* ... (بقية الأكواد الخاصة بالهواتف المحمولة) ... */
+
+/* الأنماط الأساسية لتطبيق تأثير الزجاج الضبابي */
+.glass-surface {
+    /* 🛑 1. خاصية الضبابية (CRITICAL for Glass Effect) */
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%); /* دعم متصفحات الويب كيت */
+
+    /* 2. الخلفية الشفافة المائلة للثلج */
+    background-color: rgba(255, 255, 255, 0.15); /* لون أبيض خفيف */
+    
+    /* 3. حدود شفافة خفيفة (لإحساس العمق) */
+    border: 1px solid rgba(255, 255, 255, 0.1); 
+    
+    /* 4. إعدادات ظل خفيف وعائم */
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    
+    /* 5. تجعل الحواف أكثر نعومة */
+    border-radius: 16px;
+    
+    /* 6. منع تجاوز المحتوى للمنظور الزجاجي */
+    overflow: hidden; 
+    
+    /* 7. استخدام 3D Transform لتثبيت التأثير في Safari */
+    transform: translateZ(0); 
+}
+
+/* 🛑 إضافة طبقة لمعان خفيفة (اختياري) */
+.glass-surface::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* تدرج لوني يعطي إحساس باللمعان من الأعلى لليسار */
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.1),
+        rgba(255, 255, 255, 0)
+    );
+    pointer-events: none; /* لا يعيق النقر */
+}
 
 button.youtube-suggestion-button {
     font-size: 1rem;
@@ -5256,57 +5298,62 @@ async function showVideoPopup(videoId, startOverride = null) {
     setTimeout(() => setFocus(videoPopupCloseButton), 100);
     lucide.createIcons(); 
 }
+
 async function hideVideoPopup() {
-            if (progressInterval) clearInterval(progressInterval);
+    // 1. إيقاف تتبع التقدم
+    if (progressInterval) clearInterval(progressInterval);
 
-            // 1. Get all necessary data from the player BEFORE destroying it
-            let videoId, currentTime, duration;
-            if (popupPlayer && typeof popupPlayer.getCurrentTime === 'function' && popupPlayer.getVideoData) {
-                const videoData = popupPlayer.getVideoData();
-                videoId = videoData ? videoData.video_id : null;
-                currentTime = popupPlayer.getCurrentTime();
-                duration = popupPlayer.getDuration();
-            }
+    let videoId, currentTime, duration;
 
-            // 2. Destroy the player immediately
-            if (popupPlayer) {
-                popupPlayer.destroy();
-                popupPlayer = null;
-            }
-
-            // 3. NOW, update the progress using the stored data
-            if (videoId) {
-                await updateVideoProgress(videoId, currentTime, duration);
-            }
-            
-            // 4. Handle all other UI updates
-            document.body.classList.remove('animation-paused');
-            const playIcon = pauseAnimationButton.querySelector('[data-lucide="play"]');
-            const pauseIcon = pauseAnimationButton.querySelector('[data-lucide="pause"]');
-            if (playIcon && pauseIcon) {
-                playIcon.classList.add('hidden');
-                pauseIcon.classList.remove('hidden');
-            }
-            
-            videoPopupContainer.classList.remove('active');
-            videoPopupContainer.style.display = 'none';
-            floatingMinimizedVideoButton.style.display = 'none';
-            appState.isVideoPlayerMinimized = false;
-
-            // --- START: NEW CLEANUP LOGIC ---
-            // Remove the bookmark button so it can be re-created fresh next time
-            const bookmarkBtn = document.getElementById('video-popup-bookmark-button');
-            if (bookmarkBtn) {
-                bookmarkBtn.remove();
-            }
-            // --- END: NEW CLEANUP LOGIC ---
-            
-            const screen = document.querySelector('.app-screen.active');
-            if (screen) {
-                const item = screen.querySelector('.grid-item');
-                if (item) setFocus(item);
-            }
+    // 2. التحقق من صلاحية المشغل وإيقافه (بدلاً من تدميره)
+    if (popupPlayer && typeof popupPlayer.pauseVideo === 'function') {
+        popupPlayer.pauseVideo(); // إيقاف الفيديو
+        
+        // 3. حفظ حالة الفيديو
+        const videoData = popupPlayer.getVideoData();
+        videoId = videoData ? videoData.video_id : null;
+        currentTime = popupPlayer.getCurrentTime();
+        duration = popupPlayer.getDuration();
+        
+        // 4. تحديث التقدم في الذاكرة (localStorage/JSONBin)
+        if (videoId) {
+            await updateVideoProgress(videoId, currentTime, duration);
         }
+        
+    } else {
+        // إذا كان المشغل غير متاح، نستخدم البيانات المخزنة إذا أمكن
+        videoId = currentPlayingVideoId; 
+    }
+    
+    // 🛑 CRITICAL FIX: لا نقوم بتدمير المشغل هنا، فقط نغير حالة الواجهة المرئية
+    
+    // 5. تحديث الواجهة المرئية
+    document.body.classList.remove('animation-paused');
+    const playIcon = pauseAnimationButton.querySelector('[data-lucide="play"]');
+    const pauseIcon = pauseAnimationButton.querySelector('[data-lucide="pause"]');
+    if (playIcon && pauseIcon) {
+        playIcon.classList.add('hidden');
+        pauseIcon.classList.remove('hidden');
+    }
+    
+    videoPopupContainer.classList.remove('active');
+    videoPopupContainer.style.display = 'none';
+    floatingMinimizedVideoButton.style.display = 'none';
+    appState.isVideoPlayerMinimized = false;
+
+    // 6. تنظيف الـ DOM (إزالة زر الحفظ المؤقت)
+    const bookmarkBtn = document.getElementById('video-popup-bookmark-button');
+    if (bookmarkBtn) {
+        bookmarkBtn.remove();
+    }
+    
+    // 7. نقل التركيز
+    const screen = document.querySelector('.app-screen.active');
+    if (screen) {
+        const item = screen.querySelector('.grid-item');
+        if (item) setFocus(item);
+    }
+}
         
         // NEW: Functions to minimize and restore the video popup
        // ... (تعريف العناصر في البداية)
@@ -5325,7 +5372,17 @@ function minimizeVideoPopup() {
     
     // 🛑 1. ضبط جودة التشغيل على أدنى حد للتركيز على الصوت وتوفير الموارد
     if (popupPlayer && typeof popupPlayer.setPlaybackQuality === 'function') {
+        // نضبط الجودة على "Tiny" أو "Small" لإجبار المتصفح على التركيز على الصوت
         popupPlayer.setPlaybackQuality('tiny'); 
+        
+        // 💡 تلميح: إرسال أمر تشغيل Play إلى الـ iframe يدوياً يساعد في الخلفية
+        const iframe = popupPlayer.getIframe();
+        if (iframe && iframe.contentWindow) {
+             iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+        }
+    } else {
+        // إذا كان المشغل غير مهيأ، نحاول تشغيل الصوت (قد لا يعمل)
+        console.warn("Cannot minimize: YouTube player is not ready for background mode.");
     }
     
     // 2. إخفاء المشغل الكبير وإظهار الكبسولة
@@ -5348,14 +5405,6 @@ function minimizeVideoPopup() {
     setFocus(floatingMinimizedVideoButton);
 }
 
-// 💡 يتم استدعاؤها عند النقر على زر التكبير في الكبسولة المصغرة
-/**
- * REPLACED: Restores the YouTube video popup from the minimized audio capsule.
- */
-/**
- * REPLACED & FINALIZED: Restores the YouTube video popup from the minimized audio capsule.
- * Ensures the video screen reappears and playback quality is restored.
- */
 function restoreVideoPopup() {
     // 1. شروط الأمان
     if (!appState.isVideoPlayerMinimized) return;
@@ -5386,25 +5435,6 @@ function restoreVideoPopup() {
     }
 }
 
-/**
- * NEW: Updates the state (Play/Pause Icon and Speed Text) of the minimized capsule.
- */
-/**
- * FINALIZED: Updates the state (Play/Pause Icon and Speed Text) of the minimized capsule.
- * Reads the current playback rate from the YT Player and updates the interactive button text.
- */
-/**
- * FINALIZED: Updates the state (Play/Pause Icon, Speed Buttons, and Select List) 
- * of the minimized capsule and the main popup's controls.
- */
-/**
- * FINALIZED: Updates the state (Play/Pause Icon, Speed Buttons, and Select List) 
- * of the minimized capsule and the main popup's controls.
- */
-/**
- * FINALIZED: Reads the current playback rate from the YT Player and updates the interactive button text 
- * (minimizedPlaybackSpeedBtn) and the main Select list.
- */
 function updateMinimizedControlsState() {
     // 🛑 1. التحقق من وجود المشغل وتهيئته
     if (!popupPlayer || typeof popupPlayer.getPlayerState !== 'function') return; 
