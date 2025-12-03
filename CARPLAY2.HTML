@@ -35,6 +35,35 @@
         /* NEW: Import Amiri font for Thuluth-like style */
         @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
 
+ #floating-media-button {
+        padding: 0px!important;
+    }
+
+img.w-full.h-full.object-contain.p-1 {
+    width: 65px!important;
+}
+
+#bottom-left-controls {
+    /* تم تعيين الأنماط inline في HTML لتكون أكثر وضوحاً، ولكن هذه هي القواعد الأساسية: */
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding: 10px;
+}
+
+/* تنسيق عام لأزرار التحكم */
+#bottom-left-controls button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* ... (بقية التنسيقات المذكورة في HTML) ... */
+}
+
+button#add-video-by-url-btn {
+    position: fixed;
+    bottom: 76px;
+    right: 30px;
+}
 /* --- START: Last Watched & History Styles --- */
 /* --- START: Fullscreen Toggle Button Styles --- */
 img#dashboard-weather-icon {
@@ -1669,9 +1698,7 @@ span.surah-name-text {
     }
     
     /* 🛑 إخفاء زر الوسائط العائم (مكرر مع شريط التنقل) */
-    #floating-media-button {
-        display: none !important;
-    }
+   
 
     /* ملاحظة: يتم بالفعل إخفاء floating-media-button عندما تكون شاشة Media نشطة في handleMediaViewSwitch */
     
@@ -2419,7 +2446,7 @@ div#map{display:none}
             class="full-iframe flex-grow"
             onclick="toggleIframeFullscreen('reciters-iframe')"  class="fullscreen-toggle-button navigable grid-item"
             title="Reciters/TV"
-            src="https://www.365scores.com/ar"
+            src="http://bein-live.com/"
             allow="geolocation; fullscreen"  allowfullscreen="true"          webkitallowfullscreen="true"    mozallowfullscreen="true">  
             <i class="fas fa-expand"></i> 
                 </iframe>
@@ -2427,7 +2454,7 @@ div#map{display:none}
     <div class="mb-4 flex flex-wrap justify-center gap-2 flex-shrink-0 grid-container" style="
     transform: scale(1.1);
 ">
-        <button data-src="https://www.365scores.com/ar" class="iframe-src-button bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item active" tabindex="0">
+        <button data-src="http://bein-live.com/" class="iframe-src-button bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item active" tabindex="0">
             مباريات
         </button>
         <button data-src="https://direct.aflam4you.net/playeraf.php?vid=9311&aflam_s=1&aflam_k=ff09665543234455" class="iframe-src-button bg-black-600 hover:bg-black-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
@@ -2614,8 +2641,13 @@ div#map{display:none}
 
     <!-- Floating UI Elements -->
     <button id="floating-media-button" class="glass-surface glass-surface--svg rounded-full navigable grid-item" tabindex="0">
-        <i data-lucide="youtube" class="w-6 h-6"></i>
+        <img src="https://imgs.search.brave.com/XDd5Wmrn5fv_N_K9IAwx2BnetQI2wEZh4jQvIHQm6PE/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4w/Lmljb25maW5kZXIu/Y29tL2RhdGEvaWNv/bnMvdHV0cy8xMjgv/eW91dHViZS5wbmc" width="22px" alt="YouTube" class="w-full h-full object-contain p-1" />
     </button>
+    <button id="add-video-by-url-btn" 
+        class="navigable grid-item bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-full shadow-lg" 
+        title="إضافة فيديو بالرابط">
+    <i data-lucide="plus-circle" class="w-6 h-6"></i>
+</button>
     <button id="floating-keyboard-button" class="glass-surface glass-surface--svg rounded-full navigable grid-item" tabindex="0">
         <i data-lucide="keyboard" class="w-6 h-6"></i>
     </button>
@@ -4283,98 +4315,117 @@ function updateUI() {
         // --- YouTube/Media Functions (REFACTORED) ---
         function onYouTubeIframeAPIReady() { isYouTubeApiReady = true; }
         
-        function createVideoCard(video) {
-            const card = document.createElement('div');
-            card.className = 'glass-surface glass-surface--svg youtube-video-card navigable grid-item';
-            card.tabIndex = 0;
-            card.dataset.videoId = video.id;
+        /**
+ * Creates an HTML element (Card) for displaying a YouTube video search result 
+ * or a video in a playlist.
+ *
+ * @param {object} video - Object containing video details (title, thumbnail, duration, etc.).
+ * @returns {HTMLElement} The complete video card DIV element.
+ */
+function createVideoCard(video) {
+    const card = document.createElement('div');
+    card.className = 'glass-surface glass-surface--svg youtube-video-card navigable grid-item';
+    card.tabIndex = 0;
+    card.dataset.videoId = video.id;
 
-            // Get watched history for this video
-            const history = getWatchedHistory();
-            const watchedInfo = history[video.id];
-            let progressHTML = '';
+    // Get watched history for this video (assumes getWatchedHistory is defined globally)
+    const history = getWatchedHistory();
+    const watchedInfo = history[video.id];
+    let progressHTML = '';
 
-            if (watchedInfo) {
-                if (watchedInfo.progress === -1) { // Fully watched
-                    progressHTML = `<div class="watched-badge">تمت المشاهدة</div>`;
-                } else if (watchedInfo.progress > 0 && watchedInfo.duration > 0) {
-                    const progressPercent = (watchedInfo.progress / watchedInfo.duration) * 100;
-                    progressHTML = `<div class="watched-progress-bar-container"><div class="watched-progress-bar" style="width: ${progressPercent}%"></div></div>`;
-                }
-            }
-            
-            const isSavedD = favoritesD.some(fav => fav.id === video.id);
-            const isSavedM = favoritesM.some(fav => fav.id === video.id);
-            let bookmarkClass = '';
-            if (isSavedD && isSavedM) bookmarkClass = 'saved-both';
-            else if (isSavedD) bookmarkClass = 'saved-d';
-            else if (isSavedM) bookmarkClass = 'saved-m';
-
-            const isLive = video.duration === 'مباشر';
-
-            card.innerHTML = `
-                <div class="video-details">
-                    <h3 class="video-title">${video.title}</h3>
-                    <div class="video-meta">
-                        <div class="flex items-center justify-between w-full gap-2">
-                            <div class="flex items-center gap-2 cursor-pointer channel-link min-w-0" data-channel-id="${video.channelId}" data-channel-title="${video.channelTitle}">
-                               <img src="${video.channelThumbnail || 'https://placehold.co/24x24/334155/ffffff?text=?'}" alt="${video.channelTitle}" class="w-6 h-6 rounded-full object-cover flex-shrink-0">
-                               <span class="hover:underline truncate">${video.channelTitle}</span>
-                            </div>
-                            <button class="add-channel-from-search-btn p-1 rounded-full hover:bg-white/20 transition-colors flex-shrink-0 navigable grid-item" data-channel-id="${video.channelId}" data-channel-title="${video.channelTitle}" data-channel-thumbnail="${video.channelThumbnail || ''}" title="إضافة القناة للقائمة" tabindex="0">
-                                <i data-lucide="plus-circle" class="w-5 h-5 text-green-400"></i>
-                            </button>
-                        </div>
-                        <span class="text-xs text-white/60">${video.viewCount} مشاهدة • ${video.publishedAt}</span>
-                    </div>
-                </div>
-                <div class="thumbnail-container relative">
-                    <img src="${video.thumbnail}" alt="${video.title}" class="w-[180px] h-[101.25px] object-cover rounded-md ml-4 flex-shrink-0" onerror="this.onerror=null;this.src='https://placehold.co/180x101';">
-                    <span class="video-duration ${isLive ? 'bg-red-600 font-bold' : ''}">${video.duration}</span>
-                    ${progressHTML}
-                    <button class="bookmark-button ${bookmarkClass}" data-video-id="${video.id}"><i data-lucide="bookmark" class="w-5 h-5"></i></button>
-                </div>
-            `;
-            card.addEventListener('click', () => showVideoPopup(video.id));
-             card.querySelector('.bookmark-button').addEventListener('click', (e) => {
-                e.stopPropagation(); // Prevent card click event from firing
-                showFavoritesMenu(e.currentTarget, video);
-            });
-
-            const channelLink = card.querySelector('.channel-link');
-            if (channelLink) {
-                channelLink.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const channelId = e.currentTarget.dataset.channelId;
-                    const channelTitle = e.currentTarget.dataset.channelTitle;
-                    if(channelId && channelTitle) {
-                        searchVideosByChannel(channelId, channelTitle);
-                    }
-                });
-            }
-
-            // NEW: Event listener for the add channel button
-            const addChannelBtn = card.querySelector('.add-channel-from-search-btn');
-            if (addChannelBtn) {
-                // Check if channel is already in the list and disable button
-                if (localChannelsCache.some(c => c.channelid === video.channelId)) {
-                    addChannelBtn.disabled = true;
-                    addChannelBtn.innerHTML = `<i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>`;
-                } else {
-                    addChannelBtn.addEventListener('click', (e) => {
-                        e.stopPropagation(); // Prevent card click
-                        const btn = e.currentTarget;
-                        const channelId = btn.dataset.channelId;
-                        const channelTitle = btn.dataset.channelTitle;
-                        const channelThumbnail = btn.dataset.channelThumbnail;
-                        addChannelFromSearchResult(channelId, channelTitle, channelThumbnail, btn);
-                    });
-                }
-            }
-
-            lucide.createIcons();
-            return card;
+    if (watchedInfo) {
+        if (watchedInfo.progress === -1) { // Fully watched
+            progressHTML = `<div class="watched-badge">تمت المشاهدة</div>`;
+        } else if (watchedInfo.progress > 0 && watchedInfo.duration > 0) {
+            const progressPercent = (watchedInfo.progress / watchedInfo.duration) * 100;
+            progressHTML = `<div class="watched-progress-bar-container"><div class="watched-progress-bar" style="width: ${progressPercent}%"></div></div>`;
         }
+    }
+    
+    // Determine bookmark state
+    const isSavedD = favoritesD.some(fav => fav.id === video.id);
+    const isSavedM = favoritesM.some(fav => fav.id === video.id);
+    let bookmarkClass = '';
+    if (isSavedD && isSavedM) bookmarkClass = 'saved-both';
+    else if (isSavedD) bookmarkClass = 'saved-d';
+    else if (isSavedM) bookmarkClass = 'saved-m';
+
+    const isLive = video.duration === 'مباشر'; // Used for live video styling
+
+    card.innerHTML = `
+        <div class="video-details">
+            <h3 class="video-title">${video.title}</h3>
+            <div class="video-meta">
+                <div class="flex items-center justify-between w-full gap-2">
+                    <div class="flex items-center gap-2 cursor-pointer channel-link min-w-0" data-channel-id="${video.channelId}" data-channel-title="${video.channelTitle}">
+                       <img src="${video.channelThumbnail || 'https://placehold.co/24x24/334155/ffffff?text=?'}" alt="${video.channelTitle}" class="w-6 h-6 rounded-full object-cover flex-shrink-0">
+                       <span class="hover:underline truncate">${video.channelTitle}</span>
+                    </div>
+                    <button class="add-channel-from-search-btn p-1 rounded-full hover:bg-white/20 transition-colors flex-shrink-0 navigable grid-item" data-channel-id="${video.channelId}" data-channel-title="${video.channelTitle}" data-channel-thumbnail="${video.channelThumbnail || ''}" title="إضافة القناة للقائمة" tabindex="0">
+                        <i data-lucide="plus-circle" class="w-5 h-5 text-green-400"></i>
+                    </button>
+                </div>
+                <span class="text-xs text-white/60">${video.viewCount} مشاهدة • ${video.publishedAt}</span>
+            </div>
+        </div>
+        <div class="thumbnail-container relative">
+            <img src="${video.thumbnail}" alt="${video.title}" class="w-[180px] h-[101.25px] object-cover rounded-md ml-4 flex-shrink-0" onerror="this.onerror=null;this.src='https://placehold.co/180x101';">
+            <span class="video-duration ${isLive ? 'bg-red-600 font-bold' : ''}">${video.duration}</span>
+            ${progressHTML}
+            <button class="bookmark-button ${bookmarkClass}" data-video-id="${video.id}"><i data-lucide="bookmark" class="w-5 h-5"></i></button>
+        </div>
+    `;
+    
+    // --- Event Listeners ---
+
+    // 1. تشغيل الفيديو عند النقر على البطاقة
+    card.addEventListener('click', () => showVideoPopup(video.id));
+    
+    // 2. فتح قائمة المفضلة عند النقر على زر الحفظ
+    card.querySelector('.bookmark-button').addEventListener('click', (e) => {
+        e.stopPropagation(); 
+        showFavoritesMenu(e.currentTarget, video);
+    });
+
+    // 3. الانتقال إلى القناة عند النقر على رابط القناة
+    const channelLink = card.querySelector('.channel-link');
+    if (channelLink) {
+        channelLink.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const channelId = e.currentTarget.dataset.channelId;
+            const channelTitle = e.currentTarget.dataset.channelTitle;
+            if(channelId && channelTitle) {
+                searchVideosByChannel(channelId, channelTitle);
+            }
+        });
+    }
+
+    // 4. إضافة القناة من نتائج البحث
+    const addChannelBtn = card.querySelector('.add-channel-from-search-btn');
+    if (addChannelBtn) {
+        // التحقق مما إذا كانت القناة موجودة
+        if (localChannelsCache.some(c => c.channelid === video.channelId)) {
+            addChannelBtn.disabled = true;
+            addChannelBtn.innerHTML = `<i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>`;
+        } else {
+            addChannelBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); 
+                const btn = e.currentTarget;
+                const channelId = btn.dataset.channelId;
+                const channelTitle = btn.dataset.channelTitle;
+                const channelThumbnail = btn.dataset.channelThumbnail;
+                addChannelFromSearchResult(channelId, channelTitle, channelThumbnail, btn);
+            });
+        }
+    }
+
+    // 5. تهيئة أيقونات Lucide
+    if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
+        lucide.createIcons();
+    }
+    
+    return card;
+}
 
         async function fetchVideosDetails(videoIds) {
             if (!videoIds || videoIds.length === 0) return [];
@@ -4678,6 +4729,129 @@ function updateUI() {
             lucide.createIcons();
             updateNavigableElements();
         }
+
+/**
+ * NEW: Displays a modal prompt to input a YouTube video URL/ID for adding to favorites.
+ */
+function promptAddVideoByUrl() {
+    const existingPrompt = document.getElementById('add-video-prompt');
+    if (existingPrompt) existingPrompt.remove();
+
+    const promptHTML = `
+        <div id="add-video-prompt" class="fixed inset-0 bg-black/70 flex items-center justify-center z-[9999]">
+            <div id="add-video-prompt-content" class="glass-surface glass-surface--svg p-6 rounded-2xl w-full max-w-md flex flex-col gap-4">
+                <h3 class="text-xl font-bold text-center">إضافة فيديو جديد بالرابط</h3>
+                <p class="text-sm text-white/70 text-center">الصق رابط يوتيوب أو مُعرّف الفيديو (ID) أدناه.</p>
+                <div class="flex gap-2 grid-container">
+                    <input type="text" id="new-video-url-input" placeholder="مثال: https://youtu.be/dQw4w9WgXcQ" class="flex-grow p-3 rounded-full bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 navigable grid-item" tabindex="0" />
+                </div>
+                
+                <div id="url-action-buttons" class="flex justify-between mt-2 gap-3">
+                    <button id="add-video-cancel" class="bg-gray-600/80 hover:bg-gray-700/80 text-white font-bold py-2 px-4 rounded-full navigable grid-item flex-1" tabindex="0">إلغاء</button>
+                    <button id="add-video-confirm" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full navigable grid-item flex-1" tabindex="0">إضافة</button>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', promptHTML);
+    lucide.createIcons();
+
+    const promptEl = document.getElementById('add-video-prompt');
+    const urlInput = document.getElementById('new-video-url-input');
+    const confirmBtn = document.getElementById('add-video-confirm');
+    const cancelBtn = document.getElementById('add-video-cancel');
+
+    const closePrompt = () => {
+        promptEl.remove();
+        updateNavigableElements(); 
+    };
+
+    // 🛑 ربط زر الإضافة بالدالة الجديدة
+    confirmBtn.addEventListener('click', () => addVideoFromUrl(urlInput.value));
+    
+    // دعم البحث بزر Enter
+    urlInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addVideoFromUrl(urlInput.value); 
+        }
+    });
+
+    cancelBtn.addEventListener('click', closePrompt);
+    urlInput.focus();
+    setFocus(urlInput);
+    updateNavigableElements();
+}
+
+/**
+ * NEW: Extracts video ID from URL and adds the video to the Car Favorites List (D).
+ * * @param {string} url - The URL or video ID provided by the user.
+ */
+async function addVideoFromUrl(url) {
+    // 1. استخراج الـ ID من الرابط
+    const videoIdMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/)|youtu\.be\/|youtube\.com\/(?:shorts\/))([\w-]{11})/);
+    const videoId = videoIdMatch ? videoIdMatch[1] : url.trim();
+
+    if (videoId.length !== 11) {
+        showMessageBox("الرابط غير صالح. يرجى إدخال رابط يوتيوب صحيح أو مُعرّف فيديو (ID).");
+        return;
+    }
+    
+    const confirmBtn = document.getElementById('add-video-confirm');
+    confirmBtn.disabled = true;
+    confirmBtn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i>`;
+    lucide.createIcons();
+
+    try {
+        // 2. جلب تفاصيل الفيديو باستخدام الـ ID
+        const videoDetailsList = await fetchVideosDetails([videoId]);
+
+        if (!videoDetailsList || videoDetailsList.length === 0) {
+            showMessageBox("تعذر العثور على الفيديو. تأكد من أن الرابط صحيح وعام.");
+            return;
+        }
+
+        const video = videoDetailsList[0];
+        
+        // 3. تجهيز بيانات الحفظ
+        const videoToSave = {
+            id: video.id,
+            title: video.snippet.title,
+            thumbnail: video.snippet.thumbnails.medium.url,
+            channelTitle: video.snippet.channelTitle,
+            channelId: video.snippet.channelId,
+            duration: formatDuration(video.contentDetails.duration),
+            progress: 0 // يبدأ من الصفر
+        };
+
+        // 4. حفظ الفيديو إلى قائمة السيارة (D)
+        const favoritesList = favoritesD;
+        if (favoritesList.some(fav => fav.id === video.id)) {
+            showMessageBox("هذا الفيديو موجود بالفعل في قائمة المتابعة في السيارة.");
+            return;
+        }
+
+        const updatedList = [videoToSave, ...favoritesList];
+        const success = await updateFavorites('D', updatedList);
+
+        if (success) {
+            favoritesD = updatedList; // تحديث القائمة العامة
+            showMessageBox(`تمت إضافة الفيديو "${video.snippet.title}" إلى قائمة السيارة.`);
+            
+            // إعادة تحميل المفضلة إذا كانت الشاشة مفتوحة
+            const activeTab = document.querySelector('#screen-Media .tab-button.active')?.id;
+            if (activeTab === 'tab-saved-d') { loadSavedVideos('D'); }
+        }
+        
+    } catch (error) {
+        console.error("Error adding video by URL:", error);
+        showMessageBox("حدث خطأ أثناء إضافة الفيديو. يرجى التحقق من مفتاح API.");
+    } finally {
+        document.getElementById('add-video-prompt').remove();
+        updateNavigableElements();
+    }
+}
+
 // --- REPLACE THIS FUNCTION ---
         async function handleAddChannelFromModal(channelId, channelTitle, channelThumbnail) {
             const modalButton = document.querySelector(`.add-channel-from-modal-btn[data-channel-id="${channelId}"]`);
@@ -4882,91 +5056,103 @@ function updateUI() {
             }
         }
         
-        async function searchVideosByChannel(channelId, channelTitle) {
-            if (!channelId) return;
+      /**
+ * Searches for a channel's content, prioritizing currently live videos over regular uploads,
+ * then displays the combined results on the search results screen.
+ *
+ * @param {string} channelId - The ID of the YouTube channel.
+ * @param {string} channelTitle - The name of the YouTube channel.
+ */
+async function searchVideosByChannel(channelId, channelTitle) {
+    if (!channelId) return;
 
-            searchResultsContainer.innerHTML = `<h2 class="text-3xl font-bold mb-4 text-center w-full text-white col-span-full">جاري تحميل الفيديوهات من ${channelTitle}...</h2>`;
-            youtubeSuggestionsDiv.style.display = 'none';
-            youtubeVideoListView.classList.add('hidden');
-            youtubeSearchResultsView.classList.remove('hidden');
-            activeMediaView = 'searchResults';
+    searchResultsContainer.innerHTML = `<h2 class="text-3xl font-bold mb-4 text-center w-full text-white col-span-full">جاري تحميل الفيديوهات من ${channelTitle}...</h2>`;
+    youtubeSuggestionsDiv.style.display = 'none';
+    youtubeVideoListView.classList.add('hidden');
+    youtubeSearchResultsView.classList.remove('hidden');
+    activeMediaView = 'searchResults';
 
-            try {
-                // Step 1: Get the uploads playlist ID from the channel ID
-                const channelRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails,snippet&id=${channelId}&key=${YOUTUBE_API_KEY}`);
-                if (!channelRes.ok) {
-                    throw new Error("Failed to fetch channel details to find uploads playlist.");
-                }
-                const channelData = await channelRes.json();
-                const uploadsPlaylistId = channelData?.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
-                const channelThumbnail = channelData?.items?.[0]?.snippet?.thumbnails?.default?.url;
+    try {
+        // 1. جلب قائمة التحميلات (Uploads Playlist ID)
+        const channelRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails,snippet&id=${channelId}&key=${YOUTUBE_API_KEY}`);
+        if (!channelRes.ok) throw new Error("Failed to fetch channel details.");
+        const channelData = await channelRes.json();
+        const uploadsPlaylistId = channelData?.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
+        const channelThumbnail = channelData?.items?.[0]?.snippet?.thumbnails?.default?.url;
 
-                if (!uploadsPlaylistId) {
-                    throw new Error("Could not find the uploads playlist for this channel.");
-                }
-
-                // Step 2: Get the video items from the uploads playlist
-                const playlistRes = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${uploadsPlaylistId}&key=${YOUTUBE_API_KEY}&maxResults=25`);
-                 if (!playlistRes.ok) {
-                    throw new Error("Failed to fetch videos from the channel's playlist.");
-                }
-                const playlistData = await playlistRes.json();
-
-                if (playlistData.items && playlistData.items.length > 0) {
-                    const videoIds = playlistData.items.map(item => item.snippet.resourceId.videoId).filter(id => id);
-                    const videoDetails = await fetchVideosDetails(videoIds);
-
-                    if (videoDetails === null) {
-                        throw new Error("Failed to fetch details for channel videos.");
-                    }
-
-                    searchResultsContainer.innerHTML = `<h2 class="text-3xl font-bold mb-4 text-center w-full text-white col-span-full"> فيديوهات من ${channelTitle}</h2>`;
-
-                    videoDetails.forEach(video => {
-                        const isLive = video.snippet.liveBroadcastContent === 'live';
-                        const durationString = video.contentDetails.duration;
-                        
-                        if (!isLive) {
-                            const durationSeconds = durationString.match(/\d+/g)?.map(Number).reduce((acc, time, i, arr) => acc + time * (arr.length === 3 ? [3600, 60, 1][i] : (arr.length === 2 ? [60, 1][i] : 1)), 0) || 0;
-                            if (durationSeconds <= 61) return;
-                        }
-
-                        const videoData = {
-                            id: video.id,
-                            title: video.snippet.title,
-                            thumbnail: video.snippet.thumbnails.medium.url,
-                            channelTitle: video.snippet.channelTitle,
-                            channelId: video.snippet.channelId,
-                            channelThumbnail: channelThumbnail,
-                            viewCount: formatViewCount(video.statistics.viewCount),
-                            publishedAt: formatTimeAgo(video.snippet.publishedAt),
-                            duration: isLive ? 'مباشر' : formatDuration(durationString)
-                        };
-                        searchResultsContainer.appendChild(createVideoCard(videoData));
-                    });
-
-                    lucide.createIcons();
-                    updateNavigableElements();
-                    backToPlaylistsBottomButton.style.display = 'none';
-                    backToPlaylistsBottomButtonSearch.style.display = 'flex';
-                    backToSearchFloatingButton.style.display = 'flex';
-                    previousItemButton.style.display = 'none';
-                    nextItemButton.style.display = 'none';
-
-                    setTimeout(() => {
-                        const firstResult = searchResultsContainer.querySelector('.grid-item');
-                        if (firstResult) setFocus(firstResult);
-                    }, 100);
-
-                } else {
-                    searchResultsContainer.innerHTML = `<h2 class="text-3xl font-bold mb-4 text-center w-full text-white col-span-full">لا توجد فيديوهات في قناة ${channelTitle}</h2>`;
-                }
-            } catch (err) {
-                console.error('Error searching videos by channel:', err);
-                searchResultsContainer.innerHTML = `<h2 class="text-3xl font-bold mb-4 text-center w-full text-white col-span-full text-red-400">حدث خطأ أثناء تحميل فيديوهات القناة. قد تكون هناك مشكلة في الاتصال أو مفتاح API.</h2>`;
-            }
+        if (!uploadsPlaylistId) {
+             throw new Error("Could not find the uploads playlist for this channel.");
         }
+
+        // 2. جلب مقاطع الفيديو العادية من قائمة التحميلات (Uploads Playlist)
+        const playlistRes = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${uploadsPlaylistId}&key=${YOUTUBE_API_KEY}&maxResults=15`);
+        if (!playlistRes.ok) throw new Error("Failed to fetch videos from the channel's playlist.");
+        const playlistData = await playlistRes.json();
+
+        // استخراج IDs من القائمة
+        let videoIds = playlistData.items.map(item => item.snippet.resourceId.videoId).filter(id => id);
         
+        // 3. جلب مقاطع الفيديو المباشرة (Live Broadcasts) - الأولوية
+        const liveRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&type=video&eventType=live&key=${YOUTUBE_API_KEY}&maxResults=10`);
+        const liveData = await liveRes.json();
+        
+        // استخراج IDs للفيديوهات المباشرة
+        const liveVideoIds = liveData.items.map(item => item.id.videoId);
+
+        // 4. دمج الـ IDs: نضع البث المباشر أولاً ثم المقاطع العادية (مع إزالة التكرارات)
+        const combinedVideoIds = [...new Set([...liveVideoIds, ...videoIds])]; 
+        
+        if (combinedVideoIds.length === 0) {
+            searchResultsContainer.innerHTML = `<h2 class="text-3xl font-bold mb-4 text-center w-full text-white col-span-full">لا توجد فيديوهات متاحة حالياً في قناة ${channelTitle}</h2>`;
+            // 🛑 FIX: تعيين حالة بحث القناة لتفعيل زر العودة
+            lastSuccessfulSearchQuery = `CHANNEL_ID:${channelId}:${channelTitle}`;
+            return;
+        }
+
+        // 5. جلب التفاصيل الكاملة (مدة، إحصائيات، إلخ)
+        const videoDetails = await fetchVideosDetails(combinedVideoIds);
+
+        searchResultsContainer.innerHTML = `<h2 class="text-3xl font-bold mb-4 text-center w-full text-white col-span-full"> فيديوهات من ${channelTitle}</h2>`;
+
+        videoDetails.forEach(video => {
+            const isLive = video.snippet.liveBroadcastContent === 'live';
+            const durationString = video.contentDetails?.duration;
+            
+            // تخطي المقاطع القصيرة جداً
+            if (!isLive && (!durationString || durationString.match(/\d+/g)?.map(Number).reduce((acc, time, i, arr) => acc + time * (arr.length === 3 ? [3600, 60, 1][i] : (arr.length === 2 ? [60, 1][i] : 1)), 0) || 0) <= 61) return;
+
+            const videoData = {
+                id: video.id,
+                title: video.snippet.title,
+                thumbnail: video.snippet.thumbnails.medium.url,
+                channelTitle: video.snippet.channelTitle,
+                channelId: video.snippet.channelId,
+                channelThumbnail: channelThumbnail,
+                viewCount: formatViewCount(video.statistics?.viewCount || 0),
+                publishedAt: formatTimeAgo(video.snippet.publishedAt),
+                duration: isLive ? 'مباشر' : formatDuration(durationString)
+            };
+            searchResultsContainer.appendChild(createVideoCard(videoData));
+        });
+
+        // 🛑 CRITICAL FIX: تعيين حالة البحث الناجح للقناة لتمكين زر العودة
+        lastSuccessfulSearchQuery = `CHANNEL_ID:${channelId}:${channelTitle}`; 
+
+        // 6. تحديث الواجهة والتنقل
+        lucide.createIcons();
+        updateNavigableElements();
+        backToPlaylistsBottomButton.style.display = 'none';
+        backToPlaylistsBottomButtonSearch.style.display = 'flex';
+        backToSearchFloatingButton.style.display = 'flex';
+        previousItemButton.style.display = 'none';
+        nextItemButton.style.display = 'none';
+        setTimeout(() => { const firstResult = searchResultsContainer.querySelector('.grid-item'); if (firstResult) setFocus(firstResult); }, 100);
+        
+    } catch (err) {
+        console.error('Error searching videos by channel:', err);
+        searchResultsContainer.innerHTML = `<h2 class="text-3xl font-bold mb-4 text-center w-full text-white col-span-full text-red-400">حدث خطأ أثناء تحميل فيديوهات القناة. قد تكون هناك مشكلة في الاتصال أو مفتاح API.</h2>`;
+    }
+}   
         /**
  * Asynchronously loads and displays the YouTube video player in a floating popup window.
  * It determines the start time from local history unless overridden.
@@ -5070,57 +5256,62 @@ async function showVideoPopup(videoId, startOverride = null) {
     setTimeout(() => setFocus(videoPopupCloseButton), 100);
     lucide.createIcons(); 
 }
+
 async function hideVideoPopup() {
-            if (progressInterval) clearInterval(progressInterval);
+    // 1. إيقاف تتبع التقدم
+    if (progressInterval) clearInterval(progressInterval);
 
-            // 1. Get all necessary data from the player BEFORE destroying it
-            let videoId, currentTime, duration;
-            if (popupPlayer && typeof popupPlayer.getCurrentTime === 'function' && popupPlayer.getVideoData) {
-                const videoData = popupPlayer.getVideoData();
-                videoId = videoData ? videoData.video_id : null;
-                currentTime = popupPlayer.getCurrentTime();
-                duration = popupPlayer.getDuration();
-            }
+    let videoId, currentTime, duration;
 
-            // 2. Destroy the player immediately
-            if (popupPlayer) {
-                popupPlayer.destroy();
-                popupPlayer = null;
-            }
-
-            // 3. NOW, update the progress using the stored data
-            if (videoId) {
-                await updateVideoProgress(videoId, currentTime, duration);
-            }
-            
-            // 4. Handle all other UI updates
-            document.body.classList.remove('animation-paused');
-            const playIcon = pauseAnimationButton.querySelector('[data-lucide="play"]');
-            const pauseIcon = pauseAnimationButton.querySelector('[data-lucide="pause"]');
-            if (playIcon && pauseIcon) {
-                playIcon.classList.add('hidden');
-                pauseIcon.classList.remove('hidden');
-            }
-            
-            videoPopupContainer.classList.remove('active');
-            videoPopupContainer.style.display = 'none';
-            floatingMinimizedVideoButton.style.display = 'none';
-            appState.isVideoPlayerMinimized = false;
-
-            // --- START: NEW CLEANUP LOGIC ---
-            // Remove the bookmark button so it can be re-created fresh next time
-            const bookmarkBtn = document.getElementById('video-popup-bookmark-button');
-            if (bookmarkBtn) {
-                bookmarkBtn.remove();
-            }
-            // --- END: NEW CLEANUP LOGIC ---
-            
-            const screen = document.querySelector('.app-screen.active');
-            if (screen) {
-                const item = screen.querySelector('.grid-item');
-                if (item) setFocus(item);
-            }
+    // 2. التحقق من صلاحية المشغل وإيقافه (بدلاً من تدميره)
+    if (popupPlayer && typeof popupPlayer.pauseVideo === 'function') {
+        popupPlayer.pauseVideo(); // إيقاف الفيديو
+        
+        // 3. حفظ حالة الفيديو
+        const videoData = popupPlayer.getVideoData();
+        videoId = videoData ? videoData.video_id : null;
+        currentTime = popupPlayer.getCurrentTime();
+        duration = popupPlayer.getDuration();
+        
+        // 4. تحديث التقدم في الذاكرة (localStorage/JSONBin)
+        if (videoId) {
+            await updateVideoProgress(videoId, currentTime, duration);
         }
+        
+    } else {
+        // إذا كان المشغل غير متاح، نستخدم البيانات المخزنة إذا أمكن
+        videoId = currentPlayingVideoId; 
+    }
+    
+    // 🛑 CRITICAL FIX: لا نقوم بتدمير المشغل هنا، فقط نغير حالة الواجهة المرئية
+    
+    // 5. تحديث الواجهة المرئية
+    document.body.classList.remove('animation-paused');
+    const playIcon = pauseAnimationButton.querySelector('[data-lucide="play"]');
+    const pauseIcon = pauseAnimationButton.querySelector('[data-lucide="pause"]');
+    if (playIcon && pauseIcon) {
+        playIcon.classList.add('hidden');
+        pauseIcon.classList.remove('hidden');
+    }
+    
+    videoPopupContainer.classList.remove('active');
+    videoPopupContainer.style.display = 'none';
+    floatingMinimizedVideoButton.style.display = 'none';
+    appState.isVideoPlayerMinimized = false;
+
+    // 6. تنظيف الـ DOM (إزالة زر الحفظ المؤقت)
+    const bookmarkBtn = document.getElementById('video-popup-bookmark-button');
+    if (bookmarkBtn) {
+        bookmarkBtn.remove();
+    }
+    
+    // 7. نقل التركيز
+    const screen = document.querySelector('.app-screen.active');
+    if (screen) {
+        const item = screen.querySelector('.grid-item');
+        if (item) setFocus(item);
+    }
+}
         
         // NEW: Functions to minimize and restore the video popup
        // ... (تعريف العناصر في البداية)
@@ -5139,7 +5330,17 @@ function minimizeVideoPopup() {
     
     // 🛑 1. ضبط جودة التشغيل على أدنى حد للتركيز على الصوت وتوفير الموارد
     if (popupPlayer && typeof popupPlayer.setPlaybackQuality === 'function') {
+        // نضبط الجودة على "Tiny" أو "Small" لإجبار المتصفح على التركيز على الصوت
         popupPlayer.setPlaybackQuality('tiny'); 
+        
+        // 💡 تلميح: إرسال أمر تشغيل Play إلى الـ iframe يدوياً يساعد في الخلفية
+        const iframe = popupPlayer.getIframe();
+        if (iframe && iframe.contentWindow) {
+             iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+        }
+    } else {
+        // إذا كان المشغل غير مهيأ، نحاول تشغيل الصوت (قد لا يعمل)
+        console.warn("Cannot minimize: YouTube player is not ready for background mode.");
     }
     
     // 2. إخفاء المشغل الكبير وإظهار الكبسولة
@@ -5162,14 +5363,6 @@ function minimizeVideoPopup() {
     setFocus(floatingMinimizedVideoButton);
 }
 
-// 💡 يتم استدعاؤها عند النقر على زر التكبير في الكبسولة المصغرة
-/**
- * REPLACED: Restores the YouTube video popup from the minimized audio capsule.
- */
-/**
- * REPLACED & FINALIZED: Restores the YouTube video popup from the minimized audio capsule.
- * Ensures the video screen reappears and playback quality is restored.
- */
 function restoreVideoPopup() {
     // 1. شروط الأمان
     if (!appState.isVideoPlayerMinimized) return;
@@ -5200,25 +5393,6 @@ function restoreVideoPopup() {
     }
 }
 
-/**
- * NEW: Updates the state (Play/Pause Icon and Speed Text) of the minimized capsule.
- */
-/**
- * FINALIZED: Updates the state (Play/Pause Icon and Speed Text) of the minimized capsule.
- * Reads the current playback rate from the YT Player and updates the interactive button text.
- */
-/**
- * FINALIZED: Updates the state (Play/Pause Icon, Speed Buttons, and Select List) 
- * of the minimized capsule and the main popup's controls.
- */
-/**
- * FINALIZED: Updates the state (Play/Pause Icon, Speed Buttons, and Select List) 
- * of the minimized capsule and the main popup's controls.
- */
-/**
- * FINALIZED: Reads the current playback rate from the YT Player and updates the interactive button text 
- * (minimizedPlaybackSpeedBtn) and the main Select list.
- */
 function updateMinimizedControlsState() {
     // 🛑 1. التحقق من وجود المشغل وتهيئته
     if (!popupPlayer || typeof popupPlayer.getPlayerState !== 'function') return; 
@@ -7359,38 +7533,68 @@ async function fetchWeatherData() {
         }
 
         // --- Prayer Times Integration ---
-        const prayerTimes = [
+        const prayerTimes = [ {"date":"2025-12-01","fajr":"05:20","sunrise":"06:36","dhuhr":"12:17","asr":"15:30","maghrib":"17:53","isha":"19:05"},
 
-    {"date":"2025-11-01","fajr":"05:08","sunrise":"06:22","dhuhr":"12:12","asr":"15:31","maghrib":"17:58","isha":"19:06"},
-    {"date":"2025-11-02","fajr":"05:08","sunrise":"06:22","dhuhr":"12:12","asr":"15:30","maghrib":"17:57","isha":"19:06"},
-    {"date":"2025-11-03","fajr":"05:09","sunrise":"06:23","dhuhr":"12:12","asr":"15:30","maghrib":"17:57","isha":"19:06"},
-    {"date":"2025-11-04","fajr":"05:09","sunrise":"06:23","dhuhr":"12:12","asr":"15:30","maghrib":"17:57","isha":"19:05"},
-    {"date":"2025-11-05","fajr":"05:09","sunrise":"06:23","dhuhr":"12:12","asr":"15:30","maghrib":"17:56","isha":"19:05"},
-    {"date":"2025-11-06","fajr":"05:10","sunrise":"06:24","dhuhr":"12:12","asr":"15:30","maghrib":"17:56","isha":"19:05"},
-    {"date":"2025-11-07","fajr":"05:10","sunrise":"06:24","dhuhr":"12:12","asr":"15:29","maghrib":"17:55","isha":"19:04"},
-    {"date":"2025-11-08","fajr":"05:10","sunrise":"06:25","dhuhr":"12:12","asr":"15:29","maghrib":"17:55","isha":"19:04"},
-    {"date":"2025-11-09","fajr":"05:11","sunrise":"06:25","dhuhr":"12:12","asr":"15:29","maghrib":"17:55","isha":"19:04"},
-    {"date":"2025-11-10","fajr":"05:11","sunrise":"06:26","dhuhr":"12:13","asr":"15:29","maghrib":"17:55","isha":"19:04"},
-    {"date":"2025-11-11","fajr":"05:12","sunrise":"06:26","dhuhr":"12:13","asr":"15:29","maghrib":"17:54","isha":"19:04"},
-    {"date":"2025-11-12","fajr":"05:12","sunrise":"06:27","dhuhr":"12:13","asr":"15:29","maghrib":"17:54","isha":"19:04"},
-    {"date":"2025-11-13","fajr":"05:12","sunrise":"06:27","dhuhr":"12:13","asr":"15:29","maghrib":"17:54","isha":"19:03"},
-    {"date":"2025-11-14","fajr":"05:13","sunrise":"06:28","dhuhr":"12:13","asr":"15:29","maghrib":"17:54","isha":"19:03"},
-    {"date":"2025-11-15","fajr":"05:13","sunrise":"06:28","dhuhr":"12:13","asr":"15:29","maghrib":"17:53","isha":"19:03"},
-    {"date":"2025-11-16","fajr":"05:13","sunrise":"06:29","dhuhr":"12:13","asr":"15:29","maghrib":"17:53","isha":"19:03"},
-    {"date":"2025-11-17","fajr":"05:14","sunrise":"06:29","dhuhr":"12:14","asr":"15:28","maghrib":"17:53","isha":"19:03"},
-    {"date":"2025-11-18","fajr":"05:14","sunrise":"06:30","dhuhr":"12:14","asr":"15:28","maghrib":"17:53","isha":"19:03"},
-    {"date":"2025-11-19","fajr":"05:15","sunrise":"06:30","dhuhr":"12:14","asr":"15:28","maghrib":"17:53","isha":"19:03"},
-    {"date":"2025-11-20","fajr":"05:15","sunrise":"06:31","dhuhr":"12:14","asr":"15:28","maghrib":"17:53","isha":"19:03"},
-    {"date":"2025-11-21","fajr":"05:16","sunrise":"06:31","dhuhr":"12:14","asr":"15:29","maghrib":"17:53","isha":"19:03"},
-    {"date":"2025-11-22","fajr":"05:16","sunrise":"06:32","dhuhr":"12:15","asr":"15:29","maghrib":"17:53","isha":"19:03"},
-    {"date":"2025-11-23","fajr":"05:17","sunrise":"06:32","dhuhr":"12:15","asr":"15:29","maghrib":"17:53","isha":"19:03"},
-    {"date":"2025-11-24","fajr":"05:17","sunrise":"06:33","dhuhr":"12:15","asr":"15:29","maghrib":"17:53","isha":"19:04"},
-    {"date":"2025-11-25","fajr":"05:17","sunrise":"06:33","dhuhr":"12:16","asr":"15:29","maghrib":"17:53","isha":"19:04"},
-    {"date":"2025-11-26","fajr":"05:18","sunrise":"06:34","dhuhr":"12:16","asr":"15:29","maghrib":"17:53","isha":"19:04"},
-    {"date":"2025-11-27","fajr":"05:18","sunrise":"06:35","dhuhr":"12:16","asr":"15:29","maghrib":"17:53","isha":"19:04"},
-    {"date":"2025-11-28","fajr":"05:19","sunrise":"06:35","dhuhr":"12:17","asr":"15:29","maghrib":"17:53","isha":"19:04"},
-    {"date":"2025-11-29","fajr":"05:19","sunrise":"06:36","dhuhr":"12:17","asr":"15:29","maghrib":"17:53","isha":"19:04"},
-    {"date":"2025-11-30","fajr":"05:20","sunrise":"06:36","dhuhr":"12:17","asr":"15:30","maghrib":"17:53","isha":"19:05"}
+    {"date":"2025-12-02","fajr":"05:20","sunrise":"06:37","dhuhr":"12:18","asr":"15:30","maghrib":"17:53","isha":"19:05"},
+
+    {"date":"2025-12-03","fajr":"05:21","sunrise":"06:37","dhuhr":"12:18","asr":"15:30","maghrib":"17:54","isha":"19:06"},
+
+    {"date":"2025-12-04","fajr":"05:21","sunrise":"06:38","dhuhr":"12:18","asr":"15:30","maghrib":"17:54","isha":"19:06"},
+
+    {"date":"2025-12-05","fajr":"05:21","sunrise":"06:38","dhuhr":"12:18","asr":"15:31","maghrib":"17:54","isha":"19:06"},
+
+    {"date":"2025-12-06","fajr":"05:22","sunrise":"06:39","dhuhr":"12:19","asr":"15:31","maghrib":"17:54","isha":"19:06"},
+
+    {"date":"2025-12-07","fajr":"05:22","sunrise":"06:39","dhuhr":"12:19","asr":"15:31","maghrib":"17:55","isha":"19:06"},
+
+    {"date":"2025-12-08","fajr":"05:23","sunrise":"06:40","dhuhr":"12:20","asr":"15:31","maghrib":"17:55","isha":"19:07"},
+
+    {"date":"2025-12-09","fajr":"05:23","sunrise":"06:40","dhuhr":"12:20","asr":"15:32","maghrib":"17:55","isha":"19:07"},
+
+    {"date":"2025-12-10","fajr":"05:24","sunrise":"06:41","dhuhr":"12:20","asr":"15:32","maghrib":"17:56","isha":"19:07"},
+
+    {"date":"2025-12-11","fajr":"05:24","sunrise":"06:41","dhuhr":"12:20","asr":"15:33","maghrib":"17:56","isha":"19:08"},
+
+    {"date":"2025-12-12","fajr":"05:25","sunrise":"06:42","dhuhr":"12:21","asr":"15:33","maghrib":"17:57","isha":"19:08"},
+
+    {"date":"2025-12-13","fajr":"05:25","sunrise":"06:42","dhuhr":"12:21","asr":"15:33","maghrib":"17:57","isha":"19:08"},
+
+    {"date":"2025-12-14","fajr":"05:26","sunrise":"06:43","dhuhr":"12:22","asr":"15:33","maghrib":"17:57","isha":"19:09"},
+
+    {"date":"2025-12-15","fajr":"05:26","sunrise":"06:43","dhuhr":"12:22","asr":"15:34","maghrib":"17:58","isha":"19:09"},
+
+    {"date":"2025-12-16","fajr":"05:27","sunrise":"06:44","dhuhr":"12:22","asr":"15:34","maghrib":"17:58","isha":"19:09"},
+
+    {"date":"2025-12-17","fajr":"05:27","sunrise":"06:44","dhuhr":"12:23","asr":"15:35","maghrib":"17:59","isha":"19:10"},
+
+    {"date":"2025-12-18","fajr":"05:28","sunrise":"06:45","dhuhr":"12:23","asr":"15:35","maghrib":"17:59","isha":"19:10"},
+
+    {"date":"2025-12-19","fajr":"05:28","sunrise":"06:45","dhuhr":"12:24","asr":"15:36","maghrib":"18:00","isha":"19:11"},
+
+    {"date":"2025-12-20","fajr":"05:29","sunrise":"06:46","dhuhr":"12:24","asr":"15:36","maghrib":"18:00","isha":"19:11"},
+
+    {"date":"2025-12-21","fajr":"05:29","sunrise":"06:46","dhuhr":"12:25","asr":"15:37","maghrib":"18:01","isha":"19:12"},
+
+    {"date":"2025-12-22","fajr":"05:30","sunrise":"06:47","dhuhr":"12:25","asr":"15:37","maghrib":"18:01","isha":"19:12"},
+
+    {"date":"2025-12-23","fajr":"05:31","sunrise":"06:48","dhuhr":"12:26","asr":"15:38","maghrib":"18:02","isha":"19:13"},
+
+    {"date":"2025-12-24","fajr":"05:31","sunrise":"06:48","dhuhr":"12:26","asr":"15:38","maghrib":"18:02","isha":"19:13"},
+
+    {"date":"2025-12-25","fajr":"05:32","sunrise":"06:49","dhuhr":"12:27","asr":"15:39","maghrib":"18:03","isha":"19:14"},
+
+    {"date":"2025-12-26","fajr":"05:32","sunrise":"06:49","dhuhr":"12:28","asr":"15:39","maghrib":"18:03","isha":"19:14"},
+
+    {"date":"2025-12-27","fajr":"05:33","sunrise":"06:50","dhuhr":"12:28","asr":"15:40","maghrib":"18:04","isha":"19:15"},
+
+    {"date":"2025-12-28","fajr":"05:34","sunrise":"06:50","dhuhr":"12:29","asr":"15:40","maghrib":"18:04","isha":"19:15"},
+
+    {"date":"2025-12-29","fajr":"05:34","sunrise":"06:51","dhuhr":"12:29","asr":"15:41","maghrib":"18:05","isha":"19:16"},
+
+    {"date":"2025-12-30","fajr":"05:35","sunrise":"06:52","dhuhr":"12:30","asr":"15:41","maghrib":"18:05","isha":"19:16"},
+
+    {"date":"2025-12-31","fajr":"05:36","sunrise":"06:53","dhuhr":"12:30","asr":"15:42","maghrib":"18:06","isha":"19:17"}
+
 ];
 /**
  * Converts a 24-hour time string (HH:MM) to a 12-hour time string (H:MM).
@@ -8303,7 +8507,10 @@ updateTrafficIndicators();
     const videoPopupMinimizeButton = document.getElementById('video-popup-minimize-button');
     const floatingMinimizedVideoButton = document.getElementById('floating-minimized-video-button');
     const minimizedPlaybackSpeedBtn = document.getElementById('minimized-playback-speed-btn'); 
+    const addVideoByUrlBtn = document.getElementById('add-video-by-url-btn');
 
+    // 🛑 ربط زر إضافة الفيديو بالرابط
+    addVideoByUrlBtn?.addEventListener('click', promptAddVideoByUrl);
 
 const todayDate = new Date().toLocaleDateString('en-US');
 const lastReset = localStorage.getItem('lastPrayerAlertReset');
