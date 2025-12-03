@@ -2033,7 +2033,46 @@ div#bottom-left-controls {
 
         /* التغييرات المطلوبة للشاشات الأوسع */
         @media (min-width: 992px) {
+.glass-surface {
+    /* 🛑 1. خاصية الضبابية (CRITICAL for Glass Effect) */
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%); /* دعم متصفحات الويب كيت */
 
+    /* 2. الخلفية الشفافة المائلة للثلج */
+    background-color: rgba(255, 255, 255, 0.15); /* لون أبيض خفيف */
+    
+    /* 3. حدود شفافة خفيفة (لإحساس العمق) */
+    border: 1px solid rgba(255, 255, 255, 0.1); 
+    
+    /* 4. إعدادات ظل خفيف وعائم */
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    
+    /* 5. تجعل الحواف أكثر نعومة */
+    border-radius: 16px;
+    
+    /* 6. منع تجاوز المحتوى للمنظور الزجاجي */
+    overflow: hidden; 
+    
+    /* 7. استخدام 3D Transform لتثبيت التأثير في Safari */
+    transform: translateZ(0); 
+}
+
+/* 🛑 إضافة طبقة لمعان خفيفة (اختياري) */
+.glass-surface::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* تدرج لوني يعطي إحساس باللمعان من الأعلى لليسار */
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.1),
+        rgba(255, 255, 255, 0)
+    );
+    pointer-events: none; /* لا يعيق النقر */
+}
 /* Cleaned base body styles - animation and gradient moved to screens */
         body {
             font-family: 'Inter', sans-serif;
