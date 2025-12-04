@@ -1750,7 +1750,18 @@ span.surah-name-text {
         /* NEW: Responsive padding toggle */
         @media (min-width: 768px) {
 
+.glass-surface {
+    /* 🛑 1. خاصية الضبابية (CRITICAL for Glass Effect) */
+    backdrop-filter: blur(12px) saturate(180%)!important;
+    -webkit-backdrop-filter: blur(12px) saturate(180%)!important; /* دعم متصفحات الويب كيت */
 
+    /* 2. الخلفية الشفافة المائلة للثلج */
+    background-color: rgba(255, 255, 255, 0.15)!important; /* لون أبيض خفيف */
+    
+ 
+    /* 4. إعدادات ظل خفيف وعائم */
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3)!important;
+}
             button.youtube-suggestion-button {
     font-size: 1rem;
 }
