@@ -946,13 +946,13 @@ section#screen-Map>.w-full.h-full.bg-black2.rounded-3xl.flex.items-center.justif
         /* Specific positioning for floating buttons */
         #floating-media-button { bottom: 1rem; right: 1rem; }
         #floating-keyboard-button {
-            bottom: 1rem;
-            right: 8rem; /* Adjusted to be next to media button */
-            
+            bottom: 4rem!important;
+            right: 5rem; /* Adjusted to be next to media button */
+        
         }
         #floating-keyboard-button.active-keyboard {
             background-color: #90EE90; /* Chrome Green */
-            color: black; /* Black icon */
+            color: cyan; /* Black icon */
         }
         #floating-keyboard-button.inactive-keyboard {
             background-color: #FF0000; /* Red */
@@ -2384,6 +2384,9 @@ div#map{display:none}
                             <button id="youtube-search-button" class="bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center navigable grid-item" tabindex="0">
                                 <i data-lucide="search"></i>
                             </button>
+                            <button id="floating-keyboard-button" class="glass-surface glass-surface--svg rounded-full navigable grid-item " tabindex="0">
+        <i data-lucide="keyboard" class="w-6 h-6"></i>
+    </button>
                             <button id="clear-search-button" class="navigable grid-item" tabindex="0">
                                 <i data-lucide="x" class="w-5 h-5"></i>
                             </button>
@@ -2729,9 +2732,7 @@ div#map{display:none}
         title="إضافة فيديو بالرابط">
     <i data-lucide="plus-circle" class="w-6 h-6"></i>
 </button>
-    <button id="floating-keyboard-button" class="glass-surface glass-surface--svg rounded-full navigable grid-item" tabindex="0">
-        <i data-lucide="keyboard" class="w-6 h-6"></i>
-    </button>
+    
     <button id="start-trip-floating-button" class="glass-surface glass-surface--svg rounded-full navigable grid-item" tabindex="0">
         <i data-lucide="map-pin" class="w-6 h-6"></i> بدء الرحلة
     </button>
@@ -4368,27 +4369,52 @@ function updateUI() {
             floatingMediaButton.style.display = (appName === 'Media') ? 'none' : 'flex';
             floatingKeyboardButton.style.display = (appName === 'Media') ? 'flex' : 'none';
             clearSearchButton.style.display = (appName === 'Media') ? 'flex' : 'none';
-            
-            if (appName === 'Media') {
-                floatingKeyboardButton.classList.toggle('active-keyboard', !youtubeSearchInput.readOnly);
-                floatingKeyboardButton.classList.toggle('inactive-keyboard', youtubeSearchInput.readOnly);
-                
-                // Logic to show the correct view
-                youtubeVideoListView.classList.add('hidden');
-                youtubeSearchResultsView.classList.add('hidden');
-                youtubeSuggestionsDiv.style.display = 'flex'; // Make suggestions visible
+             
+             if (appName === 'Media') {
+        // 🚀 FIX: تحديث حالة زر لوحة المفاتيح (Active/Inactive)
+        if (floatingKeyboardButton) {
+            floatingKeyboardButton.style.display = 'flex'; // تأكد من إظهار الزر
+            floatingKeyboardButton.classList.toggle('active-keyboard', !youtubeSearchInput.readOnly);
+            floatingKeyboardButton.classList.toggle('inactive-keyboard', youtubeSearchInput.readOnly);
+        }
+        
+        // 💡 تحديث زر مسح البحث
+        if (clearSearchButton) {
+            clearSearchButton.style.display = 'flex';
+        }
+        
+        // 💡 إخفاء زر الوسائط العادي
+        if (floatingMediaButton) {
+            floatingMediaButton.style.display = 'none';
+        }
+        
 
-                if (activeMediaView === 'videoList' && currentPlayingPlaylistId) {
-                    youtubeVideoListView.classList.remove('hidden');
-                } else if (activeMediaView === 'searchResults') {
-                    youtubeSearchResultsView.classList.remove('hidden');
-                } else {
-                    // Default to suggestions view
-                    resetYoutubeSearchUI();
-                }
-            } else {
-                 youtubeSuggestionsDiv.style.display = 'none';
-            }
+        // --- Logic to show the correct view ---
+        youtubeVideoListView.classList.add('hidden');
+        youtubeSearchResultsView.classList.add('hidden');
+        youtubeSuggestionsDiv.style.display = 'flex'; // Make suggestions visible
+
+        if (activeMediaView === 'videoList' && currentPlayingPlaylistId) {
+            youtubeVideoListView.classList.remove('hidden');
+        } else if (activeMediaView === 'searchResults') {
+            youtubeSearchResultsView.classList.remove('hidden');
+        } else {
+            // Default to suggestions view
+            resetYoutubeSearchUI();
+        }
+    } else {
+        // 🛑 2. منطق إخفاء العناصر في الشاشات الأخرى
+        if (floatingKeyboardButton) {
+            floatingKeyboardButton.style.display = 'none';
+        }
+        if (clearSearchButton) {
+            clearSearchButton.style.display = 'none';
+        }
+        if (floatingMediaButton) {
+            floatingMediaButton.style.display = 'flex'; // إظهار زر الوسائط العائم
+        }
+        youtubeSuggestionsDiv.style.display = 'none';
+    }
         }
         appButtons.forEach(b => b.addEventListener('click', () => switchApp(b.dataset.app)));
         sidebarIcons.forEach(el => el.classList.add('w-16', 'h-16', 'rounded-2xl', 'flex', 'items-center', 'justify-center', 'transition-all', 'duration-300', 'ease-in-out'));
