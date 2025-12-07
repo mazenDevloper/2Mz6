@@ -6651,54 +6651,48 @@ button.addEventListener('click', () => {
             }
         }
 
-        async function saveVideoToFavorites(video, type) {
-            const favoritesList = type === 'D' ? favoritesD : favoritesM;
-            if (favoritesList.some(fav => fav.id === video.id)) {
-                showMessageBox(`الفيديو موجود بالفعل في المفضلة ${type}`);
-                return;
-            }
-            const history = getWatchedHistory();
-            const watchedInfo = history[video.id];
-            const progress = (watchedInfo && watchedInfo.progress > 0) ? watchedInfo.progress : 0;
+        async function saveVideoToFavorites(rawVideoData, type) {
+    const videoToSave = {
+        id: rawVideoData.id,
+        title: rawVideoData.title || rawVideoData.snippet?.title || 'Unknown Title',
+        thumbnail: rawVideoData.thumbnail || rawVideoData.snippet?.thumbnails?.medium?.url || '',
+        channelTitle: rawVideoData.channelTitle || rawVideoData.snippet?.channelTitle || 'Unknown Channel',
+        channelId: rawVideoData.channelId || rawVideoData.snippet?.channelId || '',
+        duration: rawVideoData.duration, 
+        progress: rawVideoData.progress || 0 
+    };
 
-            const videoToSave = {
-                id: video.id,
-                title: video.title,
-                thumbnail: video.thumbnail,
-                channelTitle: video.channelTitle,
-                channelId: video.channelId,
-                duration: video.duration,
-                progress: progress
-            };
+    let favoritesList = type === 'D' ? favoritesD : favoritesM;
+    
+    // هذا السطر يضيف الفيديو الجديد في المقدمة دون إزالة أي نسخ قديمة (يسمح بالتكرار).
+    const updatedList = [videoToSave, ...favoritesList];
+    
+    if (updatedList.length > 50) {
+        updatedList.pop();
+    }
 
-            // [تعديل] إضافة الفيديو الجديد في بداية القائمة (الأحدث أولاً)
-            const updatedList = [videoToSave, ...favoritesList];
-            
-            const success = await updateFavorites(type, updatedList);
+    const success = await updateFavorites(type, updatedList);
 
-            if (success) {
-                if (type === 'D') favoritesD = updatedList; else favoritesM = updatedList;
-                showMessageBox(`تم حفظ الفيديو في المفضلة ${type}`);
-                
-                // تحديث زر الحفظ في الكارت
-                const bookmarkBtn = document.querySelector(`.bookmark-button[data-video-id="${video.id}"]`);
-                if(bookmarkBtn) {
-                    bookmarkBtn.classList.remove('saved-d', 'saved-m', 'saved-both');
-                    if (favoritesD.some(fav => fav.id === video.id) && favoritesM.some(fav => fav.id === video.id)) bookmarkBtn.classList.add('saved-both');
-                    else if (favoritesD.some(fav => fav.id === video.id)) bookmarkBtn.classList.add('saved-d');
-                    else if (favoritesM.some(fav => fav.id === video.id)) bookmarkBtn.classList.add('saved-m');
-                }
+    if (success) {
+        if (type === 'D') favoritesD = updatedList; else favoritesM = updatedList;
+        showMessageBox(`تم حفظ الفيديو في المفضلة ${type}`);
 
-                // [إضافة] تحديث زر الحفظ في نافذة الفيديو المنبثقة إذا كانت مفتوحة
-                const popupBookmarkBtn = document.getElementById('video-popup-bookmark-button');
-                if (popupBookmarkBtn && currentPlayingVideoId === video.id) {
-                     popupBookmarkBtn.classList.remove('saved-d', 'saved-m', 'saved-both');
-                    if (favoritesD.some(fav => fav.id === video.id) && favoritesM.some(fav => fav.id === video.id)) popupBookmarkBtn.classList.add('saved-both');
-                    else if (favoritesD.some(fav => fav.id === video.id)) popupBookmarkBtn.classList.add('saved-d');
-                    else if (favoritesM.some(fav => fav.id === video.id)) popupBookmarkBtn.classList.add('saved-m');
-                }
-            }
-        }
+        const bookmarkBtn = document.querySelector(`.bookmark-button[data-video-id="${videoToSave.id}"]`);
+        if(bookmarkBtn) {
+            bookmarkBtn.classList.remove('saved-d', 'saved-m', 'saved-both');
+            const isD = favoritesD.some(fav => fav.id === videoToSave.id);
+            const isM = favoritesM.some(fav => fav.id === videoToSave.id);
+            if (isD && isM) bookmarkBtn.classList.add('saved-both');
+            else if (isD) bookmarkBtn.classList.add('saved-d');
+            else if (isM) bookmarkBtn.classList.add('saved-m');
+        }
+
+        const activeTab = document.querySelector('#screen-Media .tab-button.active')?.id;
+        if ((type === 'D' && activeTab === 'tab-saved-d') || (type === 'M' && activeTab === 'tab-saved-m')) {
+             loadSavedVideos(type);
+        }
+    }
+}
 
         async function removeVideoFromFavorites(videoId, type) {
             const favoritesList = type === 'D' ? favoritesD : favoritesM;
