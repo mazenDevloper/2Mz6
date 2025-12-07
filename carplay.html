@@ -35,6 +35,15 @@
         /* NEW: Import Amiri font for Thuluth-like style */
         @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
 
+.dashboard-main-grid.grid.grid-cols-1.md\:grid-cols-3.grid-rows-\[80\%_20\%\].gap-4.md\:gap-6.h-full.w-full.grid-container {
+    overflow: scroll;
+}
+section#screen-Dashboard {
+    padding: 20px;
+    border: 0px;
+    margin: 0px;
+    height: 110% !important;
+}
  #floating-media-button {
         padding: 0px!important;
     }
@@ -2355,7 +2364,16 @@ div#map{display:none}
                                 <!-- Prayer times will be loaded here by JavaScript -->
                                 <p class="text-white/70 col-span-full">جاري تحميل أوقات الصلاة...</p>
                             </div>
+                            
                         </div>
+                        <div id="favorites-d-dashboard-row" class="glass-surface glass-surface--svg p-4 flex flex-col justify-start rounded-3xl navigable grid-item" tabindex="0" style="height: 150px;">
+                <h3 class="text-xl font-bold text-white/90 mb-2">🎧 متابعة السيارة السريعة</h3>
+                <div id="fav-d-dashboard-container" class="favorites-dashboard-horizontal-scroll flex-grow">
+                    <p class="text-white/70 text-center p-4 w-full">جاري التحميل...</p>
+                </div>
+            </div>
+            
+                        
 
 
                         <div id="tv" class="glass-surface glass-surface--svg p-4 flex flex-col items-center justify-center text-center car-cam-360-container col-span-1 row-start-1 navigable grid-item" tabindex="0"></div>
@@ -2793,11 +2811,73 @@ div#map{display:none}
     <script>
 
 /**
- * Executes Text-to-Speech (TTS) for the specified message using an Arabic voice.
- * (Requires window.speechSynthesis to be available)
- *
- * @param {string} message - The message to be spoken.
+ * Renders the content of the Car Favorites (favoritesD) list into the Dashboard 
+ * using a horizontal scrolling carousel design.
  */
+function renderFavoritesDashboard() {
+    const container = document.getElementById('fav-d-dashboard-container');
+    if (!container) return;
+
+    // 1. استخدام القائمة المحفوظة في الذاكرة
+    const list = favoritesD; 
+    container.innerHTML = ''; 
+    
+    // 2. فرض الترتيب الأفقي (يجب أن يتم في CSS أيضاً، لكن هذا للتأكيد)
+    container.style.flexDirection = 'row'; 
+
+    if (list.length === 0) {
+        // إذا كانت القائمة فارغة، قم بتوسيط رسالة "لا يوجد محتوى"
+        container.innerHTML = `<p class="text-white/50 text-center p-4 w-full">لا توجد فيديوهات محفوظة في قائمة السيارة.</p>`;
+        // يجب إزالة التنسيقات الأفقية للسماح للعنصر p بأن يكون بعرض كامل
+        container.style.justifyContent = 'center'; 
+        return;
+    }
+    
+    // إزالة أي تنسيق تبرير مركزي في حالة وجود المحتوى
+    container.style.justifyContent = 'flex-start';
+
+    // 3. بناء الكروت الأفقية
+    list.forEach(video => {
+        const card = document.createElement('div');
+        // استخدام تنسيقات CSS التي تدعم التمرير الأفقي (min-width, height, flex-shrink: 0)
+        card.className = 'fav-d-dashboard-card navigable grid-item'; 
+        card.tabIndex = 0;
+        card.dataset.videoId = video.id;
+
+        // 💡 ملاحظة: parseDurationToSeconds يجب أن تكون دالة مُعرفة لتحويل ISO Duration إلى ثوانٍ
+        const durationInSeconds = parseDurationToSeconds(video.duration) || 1; 
+        const progressPercent = (video.progress > 0 && durationInSeconds > 0) 
+            ? (video.progress / durationInSeconds) * 100 
+            : 0;
+
+        card.innerHTML = `
+            <img src="${video.thumbnail || 'https://placehold.co/80x45'}" 
+                 alt="${video.title}" 
+                 class="w-[80px] h-full object-cover rounded-md flex-shrink-0">
+            <div class="flex flex-col flex-grow min-w-0 h-full justify-between">
+                <h4 class="text-sm font-semibold truncate">${video.title}</h4>
+                <p class="text-xs text-white/50">${video.channelTitle || 'قناة غير معروفة'}</p>
+                
+                <div class="w-full h-1.5 bg-gray-600 rounded-full overflow-hidden mt-1">
+                    <div class="bg-red-500 h-full" style="width: ${Math.min(progressPercent, 100)}%;"></div>
+                </div>
+            </div>
+            <i data-lucide="play-circle" class="w-6 h-6 text-blue-400 flex-shrink-0 ml-2"></i>
+        `;
+
+        // 4. ربط الحدث لتشغيل الفيديو
+        card.addEventListener('click', () => {
+            showVideoPopup(video.id, video.progress); 
+        });
+
+        container.appendChild(card);
+    });
+    
+    // 5. تحديث الأيقونات وعناصر التنقل
+    lucide.createIcons();
+    updateNavigableElements();
+}
+
 function playSpeechAnnouncement(message) {
     if (!('speechSynthesis' in window) || !message) {
         console.warn("TTS not supported or message is empty.");
@@ -8565,10 +8645,10 @@ updateTrafficIndicators();
         fetchFavorites('M')   
     ]).then(() => {
         console.log("Initialization: External data fetched and ready.");
-        
+        renderFavoritesDashboard();
         // 2. تشغيل جلب الطقس الأولي لملء AppState
         fetchWeatherData(); 
-
+renderFavoritesDashboard();
         // 3. تهيئة واجهة المستخدم الخاصة بالـ Media
         populateYoutubeSuggestions();
         
@@ -8609,6 +8689,8 @@ updateTrafficIndicators();
     const floatingMinimizedVideoButton = document.getElementById('floating-minimized-video-button');
     const minimizedPlaybackSpeedBtn = document.getElementById('minimized-playback-speed-btn'); 
     const addVideoByUrlBtn = document.getElementById('add-video-by-url-btn');
+
+
 
     // 🛑 ربط زر إضافة الفيديو بالرابط
     addVideoByUrlBtn?.addEventListener('click', promptAddVideoByUrl);
@@ -8677,6 +8759,7 @@ if (lastReset !== todayDate) {
 
     // 7. **المؤقتات والإجراءات المتأخرة**
     setTimeout(playWelcomeMessage, 1500); 
+    
 
     // ... (بقية المستمعات العامة: zoom, keyboard, etc.) ...
 });
