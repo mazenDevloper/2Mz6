@@ -35,6 +35,19 @@
         /* NEW: Import Amiri font for Thuluth-like style */
         @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
 
+#fav-d-dashboard-container{justify-content:space-evenly!important;}
+
+div#fav-d-dashboard-container {
+    display: flex;
+}
+.fav-d-dashboard-card.navigable.grid-item>img {width: 11.1rem!important;height: 6.1rem!important;}
+
+.flex.flex-col.flex-grow.min-w-0.h-full.justify-between.ml-2 {
+    display: none;
+}
+
+
+
 .dashboard-main-grid.grid.grid-cols-1.md\:grid-cols-3.grid-rows-\[80\%_20\%\].gap-4.md\:gap-6.h-full.w-full.grid-container {
     overflow: scroll;
 }
@@ -2366,8 +2379,7 @@ div#map{display:none}
                             </div>
                             
                         </div>
-                        <div id="favorites-d-dashboard-row" class="glass-surface glass-surface--svg p-4 flex flex-col justify-start rounded-3xl navigable grid-item" tabindex="0" style="height: 150px;">
-                <h3 class="text-xl font-bold text-white/90 mb-2">🎧 متابعة السيارة السريعة</h3>
+                        <div id="favorites-d-dashboard-row" class="glass-surface glass-surface--svg p-4 flex col-span-full justify-start rounded-3xl navigable grid-item" tabindex="0" style="height: 180px;">
                 <div id="fav-d-dashboard-container" class="favorites-dashboard-horizontal-scroll flex-grow">
                     <p class="text-white/70 text-center p-4 w-full">جاري التحميل...</p>
                 </div>
@@ -2809,43 +2821,48 @@ div#map{display:none}
     </div>
 
     <script>
-
 /**
  * Renders the content of the Car Favorites (favoritesD) list into the Dashboard 
  * using a horizontal scrolling carousel design.
+ * * NOTE: This relies on the global 'favoritesD' array being populated and 'parseDurationToSeconds' 
+ * function being defined globally.
  */
 function renderFavoritesDashboard() {
     const container = document.getElementById('fav-d-dashboard-container');
     if (!container) return;
 
-    // 1. استخدام القائمة المحفوظة في الذاكرة
+    // 1. القراءة من المتغير العام
     const list = favoritesD; 
-    container.innerHTML = ''; 
     
-    // 2. فرض الترتيب الأفقي (يجب أن يتم في CSS أيضاً، لكن هذا للتأكيد)
+    // (اختياري للتشخيص)
+    console.log("[renderFavoritesDashboard] Final List Length:", list.length);
+
+    // 2. تهيئة الحاوية
+    container.innerHTML = ''; 
     container.style.flexDirection = 'row'; 
 
     if (list.length === 0) {
-        // إذا كانت القائمة فارغة، قم بتوسيط رسالة "لا يوجد محتوى"
+        // عرض رسالة الخطأ إذا كانت القائمة فارغة فعلاً
         container.innerHTML = `<p class="text-white/50 text-center p-4 w-full">لا توجد فيديوهات محفوظة في قائمة السيارة.</p>`;
-        // يجب إزالة التنسيقات الأفقية للسماح للعنصر p بأن يكون بعرض كامل
         container.style.justifyContent = 'center'; 
         return;
     }
     
-    // إزالة أي تنسيق تبرير مركزي في حالة وجود المحتوى
+    // 3. إذا كانت ممتلئة، نبدأ العرض
     container.style.justifyContent = 'flex-start';
 
-    // 3. بناء الكروت الأفقية
     list.forEach(video => {
+        // التحقق من صلاحية بيانات الفيديو قبل العرض
+        if (!video || !video.id) return;
+        
         const card = document.createElement('div');
-        // استخدام تنسيقات CSS التي تدعم التمرير الأفقي (min-width, height, flex-shrink: 0)
         card.className = 'fav-d-dashboard-card navigable grid-item'; 
         card.tabIndex = 0;
         card.dataset.videoId = video.id;
 
-        // 💡 ملاحظة: parseDurationToSeconds يجب أن تكون دالة مُعرفة لتحويل ISO Duration إلى ثوانٍ
-        const durationInSeconds = parseDurationToSeconds(video.duration) || 1; 
+        // منطق حساب التقدم (يعتمد على الدالة المضافة حديثاً)
+        // إذا لم يتم تعريف الدالة، يجب أن يتم تعريفها عالمياً أو ستفشل
+        const durationInSeconds = typeof parseDurationToSeconds === 'function' ? parseDurationToSeconds(video.duration) : (video.duration || 1); 
         const progressPercent = (video.progress > 0 && durationInSeconds > 0) 
             ? (video.progress / durationInSeconds) * 100 
             : 0;
@@ -2854,7 +2871,7 @@ function renderFavoritesDashboard() {
             <img src="${video.thumbnail || 'https://placehold.co/80x45'}" 
                  alt="${video.title}" 
                  class="w-[80px] h-full object-cover rounded-md flex-shrink-0">
-            <div class="flex flex-col flex-grow min-w-0 h-full justify-between">
+            <div class="flex flex-col flex-grow min-w-0 h-full justify-between ml-2">
                 <h4 class="text-sm font-semibold truncate">${video.title}</h4>
                 <p class="text-xs text-white/50">${video.channelTitle || 'قناة غير معروفة'}</p>
                 
@@ -7219,6 +7236,23 @@ async function centerMapOnUserLocation() {
         showGeolocationErrorOnMap('خدمة تحديد المواقع غير مدعومة في هذا المتصفح.');
     }
 }
+
+
+
+function parseDurationToSeconds(isoDuration) {
+    if (!isoDuration || typeof isoDuration !== 'string') return 0;
+    
+    const regex = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/;
+    const matches = isoDuration.match(regex);
+    
+    if (!matches) return 0;
+
+    const hours = parseInt(matches[1]) || 0;
+    const minutes = parseInt(matches[2]) || 0;
+    const seconds = parseInt(matches[3]) || 0;
+
+    return (hours * 3600) + (minutes * 60) + seconds;
+}
         
         async function calculateAndDisplayRouteTo(destinationCoords) {
             if (!appState.currentLocation) {
@@ -8638,36 +8672,45 @@ updateTrafficIndicators();
 
  document.addEventListener('DOMContentLoaded', () => {
     // 1. **الجلب الأولي لبيانات JSONBin (ASYNCHRONOUS)**
+    // يتم استخدام Promise.all لانتظار نتائج الجلب الرئيسية
     Promise.all([
         fetchRecitersList(), 
         fetchChannelsList(), 
-        fetchFavorites('D'),  
-        fetchFavorites('M')   
-    ]).then(() => {
-        console.log("Initialization: External data fetched and ready.");
-        renderFavoritesDashboard();
-        // 2. تشغيل جلب الطقس الأولي لملء AppState
+        fetchFavorites('D'),  // [Index 2] - القائمة المرجعة من fetchFavorites
+        fetchFavorites('M')   // [Index 3] - القائمة المرجعة من fetchFavorites
+    ]).then(results => {
+        
+        // 🚀 التعيين الحاسم: التقاط النتائج من المصفوفة وتعيينها للمتغيرات العامة
+        // (هذا يضمن أن favoritesD يحتوي على القيمة قبل استدعاء renderFavoritesDashboard)
+        favoritesD = results[2] || [];
+        favoritesM = results[3] || []; 
+        
+        console.log("[Debug] Favorites D size after assignment:", favoritesD.length); // تأكيد التعيين
+
+        // 2. تشغيل جلب الطقس الأولي
         fetchWeatherData(); 
-renderFavoritesDashboard();
+
         // 3. تهيئة واجهة المستخدم الخاصة بالـ Media
         populateYoutubeSuggestions();
         
-        // 4. تهيئة الخرائط وبدء تتبع الموقع
+        // 4. تهيئة الخرائط والخدمات الأخرى
         loadGoogleMaps().then(initMap);
         loadPrayerTimes();
         migrateChannelData();
         
-        // 🛑 تشغيل المؤقتات البطيئة الأساسية فقط:
-        startNextPrayerDetermination(); // تحديث تحديد الصلاة (كل 1 دقيقة)
-        startFullDateUpdates();         // تحديث التاريخ (كل 100 دقيقة)
+        // 🛑 تشغيل المؤقتات الأساسية
+        startNextPrayerDetermination(); 
+        startFullDateUpdates();         
 
-        // 5. تشغيل الشاشة الافتراضية، مما يبدأ المؤقتات الشرطية
+        // 5. تشغيل الشاشة الافتراضية
         switchApp('Dashboard'); 
         
+        // 🚀 الإصلاح الحاسم: استدعاء دالة العرض الآن بعد أن تم تعيين favoritesD
+        renderFavoritesDashboard(); 
+
         // 💡 تحديث الموقع مرة واحدة لضمان تهيئة الخريطة ومؤشرات الازدحام
         centerMapOnUserLocation(); 
 
-        // 💡 تحديث العرض الأولي للساعة والتذكيرات
         updateTimerDisplay();
         renderDailyReminders();
 
@@ -8687,26 +8730,23 @@ renderFavoritesDashboard();
     const minimizedPlayPauseBtn = document.getElementById('minimized-play-pause-btn');
     const videoPopupMinimizeButton = document.getElementById('video-popup-minimize-button');
     const floatingMinimizedVideoButton = document.getElementById('floating-minimized-video-button');
-    const minimizedPlaybackSpeedBtn = document.getElementById('minimized-playback-speed-btn'); 
     const addVideoByUrlBtn = document.getElementById('add-video-by-url-btn');
-
-
 
     // 🛑 ربط زر إضافة الفيديو بالرابط
     addVideoByUrlBtn?.addEventListener('click', promptAddVideoByUrl);
 
-const todayDate = new Date().toLocaleDateString('en-US');
-const lastReset = localStorage.getItem('lastPrayerAlertReset');
+    // 💡 منطق تنظيف التنبيهات الصوتية
+    const todayDate = new Date().toLocaleDateString('en-US');
+    const lastReset = localStorage.getItem('lastPrayerAlertReset');
 
-if (lastReset !== todayDate) {
-    // إذا تغير اليوم، قم بمسح جميع تنبيهات الصلاة من التخزين المحلي
-    for (const key in localStorage) {
-        if (key.startsWith('iqama_alert_')) {
-            localStorage.removeItem(key);
+    if (lastReset !== todayDate) {
+        for (const key in localStorage) {
+            if (key.startsWith('iqama_alert_')) {
+                localStorage.removeItem(key);
+            }
         }
+        localStorage.setItem('lastPrayerAlertReset', todayDate);
     }
-    localStorage.setItem('lastPrayerAlertReset', todayDate);
-}
 
     getMyLocationButtonDashboard?.addEventListener('click', centerMapOnUserLocation);
     floatingMediaButton?.addEventListener('click', () => switchApp('Media'));
@@ -8743,25 +8783,196 @@ if (lastReset !== todayDate) {
     });
 
     // 🚀 ربط أزرار السرعة المنفصلة (يتم استخدام data-rate في HTML)
-  // ... (داخل DOMContentLoaded)
-
-    // 🚀 ربط أزرار السرعة المنفصلة
     document.querySelectorAll('#playback-rates-group .rate-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            e.stopPropagation(); // منع الاستعادة
+            e.stopPropagation(); 
             const rateValue = e.currentTarget.dataset.rate; 
-            // 🛑 لن يظهر خطأ الآن
             setSpecificPlaybackRate(rateValue); 
         });
     });
+    
+    // 💡 ربط أحداث النقر للتحكم في التذكيرات
+    document.addEventListener('click', (e) => {
+        const reminderItem = e.target.closest('.reminder-item');
+        const dropdownButton = e.target.closest('.reminder-status-dropdown button');
 
-// ...
+        if (dropdownButton) return;
+
+        if (!reminderItem && !e.target.closest('.reminder-status-dropdown')) {
+            closeAllDropdowns();
+            return;
+        }
+
+        if (!reminderItem) return;
+
+        e.stopPropagation();
+
+        const existingDropdown = reminderItem.querySelector('.reminder-status-dropdown');
+
+        if (existingDropdown) {
+            existingDropdown.remove();
+        } else {
+            closeAllDropdowns();
+            const reminderId = reminderItem.dataset.reminderId;
+            const iconWrapper = reminderItem.querySelector('.icon-wrapper');
+            if (iconWrapper) {
+                 createReminderDropdown(reminderId, iconWrapper);
+            }
+        }
+    });
+
 
     // 7. **المؤقتات والإجراءات المتأخرة**
-    setTimeout(playWelcomeMessage, 1500); 
     
+    // 💡 يجب تهيئة متحدث الطقس قبل التشغيل
+    if (!window.hasInitializedWeatherSpeaker) {
+        window.hasInitializedWeatherSpeaker = true;
+        let hasSpokenWelcome = false;
 
-    // ... (بقية المستمعات العامة: zoom, keyboard, etc.) ...
+        const checkWeatherAndSpeak = () => {
+             const today = new Date();
+             today.setFullYear(2025);
+             const gregorianDate = new Intl.DateTimeFormat('en-UK', { month: 'long', day: 'numeric' }).format(today);
+             const hijriDate = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', { weekday: 'long'}).format(today);
+
+            const speak = (textToSpeak) => {
+                if ('speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                    const voices = window.speechSynthesis.getVoices();
+                    let arabicVoice = voices.find(voice => voice.lang.startsWith('ar') && voice.name.includes('Male'));
+                    if (!arabicVoice) {
+                        arabicVoice = voices.find(voice => voice.lang.startsWith('ar'));
+                    }
+                    if (arabicVoice) {
+                        utterance.voice = arabicVoice;
+                    }
+                    utterance.lang = 'ar-SA';
+                    utterance.rate = 0.9;
+                    window.speechSynthesis.speak(utterance);
+                } else {
+                    console.log('Text-to-speech not supported in this browser.');
+                }
+            };
+            const speakWithVoicesReady = (text) => {
+                 if (window.speechSynthesis.getVoices().length === 0) {
+                    window.speechSynthesis.onvoiceschanged = () => {
+                        speak(text);
+                    };
+                } else {
+                    speak(text);
+                }
+            }
+
+            if (!hasSpokenWelcome) {
+                const welcomeText = `مرحبا، تاريخ اليوم ${hijriDate} الموافق ${gregorianDate}`;
+                speakWithVoicesReady(welcomeText);
+                hasSpokenWelcome = true;
+            }
+
+            if (appState.weather.temperature !== null) {
+                setTimeout(() => {
+                    const weatherText = `حالة الطقس الآن ${appState.weather.temperature} درجة مئوية`;
+                    speakWithVoicesReady(weatherText);
+                }, 7000);
+            } else {
+                setTimeout(checkWeatherAndSpeak, 500);
+            }
+        };
+        setTimeout(checkWeatherAndSpeak, 1500); 
+    }
+
+
+    upload360ImageButton?.addEventListener('click', () => upload360ImageInput.click()); 
+    upload360ImageInput?.addEventListener('change', handleImageUpload); 
+    reset360ImageButton?.addEventListener('click', resetImageToDefault); 
+    document.addEventListener('keydown', handleRemoteControlInput);
+    document.addEventListener('fullscreenchange', handleFullScreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullScreenChange); 
+    
+    videoPopupCloseButton.addEventListener('click', hideVideoPopup);
+    backToPlaylistsFromVideosButton.addEventListener('click', navigateBackToMainSearch);
+    backToPlaylistsBottomButton.addEventListener('click', navigateBackToMainSearch);
+    backToPlaylistsBottomButtonSearch.addEventListener('click', navigateBackToMainSearch);
+    floatingKeyboardButton.addEventListener('click', () => { 
+        youtubeSearchInput.readOnly = !youtubeSearchInput.readOnly; 
+        if (!youtubeSearchInput.readOnly) {
+            youtubeSearchInput.focus(); 
+        } else {
+            youtubeSearchInput.blur();
+            setFocus(youtubeSearchButton);
+        }
+        floatingKeyboardButton.classList.toggle('active-keyboard', !youtubeSearchInput.readOnly); 
+        floatingKeyboardButton.classList.toggle('inactive-keyboard', youtubeSearchInput.readOnly); 
+    });
+    
+    // UPDATED: Clear button logic
+    clearSearchButton.addEventListener('click', () => {
+        youtubeSearchInput.value = ''; 
+        lastSuccessfulSearchQuery = null; 
+        navigateBackToMainSearch();
+    });
+
+    youtubeSearchInput.addEventListener('focus', () => { if (youtubeSearchInput.value.trim() === '') { resetYoutubeSearchUI(); } });
+    youtubeSearchButton.addEventListener('click', () => { const query = youtubeSearchInput.value.trim(); if (query) searchYouTubeVideos(query); else showMessageBox('الرجاء إدخال كلمة للبحث.'); });
+    
+    // UPDATED: Auto-search for Tarteel channel with pre-click effect
+    youtubeSearchInput.addEventListener('input', () => {
+        const targetText = 'ترتيل-@TarteelArabic';
+        const currentText = youtubeSearchInput.value;
+
+        if (currentText.includes(targetText + ' ')) {
+            youtubeSearchButton.classList.add('tv-focus'); 
+            setTimeout(() => {
+                youtubeSearchButton.click();
+                setTimeout(() => youtubeSearchButton.classList.remove('tv-focus'), 100);
+            }, 50);
+        } else if (currentText.includes(targetText)) {
+            youtubeSearchButton.classList.add('tv-focus');
+        } else {
+            youtubeSearchButton.classList.remove('tv-focus');
+        }
+    });
+
+    // NEW Listeners for Animation and Zoom Controls
+    pauseAnimationButton.addEventListener('click', () => {
+        document.body.classList.toggle('animation-paused');
+        const isPaused = document.body.classList.contains('animation-paused');
+        const playIcon = pauseAnimationButton.querySelector('[data-lucide="play"]');
+        const pauseIcon = pauseAnimationButton.querySelector('[data-lucide="pause"]');
+        playIcon.classList.toggle('hidden', !isPaused);
+        pauseIcon.classList.toggle('hidden', isPaused);
+    });
+
+    removeCacheButton.addEventListener('click', () => {
+        localStorage.clear();
+        showMessageBox('تم مسح ذاكرة التخزين المؤقت بنجاح. سيتم إعادة تحميل التطبيق.');
+        setTimeout(() => {
+            location.reload();
+        }, 2000);
+    });
+
+    zoomInButton.addEventListener('click', () => {
+        if (currentFontSize < maxFontSize) {
+            currentFontSize += fontSizeStep;
+            document.documentElement.style.fontSize = `${currentFontSize}px`;
+        }
+    });
+
+    zoomOutButton.addEventListener('click', () => {
+        if (currentFontSize > minFontSize) {
+            currentFontSize -= fontSizeStep;
+            document.documentElement.style.fontSize = `${currentFontSize}px`;
+        }
+    });
+    
+    // NEW/UPDATED: Event listener for the floating back button
+    backToSearchFloatingButton.addEventListener('click', () => {
+        if (activeMediaView === 'suggestions' && lastSuccessfulSearchQuery) {
+            searchYouTubeVideos(lastSuccessfulSearchQuery); 
+        } else {
+            navigateBackToMainSearch();
+        }
+    });
 });
 
 
