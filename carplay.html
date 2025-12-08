@@ -3093,8 +3093,7 @@ function switchApp(appName) {
         startDashboardLocationTracking();
         updateTimerDisplay(); // تتبع الموقع للـ Heading وتحديث الخريطة
         renderFavoritesDashboard();
-        // 🚀 FIX: تطبيق التدوير والمركز فوراً عند فتح الشاشة
-        // نستخدم setTimeout(0) لضمان أن الـ DOM أصبح مرئياً قبل تطبيق setHeading
+       
         setTimeout(() => {
             if (dashboardGoogleMap) {
                 const numericHeading = directionToDegrees(appState.car.direction);
@@ -8669,6 +8668,7 @@ if (!window.hasInitializedWeatherSpeaker) {
         }
 switchApp('Dashboard');
 updateTrafficIndicators();
+renderFavoritesDashboard();
 
  document.addEventListener('DOMContentLoaded', () => {
     // 1. **الجلب الأولي لبيانات JSONBin (ASYNCHRONOUS)**
@@ -8704,9 +8704,8 @@ updateTrafficIndicators();
 
         // 5. تشغيل الشاشة الافتراضية
         switchApp('Dashboard'); 
+        renderFavoritesDashboard();
         
-        // 🚀 الإصلاح الحاسم: استدعاء دالة العرض الآن بعد أن تم تعيين favoritesD
-        renderFavoritesDashboard(); 
 
         // 💡 تحديث الموقع مرة واحدة لضمان تهيئة الخريطة ومؤشرات الازدحام
         centerMapOnUserLocation(); 
