@@ -46,7 +46,10 @@ div#fav-d-dashboard-container {
     display: none;
 }
 
-
+button#floating-mic-button {
+    bottom: 32px !important;
+    position: relative;
+}
 
 .dashboard-main-grid.grid.grid-cols-1.md\:grid-cols-3.grid-rows-\[80\%_20\%\].gap-4.md\:gap-6.h-full.w-full.grid-container {
     overflow: scroll;
@@ -2791,6 +2794,18 @@ div#map{display:none}
 </div>
 
     <!-- NEW: Bottom Left Controls -->
+    <button id="floating-mic-button" 
+        class="navigable grid-item floating-button" 
+        tabindex="0" 
+        title="البحث الصوتي"
+        >
+    
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="mic" class="w-6 h-6">
+        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path>
+        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+        <line x1="12" x2="12" y1="19" y2="22"></line>
+    </svg>
+</button>
     <div id="bottom-left-controls" class="fixed bottom-4 left-4 flex flex-row gap-2 z-[100] grid-container">
         <button id="pause-animation-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="إيقاف/تشغيل الحركة">
             <i data-lucide="play" class="w-5 h-5"></i>
@@ -2827,6 +2842,85 @@ div#map{display:none}
  * * NOTE: This relies on the global 'favoritesD' array being populated and 'parseDurationToSeconds' 
  * function being defined globally.
  */
+/**
+ * يبدأ عملية تحويل الكلام إلى نص، مع ضمان تفعيل حقل البحث للكتابة أولاً.
+ */
+function startVoiceToText() {
+    // 1. التحقق من الدعم
+    if (!SpeechRecognition) {
+        showMessageBox("عذراً، البحث الصوتي غير مدعوم في هذا المتصفح.");
+        return;
+    }
+    
+    // 🛑 الخطوة الأولى: تفعيل الكتابة (جعل حقل البحث قابلاً للكتابة)
+    youtubeSearchInput.readOnly = false;
+    // تحديث حالة زر لوحة المفاتيح المرئي (للتزامن البصري)
+    floatingKeyboardButton?.classList.add('active-keyboard');
+    floatingKeyboardButton?.classList.remove('inactive-keyboard');
+
+    // 2. تهيئة الكائن (إذا لم يكن مهيئاً)
+    if (!recognition) {
+        recognition = new SpeechRecognition();
+        recognition.continuous = false; 
+        recognition.lang = 'ar-SA';     
+        recognition.interimResults = false; 
+    }
+    
+    // 3. معالجة النتائج
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        if (transcript) {
+            // 🛑 الخطوة الرابعة: كتابة النص في الحقل
+            youtubeSearchInput.value = transcript.trim();
+            youtubeSearchInput.focus();
+            
+            // 💡 اختيارياً: تشغيل البحث تلقائياً
+            // youtubeSearchButton.click();
+        }
+    };
+
+    // 4. معالجة الأخطاء والتوقف (لإعادة تعيين الحالة)
+    recognition.onerror = (event) => {
+        floatingMicButton?.classList.remove('recording');
+        // 🛑 إعادة تعيين حالة لوحة المفاتيح إذا فشل التسجيل
+        youtubeSearchInput.readOnly = true; 
+        floatingKeyboardButton?.classList.add('inactive-keyboard');
+        floatingKeyboardButton?.classList.remove('active-keyboard');
+        console.error('Speech recognition error:', event.error);
+        if (event.error === 'not-allowed' || event.error === 'permission-denied') {
+             showMessageBox("الوصول إلى الميكروفون مرفوض. يرجى مراجعة إعدادات الموقع.");
+        }
+    };
+    
+    // 5. إدارة حالة الواجهة المرئية
+    recognition.onstart = () => {
+        floatingMicButton?.classList.add('recording');
+        showMessageBox("🎤 استمع الآن...");
+    };
+
+    recognition.onend = () => {
+        floatingMicButton?.classList.remove('recording');
+        showMessageBox("✅ تم الانتهاء من الاستماع.");
+        
+        // 🛑 الخطوة الخامسة: بعد الانتهاء من الإدخال، نعود لوضع القراءة فقط (للحماية)
+        // إذا كنت تفضل ترك الوضع مفتوحاً للكتابة اليدوية بعد الصوت، قم بإزالة الأسطر أدناه
+        // youtubeSearchInput.readOnly = true; 
+        // floatingKeyboardButton?.classList.add('inactive-keyboard'); 
+        
+        updateNavigableElements(); 
+    };
+
+    // 6. البدء
+    try {
+        recognition.start();
+    } catch (e) {
+        console.error("Recognition already started or permission denied.", e);
+        if (floatingMicButton?.classList.contains('recording')) {
+            recognition.stop();
+        }
+    }
+}
+
 function renderFavoritesDashboard() {
     const container = document.getElementById('fav-d-dashboard-container');
     if (!container) return;
@@ -8670,7 +8764,7 @@ switchApp('Dashboard');
 updateTrafficIndicators();
 renderFavoritesDashboard();
 
- document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
     // 1. **الجلب الأولي لبيانات JSONBin (ASYNCHRONOUS)**
     // يتم استخدام Promise.all لانتظار نتائج الجلب الرئيسية
     Promise.all([
@@ -8681,11 +8775,11 @@ renderFavoritesDashboard();
     ]).then(results => {
         
         // 🚀 التعيين الحاسم: التقاط النتائج من المصفوفة وتعيينها للمتغيرات العامة
-        // (هذا يضمن أن favoritesD يحتوي على القيمة قبل استدعاء renderFavoritesDashboard)
+        // (Favorites D هي النتيجة في الفهرس [2] و Favorites M في الفهرس [3])
         favoritesD = results[2] || [];
         favoritesM = results[3] || []; 
         
-        console.log("[Debug] Favorites D size after assignment:", favoritesD.length); // تأكيد التعيين
+        console.log("[Debug] Favorites D size after assignment:", favoritesD.length);
 
         // 2. تشغيل جلب الطقس الأولي
         fetchWeatherData(); 
@@ -8704,8 +8798,9 @@ renderFavoritesDashboard();
 
         // 5. تشغيل الشاشة الافتراضية
         switchApp('Dashboard'); 
-        renderFavoritesDashboard();
         
+        // 🚀 CRITICAL FIX: استدعاء دالة العرض الآن بعد أن تم تعيين favoritesD
+        renderFavoritesDashboard(); 
 
         // 💡 تحديث الموقع مرة واحدة لضمان تهيئة الخريطة ومؤشرات الازدحام
         centerMapOnUserLocation(); 
@@ -8729,6 +8824,7 @@ renderFavoritesDashboard();
     const minimizedPlayPauseBtn = document.getElementById('minimized-play-pause-btn');
     const videoPopupMinimizeButton = document.getElementById('video-popup-minimize-button');
     const floatingMinimizedVideoButton = document.getElementById('floating-minimized-video-button');
+    const floatingMicButton = document.getElementById('floating-mic-button'); // 🛑 الزر الجديد
     const addVideoByUrlBtn = document.getElementById('add-video-by-url-btn');
 
     // 🛑 ربط زر إضافة الفيديو بالرابط
@@ -8820,6 +8916,22 @@ renderFavoritesDashboard();
         }
     });
 
+    // 🛑 ربط زر الميكروفون (الزر الجديد)
+    floatingMicButton?.addEventListener('click', () => {
+        if (currentAppIndex === appOrder.indexOf('Media')) {
+            // نوقف التسجيل أولاً إذا كان نشطاً، وإلا نبدأه
+            if (floatingMicButton.classList.contains('recording')) {
+                stopVoiceToText();
+            } else {
+                startVoiceToText();
+            }
+        } else {
+            // إذا لم نكن في شاشة الميديا، انتقل إليها ثم ابدأ التسجيل
+            switchApp('Media');
+            // نستخدم setTimeout لضمان اكتمال DOM Switch قبل بدء التسجيل
+            setTimeout(startVoiceToText, 100); 
+        }
+    });
 
     // 7. **المؤقتات والإجراءات المتأخرة**
     
