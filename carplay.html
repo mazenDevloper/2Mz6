@@ -327,8 +327,10 @@ div#add-reciter-prompt-content {
     display: none;
 }
 
-#quran-go-button,#fullscreen-reciters-iframe-btn,#fullscreen-radio-iframe-btn{
-    z-index:999;
+#quran-go-button, #fullscreen-reciters-iframe-btn, #fullscreen-radio-iframe-btn {
+    z-index: 999;
+    left: 102px;
+    bottom: 130px;
 }
 /* CRITICAL: The class that forces the section to cover the viewport 
 */
@@ -2383,7 +2385,12 @@ div#map{display:none}
                             
                         </div>
                         <div id="favorites-d-dashboard-row" class="glass-surface glass-surface--svg p-4 flex col-span-full justify-start rounded-3xl navigable grid-item" tabindex="0" style="height: 180px;">
-                <div id="fav-d-dashboard-container" class="favorites-dashboard-horizontal-scroll flex-grow">
+                <div id="fav-d-dashboard-container" class="favorites-dashboard-horizontal-scroll flex-grow overflow-x-auto 
+                 whitespace-nowrap 
+                 flex 
+                 gap-4" 
+          style="flex-direction: row; justify-content: flex-start;">
+    
                     <p class="text-white/70 text-center p-4 w-full">جاري التحميل...</p>
                 </div>
             </div>
@@ -2571,6 +2578,9 @@ div#map{display:none}
     <div class="mb-4 flex flex-wrap justify-center gap-2 flex-shrink-0 grid-container" style="
     transform: scale(1.1);
 ">
+
+
+
         <button data-src="https://www.yalla-sport.net/matches-today/" class="iframe-src-button bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item active" tabindex="0">
             مباريات
         </button>
@@ -2921,28 +2931,40 @@ function startVoiceToText() {
     }
 }
 
+/**
+ * تعرض قائمة مفضلة السيارة (favoritesD) في لوحة القيادة (Dashboard)
+ * باستخدام تصميم تمرير أفقي (Horizontal Scroll) يعرض 3.5 بطاقات في اللحظة الواحدة.
+ * * ملاحظة: تعتمد هذه الدالة على:
+ * 1. المتغير العام 'favoritesD' لبيانات الفيديوهات.
+ * 2. دالة 'parseDurationToSeconds' لتحويل مدة الفيديو إلى ثوانٍ.
+ */
 function renderFavoritesDashboard() {
     const container = document.getElementById('fav-d-dashboard-container');
     if (!container) return;
 
-    // 1. القراءة من المتغير العام
+    // 1. القراءة من المتغير العام (الذي تم تعبئته في DOMContentLoaded)
     const list = favoritesD; 
     
-    // (اختياري للتشخيص)
     console.log("[renderFavoritesDashboard] Final List Length:", list.length);
 
-    // 2. تهيئة الحاوية
+    // 2. تهيئة الحاوية ومسح المحتوى القديم
     container.innerHTML = ''; 
-    container.style.flexDirection = 'row'; 
+    
+    // 🛑 يجب التأكد من وجود هذه الفئات في HTML: overflow-x-auto whitespace-nowrap flex gap-4
+    // container.style.flexDirection = 'row'; // لم يعد ضرورياً إذا استخدمنا flex في HTML
 
     if (list.length === 0) {
         // عرض رسالة الخطأ إذا كانت القائمة فارغة فعلاً
         container.innerHTML = `<p class="text-white/50 text-center p-4 w-full">لا توجد فيديوهات محفوظة في قائمة السيارة.</p>`;
+        
+        // عند الفراغ، يجب إزالة تنسيقات Flex للحاوية الأب للسماح بالتوسيط الصحيح للرسالة
+        container.classList.remove('flex', 'gap-4'); 
         container.style.justifyContent = 'center'; 
         return;
     }
     
-    // 3. إذا كانت ممتلئة، نبدأ العرض
+    // إعادة إضافة تنسيقات Flex وضبط المحاذاة للحالة العادية (إذا تم إزالتها في حالة القائمة الفارغة)
+    container.classList.add('flex', 'gap-4');
     container.style.justifyContent = 'flex-start';
 
     list.forEach(video => {
@@ -2950,12 +2972,15 @@ function renderFavoritesDashboard() {
         if (!video || !video.id) return;
         
         const card = document.createElement('div');
-        card.className = 'fav-d-dashboard-card navigable grid-item'; 
+        
+        // 🚀 التعديل الحاسم: تعيين عرض البطاقة لتمكين 3.5 عرض
+        // min-w-[28%] (25% لـ 4 بطاقات، 28% لـ 3.5) مع احتساب المسافات (gap-4)
+        card.className = 'fav-d-dashboard-card navigable grid-item flex-shrink-0 min-w-[28%] md:min-w-[27%]'; 
+        
         card.tabIndex = 0;
         card.dataset.videoId = video.id;
 
-        // منطق حساب التقدم (يعتمد على الدالة المضافة حديثاً)
-        // إذا لم يتم تعريف الدالة، يجب أن يتم تعريفها عالمياً أو ستفشل
+        // منطق حساب التقدم (يتطلب دالة parseDurationToSeconds)
         const durationInSeconds = typeof parseDurationToSeconds === 'function' ? parseDurationToSeconds(video.duration) : (video.duration || 1); 
         const progressPercent = (video.progress > 0 && durationInSeconds > 0) 
             ? (video.progress / durationInSeconds) * 100 
