@@ -2570,7 +2570,7 @@ div#map{display:none}
             class="full-iframe flex-grow"
             onclick="toggleIframeFullscreen('reciters-iframe')"  class="fullscreen-toggle-button navigable grid-item"
             title="Reciters/TV"
-            src="https://www.yalla-sport.net/matches-today/"
+            src="https://www.bein-live.com/home_1/"
             allow="geolocation; fullscreen"  allowfullscreen="true"          webkitallowfullscreen="true"    mozallowfullscreen="true">  
             <i class="fas fa-expand"></i> 
                 </iframe>
@@ -2581,7 +2581,7 @@ div#map{display:none}
 
 
 
-        <button data-src="https://www.yalla-sport.net/matches-today/" class="iframe-src-button bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item active" tabindex="0">
+        <button data-src="https://www.bein-live.com/home_1//" class="iframe-src-button bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item active" tabindex="0">
             مباريات
         </button>
         <button data-src="https://direct.aflam4you.net/playeraf.php?vid=9311&aflam_s=1&aflam_k=ff09665543234455" class="iframe-src-button bg-black-600 hover:bg-black-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
@@ -8604,24 +8604,7 @@ function update3dMoonWidget() {
                 }
             }
 // 1. التحق
-const recitersIframe = document.getElementById('reciters-iframe');
-    const iframeSrcButtons = document.querySelectorAll('#screen-Reciters .iframe-src-button');
 
-    if (recitersIframe && iframeSrcButtons.length > 0) {
-        iframeSrcButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const newSrc = button.dataset.src;
-                if (newSrc && recitersIframe.src !== newSrc) {
-                    console.log(`Changing iframe src to: ${newSrc}`);
-                    recitersIframe.src = newSrc; // Change the iframe source
-
-                    // Update active button state
-                    iframeSrcButtons.forEach(btn => btn.classList.remove('active'));
-                    button.classList.add('active');
-                }
-            });
-        });
-    }
 
 
             
@@ -8792,6 +8775,25 @@ renderFavoritesDashboard();
 document.addEventListener('DOMContentLoaded', () => {
     // 1. **الجلب الأولي لبيانات JSONBin (ASYNCHRONOUS)**
     // يتم استخدام Promise.all لانتظار نتائج الجلب الرئيسية
+const recitersIframe = document.getElementById('reciters-iframe');
+const iframeSrcButtons = document.querySelectorAll('#screen-Reciters .iframe-src-button');
+
+    if (recitersIframe && iframeSrcButtons.length > 0) {
+        iframeSrcButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const newSrc = button.dataset.src;
+                if (newSrc && recitersIframe.src !== newSrc) {
+                    console.log(`Changing iframe src to: ${newSrc}`);
+                    recitersIframe.src = newSrc; // Change the iframe source
+
+                    // Update active button state
+                    iframeSrcButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                }
+            });
+        });
+    }
+
     Promise.all([
         fetchRecitersList(), 
         fetchChannelsList(), 
