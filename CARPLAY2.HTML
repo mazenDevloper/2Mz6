@@ -35,6 +35,54 @@
         /* NEW: Import Amiri font for Thuluth-like style */
         @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
 
+#suggested-d-dashboard-container {
+    justify-content: space-evenly !important;
+    display: flex;
+    flex-wrap: wrap; /* إضافة flex-wrap لضمان الترتيب في الشبكة */
+}
+
+/* 2. تطبيق نفس قياسات الصور على المقترحات (إذا كانت تستخدم نفس الكلاسات الهيكلية) */
+/* ملاحظة: الكلاسات هنا تعتمد على الافتراض بأن هيكلية المقترحات مماثلة للمفضلة. */
+.suggested-d-dashboard-card.navigable.grid-item > img,
+.fav-d-dashboard-card.navigable.grid-item > img {
+    width: 11.1rem !important;
+    height: 6.1rem !important;
+}
+
+div#suggested-d-dashboard-row {min-width:900px}
+div#suggested-d-dashboard-container {
+    flex-direction: row;
+    justify-content: flex-start;
+  
+}
+
+h6.mb-0.text-truncate {
+    display: none;
+}
+
+.video-details.flex-grow-1 {
+    display: none;
+}
+
+/* 3. تطبيق إخفاء العناصر الداخلية التي لها نفس الكلاس الطويل */
+.flex.flex-col.flex-grow.min-w-0.h-full.justify-between.ml-2 {
+    display: none;
+}
+
+button#floating-mic-button {
+    bottom: 32px !important;
+    position: relative;
+}
+
+.dashboard-main-grid.grid.grid-cols-1.md\:grid-cols-3.grid-rows-\[80\%_20\%\].gap-4.md\:gap-6.h-full.w-full.grid-container {
+    overflow: scroll;
+}
+section#screen-Dashboard {
+    padding: 20px;
+    border: 0px;
+    margin: 0px;
+    height: 110% !important;
+}
  #floating-media-button {
         padding: 0px!important;
     }
@@ -302,8 +350,10 @@ div#add-reciter-prompt-content {
     display: none;
 }
 
-#quran-go-button,#fullscreen-reciters-iframe-btn,#fullscreen-radio-iframe-btn{
-    z-index:999;
+#quran-go-button, #fullscreen-reciters-iframe-btn, #fullscreen-radio-iframe-btn {
+    z-index: 999;
+    left: 102px;
+    bottom: 130px;
 }
 /* CRITICAL: The class that forces the section to cover the viewport 
 */
@@ -946,13 +996,13 @@ section#screen-Map>.w-full.h-full.bg-black2.rounded-3xl.flex.items-center.justif
         /* Specific positioning for floating buttons */
         #floating-media-button { bottom: 1rem; right: 1rem; }
         #floating-keyboard-button {
-            bottom: 1rem;
-            right: 8rem; /* Adjusted to be next to media button */
-            display: none; /* Hidden by default */
+            bottom: 4rem!important;
+            right: 5rem; /* Adjusted to be next to media button */
+        
         }
         #floating-keyboard-button.active-keyboard {
             background-color: #90EE90; /* Chrome Green */
-            color: black; /* Black icon */
+            color: cyan; /* Black icon */
         }
         #floating-keyboard-button.inactive-keyboard {
             background-color: #FF0000; /* Red */
@@ -1750,7 +1800,18 @@ span.surah-name-text {
         /* NEW: Responsive padding toggle */
         @media (min-width: 768px) {
 
+.glass-surface {
+    /* 🛑 1. خاصية الضبابية (CRITICAL for Glass Effect) */
+    backdrop-filter: blur(12px) saturate(180%)!important;
+    -webkit-backdrop-filter: blur(12px) saturate(180%)!important; /* دعم متصفحات الويب كيت */
 
+    /* 2. الخلفية الشفافة المائلة للثلج */
+    background-color: rgba(255, 255, 255, 0.15)!important; /* لون أبيض خفيف */
+    
+ 
+    /* 4. إعدادات ظل خفيف وعائم */
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3)!important;
+}
             button.youtube-suggestion-button {
     font-size: 1rem;
 }
@@ -2033,7 +2094,35 @@ div#bottom-left-controls {
 
         /* التغييرات المطلوبة للشاشات الأوسع */
         @media (min-width: 992px) {
+.glass-surface {
+    /* 🛑 1. خاصية الضبابية (CRITICAL for Glass Effect) */
+    backdrop-filter: blur(12px) saturate(180%)!important;
+    -webkit-backdrop-filter: blur(12px) saturate(180%)!important; /* دعم متصفحات الويب كيت */
 
+    /* 2. الخلفية الشفافة المائلة للثلج */
+    background-color: rgba(255, 255, 255, 0.15)!important; /* لون أبيض خفيف */
+    
+ 
+    /* 4. إعدادات ظل خفيف وعائم */
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3)!important;
+}
+
+/* 🛑 إضافة طبقة لمعان خفيفة (اختياري) */
+.glass-surface::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* تدرج لوني يعطي إحساس باللمعان من الأعلى لليسار */
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.1),
+        rgba(255, 255, 255, 0)
+    );
+    pointer-events: none; /* لا يعيق النقر */
+}
 /* Cleaned base body styles - animation and gradient moved to screens */
         body {
             font-family: 'Inter', sans-serif;
@@ -2316,7 +2405,32 @@ div#map{display:none}
                                 <!-- Prayer times will be loaded here by JavaScript -->
                                 <p class="text-white/70 col-span-full">جاري تحميل أوقات الصلاة...</p>
                             </div>
+                            
                         </div>
+                        <div id="suggested-d-dashboard-row" 
+     class="glass-surface glass-surface--svg p-4 flex flex-col justify-start rounded-3xl navigable grid-item mt-4" 
+     tabindex="0" 
+     style="height: 150px;">
+    
+    
+    
+    <div id="suggested-d-dashboard-container" 
+         class="favorites-dashboard-horizontal-scroll flex-grow overflow-x-auto whitespace-nowrap flex gap-4" 
+         style="flex-direction: row; justify-content: flex-start;">
+        </div>
+</div>
+                        <div id="favorites-d-dashboard-row" class="glass-surface glass-surface--svg p-4 flex col-span-full justify-start rounded-3xl navigable grid-item" tabindex="0" style="height: 180px;">
+                <div id="fav-d-dashboard-container" class="favorites-dashboard-horizontal-scroll flex-grow overflow-x-auto 
+                 whitespace-nowrap 
+                 flex 
+                 gap-4" 
+          style="flex-direction: row; justify-content: flex-start;">
+    
+                    <p class="text-white/70 text-center p-4 w-full">جاري التحميل...</p>
+                </div>
+            </div>
+            
+                        
 
 
                         <div id="tv" class="glass-surface glass-surface--svg p-4 flex flex-col items-center justify-center text-center car-cam-360-container col-span-1 row-start-1 navigable grid-item" tabindex="0"></div>
@@ -2345,6 +2459,9 @@ div#map{display:none}
                             <button id="youtube-search-button" class="bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center navigable grid-item" tabindex="0">
                                 <i data-lucide="search"></i>
                             </button>
+                            <button id="floating-keyboard-button" class="glass-surface glass-surface--svg rounded-full navigable grid-item " tabindex="0">
+        <i data-lucide="keyboard" class="w-6 h-6"></i>
+    </button>
                             <button id="clear-search-button" class="navigable grid-item" tabindex="0">
                                 <i data-lucide="x" class="w-5 h-5"></i>
                             </button>
@@ -2488,7 +2605,7 @@ div#map{display:none}
             class="full-iframe flex-grow"
             onclick="toggleIframeFullscreen('reciters-iframe')"  class="fullscreen-toggle-button navigable grid-item"
             title="Reciters/TV"
-            src="http://bein-live.com/"
+            src="https://www.bein-live.com/home_1/"
             allow="geolocation; fullscreen"  allowfullscreen="true"          webkitallowfullscreen="true"    mozallowfullscreen="true">  
             <i class="fas fa-expand"></i> 
                 </iframe>
@@ -2496,7 +2613,10 @@ div#map{display:none}
     <div class="mb-4 flex flex-wrap justify-center gap-2 flex-shrink-0 grid-container" style="
     transform: scale(1.1);
 ">
-        <button data-src="http://bein-live.com/" class="iframe-src-button bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item active" tabindex="0">
+
+
+
+        <button data-src="https://www.bein-live.com/home_1//" class="iframe-src-button bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item active" tabindex="0">
             مباريات
         </button>
         <button data-src="https://direct.aflam4you.net/playeraf.php?vid=9311&aflam_s=1&aflam_k=ff09665543234455" class="iframe-src-button bg-black-600 hover:bg-black-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
@@ -2690,9 +2810,7 @@ div#map{display:none}
         title="إضافة فيديو بالرابط">
     <i data-lucide="plus-circle" class="w-6 h-6"></i>
 </button>
-    <button id="floating-keyboard-button" class="glass-surface glass-surface--svg rounded-full navigable grid-item" tabindex="0">
-        <i data-lucide="keyboard" class="w-6 h-6"></i>
-    </button>
+    
     <button id="start-trip-floating-button" class="glass-surface glass-surface--svg rounded-full navigable grid-item" tabindex="0">
         <i data-lucide="map-pin" class="w-6 h-6"></i> بدء الرحلة
     </button>
@@ -2721,6 +2839,18 @@ div#map{display:none}
 </div>
 
     <!-- NEW: Bottom Left Controls -->
+    <button id="floating-mic-button" 
+        class="navigable grid-item floating-button" 
+        tabindex="0" 
+        title="البحث الصوتي"
+        >
+    
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="mic" class="w-6 h-6">
+        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path>
+        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+        <line x1="12" x2="12" y1="19" y2="22"></line>
+    </svg>
+</button>
     <div id="bottom-left-controls" class="fixed bottom-4 left-4 flex flex-row gap-2 z-[100] grid-container">
         <button id="pause-animation-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="إيقاف/تشغيل الحركة">
             <i data-lucide="play" class="w-5 h-5"></i>
@@ -2752,12 +2882,227 @@ div#map{display:none}
 
     <script>
 
+let suggestedVideos = [];
+
+function formatViews(views) {
+    if (views >= 1000000) {
+        return (views / 1000000).toFixed(1) + 'M مشاهدة';
+    } else if (views >= 1000) {
+        return (views / 1000).toFixed(1) + 'K مشاهدة';
+    }
+    return views + ' مشاهدة';
+}
+
+const NEW_JSONBIN_CHANNEL_IDS = '693fb33cae596e708f9ade6a';
+
+
+function renderSuggestedDashboard() {
+    // الحصول على عنصر الـ container في الصفحة
+    const container = document.getElementById('suggested-d-dashboard-container');
+    if (!container) return;
+
+    // 🛑 التأكد من تطبيق الحد الأقصى 20 على القائمة المجلوبة للعرض
+    // يفترض أن 'suggestedVideos' موجود ويحمل البيانات المجلوبة
+    const list = suggestedVideos ? suggestedVideos.slice(0, 20) : []; 
+    
+    // سجلات الكونسول للتحقق
+    console.log("[renderSuggestedDashboard] List Length:", suggestedVideos ? suggestedVideos.length : 0);
+    console.log("[renderSuggestedDashboard] Final Display List Length (Capped at 20):", list.length);
+
+    // تفريغ محتوى الـ container
+    container.innerHTML = ''; 
+
+    // معالجة حالة عدم وجود بيانات
+    if (list.length === 0) {
+        container.innerHTML = '<p class="text-center text-muted mt-4">لا توجد مقترحات حاليًا. (الرجاء التأكد من تحديث مفتاح YouTube API).</p>';
+        return;
+    }
+
+    // تكرار على قائمة الفيديوهات المعروضة وإنشاء عناصر HTML
+    list.forEach(video => {
+        // إنشاء عنصر div لكل فيديو
+        const videoElement = document.createElement('div');
+        videoElement.className = 'suggested-video-item p-2 border-bottom'; // يمكن تعديل الكلاس حسب CSS الخاص بك
+        
+        // بناء المحتوى (يجب أن يتم تكييف هذا الجزء مع تصميم HTML الفعلي الخاص بك)
+        videoElement.innerHTML = `
+            <div class="d-flex align-items-center">
+                <img src="${video.thumbnail}" alt="${video.title}" style="width: 120px; height: 90px; margin-left: 10px;">
+                <div class="video-details flex-grow-1">
+                    <h6 class="mb-0 text-truncate">${video.title}</h6>
+                    <p class="mb-1 text-muted small">${video.channelTitle}</p>
+                    <p class="mb-0 small text-success">
+                        ${video.viewsDisplay ? video.viewsDisplay : 'المشاهدات غير متوفرة'} 
+                        | 
+                        ${video.duration ? video.duration : 'المدة غير متوفرة'}
+                    </p>
+                </div>
+            </div>
+        `;
+        
+        container.appendChild(videoElement);
+    });
+}
+
+function startVoiceToText() {
+    // 1. التحقق من الدعم
+    if (!SpeechRecognition) {
+        showMessageBox("عذراً، البحث الصوتي غير مدعوم في هذا المتصفح.");
+        return;
+    }
+    
+    // 🛑 الخطوة الأولى: تفعيل الكتابة (جعل حقل البحث قابلاً للكتابة)
+    youtubeSearchInput.readOnly = false;
+    // تحديث حالة زر لوحة المفاتيح المرئي (للتزامن البصري)
+    floatingKeyboardButton?.classList.add('active-keyboard');
+    floatingKeyboardButton?.classList.remove('inactive-keyboard');
+
+    // 2. تهيئة الكائن (إذا لم يكن مهيئاً)
+    if (!recognition) {
+        recognition = new SpeechRecognition();
+        recognition.continuous = false; 
+        recognition.lang = 'ar-SA';     
+        recognition.interimResults = false; 
+    }
+    
+    // 3. معالجة النتائج
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        if (transcript) {
+            // 🛑 الخطوة الرابعة: كتابة النص في الحقل
+            youtubeSearchInput.value = transcript.trim();
+            youtubeSearchInput.focus();
+            
+            // 💡 اختيارياً: تشغيل البحث تلقائياً
+            // youtubeSearchButton.click();
+        }
+    };
+
+    // 4. معالجة الأخطاء والتوقف (لإعادة تعيين الحالة)
+    recognition.onerror = (event) => {
+        floatingMicButton?.classList.remove('recording');
+        // 🛑 إعادة تعيين حالة لوحة المفاتيح إذا فشل التسجيل
+        youtubeSearchInput.readOnly = true; 
+        floatingKeyboardButton?.classList.add('inactive-keyboard');
+        floatingKeyboardButton?.classList.remove('active-keyboard');
+        console.error('Speech recognition error:', event.error);
+        if (event.error === 'not-allowed' || event.error === 'permission-denied') {
+             showMessageBox("الوصول إلى الميكروفون مرفوض. يرجى مراجعة إعدادات الموقع.");
+        }
+    };
+    
+    // 5. إدارة حالة الواجهة المرئية
+    recognition.onstart = () => {
+        floatingMicButton?.classList.add('recording');
+        showMessageBox("🎤 استمع الآن...");
+    };
+
+    recognition.onend = () => {
+        floatingMicButton?.classList.remove('recording');
+        showMessageBox("✅ تم الانتهاء من الاستماع.");
+        
+        // 🛑 الخطوة الخامسة: بعد الانتهاء من الإدخال، نعود لوضع القراءة فقط (للحماية)
+        // إذا كنت تفضل ترك الوضع مفتوحاً للكتابة اليدوية بعد الصوت، قم بإزالة الأسطر أدناه
+        // youtubeSearchInput.readOnly = true; 
+        // floatingKeyboardButton?.classList.add('inactive-keyboard'); 
+        
+        updateNavigableElements(); 
+    };
+
+    // 6. البدء
+    try {
+        recognition.start();
+    } catch (e) {
+        console.error("Recognition already started or permission denied.", e);
+        if (floatingMicButton?.classList.contains('recording')) {
+            recognition.stop();
+        }
+    }
+}
+
 /**
- * Executes Text-to-Speech (TTS) for the specified message using an Arabic voice.
- * (Requires window.speechSynthesis to be available)
- *
- * @param {string} message - The message to be spoken.
+ * تعرض قائمة مفضلة السيارة (favoritesD) في لوحة القيادة (Dashboard)
+ * باستخدام تصميم تمرير أفقي (Horizontal Scroll) يعرض 3.5 بطاقات في اللحظة الواحدة.
+ * * ملاحظة: تعتمد هذه الدالة على:
+ * 1. المتغير العام 'favoritesD' لبيانات الفيديوهات.
+ * 2. دالة 'parseDurationToSeconds' لتحويل مدة الفيديو إلى ثوانٍ.
  */
+function renderFavoritesDashboard() {
+    const container = document.getElementById('fav-d-dashboard-container');
+    if (!container) return;
+
+    // 1. القراءة من المتغير العام (الذي تم تعبئته في DOMContentLoaded)
+    const list = favoritesD; 
+    
+    console.log("[renderFavoritesDashboard] Final List Length:", list.length);
+
+    // 2. تهيئة الحاوية ومسح المحتوى القديم
+    container.innerHTML = ''; 
+    
+    // 🛑 يجب التأكد من وجود هذه الفئات في HTML: overflow-x-auto whitespace-nowrap flex gap-4
+    // container.style.flexDirection = 'row'; // لم يعد ضرورياً إذا استخدمنا flex في HTML
+
+    if (list.length === 0) {
+        // عرض رسالة الخطأ إذا كانت القائمة فارغة فعلاً
+        container.innerHTML = `<p class="text-white/50 text-center p-4 w-full">لا توجد فيديوهات محفوظة في قائمة السيارة.</p>`;
+        
+        // عند الفراغ، يجب إزالة تنسيقات Flex للحاوية الأب للسماح بالتوسيط الصحيح للرسالة
+        container.classList.remove('flex', 'gap-4'); 
+        container.style.justifyContent = 'center'; 
+        return;
+    }
+    
+    // إعادة إضافة تنسيقات Flex وضبط المحاذاة للحالة العادية (إذا تم إزالتها في حالة القائمة الفارغة)
+    container.classList.add('flex', 'gap-4');
+    container.style.justifyContent = 'flex-start';
+
+    list.forEach(video => {
+        // التحقق من صلاحية بيانات الفيديو قبل العرض
+        if (!video || !video.id) return;
+        
+        const card = document.createElement('div');
+        
+        // 🚀 التعديل الحاسم: تعيين عرض البطاقة لتمكين 3.5 عرض
+        // min-w-[28%] (25% لـ 4 بطاقات، 28% لـ 3.5) مع احتساب المسافات (gap-4)
+        card.className = 'fav-d-dashboard-card navigable grid-item flex-shrink-0 min-w-[28%] md:min-w-[27%]'; 
+        
+        card.tabIndex = 0;
+        card.dataset.videoId = video.id;
+
+        // منطق حساب التقدم (يتطلب دالة parseDurationToSeconds)
+        const durationInSeconds = typeof parseDurationToSeconds === 'function' ? parseDurationToSeconds(video.duration) : (video.duration || 1); 
+        const progressPercent = (video.progress > 0 && durationInSeconds > 0) 
+            ? (video.progress / durationInSeconds) * 100 
+            : 0;
+
+        card.innerHTML = `
+            <img src="${video.thumbnail || 'https://placehold.co/80x45'}" 
+                 alt="${video.title}" 
+                 class="w-[80px] h-full object-cover rounded-md flex-shrink-0">
+            <div class="flex flex-col flex-grow min-w-0 h-full justify-between ml-2">
+                <h4 class="text-sm font-semibold truncate">${video.title}</h4>
+                <p class="text-xs text-white/50">${video.channelTitle || 'قناة غير معروفة'}</p>
+                
+                <div class="w-full h-1.5 bg-gray-600 rounded-full overflow-hidden mt-1">
+                    <div class="bg-red-500 h-full" style="width: ${Math.min(progressPercent, 100)}%;"></div>
+                </div>
+            </div>
+            <i data-lucide="play-circle" class="w-6 h-6 text-blue-400 flex-shrink-0 ml-2"></i>
+        `;
+
+        // 4. ربط الحدث لتشغيل الفيديو
+        card.addEventListener('click', () => {
+            showVideoPopup(video.id, video.progress); 
+        });
+
+        container.appendChild(card);
+    });
+    
+    // 5. تحديث الأيقونات وعناصر التنقل
+    lucide.createIcons();
+    updateNavigableElements();
+}
+
 function playSpeechAnnouncement(message) {
     if (!('speechSynthesis' in window) || !message) {
         console.warn("TTS not supported or message is empty.");
@@ -2955,9 +3300,9 @@ function switchApp(appName) {
         startWeatherUpdates();      // الطقس (جلب كل 5 دقائق)
         startDashboardLocationTracking();
         updateTimerDisplay(); // تتبع الموقع للـ Heading وتحديث الخريطة
-
-        // 🚀 FIX: تطبيق التدوير والمركز فوراً عند فتح الشاشة
-        // نستخدم setTimeout(0) لضمان أن الـ DOM أصبح مرئياً قبل تطبيق setHeading
+        renderFavoritesDashboard(); 
+        renderSuggestedDashboard();
+       
         setTimeout(() => {
             if (dashboardGoogleMap) {
                 const numericHeading = directionToDegrees(appState.car.direction);
@@ -3441,7 +3786,7 @@ async function displayLastWatchedVideo() {
         lucide.createIcons();
 
         // --- API Keys ---
-        const YOUTUBE_API_KEY = 'AIzaSyB7QdfI0br5BfP71hOr36hz2dRWG_l0G8k'; 
+        const YOUTUBE_API_KEY = 'AIzaSyBLrMA6plsSZtqg2iY9Z1N1fJAHNmgGxos'; 
         const AI_ASSISTANT_API_KEY = 'AIzaSyBMmtON9ww4dJxMHrl1wKyWTvI0ipJXJws'; 
         const WEATHER_API_KEY = '7acefc26deee4904a2393917252207'; 
         const GOOGLE_MAPS_API_KEY = 'AIzaSyBRqAHJ2elbE_Z7NXXYC50XZpqi6HbG6Rk';
@@ -4329,27 +4674,52 @@ function updateUI() {
             floatingMediaButton.style.display = (appName === 'Media') ? 'none' : 'flex';
             floatingKeyboardButton.style.display = (appName === 'Media') ? 'flex' : 'none';
             clearSearchButton.style.display = (appName === 'Media') ? 'flex' : 'none';
-            
-            if (appName === 'Media') {
-                floatingKeyboardButton.classList.toggle('active-keyboard', !youtubeSearchInput.readOnly);
-                floatingKeyboardButton.classList.toggle('inactive-keyboard', youtubeSearchInput.readOnly);
-                
-                // Logic to show the correct view
-                youtubeVideoListView.classList.add('hidden');
-                youtubeSearchResultsView.classList.add('hidden');
-                youtubeSuggestionsDiv.style.display = 'flex'; // Make suggestions visible
+             
+             if (appName === 'Media') {
+        // 🚀 FIX: تحديث حالة زر لوحة المفاتيح (Active/Inactive)
+        if (floatingKeyboardButton) {
+            floatingKeyboardButton.style.display = 'flex'; // تأكد من إظهار الزر
+            floatingKeyboardButton.classList.toggle('active-keyboard', !youtubeSearchInput.readOnly);
+            floatingKeyboardButton.classList.toggle('inactive-keyboard', youtubeSearchInput.readOnly);
+        }
+        
+        // 💡 تحديث زر مسح البحث
+        if (clearSearchButton) {
+            clearSearchButton.style.display = 'flex';
+        }
+        
+        // 💡 إخفاء زر الوسائط العادي
+        if (floatingMediaButton) {
+            floatingMediaButton.style.display = 'none';
+        }
+        
 
-                if (activeMediaView === 'videoList' && currentPlayingPlaylistId) {
-                    youtubeVideoListView.classList.remove('hidden');
-                } else if (activeMediaView === 'searchResults') {
-                    youtubeSearchResultsView.classList.remove('hidden');
-                } else {
-                    // Default to suggestions view
-                    resetYoutubeSearchUI();
-                }
-            } else {
-                 youtubeSuggestionsDiv.style.display = 'none';
-            }
+        // --- Logic to show the correct view ---
+        youtubeVideoListView.classList.add('hidden');
+        youtubeSearchResultsView.classList.add('hidden');
+        youtubeSuggestionsDiv.style.display = 'flex'; // Make suggestions visible
+
+        if (activeMediaView === 'videoList' && currentPlayingPlaylistId) {
+            youtubeVideoListView.classList.remove('hidden');
+        } else if (activeMediaView === 'searchResults') {
+            youtubeSearchResultsView.classList.remove('hidden');
+        } else {
+            // Default to suggestions view
+            resetYoutubeSearchUI();
+        }
+    } else {
+        // 🛑 2. منطق إخفاء العناصر في الشاشات الأخرى
+        if (floatingKeyboardButton) {
+            floatingKeyboardButton.style.display = 'none';
+        }
+        if (clearSearchButton) {
+            clearSearchButton.style.display = 'none';
+        }
+        if (floatingMediaButton) {
+            floatingMediaButton.style.display = 'flex'; // إظهار زر الوسائط العائم
+        }
+        youtubeSuggestionsDiv.style.display = 'none';
+    }
         }
         appButtons.forEach(b => b.addEventListener('click', () => switchApp(b.dataset.app)));
         sidebarIcons.forEach(el => el.classList.add('w-16', 'h-16', 'rounded-2xl', 'flex', 'items-center', 'justify-center', 'transition-all', 'duration-300', 'ease-in-out'));
@@ -6586,54 +6956,48 @@ button.addEventListener('click', () => {
             }
         }
 
-        async function saveVideoToFavorites(video, type) {
-            const favoritesList = type === 'D' ? favoritesD : favoritesM;
-            if (favoritesList.some(fav => fav.id === video.id)) {
-                showMessageBox(`الفيديو موجود بالفعل في المفضلة ${type}`);
-                return;
-            }
-            const history = getWatchedHistory();
-            const watchedInfo = history[video.id];
-            const progress = (watchedInfo && watchedInfo.progress > 0) ? watchedInfo.progress : 0;
+        async function saveVideoToFavorites(rawVideoData, type) {
+    const videoToSave = {
+        id: rawVideoData.id,
+        title: rawVideoData.title || rawVideoData.snippet?.title || 'Unknown Title',
+        thumbnail: rawVideoData.thumbnail || rawVideoData.snippet?.thumbnails?.medium?.url || '',
+        channelTitle: rawVideoData.channelTitle || rawVideoData.snippet?.channelTitle || 'Unknown Channel',
+        channelId: rawVideoData.channelId || rawVideoData.snippet?.channelId || '',
+        duration: rawVideoData.duration, 
+        progress: rawVideoData.progress || 0 
+    };
 
-            const videoToSave = {
-                id: video.id,
-                title: video.title,
-                thumbnail: video.thumbnail,
-                channelTitle: video.channelTitle,
-                channelId: video.channelId,
-                duration: video.duration,
-                progress: progress
-            };
+    let favoritesList = type === 'D' ? favoritesD : favoritesM;
+    
+    // هذا السطر يضيف الفيديو الجديد في المقدمة دون إزالة أي نسخ قديمة (يسمح بالتكرار).
+    const updatedList = [videoToSave, ...favoritesList];
+    
+    if (updatedList.length > 50) {
+        updatedList.pop();
+    }
 
-            // [تعديل] إضافة الفيديو الجديد في بداية القائمة (الأحدث أولاً)
-            const updatedList = [videoToSave, ...favoritesList];
-            
-            const success = await updateFavorites(type, updatedList);
+    const success = await updateFavorites(type, updatedList);
 
-            if (success) {
-                if (type === 'D') favoritesD = updatedList; else favoritesM = updatedList;
-                showMessageBox(`تم حفظ الفيديو في المفضلة ${type}`);
-                
-                // تحديث زر الحفظ في الكارت
-                const bookmarkBtn = document.querySelector(`.bookmark-button[data-video-id="${video.id}"]`);
-                if(bookmarkBtn) {
-                    bookmarkBtn.classList.remove('saved-d', 'saved-m', 'saved-both');
-                    if (favoritesD.some(fav => fav.id === video.id) && favoritesM.some(fav => fav.id === video.id)) bookmarkBtn.classList.add('saved-both');
-                    else if (favoritesD.some(fav => fav.id === video.id)) bookmarkBtn.classList.add('saved-d');
-                    else if (favoritesM.some(fav => fav.id === video.id)) bookmarkBtn.classList.add('saved-m');
-                }
+    if (success) {
+        if (type === 'D') favoritesD = updatedList; else favoritesM = updatedList;
+        showMessageBox(`تم حفظ الفيديو في المفضلة ${type}`);
 
-                // [إضافة] تحديث زر الحفظ في نافذة الفيديو المنبثقة إذا كانت مفتوحة
-                const popupBookmarkBtn = document.getElementById('video-popup-bookmark-button');
-                if (popupBookmarkBtn && currentPlayingVideoId === video.id) {
-                     popupBookmarkBtn.classList.remove('saved-d', 'saved-m', 'saved-both');
-                    if (favoritesD.some(fav => fav.id === video.id) && favoritesM.some(fav => fav.id === video.id)) popupBookmarkBtn.classList.add('saved-both');
-                    else if (favoritesD.some(fav => fav.id === video.id)) popupBookmarkBtn.classList.add('saved-d');
-                    else if (favoritesM.some(fav => fav.id === video.id)) popupBookmarkBtn.classList.add('saved-m');
-                }
-            }
-        }
+        const bookmarkBtn = document.querySelector(`.bookmark-button[data-video-id="${videoToSave.id}"]`);
+        if(bookmarkBtn) {
+            bookmarkBtn.classList.remove('saved-d', 'saved-m', 'saved-both');
+            const isD = favoritesD.some(fav => fav.id === videoToSave.id);
+            const isM = favoritesM.some(fav => fav.id === videoToSave.id);
+            if (isD && isM) bookmarkBtn.classList.add('saved-both');
+            else if (isD) bookmarkBtn.classList.add('saved-d');
+            else if (isM) bookmarkBtn.classList.add('saved-m');
+        }
+
+        const activeTab = document.querySelector('#screen-Media .tab-button.active')?.id;
+        if ((type === 'D' && activeTab === 'tab-saved-d') || (type === 'M' && activeTab === 'tab-saved-m')) {
+             loadSavedVideos(type);
+        }
+    }
+}
 
         async function removeVideoFromFavorites(videoId, type) {
             const favoritesList = type === 'D' ? favoritesD : favoritesM;
@@ -7079,6 +7443,23 @@ async function centerMapOnUserLocation() {
     } else { 
         showGeolocationErrorOnMap('خدمة تحديد المواقع غير مدعومة في هذا المتصفح.');
     }
+}
+
+
+
+function parseDurationToSeconds(isoDuration) {
+    if (!isoDuration || typeof isoDuration !== 'string') return 0;
+    
+    const regex = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/;
+    const matches = isoDuration.match(regex);
+    
+    if (!matches) return 0;
+
+    const hours = parseInt(matches[1]) || 0;
+    const minutes = parseInt(matches[2]) || 0;
+    const seconds = parseInt(matches[3]) || 0;
+
+    return (hours * 3600) + (minutes * 60) + seconds;
 }
         
         async function calculateAndDisplayRouteTo(destinationCoords) {
@@ -8313,24 +8694,7 @@ function update3dMoonWidget() {
                 }
             }
 // 1. التحق
-const recitersIframe = document.getElementById('reciters-iframe');
-    const iframeSrcButtons = document.querySelectorAll('#screen-Reciters .iframe-src-button');
 
-    if (recitersIframe && iframeSrcButtons.length > 0) {
-        iframeSrcButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const newSrc = button.dataset.src;
-                if (newSrc && recitersIframe.src !== newSrc) {
-                    console.log(`Changing iframe src to: ${newSrc}`);
-                    recitersIframe.src = newSrc; // Change the iframe source
-
-                    // Update active button state
-                    iframeSrcButtons.forEach(btn => btn.classList.remove('active'));
-                    button.classList.add('active');
-                }
-            });
-        });
-    }
 
 
             
@@ -8496,39 +8860,71 @@ if (!window.hasInitializedWeatherSpeaker) {
         }
 switchApp('Dashboard');
 updateTrafficIndicators();
+renderFavoritesDashboard(); 
+renderSuggestedDashboard();
 
- document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
     // 1. **الجلب الأولي لبيانات JSONBin (ASYNCHRONOUS)**
+    // يتم استخدام Promise.all لانتظار نتائج الجلب الرئيسية
+const recitersIframe = document.getElementById('reciters-iframe');
+const iframeSrcButtons = document.querySelectorAll('#screen-Reciters .iframe-src-button');
+
+    if (recitersIframe && iframeSrcButtons.length > 0) {
+        iframeSrcButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const newSrc = button.dataset.src;
+                if (newSrc && recitersIframe.src !== newSrc) {
+                    console.log(`Changing iframe src to: ${newSrc}`);
+                    recitersIframe.src = newSrc; // Change the iframe source
+
+                    // Update active button state
+                    iframeSrcButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                }
+            });
+        });
+    }
+
     Promise.all([
         fetchRecitersList(), 
         fetchChannelsList(), 
-        fetchFavorites('D'),  
-        fetchFavorites('M')   
-    ]).then(() => {
-        console.log("Initialization: External data fetched and ready.");
+        fetchFavorites('D'),  // [Index 2] - القائمة المرجعة من fetchFavorites
+        fetchFavorites('M'),
+        fetchSuggestedVideos()   // [Index 3] - القائمة المرجعة من fetchFavorites
+    ]).then(results => {
         
-        // 2. تشغيل جلب الطقس الأولي لملء AppState
+        // 🚀 التعيين الحاسم: التقاط النتائج من المصفوفة وتعيينها للمتغيرات العامة
+        // (Favorites D هي النتيجة في الفهرس [2] و Favorites M في الفهرس [3])
+        favoritesD = results[2] || [];
+        favoritesM = results[3] || []; 
+        suggestedVideos = results[4] || [];
+        
+        console.log("[Debug] Favorites D size after assignment:", favoritesD.length);
+
+        // 2. تشغيل جلب الطقس الأولي
         fetchWeatherData(); 
 
         // 3. تهيئة واجهة المستخدم الخاصة بالـ Media
         populateYoutubeSuggestions();
         
-        // 4. تهيئة الخرائط وبدء تتبع الموقع
+        // 4. تهيئة الخرائط والخدمات الأخرى
         loadGoogleMaps().then(initMap);
         loadPrayerTimes();
         migrateChannelData();
         
-        // 🛑 تشغيل المؤقتات البطيئة الأساسية فقط:
-        startNextPrayerDetermination(); // تحديث تحديد الصلاة (كل 1 دقيقة)
-        startFullDateUpdates();         // تحديث التاريخ (كل 100 دقيقة)
+        // 🛑 تشغيل المؤقتات الأساسية
+        startNextPrayerDetermination(); 
+        startFullDateUpdates();         
 
-        // 5. تشغيل الشاشة الافتراضية، مما يبدأ المؤقتات الشرطية
+        // 5. تشغيل الشاشة الافتراضية
         switchApp('Dashboard'); 
         
+        // 🚀 CRITICAL FIX: استدعاء دالة العرض الآن بعد أن تم تعيين favoritesD
+        renderFavoritesDashboard(); 
+        renderSuggestedDashboard();
         // 💡 تحديث الموقع مرة واحدة لضمان تهيئة الخريطة ومؤشرات الازدحام
         centerMapOnUserLocation(); 
 
-        // 💡 تحديث العرض الأولي للساعة والتذكيرات
         updateTimerDisplay();
         renderDailyReminders();
 
@@ -8548,24 +8944,24 @@ updateTrafficIndicators();
     const minimizedPlayPauseBtn = document.getElementById('minimized-play-pause-btn');
     const videoPopupMinimizeButton = document.getElementById('video-popup-minimize-button');
     const floatingMinimizedVideoButton = document.getElementById('floating-minimized-video-button');
-    const minimizedPlaybackSpeedBtn = document.getElementById('minimized-playback-speed-btn'); 
+    const floatingMicButton = document.getElementById('floating-mic-button'); // 🛑 الزر الجديد
     const addVideoByUrlBtn = document.getElementById('add-video-by-url-btn');
 
     // 🛑 ربط زر إضافة الفيديو بالرابط
     addVideoByUrlBtn?.addEventListener('click', promptAddVideoByUrl);
 
-const todayDate = new Date().toLocaleDateString('en-US');
-const lastReset = localStorage.getItem('lastPrayerAlertReset');
+    // 💡 منطق تنظيف التنبيهات الصوتية
+    const todayDate = new Date().toLocaleDateString('en-US');
+    const lastReset = localStorage.getItem('lastPrayerAlertReset');
 
-if (lastReset !== todayDate) {
-    // إذا تغير اليوم، قم بمسح جميع تنبيهات الصلاة من التخزين المحلي
-    for (const key in localStorage) {
-        if (key.startsWith('iqama_alert_')) {
-            localStorage.removeItem(key);
+    if (lastReset !== todayDate) {
+        for (const key in localStorage) {
+            if (key.startsWith('iqama_alert_')) {
+                localStorage.removeItem(key);
+            }
         }
+        localStorage.setItem('lastPrayerAlertReset', todayDate);
     }
-    localStorage.setItem('lastPrayerAlertReset', todayDate);
-}
 
     getMyLocationButtonDashboard?.addEventListener('click', centerMapOnUserLocation);
     floatingMediaButton?.addEventListener('click', () => switchApp('Media'));
@@ -8602,24 +8998,212 @@ if (lastReset !== todayDate) {
     });
 
     // 🚀 ربط أزرار السرعة المنفصلة (يتم استخدام data-rate في HTML)
-  // ... (داخل DOMContentLoaded)
-
-    // 🚀 ربط أزرار السرعة المنفصلة
     document.querySelectorAll('#playback-rates-group .rate-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            e.stopPropagation(); // منع الاستعادة
+            e.stopPropagation(); 
             const rateValue = e.currentTarget.dataset.rate; 
-            // 🛑 لن يظهر خطأ الآن
             setSpecificPlaybackRate(rateValue); 
         });
     });
+    
+    // 💡 ربط أحداث النقر للتحكم في التذكيرات
+    document.addEventListener('click', (e) => {
+        const reminderItem = e.target.closest('.reminder-item');
+        const dropdownButton = e.target.closest('.reminder-status-dropdown button');
 
-// ...
+        if (dropdownButton) return;
+
+        if (!reminderItem && !e.target.closest('.reminder-status-dropdown')) {
+            closeAllDropdowns();
+            return;
+        }
+
+        if (!reminderItem) return;
+
+        e.stopPropagation();
+
+        const existingDropdown = reminderItem.querySelector('.reminder-status-dropdown');
+
+        if (existingDropdown) {
+            existingDropdown.remove();
+        } else {
+            closeAllDropdowns();
+            const reminderId = reminderItem.dataset.reminderId;
+            const iconWrapper = reminderItem.querySelector('.icon-wrapper');
+            if (iconWrapper) {
+                 createReminderDropdown(reminderId, iconWrapper);
+            }
+        }
+    });
+
+    // 🛑 ربط زر الميكروفون (الزر الجديد)
+    floatingMicButton?.addEventListener('click', () => {
+        if (currentAppIndex === appOrder.indexOf('Media')) {
+            // نوقف التسجيل أولاً إذا كان نشطاً، وإلا نبدأه
+            if (floatingMicButton.classList.contains('recording')) {
+                stopVoiceToText();
+            } else {
+                startVoiceToText();
+            }
+        } else {
+            // إذا لم نكن في شاشة الميديا، انتقل إليها ثم ابدأ التسجيل
+            switchApp('Media');
+            // نستخدم setTimeout لضمان اكتمال DOM Switch قبل بدء التسجيل
+            setTimeout(startVoiceToText, 100); 
+        }
+    });
 
     // 7. **المؤقتات والإجراءات المتأخرة**
-    setTimeout(playWelcomeMessage, 1500); 
+    
+    // 💡 يجب تهيئة متحدث الطقس قبل التشغيل
+    if (!window.hasInitializedWeatherSpeaker) {
+        window.hasInitializedWeatherSpeaker = true;
+        let hasSpokenWelcome = false;
 
-    // ... (بقية المستمعات العامة: zoom, keyboard, etc.) ...
+        const checkWeatherAndSpeak = () => {
+             const today = new Date();
+             today.setFullYear(2025);
+             const gregorianDate = new Intl.DateTimeFormat('en-UK', { month: 'long', day: 'numeric' }).format(today);
+             const hijriDate = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', { weekday: 'long'}).format(today);
+
+            const speak = (textToSpeak) => {
+                if ('speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                    const voices = window.speechSynthesis.getVoices();
+                    let arabicVoice = voices.find(voice => voice.lang.startsWith('ar') && voice.name.includes('Male'));
+                    if (!arabicVoice) {
+                        arabicVoice = voices.find(voice => voice.lang.startsWith('ar'));
+                    }
+                    if (arabicVoice) {
+                        utterance.voice = arabicVoice;
+                    }
+                    utterance.lang = 'ar-SA';
+                    utterance.rate = 0.9;
+                    window.speechSynthesis.speak(utterance);
+                } else {
+                    console.log('Text-to-speech not supported in this browser.');
+                }
+            };
+            const speakWithVoicesReady = (text) => {
+                 if (window.speechSynthesis.getVoices().length === 0) {
+                    window.speechSynthesis.onvoiceschanged = () => {
+                        speak(text);
+                    };
+                } else {
+                    speak(text);
+                }
+            }
+
+            if (!hasSpokenWelcome) {
+                const welcomeText = `مرحبا، تاريخ اليوم ${hijriDate} الموافق ${gregorianDate}`;
+                speakWithVoicesReady(welcomeText);
+                hasSpokenWelcome = true;
+            }
+
+            if (appState.weather.temperature !== null) {
+                setTimeout(() => {
+                    const weatherText = `حالة الطقس الآن ${appState.weather.temperature} درجة مئوية`;
+                    speakWithVoicesReady(weatherText);
+                }, 7000);
+            } else {
+                setTimeout(checkWeatherAndSpeak, 500);
+            }
+        };
+        setTimeout(checkWeatherAndSpeak, 1500); 
+    }
+
+
+    upload360ImageButton?.addEventListener('click', () => upload360ImageInput.click()); 
+    upload360ImageInput?.addEventListener('change', handleImageUpload); 
+    reset360ImageButton?.addEventListener('click', resetImageToDefault); 
+    document.addEventListener('keydown', handleRemoteControlInput);
+    document.addEventListener('fullscreenchange', handleFullScreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullScreenChange); 
+    
+    videoPopupCloseButton.addEventListener('click', hideVideoPopup);
+    backToPlaylistsFromVideosButton.addEventListener('click', navigateBackToMainSearch);
+    backToPlaylistsBottomButton.addEventListener('click', navigateBackToMainSearch);
+    backToPlaylistsBottomButtonSearch.addEventListener('click', navigateBackToMainSearch);
+    floatingKeyboardButton.addEventListener('click', () => { 
+        youtubeSearchInput.readOnly = !youtubeSearchInput.readOnly; 
+        if (!youtubeSearchInput.readOnly) {
+            youtubeSearchInput.focus(); 
+        } else {
+            youtubeSearchInput.blur();
+            setFocus(youtubeSearchButton);
+        }
+        floatingKeyboardButton.classList.toggle('active-keyboard', !youtubeSearchInput.readOnly); 
+        floatingKeyboardButton.classList.toggle('inactive-keyboard', youtubeSearchInput.readOnly); 
+    });
+    
+    // UPDATED: Clear button logic
+    clearSearchButton.addEventListener('click', () => {
+        youtubeSearchInput.value = ''; 
+        lastSuccessfulSearchQuery = null; 
+        navigateBackToMainSearch();
+    });
+
+    youtubeSearchInput.addEventListener('focus', () => { if (youtubeSearchInput.value.trim() === '') { resetYoutubeSearchUI(); } });
+    youtubeSearchButton.addEventListener('click', () => { const query = youtubeSearchInput.value.trim(); if (query) searchYouTubeVideos(query); else showMessageBox('الرجاء إدخال كلمة للبحث.'); });
+    
+    // UPDATED: Auto-search for Tarteel channel with pre-click effect
+    youtubeSearchInput.addEventListener('input', () => {
+        const targetText = 'ترتيل-@TarteelArabic';
+        const currentText = youtubeSearchInput.value;
+
+        if (currentText.includes(targetText + ' ')) {
+            youtubeSearchButton.classList.add('tv-focus'); 
+            setTimeout(() => {
+                youtubeSearchButton.click();
+                setTimeout(() => youtubeSearchButton.classList.remove('tv-focus'), 100);
+            }, 50);
+        } else if (currentText.includes(targetText)) {
+            youtubeSearchButton.classList.add('tv-focus');
+        } else {
+            youtubeSearchButton.classList.remove('tv-focus');
+        }
+    });
+
+    // NEW Listeners for Animation and Zoom Controls
+    pauseAnimationButton.addEventListener('click', () => {
+        document.body.classList.toggle('animation-paused');
+        const isPaused = document.body.classList.contains('animation-paused');
+        const playIcon = pauseAnimationButton.querySelector('[data-lucide="play"]');
+        const pauseIcon = pauseAnimationButton.querySelector('[data-lucide="pause"]');
+        playIcon.classList.toggle('hidden', !isPaused);
+        pauseIcon.classList.toggle('hidden', isPaused);
+    });
+
+    removeCacheButton.addEventListener('click', () => {
+        localStorage.clear();
+        showMessageBox('تم مسح ذاكرة التخزين المؤقت بنجاح. سيتم إعادة تحميل التطبيق.');
+        setTimeout(() => {
+            location.reload();
+        }, 2000);
+    });
+
+    zoomInButton.addEventListener('click', () => {
+        if (currentFontSize < maxFontSize) {
+            currentFontSize += fontSizeStep;
+            document.documentElement.style.fontSize = `${currentFontSize}px`;
+        }
+    });
+
+    zoomOutButton.addEventListener('click', () => {
+        if (currentFontSize > minFontSize) {
+            currentFontSize -= fontSizeStep;
+            document.documentElement.style.fontSize = `${currentFontSize}px`;
+        }
+    });
+    
+    // NEW/UPDATED: Event listener for the floating back button
+    backToSearchFloatingButton.addEventListener('click', () => {
+        if (activeMediaView === 'suggestions' && lastSuccessfulSearchQuery) {
+            searchYouTubeVideos(lastSuccessfulSearchQuery); 
+        } else {
+            navigateBackToMainSearch();
+        }
+    });
 });
 
 
