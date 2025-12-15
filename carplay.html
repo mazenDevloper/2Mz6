@@ -34,6 +34,23 @@
         @import url('https://fonts.googleapis.com/css2?family=Amiri+Quran:wght@400;700&display=swap');
         /* NEW: Import Amiri font for Thuluth-like style */
         @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+        #suggested-d-dashboard-container {
+    display: flex!important;
+    flex-direction: row!important;
+    justify-content: flex-start!important; 
+    
+    /* 🛑 1. التعديل الحاسم: منع الالتفاف، مما يجبر العناصر على البقاء في صف واحد */
+    flex-wrap: nowrap!important; 
+    
+    /* 🛑 2. السماح بالتمرير الأفقي لظهور الشريط الأفقي عند الضرورة */
+    overflow-x: auto!important; 
+    
+    /* 🛑 3. إخفاء شريط التمرير العمودي إذا كان فارغًا */
+    overflow-y: hidden!important;
+    
+    gap: 16px!important; /* المسافة بين البطاقات */
+}
+.suggested-d-dashboard-card.navigable.grid-item.p-2>img {min-width: 11.1rem !important;height: 6.1rem !important;}
 #suggested-d-dashboard-container {
     display: flex;
     flex-direction: row; /* لعرض العناصر في صف */
@@ -3904,7 +3921,7 @@ async function displayLastWatchedVideo() {
         lucide.createIcons();
 
         // --- API Keys ---
-        const YOUTUBE_API_KEY = 'AIzaSyBLrMA6plsSZtqg2iY9Z1N1fJAHNmgGxos'; 
+        const YOUTUBE_API_KEY = 'AIzaSyD-XZi8ESBCdZ8hZ4YA9vYFkN2fyfk6wns'; 
         const AI_ASSISTANT_API_KEY = 'AIzaSyBMmtON9ww4dJxMHrl1wKyWTvI0ipJXJws'; 
         const WEATHER_API_KEY = '7acefc26deee4904a2393917252207'; 
         const GOOGLE_MAPS_API_KEY = 'AIzaSyBRqAHJ2elbE_Z7NXXYC50XZpqi6HbG6Rk';
