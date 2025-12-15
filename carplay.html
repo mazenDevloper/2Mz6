@@ -34,6 +34,36 @@
         @import url('https://fonts.googleapis.com/css2?family=Amiri+Quran:wght@400;700&display=swap');
         /* NEW: Import Amiri font for Thuluth-like style */
         @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+#suggested-d-dashboard-container {
+    display: flex;
+    flex-direction: row; /* لعرض العناصر في صف */
+    justify-content: flex-start; /* البدء من اليسار/اليمين */
+    flex-wrap: wrap; /* السماح للعناصر بالانتقال لصف جديد */
+    /* التعديلات التي طلبتها */
+    justify-content: space-evenly !important; 
+}
+
+/* الحد الأدنى للعرض لضمان مساحة كافية للعناصر */
+div#suggested-d-dashboard-row {
+    min-width: 900px;
+}
+
+/* تنسيق الصور (تم توسيع المُحدد ليشمل العناصر داخل الحاوية الجديدة) */
+/* يفترض أن عناصر المقترحات تستخدم كلاس 'suggested-video-card' */
+.suggested-video-card > img,
+.suggested-d-dashboard-card.navigable.grid-item > img,
+.fav-d-dashboard-card.navigable.grid-item > img {
+    width: 11.1rem !important;
+    height: 6.1rem !important;
+}
+
+/* 🛑 تطبيق قواعد الإخفاء على العناصر الداخلية */
+h6.mb-0.text-truncate,
+.video-details.flex-grow-1,
+.flex.flex-col.flex-grow.min-w-0.h-full.justify-between.ml-2 {
+    display: none !important;
+}
+
 
 #fav-d-dashboard-container{justify-content:space-evenly!important;}
 
@@ -2384,6 +2414,12 @@ div#map{display:none}
                             </div>
                             
                         </div>
+                    <div id="suggested-d-dashboard-row" class="glass-surface glass-surface--svg p-4 flex col-span-full justify-start rounded-3xl navigable grid-item" tabindex="0" style="height: 180px;"> 
+    
+    <div id="suggested-d-dashboard-container" class="favorites-dashboard-horizontal-scroll flex-grow overflow-x-auto whitespace-nowrap flex gap-4" style="flex-direction: row; justify-content: flex-start;">
+        </div>
+</div>
+                       
                         <div id="favorites-d-dashboard-row" class="glass-surface glass-surface--svg p-4 flex col-span-full justify-start rounded-3xl navigable grid-item" tabindex="0" style="height: 180px;">
                 <div id="fav-d-dashboard-container" class="favorites-dashboard-horizontal-scroll flex-grow overflow-x-auto 
                  whitespace-nowrap 
@@ -2846,15 +2882,187 @@ div#map{display:none}
     </div>
 
     <script>
+
 /**
- * Renders the content of the Car Favorites (favoritesD) list into the Dashboard 
- * using a horizontal scrolling carousel design.
- * * NOTE: This relies on the global 'favoritesD' array being populated and 'parseDurationToSeconds' 
- * function being defined globally.
+ * تعرض قائمة الفيديوهات المقترحة في واجهة المستخدم، وتطبق حد أقصى للعرض (20).
+ * تستخدم هيكلية HTML التي تتوافق مع تنسيقات الإخفاء CSS المطلوبة.
  */
-/**
- * يبدأ عملية تحويل الكلام إلى نص، مع ضمان تفعيل حقل البحث للكتابة أولاً.
- */
+// --- التعريفات العامة (يجب أن تكون متوفرة في نطاقك) ---
+const NEW_JSONBIN_CHANNEL_IDS = '693fb33cae596e708f9ade6a'; 
+
+async function fetchSuggestedVideos() {
+    console.log("Starting real fetch for suggested videos (Order: Relevance, No Time Filter) using iteration...");
+    
+    // 1. جلب قائمة Channel IDs (منطق الجلب المكتمل)
+    let channelIdsArray = [];
+    try {
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${NEW_JSONBIN_CHANNEL_IDS}/latest`, {
+            headers: { 'X-Access-Key': JSONBIN_ACCESS_KEY_CHANNELS } // 🛑 استخدام مفتاح القنوات
+        });
+        
+        if (!res.ok) throw new Error(`JSONBin fetch failed with status: ${res.status}`);
+        
+        const data = await res.json();
+        channelIdsArray = Array.isArray(data.record) ? data.record : []; 
+        console.log(`[Suggested] Fetched ${channelIdsArray.length} potential Channel IDs from JSONBin.`);
+    } catch (error) {
+        console.error("Failed to fetch channels list from JSONBin:", error);
+        return [];
+    }
+
+    if (channelIdsArray.length === 0) {
+        console.log("No channels found to fetch videos from.");
+        return [];
+    }
+    
+    let allVideos = [];
+    let videoIdsToFetch = [];
+    
+    // 2. البحث في كل قناة على حدة (Promise.all)
+    try {
+        // ... (منطق جلب الفيديوهات عبر Search API وتجميع allVideos/videoIdsToFetch يبقى كما هو) ...
+        const validChannelIds = channelIdsArray.filter(id => id && typeof id === 'string' && id.startsWith('UC'));
+
+        const searchPromises = validChannelIds.map(id => {
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${id}&maxResults=5&type=video&order=relevance&key=${YOUTUBE_API_KEY}`;
+            return fetch(url).then(res => res.json());
+        });
+        
+        const results = await Promise.all(searchPromises);
+        
+        results.forEach(data => {
+            if (data.error) {
+                console.warn(`Youtube Failed for a channel (Quota/Issue): ${data.error.message}`);
+                return; 
+            }
+            if (data.items && data.items.length > 0) {
+                data.items.forEach(item => {
+                    if (item.id.videoId) { 
+                        allVideos.push({
+                            id: item.id.videoId,
+                            title: item.snippet.title,
+                            thumbnail: item.snippet.thumbnails.medium.url,
+                            channelTitle: item.snippet.channelTitle,
+                        });
+                        videoIdsToFetch.push(item.id.videoId);
+                    }
+                });
+            }
+        });
+
+        console.log(`[Suggested] Search API returned ${allVideos.length} total video items after iteration.`);
+
+
+        // 3. جلب تفاصيل الفيديو (المشاهدات والمدة) - المنطق المكتمل
+        if (videoIdsToFetch.length > 0) {
+            const videoIds = videoIdsToFetch.filter(id => id && typeof id === 'string' && id.length > 5).join(',');
+
+            if (!videoIds) {
+                console.warn("[Suggested] Filtered all video IDs as invalid. Skipping Videos API call.");
+                return allVideos;
+            }
+
+            try {
+                const detailsUrl = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics&id=${videoIds}&key=${YOUTUBE_API_KEY}`;
+                const detailsResponse = await fetch(detailsUrl);
+                const detailsData = await detailsResponse.json();
+
+                if (detailsData.error) {
+                    console.error("YouTube Details API Failed (Quota likely):", detailsData.error.message); 
+                    return allVideos;
+                }
+
+                // دمج المشاهدات والمدة
+                if (detailsData.items) {
+                    detailsData.items.forEach(detail => {
+                        const video = allVideos.find(v => v.id === detail.id);
+                        if (video) {
+                            video.duration = formatDuration(detail.contentDetails.duration); 
+                            video.views = parseInt(detail.statistics.viewCount || 0);
+                            video.viewsDisplay = formatViewCount(video.views); 
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error("Silent failure in fetching video details (Network/CORS):", e); 
+                return allVideos; 
+            }
+        }
+
+    } catch (error) {
+        console.error("Critical error during multi-channel fetch (Promise.all failed):", error);
+        return [];
+    }
+        
+    // 4. الفرز النهائي وتطبيق الحد (20)
+    const sortedVideos = allVideos
+        .filter(v => v.views > 0) 
+        .sort((a, b) => b.views - a.views);
+
+    console.log(`Successfully fetched and sorted ${sortedVideos.length} suggested videos.`);
+    return sortedVideos.slice(0, 20); 
+}
+
+
+function renderSuggestedDashboard() {
+    const container = document.getElementById('suggested-d-dashboard-container');
+    if (!container) return;
+
+    // 1. تطبيق الحد الأقصى 20 على القائمة المجلوبة
+    const list = suggestedVideos ? suggestedVideos.slice(0, 20) : []; 
+    
+    console.log("[renderSuggestedDashboard] List Length:", suggestedVideos ? suggestedVideos.length : 0);
+    console.log("[renderSuggestedDashboard] Final Display List Length (Capped at 20):", list.length);
+
+    container.innerHTML = ''; 
+
+    // 2. معالجة حالة عدم وجود بيانات
+    if (list.length === 0) {
+        container.innerHTML = '<p class="text-center text-muted mt-4 w-full">لا توجد مقترحات حاليًا. (الرجاء التأكد من تحديث مفتاح YouTube API).</p>';
+        // 💡 إزالة تنسيقات Flexbox في حالة الفراغ لتوسيط الرسالة
+        container.style.display = 'block'; 
+        return;
+    }
+    
+    // 💡 إعادة تفعيل Flexbox في حالة وجود بيانات
+    container.style.display = 'flex';
+    const fragment = document.createDocumentFragment(); 
+
+    // 3. بناء عناصر HTML وتطبيق الكلاسات المطلوبة
+    list.forEach(video => {
+        // نستخدم كلاسات مماثلة للمفضلة لتطبيق التنسيق CSS المطلوب (الصور)
+        const card = document.createElement('div');
+        // يجب أن يحتوي هذا الكلاس على التنسيق المطلوب: display: flex; justify-content: space-evenly; flex-wrap: wrap;
+        card.className = 'suggested-d-dashboard-card navigable grid-item p-2'; 
+        card.tabIndex = 0; 
+        
+        card.innerHTML = `
+            <img src="${video.thumbnail}" alt="${video.title}" loading="lazy">
+            
+            <div class="video-details flex-grow-1"> 
+                <h6 class="mb-0 text-truncate">${video.title}</h6>
+                <p class="mb-1 text-muted small">${video.channelTitle}</p>
+            </div>
+            
+            <div class="flex flex-col flex-grow min-w-0 h-full justify-between ml-2">
+                </div>
+        `;
+        
+        // ربط حدث النقر لتشغيل الفيديو
+        card.addEventListener('click', () => {
+             // يجب استبدال playVideoInPopup بآلية التشغيل الفعلية لديك
+             showVideoPopup(video.id); 
+        });
+
+        fragment.appendChild(card);
+    });
+    
+    // 4. إضافة جميع العناصر إلى DOM في خطوة واحدة
+    container.appendChild(fragment);
+}
+
+
+
 function startVoiceToText() {
     // 1. التحقق من الدعم
     if (!SpeechRecognition) {
@@ -8772,6 +8980,7 @@ switchApp('Dashboard');
 updateTrafficIndicators();
 renderFavoritesDashboard();
 
+
 document.addEventListener('DOMContentLoaded', () => {
     // 1. **الجلب الأولي لبيانات JSONBin (ASYNCHRONOUS)**
     // يتم استخدام Promise.all لانتظار نتائج الجلب الرئيسية
@@ -8795,16 +9004,18 @@ const iframeSrcButtons = document.querySelectorAll('#screen-Reciters .iframe-src
     }
 
     Promise.all([
-        fetchRecitersList(), 
+    fetchRecitersList(), 
         fetchChannelsList(), 
         fetchFavorites('D'),  // [Index 2] - القائمة المرجعة من fetchFavorites
-        fetchFavorites('M')   // [Index 3] - القائمة المرجعة من fetchFavorites
+        fetchFavorites('M'),
+        fetchSuggestedVideos()   // [Index 3] - القائمة المرجعة من fetchFavorites
     ]).then(results => {
         
         // 🚀 التعيين الحاسم: التقاط النتائج من المصفوفة وتعيينها للمتغيرات العامة
         // (Favorites D هي النتيجة في الفهرس [2] و Favorites M في الفهرس [3])
         favoritesD = results[2] || [];
         favoritesM = results[3] || []; 
+        suggestedVideos = results[4] || [];
         
         console.log("[Debug] Favorites D size after assignment:", favoritesD.length);
 
@@ -8813,6 +9024,7 @@ const iframeSrcButtons = document.querySelectorAll('#screen-Reciters .iframe-src
 
         // 3. تهيئة واجهة المستخدم الخاصة بالـ Media
         populateYoutubeSuggestions();
+        renderSuggestedDashboard();
         
         // 4. تهيئة الخرائط والخدمات الأخرى
         loadGoogleMaps().then(initMap);
@@ -8828,6 +9040,7 @@ const iframeSrcButtons = document.querySelectorAll('#screen-Reciters .iframe-src
         
         // 🚀 CRITICAL FIX: استدعاء دالة العرض الآن بعد أن تم تعيين favoritesD
         renderFavoritesDashboard(); 
+        
 
         // 💡 تحديث الموقع مرة واحدة لضمان تهيئة الخريطة ومؤشرات الازدحام
         centerMapOnUserLocation(); 
