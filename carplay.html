@@ -2941,7 +2941,7 @@ async function fetchSuggestedVideos() {
         const validChannelIds = channelIdsArray.filter(id => id && typeof id === 'string' && id.startsWith('UC'));
 
         const searchPromises = validChannelIds.map(id => {
-            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${id}&maxResults=5&type=video&order=relevance&key=${YOUTUBE_API_KEY}`;
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${id}&maxResults=5&type=video&order=relevance&key=${YOUTUBE_API_KEY2}`;
             return fetch(url).then(res => res.json());
         });
         
@@ -2980,7 +2980,7 @@ async function fetchSuggestedVideos() {
             }
 
             try {
-                const detailsUrl = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics&id=${videoIds}&key=${YOUTUBE_API_KEY}`;
+                const detailsUrl = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics&id=${videoIds}&key=${YOUTUBE_API_KEY2}`;
                 const detailsResponse = await fetch(detailsUrl);
                 const detailsData = await detailsResponse.json();
 
@@ -3921,7 +3921,8 @@ async function displayLastWatchedVideo() {
         lucide.createIcons();
 
         // --- API Keys ---
-        const YOUTUBE_API_KEY = 'AIzaSyD-XZi8ESBCdZ8hZ4YA9vYFkN2fyfk6wns'; 
+        const YOUTUBE_API_KEY = 'AIzaSyB3Rk_x-Xponn6i-PXuTgPr2wisD28GvuM';
+        const YOUTUBE_API_KEY2 = 'AIzaSyCaqMPtn-egmEQk7XmTel--xsXV1Xbdp7o';
         const AI_ASSISTANT_API_KEY = 'AIzaSyBMmtON9ww4dJxMHrl1wKyWTvI0ipJXJws'; 
         const WEATHER_API_KEY = '7acefc26deee4904a2393917252207'; 
         const GOOGLE_MAPS_API_KEY = 'AIzaSyBRqAHJ2elbE_Z7NXXYC50XZpqi6HbG6Rk';
