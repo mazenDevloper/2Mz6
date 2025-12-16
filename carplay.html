@@ -62,7 +62,11 @@
 
 /* الحد الأدنى للعرض لضمان مساحة كافية للعناصر */
 div#suggested-d-dashboard-row {
-    min-width: 900px;
+    min-width: 99%;
+}
+
+section#screen-Dashboard>div {
+    width: 98%;
 }
 
 /* تنسيق الصور (تم توسيع المُحدد ليشمل العناصر داخل الحاوية الجديدة) */
@@ -2909,7 +2913,25 @@ const NEW_JSONBIN_CHANNEL_IDS = '693fb33cae596e708f9ade6a';
 
 async function fetchSuggestedVideos() {
     console.log("Starting real fetch for suggested videos (Order: Relevance, No Time Filter) using iteration...");
-    
+    const cacheKey = 'suggestedVideosCache';
+const cachedData = localStorage.getItem(cacheKey);
+
+if (cachedData) {
+    try {
+        // تأكد أن CACHE_DURATION_MS مُعرَّف في نطاقك العام
+        const { timestamp, videos } = JSON.parse(cachedData);
+        if (Date.now() - timestamp < CACHE_DURATION_MS) {
+            console.log("[Suggested] Returning data from cache (valid for 6 hours).");
+            return videos; // 💡 إرجاع النتائج المخزنة فوراً
+        } else {
+            console.warn("[Suggested] Cache expired. Initiating fresh fetch.");
+            localStorage.removeItem(cacheKey);
+        }
+    } catch (e) {
+        console.warn("Corrupted cache found, fetching fresh data.");
+        localStorage.removeItem(cacheKey);
+    }
+}
     // 1. جلب قائمة Channel IDs (منطق الجلب المكتمل)
     let channelIdsArray = [];
     try {
@@ -3017,7 +3039,13 @@ async function fetchSuggestedVideos() {
         .sort((a, b) => b.views - a.views);
 
     console.log(`Successfully fetched and sorted ${sortedVideos.length} suggested videos.`);
-    return sortedVideos.slice(0, 20); 
+    return sortedVideos.slice(0, 12); 
+
+    const finalDisplayVideos = sortedVideos.slice(0, 12);
+const dataToCache = { timestamp: Date.now(), videos: finalDisplayVideos };
+localStorage.setItem(cacheKey, JSON.stringify(dataToCache));
+
+return finalDisplayVideos;
 }
 
 
@@ -3078,7 +3106,7 @@ function renderSuggestedDashboard() {
     container.appendChild(fragment);
 }
 
-
+const CACHE_DURATION_MS = 6 * 60 * 60 * 1000;
 
 function startVoiceToText() {
     // 1. التحقق من الدعم
