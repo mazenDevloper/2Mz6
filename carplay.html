@@ -2963,7 +2963,7 @@ if (cachedData) {
         const validChannelIds = channelIdsArray.filter(id => id && typeof id === 'string' && id.startsWith('UC'));
 
         const searchPromises = validChannelIds.map(id => {
-            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${id}&maxResults=5&type=video&order=relevance&key=${YOUTUBE_API_KEY2}`;
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${id}&maxResults=2&type=video&order=relevance&key=${YOUTUBE_API_KEY2}`;
             return fetch(url).then(res => res.json());
         });
         
