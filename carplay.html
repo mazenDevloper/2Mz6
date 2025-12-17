@@ -2909,7 +2909,7 @@ div#map{display:none}
     </div>
 
     <script>
-        // قائمة المفاتيح التي زودتني بها (المجموع: 10 مفاتيح)
+        // --- الثوابت والإعدادات العامة ---
 const YT_KEYS_POOL = [
     "AIzaSyB3Rk_x-Xponn6i-PXuTgPr2wisD28GvuM", // الأساسي 1
     "AIzaSyD-XZi8ESBCdZ8hZ4YA9vYFkN2fyfk6wns", // الأساسي 2
@@ -2923,44 +2923,75 @@ const YT_KEYS_POOL = [
     "AIzaSyAjdVZ2Rodp6ZVEF1pZT195kAtGELolxSI"  // احتياطي
 ];
 
-let currentKeyIndex = 0; // مؤشر المفتاح الحالي
+let currentKeyIndex = 0;
+const CACHE_KEY = 'suggestedVideosCache';
+const TARGET_ID = 'UCz9WVutRGBdn58dScZDh6uQ';
+const UPDATE_HOURS = [7,10, 14,16, 18]; 
+const NEW_JSONBIN_CHANNEL_IDS = '693fb33cae596e708f9ade6a';
+
+// --- الدوال المساعدة ---
+
+// دالة الجلب الذكية التي تبدل المفاتيح تلقائياً عند نفاذ الكوتا
+async function fetchSafely(baseUrl) {
+    const getUrlWithKey = (url, key) => {
+        const separator = url.includes('?') ? '&' : '?';
+        if (url.includes('key=')) return url.replace(/key=[^&]+/, `key=${key}`);
+        return `${url}${separator}key=${key}`;
+    };
+
+    try {
+        let response = await fetch(getUrlWithKey(baseUrl, YT_KEYS_POOL[currentKeyIndex]));
+        let data = await response.json();
+
+        // إذا انتهت الكوتا (Error 403 / quotaExceeded)
+        if (data.error && (data.error.errors?.[0]?.reason === 'quotaExceeded' || data.error.code === 403)) {
+            if (currentKeyIndex < YT_KEYS_POOL.length - 1) {
+                console.warn(`[Quota] Key ${currentKeyIndex + 1} exhausted. Switching to Key ${currentKeyIndex + 2}...`);
+                currentKeyIndex++;
+                return fetchSafely(baseUrl); // إعادة المحاولة بالمفتاح الجديد
+            } else {
+                console.error("[Critical] All 10 YouTube API keys are exhausted!");
+                return data; 
+            }
+        }
+        return data;
+    } catch (err) {
+        console.error("Network Error:", err);
+        return { items: [] };
+    }
+}
 
 function shouldRefreshNow(lastTimestamp) {
+    if (!lastTimestamp) return true;
     const lastUpdate = new Date(lastTimestamp);
     const now = new Date();
     for (let hour of UPDATE_HOURS) {
         let scheduledTime = new Date();
         scheduledTime.setHours(hour, 0, 0, 0);
-        // إذا حان الموعد الآن وكان آخر تحديث قبل هذا الموعد، نعم يجب التحديث
         if (now >= scheduledTime && lastUpdate < scheduledTime) return true;
     }
     return false;
 }
 
-const CACHE_KEY = 'suggestedVideosCache';
-const TARGET_ID = 'UCz9WVutRGBdn58dScZDh6uQ';
-const UPDATE_HOURS = [7, 14, 18]; // الصباح، الظهر، الليل
-
-
-const NEW_JSONBIN_CHANNEL_IDS = '693fb33cae596e708f9ade6a'; 
+// --- الدالة الرئيسية ---
 
 async function fetchSuggestedVideos() {
     console.log("Checking Suggested Videos (6 Channels, Scheduled Logic)...");
     const cachedData = localStorage.getItem(CACHE_KEY);
 
-    // 1. منطق الكاش الذكي والعشوائية (يتم عند كل Refresh)
+    // 1. منطق الكاش والتدوير العشوائي (يتم عند كل Refresh)
     if (cachedData) {
         try {
             const { timestamp, videos } = JSON.parse(cachedData);
             
-            // إذا لم يحن موعد التحديث الرسمي، نستخدم الكاش مع التدوير العشوائي
+            // إذا لم يحن موعد التحديث الرسمي (7 ص، 2 ظ، 6 م)
             if (!shouldRefreshNow(timestamp)) {
-                console.log("[Suggested] Using Cache. Randomizing selection (2 fixed + 7 random)...");
+                console.log("[Suggested] Using Cache. Randomizing (2 fixed + 7 random)...");
                 
-                // تثبيت فيديوهات القناة المفضلة (أقصى اليمين)
+                // تثبيت فيديوهات القناة المفضلة (أول 2)
                 const priority = videos.filter(v => v.channelId === TARGET_ID).slice(0, 2);
                 
-                // اختيار 7 فيديوهات عشوائية من الـ 10 فيديوهات المتبقية في الكاش
+                // خلط الـ 10 فيديوهات الأخرى واختيار 7 منها
                 const others = videos.filter(v => v.channelId !== TARGET_ID)
                                      .sort(() => 0.5 - Math.random())
                                      .slice(0, 7);
@@ -2969,19 +3000,18 @@ async function fetchSuggestedVideos() {
             }
             console.log("[Suggested] Scheduled update time reached. Fetching from API...");
         } catch (e) {
-            console.warn("Cache error, clearing...");
             localStorage.removeItem(CACHE_KEY);
         }
     }
 
-    // 2. جلب قائمة القنوات من JSONBin (نستخدم أول 6 قنوات فقط لضبط الكوتا)
+    // 2. جلب قائمة القنوات من JSONBin (نأخذ أول 6 قنوات)
     let channelIdsArray = [];
     try {
         const res = await fetch(`https://api.jsonbin.io/v3/b/${NEW_JSONBIN_CHANNEL_IDS}/latest`, {
             headers: { 'X-Access-Key': JSONBIN_ACCESS_KEY_CHANNELS }
         });
-        const data = await res.json();
-        channelIdsArray = Array.isArray(data.record) ? data.record.slice(0, 6) : []; 
+        const binData = await res.json();
+        channelIdsArray = Array.isArray(binData.record) ? binData.record.slice(0, 6) : []; 
     } catch (error) {
         console.error("JSONBin fetch failed:", error);
         return [];
@@ -2992,19 +3022,15 @@ async function fetchSuggestedVideos() {
     let allVideos = [];
     let videoIdsToFetch = [];
 
-    // 3. جلب الفيديوهات من يوتيوب (طلبين لكل قناة = 12 فيديو إجمالي)
+    // 3. جلب الفيديوهات من يوتيوب باستخدام نظام التناوب (12 فيديو إجمالي)
     try {
-        const searchPromises = channelIdsArray.map(id => {
-            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${id}&maxResults=2&type=video&order=relevance&key=${YOUTUBE_API_KEY2}`;
-            return fetch(url).then(res => res.json());
-        });
-        
-        const results = await Promise.all(searchPromises);
-        
-        results.forEach(data => {
-            if (data.items) {
+        for (const id of channelIdsArray) {
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${id}&maxResults=2&type=video&order=date`;
+            const data = await fetchSafely(url);
+            
+            if (data && data.items) {
                 data.items.forEach(item => {
-                    if (item.id.videoId) { 
+                    if (item.id && item.id.videoId) { 
                         allVideos.push({
                             id: item.id.videoId,
                             channelId: item.snippet.channelId, 
@@ -3016,46 +3042,44 @@ async function fetchSuggestedVideos() {
                     }
                 });
             }
-        });
+        }
 
         // 4. جلب تفاصيل الفيديو (المشاهدات والمدة)
         if (videoIdsToFetch.length > 0) {
-            const detailsUrl = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics&id=${videoIdsToFetch.join(',')}&key=${YOUTUBE_API_KEY2}`;
-            const detailsResponse = await fetch(detailsUrl);
-            const detailsData = await detailsResponse.json();
+            const detailsUrl = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics&id=${videoIdsToFetch.join(',')}`;
+            const detailsData = await fetchSafely(detailsUrl);
 
-            if (detailsData.items) {
+            if (detailsData && detailsData.items) {
                 detailsData.items.forEach(detail => {
                     const video = allVideos.find(v => v.id === detail.id);
                     if (video) {
-                        video.duration = formatDuration(detail.contentDetails.duration); 
-                        video.views = parseInt(detail.statistics.viewCount || 0);
-                        video.viewsDisplay = formatViewCount(video.views); 
+                        // استخدام دالة formatDuration المصححة لمنع خطأ matches[1]
+                        const rawDuration = detail.contentDetails ? detail.contentDetails.duration : null;
+                        video.duration = formatDuration(rawDuration); 
+                        
+                        video.views = parseInt(detail.statistics ? detail.statistics.viewCount : 0) || 0;
+                        video.viewsDisplay = typeof formatViewCount === 'function' ? formatViewCount(video.views) : video.views; 
                     }
                 });
             }
         }
     } catch (error) {
-        console.error("YouTube API Error:", error);
+        console.error("YouTube API Critical Error:", error);
     }
 
-    // 5. الحفظ في الكاش (تخزين الـ 12 فيديو كاملة)
-    const dataToCache = { 
-        timestamp: Date.now(), 
-        videos: allVideos 
-    };
-    localStorage.setItem(CACHE_KEY, JSON.stringify(dataToCache));
+    // 5. حفظ الـ 12 فيديو في الكاش وتطبيق العرض (2 ثابت + 7 عشوائي)
+    if (allVideos.length > 0) {
+        const dataToCache = { timestamp: Date.now(), videos: allVideos };
+        localStorage.setItem(CACHE_KEY, JSON.stringify(dataToCache));
+    }
 
-    // استخراج الفيديوهات للعرض الحالي (2 ثابت + 7 عشوائي)
     const finalPriority = allVideos.filter(v => v.channelId === TARGET_ID).slice(0, 2);
     const finalOthers = allVideos.filter(v => v.channelId !== TARGET_ID)
                                  .sort(() => 0.5 - Math.random())
                                  .slice(0, 7);
 
-    console.log(`Successfully fetched 6 channels. Daily Quota Budget: ~4808 points.`);
     return [...finalPriority, ...finalOthers];
 }
-
 
 function renderSuggestedDashboard() {
     const container = document.getElementById('suggested-d-dashboard-container');
@@ -5051,17 +5075,28 @@ function createVideoCard(video) {
             }
         }
 
-        function formatDuration(isoDuration) {
-            const regex = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/;
-            const matches = isoDuration.match(regex);
-            const hours = matches[1] ? parseInt(matches[1]) : 0;
-            const minutes = matches[2] ? parseInt(matches[2]) : 0;
-            const seconds = matches[3] ? parseInt(matches[3]) : 0;
-            if (hours > 0) {
-                return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            }
-            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-        }
+    function formatDuration(duration) {
+    if (!duration) return "00:00";
+    
+    // محاولة استخراج الساعات والدقائق والثواني باستخدام Regex
+    const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+    
+    // إذا فشل الـ Match (كما في حالتك)، نعيد نصاً افتراضياً بدلاً من انهيار الكود
+    if (!match) {
+        return duration.includes('P') ? "Live" : "00:00";
+    }
+
+    const hours = (parseInt(match[1]) || 0);
+    const minutes = (parseInt(match[2]) || 0);
+    const seconds = (parseInt(match[3]) || 0);
+
+    const parts = [];
+    if (hours > 0) parts.push(hours.toString().padStart(2, '0'));
+    parts.push(minutes.toString().padStart(2, '0'));
+    parts.push(seconds.toString().padStart(2, '0'));
+
+    return parts.join(':');
+}
 
         function formatViewCount(views) {
             if (views >= 1000000) return `${(views / 1000000).toFixed(1)} مليون`;
