@@ -2909,51 +2909,79 @@ div#map{display:none}
     </div>
 
     <script>
+        // قائمة المفاتيح التي زودتني بها (المجموع: 10 مفاتيح)
+const YT_KEYS_POOL = [
+    "AIzaSyB3Rk_x-Xponn6i-PXuTgPr2wisD28GvuM", // الأساسي 1
+    "AIzaSyD-XZi8ESBCdZ8hZ4YA9vYFkN2fyfk6wns", // الأساسي 2
+    "AIzaSyB7QdfI0br5BfP71hOr36hz2dRWG_l0G8k", // احتياطي
+    "AIzaSyBdhcRo-EsvIduedQd-jFHfrEj9NeiP7pU", // احتياطي
+    "AIzaSyBLrMA6plsSZtqg2iY9Z1N1fJAHNmgGxos", // احتياطي
+    "AIzaSyCaqMPtn-egmEQk7XmTel--xsXV1Xbdp7o", // احتياطي
+    "AIzaSyDj4w1H3Is_rmTLhl40zER7AgYhT_tKASo", // احتياطي
+    "AIzaSyBYThRM6tVnzgFgdHOUAN6DN8jQd54OKeg", // احتياطي
+    "AIzaSyBeTHs25EsKeDFtIS5kq8iDATz-2c8hBrI", // احتياطي
+    "AIzaSyAjdVZ2Rodp6ZVEF1pZT195kAtGELolxSI"  // احتياطي
+];
 
-/**
- * تعرض قائمة الفيديوهات المقترحة في واجهة المستخدم، وتطبق حد أقصى للعرض (20).
- * تستخدم هيكلية HTML التي تتوافق مع تنسيقات الإخفاء CSS المطلوبة.
- */
-// --- التعريفات العامة (يجب أن تكون متوفرة في نطاقك) ---
+let currentKeyIndex = 0; // مؤشر المفتاح الحالي
+
+function shouldRefreshNow(lastTimestamp) {
+    const lastUpdate = new Date(lastTimestamp);
+    const now = new Date();
+    for (let hour of UPDATE_HOURS) {
+        let scheduledTime = new Date();
+        scheduledTime.setHours(hour, 0, 0, 0);
+        // إذا حان الموعد الآن وكان آخر تحديث قبل هذا الموعد، نعم يجب التحديث
+        if (now >= scheduledTime && lastUpdate < scheduledTime) return true;
+    }
+    return false;
+}
+
+const CACHE_KEY = 'suggestedVideosCache';
+const TARGET_ID = 'UCz9WVutRGBdn58dScZDh6uQ';
+const UPDATE_HOURS = [7, 14, 18]; // الصباح، الظهر، الليل
+
+
 const NEW_JSONBIN_CHANNEL_IDS = '693fb33cae596e708f9ade6a'; 
-async function fetchSuggestedVideos() {
-    console.log("Starting fetch for suggested videos (12 channels, 2 fixed + 7 random)...");
-    const cacheKey = 'suggestedVideosCache';
-    const targetId = 'UCz9WVutRGBdn58dScZDh6uQ'; // الشيخ ناصر القطامي
-    const cachedData = localStorage.getItem(cacheKey);
 
-    // 1. منطق الكاش الذكي (إعادة التدوير العشوائي من البيانات المخزنة)
+async function fetchSuggestedVideos() {
+    console.log("Checking Suggested Videos (6 Channels, Scheduled Logic)...");
+    const cachedData = localStorage.getItem(CACHE_KEY);
+
+    // 1. منطق الكاش الذكي والعشوائية (يتم عند كل Refresh)
     if (cachedData) {
         try {
             const { timestamp, videos } = JSON.parse(cachedData);
-            if (Date.now() - timestamp < CACHE_DURATION_MS) {
-                console.log("[Suggested] Data from cache. Applying random rotation...");
+            
+            // إذا لم يحن موعد التحديث الرسمي، نستخدم الكاش مع التدوير العشوائي
+            if (!shouldRefreshNow(timestamp)) {
+                console.log("[Suggested] Using Cache. Randomizing selection (2 fixed + 7 random)...");
                 
-                // فصل الفيديوهات للتدوير
-                const priority = videos.filter(v => v.channelId === targetId).slice(0, 2);
-                const others = videos.filter(v => v.channelId !== targetId)
-                                     .sort(() => 0.5 - Math.random()) // خلط عشوائي
-                                     .slice(0, 7); // اختيار 7 فقط
+                // تثبيت فيديوهات القناة المفضلة (أقصى اليمين)
+                const priority = videos.filter(v => v.channelId === TARGET_ID).slice(0, 2);
                 
-                return [...priority, ...others]; // إجمالي 9 فيديوهات
-            } else {
-                localStorage.removeItem(cacheKey);
+                // اختيار 7 فيديوهات عشوائية من الـ 10 فيديوهات المتبقية في الكاش
+                const others = videos.filter(v => v.channelId !== TARGET_ID)
+                                     .sort(() => 0.5 - Math.random())
+                                     .slice(0, 7);
+                
+                return [...priority, ...others]; 
             }
+            console.log("[Suggested] Scheduled update time reached. Fetching from API...");
         } catch (e) {
-            console.warn("Cache error, fetching fresh data.");
-            localStorage.removeItem(cacheKey);
+            console.warn("Cache error, clearing...");
+            localStorage.removeItem(CACHE_KEY);
         }
     }
 
-    // 2. جلب قائمة Channel IDs من JSONBin
+    // 2. جلب قائمة القنوات من JSONBin (نستخدم أول 6 قنوات فقط لضبط الكوتا)
     let channelIdsArray = [];
     try {
         const res = await fetch(`https://api.jsonbin.io/v3/b/${NEW_JSONBIN_CHANNEL_IDS}/latest`, {
             headers: { 'X-Access-Key': JSONBIN_ACCESS_KEY_CHANNELS }
         });
-        if (!res.ok) throw new Error(`JSONBin status: ${res.status}`);
         const data = await res.json();
-        channelIdsArray = Array.isArray(data.record) ? data.record : []; 
+        channelIdsArray = Array.isArray(data.record) ? data.record.slice(0, 6) : []; 
     } catch (error) {
         console.error("JSONBin fetch failed:", error);
         return [];
@@ -2964,13 +2992,9 @@ async function fetchSuggestedVideos() {
     let allVideos = [];
     let videoIdsToFetch = [];
 
-    // 3. جلب الفيديوهات من يوتيوب (بحد أقصى 12 قناة لضمان الكوتا)
+    // 3. جلب الفيديوهات من يوتيوب (طلبين لكل قناة = 12 فيديو إجمالي)
     try {
-        const validChannelIds = channelIdsArray
-            .filter(id => id && typeof id === 'string' && id.startsWith('UC'))
-            .slice(0, 12); // ضمان عدم تجاوز 12 قناة
-
-        const searchPromises = validChannelIds.map(id => {
+        const searchPromises = channelIdsArray.map(id => {
             const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${id}&maxResults=2&type=video&order=relevance&key=${YOUTUBE_API_KEY2}`;
             return fetch(url).then(res => res.json());
         });
@@ -2996,8 +3020,7 @@ async function fetchSuggestedVideos() {
 
         // 4. جلب تفاصيل الفيديو (المشاهدات والمدة)
         if (videoIdsToFetch.length > 0) {
-            const videoIds = videoIdsToFetch.join(',');
-            const detailsUrl = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics&id=${videoIds}&key=${YOUTUBE_API_KEY2}`;
+            const detailsUrl = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics&id=${videoIdsToFetch.join(',')}&key=${YOUTUBE_API_KEY2}`;
             const detailsResponse = await fetch(detailsUrl);
             const detailsData = await detailsResponse.json();
 
@@ -3016,21 +3039,20 @@ async function fetchSuggestedVideos() {
         console.error("YouTube API Error:", error);
     }
 
-    // 5. الحفظ في الكاش وتطبيق منطق العرض (2 ثابت + 7 عشوائي)
-    // نخزن الـ 12 قناة كاملة في الكاش لضمان التنوع عند كل Refresh
+    // 5. الحفظ في الكاش (تخزين الـ 12 فيديو كاملة)
     const dataToCache = { 
         timestamp: Date.now(), 
         videos: allVideos 
     };
-    localStorage.setItem(cacheKey, JSON.stringify(dataToCache));
+    localStorage.setItem(CACHE_KEY, JSON.stringify(dataToCache));
 
-    // استخراج الفيديوهات للعرض الحالي
-    const finalPriority = allVideos.filter(v => v.channelId === targetId).slice(0, 2);
-    const finalOthers = allVideos.filter(v => v.channelId !== targetId)
+    // استخراج الفيديوهات للعرض الحالي (2 ثابت + 7 عشوائي)
+    const finalPriority = allVideos.filter(v => v.channelId === TARGET_ID).slice(0, 2);
+    const finalOthers = allVideos.filter(v => v.channelId !== TARGET_ID)
                                  .sort(() => 0.5 - Math.random())
                                  .slice(0, 7);
 
-    console.log(`Successfully fetched 12 channels. Displaying 9 videos.`);
+    console.log(`Successfully fetched 6 channels. Daily Quota Budget: ~4808 points.`);
     return [...finalPriority, ...finalOthers];
 }
 
@@ -3936,7 +3958,7 @@ async function displayLastWatchedVideo() {
 
         // --- API Keys ---
         const YOUTUBE_API_KEY = 'AIzaSyB3Rk_x-Xponn6i-PXuTgPr2wisD28GvuM';
-        const YOUTUBE_API_KEY2 = 'AIzaSyBLrMA6plsSZtqg2iY9Z1N1fJAHNmgGxos';
+        const YOUTUBE_API_KEY2 = 'AIzaSyD-XZi8ESBCdZ8hZ4YA9vYFkN2fyfk6wns';
         const AI_ASSISTANT_API_KEY = 'AIzaSyBMmtON9ww4dJxMHrl1wKyWTvI0ipJXJws'; 
         const WEATHER_API_KEY = '7acefc26deee4904a2393917252207'; 
         const GOOGLE_MAPS_API_KEY = 'AIzaSyBRqAHJ2elbE_Z7NXXYC50XZpqi6HbG6Rk';
