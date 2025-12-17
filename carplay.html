@@ -34,6 +34,13 @@
         @import url('https://fonts.googleapis.com/css2?family=Amiri+Quran:wght@400;700&display=swap');
         /* NEW: Import Amiri font for Thuluth-like style */
         @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+
+        
+.suggested-d-dashboard-card.navigable.grid-item.p-2>img {
+    height: 9rem !important;
+    min-width: 16rem !important;
+}
+
         #suggested-d-dashboard-container {
     display: flex!important;
     flex-direction: row!important;
@@ -2910,57 +2917,59 @@ div#map{display:none}
  */
 // --- التعريفات العامة (يجب أن تكون متوفرة في نطاقك) ---
 const NEW_JSONBIN_CHANNEL_IDS = '693fb33cae596e708f9ade6a'; 
-
 async function fetchSuggestedVideos() {
-    console.log("Starting real fetch for suggested videos (Order: Relevance, No Time Filter) using iteration...");
+    console.log("Starting fetch for suggested videos (12 channels, 2 fixed + 7 random)...");
     const cacheKey = 'suggestedVideosCache';
-const cachedData = localStorage.getItem(cacheKey);
+    const targetId = 'UCz9WVutRGBdn58dScZDh6uQ'; // الشيخ ناصر القطامي
+    const cachedData = localStorage.getItem(cacheKey);
 
-if (cachedData) {
-    try {
-        // تأكد أن CACHE_DURATION_MS مُعرَّف في نطاقك العام
-        const { timestamp, videos } = JSON.parse(cachedData);
-        if (Date.now() - timestamp < CACHE_DURATION_MS) {
-            console.log("[Suggested] Returning data from cache (valid for 6 hours).");
-            return videos; // 💡 إرجاع النتائج المخزنة فوراً
-        } else {
-            console.warn("[Suggested] Cache expired. Initiating fresh fetch.");
+    // 1. منطق الكاش الذكي (إعادة التدوير العشوائي من البيانات المخزنة)
+    if (cachedData) {
+        try {
+            const { timestamp, videos } = JSON.parse(cachedData);
+            if (Date.now() - timestamp < CACHE_DURATION_MS) {
+                console.log("[Suggested] Data from cache. Applying random rotation...");
+                
+                // فصل الفيديوهات للتدوير
+                const priority = videos.filter(v => v.channelId === targetId).slice(0, 2);
+                const others = videos.filter(v => v.channelId !== targetId)
+                                     .sort(() => 0.5 - Math.random()) // خلط عشوائي
+                                     .slice(0, 7); // اختيار 7 فقط
+                
+                return [...priority, ...others]; // إجمالي 9 فيديوهات
+            } else {
+                localStorage.removeItem(cacheKey);
+            }
+        } catch (e) {
+            console.warn("Cache error, fetching fresh data.");
             localStorage.removeItem(cacheKey);
         }
-    } catch (e) {
-        console.warn("Corrupted cache found, fetching fresh data.");
-        localStorage.removeItem(cacheKey);
     }
-}
-    // 1. جلب قائمة Channel IDs (منطق الجلب المكتمل)
+
+    // 2. جلب قائمة Channel IDs من JSONBin
     let channelIdsArray = [];
     try {
         const res = await fetch(`https://api.jsonbin.io/v3/b/${NEW_JSONBIN_CHANNEL_IDS}/latest`, {
-            headers: { 'X-Access-Key': JSONBIN_ACCESS_KEY_CHANNELS } // 🛑 استخدام مفتاح القنوات
+            headers: { 'X-Access-Key': JSONBIN_ACCESS_KEY_CHANNELS }
         });
-        
-        if (!res.ok) throw new Error(`JSONBin fetch failed with status: ${res.status}`);
-        
+        if (!res.ok) throw new Error(`JSONBin status: ${res.status}`);
         const data = await res.json();
         channelIdsArray = Array.isArray(data.record) ? data.record : []; 
-        console.log(`[Suggested] Fetched ${channelIdsArray.length} potential Channel IDs from JSONBin.`);
     } catch (error) {
-        console.error("Failed to fetch channels list from JSONBin:", error);
+        console.error("JSONBin fetch failed:", error);
         return [];
     }
 
-    if (channelIdsArray.length === 0) {
-        console.log("No channels found to fetch videos from.");
-        return [];
-    }
-    
+    if (channelIdsArray.length === 0) return [];
+
     let allVideos = [];
     let videoIdsToFetch = [];
-    
-    // 2. البحث في كل قناة على حدة (Promise.all)
+
+    // 3. جلب الفيديوهات من يوتيوب (بحد أقصى 12 قناة لضمان الكوتا)
     try {
-        // ... (منطق جلب الفيديوهات عبر Search API وتجميع allVideos/videoIdsToFetch يبقى كما هو) ...
-        const validChannelIds = channelIdsArray.filter(id => id && typeof id === 'string' && id.startsWith('UC'));
+        const validChannelIds = channelIdsArray
+            .filter(id => id && typeof id === 'string' && id.startsWith('UC'))
+            .slice(0, 12); // ضمان عدم تجاوز 12 قناة
 
         const searchPromises = validChannelIds.map(id => {
             const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${id}&maxResults=2&type=video&order=relevance&key=${YOUTUBE_API_KEY2}`;
@@ -2970,15 +2979,12 @@ if (cachedData) {
         const results = await Promise.all(searchPromises);
         
         results.forEach(data => {
-            if (data.error) {
-                console.warn(`Youtube Failed for a channel (Quota/Issue): ${data.error.message}`);
-                return; 
-            }
-            if (data.items && data.items.length > 0) {
+            if (data.items) {
                 data.items.forEach(item => {
                     if (item.id.videoId) { 
                         allVideos.push({
                             id: item.id.videoId,
+                            channelId: item.snippet.channelId, 
                             title: item.snippet.title,
                             thumbnail: item.snippet.thumbnails.medium.url,
                             channelTitle: item.snippet.channelTitle,
@@ -2989,63 +2995,44 @@ if (cachedData) {
             }
         });
 
-        console.log(`[Suggested] Search API returned ${allVideos.length} total video items after iteration.`);
-
-
-        // 3. جلب تفاصيل الفيديو (المشاهدات والمدة) - المنطق المكتمل
+        // 4. جلب تفاصيل الفيديو (المشاهدات والمدة)
         if (videoIdsToFetch.length > 0) {
-            const videoIds = videoIdsToFetch.filter(id => id && typeof id === 'string' && id.length > 5).join(',');
+            const videoIds = videoIdsToFetch.join(',');
+            const detailsUrl = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics&id=${videoIds}&key=${YOUTUBE_API_KEY2}`;
+            const detailsResponse = await fetch(detailsUrl);
+            const detailsData = await detailsResponse.json();
 
-            if (!videoIds) {
-                console.warn("[Suggested] Filtered all video IDs as invalid. Skipping Videos API call.");
-                return allVideos;
-            }
-
-            try {
-                const detailsUrl = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics&id=${videoIds}&key=${YOUTUBE_API_KEY2}`;
-                const detailsResponse = await fetch(detailsUrl);
-                const detailsData = await detailsResponse.json();
-
-                if (detailsData.error) {
-                    console.error("YouTube Details API Failed (Quota likely):", detailsData.error.message); 
-                    return allVideos;
-                }
-
-                // دمج المشاهدات والمدة
-                if (detailsData.items) {
-                    detailsData.items.forEach(detail => {
-                        const video = allVideos.find(v => v.id === detail.id);
-                        if (video) {
-                            video.duration = formatDuration(detail.contentDetails.duration); 
-                            video.views = parseInt(detail.statistics.viewCount || 0);
-                            video.viewsDisplay = formatViewCount(video.views); 
-                        }
-                    });
-                }
-            } catch (e) {
-                console.error("Silent failure in fetching video details (Network/CORS):", e); 
-                return allVideos; 
+            if (detailsData.items) {
+                detailsData.items.forEach(detail => {
+                    const video = allVideos.find(v => v.id === detail.id);
+                    if (video) {
+                        video.duration = formatDuration(detail.contentDetails.duration); 
+                        video.views = parseInt(detail.statistics.viewCount || 0);
+                        video.viewsDisplay = formatViewCount(video.views); 
+                    }
+                });
             }
         }
-
     } catch (error) {
-        console.error("Critical error during multi-channel fetch (Promise.all failed):", error);
-        return [];
+        console.error("YouTube API Error:", error);
     }
-        
-    // 4. الفرز النهائي وتطبيق الحد (20)
-    const sortedVideos = allVideos
-        .filter(v => v.views > 0) 
-        .sort((a, b) => b.views - a.views);
 
-    console.log(`Successfully fetched and sorted ${sortedVideos.length} suggested videos.`);
-    return sortedVideos.slice(0, 12); 
+    // 5. الحفظ في الكاش وتطبيق منطق العرض (2 ثابت + 7 عشوائي)
+    // نخزن الـ 12 قناة كاملة في الكاش لضمان التنوع عند كل Refresh
+    const dataToCache = { 
+        timestamp: Date.now(), 
+        videos: allVideos 
+    };
+    localStorage.setItem(cacheKey, JSON.stringify(dataToCache));
 
-    const finalDisplayVideos = sortedVideos.slice(0, 12);
-const dataToCache = { timestamp: Date.now(), videos: finalDisplayVideos };
-localStorage.setItem(cacheKey, JSON.stringify(dataToCache));
+    // استخراج الفيديوهات للعرض الحالي
+    const finalPriority = allVideos.filter(v => v.channelId === targetId).slice(0, 2);
+    const finalOthers = allVideos.filter(v => v.channelId !== targetId)
+                                 .sort(() => 0.5 - Math.random())
+                                 .slice(0, 7);
 
-return finalDisplayVideos;
+    console.log(`Successfully fetched 12 channels. Displaying 9 videos.`);
+    return [...finalPriority, ...finalOthers];
 }
 
 
@@ -3950,7 +3937,7 @@ async function displayLastWatchedVideo() {
 
         // --- API Keys ---
         const YOUTUBE_API_KEY = 'AIzaSyB3Rk_x-Xponn6i-PXuTgPr2wisD28GvuM';
-        const YOUTUBE_API_KEY2 = 'AIzaSyCaqMPtn-egmEQk7XmTel--xsXV1Xbdp7o';
+        const YOUTUBE_API_KEY2 = 'AIzaSyBLrMA6plsSZtqg2iY9Z1N1fJAHNmgGxos';
         const AI_ASSISTANT_API_KEY = 'AIzaSyBMmtON9ww4dJxMHrl1wKyWTvI0ipJXJws'; 
         const WEATHER_API_KEY = '7acefc26deee4904a2393917252207'; 
         const GOOGLE_MAPS_API_KEY = 'AIzaSyBRqAHJ2elbE_Z7NXXYC50XZpqi6HbG6Rk';
