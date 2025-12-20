@@ -35,36 +35,123 @@
         /* NEW: Import Amiri font for Thuluth-like style */
         @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
 
-#suggested-d-dashboard-container {
-    justify-content: space-evenly !important;
-    display: flex;
-    flex-wrap: wrap; /* إضافة flex-wrap لضمان الترتيب في الشبكة */
+
+
+.simple-suggestion-card:hover, .simple-suggestion-card:focus {
+    transform: scale(1.05) !important;
+    background: #1b8a53 !important;
+    z-index: 101 !important;
 }
 
-/* 2. تطبيق نفس قياسات الصور على المقترحات (إذا كانت تستخدم نفس الكلاسات الهيكلية) */
-/* ملاحظة: الكلاسات هنا تعتمد على الافتراض بأن هيكلية المقترحات مماثلة للمفضلة. */
+.video-popup-player-container {
+    position: relative !important;
+    overflow: visible !important;
+    display: block !important;
+    flex-direction: row !important;
+    gap: 10px !important;
+}
+
+.simple-suggestion-card.flex.items-center.gap-3.p-2.rounded-lg.bg-white\/10.cursor-pointer.navigable.grid-item {
+    display: flex !important;
+    flex-direction: row !important; /* الصورة فوق النص */
+    flex-shrink: 0 !important; /* هـام جداً: يمنع انكماش المربع ليبقى بارزاً للخارج */
+    width: 340px !important; /* عرض المربع الأخضر */
+    height: 200px !important;
+    background: #156d41 !important; /* اللون الأخضر */
+    border-radius: 12px !important;
+    padding: 8px !important;
+    transition: transform 0.2s ease !important;
+    border: none !important;
+}
+.favorites-popup-grid {
+    display: flex !important; /* تحويل الشبكة إلى صف أفقي */
+    flex-direction: row !important;
+    flex-wrap: nowrap !important; /* منع العناصر من النزول لسطر جديد */
+    gap: 15px !important;
+    padding: 10px 5px !important;
+    
+    /* ميزات التمرير والبروز خارج الحاوية */
+    overflow-x: auto !important; /* تفعيل التمرير الأفقي */
+    overflow-y: visible !important; /* السماح ببروز العناصر عمودياً إن لزم الأمر */
+    scrollbar-width: none !important; /* إخفاء شريط التمرير في فيرفوكس */
+    
+    /* لضمان بدء العناصر من داخل الحاوية وبروزها للخارج */
+    width: auto !important;
+    min-width: 100% !important;
+}
+
+div#favorites-popup-grid {
+    display: -webkit-box !important;
+    overflow: visible !important;
+}
+
+div#video-popup-container {
+    overflow: visible !important;
+}
+        
+.suggested-d-dashboard-card.navigable.grid-item.p-2>img {
+    height: 9rem !important;
+    min-width: 16rem !important;
+}
+
+        #suggested-d-dashboard-container {
+    display: flex!important;
+    flex-direction: row!important;
+    justify-content: flex-start!important; 
+    
+    /* 🛑 1. التعديل الحاسم: منع الالتفاف، مما يجبر العناصر على البقاء في صف واحد */
+    flex-wrap: nowrap!important; 
+    
+    /* 🛑 2. السماح بالتمرير الأفقي لظهور الشريط الأفقي عند الضرورة */
+    overflow-x: auto!important; 
+    
+    /* 🛑 3. إخفاء شريط التمرير العمودي إذا كان فارغًا */
+    overflow-y: hidden!important;
+    
+    gap: 16px!important; /* المسافة بين البطاقات */
+}
+#suggested-d-dashboard-container {
+    display: flex;
+    flex-direction: row; /* لعرض العناصر في صف */
+    justify-content: flex-start; /* البدء من اليسار/اليمين */
+    flex-wrap: wrap; /* السماح للعناصر بالانتقال لصف جديد */
+    /* التعديلات التي طلبتها */
+    justify-content: space-evenly !important; 
+}
+
+/* الحد الأدنى للعرض لضمان مساحة كافية للعناصر */
+div#suggested-d-dashboard-row {
+    min-width: 99%;
+}
+
+section#screen-Dashboard>div {
+    width: 98%;
+}
+
+/* تنسيق الصور (تم توسيع المُحدد ليشمل العناصر داخل الحاوية الجديدة) */
+/* يفترض أن عناصر المقترحات تستخدم كلاس 'suggested-video-card' */
+.suggested-video-card > img,
 .suggested-d-dashboard-card.navigable.grid-item > img,
 .fav-d-dashboard-card.navigable.grid-item > img {
     width: 11.1rem !important;
     height: 6.1rem !important;
 }
 
-div#suggested-d-dashboard-row {min-width:900px}
-div#suggested-d-dashboard-container {
-    flex-direction: row;
-    justify-content: flex-start;
-  
+/* 🛑 تطبيق قواعد الإخفاء على العناصر الداخلية */
+h6.mb-0.text-truncate,
+.video-details.flex-grow-1,
+.flex.flex-col.flex-grow.min-w-0.h-full.justify-between.ml-2 {
+    display: none !important;
 }
 
-h6.mb-0.text-truncate {
-    display: none;
-}
 
-.video-details.flex-grow-1 {
-    display: none;
-}
+#fav-d-dashboard-container{justify-content:space-evenly!important;}
 
-/* 3. تطبيق إخفاء العناصر الداخلية التي لها نفس الكلاس الطويل */
+div#fav-d-dashboard-container {
+    display: flex;
+}
+.fav-d-dashboard-card.navigable.grid-item>img {width: 11.1rem!important;height: 6.1rem!important;}
+
 .flex.flex-col.flex-grow.min-w-0.h-full.justify-between.ml-2 {
     display: none;
 }
@@ -2407,18 +2494,12 @@ div#map{display:none}
                             </div>
                             
                         </div>
-                        <div id="suggested-d-dashboard-row" 
-     class="glass-surface glass-surface--svg p-4 flex flex-col justify-start rounded-3xl navigable grid-item mt-4" 
-     tabindex="0" 
-     style="height: 150px;">
+                    <div id="suggested-d-dashboard-row" class="glass-surface glass-surface--svg p-4 flex col-span-full justify-start rounded-3xl navigable grid-item" tabindex="0" style="height: 180px;"> 
     
-    
-    
-    <div id="suggested-d-dashboard-container" 
-         class="favorites-dashboard-horizontal-scroll flex-grow overflow-x-auto whitespace-nowrap flex gap-4" 
-         style="flex-direction: row; justify-content: flex-start;">
+    <div id="suggested-d-dashboard-container" class="favorites-dashboard-horizontal-scroll flex-grow overflow-x-auto whitespace-nowrap flex gap-4" style="flex-direction: row; justify-content: flex-start;">
         </div>
 </div>
+                       
                         <div id="favorites-d-dashboard-row" class="glass-surface glass-surface--svg p-4 flex col-span-full justify-start rounded-3xl navigable grid-item" tabindex="0" style="height: 180px;">
                 <div id="fav-d-dashboard-container" class="favorites-dashboard-horizontal-scroll flex-grow overflow-x-auto 
                  whitespace-nowrap 
@@ -2882,67 +2963,292 @@ div#map{display:none}
 
     <script>
 
-let suggestedVideos = [];
+        async function loadDashboardSuggestions() {
+    const gridContainer = document.getElementById('favorites-popup-grid');
+    if (!gridContainer) return;
 
-function formatViews(views) {
-    if (views >= 1000000) {
-        return (views / 1000000).toFixed(1) + 'M مشاهدة';
-    } else if (views >= 1000) {
-        return (views / 1000).toFixed(1) + 'K مشاهدة';
+    // إظهار مؤشر تحميل بسيط أو تنظيف الحاوية
+    gridContainer.innerHTML = ''; 
+
+    try {
+        // جلب الفيديوهات من المصدر الجديد (الهجين: أحدث + أهم + بدون Shorts)
+        const videos = await fetchSuggestedVideos();
+
+        if (videos && videos.length > 0) {
+            const html = videos.map(video => `
+                <div class="simple-suggestion-card flex items-center gap-3 p-2 rounded-lg bg-white/10 cursor-pointer navigable grid-item" 
+                     onclick="playSelectedVideo('${video.id}')" 
+                     data-id="${video.id}">
+                    <div class="video-thumbnail-wrapper" style="position: relative; width: 100%; height: 140px;">
+                        <img src="${video.thumbnail}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                        <span class="video-duration-badge" style="position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.8); color: white; padding: 2px 5px; border-radius: 4px; font-size: 12px;">
+                            ${video.duration}
+                        </span>
+                    </div>
+                    <div class="video-info" style="margin-top: 8px; width: 100%;">
+                        <div class="video-title" style="color: white; font-weight: bold; font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                            ${video.title}
+                        </div>
+                        <div class="video-stats" style="color: #ccc; font-size: 12px; margin-top: 4px;">
+                            ${video.viewsDisplay} • ${video.channelTitle}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            gridContainer.innerHTML = html;
+            
+            // إعادة تفعيل نظام التنقل (Navigable) إذا كنت تستخدم ريموت كنترول أو لوحة مفاتيح
+            if (typeof initializeNavigable === 'function') initializeNavigable();
+        } else {
+            gridContainer.innerHTML = '<div style="color: white; padding: 20px;">لا توجد مقترحات حالياً</div>';
+        }
+    } catch (error) {
+        console.error("Failed to load dashboard suggestions:", error);
     }
-    return views + ' مشاهدة';
 }
+        // --- الثوابت والإعدادات العامة ---
+const YT_KEYS_POOL = [
+    "AIzaSyB3Rk_x-Xponn6i-PXuTgPr2wisD28GvuM", // الأساسي 1
+    "AIzaSyD-XZi8ESBCdZ8hZ4YA9vYFkN2fyfk6wns", // الأساسي 2
+    "AIzaSyB7QdfI0br5BfP71hOr36hz2dRWG_l0G8k", // احتياطي
+    "AIzaSyBdhcRo-EsvIduedQd-jFHfrEj9NeiP7pU", // احتياطي
+    "AIzaSyBLrMA6plsSZtqg2iY9Z1N1fJAHNmgGxos", // احتياطي
+    "AIzaSyCaqMPtn-egmEQk7XmTel--xsXV1Xbdp7o", // احتياطي
+    "AIzaSyDj4w1H3Is_rmTLhl40zER7AgYhT_tKASo", // احتياطي
+    "AIzaSyBYThRM6tVnzgFgdHOUAN6DN8jQd54OKeg", // احتياطي
+    "AIzaSyBeTHs25EsKeDFtIS5kq8iDATz-2c8hBrI", // احتياطي
+    "AIzaSyAjdVZ2Rodp6ZVEF1pZT195kAtGELolxSI"  // احتياطي
+];
 
+let currentKeyIndex = 0;
+const CACHE_KEY = 'suggestedVideosCache';
+const TARGET_ID = 'UCz9WVutRGBdn58dScZDh6uQ';
+const UPDATE_HOURS = [7,10, 14,16, 18]; 
 const NEW_JSONBIN_CHANNEL_IDS = '693fb33cae596e708f9ade6a';
 
+// --- الدوال المساعدة ---
+
+// دالة الجلب الذكية التي تبدل المفاتيح تلقائياً عند نفاذ الكوتا
+async function fetchSafely(baseUrl) {
+    const getUrlWithKey = (url, key) => {
+        const separator = url.includes('?') ? '&' : '?';
+        if (url.includes('key=')) return url.replace(/key=[^&]+/, `key=${key}`);
+        return `${url}${separator}key=${key}`;
+    };
+
+    try {
+        let response = await fetch(getUrlWithKey(baseUrl, YT_KEYS_POOL[currentKeyIndex]));
+        let data = await response.json();
+
+        // إذا انتهت الكوتا (Error 403 / quotaExceeded)
+        if (data.error && (data.error.errors?.[0]?.reason === 'quotaExceeded' || data.error.code === 403)) {
+            if (currentKeyIndex < YT_KEYS_POOL.length - 1) {
+                console.warn(`[Quota] Key ${currentKeyIndex + 1} exhausted. Switching to Key ${currentKeyIndex + 2}...`);
+                currentKeyIndex++;
+                return fetchSafely(baseUrl); // إعادة المحاولة بالمفتاح الجديد
+            } else {
+                console.error("[Critical] All 10 YouTube API keys are exhausted!");
+                return data; 
+            }
+        }
+        return data;
+    } catch (err) {
+        console.error("Network Error:", err);
+        return { items: [] };
+    }
+}
+
+function shouldRefreshNow(lastTimestamp) {
+    if (!lastTimestamp) return true;
+    const lastUpdate = new Date(lastTimestamp);
+    const now = new Date();
+    for (let hour of UPDATE_HOURS) {
+        let scheduledTime = new Date();
+        scheduledTime.setHours(hour, 0, 0, 0);
+        if (now >= scheduledTime && lastUpdate < scheduledTime) return true;
+    }
+    return false;
+}
+/**
+ * الدالة الرئيسية fetchSuggestedVideos() 
+ * تضمن: 6 قنوات | 4 فيديوهات لكل قناة | استبعاد تام للـ Shorts (أقل من 2 دقيقة)
+ */
+async function fetchSuggestedVideos() {
+    console.log("Fetching Long Videos Only (Min 2:00 duration)...");
+    const cachedData = localStorage.getItem(CACHE_KEY);
+
+    // 1. منطق الكاش والعشوائية (2 ثابت + 7 عشوائي من المخزن المفلتر)
+    if (cachedData) {
+        try {
+            const { timestamp, videos } = JSON.parse(cachedData);
+            if (!shouldRefreshNow(timestamp)) {
+                console.log("[Suggested] Randomizing from clean cache...");
+                const priority = videos.filter(v => v.channelId === TARGET_ID).slice(0, 2);
+                const others = videos.filter(v => v.channelId !== TARGET_ID)
+                                     .sort(() => 0.5 - Math.random())
+                                     .slice(0, 7);
+                return [...priority, ...others]; 
+            }
+        } catch (e) { localStorage.removeItem(CACHE_KEY); }
+    }
+
+    // 2. جلب قائمة القنوات
+    let channelIdsArray = [];
+    try {
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${NEW_JSONBIN_CHANNEL_IDS}/latest`, {
+            headers: { 'X-Access-Key': JSONBIN_ACCESS_KEY_CHANNELS }
+        });
+        const data = await res.json();
+        channelIdsArray = Array.isArray(data.record) ? data.record.slice(0, 6) : []; 
+    } catch (error) { return []; }
+
+    let allVideosMap = new Map();
+
+    // 3. جلب الفيديوهات (طلب 5 نتائج لتعويض المستبعد منها)
+    try {
+        for (const id of channelIdsArray) {
+            // نطلب 3 أحدث + 2 أهم (المجموع 5 لكل قناة لضمان وجود بدائل للفيديوهات القصيرة)
+            const latestUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${id}&maxResults=3&type=video&order=date`;
+            const relevanceUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${id}&maxResults=2&type=video&order=relevance`;
+            
+            const [latestData, relevanceData] = await Promise.all([
+                fetchSafely(latestUrl),
+                fetchSafely(relevanceUrl)
+            ]);
+
+            [latestData, relevanceData].forEach(data => {
+                if (data && data.items) {
+                    data.items.forEach(item => {
+                        if (item.id?.videoId) {
+                            allVideosMap.set(item.id.videoId, {
+                                id: item.id.videoId,
+                                channelId: item.snippet.channelId,
+                                title: item.snippet.title,
+                                thumbnail: item.snippet.thumbnails.medium.url,
+                                channelTitle: item.snippet.channelTitle
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        let allVideos = Array.from(allVideosMap.values());
+        const videoIds = allVideos.map(v => v.id).join(',');
+
+        if (videoIds) {
+            const detailsData = await fetchSafely(`https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics&id=${videoIds}`);
+            if (detailsData && detailsData.items) {
+                detailsData.items.forEach(detail => {
+                    const video = allVideos.find(v => v.id === detail.id);
+                    if (video) {
+                        const isoDuration = detail.contentDetails?.duration;
+                        const formatted = formatDuration(isoDuration); // دالة التنسيق السابقة
+                        
+                        // ✅ الفلتر الصارم: تحويل المدة لثواني للتأكد من أنها فيديو طويل
+                        // استبعاد أي فيديو أقل من 120 ثانية (دقيقتين)
+                        const totalSeconds = parseISO8601ToSeconds(isoDuration);
+                        
+                        if (totalSeconds < 120) {
+                            video.isShort = true; // علامة للحذف
+                        } else {
+                            video.duration = formatted;
+                            video.views = parseInt(detail.statistics?.viewCount || 0);
+                            video.viewsDisplay = typeof formatViewCount === 'function' ? formatViewCount(video.views) : video.views;
+                        }
+                    }
+                });
+            }
+        }
+
+        // تنظيف القائمة تماماً من الفيديوهات القصيرة (Shorts)
+        const cleanVideos = allVideos.filter(v => !v.isShort);
+
+        // حفظ القائمة النظيفة في الكاش
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: Date.now(), videos: cleanVideos }));
+
+        // اختيار العرض النهائي (2 ثابت + 7 عشوائي)
+        const finalPriority = cleanVideos.filter(v => v.channelId === TARGET_ID).slice(0, 2);
+        const finalOthers = cleanVideos.filter(v => v.channelId !== TARGET_ID)
+                                       .sort(() => 0.5 - Math.random())
+                                       .slice(0, 7);
+
+        return [...finalPriority, ...finalOthers];
+
+    } catch (error) { return []; }
+}
+
+/**
+ * دالة مساعدة لتحويل مدة يوتيوب (ISO 8601) إلى ثواني بدقة
+ */
+function parseISO8601ToSeconds(duration) {
+    const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+    if (!match) return 0;
+    const hours = parseInt(match[1]) || 0;
+    const minutes = parseInt(match[2]) || 0;
+    const seconds = parseInt(match[3]) || 0;
+    return (hours * 3600) + (minutes * 60) + seconds;
+}
 
 function renderSuggestedDashboard() {
-    // الحصول على عنصر الـ container في الصفحة
     const container = document.getElementById('suggested-d-dashboard-container');
     if (!container) return;
 
-    // 🛑 التأكد من تطبيق الحد الأقصى 20 على القائمة المجلوبة للعرض
-    // يفترض أن 'suggestedVideos' موجود ويحمل البيانات المجلوبة
+    // 1. تطبيق الحد الأقصى 20 على القائمة المجلوبة
     const list = suggestedVideos ? suggestedVideos.slice(0, 20) : []; 
     
-    // سجلات الكونسول للتحقق
     console.log("[renderSuggestedDashboard] List Length:", suggestedVideos ? suggestedVideos.length : 0);
     console.log("[renderSuggestedDashboard] Final Display List Length (Capped at 20):", list.length);
 
-    // تفريغ محتوى الـ container
     container.innerHTML = ''; 
 
-    // معالجة حالة عدم وجود بيانات
+    // 2. معالجة حالة عدم وجود بيانات
     if (list.length === 0) {
-        container.innerHTML = '<p class="text-center text-muted mt-4">لا توجد مقترحات حاليًا. (الرجاء التأكد من تحديث مفتاح YouTube API).</p>';
+        container.innerHTML = '<p class="text-center text-muted mt-4 w-full">لا توجد مقترحات حاليًا. (الرجاء التأكد من تحديث مفتاح YouTube API).</p>';
+        // 💡 إزالة تنسيقات Flexbox في حالة الفراغ لتوسيط الرسالة
+        container.style.display = 'block'; 
         return;
     }
+    
+    // 💡 إعادة تفعيل Flexbox في حالة وجود بيانات
+    container.style.display = 'flex';
+    const fragment = document.createDocumentFragment(); 
 
-    // تكرار على قائمة الفيديوهات المعروضة وإنشاء عناصر HTML
+    // 3. بناء عناصر HTML وتطبيق الكلاسات المطلوبة
     list.forEach(video => {
-        // إنشاء عنصر div لكل فيديو
-        const videoElement = document.createElement('div');
-        videoElement.className = 'suggested-video-item p-2 border-bottom'; // يمكن تعديل الكلاس حسب CSS الخاص بك
+        // نستخدم كلاسات مماثلة للمفضلة لتطبيق التنسيق CSS المطلوب (الصور)
+        const card = document.createElement('div');
+        // يجب أن يحتوي هذا الكلاس على التنسيق المطلوب: display: flex; justify-content: space-evenly; flex-wrap: wrap;
+        card.className = 'suggested-d-dashboard-card navigable grid-item p-2'; 
+        card.tabIndex = 0; 
         
-        // بناء المحتوى (يجب أن يتم تكييف هذا الجزء مع تصميم HTML الفعلي الخاص بك)
-        videoElement.innerHTML = `
-            <div class="d-flex align-items-center">
-                <img src="${video.thumbnail}" alt="${video.title}" style="width: 120px; height: 90px; margin-left: 10px;">
-                <div class="video-details flex-grow-1">
-                    <h6 class="mb-0 text-truncate">${video.title}</h6>
-                    <p class="mb-1 text-muted small">${video.channelTitle}</p>
-                    <p class="mb-0 small text-success">
-                        ${video.viewsDisplay ? video.viewsDisplay : 'المشاهدات غير متوفرة'} 
-                        | 
-                        ${video.duration ? video.duration : 'المدة غير متوفرة'}
-                    </p>
-                </div>
+        card.innerHTML = `
+            <img src="${video.thumbnail}" alt="${video.title}" loading="lazy">
+            
+            <div class="video-details flex-grow-1"> 
+                <h6 class="mb-0 text-truncate">${video.title}</h6>
+                <p class="mb-1 text-muted small">${video.channelTitle}</p>
             </div>
+            
+            <div class="flex flex-col flex-grow min-w-0 h-full justify-between ml-2">
+                </div>
         `;
         
-        container.appendChild(videoElement);
+        // ربط حدث النقر لتشغيل الفيديو
+        card.addEventListener('click', () => {
+             // يجب استبدال playVideoInPopup بآلية التشغيل الفعلية لديك
+             showVideoPopup(video.id); 
+        });
+
+        fragment.appendChild(card);
     });
+    
+    // 4. إضافة جميع العناصر إلى DOM في خطوة واحدة
+    container.appendChild(fragment);
 }
+
+const CACHE_DURATION_MS = 6 * 60 * 60 * 1000;
 
 function startVoiceToText() {
     // 1. التحقق من الدعم
@@ -3300,8 +3606,7 @@ function switchApp(appName) {
         startWeatherUpdates();      // الطقس (جلب كل 5 دقائق)
         startDashboardLocationTracking();
         updateTimerDisplay(); // تتبع الموقع للـ Heading وتحديث الخريطة
-        renderFavoritesDashboard(); 
-        renderSuggestedDashboard();
+        renderFavoritesDashboard();
        
         setTimeout(() => {
             if (dashboardGoogleMap) {
@@ -3786,7 +4091,8 @@ async function displayLastWatchedVideo() {
         lucide.createIcons();
 
         // --- API Keys ---
-        const YOUTUBE_API_KEY = 'AIzaSyBLrMA6plsSZtqg2iY9Z1N1fJAHNmgGxos'; 
+        const YOUTUBE_API_KEY = 'AIzaSyBdhcRo-EsvIduedQd-jFHfrEj9NeiP7pU';
+        const YOUTUBE_API_KEY2 = 'AIzaSyB7QdfI0br5BfP71hOr36hz2dRWG_l0G8k';
         const AI_ASSISTANT_API_KEY = 'AIzaSyBMmtON9ww4dJxMHrl1wKyWTvI0ipJXJws'; 
         const WEATHER_API_KEY = '7acefc26deee4904a2393917252207'; 
         const GOOGLE_MAPS_API_KEY = 'AIzaSyBRqAHJ2elbE_Z7NXXYC50XZpqi6HbG6Rk';
@@ -4879,17 +5185,28 @@ function createVideoCard(video) {
             }
         }
 
-        function formatDuration(isoDuration) {
-            const regex = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/;
-            const matches = isoDuration.match(regex);
-            const hours = matches[1] ? parseInt(matches[1]) : 0;
-            const minutes = matches[2] ? parseInt(matches[2]) : 0;
-            const seconds = matches[3] ? parseInt(matches[3]) : 0;
-            if (hours > 0) {
-                return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            }
-            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-        }
+    function formatDuration(duration) {
+    if (!duration) return "00:00";
+    
+    // محاولة استخراج الساعات والدقائق والثواني باستخدام Regex
+    const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+    
+    // إذا فشل الـ Match (كما في حالتك)، نعيد نصاً افتراضياً بدلاً من انهيار الكود
+    if (!match) {
+        return duration.includes('P') ? "Live" : "00:00";
+    }
+
+    const hours = (parseInt(match[1]) || 0);
+    const minutes = (parseInt(match[2]) || 0);
+    const seconds = (parseInt(match[3]) || 0);
+
+    const parts = [];
+    if (hours > 0) parts.push(hours.toString().padStart(2, '0'));
+    parts.push(minutes.toString().padStart(2, '0'));
+    parts.push(seconds.toString().padStart(2, '0'));
+
+    return parts.join(':');
+}
 
         function formatViewCount(views) {
             if (views >= 1000000) return `${(views / 1000000).toFixed(1)} مليون`;
@@ -5851,12 +6168,9 @@ function updateMinimizedControlsState() {
     }
 }
 
-       function onPlayerStateChange(event) {
+   function onPlayerStateChange(event) {
     if (event.data == YT.PlayerState.PLAYING) {
-        // 1. إعداد جودة التشغيل والتتبع
         popupPlayer.setPlaybackQuality('tiny');
-
-        // Start tracking progress (كل 5 ثوانٍ)
         progressInterval = setInterval(() => {
             const videoId = popupPlayer.getVideoData().video_id;
             const currentTime = popupPlayer.getCurrentTime();
@@ -5867,22 +6181,19 @@ function updateMinimizedControlsState() {
     } else if (event.data == YT.PlayerState.ENDED) {
         if (progressInterval) clearInterval(progressInterval);
         
-        // 1. التقاط مُعرِّف الفيديو المنتهي وإتمام التحديث
         const videoData = popupPlayer.getVideoData();
         const videoId = videoData ? videoData.video_id : null;
         markVideoAsWatched(videoId);
         
-        // 2. تدمير المشغل (مهم لإزالة iframe وعرض محتوى جديد)
         if (popupPlayer) {
             popupPlayer.destroy();
             popupPlayer = null;
         }
         
-        // 3. 🚀 الإجراء الحاسم: عرض قائمة المفضلة في السيارة داخل النافذة المنبثقة
-        showFavoritesInPopup('D'); 
+        // 🚀 التغيير الحاسم هنا:
+        // بدلاً من عرض المفضلة القديمة، نستدعي محرك المقترحات الذكية
+        showDashboardSuggestionsInPopup(); 
         
-        // 4. مسح مؤقت التقدم من AppState (لا حاجة لـ cleanup إضافي)
-
     } else {
          if (progressInterval) {
             clearInterval(progressInterval);
@@ -5892,104 +6203,81 @@ function updateMinimizedControlsState() {
     updateMinimizedControlsState();
 }
 
-
-
-/**
- * Creates a single HTML card for a related video suggestion inside the popup player.
- * * @param {object} video - Detailed video object from YouTube API fetch.
- * @param {object} channelThumbnails - Map of channel IDs to their thumbnail URLs.
- * @returns {HTMLElement} The complete suggestion card DIV element.
- */
-
-
-
-/**
- * Helper function to create a simplified card for display inside the popup.
- */
 function createSimpleSuggestionCard(video, type) {
     const card = document.createElement('div');
-    card.className = 'simple-suggestion-card flex items-center gap-3 p-2 rounded-lg bg-white/10 cursor-pointer navigable grid-item';
+    // إضافة الكلاسات التي تضمن البروز والتصميم المتفق عليه
+    card.className = 'simple-suggestion-card flex flex-col gap-2 p-3 rounded-xl bg-white/10 cursor-pointer navigable grid-item flex-shrink-0';
     card.tabIndex = 0;
     card.dataset.videoId = video.id;
-    card.dataset.progress = video.progress; // لتمرير تقدم المشاهدة
 
     card.innerHTML = `
-        <img src="${video.thumbnail}" class="w-12 h-auto rounded-md flex-shrink-0" onerror="this.onerror=null;this.src='https://placehold.co/64x36';">
-        <div class="min-w-0 flex-grow">
-            <h4 class="font-semibold text-sm truncate text-white">${video.title}</h4>
-            <p class="text-xs text-white/70">${video.channelTitle || ''}</p>
+        <div class="video-thumbnail-wrapper relative w-full h-[140px] overflow-hidden rounded-lg">
+            <img src="${video.thumbnail}" class="w-full h-full object-cover">
+            <span class="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded">
+                ${video.duration || '00:00'}
+            </span>
         </div>
-        <span class="text-xs text-white/50 flex-shrink-0">${video.duration || '--:--'}</span>
+        <div class="video-info flex flex-col gap-1">
+            <h4 class="font-bold text-sm text-white line-clamp-2 leading-tight">${video.title}</h4>
+            <p class="text-xs text-white/60 truncate">${video.channelTitle || ''}</p>
+            <p class="text-[10px] text-white/40">${video.viewsDisplay || ''}</p>
+        </div>
     `;
     return card;
 }
 
-/**
- * Executes after a video ends to show the default destination list (Favorites D).
- */
-async function showFavoritesInPopup(type) {
+async function showDashboardSuggestionsInPopup() {
     const container = videoPopupPlayerContainer;
-    // تحديد القائمة المطلوبة بناءً على 'D' أو 'M'
-    let favoritesList = (type === 'D' ? favoritesD : favoritesM);
-    const listName = (type === 'D' ? 'قائمة المتابعة في السيارة' : 'قائمة المتابعة في التلفاز');
-
-    // 1. عرض شاشة تحميل و التأكد من ظهور النافذة
-    container.innerHTML = `<div class="p-8 text-center">
-                              <p>جاري تحميل...</p>
-                           </div>`;
+    
+    // 1. عرض شاشة تحميل وتجهيز النافذة
+    container.innerHTML = `
+        <div class="p-8 text-center text-white">
+            <div class="animate-spin inline-block w-8 h-8 border-4 border-t-transparent border-white rounded-full mb-2"></div>
+            <p>جاري جلب مقترحات ذكية...</p>
+        </div>`;
+    
     videoPopupContainer.style.display = 'flex';
     videoPopupContainer.classList.add('active');
 
     try {
-        // 2. ضمان تحديث قائمة المفضلة من السيرفر
-        if (favoritesList.length === 0 || !Array.isArray(favoritesList)) {
-            const fetched = await fetchFavorites(type);
-            favoritesList = fetched;
-        }
+        // 2. جلب الفيديوهات من المصدر الجديد (fetchSuggestedVideos)
+        // هذه الدالة تجلب (4 فيديوهات لكل قناة | +2 دقيقة | بدون Shorts)
+        const suggestedVideos = await fetchSuggestedVideos();
 
-        if (favoritesList.length === 0) {
-            container.innerHTML = `<p class="p-8 text-center text-white/70">لا توجد فيديوهات محفوظة في ${listName}.</p>`;
+        if (!suggestedVideos || suggestedVideos.length === 0) {
+            container.innerHTML = `<p class="p-8 text-center text-white/70">لم نتمكن من العثور على مقترحات حالياً.</p>`;
             return;
         }
 
-        // 3. بناء كروت المقترحات
-       let cardsHTML = ``; // إضافة العنوان
-cardsHTML += `<div id="favorites-popup-grid" class="flex flex-col gap-3 p-3 overflow-y-auto">`; // بدء حاوية Grid
+        // 3. بناء الهيكل المتوافق مع الـ CSS الذي جعل العناصر تخرج للخارج
+        // لاحظ استخدام id="favorites-popup-grid" لأنه المرتبط بتنسيقات البروز لديك
+        let cardsHTML = `<div id="favorites-popup-grid">`;
 
-favoritesList.forEach(video => {
-    // نستخدم outerHTML لضمان تحويل العنصر إلى سلسلة نصية قابلة للدمج
-    cardsHTML += createSimpleSuggestionCard(video, type).outerHTML; 
-});
+        suggestedVideos.forEach(video => {
+            // إنشاء البطاقة بالبيانات الجديدة
+            const card = createSimpleSuggestionCard(video, 'SUGGEST'); 
+            cardsHTML += card.outerHTML; 
+        });
 
-// 🛑 ✅ FIX: يجب إنهاء وسم DIV لحاوية Grid قبل تعيين innerHTML
-cardsHTML += '</div>';
+        cardsHTML += '</div>';
+        container.innerHTML = cardsHTML;
 
-container.innerHTML = cardsHTML;
-
-        // 4. ربط أحداث النقر لتشغيل الفيديو التالي
+        // 4. ربط أحداث النقر لتشغيل الفيديو المختار
         container.querySelectorAll('.simple-suggestion-card').forEach(card => {
             card.addEventListener('click', (e) => {
                 const nextVideoId = e.currentTarget.dataset.videoId;
-                const progress = parseFloat(e.currentTarget.dataset.progress || 0);
                 if (nextVideoId) {
-                    showVideoPopup(nextVideoId, progress); // تشغيل الفيديو الجديد
+                    // تشغيل الفيديو (مع تصفير التقدم لأنه فيديو جديد)
+                    showVideoPopup(nextVideoId, 0); 
                 }
             });
         });
-        
-        // 5. إعادة إظهار زر الحفظ (إذا كان قد اختفى)
-        const bookmarkBtn = document.getElementById('video-popup-bookmark-button');
-        if (bookmarkBtn) { bookmarkBtn.style.display = 'flex'; }
-
 
     } catch (e) {
-        console.error("Error displaying favorites in popup:", e);
-        container.innerHTML = `<p class="p-8 text-center text-red-500">حدث خطأ في تحميل القائمة.</p>`;
+        console.error("Error displaying suggested videos:", e);
+        container.innerHTML = `<p class="p-8 text-center text-red-500">حدث خطأ أثناء تحميل المقترحات.</p>`;
     }
 }
-/**
- * Fetches and displays related video suggestions inside the popup container.
- */
 
         function handleFullScreenChange() {
             if (popupPlayer && typeof popupPlayer.getPlayerState === 'function' && popupPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
@@ -8860,8 +9148,8 @@ if (!window.hasInitializedWeatherSpeaker) {
         }
 switchApp('Dashboard');
 updateTrafficIndicators();
-renderFavoritesDashboard(); 
-renderSuggestedDashboard();
+renderFavoritesDashboard();
+
 
 document.addEventListener('DOMContentLoaded', () => {
     // 1. **الجلب الأولي لبيانات JSONBin (ASYNCHRONOUS)**
@@ -8886,7 +9174,7 @@ const iframeSrcButtons = document.querySelectorAll('#screen-Reciters .iframe-src
     }
 
     Promise.all([
-        fetchRecitersList(), 
+    fetchRecitersList(), 
         fetchChannelsList(), 
         fetchFavorites('D'),  // [Index 2] - القائمة المرجعة من fetchFavorites
         fetchFavorites('M'),
@@ -8906,6 +9194,7 @@ const iframeSrcButtons = document.querySelectorAll('#screen-Reciters .iframe-src
 
         // 3. تهيئة واجهة المستخدم الخاصة بالـ Media
         populateYoutubeSuggestions();
+        renderSuggestedDashboard();
         
         // 4. تهيئة الخرائط والخدمات الأخرى
         loadGoogleMaps().then(initMap);
@@ -8921,7 +9210,8 @@ const iframeSrcButtons = document.querySelectorAll('#screen-Reciters .iframe-src
         
         // 🚀 CRITICAL FIX: استدعاء دالة العرض الآن بعد أن تم تعيين favoritesD
         renderFavoritesDashboard(); 
-        renderSuggestedDashboard();
+        
+
         // 💡 تحديث الموقع مرة واحدة لضمان تهيئة الخريطة ومؤشرات الازدحام
         centerMapOnUserLocation(); 
 
