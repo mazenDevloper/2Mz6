@@ -35,60 +35,72 @@
         /* NEW: Import Amiri font for Thuluth-like style */
         @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
 
-
-
-.simple-suggestion-card:hover, .simple-suggestion-card:focus {
+/* 1. تأثير التركيز والمرور */
+.simple-suggestion-card:hover, 
+.simple-suggestion-card:focus {
     transform: scale(1.05) !important;
     background: #1b8a53 !important;
     z-index: 101 !important;
 }
 
-.video-popup-player-container {
-    position: relative !important;
+/* 2. الحاوية الأب الأكبر - تسمح للمحتوى بالخروج من حدود الـ Popup */
+div#video-popup-container {
     overflow: visible !important;
-    display: block !important;
-    flex-direction: row !important;
-    gap: 10px !important;
+    position: relative !important;
 }
 
-.simple-suggestion-card.flex.items-center.gap-3.p-2.rounded-lg.bg-white\/10.cursor-pointer.navigable.grid-item {
-    display: flex !important;
-    flex-direction: row !important; /* الصورة فوق النص */
-    flex-shrink: 0 !important; /* هـام جداً: يمنع انكماش المربع ليبقى بارزاً للخارج */
-    width: 340px !important; /* عرض المربع الأخضر */
-    height: 200px !important;
-    background: #156d41 !important; /* اللون الأخضر */
-    border-radius: 12px !important;
-    padding: 8px !important;
-    transition: transform 0.2s ease !important;
-    border: none !important;
+/* 3. الحاوية الوسطى - هي التي ستتولى عملية التمرير الأفقي */
+.video-popup-player-container {
+    position: relative !important;
+    display: block !important; 
+    overflow-x: auto !important; /* تفعيل التمرير هنا يحل مشكلة الاختفاء */
+    overflow-y: visible !important; /* السماح بالبروز العمودي */
+    gap: 10px !important;
+    scrollbar-width: none !important; /* إخفاء شريط التمرير لفيرفوكس */
+    padding: 10px !important;
 }
+
+.video-popup-player-container::-webkit-scrollbar {
+    display: none !important; /* إخفاء شريط التمرير لكروم وسفاري */
+}
+
+/* 4. الحاوية التي تضم الكروت - تمدد المحتوى للخارج */
 .favorites-popup-grid {
-    display: flex !important; /* تحويل الشبكة إلى صف أفقي */
+    display: flex !important;
     flex-direction: row !important;
-    flex-wrap: nowrap !important; /* منع العناصر من النزول لسطر جديد */
+    flex-wrap: nowrap !important; /* منع الكروت من النزول لسطر جديد */
     gap: 15px !important;
     padding: 10px 5px !important;
     
-    /* ميزات التمرير والبروز خارج الحاوية */
-    overflow-x: auto !important; /* تفعيل التمرير الأفقي */
-    overflow-y: visible !important; /* السماح ببروز العناصر عمودياً إن لزم الأمر */
-    scrollbar-width: none !important; /* إخفاء شريط التمرير في فيرفوكس */
+    /* منع الحاوية من قص المحتوى */
+    overflow: visible !important; 
     
-    /* لضمان بدء العناصر من داخل الحاوية وبروزها للخارج */
-    width: auto !important;
+    /* إجبار الحاوية على أخذ عرض الكروت بالكامل لكي تبرز */
+    width: max-content !important; 
     min-width: 100% !important;
 }
 
-div#favorites-popup-grid {
-    display: -webkit-box !important;
-    overflow: visible !important;
+/* 5. الكرت الأخضر - ثبات الحجم والتنسيق */
+.simple-suggestion-card.flex.items-center.gap-3.p-2.rounded-lg.bg-white\/10.cursor-pointer.navigable.grid-item {
+    display: flex !important;
+    flex-direction: column !important; /* جعل الصورة فوق النص ليناسب العرض 340px */
+    flex-shrink: 0 !important; /* المحرك الأساسي: يمنع انكماش الكرت ويجبره على الخروج للتمرير */
+    
+    width: 340px !important; 
+    height: 200px !important;
+    background: #156d41 !important;
+    border-radius: 12px !important;
+    padding: 12px !important;
+    transition: transform 0.2s ease !important;
+    border: none !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
 }
 
-div#video-popup-container {
+/* السطر الذي كان يسبب المشكلة (تم حذفه واستبداله بالأعلى) */
+div#favorites-popup-grid {
+    display: flex !important; /* تم تغيير display من -webkit-box إلى flex لضمان التمرير */
     overflow: visible !important;
 }
-        
 .suggested-d-dashboard-card.navigable.grid-item.p-2>img {
     height: 9rem !important;
     min-width: 16rem !important;
@@ -2686,7 +2698,7 @@ div#map{display:none}
             class="full-iframe flex-grow"
             onclick="toggleIframeFullscreen('reciters-iframe')"  class="fullscreen-toggle-button navigable grid-item"
             title="Reciters/TV"
-            src="https://www.bein-live.com"
+            src="https://www.kooora.com"
             allow="geolocation; fullscreen"  allowfullscreen="true"          webkitallowfullscreen="true"    mozallowfullscreen="true">  
             <i class="fas fa-expand"></i> 
                 </iframe>
@@ -2697,7 +2709,7 @@ div#map{display:none}
 
 
 
-        <button data-src="https://www.bein-live.com/home_1/" class="iframe-src-button bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item active" tabindex="0">
+        <button data-src="https://www.kooora.com" class="iframe-src-button bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item active" tabindex="0">
             مباريات
         </button>
         <button data-src="https://direct.aflam4you.net/playeraf.php?vid=9311&aflam_s=1&aflam_k=ff09665543234455" class="iframe-src-button bg-black-600 hover:bg-black-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
@@ -4091,8 +4103,8 @@ async function displayLastWatchedVideo() {
         lucide.createIcons();
 
         // --- API Keys ---
-        const YOUTUBE_API_KEY = 'AIzaSyBYThRM6tVnzgFgdHOUAN6DN8jQd54OKe';
-        const YOUTUBE_API_KEY2 = 'AIzaSyDj4w1H3Is_rmTLhl40zER7AgYhT_tKASo';
+        const YOUTUBE_API_KEY = 'AIzaSyBdhcRo-EsvIduedQd-jFHfrEj9NeiP7pU';
+        const YOUTUBE_API_KEY2 = 'AIzaSyB7QdfI0br5BfP71hOr36hz2dRWG_l0G8k';
         const AI_ASSISTANT_API_KEY = 'AIzaSyBMmtON9ww4dJxMHrl1wKyWTvI0ipJXJws'; 
         const WEATHER_API_KEY = '7acefc26deee4904a2393917252207'; 
         const GOOGLE_MAPS_API_KEY = 'AIzaSyBRqAHJ2elbE_Z7NXXYC50XZpqi6HbG6Rk';
@@ -6168,12 +6180,9 @@ function updateMinimizedControlsState() {
     }
 }
 
-       function onPlayerStateChange(event) {
+   function onPlayerStateChange(event) {
     if (event.data == YT.PlayerState.PLAYING) {
-        // 1. إعداد جودة التشغيل والتتبع
         popupPlayer.setPlaybackQuality('tiny');
-
-        // Start tracking progress (كل 5 ثوانٍ)
         progressInterval = setInterval(() => {
             const videoId = popupPlayer.getVideoData().video_id;
             const currentTime = popupPlayer.getCurrentTime();
@@ -6184,22 +6193,19 @@ function updateMinimizedControlsState() {
     } else if (event.data == YT.PlayerState.ENDED) {
         if (progressInterval) clearInterval(progressInterval);
         
-        // 1. التقاط مُعرِّف الفيديو المنتهي وإتمام التحديث
         const videoData = popupPlayer.getVideoData();
         const videoId = videoData ? videoData.video_id : null;
         markVideoAsWatched(videoId);
         
-        // 2. تدمير المشغل (مهم لإزالة iframe وعرض محتوى جديد)
         if (popupPlayer) {
             popupPlayer.destroy();
             popupPlayer = null;
         }
         
-        // 3. 🚀 الإجراء الحاسم: عرض قائمة المفضلة في السيارة داخل النافذة المنبثقة
-        showFavoritesInPopup('D'); 
+        // 🚀 التغيير الحاسم هنا:
+        // بدلاً من عرض المفضلة القديمة، نستدعي محرك المقترحات الذكية
+        showDashboardSuggestionsInPopup(); 
         
-        // 4. مسح مؤقت التقدم من AppState (لا حاجة لـ cleanup إضافي)
-
     } else {
          if (progressInterval) {
             clearInterval(progressInterval);
@@ -6209,34 +6215,25 @@ function updateMinimizedControlsState() {
     updateMinimizedControlsState();
 }
 
-
-
-/**
- * Creates a single HTML card for a related video suggestion inside the popup player.
- * * @param {object} video - Detailed video object from YouTube API fetch.
- * @param {object} channelThumbnails - Map of channel IDs to their thumbnail URLs.
- * @returns {HTMLElement} The complete suggestion card DIV element.
- */
-
-
-
-/**
- * Helper function to create a simplified card for display inside the popup.
- */
 function createSimpleSuggestionCard(video, type) {
     const card = document.createElement('div');
-    card.className = 'simple-suggestion-card flex items-center gap-3 p-2 rounded-lg bg-white/10 cursor-pointer navigable grid-item';
+    // إضافة الكلاسات التي تضمن البروز والتصميم المتفق عليه
+    card.className = 'simple-suggestion-card flex flex-col gap-2 p-3 rounded-xl bg-white/10 cursor-pointer navigable grid-item flex-shrink-0';
     card.tabIndex = 0;
     card.dataset.videoId = video.id;
-    card.dataset.progress = video.progress; // لتمرير تقدم المشاهدة
 
     card.innerHTML = `
-        <img src="${video.thumbnail}" class="w-12 h-auto rounded-md flex-shrink-0" onerror="this.onerror=null;this.src='https://placehold.co/64x36';">
-        <div class="min-w-0 flex-grow">
-            <h4 class="font-semibold text-sm truncate text-white">${video.title}</h4>
-            <p class="text-xs text-white/70">${video.channelTitle || ''}</p>
+        <div class="video-thumbnail-wrapper relative w-full h-[140px] overflow-hidden rounded-lg">
+            <img src="${video.thumbnail}" class="w-full h-full object-cover">
+            <span class="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded">
+                ${video.duration || '00:00'}
+            </span>
         </div>
-        <span class="text-xs text-white/50 flex-shrink-0">${video.duration || '--:--'}</span>
+        <div class="video-info flex flex-col gap-1">
+            <h4 class="font-bold text-sm text-white line-clamp-2 leading-tight">${video.title}</h4>
+            <p class="text-xs text-white/60 truncate">${video.channelTitle || ''}</p>
+            <p class="text-[10px] text-white/40">${video.viewsDisplay || ''}</p>
+        </div>
     `;
     return card;
 }
