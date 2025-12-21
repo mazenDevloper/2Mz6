@@ -35,72 +35,60 @@
         /* NEW: Import Amiri font for Thuluth-like style */
         @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
 
-/* 1. تأثير التركيز والمرور */
-.simple-suggestion-card:hover, 
-.simple-suggestion-card:focus {
+
+
+.simple-suggestion-card:hover, .simple-suggestion-card:focus {
     transform: scale(1.05) !important;
     background: #1b8a53 !important;
     z-index: 101 !important;
 }
 
-/* 2. الحاوية الأب الأكبر - تسمح للمحتوى بالخروج من حدود الـ Popup */
-div#video-popup-container {
-    overflow: visible !important;
-    position: relative !important;
-}
-
-/* 3. الحاوية الوسطى - هي التي ستتولى عملية التمرير الأفقي */
 .video-popup-player-container {
     position: relative !important;
-    display: block !important; 
-    overflow-x: auto !important; /* تفعيل التمرير هنا يحل مشكلة الاختفاء */
-    overflow-y: visible !important; /* السماح بالبروز العمودي */
-    gap: 10px !important;
-    scrollbar-width: none !important; /* إخفاء شريط التمرير لفيرفوكس */
-    padding: 10px !important;
-}
-
-.video-popup-player-container::-webkit-scrollbar {
-    display: none !important; /* إخفاء شريط التمرير لكروم وسفاري */
-}
-
-/* 4. الحاوية التي تضم الكروت - تمدد المحتوى للخارج */
-.favorites-popup-grid {
-    display: flex !important;
+    overflow: visible !important;
+    display: block !important;
     flex-direction: row !important;
-    flex-wrap: nowrap !important; /* منع الكروت من النزول لسطر جديد */
+    gap: 10px !important;
+}
+
+.simple-suggestion-card.flex.items-center.gap-3.p-2.rounded-lg.bg-white\/10.cursor-pointer.navigable.grid-item {
+    display: flex !important;
+    flex-direction: row !important; /* الصورة فوق النص */
+    flex-shrink: 0 !important; /* هـام جداً: يمنع انكماش المربع ليبقى بارزاً للخارج */
+    width: 240px !important; /* عرض المربع الأخضر */
+    height: 140px !important;
+    background: #156d41 !important; /* اللون الأخضر */
+    border-radius: 12px !important;
+    padding: 8px !important;
+    transition: transform 0.2s ease !important;
+    border: none !important;
+}
+.favorites-popup-grid {
+    display: flex !important; /* تحويل الشبكة إلى صف أفقي */
+    flex-direction: row !important;
+    flex-wrap: nowrap !important; /* منع العناصر من النزول لسطر جديد */
     gap: 15px !important;
     padding: 10px 5px !important;
     
-    /* منع الحاوية من قص المحتوى */
-    overflow: visible !important; 
+    /* ميزات التمرير والبروز خارج الحاوية */
+    overflow-x: auto !important; /* تفعيل التمرير الأفقي */
+    overflow-y: visible !important; /* السماح ببروز العناصر عمودياً إن لزم الأمر */
+    scrollbar-width: none !important; /* إخفاء شريط التمرير في فيرفوكس */
     
-    /* إجبار الحاوية على أخذ عرض الكروت بالكامل لكي تبرز */
-    width: max-content !important; 
+    /* لضمان بدء العناصر من داخل الحاوية وبروزها للخارج */
+    width: auto !important;
     min-width: 100% !important;
 }
 
-/* 5. الكرت الأخضر - ثبات الحجم والتنسيق */
-.simple-suggestion-card.flex.items-center.gap-3.p-2.rounded-lg.bg-white\/10.cursor-pointer.navigable.grid-item {
-    display: flex !important;
-    flex-direction: column !important; /* جعل الصورة فوق النص ليناسب العرض 340px */
-    flex-shrink: 0 !important; /* المحرك الأساسي: يمنع انكماش الكرت ويجبره على الخروج للتمرير */
-    
-    width: 340px !important; 
-    height: 200px !important;
-    background: #156d41 !important;
-    border-radius: 12px !important;
-    padding: 12px !important;
-    transition: transform 0.2s ease !important;
-    border: none !important;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
-}
-
-/* السطر الذي كان يسبب المشكلة (تم حذفه واستبداله بالأعلى) */
 div#favorites-popup-grid {
-    display: flex !important; /* تم تغيير display من -webkit-box إلى flex لضمان التمرير */
+    display: flex !important;
     overflow: visible !important;
 }
+
+div#video-popup-container {
+    overflow: visible !important;
+}
+        
 .suggested-d-dashboard-card.navigable.grid-item.p-2>img {
     height: 9rem !important;
     min-width: 16rem !important;
@@ -3082,30 +3070,32 @@ function shouldRefreshNow(lastTimestamp) {
     }
     return false;
 }
+
 /**
- * الدالة الرئيسية fetchSuggestedVideos() 
- * تضمن: 6 قنوات | 4 فيديوهات لكل قناة | استبعاد تام للـ Shorts (أقل من 2 دقيقة)
+ * الدالة الرئيسية المحدثة: تجلب 5 فيديوهات لكل قناة (إجمالي 30)
+ * تختار 14 فيديو نهائي (2 قطامي + 12 عشوائي) | تصفية +2 دقيقة | بدون Shorts
  */
 async function fetchSuggestedVideos() {
-    console.log("Fetching Long Videos Only (Min 2:00 duration)...");
+    console.log("Fetching Suggested Videos (14 Total, Min 2:00 duration)...");
     const cachedData = localStorage.getItem(CACHE_KEY);
 
-    // 1. منطق الكاش والعشوائية (2 ثابت + 7 عشوائي من المخزن المفلتر)
+    // 1. استخدام الكاش لتسريع الأداء (تدوير عشوائي من الـ 14 المخزنة)
     if (cachedData) {
         try {
             const { timestamp, videos } = JSON.parse(cachedData);
             if (!shouldRefreshNow(timestamp)) {
-                console.log("[Suggested] Randomizing from clean cache...");
                 const priority = videos.filter(v => v.channelId === TARGET_ID).slice(0, 2);
                 const others = videos.filter(v => v.channelId !== TARGET_ID)
                                      .sort(() => 0.5 - Math.random())
-                                     .slice(0, 7);
-                return [...priority, ...others]; 
+                                     .slice(0, 12);
+                const final = [...priority, ...others];
+                window.currentSuggestedVideos = final; // تخزين للـ Playlist
+                return final;
             }
         } catch (e) { localStorage.removeItem(CACHE_KEY); }
     }
 
-    // 2. جلب قائمة القنوات
+    // 2. جلب قائمة القنوات من JSONBin
     let channelIdsArray = [];
     try {
         const res = await fetch(`https://api.jsonbin.io/v3/b/${NEW_JSONBIN_CHANNEL_IDS}/latest`, {
@@ -3117,10 +3107,9 @@ async function fetchSuggestedVideos() {
 
     let allVideosMap = new Map();
 
-    // 3. جلب الفيديوهات (طلب 5 نتائج لتعويض المستبعد منها)
+    // 3. جلب 5 فيديوهات من كل قناة (3 أحدث + 2 أهم)
     try {
         for (const id of channelIdsArray) {
-            // نطلب 3 أحدث + 2 أهم (المجموع 5 لكل قناة لضمان وجود بدائل للفيديوهات القصيرة)
             const latestUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${id}&maxResults=3&type=video&order=date`;
             const relevanceUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${id}&maxResults=2&type=video&order=relevance`;
             
@@ -3149,6 +3138,7 @@ async function fetchSuggestedVideos() {
         let allVideos = Array.from(allVideosMap.values());
         const videoIds = allVideos.map(v => v.id).join(',');
 
+        // 4. فلترة الوقت (أكثر من 120 ثانية) وجلب الإحصائيات
         if (videoIds) {
             const detailsData = await fetchSafely(`https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics&id=${videoIds}`);
             if (detailsData && detailsData.items) {
@@ -3156,44 +3146,62 @@ async function fetchSuggestedVideos() {
                     const video = allVideos.find(v => v.id === detail.id);
                     if (video) {
                         const isoDuration = detail.contentDetails?.duration;
-                        const formatted = formatDuration(isoDuration); // دالة التنسيق السابقة
-                        
-                        // ✅ الفلتر الصارم: تحويل المدة لثواني للتأكد من أنها فيديو طويل
-                        // استبعاد أي فيديو أقل من 120 ثانية (دقيقتين)
                         const totalSeconds = parseISO8601ToSeconds(isoDuration);
                         
                         if (totalSeconds < 120) {
-                            video.isShort = true; // علامة للحذف
+                            video.isShort = true;
                         } else {
-                            video.duration = formatted;
-                            video.views = parseInt(detail.statistics?.viewCount || 0);
-                            video.viewsDisplay = typeof formatViewCount === 'function' ? formatViewCount(video.views) : video.views;
+                            video.duration = formatDuration(isoDuration);
+                            video.viewsDisplay = formatViewCount(parseInt(detail.statistics?.viewCount || 0));
                         }
                     }
                 });
             }
         }
 
-        // تنظيف القائمة تماماً من الفيديوهات القصيرة (Shorts)
         const cleanVideos = allVideos.filter(v => !v.isShort);
 
-        // حفظ القائمة النظيفة في الكاش
-        localStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: Date.now(), videos: cleanVideos }));
-
-        // اختيار العرض النهائي (2 ثابت + 7 عشوائي)
+        // 5. اختيار الـ 14 فيديو النهائية
         const finalPriority = cleanVideos.filter(v => v.channelId === TARGET_ID).slice(0, 2);
         const finalOthers = cleanVideos.filter(v => v.channelId !== TARGET_ID)
                                        .sort(() => 0.5 - Math.random())
-                                       .slice(0, 7);
+                                       .slice(0, 12);
 
-        return [...finalPriority, ...finalOthers];
+        const finalResult = [...finalPriority, ...finalOthers];
 
-    } catch (error) { return []; }
+        // 6. الحفظ في الكاش وفي المتغير العام للتشغيل المتتالي
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: Date.now(), videos: cleanVideos }));
+        window.currentSuggestedVideos = finalResult;
+
+        return finalResult;
+
+    } catch (error) { console.error("Fetch Error:", error); return []; }
 }
 
 /**
- * دالة مساعدة لتحويل مدة يوتيوب (ISO 8601) إلى ثواني بدقة
+ * دالة تشغيل الفيديوهات الـ 14 كقائمة تشغيل عشوائية (Suffle)
  */
+function playAsShufflePlaylist() {
+    if (!window.currentSuggestedVideos || window.currentSuggestedVideos.length === 0) {
+        showMessageBox("جاري جلب الفيديوهات، يرجى الانتظار ثانية...");
+        return;
+    }
+
+    // خلط القائمة عشوائياً
+    const shuffled = [...window.currentSuggestedVideos].sort(() => 0.5 - Math.random());
+    const videoIds = shuffled.map(v => v.id);
+    
+    // تشغيل أول فيديو مع تمرير بقية القائمة في الرابط (YouTube Playlist Mode)
+    const firstId = videoIds[0];
+    const otherIds = videoIds.slice(1).join(',');
+    
+    // إغلاق أي نوافذ مفتوحة وتشغيل المشغل
+    showVideoPopup(firstId, 0);
+    
+    // بعد تحميل المشغل، نقوم بحقن القائمة في iframe يوتيوب إذا أردت استمرارية يوتيوب الأصلية
+    // أو الاعتماد على دالة onPlayerStateChange لتشغيل الفيديو التالي يدوياً (أفضل للتحكم)
+}
+
 function parseISO8601ToSeconds(duration) {
     const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
     if (!match) return 0;
