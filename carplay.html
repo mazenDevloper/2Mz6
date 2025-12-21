@@ -35,7 +35,20 @@
         /* NEW: Import Amiri font for Thuluth-like style */
         @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
 
-
+.playlist-shuffle-btn {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%) !important;
+    color: white !important;
+    padding: 10px 20px !important;
+    border-radius: 30px !important;
+    font-weight: bold !important;
+    border: none !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    margin: 10px auto !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
+}
 
 .simple-suggestion-card:hover, .simple-suggestion-card:focus {
     transform: scale(1.05) !important;
@@ -6187,8 +6200,7 @@ function updateMinimizedControlsState() {
          playbackSelect.value = currentRate.toFixed(1).toString(); 
     }
 }
-
-   function onPlayerStateChange(event) {
+function onPlayerStateChange(event) {
     if (event.data == YT.PlayerState.PLAYING) {
         popupPlayer.setPlaybackQuality('tiny');
         progressInterval = setInterval(() => {
@@ -6204,14 +6216,27 @@ function updateMinimizedControlsState() {
         const videoData = popupPlayer.getVideoData();
         const videoId = videoData ? videoData.video_id : null;
         markVideoAsWatched(videoId);
+
+        // --- منطق التشغيل التلقائي للمقترحات (Auto-Play Next) ---
+        if (window.isAutoPlayMode && window.currentSuggestedVideos) {
+            const currentIndex = window.currentSuggestedVideos.findIndex(v => v.id === videoId);
+            // إذا وجدنا الفيديو الحالي وليس الأخير في القائمة
+            if (currentIndex > -1 && currentIndex < window.currentSuggestedVideos.length - 1) {
+                const nextVideo = window.currentSuggestedVideos[currentIndex + 1];
+                console.log("Auto-playing next suggested video:", nextVideo.title);
+                showVideoPopup(nextVideo.id, 0); 
+                return; // نخرج حتى لا تفتح نافذة المقترحات
+            } else {
+                // إذا انتهت القائمة، نوقف وضع التشغيل التلقائي
+                window.isAutoPlayMode = false;
+            }
+        }
         
+        // إذا لم يكن هناك أوتوبلاي أو انتهت القائمة، دمر المشغل وافتح المقترحات
         if (popupPlayer) {
             popupPlayer.destroy();
             popupPlayer = null;
         }
-        
-        // 🚀 التغيير الحاسم هنا:
-        // بدلاً من عرض المفضلة القديمة، نستدعي محرك المقترحات الذكية
         showDashboardSuggestionsInPopup(); 
         
     } else {
@@ -6246,56 +6271,116 @@ function createSimpleSuggestionCard(video, type) {
     return card;
 }
 
+function playAsShufflePlaylist() {
+    if (!window.currentSuggestedVideos || window.currentSuggestedVideos.length === 0) return;
+
+    // 1. تفعيل وضع التشغيل المتتالي
+    window.isAutoPlayMode = true;
+
+    // 2. عمل Shuffle (ترتيب عشوائي) للمصفوفة المخزنة
+    window.currentSuggestedVideos.sort(() => 0.5 - Math.random());
+
+    // 3. تشغيل أول فيديو في القائمة الجديدة
+    const firstVideo = window.currentSuggestedVideos[0];
+    showVideoPopup(firstVideo.id, 0);
+    
+    showMessageBox("تم تفعيل قائمة التشغيل العشوائية");
+}
+
+/**
+ * تعرض نافذة المقترحات الذكية في نهاية الفيديو أو عند الطلب.
+ * تضمن: وجود زر "تشغيل الكل"، شبكة فيديوهات تبرز للخارج، وتوافق مع الريموت.
+ */
 async function showDashboardSuggestionsInPopup() {
     const container = videoPopupPlayerContainer;
     
-    // 1. عرض شاشة تحميل وتجهيز النافذة
+    // 1. إظهار شاشة التحميل وتجهيز النافذة المنبثقة
     container.innerHTML = `
-        <div class="p-8 text-center text-white">
-            <div class="animate-spin inline-block w-8 h-8 border-4 border-t-transparent border-white rounded-full mb-2"></div>
-            <p>جاري جلب مقترحات ذكية...</p>
+        <div class="p-8 text-center text-white flex flex-col items-center justify-center min-h-[200px]">
+            <div class="animate-spin inline-block w-10 h-10 border-4 border-t-transparent border-purple-500 rounded-full mb-4"></div>
+            <p class="text-lg font-medium">جاري جلب مقترحات ذكية...</p>
         </div>`;
     
     videoPopupContainer.style.display = 'flex';
     videoPopupContainer.classList.add('active');
 
     try {
-        // 2. جلب الفيديوهات من المصدر الجديد (fetchSuggestedVideos)
-        // هذه الدالة تجلب (4 فيديوهات لكل قناة | +2 دقيقة | بدون Shorts)
+        // 2. جلب الفيديوهات (المحرك المحدث: 5 لكل قناة -> 14 فيديو مصفى)
         const suggestedVideos = await fetchSuggestedVideos();
 
         if (!suggestedVideos || suggestedVideos.length === 0) {
-            container.innerHTML = `<p class="p-8 text-center text-white/70">لم نتمكن من العثور على مقترحات حالياً.</p>`;
+            container.innerHTML = `
+                <div class="p-8 text-center text-white/70">
+                    <i data-lucide="alert-circle" class="w-12 h-12 mx-auto mb-2 opacity-50"></i>
+                    <p>لم نتمكن من العثور على مقترحات حالياً.</p>
+                </div>`;
+            lucide.createIcons();
             return;
         }
 
-        // 3. بناء الهيكل المتوافق مع الـ CSS الذي جعل العناصر تخرج للخارج
-        // لاحظ استخدام id="favorites-popup-grid" لأنه المرتبط بتنسيقات البروز لديك
-        let cardsHTML = `<div id="favorites-popup-grid">`;
+        // 3. بناء الهيكل البصري (الزر + الشبكة)
+        // السـر: تغليف الشبكة في div للسماح لـ CSS بالبروز (Overflow)
+        let contentHTML = `
+            <div class="suggestions-popup-wrapper flex flex-col gap-6 w-full" style="overflow: visible;">
+                
+                <div class="flex justify-center w-full px-4">
+                    <button class="playlist-shuffle-btn navigable grid-item flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-full font-bold shadow-xl transition-all active:scale-95" 
+                            onclick="playAsShufflePlaylist()">
+                        <i data-lucide="shuffle" class="w-5 h-5"></i>
+                        <span>تشغيل الكل عشوائياً (Shuffle)</span>
+                    </button>
+                </div>
 
+                <div id="favorites-popup-grid" class="flex flex-row flex-nowrap gap-4 px-4 pb-6">
+        `;
+
+        // 4. توليد الكروت (المربعات الخضراء الكبيرة 340x200)
         suggestedVideos.forEach(video => {
-            // إنشاء البطاقة بالبيانات الجديدة
             const card = createSimpleSuggestionCard(video, 'SUGGEST'); 
-            cardsHTML += card.outerHTML; 
+            // نضمن أن الكرت يحمل خاصية عدم الانكماش للبروز
+            card.classList.add('flex-shrink-0'); 
+            contentHTML += card.outerHTML; 
         });
 
-        cardsHTML += '</div>';
-        container.innerHTML = cardsHTML;
+        contentHTML += `
+                </div>
+            </div>
+        `;
 
-        // 4. ربط أحداث النقر لتشغيل الفيديو المختار
+        // 5. حقن المحتوى النهائي في الواجهة
+        container.innerHTML = contentHTML;
+
+        // 6. تفعيل الأيقونات وتحديث عناصر التنقل للريموت/لوحة المفاتيح
+        lucide.createIcons();
+        if (typeof updateNavigableElements === 'function') {
+            updateNavigableElements();
+        }
+
+        // 7. ربط أحداث النقر اليدوي (اختيار فيديو محدد يوقف وضع الـ Playlist التلقائي)
         container.querySelectorAll('.simple-suggestion-card').forEach(card => {
             card.addEventListener('click', (e) => {
-                const nextVideoId = e.currentTarget.dataset.videoId;
-                if (nextVideoId) {
-                    // تشغيل الفيديو (مع تصفير التقدم لأنه فيديو جديد)
-                    showVideoPopup(nextVideoId, 0); 
+                const videoId = e.currentTarget.dataset.videoId;
+                if (videoId) {
+                    window.isAutoPlayMode = false; // تعطيل التشغيل التلقائي عند الاختيار اليدوي
+                    showVideoPopup(videoId, 0); 
                 }
             });
         });
 
+        // 8. نقل التركيز تلقائياً إلى زر "تشغيل الكل" لتسهيل تجربة المستخدم
+        setTimeout(() => {
+            const shuffleBtn = container.querySelector('.playlist-shuffle-btn');
+            if (shuffleBtn) setFocus(shuffleBtn);
+        }, 200);
+
     } catch (e) {
-        console.error("Error displaying suggested videos:", e);
-        container.innerHTML = `<p class="p-8 text-center text-red-500">حدث خطأ أثناء تحميل المقترحات.</p>`;
+        console.error("Critical error in showDashboardSuggestionsInPopup:", e);
+        container.innerHTML = `
+            <div class="p-8 text-center text-red-400">
+                <i data-lucide="x-circle" class="w-10 h-10 mx-auto mb-2"></i>
+                <p>حدث خطأ أثناء تحميل المقترحات. حاول مرة أخرى.</p>
+            </div>`;
+        lucide.createIcons();
     }
 }
 
