@@ -1,7 +1,7 @@
 {
   "name": "LXCP",
   "short_name": "Lexus",
-  "start_url": "/carplay2",
+  "start_url": "/carplay",
   "scope": "/",
   "display": "standalone",
   "background_color": "#000000",
