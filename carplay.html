@@ -40,19 +40,36 @@
     height: 250px;
 }
 
+#suggested-d-dashboard-parent {
+    position: relative !important;
+    width: 100% !important;
+    margin-top: 10px !important;
+}
+
+/* تنسيق الزر ليكون في أسفل يسار الحاوية */
 .playlist-shuffle-btn {
-    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%) !important;
-    color: white !important;
-    padding: 10px 20px !important;
-    border-radius: 30px !important;
-    font-weight: bold !important;
-    border: none !important;
-    cursor: pointer !important;
+    position: absolute !important;
+    bottom: 10px !important;
+    left: 10px !important;
+    z-index: 50 !important; /* لضمان ظهوره فوق الكروت */
+    
     display: flex !important;
     align-items: center !important;
-    gap: 10px !important;
-    margin: 10px auto !important;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
+    gap: 8px !important;
+    background: linear-gradient(135deg, #9333ea 0%, #2563eb 100%) !important;
+    color: white !important;
+    padding: 8px 16px !important;
+    border-radius: 12px !important;
+    font-size: 0.9rem !important;
+    font-weight: bold !important;
+    border: 1px solid rgba(255,255,255,0.2) !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5) !important;
+    cursor: pointer !important;
+}
+
+.playlist-shuffle-btn:hover {
+    transform: scale(1.05) !important;
+    filter: brightness(1.1) !important;
 }
 
 .simple-suggestion-card:hover, .simple-suggestion-card:focus {
@@ -3233,57 +3250,88 @@ function renderSuggestedDashboard() {
     const container = document.getElementById('suggested-d-dashboard-container');
     if (!container) return;
 
-    // 1. تطبيق الحد الأقصى 20 على القائمة المجلوبة
+    // 1. تجهيز القائمة (بحد أقصى 20 فيديو)
     const list = suggestedVideos ? suggestedVideos.slice(0, 20) : []; 
     
-    console.log("[renderSuggestedDashboard] List Length:", suggestedVideos ? suggestedVideos.length : 0);
-    console.log("[renderSuggestedDashboard] Final Display List Length (Capped at 20):", list.length);
+    // 2. إنشاء أو التأكد من وجود "المغلف" (Parent Wrapper) للتحكم في مكان الزر
+    let parentWrapper = document.getElementById('suggested-dashboard-wrapper');
+    if (!parentWrapper) {
+        parentWrapper = document.createElement('div');
+        parentWrapper.id = 'suggested-dashboard-wrapper';
+        // جعل المغلف "relative" لكي نضع الزر بداخله بوضعية "absolute"
+        parentWrapper.style.position = 'relative';
+        parentWrapper.style.width = '100%';
+        
+        // نقل الحاوية الأصلية لتكون داخل المغلف الجديد
+        container.parentNode.insertBefore(parentWrapper, container);
+        parentWrapper.appendChild(container);
+    }
 
+    // تنظيف المحتوى القديم
     container.innerHTML = ''; 
+    const oldBtn = parentWrapper.querySelector('.playlist-shuffle-btn');
+    if (oldBtn) oldBtn.remove();
 
-    // 2. معالجة حالة عدم وجود بيانات
+    // 3. معالجة حالة عدم وجود بيانات
     if (list.length === 0) {
-        container.innerHTML = '<p class="text-center text-muted mt-4 w-full">لا توجد مقترحات حاليًا. (الرجاء التأكد من تحديث مفتاح YouTube API).</p>';
-        // 💡 إزالة تنسيقات Flexbox في حالة الفراغ لتوسيط الرسالة
+        container.innerHTML = '<p class="text-center text-muted mt-4 w-full">لا توجد مقترحات حاليًا.</p>';
         container.style.display = 'block'; 
         return;
     }
     
-    // 💡 إعادة تفعيل Flexbox في حالة وجود بيانات
+    // 4. إضافة زر "تشغيل الكل" في الزاوية السفلى اليسرى (Bottom Left)
+    const shuffleBtn = document.createElement('button');
+    shuffleBtn.className = 'playlist-shuffle-btn navigable grid-item';
+    shuffleBtn.innerHTML = `<i data-lucide="shuffle"></i> تشغيل الكل`;
+    
+    // وضع الزر بالنسبة للمغلف (أسفل اليسار)
+    Object.assign(shuffleBtn.style, {
+        position: 'absolute',
+        bottom: '15px',
+        left: '15px',
+        zIndex: '100',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px'
+    });
+
+    shuffleBtn.onclick = (e) => {
+        e.stopPropagation();
+        playAsShufflePlaylist(); // استدعاء دالة التشغيل التي برمجناها سابقاً
+    };
+    parentWrapper.appendChild(shuffleBtn);
+
+    // 5. بناء الكروت
     container.style.display = 'flex';
     const fragment = document.createDocumentFragment(); 
 
-    // 3. بناء عناصر HTML وتطبيق الكلاسات المطلوبة
     list.forEach(video => {
-        // نستخدم كلاسات مماثلة للمفضلة لتطبيق التنسيق CSS المطلوب (الصور)
         const card = document.createElement('div');
-        // يجب أن يحتوي هذا الكلاس على التنسيق المطلوب: display: flex; justify-content: space-evenly; flex-wrap: wrap;
         card.className = 'suggested-d-dashboard-card navigable grid-item p-2'; 
         card.tabIndex = 0; 
         
         card.innerHTML = `
             <img src="${video.thumbnail}" alt="${video.title}" loading="lazy">
-            
             <div class="video-details flex-grow-1"> 
                 <h6 class="mb-0 text-truncate">${video.title}</h6>
                 <p class="mb-1 text-muted small">${video.channelTitle}</p>
             </div>
-            
-            <div class="flex flex-col flex-grow min-w-0 h-full justify-between ml-2">
-                </div>
+            <div class="flex flex-col flex-grow min-w-0 h-full justify-between ml-2"></div>
         `;
         
-        // ربط حدث النقر لتشغيل الفيديو
         card.addEventListener('click', () => {
-             // يجب استبدال playVideoInPopup بآلية التشغيل الفعلية لديك
-             showVideoPopup(video.id); 
+            window.isAutoPlayMode = false; // اختيار يدوي يوقف التشغيل التلقائي
+            showVideoPopup(video.id); 
         });
 
         fragment.appendChild(card);
     });
     
-    // 4. إضافة جميع العناصر إلى DOM في خطوة واحدة
     container.appendChild(fragment);
+
+    // 6. تحديث الأيقونات وعناصر التنقل للريموت
+    if (window.lucide) lucide.createIcons();
+    if (typeof updateNavigableElements === 'function') updateNavigableElements();
 }
 
 const CACHE_DURATION_MS = 6 * 60 * 60 * 1000;
@@ -3888,58 +3936,7 @@ function toggleFullscreen(sectionId) {
         console.error(`Error: Section with ID ${sectionId} not found.`);
     }
 }
-/**
- * دالة JavaScript لمنع النوافذ المنبثقة والإعلانات داخل
- * 
- * 
- *  الصفحة.
- * تستهدف العناصر ذات الخصائص الشائعة للإعلانات المنبثقة (مثل التثبيت على الشاشة).
- */
-function blockInPagePopups() {
-    // 1. قائمة بفئات CSS (classes) الشائعة التي تستخدمها الإعلانات المنبثقة
-    const adClasses = [
-        '.ad-container',         // حاويات الإعلانات العامة
-        '.popup-ad-wrapper',     // مغلفات الإعلانات المنبثقة
-        '#div-gpt-ad',           // مُعرفات (IDs) شائعة لأنظمة إعلانات معينة
-        '.fixed-ad',             // إعلانات مُثبتة (Fixed) غالبًا ما تكون مزعجة
-        // يمكنك إضافة أي فئات أو مُعرفات تلاحظها في إعلانات موقعك هنا
-    ];
 
-    // 2. محددات (Selectors) تستهدف العناصر ذات النمط الثابت والشفافية العالية (قد تكون إعلانات أو أغطية لإعلانات)
-    const fixedSelectors = [
-        'div[style*="position: fixed"]',      // أي عنصر div ذو تثبيت مطلق
-        'div[style*="z-index: 9999"]',        // أي عنصر ذو قيمة z-index عالية جدًا
-        'div[id*="ad-"]'                      // أي عنصر يحتوي ID على كلمة 'ad-'
-    ];
-
-    // دمج جميع محددات الإعلانات في محدد واحد
-    const allAdSelectors = adClasses.join(', ') + ', ' + fixedSelectors.join(', ');
-
-    // 3. البحث عن جميع العناصر المطابقة للمحددات
-    const adElements = document.querySelectorAll(allAdSelectors);
-
-    if (adElements.length > 0) {
-        console.log(`Coding Partner: تم العثور على ${adElements.length} عناصر إعلانية مشتبه بها. جاري إخفاؤها...`);
-        
-        // 4. المرور على جميع العناصر المخالفة وإخفاؤها
-        adElements.forEach(element => {
-            // قم بإزالة العنصر بالكامل من DOM (أكثر فعالية)
-            element.remove(); 
-            
-            // أو قم فقط بإخفائه (إذا كنت تخشى من تأثير الإزالة على تنسيق الصفحة)
-            // element.style.display = 'none'; 
-        });
-    } else {
-        // console.log("Coding Partner: لم يتم العثور على إعلانات داخلية في الفحص الحالي.");
-    }
-}
-
-// 5. استخدام MutationObserver لمراقبة DOM (الهيكل) لضمان العمل حتى بعد تحميل الإعلانات بالـ AJAX
-// إذا كانت الإعلانات تُحمّل بعد تحميل الصفحة (وهو أمر شائع)، فهذا يضمن التقاطها.
-const observer = new MutationObserver(blockInPagePopups);
-
-// ابدأ المراقبة عند تحميل الصفحة
-// راقب جميع التغييرات في الجسم الرئيسي (body) والـ subtree (جميع العناصر الفرعية)
 document.addEventListener('DOMContentLoaded', () => {
     // نفذ الدالة مرة واحدة عند التحميل الأولي
     blockInPagePopups(); 
@@ -3952,11 +3949,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-
-
-// يمكنك أيضًا تشغيل الدالة بشكل دوري كل 5 ثوانٍ كطبقة حماية إضافية
-// setInterval(blockInPagePopups, 5000);
-// دالة جديدة لتحديث ودجت التاريخ الكامل في شاشة الحاسوب/التلفاز
 function updateFullDateWidget() {
     const dateWidgetContainer = document.getElementById('full-date-widget-container');
     if (!dateWidgetContainer) return;
@@ -6292,100 +6284,73 @@ function playAsShufflePlaylist() {
     showMessageBox("تم تفعيل قائمة التشغيل العشوائية");
 }
 
-/**
- * تعرض نافذة المقترحات الذكية في نهاية الفيديو أو عند الطلب.
- * تضمن: وجود زر "تشغيل الكل"، شبكة فيديوهات تبرز للخارج، وتوافق مع الريموت.
- */
 async function showDashboardSuggestionsInPopup() {
     const container = videoPopupPlayerContainer;
     
-    // 1. إظهار شاشة التحميل وتجهيز النافذة المنبثقة
+    // 1. شاشة التحميل الأولية
     container.innerHTML = `
-        <div class="p-8 text-center text-white flex flex-col items-center justify-center min-h-[200px]">
-            <div class="animate-spin inline-block w-10 h-10 border-4 border-t-transparent border-purple-500 rounded-full mb-4"></div>
-            <p class="text-lg font-medium">جاري جلب مقترحات ذكية...</p>
+        <div class="p-8 text-center text-white flex flex-col items-center justify-center">
+            <div class="animate-spin inline-block w-8 h-8 border-4 border-t-transparent border-white rounded-full mb-2"></div>
+            <p>جاري جلب مقترحات ذكية...</p>
         </div>`;
     
     videoPopupContainer.style.display = 'flex';
     videoPopupContainer.classList.add('active');
 
     try {
-        // 2. جلب الفيديوهات (المحرك المحدث: 5 لكل قناة -> 14 فيديو مصفى)
         const suggestedVideos = await fetchSuggestedVideos();
 
         if (!suggestedVideos || suggestedVideos.length === 0) {
-            container.innerHTML = `
-                <div class="p-8 text-center text-white/70">
-                    <i data-lucide="alert-circle" class="w-12 h-12 mx-auto mb-2 opacity-50"></i>
-                    <p>لم نتمكن من العثور على مقترحات حالياً.</p>
-                </div>`;
-            lucide.createIcons();
+            container.innerHTML = `<p class="p-8 text-center text-white/70">لا توجد مقترحات حالياً.</p>`;
             return;
         }
 
-        // 3. بناء الهيكل البصري (الزر + الشبكة)
-        // السـر: تغليف الشبكة في div للسماح لـ CSS بالبروز (Overflow)
-        let contentHTML = `
-            <div class="suggestions-popup-wrapper flex flex-col gap-6 w-full" style="overflow: visible;">
+        // 2. بناء الهيكل الكامل (الزر + الشبكة) في متغير واحد
+        // استخدمنا Wrapper لضمان أن التمرير الأفقي لا يؤثر على مكان الزر
+        let fullHTML = `
+            <div class="suggestions-main-wrapper flex flex-col items-center gap-6 w-full" style="overflow: visible;">
                 
-                <div class="flex justify-center w-full px-4">
-                    <button class="playlist-shuffle-btn navigable grid-item flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-full font-bold shadow-xl transition-all active:scale-95" 
-                            onclick="playAsShufflePlaylist()">
-                        <i data-lucide="shuffle" class="w-5 h-5"></i>
-                        <span>تشغيل الكل عشوائياً (Shuffle)</span>
-                    </button>
-                </div>
+                <button class="playlist-shuffle-btn navigable grid-item" 
+                        onclick="playAsShufflePlaylist()" 
+                        style="z-index: 10; margin-bottom: 10px;">
+                    <i data-lucide="shuffle"></i> تشغيل الكل (Playlist)
+                </button>
 
-                <div id="favorites-popup-grid" class="flex flex-row flex-nowrap gap-4 px-4 pb-6">
+                <div id="favorites-popup-grid">
         `;
 
-        // 4. توليد الكروت (المربعات الخضراء الكبيرة 340x200)
+        // 3. إضافة الكروت داخل الشبكة
         suggestedVideos.forEach(video => {
-            const card = createSimpleSuggestionCard(video, 'SUGGEST'); 
-            // نضمن أن الكرت يحمل خاصية عدم الانكماش للبروز
-            card.classList.add('flex-shrink-0'); 
-            contentHTML += card.outerHTML; 
+            const card = createSimpleSuggestionCard(video, 'SUGGEST');
+            fullHTML += card.outerHTML;
         });
 
-        contentHTML += `
+        fullHTML += `
                 </div>
             </div>
         `;
 
-        // 5. حقن المحتوى النهائي في الواجهة
-        container.innerHTML = contentHTML;
+        // 4. حقن الكتلة الكاملة مرة واحدة فقط
+        container.innerHTML = fullHTML;
 
-        // 6. تفعيل الأيقونات وتحديث عناصر التنقل للريموت/لوحة المفاتيح
+        // 5. تفعيل الأيقونات وعناصر التنقل
         lucide.createIcons();
-        if (typeof updateNavigableElements === 'function') {
-            updateNavigableElements();
-        }
+        if (typeof updateNavigableElements === 'function') updateNavigableElements();
 
-        // 7. ربط أحداث النقر اليدوي (اختيار فيديو محدد يوقف وضع الـ Playlist التلقائي)
+        // 6. ربط أحداث النقر للكروت
         container.querySelectorAll('.simple-suggestion-card').forEach(card => {
             card.addEventListener('click', (e) => {
                 const videoId = e.currentTarget.dataset.videoId;
                 if (videoId) {
-                    window.isAutoPlayMode = false; // تعطيل التشغيل التلقائي عند الاختيار اليدوي
+                    window.isAutoPlayMode = false;
                     showVideoPopup(videoId, 0); 
                 }
             });
         });
 
-        // 8. نقل التركيز تلقائياً إلى زر "تشغيل الكل" لتسهيل تجربة المستخدم
-        setTimeout(() => {
-            const shuffleBtn = container.querySelector('.playlist-shuffle-btn');
-            if (shuffleBtn) setFocus(shuffleBtn);
-        }, 200);
-
     } catch (e) {
-        console.error("Critical error in showDashboardSuggestionsInPopup:", e);
-        container.innerHTML = `
-            <div class="p-8 text-center text-red-400">
-                <i data-lucide="x-circle" class="w-10 h-10 mx-auto mb-2"></i>
-                <p>حدث خطأ أثناء تحميل المقترحات. حاول مرة أخرى.</p>
-            </div>`;
-        lucide.createIcons();
+        console.error("Error:", e);
+        container.innerHTML = `<p class="p-8 text-center text-red-500">حدث خطأ في تحميل البيانات.</p>`;
     }
 }
 
