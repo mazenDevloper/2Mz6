@@ -49,8 +49,8 @@
 /* تنسيق الزر ليكون في أسفل يسار الحاوية */
 .playlist-shuffle-btn {
     position: absolute !important;
-    bottom: 10px !important;
-    left: 10px !important;
+    bottom: 125px !important;
+    left: 150px !important;
     z-index: 50 !important; /* لضمان ظهوره فوق الكروت */
     
     display: flex !important;
@@ -2444,6 +2444,7 @@ div#map{display:none}
                     <!-- UPDATED: Dashboard layout changed -->
                     <div class="dashboard-main-grid grid grid-cols-1 md:grid-cols-3 grid-rows-[80%_20%] gap-4 md:gap-6 h-full w-full grid-container">
                         <!-- Map Widget (Now first) -->
+                        <button class="playlist-shuffle-btn navigable grid-item" style="position: absolute; bottom: 15px; left: 15px; z-index: 100; display: flex; align-items: center; gap: 8px;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shuffle" class="lucide lucide-shuffle"><path d="m18 14 4 4-4 4"></path><path d="m18 2 4 4-4 4"></path><path d="M2 18h1.973a4 4 0 0 0 3.3-1.7l5.454-8.6a4 4 0 0 1 3.3-1.7H22"></path><path d="M2 6h1.972a4 4 0 0 1 3.6 2.2"></path><path d="M22 18h-6.041a4 4 0 0 1-3.3-1.8l-.359-.45"></path></svg> تشغيل الكل</button>
                         <div id="map" class="rounded-3xl relative overflow-hidden flex items-center justify-center glass-surface glass-surface--svg p-1 col-span-1 row-start-1 navigable grid-item" tabindex="0">
                             <div id="dashboard-google-map" class="full-iframe"></div>
                              <!-- NEW: Geolocation Error Overlay -->
@@ -2997,6 +2998,36 @@ div#map{display:none}
     </div>
 
     <script>
+
+// بدلاً من كتابة HTML string، استخدم هذا الأسلوب داخل دالة render:
+const parent = document.querySelector('.dashboard-main-grid'); // أو العنصر المحدد
+
+// 1. إنشاء الزر
+const btn = document.createElement('button');
+btn.className = 'playlist-shuffle-btn navigable grid-item';
+btn.innerHTML = `<svg ...>...</svg> تشغيل الكل`; // ضع الـ SVG هنا
+
+// 2. تنسيق الموقع (أو استخدم CSS class)
+Object.assign(btn.style, {
+    position: 'absolute',
+    bottom: '15px',
+    left: '15px',
+    zIndex: '9999',
+        width: '9rem',
+    height: '3rem'
+// مهم جداً
+});
+
+// 3. ربط الحدث مباشرة
+btn.onclick = (e) => {
+    console.log("Button Clicked!"); // للتجربة في الكونسول
+    e.stopPropagation(); // منع انتقال النقر للعناصر الخلفية
+    e.preventDefault();
+    playAsShufflePlaylist();
+};
+
+// 4. الإضافة
+parent.appendChild(btn);
 
         async function loadDashboardSuggestions() {
     const gridContainer = document.getElementById('favorites-popup-grid');
@@ -3893,7 +3924,7 @@ function toggleFullscreen(sectionId) {
 
 document.addEventListener('DOMContentLoaded', () => {
     // نفذ الدالة مرة واحدة عند التحميل الأولي
-    blockInPagePopups(); 
+   
 
     // ابدأ المراقبة المستمرة للتغييرات اللاحقة
     observer.observe(document.body, { 
@@ -4076,7 +4107,7 @@ async function displayLastWatchedVideo() {
 
         // --- API Keys ---
         const YOUTUBE_API_KEY = 'AIzaSyBYThRM6tVnzgFgdHOUAN6DN8jQd54OKeg';
-        const YOUTUBE_API_KEY2 = 'AIzaSyAjdVZ2Rodp6ZVEF1pZT195kAtGELolxSI';
+        const YOUTUBE_API_KEY2 = 'AIzaSyB7QdfI0br5BfP71hOr36hz2dRWG_l0G8k';
         const AI_ASSISTANT_API_KEY = 'AIzaSyBMmtON9ww4dJxMHrl1wKyWTvI0ipJXJws'; 
         const WEATHER_API_KEY = '7acefc26deee4904a2393917252207'; 
         const GOOGLE_MAPS_API_KEY = 'AIzaSyBRqAHJ2elbE_Z7NXXYC50XZpqi6HbG6Rk';
@@ -6211,7 +6242,6 @@ function playAsShufflePlaylist() {
             btn.innerHTML = `<i data-lucide="shuffle"></i> تشغيل الكل (Playlist)`;
             btn.style.background = "linear-gradient(135deg, #9333ea 0%, #2563eb 100%)";
         }
-        showMessageBox("تم إيقاف التشغيل التلقائي");
     } else {
         // حالة التشغيل
         if (!window.allFetchedVideos30 || window.allFetchedVideos30.length === 0) return;
@@ -6226,7 +6256,6 @@ function playAsShufflePlaylist() {
 
         const firstVideo = window.currentSuggestedVideos[0];
         showVideoPopup(firstVideo.id, 0);
-        showMessageBox("تم تشغيل 30 فيديو عشوائياً");
     }
     if (window.lucide) lucide.createIcons();
 }
@@ -7731,7 +7760,7 @@ async function centerMapOnUserLocation() {
                 // 2. الانتظار لتحديث مؤشرات الازدحام باستخدام الموقع الجديد
                 await updateTrafficIndicators(); 
                 
-                showMessageBox(`تم تحديث الخريطة ومؤشرات الازدحام بنجاح.`); 
+               
             }, 
             // 🛑 الفشل: خطأ في الوصول
             async (err) => { // 👈 يجب أن تكون الدالة async للتعامل مع await
@@ -7817,7 +7846,7 @@ function parseDurationToSeconds(isoDuration) {
                 }
             } catch (err) {
                 console.error('Error calculating directions:', err);
-                showMessageBox('حدث خطأ أثناء حساب الاتجاهات.');
+                
             }
         }
 
