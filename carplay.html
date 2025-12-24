@@ -3013,11 +3013,11 @@ Object.assign(btn.style, {
     bottom: '15px',
     left: '15px',
     zIndex: '9999',
-        width: '13rem',
+        width: '9rem',
     height: '3rem',
     
-    color:'transparent',
-    background: 'transparent'
+    color:'transparent !important',
+    background: 'transparent !important'
 // مهم جداً
 });
 
@@ -3076,18 +3076,23 @@ parent.appendChild(btn);
         console.error("Failed to load dashboard suggestions:", error);
     }
 }
-        // --- الثوابت والإعدادات العامة ---
+    // تعريف المتغيرات أولاً (كما هو عندك)
+const YOUTUBE_API_KEY = 'AIzaSyBeTHs25EsKeDFtIS5kq8iDATz-2c8hBrI';
+const YOUTUBE_API_KEY2 = 'AIzaSyBYThRM6tVnzgFgdHOUAN6DN8jQd54OKeg';
+
+// استخدام المتغيرات داخل المصفوفة بدلاً من تكرار النص
 const YT_KEYS_POOL = [
-    "AIzaSyB3Rk_x-Xponn6i-PXuTgPr2wisD28GvuM", // الأساسي 1
-    "AIzaSyD-XZi8ESBCdZ8hZ4YA9vYFkN2fyfk6wns", // الأساسي 2
-    "AIzaSyB7QdfI0br5BfP71hOr36hz2dRWG_l0G8k", // احتياطي
-    "AIzaSyBdhcRo-EsvIduedQd-jFHfrEj9NeiP7pU", // احتياطي
-    "AIzaSyBLrMA6plsSZtqg2iY9Z1N1fJAHNmgGxos", // احتياطي
-    "AIzaSyCaqMPtn-egmEQk7XmTel--xsXV1Xbdp7o", // احتياطي
-    "AIzaSyDj4w1H3Is_rmTLhl40zER7AgYhT_tKASo", // احتياطي
-    "AIzaSyBYThRM6tVnzgFgdHOUAN6DN8jQd54OKeg", // NOW
-    "AIzaSyBeTHs25EsKeDFtIS5kq8iDATz-2c8hBrI", // احتياطي
-    "AIzaSyAjdVZ2Rodp6ZVEF1pZT195kAtGELolxSI"  // NOW
+    YOUTUBE_API_KEY,  // 👈 الآن هذا يشير للمتغير الأول تلقائياً
+    YOUTUBE_API_KEY2, // 👈 وهذا يشير للمتغير الثاني
+    "AIzaSyB7QdfI0br5BfP71hOr36hz2dRWG_l0G8k",
+    "AIzaSyBdhcRo-EsvIduedQd-jFHfrEj9NeiP7pU",
+    // ... باقي المفاتيح الاحتياطية كما هي
+    "AIzaSyBLrMA6plsSZtqg2iY9Z1N1fJAHNmgGxos",
+    "AIzaSyCaqMPtn-egmEQk7XmTel--xsXV1Xbdp7o",
+    "AIzaSyDj4w1H3Is_rmTLhl40zER7AgYhT_tKASo", 
+    "AIzaSyBYThRM6tVnzgFgdHOUAN6DN8jQd54OKeg",
+    "AIzaSyBeTHs25EsKeDFtIS5kq8iDATz-2c8hBrI",
+    "AIzaSyAjdVZ2Rodp6ZVEF1pZT195kAtGELolxSI"
 ];
 
 let currentKeyIndex = 0;
@@ -3099,32 +3104,60 @@ const NEW_JSONBIN_CHANNEL_IDS = '693fb33cae596e708f9ade6a';
 // --- الدوال المساعدة ---
 
 // دالة الجلب الذكية التي تبدل المفاتيح تلقائياً عند نفاذ الكوتا
-async function fetchSafely(baseUrl) {
-    const getUrlWithKey = (url, key) => {
-        const separator = url.includes('?') ? '&' : '?';
-        if (url.includes('key=')) return url.replace(/key=[^&]+/, `key=${key}`);
-        return `${url}${separator}key=${key}`;
-    };
+async function fetchSafely(url, options = {}) {
+    // 1. جلب المفتاح الحالي بناءً على المؤشر (سواء كان 0، 1، 2 ... 9)
+    const activeApiKey = YT_KEYS_POOL[currentKeyIndex];
+
+    // 2. تحديث الرابط لاستخدام المفتاح الجديد
+    // هذه الخطوة حاسمة: نقوم بمسح أي مفتاح قديم في الرابط ووضع المفتاح الجديد مكانه
+    let urlWithUpdatedKey = url;
+    
+    if (urlWithUpdatedKey.includes('key=')) {
+        // استبدال المفتاح الموجود (مهما كان) بالمفتاح النشط الجديد
+        urlWithUpdatedKey = urlWithUpdatedKey.replace(/key=[^&]+/, `key=${activeApiKey}`);
+    } else {
+        // إذا لم يكن هناك مفتاح، نضيفه
+        const separator = urlWithUpdatedKey.includes('?') ? '&' : '?';
+        urlWithUpdatedKey = `${urlWithUpdatedKey}${separator}key=${activeApiKey}`;
+    }
 
     try {
-        let response = await fetch(getUrlWithKey(baseUrl, YT_KEYS_POOL[currentKeyIndex]));
-        let data = await response.json();
+        const response = await fetch(urlWithUpdatedKey, options);
 
-        // إذا انتهت الكوتا (Error 403 / quotaExceeded)
-        if (data.error && (data.error.errors?.[0]?.reason === 'quotaExceeded' || data.error.code === 403)) {
+        // 3. التحقق من الخطأ (403 = كوتا انتهت)
+        if (response.status === 403) {
+            console.warn(`⚠️ المفتاح رقم ${currentKeyIndex} (Index) انتهى. جاري التبديل...`);
+
+            // 4. شرط الانتقال: هل لا يزال هناك مفاتيح في المصفوفة؟
             if (currentKeyIndex < YT_KEYS_POOL.length - 1) {
-                console.warn(`[Quota] Key ${currentKeyIndex + 1} exhausted. Switching to Key ${currentKeyIndex + 2}...`);
-                currentKeyIndex++;
-                return fetchSafely(baseUrl); // إعادة المحاولة بالمفتاح الجديد
+                
+                currentKeyIndex++; // زيادة الرقم: 1 -> 2 -> 3
+                
+                console.warn(`🔄 المحاولة باستخدام المفتاح الجديد (Index: ${currentKeyIndex})`);
+                
+                // تحديث واجهة الأزرار إذا كانت موجودة
+                if (typeof updateBtnStyles === 'function') updateBtnStyles();
+                if (typeof updateAllButtons === 'function') updateAllButtons();
+
+                // 5. إعادة استدعاء الدالة (Recursive) مع الرابط الأصلي
+                // الدالة ستقوم في الدورة القادمة بأخذ المفتاح الجديد ودمجه في الرابط
+                return fetchSafely(url, options);
             } else {
-                console.error("[Critical] All 10 YouTube API keys are exhausted!");
-                return data; 
+                console.error("❌ نفذت جميع المفاتيح في YT_KEYS_POOL!");
+                if (typeof showMessageBox === 'function') showMessageBox("عذراً، انتهت الخدمة اليوم.");
+                return null;
             }
         }
-        return data;
-    } catch (err) {
-        console.error("Network Error:", err);
-        return { items: [] };
+
+        if (!response.ok) {
+            throw new Error(`HTTP Error: ${response.status}`);
+        }
+
+        return await response.json();
+
+    } catch (error) {
+        console.error("Fetch Error:", error);
+        return null;
     }
 }
 
@@ -4109,8 +4142,7 @@ async function displayLastWatchedVideo() {
         lucide.createIcons();
 
         // --- API Keys ---
-        const YOUTUBE_API_KEY = 'AIzaSyBeTHs25EsKeDFtIS5kq8iDATz-2c8hBrI';
-        const YOUTUBE_API_KEY2 = 'AIzaSyBYThRM6tVnzgFgdHOUAN6DN8jQd54OKeg';
+        
         const AI_ASSISTANT_API_KEY = 'AIzaSyBMmtON9ww4dJxMHrl1wKyWTvI0ipJXJws'; 
         const WEATHER_API_KEY = '7acefc26deee4904a2393917252207'; 
         const GOOGLE_MAPS_API_KEY = 'AIzaSyBRqAHJ2elbE_Z7NXXYC50XZpqi6HbG6Rk';
@@ -7232,46 +7264,211 @@ button.addEventListener('click', () => {
              document.body.removeEventListener('click', closeFavoritesMenu);
         }
 
-        function showFavoritesMenu(button, video) {
-            closeFavoritesMenu(); // Close any existing menu first
+        /**
+ * تعرض قائمة خيارات الحفظ (المفضلة) بجانب الزر المضغوط.
+ * @param {HTMLElement} btnElement - الزر الذي تم ضغطه (this)
+ * @param {Event} event - حدث النقر
+ */
+function showFavoritesMenu(btnElement, event) {
+    // 1. منع انتشار الحدث والسلوك الافتراضي
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
 
-            const menu = document.createElement('div');
-            menu.className = 'favorites-menu';
-            const rect = button.getBoundingClientRect();
+    // 2. التحقق من وجود فيديو حالي
+    const currentVideoId = (typeof currentPlayingVideoId !== 'undefined') ? currentPlayingVideoId : null;
+    if (!currentVideoId) {
+        console.error("No video ID found to add to favorites.");
+        return;
+    }
 
-            menu.style.top = `${rect.bottom + 5}px`;
-            menu.style.left = `${rect.left}px`;
-            
-            menu.innerHTML = `
-                <button data-type="D" class="navigable grid-item" tabindex="0">
-                     <i data-lucide="folder-plus" class="w-4 h-4 text-blue-400"></i> CAR LIST
-                </button>
-                <button data-type="M" class="navigable grid-item" tabindex="0">
-                    <i data-lucide="folder-plus" class="w-4 h-4 text-pink-400"></i> TV LIST
-                </button>
-            `;
+    // 3. تحديد العنصر المرجعي (الزر) لتحديد الموقع
+    // نحاول استخدام العنصر الممرر، وإذا لم يوجد نستخدم هدف الحدث
+    let target = btnElement;
+    if (!target && event) {
+        target = event.currentTarget || event.target;
+    }
 
-            document.body.appendChild(menu);
-            menu.classList.add('show');
+    // إذا فشلنا في تحديد مكان الزر، لا يمكننا فتح القائمة بجانبه
+    if (!target) {
+        console.error("Critical: Cannot determine menu position (Target is null).");
+        // حل احتياطي: إضافة مباشرة للمفضلة دون قائمة
+        addToFavorites(currentVideoId); 
+        return;
+    }
 
-            menu.addEventListener('click', e => e.stopPropagation());
+    // 4. إغلاق أي قائمة مفتوحة سابقاً
+    const existingMenu = document.getElementById('fav-popup-menu');
+    if (existingMenu) existingMenu.remove();
 
-            menu.querySelectorAll('button').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
-                    e.stopPropagation();
-                    const type = btn.dataset.type;
-                    await saveVideoToFavorites(video, type);
-                    closeFavoritesMenu();
-                });
-            });
+    // 5. حساب الإحداثيات (هذا هو الجزء الذي كان يسبب الخطأ سابقاً)
+    const rect = target.getBoundingClientRect();
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
 
-            lucide.createIcons();
-            setFocus(menu.querySelector('button'));
+    // 6. إنشاء القائمة
+    const menu = document.createElement('div');
+    menu.id = 'fav-popup-menu';
+    
+    // تنسيق القائمة (يمكنك نقله لـ CSS)
+    Object.assign(menu.style, {
+        position: 'absolute',
+        top: `${rect.bottom + scrollTop + 10}px`, // أسفل الزر بـ 10 بكسل
+        left: `${rect.left + scrollLeft + 50}px`,      // محاذاة لليسار
+        zIndex: '2147483647',                     // أعلى طبقة
+        backgroundColor: '#1f2937',               // لون خلفية داكن
+        color: 'white',
+        padding: '8px 0',
+        borderRadius: '12px',
+        boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
+        minWidth: '200px',
+        border: '1px solid rgba(255,255,255,0.1)',
+        display: 'flex',
+        flexDirection: 'column',
+        fontFamily: 'sans-serif'
+    });
 
-            setTimeout(() => {
-                document.body.addEventListener('click', closeFavoritesMenu, { once: true });
-            }, 0);
+    // 7. محتوى القائمة (الخيارات)
+    menu.innerHTML = `
+        <div class="menu-item" onclick="handleMenuAction('ADD', '${currentVideoId}')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path></svg>
+            <span>إضافة للمفضلة</span>
+        </div>
+        <div class="menu-item" onclick="handleMenuAction('SHARE', '${currentVideoId}')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+            <span>مشاركة الرابط</span>
+        </div>
+        <div style="height: 1px; background: rgba(255,255,255,0.1); margin: 5px 0;"></div>
+        <div class="menu-item text-red" onclick="handleMenuAction('CLOSE', null)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            <span>إغلاق</span>
+        </div>
+    `;
+
+    // 8. إضافة تنسيقات العناصر الداخلية (Hover effect)
+    const styleTag = document.createElement('style');
+    styleTag.textContent = `
+        #fav-popup-menu .menu-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.2s;
+            font-size: 14px;
         }
+        #fav-popup-menu .menu-item:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        #fav-popup-menu .text-red { color: #ff6b6b; }
+    `;
+    menu.appendChild(styleTag);
+
+    // 9. إضافة القائمة للصفحة (Body) لضمان ظهورها فوق كل شيء
+    document.body.appendChild(menu);
+
+    // 10. معالجة إغلاق القائمة عند النقر خارجها
+    setTimeout(() => {
+        const closeMenuHandler = (e) => {
+            if (!menu.contains(e.target) && e.target !== target) {
+                menu.remove();
+                document.removeEventListener('click', closeMenuHandler);
+            }
+        };
+        document.addEventListener('click', closeMenuHandler);
+    }, 100);
+}
+
+function addSimpleQuotaControls() {
+    if (document.getElementById('simple-quota-controls')) return;
+
+    // 1. الحاوية (أسفل اليسار)
+    const container = document.createElement('div');
+    container.id = 'simple-quota-controls';
+    Object.assign(container.style, {
+        position: 'fixed', bottom: '100px', left: '20px', zIndex: '999999',
+        display: 'flex', gap: '10px', padding: '10px',
+        background: 'rgba(0,0,0,0.7)', borderRadius: '12px',
+        border: '1px solid rgba(255,255,255,0.1)'
+    });
+
+    // 2. دالة تحديث الألوان (أخضر=كوتا / أحمر=لا يوجد)
+    const updateColors = () => {
+        const btn1 = document.getElementById('sq-btn-1');
+        const btn2 = document.getElementById('sq-btn-2');
+        if (!btn1 || !btn2 || typeof currentKeyIndex === 'undefined') return;
+
+        // --- منطق الألوان الصارم ---
+        
+        // KEY 1 (Index 0):
+        // إذا كان المؤشر الحالي أكبر من 0، فهذا يعني أن المفتاح 0 مات وانتقلنا لما بعده -> أحمر
+        // عدا ذلك -> أخضر
+        const key1Dead = currentKeyIndex > 0;
+        btn1.style.background = key1Dead ? '#ef4444' : '#10b981'; 
+        // إضافة إطار أبيض إذا كان هو المستخدم حالياً
+        btn1.style.border = (currentKeyIndex === 0) ? '2px solid white' : '2px solid transparent';
+
+        // KEY 2 (Index 1):
+        // إذا كان المؤشر الحالي أكبر من 1، فهذا يعني أن المفتاح 1 مات أيضاً -> أحمر
+        // عدا ذلك -> أخضر
+        const key2Dead = currentKeyIndex > 1;
+        btn2.style.background = key2Dead ? '#ef4444' : '#10b981';
+        // إضافة إطار أبيض إذا كان هو المستخدم حالياً
+        btn2.style.border = (currentKeyIndex === 1) ? '2px solid white' : '2px solid transparent';
+    };
+
+    // 3. دالة إنشاء الزر
+    const createBtn = (id, label, index) => {
+        const btn = document.createElement('button');
+        btn.id = id;
+        btn.innerText = label;
+        btn.className = 'navigable';
+        Object.assign(btn.style, {
+            padding: '8px 15px', color: 'white', fontWeight: 'bold',
+            borderRadius: '6px', cursor: 'pointer', fontSize: '12px',
+            transition: '0.3s', minWidth: '70px', outline: 'none'
+        });
+
+        // عند الضغط: إعادة إحياء المفتاح (فرضه يدوياً)
+        btn.onclick = () => {
+            currentKeyIndex = index;
+            updateColors();
+            console.log(`Force set to Key Index: ${index}`);
+            if (typeof showMessageBox === 'function') showMessageBox(`تم التبديل إلى ${label}`);
+        };
+        return btn;
+    };
+
+    container.appendChild(createBtn('sq-btn-1', 'KEY 1', 0));
+    container.appendChild(createBtn('sq-btn-2', 'KEY 2', 1));
+    document.body.appendChild(container);
+
+    // تحديث مستمر (لكشف التغيير التلقائي عند نفاذ الكوتا)
+    updateColors();
+    setInterval(updateColors, 1000);
+}
+
+document.addEventListener('DOMContentLoaded', addSimpleQuotaControls);
+
+function handleMenuAction(action, videoId) {
+    const menu = document.getElementById('fav-popup-menu');
+    if (menu) menu.remove();
+
+    if (action === 'ADD' && videoId) {
+        if (typeof addToFavorites === 'function') {
+            addToFavorites(videoId);
+        } else {
+            console.warn("addToFavorites function is missing!");
+        }
+    } else if (action === 'SHARE' && videoId) {
+        const url = `https://youtu.be/${videoId}`;
+        navigator.clipboard.writeText(url).then(() => {
+            // يمكن استبدال هذا بـ showMessageBox
+            alert("تم نسخ رابط الفيديو!");
+        });
+    }
+}
 
         async function fetchFavorites(type) {
             const binId = type === 'D' ? JSONBIN_BIN_ID_FAV_D : JSONBIN_BIN_ID_FAV_M;
