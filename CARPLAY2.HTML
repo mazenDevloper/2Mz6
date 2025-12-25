@@ -6120,108 +6120,159 @@ async function searchVideosByChannel(channelId, channelTitle) {
         searchResultsContainer.innerHTML = `<h2 class="text-3xl font-bold mb-4 text-center w-full text-white col-span-full text-red-400">حدث خطأ أثناء تحميل فيديوهات القناة. قد تكون هناك مشكلة في الاتصال أو مفتاح API.</h2>`;
     }
 }   
-        /**
- * Asynchronously loads and displays the YouTube video player in a floating popup window.
- * It determines the start time from local history unless overridden.
- *
- * @param {string} videoId - The YouTube video ID.
- * @param {number|null} startOverride - Optional time (in seconds) to override history playback position.
- */
-async function showVideoPopup(videoId, startOverride = null) {
-    // 1. تحديد نقطة بداية التشغيل (استئناف من السجل أو البدء من الصفر)
-    const start = startOverride !== null ? startOverride : (() => {
-        const history = getWatchedHistory();
-        const watchedInfo = history[videoId];
-        // استئناف التشغيل إذا تم مشاهدة أكثر من 5 ثوانٍ
-        return (watchedInfo && watchedInfo.progress > 5) ? watchedInfo.progress : 0;
-    })();
-    
-    // 2. إدارة حالة واجهة المستخدم والرسوم المتحركة
-    document.body.classList.add('animation-paused');
-    const playIcon = pauseAnimationButton.querySelector('[data-lucide="play"]');
-    const pauseIcon = pauseAnimationButton.querySelector('[data-lucide="pause"]');
-    if (playIcon && pauseIcon) {
-        playIcon.classList.remove('hidden'); 
-        pauseIcon.classList.add('hidden');
-    }
+// ============================================================
+// 🎬 THE ULTIMATE VIDEO POPUP SYSTEM
+// ============================================================
 
-    if (!isYouTubeApiReady) {
-        console.warn("YouTube API not ready, delaying popup.");
-        return setTimeout(() => showVideoPopup(videoId, start), 100);
-    }
-    
-    currentPlayingVideoId = videoId;
-    videoPopupContainer.style.display = 'flex'; 
-    videoPopupContainer.classList.add('active');
-    
-    // إخفاء الكبسولة المصغرة إذا كانت نشطة
-    floatingMinimizedVideoButton.style.display = 'none';
-    appState.isVideoPlayerMinimized = false;
+// 1. إعداد الـ API العالمي
+window.isYouTubeApiReady = false;
+window.onYouTubeIframeAPIReady = function() {
+    window.isYouTubeApiReady = true;
+    console.log("✅ YouTube API Loaded & Ready.");
+};
 
-    // 3. ربط أزرار التحكم الديناميكية (مثل Bookmark و Minimize)
-    const controlsContainer = videoPopupCloseButton.parentElement;
-    
-    // إنشاء زر الحفظ (Bookmark) إذا لم يكن موجوداً
-    let bookmarkBtn = document.getElementById('video-popup-bookmark-button');
-    if (controlsContainer && !bookmarkBtn) {
-        bookmarkBtn = document.createElement('button');
-        bookmarkBtn.id = 'video-popup-bookmark-button';
-        bookmarkBtn.className = 'navigable grid-item p-3 rounded-full glass-surface glass-surface--svg hover:bg-white/20 transition-colors';
-        bookmarkBtn.innerHTML = `<i data-lucide="bookmark" class="w-6 h-6"></i>`;
-        bookmarkBtn.tabIndex = 0;
+// 2. حقن التنسيقات (CSS) تلقائياً لضمان الشكل الجميل
+(function injectPopupStyles() {
+    const style = document.createElement('style');
+    style.textContent = `
+        .yt-popup-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); z-index: 2147483640;
+            display: flex; justify-content: center; align-items: center;
+            backdrop-filter: blur(5px); opacity: 0; transition: opacity 0.3s ease;
+        }
+        .yt-popup-container {
+            position: relative; width: 90%; max-width: 800px;
+            background: #000; border-radius: 12px; overflow: visible; /* Visible للقوائم */
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            transform: scale(0.9); transition: transform 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .yt-popup-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 15px; background: #1a1a1a; border-bottom: 1px solid #333;
+            border-radius: 12px 12px 0 0;
+        }
+        .yt-player-wrapper {
+            position: relative; padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0; overflow: hidden; background: #000;
+        }
+        .yt-player-wrapper iframe {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        }
+        .close-popup-btn {
+            background: none; border: none; color: #fff; font-size: 24px; cursor: pointer;
+            width: 30px; height: 30px; line-height: 30px; text-align: center;
+            border-radius: 50%; transition: background 0.2s;
+        }
+        .close-popup-btn:hover { background: rgba(255,0,0,0.2); color: #ff4444; }
         
-        bookmarkBtn.onclick = async (e) => {
-             e.stopPropagation();
-             const videoDetailsList = await fetchVideosDetails([currentPlayingVideoId]);
-             if (videoDetailsList && videoDetailsList.length > 0) {
-                 showFavoritesMenu(e.currentTarget, videoDetailsList[0]);
-             } else {
-                 showMessageBox("خطأ في جلب تفاصيل الفيديو للحفظ.");
-             }
-        };
-        controlsContainer.insertBefore(bookmarkBtn, videoPopupCloseButton);
+        /* زر المارك بوك */
+        #video-popup-bookmark-button {
+            background: none; border: none; color: #fbbf24; cursor: pointer; font-size: 18px;
+            padding: 5px 10px; border-radius: 4px; transition: 0.2s;
+        }
+        #video-popup-bookmark-button:hover { background: rgba(255,255,255,0.1); }
+    `;
+    document.head.appendChild(style);
+})();
+
+// 3. الدالة الرئيسية لفتح الفيديو
+function showVideoPopup(videoId, retryCount = 0) {
+    // أ. التأكد من تحميل السكربت
+    if (!document.querySelector('script[src*="youtube.com/iframe_api"]')) {
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        document.body.appendChild(tag);
     }
+
+    // ب. التحقق من جاهزية الـ API (مع حماية ضد التكرار اللانهائي)
+    if (!window.isYouTubeApiReady || !window.YT || !window.YT.Player) {
+        if (retryCount > 20) { // 10 ثواني كحد أقصى
+            alert("⚠️ Connection Timeout: YouTube API failed to load.");
+            return;
+        }
+        console.warn(`⏳ Waiting for YouTube API... (${retryCount}/20)`);
+        setTimeout(() => showVideoPopup(videoId, retryCount + 1), 500);
+        return;
+    }
+
+    // ج. تنظيف أي نافذة قديمة (Self-Healing)
+    closeVideoPopup();
+
+    console.log(`🎬 Opening Popup for Video: ${videoId}`);
+
+    // د. بناء هيكل الـ Popup برمجياً
+    const overlay = document.createElement('div');
+    overlay.id = 'yt-popup-overlay';
+    overlay.className = 'yt-popup-overlay';
     
-    // 🛑 ربط زر التصغير (CRITICAL BINDING)
-    const videoPopupMinimizeButton = document.getElementById('video-popup-minimize-button');
-    if (videoPopupMinimizeButton) {
-        videoPopupMinimizeButton.onclick = (e) => {
-            e.stopPropagation();
-            minimizeVideoPopup(); 
-        };
+    overlay.innerHTML = `
+        <div class="yt-popup-container">
+            <div class="yt-popup-header">
+                <button id="video-popup-bookmark-button" title="Save / Bookmark">
+                    <i class="fa fa-bookmark"></i> Bookmark
+                </button>
+                
+                <button class="close-popup-btn" onclick="closeVideoPopup()">×</button>
+            </div>
+            
+            <div class="yt-player-wrapper">
+                <div id="yt-player-target"></div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    // هـ. تأثير الأنيميشن
+    requestAnimationFrame(() => {
+        overlay.style.opacity = '1';
+        overlay.querySelector('.yt-popup-container').style.transform = 'scale(1)';
+    });
+
+    // و. تشغيل المشغل
+    new YT.Player('yt-player-target', {
+        videoId: videoId,
+        playerVars: { 
+            'autoplay': 1, 
+            'rel': 0,        // لا تعرض فيديوهات مقترحة من قنوات أخرى
+            'modestbranding': 1 
+        },
+        events: {
+            'onReady': (e) => e.target.playVideo(),
+            'onError': (e) => console.error("YT Player Error:", e.data)
+        }
+    });
+
+    // ز. إغلاق عند الضغط خارج الصندوق
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) closeVideoPopup();
+    });
+
+    // ح. إغلاق بزر Esc
+    document.addEventListener('keydown', handleEscClose);
+}
+
+// 4. دالة الإغلاق (تنظيف الذاكرة)
+function closeVideoPopup() {
+    const overlay = document.getElementById('yt-popup-overlay');
+    if (overlay) {
+        // أنيميشن الإغلاق
+        overlay.style.opacity = '0';
+        overlay.querySelector('.yt-popup-container').style.transform = 'scale(0.9)';
+        
+        setTimeout(() => {
+            if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        }, 300);
     }
+    // إزالة مستمع الزر Esc
+    document.removeEventListener('keydown', handleEscClose);
+}
 
-
-    // 4. تهيئة وتشغيل مشغل يوتيوب (YT.Player)
-    // 🛑 FIX 1: التحقق من أن المشغل موجود وبه دالة loadVideoById قبل الاستخدام
-    if (popupPlayer && typeof popupPlayer.loadVideoById === 'function') { 
-        // إذا كان المشغل موجوداً وصالحاً، حمّل الفيديو الجديد
-        popupPlayer.loadVideoById({ videoId, startSeconds: start });
-        // 🛑 FIX 2: إعادة ربط مستمع السرعة عند إعادة تحميل الفيديو
-        popupPlayer.addEventListener('onPlaybackRateChange', handlePlaybackRateChange);
-    } else {
-        // 5. إذا لم يكن موجوداً أو صالحاً، قم بإنشاء مشغل جديد
-        videoPopupPlayerContainer.innerHTML = '<div id="video-popup-player"></div>';
-        popupPlayer = new YT.Player('video-popup-player', {
-            height: '100%', width: '100%', videoId,
-            playerVars: { 
-                'autoplay': 1, 
-                'controls': 1, 
-                'start': Math.floor(start),
-                'origin': 'https://dmusera.netlify.app'
-            },
-            events: { 
-                'onReady': (e) => e.target.playVideo(),
-                'onStateChange': onPlayerStateChange, 
-                // 🚀 CRITICAL FIX 3: ربط المستمع الخاص بتغيير السرعة
-                'onPlaybackRateChange': handlePlaybackRateChange 
-            }
-        });
-    }
-
-    // 6. نقل التركيز
-    setTimeout(() => setFocus(videoPopupCloseButton), 100);
-    lucide.createIcons(); 
+// دالة مساعدة لزر Esc
+function handleEscClose(e) {
+    if (e.key === "Escape") closeVideoPopup();
 }
 
 async function hideVideoPopup() {
