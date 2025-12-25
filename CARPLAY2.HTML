@@ -39,16 +39,22 @@
     width: 265px;
     height: 250px;
 }
-button.navigable {
-    WIDTH: 68px;
-    HEIGHT: 35px;
-}
+
 #suggested-d-dashboard-parent {
     position: relative !important;
     width: 100% !important;
     margin-top: 10px !important;
 }
 
+div#manual-key-switcher>button {
+    width: 5rem;
+    height: 3rem;
+}
+
+div#manual-key-switcher {
+    bottom: 4rem!important;
+    transform: scale(0.7) !important;
+}
 /* تنسيق الزر ليكون في أسفل يسار الحاوية */
 .playlist-shuffle-btn {
     position: absolute !important;
@@ -3001,14 +3007,43 @@ div#map{display:none}
     </div>
 
     <script>
-
-
-
-// ============================================================
-// 1. SYSTEM HEADER (يوضع في أول سطر في الملف)
+        // ============================================================
+// 📺 YOUTUBE API SETUP (يجب وضعه في بداية الملف)
 // ============================================================
 
-// تعريف المصفوفة
+// تعريف المتغير العام
+window.isYouTubeApiReady = false;
+
+// 1. الدالة التي يناديها اليوتيوب تلقائياً عند انتهاء التحميل
+window.onYouTubeIframeAPIReady = function() {
+    window.isYouTubeApiReady = true;
+    console.log("✅ YouTube API is Ready.");
+};
+
+// 2. دالة لجلب المكتبة يدوياً إذا تأخرت
+function loadYouTubeApi() {
+    if (window.YT && window.YT.Player) {
+        window.isYouTubeApiReady = true;
+        return;
+    }
+    
+    // فحص هل السكربت موجود مسبقاً في الصفحة؟
+    if (!document.querySelector('script[src*="youtube.com/iframe_api"]')) {
+        console.log("📥 Injecting YouTube API Script...");
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    }
+}
+
+// تشغيل التحميل فوراً عند بدء الموقع
+loadYouTubeApi();
+
+// ============================================================
+// 1. SYSTEM HEADER: تعريف المفاتيح ونظام الفحص المباشر
+// ============================================================
+
 window.YT_KEYS_POOL = [
     "AIzaSyAjdVZ2Rodp6ZVEF1pZT195kAtGELolxSI", // 0
     "AIzaSyBYThRM6tVnzgFgdHOUAN6DN8jQd54OKeg", // 1
@@ -3022,30 +3057,62 @@ window.YT_KEYS_POOL = [
     "AIzaSyAjdVZ2Rodp6ZVEF1pZT195kAtGELolxSI"  // 9
 ];
 
-// --- إصلاح الذاكرة (Memory Fix) ---
-// قراءة القيم كـ نصوص أولاً
-const rawIdx1 = localStorage.getItem('yt_idx_1');
-const rawIdx2 = localStorage.getItem('yt_idx_2');
+window.YOUTUBE_API_KEY = null;
+window.YOUTUBE_API_KEY2 = null;
+window.isSystemReady = false; 
+window.observer = null;
 
-// التحويل لأرقام (إذا كان null نستخدم الافتراضي)
-let sIdx1 = (rawIdx1 !== null) ? parseInt(rawIdx1) : 0;
-let sIdx2 = (rawIdx2 !== null) ? parseInt(rawIdx2) : 1;
+// تشغيل نظام الفحص التلقائي
+(async function initLiveKeyScanner() {
+    console.log("🚀 INITIALIZING: Scanning for valid keys...");
+    
+    // دالة اختبار سريعة
+    const test = async (k) => {
+        try { return (await fetch(`https://www.googleapis.com/youtube/v3/videos?part=id&id=Ks-_Mh1QhMc&key=${k}`)).status === 200; } 
+        catch { return false; }
+    };
 
-// التأكد من أن الأرقام منطقية (داخل حدود المصفوفة)
-if (sIdx1 >= window.YT_KEYS_POOL.length) sIdx1 = 0;
-if (sIdx2 >= window.YT_KEYS_POOL.length) sIdx2 = 1;
+    let found = 0;
+    
+    for (let i = 0; i < window.YT_KEYS_POOL.length; i++) {
+        if (found >= 2) break;
 
-// تعيين المتغيرات
-window.YOUTUBE_API_KEY = window.YT_KEYS_POOL[sIdx1];
-window.YOUTUBE_API_KEY2 = window.YT_KEYS_POOL[sIdx2];
+        const isValid = await test(window.YT_KEYS_POOL[i]);
+        
+        if (isValid) {
+            if (found === 0) {
+                window.YOUTUBE_API_KEY = window.YT_KEYS_POOL[i];
+                localStorage.setItem('yt_idx_1', i);
+                console.log(`✅ Key 1 Assigned: Index ${i}`);
+            } else {
+                window.YOUTUBE_API_KEY2 = window.YT_KEYS_POOL[i];
+                localStorage.setItem('yt_idx_2', i);
+                console.log(`✅ Key 2 Assigned: Index ${i}`);
+            }
+            found++;
+        }
+    }
+    
+    if (found > 0) {
+        window.isSystemReady = true;
+        console.log("🟢 SYSTEM READY: Scan Complete.");
 
-// تعريف المتغيرات المساعدة
-window.currentKeyIndex = sIdx1; 
-var observer = null;
+        // 🔥 التعديل هنا: تشغيل المقترحات فوراً بعد العثور على المفاتيح
+        if (typeof populateYoutubeSuggestions === 'function') {
+            console.log("🔄 Triggering Suggestions Refresh...");
+            populateYoutubeSuggestions(); 
+        }
 
-console.log(`🚀 SYSTEM STARTED: Reading Memory...`);
-console.log(`   👉 Key 1 (Main): Index [${sIdx1}]`);
-console.log(`   👉 Key 2 (Aux):  Index [${sIdx2}]`);
+        // 🔥 وأيضاً تشغيل مفضلة ناسا أو أي شيء يعتمد على المفاتيح
+        if (typeof renderFavoritesDashboard === 'function') {
+            renderFavoritesDashboard();
+        }
+
+    } else {
+        alert("⚠️ Fatal Error: No valid API keys found in the pool!");
+    }
+})();
+
 // بدلاً من كتابة HTML string، استخدم هذا الأسلوب داخل دالة render:
 const parent = document.querySelector('.dashboard-main-grid'); // أو العنصر المحدد
 
@@ -3126,13 +3193,57 @@ parent.appendChild(btn);
 
 
 const CACHE_KEY = 'suggestedVideosCache';
+
+async function initSuggestedDashboard() {
+    console.log("🚀 Checking Cache for Dashboard...");
+
+    // 1. محاولة قراءة الكاش
+    const cachedData = localStorage.getItem(CACHE_KEY);
+
+    if (cachedData) {
+        // ✅ الحالة أ: الكاش موجود!
+        console.log("📦 Cache FOUND! Loading from local storage...");
+        
+        // تحويل النص إلى مصفوفة
+        const videos = JSON.parse(cachedData);
+        
+        // ⚡ تشغيل دالة الرسم فوراً (بدون استهلاك كوتا)
+        renderSuggestedDashboard(videos);
+        
+        return; // توقف هنا، لا تكمل للأسفل (لا تطلب API)
+    }
+
+    // ❌ الحالة ب: الكاش غير موجود (أو تم مسحه)
+    console.log("🌐 No Cache found. Fetching from API...");
+    
+    // جلب البيانات من النت
+    const videos = await fetchVideosFromAPI(); // دالتك الخاصة بالجلب
+    
+    if (videos && videos.length > 0) {
+        // 1. حفظ في الكاش للمرة القادمة
+        localStorage.setItem(CACHE_KEY, JSON.stringify(videos));
+        
+        // 2. تشغيل دالة الرسم
+        renderSuggestedDashboard(videos);
+    }
+}
+
 const TARGET_ID = 'UCz9WVutRGBdn58dScZDh6uQ';
 const UPDATE_HOURS = [7,10, 14,16, 18]; 
 const NEW_JSONBIN_CHANNEL_IDS = '693fb33cae596e708f9ade6a';
 
 // ✅ دالة الجلب الذكية (النسخة النهائية المستقرة)
 async function fetchSafely(url, options = {}, retryCount = 0) {
+
+    // 1. الانتظار حتى يصبح النظام جاهزاً (Scanning Complete)
+    while (!window.isSystemReady && !window.YOUTUBE_API_KEY) {
+        console.log("⏳ Waiting for Key Scanner...");
+        await new Promise(r => setTimeout(r, 500)); // انتظر نصف ثانية
+    }
+
     if (!window.YT_KEYS_POOL) return fetch(url, options);
+
+
 
     // 🛑 حماية: إيقاف الحلقة المفرغة بعد 4 محاولات
     if (retryCount > 4) {
@@ -3444,82 +3555,178 @@ function parseISO8601ToSeconds(duration) {
     return (hours * 3600) + (minutes * 60) + seconds;
 }
 
-function renderSuggestedDashboard() {
+/**
+ * Renders the suggested videos dashboard with Smart Cache support and New UI.
+ * @param {Array} videosInput - (Optional) List of videos to render directly.
+ */
+function renderSuggestedDashboard(videosInput = null) {
     const container = document.getElementById('suggested-d-dashboard-container');
-    if (!container) return;
+    if (!container) {
+        console.error("❌ Error: Container 'suggested-d-dashboard-container' not found in DOM.");
+        return;
+    }
 
-    // 1. تجهيز القائمة (بحد أقصى 20 فيديو)
-    const list = suggestedVideos ? suggestedVideos.slice(0, 20) : []; 
+    // ============================================================
+    // 1. تحديد مصدر البيانات (Logic: Input -> Cache -> Global)
+    // ============================================================
+    let list = videosInput;
     
-    // 2. إنشاء أو التأكد من وجود "المغلف" (Parent Wrapper) للتحكم في مكان الزر
+    // إذا لم يتم تمرير بيانات، نحاول القراءة من الكاش
+    if (!list) {
+        const cached = localStorage.getItem('suggestedVideosCache');
+        if (cached) {
+            try { 
+                list = JSON.parse(cached); 
+                console.log("📦 renderSuggestedDashboard: Loaded from LocalStorage Cache.");
+            } catch (e) { 
+                list = []; 
+            }
+        }
+    }
+    
+    // إذا فشل الكاش، نستخدم المتغير العام (كحل أخير)
+    if ((!list || list.length === 0) && typeof window.suggestedVideos !== 'undefined') {
+        list = window.suggestedVideos;
+        console.log("🌐 renderSuggestedDashboard: Loaded from Global Variable.");
+    }
+
+    // قص القائمة لتكون 20 فيديو كحد أقصى
+    const finalDisplayList = (list && list.length > 0) ? list.slice(0, 20) : [];
+
+    // ============================================================
+    // 2. إعداد الحاوية والمغلف (Wrapper Setup)
+    // ============================================================
     let parentWrapper = document.getElementById('suggested-dashboard-wrapper');
+    
+    // إنشاء المغلف إذا لم يكن موجوداً (لضبط موقع زر التشغيل)
     if (!parentWrapper) {
         parentWrapper = document.createElement('div');
         parentWrapper.id = 'suggested-dashboard-wrapper';
-        // جعل المغلف "relative" لكي نضع الزر بداخله بوضعية "absolute"
         parentWrapper.style.position = 'relative';
         parentWrapper.style.width = '100%';
+        parentWrapper.style.minHeight = '200px'; 
         
-        // نقل الحاوية الأصلية لتكون داخل المغلف الجديد
+        // نقل الحاوية لتصبح داخل المغلف الجديد
         container.parentNode.insertBefore(parentWrapper, container);
         parentWrapper.appendChild(container);
     }
 
     // تنظيف المحتوى القديم
-    container.innerHTML = ''; 
-    const oldBtn = parentWrapper.querySelector('.playlist-shuffle-btn');
+    container.innerHTML = '';
+    
+    // إزالة الزر القديم لمنع التكرار
+    const oldBtn = parentWrapper.querySelector('#custom-shuffle-play-btn');
     if (oldBtn) oldBtn.remove();
 
-    // 3. معالجة حالة عدم وجود بيانات
-    if (list.length === 0) {
-        container.innerHTML = '<p class="text-center text-muted mt-4 w-full">لا توجد مقترحات حاليًا.</p>';
-        container.style.display = 'block'; 
+    // ============================================================
+    // 3. معالجة الحالة الفارغة (No Data)
+    // ============================================================
+    if (finalDisplayList.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.5); width: 100%;">
+                <i data-lucide="inbox" style="width: 48px; height: 48px; margin-bottom: 10px;"></i>
+                <p>لا توجد مقترحات متاحة حالياً.</p>
+                <p style="font-size: 12px;">جاري الاتصال...</p>
+            </div>`;
+        if (window.lucide) lucide.createIcons();
         return;
     }
-    
-    // 4. إضافة زر "تشغيل الكل" في الزاوية السفلى اليسرى (Bottom Left)
+
+    // ============================================================
+    // 4. إضافة زر "تشغيل الكل" (New SVG Design)
+    // ============================================================
     const shuffleBtn = document.createElement('button');
+    shuffleBtn.id = 'custom-shuffle-play-btn';
     shuffleBtn.className = 'playlist-shuffle-btn navigable grid-item';
-    shuffleBtn.innerHTML = `<i data-lucide="shuffle"></i> تشغيل الكل`;
     
-    // وضع الزر بالنسبة للمغلف (أسفل اليسار)
+    shuffleBtn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l14.2-12.6c.8-1 1.9-1.7 3.1-1.7H22"></path>
+            <line x1="22" x2="22" y1="2" y2="2"></line>
+            <path d="M2 6h1.4c1.3 0 2.5.6 3.3 1.7l3.2 2.9"></path>
+            <path d="M22 18h-2.1c-1.3 0-2.5-.6-3.3-1.7L14.9 14.6"></path>
+            <polyline points="18 6 22 2 18 2"></polyline>
+            <polyline points="18 18 22 22 18 22"></polyline>
+        </svg>
+        <span style="font-weight:bold; font-family:sans-serif;">تشغيل الكل</span>
+    `;
+
+    // تنسيق الزر (Glassmorphism)
     Object.assign(shuffleBtn.style, {
         position: 'absolute',
-        bottom: '15px',
-        left: '15px',
+        bottom: '20px',
+        left: '20px',
         zIndex: '100',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px'
+        height: '3.5rem',
+        padding: '0 20px',
+        display: 'flex', alignItems: 'center', gap: '10px',
+        background: 'rgba(255, 255, 255, 0.15)',
+        backdropFilter: 'blur(10px)',
+        border: '1px solid rgba(255, 255, 255, 0.2)',
+        borderRadius: '50px',
+        color: '#fff',
+        cursor: 'pointer',
+        boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
+        transition: 'all 0.3s ease'
     });
 
+    // تأثيرات الماوس
+    shuffleBtn.onmouseenter = () => shuffleBtn.style.background = 'rgba(255, 255, 255, 0.25)';
+    shuffleBtn.onmouseleave = () => shuffleBtn.style.background = 'rgba(255, 255, 255, 0.15)';
+
+    // وظيفة الزر: تشغيل القائمة المعروضة حالياً
     shuffleBtn.onclick = (e) => {
         e.stopPropagation();
-        playAsShufflePlaylist(); // استدعاء دالة التشغيل التي برمجناها سابقاً
+        if (typeof playAsShufflePlaylist === 'function') {
+            playAsShufflePlaylist(finalDisplayList); 
+        } else {
+            console.error("playAsShufflePlaylist function missing!");
+        }
     };
     parentWrapper.appendChild(shuffleBtn);
 
-    // 5. بناء الكروت
+    // ============================================================
+    // 5. بناء الكروت (Grid Construction)
+    // ============================================================
     container.style.display = 'flex';
+    // إضافة كلاس الشبكة إذا كان معرفاً في CSS، أو الاعتماد على الفلكس
+    container.classList.add('grid-layout-updates'); 
+    
     const fragment = document.createDocumentFragment(); 
 
-    list.forEach(video => {
+    finalDisplayList.forEach(video => {
         const card = document.createElement('div');
-        card.className = 'suggested-d-dashboard-card navigable grid-item p-2'; 
+        // استخدام كلاسات موحدة
+        card.className = 'suggested-d-dashboard-card navigable grid-item glass-surface'; 
         card.tabIndex = 0; 
         
+        // محتوى الكارت
         card.innerHTML = `
-            <img src="${video.thumbnail}" alt="${video.title}" loading="lazy">
-            <div class="video-details flex-grow-1"> 
-                <h6 class="mb-0 text-truncate">${video.title}</h6>
-                <p class="mb-1 text-muted small">${video.channelTitle}</p>
+            <div class="video-thumbnail-wrapper" style="position:relative; width:100%; aspect-ratio:16/9; overflow:hidden; border-radius:8px;">
+                <img src="${video.thumbnail}" alt="${video.title}" loading="lazy" style="width:100%; height:100%; object-fit:cover;">
+                ${video.duration ? `<span style="position:absolute; bottom:5px; right:5px; background:rgba(0,0,0,0.8); color:white; font-size:10px; padding:2px 4px; border-radius:4px;">${video.duration}</span>` : ''}
             </div>
-            <div class="flex flex-col flex-grow min-w-0 h-full justify-between ml-2"></div>
+            <div class="video-details p-2"> 
+                <h6 class="mb-1 text-truncate" style="color:#fff; font-size:0.9rem; margin-bottom: 4px;">${video.title}</h6>
+                <p class="mb-0 text-muted small" style="font-size:0.75rem; color: #ccc;">${video.channelTitle}</p>
+            </div>
         `;
         
-        card.addEventListener('click', () => {
-            window.isAutoPlayMode = false; // اختيار يدوي يوقف التشغيل التلقائي
-            showVideoPopup(video.id); 
+        // التفاعل عند النقر: إيقاف الأوتوبلاي وتشغيل الفيديو المحدد
+        const playHandler = () => {
+            window.isAutoPlayMode = false;
+            // تحديث نص الزر ليعود للحالة الطبيعية
+            shuffleBtn.innerHTML = shuffleBtn.innerHTML.replace('إيقاف', 'تشغيل'); 
+            shuffleBtn.style.background = 'rgba(255, 255, 255, 0.15)';
+            
+            showVideoPopup(video.id);
+        };
+
+        card.addEventListener('click', playHandler);
+        
+        // دعم زر Enter من لوحة المفاتيح/الريموت
+        card.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') playHandler();
         });
 
         fragment.appendChild(card);
@@ -3527,8 +3734,10 @@ function renderSuggestedDashboard() {
     
     container.appendChild(fragment);
 
-    // 6. تحديث الأيقونات وعناصر التنقل للريموت
-    if (window.lucide) lucide.createIcons();
+    // ============================================================
+    // 6. تحديث الأيقونات والتنقل (Final Polish)
+    // ============================================================
+    if (typeof lucide !== 'undefined') lucide.createIcons();
     if (typeof updateNavigableElements === 'function') updateNavigableElements();
 }
 
@@ -3915,7 +4124,7 @@ function switchApp(appName) {
     } 
     
     // C. المؤقتات المطلوبة في شاشة Weather
-    if (appName === 'Weather') {
+    if (appName === 'Weather') {t
         startWeatherUpdates();
     }
     
@@ -6120,159 +6329,263 @@ async function searchVideosByChannel(channelId, channelTitle) {
         searchResultsContainer.innerHTML = `<h2 class="text-3xl font-bold mb-4 text-center w-full text-white col-span-full text-red-400">حدث خطأ أثناء تحميل فيديوهات القناة. قد تكون هناك مشكلة في الاتصال أو مفتاح API.</h2>`;
     }
 }   
-// ============================================================
-// 🎬 THE ULTIMATE VIDEO POPUP SYSTEM
-// ============================================================
 
-// 1. إعداد الـ API العالمي
-window.isYouTubeApiReady = false;
-window.onYouTubeIframeAPIReady = function() {
-    window.isYouTubeApiReady = true;
-    console.log("✅ YouTube API Loaded & Ready.");
-};
-
-// 2. حقن التنسيقات (CSS) تلقائياً لضمان الشكل الجميل
-(function injectPopupStyles() {
-    const style = document.createElement('style');
-    style.textContent = `
-        .yt-popup-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85); z-index: 2147483640;
-            display: flex; justify-content: center; align-items: center;
-            backdrop-filter: blur(5px); opacity: 0; transition: opacity 0.3s ease;
-        }
-        .yt-popup-container {
-            position: relative; width: 90%; max-width: 800px;
-            background: #000; border-radius: 12px; overflow: visible; /* Visible للقوائم */
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            transform: scale(0.9); transition: transform 0.3s ease;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        .yt-popup-header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 15px; background: #1a1a1a; border-bottom: 1px solid #333;
-            border-radius: 12px 12px 0 0;
-        }
-        .yt-player-wrapper {
-            position: relative; padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-            height: 0; overflow: hidden; background: #000;
-        }
-        .yt-player-wrapper iframe {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        }
-        .close-popup-btn {
-            background: none; border: none; color: #fff; font-size: 24px; cursor: pointer;
-            width: 30px; height: 30px; line-height: 30px; text-align: center;
-            border-radius: 50%; transition: background 0.2s;
-        }
-        .close-popup-btn:hover { background: rgba(255,0,0,0.2); color: #ff4444; }
-        
-        /* زر المارك بوك */
-        #video-popup-bookmark-button {
-            background: none; border: none; color: #fbbf24; cursor: pointer; font-size: 18px;
-            padding: 5px 10px; border-radius: 4px; transition: 0.2s;
-        }
-        #video-popup-bookmark-button:hover { background: rgba(255,255,255,0.1); }
-    `;
-    document.head.appendChild(style);
-})();
-
-// 3. الدالة الرئيسية لفتح الفيديو
-function showVideoPopup(videoId, retryCount = 0) {
-    // أ. التأكد من تحميل السكربت
-    if (!document.querySelector('script[src*="youtube.com/iframe_api"]')) {
-        const tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        document.body.appendChild(tag);
+/**
+ * Asynchronously loads and displays the YouTube video player in a floating popup window.
+ * Complete Version with API Safety & JSONBINIO Bookmark Integration.
+ */
+async function showVideoPopup(videoId, startOverride = null) {
+    // 1. تحديد نقطة بداية التشغيل (من السجل أو من الصفر)
+    const start = startOverride !== null ? startOverride : (() => {
+        const history = getWatchedHistory();
+        const watchedInfo = history[videoId];
+        // استئناف التشغيل فقط إذا تم مشاهدة أكثر من 5 ثوانٍ
+        return (watchedInfo && watchedInfo.progress > 5) ? watchedInfo.progress : 0;
+    })();
+    
+    // 2. إدارة حالة واجهة المستخدم والرسوم المتحركة الخلفية
+    document.body.classList.add('animation-paused');
+    const playIcon = pauseAnimationButton ? pauseAnimationButton.querySelector('[data-lucide="play"]') : null;
+    const pauseIcon = pauseAnimationButton ? pauseAnimationButton.querySelector('[data-lucide="pause"]') : null;
+    if (playIcon && pauseIcon) {
+        playIcon.classList.remove('hidden'); 
+        pauseIcon.classList.add('hidden');
     }
 
-    // ب. التحقق من جاهزية الـ API (مع حماية ضد التكرار اللانهائي)
+    // 3. التحقق من جاهزية YouTube API (مع حماية ضد التكرار اللانهائي)
+    // نستخدم عداد محاولات (retryCount) كخاصية ثابتة للدالة أو نتحقق ببساطة
     if (!window.isYouTubeApiReady || !window.YT || !window.YT.Player) {
-        if (retryCount > 20) { // 10 ثواني كحد أقصى
-            alert("⚠️ Connection Timeout: YouTube API failed to load.");
+        // إذا لم تكن جاهزة، نحاول مرة واحدة بعد 200 ملي ثانية ثم نتوقف أو نظهر خطأ
+        // لتجنب الحلقة المفرغة، نتحقق هل هذه "إعادة محاولة" أم لا
+        if (!showVideoPopup.retries) showVideoPopup.retries = 0;
+        
+        if (showVideoPopup.retries < 10) {
+            console.warn(`⏳ YouTube API not ready. Retrying (${showVideoPopup.retries}/10)...`);
+            showVideoPopup.retries++;
+            return setTimeout(() => showVideoPopup(videoId, startOverride), 200);
+        } else {
+            console.error("❌ YouTube API failed to load.");
+            alert("فشل تحميل مشغل الفيديو. يرجى التحقق من الاتصال.");
+            showVideoPopup.retries = 0; // تصفير العداد للمرات القادمة
             return;
         }
-        console.warn(`⏳ Waiting for YouTube API... (${retryCount}/20)`);
-        setTimeout(() => showVideoPopup(videoId, retryCount + 1), 500);
-        return;
     }
+    showVideoPopup.retries = 0; // تصفير العداد عند النجاح
 
-    // ج. تنظيف أي نافذة قديمة (Self-Healing)
-    closeVideoPopup();
-
-    console.log(`🎬 Opening Popup for Video: ${videoId}`);
-
-    // د. بناء هيكل الـ Popup برمجياً
-    const overlay = document.createElement('div');
-    overlay.id = 'yt-popup-overlay';
-    overlay.className = 'yt-popup-overlay';
+    // 4. إظهار الحاوية وتجهيز المتغيرات
+    currentPlayingVideoId = videoId;
+    videoPopupContainer.style.display = 'flex'; 
+    videoPopupContainer.classList.add('active');
     
-    overlay.innerHTML = `
-        <div class="yt-popup-container">
-            <div class="yt-popup-header">
-                <button id="video-popup-bookmark-button" title="Save / Bookmark">
-                    <i class="fa fa-bookmark"></i> Bookmark
-                </button>
-                
-                <button class="close-popup-btn" onclick="closeVideoPopup()">×</button>
-            </div>
-            
-            <div class="yt-player-wrapper">
-                <div id="yt-player-target"></div>
-            </div>
-        </div>
-    `;
+    // إخفاء الكبسولة المصغرة إذا كانت نشطة
+    if (floatingMinimizedVideoButton) floatingMinimizedVideoButton.style.display = 'none';
+    appState.isVideoPlayerMinimized = false;
 
-    document.body.appendChild(overlay);
-
-    // هـ. تأثير الأنيميشن
-    requestAnimationFrame(() => {
-        overlay.style.opacity = '1';
-        overlay.querySelector('.yt-popup-container').style.transform = 'scale(1)';
-    });
-
-    // و. تشغيل المشغل
-    new YT.Player('yt-player-target', {
-        videoId: videoId,
-        playerVars: { 
-            'autoplay': 1, 
-            'rel': 0,        // لا تعرض فيديوهات مقترحة من قنوات أخرى
-            'modestbranding': 1 
-        },
-        events: {
-            'onReady': (e) => e.target.playVideo(),
-            'onError': (e) => console.error("YT Player Error:", e.data)
-        }
-    });
-
-    // ز. إغلاق عند الضغط خارج الصندوق
-    overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) closeVideoPopup();
-    });
-
-    // ح. إغلاق بزر Esc
-    document.addEventListener('keydown', handleEscClose);
-}
-
-// 4. دالة الإغلاق (تنظيف الذاكرة)
-function closeVideoPopup() {
-    const overlay = document.getElementById('yt-popup-overlay');
-    if (overlay) {
-        // أنيميشن الإغلاق
-        overlay.style.opacity = '0';
-        overlay.querySelector('.yt-popup-container').style.transform = 'scale(0.9)';
+    // ============================================================
+    // 💎 إعداد زر المارك بوك (ID جديد + وظيفة JSONBINIO القديمة)
+    // ============================================================
+    const controlsContainer = videoPopupCloseButton.parentElement;
+    
+    // البحث عن الزر بالـ ID المميز الجديد
+    let bookmarkBtn = document.getElementById('video-popup-bookmark-button');
+    
+    if (!bookmarkBtn && controlsContainer) {
+        bookmarkBtn = document.createElement('button');
+        bookmarkBtn.id = 'video-popup-bookmark-button'; // ✅ ID فريد للبوب-أب
         
-        setTimeout(() => {
-            if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
-        }, 300);
+        // نفس الستايل الزجاجي
+        bookmarkBtn.className = 'navigable grid-item p-3 rounded-full glass-surface glass-surface--svg hover:bg-white/20 transition-colors';
+        bookmarkBtn.innerHTML = `<i data-lucide="bookmark" class="w-6 h-6"></i>`;
+        bookmarkBtn.title = "Save to Favorites";
+        bookmarkBtn.tabIndex = 0;
+        
+        // ✅ ربط الحدث بالوظيفة القديمة
+        bookmarkBtn.onclick = (e) => {
+             e.stopPropagation();
+             e.preventDefault();
+
+             // 1. تحضير بيانات الفيديو للكائن القديم
+             // نحاول جلب العنوان الحقيقي من المشغل، أو نستخدم عنوان مؤقت
+             const playerTitle = (popupPlayer && typeof popupPlayer.getVideoData === 'function') 
+                                ? popupPlayer.getVideoData().title 
+                                : ""; 
+             
+             // استخدام العنوان المخزن في الحالة إذا لم يتوفر في المشغل
+             const finalTitle = playerTitle || appState.currentVideoTitle || "Unknown Video";
+
+             const videoData = {
+                 id: currentPlayingVideoId,
+                 title: finalTitle,
+                 thumbnail: `https://i.ytimg.com/vi/${currentPlayingVideoId}/mqdefault.jpg`
+             };
+             
+             // 2. استدعاء القائمة القديمة (JSONBINIO Logic)
+             // نمرر لها الزر الحالي (لضبط المكان) وبيانات الفيديو
+             if (typeof showFavoritesMenu === 'function') {
+                 showFavoritesMenu(bookmarkBtn, videoData);
+             } else {
+                 console.error("showFavoritesMenu function is missing!");
+             }
+        };
+        
+        // إضافته قبل زر الإغلاق
+        controlsContainer.insertBefore(bookmarkBtn, videoPopupCloseButton);
     }
-    // إزالة مستمع الزر Esc
-    document.removeEventListener('keydown', handleEscClose);
+    
+    // ربط زر التصغير (Minimize)
+    const videoPopupMinimizeButton = document.getElementById('video-popup-minimize-button');
+    if (videoPopupMinimizeButton) {
+        videoPopupMinimizeButton.onclick = (e) => {
+            e.stopPropagation();
+            minimizeVideoPopup(); 
+        };
+    }
+
+    // 5. تهيئة وتشغيل مشغل يوتيوب (YT.Player)
+    if (popupPlayer && typeof popupPlayer.loadVideoById === 'function') { 
+        // المشغل موجود مسبقاً -> تحميل الفيديو الجديد
+        popupPlayer.loadVideoById({ videoId, startSeconds: start });
+        // لا تنس إعادة ربط مستمع تغيير السرعة
+        // popupPlayer.addEventListener('onPlaybackRateChange', handlePlaybackRateChange);
+    } else {
+        // المشغل غير موجود -> إنشاء جديد
+        videoPopupPlayerContainer.innerHTML = '<div id="video-popup-player"></div>';
+        
+        popupPlayer = new YT.Player('video-popup-player', {
+            height: '100%', 
+            width: '100%', 
+            videoId: videoId,
+            playerVars: { 
+                'autoplay': 1, 
+                'controls': 1, 
+                'start': Math.floor(start),
+                'origin': window.location.origin, // حماية CORS
+                'rel': 0, // منع الفيديوهات المقترحة الخارجية
+                'modestbranding': 1
+            },
+            events: { 
+                'onReady': (e) => {
+                    e.target.playVideo();
+                    // تطبيق آخر سرعة محفوظة إذا وجدت
+                    // if (lastPlaybackRate) e.target.setPlaybackRate(lastPlaybackRate);
+                },
+                'onStateChange': onPlayerStateChange, 
+                'onPlaybackRateChange': handlePlaybackRateChange 
+            }
+        });
+    }
+
+    // 6. نقل التركيز لزر الإغلاق (Accessibility) وتحديث الأيقونات
+    setTimeout(() => {
+        if (typeof setFocus === 'function') setFocus(videoPopupCloseButton);
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }, 100);
 }
 
-// دالة مساعدة لزر Esc
-function handleEscClose(e) {
-    if (e.key === "Escape") closeVideoPopup();
+// ============================================================
+// 📋 الوظيفة المتوقعة: قائمة الخيارات (سيارة، تلفاز، مفضلة)
+// ============================================================
+function showPopupBookmarkMenu(anchorBtn, videoId) {
+    // 1. إغلاق أي قائمة مفتوحة سابقاً
+    const existingMenu = document.getElementById('popup-options-menu');
+    if (existingMenu) existingMenu.remove();
+
+    // 2. إنشاء القائمة
+    const menu = document.createElement('div');
+    menu.id = 'popup-options-menu';
+    
+    // تنسيق القائمة لتكون فوق كل شيء (High Z-Index)
+    Object.assign(menu.style, {
+        position: 'fixed',
+        zIndex: '2147483647', // أعلى طبقة ممكنة
+        background: 'rgba(25, 25, 25, 0.95)',
+        backdropFilter: 'blur(12px)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        borderRadius: '12px',
+        padding: '8px',
+        minWidth: '220px',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+        display: 'flex', flexDirection: 'column', gap: '4px',
+        opacity: '0', transform: 'translateY(-10px)', transition: 'all 0.2s ease'
+    });
+
+    // 3. تعريف الخيارات المطلوبة
+    const options = [
+        { id: 'favorites', label: 'المفضلة (Favorites)', icon: '❤️' },
+        { id: 'car',       label: 'المتابعة في السيارة', icon: '🚗' }, // ✅ الخيار المطلوب
+        { id: 'tv',        label: 'المتابعة في التلفاز', icon: '📺' }, // ✅ الخيار المطلوب
+        { id: 'watch_later', label: 'المشاهدة لاحقاً',   icon: '⏰' }
+    ];
+
+    // 4. بناء عناصر القائمة
+    options.forEach(opt => {
+        const item = document.createElement('div');
+        Object.assign(item.style, {
+            padding: '10px 12px',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            color: 'white',
+            fontSize: '14px',
+            display: 'flex', alignItems: 'center', gap: '10px',
+            transition: 'background 0.2s'
+        });
+        
+        item.innerHTML = `<span>${opt.icon}</span> <span style="font-weight:500">${opt.label}</span>`;
+        
+        // تأثير التحويم
+        item.onmouseenter = () => item.style.background = 'rgba(255,255,255,0.1)';
+        item.onmouseleave = () => item.style.background = 'transparent';
+        
+        // عند الضغط
+        item.onclick = (e) => {
+            e.stopPropagation();
+            // استدعاء دالة الحفظ الموجودة في نظامك
+            if (typeof saveToPlaylist === 'function') {
+                saveToPlaylist(opt.id, videoId); 
+                console.log(`Saving to ${opt.id}`);
+            } else {
+                console.warn(`Function saveToPlaylist not found. Action: ${opt.id}`);
+            }
+            // إغلاق القائمة
+            menu.style.opacity = '0';
+            setTimeout(() => menu.remove(), 200);
+        };
+        
+        menu.appendChild(item);
+    });
+
+    // 5. وضع القائمة في الصفحة (داخل Body لتجنب القص)
+    document.body.appendChild(menu);
+
+    // 6. حساب الموقع (Positioning Logic)
+    const rect = anchorBtn.getBoundingClientRect();
+    
+    // الموقع الرأسي: أسفل الزر
+    menu.style.top = (rect.bottom + 8) + 'px';
+    
+    // الموقع الأفقي: محاذاة لليسار، مع منع الخروج عن الشاشة
+    if (rect.left + 230 > window.innerWidth) {
+        menu.style.left = (window.innerWidth - 240) + 'px';
+    } else {
+        menu.style.left = rect.left + 'px';
+    }
+
+    // 7. أنيميشن الظهور
+    requestAnimationFrame(() => {
+        menu.style.opacity = '1';
+        menu.style.transform = 'translateY(0)';
+    });
+
+    // 8. إغلاق عند النقر خارج القائمة
+    setTimeout(() => {
+        const closeHandler = (e) => {
+            if (!menu.contains(e.target) && e.target !== anchorBtn) {
+                menu.remove();
+                document.removeEventListener('click', closeHandler);
+            }
+        };
+        document.addEventListener('click', closeHandler);
+    }, 100);
 }
 
 async function hideVideoPopup() {
@@ -6917,6 +7230,8 @@ async function removeReciterFromList(reciterName) {
  */
 async function populateYoutubeSuggestions() {
     const suggestionsContent = document.getElementById('suggestions-content');
+
+    
     if (!suggestionsContent) {
         console.error("suggestions-content element not found!");
         return;
@@ -7503,227 +7818,194 @@ button.addEventListener('click', () => {
              document.body.removeEventListener('click', closeFavoritesMenu);
         }
 
-        /**
- * تعرض قائمة خيارات الحفظ (المفضلة) بجانب الزر المضغوط.
- * @param {HTMLElement} btnElement - الزر الذي تم ضغطه (this)
- * @param {Event} event - حدث النقر
- */
-function showFavoritesMenu(btnElement, event) {
-    // 1. منع انتشار الحدث والسلوك الافتراضي
-    if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-    }
+ function showFavoritesMenu(button, video) {
+            closeFavoritesMenu(); // Close any existing menu first
 
-    // 2. التحقق من وجود فيديو حالي
-    const currentVideoId = (typeof currentPlayingVideoId !== 'undefined') ? currentPlayingVideoId : null;
-    if (!currentVideoId) {
-        console.error("No video ID found to add to favorites.");
-        return;
-    }
+            const menu = document.createElement('div');
+            menu.className = 'favorites-menu';
+            const rect = button.getBoundingClientRect();
 
-    // 3. تحديد العنصر المرجعي (الزر) لتحديد الموقع
-    // نحاول استخدام العنصر الممرر، وإذا لم يوجد نستخدم هدف الحدث
-    let target = btnElement;
-    if (!target && event) {
-        target = event.currentTarget || event.target;
-    }
+            menu.style.top = `${rect.bottom + 5}px`;
+            menu.style.left = `${rect.left}px`;
+            
+            menu.innerHTML = `
+                <button data-type="D" class="navigable grid-item" tabindex="0">
+                     <i data-lucide="folder-plus" class="w-4 h-4 text-blue-400"></i> CAR LIST
+                </button>
+                <button data-type="M" class="navigable grid-item" tabindex="0">
+                    <i data-lucide="folder-plus" class="w-4 h-4 text-pink-400"></i> TV LIST
+                </button>
+            `;
 
-    // إذا فشلنا في تحديد مكان الزر، لا يمكننا فتح القائمة بجانبه
-    if (!target) {
-        console.error("Critical: Cannot determine menu position (Target is null).");
-        // حل احتياطي: إضافة مباشرة للمفضلة دون قائمة
-        addToFavorites(currentVideoId); 
-        return;
-    }
+            document.body.appendChild(menu);
+            menu.classList.add('show');
 
-    // 4. إغلاق أي قائمة مفتوحة سابقاً
-    const existingMenu = document.getElementById('fav-popup-menu');
-    if (existingMenu) existingMenu.remove();
+            menu.addEventListener('click', e => e.stopPropagation());
 
-    // 5. حساب الإحداثيات (هذا هو الجزء الذي كان يسبب الخطأ سابقاً)
-    const rect = target.getBoundingClientRect();
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+            menu.querySelectorAll('button').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const type = btn.dataset.type;
+                    await saveVideoToFavorites(video, type);
+                    closeFavoritesMenu();
+                });
+            });
 
-    // 6. إنشاء القائمة
-    const menu = document.createElement('div');
-    menu.id = 'fav-popup-menu';
-    
-    // تنسيق القائمة (يمكنك نقله لـ CSS)
-    Object.assign(menu.style, {
-        position: 'absolute',
-        top: `${rect.bottom + scrollTop + 10}px`, // أسفل الزر بـ 10 بكسل
-        left: `${rect.left + scrollLeft}px`,      // محاذاة لليسار
-        zIndex: '2147483647',                     // أعلى طبقة
-        backgroundColor: '#1f2937',               // لون خلفية داكن
-        color: 'white',
-        padding: '8px 0',
-        borderRadius: '12px',
-        boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
-        minWidth: '200px',
-        border: '1px solid rgba(255,255,255,0.1)',
-        display: 'flex',
-        flexDirection: 'column',
-        fontFamily: 'sans-serif'
-    });
+            lucide.createIcons();
+            setFocus(menu.querySelector('button'));
 
-    // 7. محتوى القائمة (الخيارات)
-    menu.innerHTML = `
-        <div class="menu-item" onclick="handleMenuAction('ADD', '${currentVideoId}')">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path></svg>
-            <span>إضافة للمفضلة</span>
-        </div>
-        <div class="menu-item" onclick="handleMenuAction('SHARE', '${currentVideoId}')">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-            <span>مشاركة الرابط</span>
-        </div>
-        <div style="height: 1px; background: rgba(255,255,255,0.1); margin: 5px 0;"></div>
-        <div class="menu-item text-red" onclick="handleMenuAction('CLOSE', null)">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            <span>إغلاق</span>
-        </div>
-    `;
-
-    // 8. إضافة تنسيقات العناصر الداخلية (Hover effect)
-    const styleTag = document.createElement('style');
-    styleTag.textContent = `
-        #fav-popup-menu .menu-item {
-            padding: 10px 15px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: background 0.2s;
-            font-size: 14px;
+            setTimeout(() => {
+                document.body.addEventListener('click', closeFavoritesMenu, { once: true });
+            }, 0);
         }
-        #fav-popup-menu .menu-item:hover {
-            background-color: rgba(255,255,255,0.1);
-        }
-        #fav-popup-menu .text-red { color: #ff6b6b; }
-    `;
-    menu.appendChild(styleTag);
 
-    // 9. إضافة القائمة للصفحة (Body) لضمان ظهورها فوق كل شيء
-    document.body.appendChild(menu);
 
-    // 10. معالجة إغلاق القائمة عند النقر خارجها
-    setTimeout(() => {
-        const closeMenuHandler = (e) => {
-            if (!menu.contains(e.target) && e.target !== target) {
-                menu.remove();
-                document.removeEventListener('click', closeMenuHandler);
-            }
-        };
-        document.addEventListener('click', closeMenuHandler);
-    }, 100);
-}
-
-function addManualKeySwitcher() {
-    // منع تكرار العنصر في الصفحة
+async function addManualKeySwitcher() {
+    // منع التكرار
     if (document.getElementById('manual-key-switcher')) return;
 
-    // 1. الحاوية الرئيسية (Dock) - شكل عائم وشفاف في المنتصف
+    // ============================================================
+    // 1. الحاوية الرئيسية (نفس الستايل الأصلي تماماً)
+    // ============================================================
     const container = document.createElement('div');
     container.id = 'manual-key-switcher';
     Object.assign(container.style, {
         position: 'fixed', 
         bottom: '150px', 
-        left: '20%', 
-        transform: 'translateX(-50%)', // لتوسيط العنصر تماماً
+        left: '2rem', 
+        transform: 'translateX(-50%)', 
         zIndex: '9999999', 
         display: 'flex', 
-        gap: '15px', // مسافة بين الكبسولتين
+        gap: '15px', 
         padding: '12px 25px', 
-        background: 'rgba(20, 20, 20, 0.8)', // خلفية داكنة شفافة
-        borderRadius: '50px', // حواف دائرية بالكامل للحاوية
-        backdropFilter: 'blur(10px)', // تأثير الزجاج
+        background: 'rgba(20, 20, 20, 0.8)', 
+        borderRadius: '50px', 
+        backdropFilter: 'blur(10px)', 
         boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
         border: '1px solid rgba(255,255,255,0.1)'
     });
 
-    // 2. دالة لإنشاء الكبسولة (الزر)
-    const createCapsule = (id, label, activeVar, storageKey, otherStorageKey) => {
+    // ============================================================
+    // 2. دالة بناء الزر (مبدئياً في حالة الفحص)
+    // ============================================================
+    const createVisualBtn = (label) => {
         const btn = document.createElement('button');
-        btn.className = 'navigable'; // لدعم التنقل بالريموت إن وجد
+        btn.className = 'navigable';
         
-        // 🔍 استخراج رقم الإندكس الحقيقي من المصفوفة لضمان دقة العرض
-        let realIndex = YT_KEYS_POOL.indexOf(activeVar);
-        
-        // في حال عدم العثور عليه (خطأ ما)، نضع قيمة افتراضية للعرض فقط
-        if (realIndex === -1) realIndex = (id === 1) ? 0 : 1;
-
-        // تصميم الكبسولة
+        // الستايل الموحد (نفس الكود الخاص بك)
         Object.assign(btn.style, {
-            border: 'none', 
-            cursor: 'pointer',
-            padding: '10px 24px', 
-            borderRadius: '30px', // حواف دائرية للزر نفسه
-            fontSize: '13px', 
-            fontWeight: 'bold', 
-            fontFamily: 'sans-serif',
+            border: 'none', cursor: 'pointer',
+            padding: '10px 24px', borderRadius: '30px',
+            fontSize: '13px', fontWeight: 'bold', fontFamily: 'sans-serif',
             color: '#fff', 
-            background: '#10b981', // 🟢 أخضر = المفتاح صالح ونشط
-            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)', // توهج أخضر خفيف
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '10px',
-            transition: 'all 0.2s ease',
-            outline: 'none'
+            background: '#f59e0b', // 🟡 أصفر (بداية الفحص)
+            boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)',
+            display: 'flex', alignItems: 'center', gap: '10px',
+            transition: 'all 0.3s ease', outline: 'none'
         });
 
-        // محتوى الكبسولة (الاسم + الرقم)
         btn.innerHTML = `
             <span>${label}</span>
-            <span style="background:rgba(0,0,0,0.25); padding:2px 10px; border-radius:12px; font-size:11px;">
-                Idx: ${realIndex}
+            <span class="status-badge" style="background:rgba(0,0,0,0.25); padding:2px 10px; border-radius:12px; font-size:11px;">
+                ⏳ Scanning...
             </span>
         `;
-
-        // عند التمرير بالماوس (Hover)
-        btn.onmouseenter = () => btn.style.transform = 'scale(1.05)';
-        btn.onmouseleave = () => btn.style.transform = 'scale(1)';
-
-        // 🟢 عند الضغط (Action)
-        btn.onclick = () => {
-            // 1. تغيير المظهر للأصفر (جاري العمل)
-            btn.style.background = '#f59e0b'; // 🟡 أصفر
-            btn.style.boxShadow = '0 4px 12px rgba(245, 158, 11, 0.4)';
-            btn.innerHTML = `<span>Switching...</span> ⌛`;
-            
-            // 2. معرفة مكان المفتاح الآخر لتجنبه (Anti-Collision)
-            let otherIndex = parseInt(localStorage.getItem(otherStorageKey)) || (id === 1 ? 1 : 0);
-
-            // 3. حساب الرقم التالي (دوران 0-9)
-            let nextIndex = (realIndex + 1) % YT_KEYS_POOL.length;
-
-            // 4. القفز إذا كان الرقم القادم مشغولاً
-            if (nextIndex === otherIndex) {
-                console.warn(`🦘 Index ${nextIndex} busy. Skipping...`);
-                nextIndex = (nextIndex + 1) % YT_KEYS_POOL.length;
-            }
-
-            // 5. حفظ الإعداد الجديد
-            localStorage.setItem(storageKey, nextIndex);
-
-            // 6. إعادة تحميل الصفحة لتطبيق التغيير
-            console.log(`✅ ${label} switched to Index ${nextIndex}. Reloading...`);
-            setTimeout(() => location.reload(), 250);
-        };
-
         return btn;
     };
 
-    // 3. إضافة الكبسولتين للحاوية
-    // نمرر المتغيرات الحالية (YOUTUBE_API_KEY) لكي يعرف الزر أي رقم يعرض
-    container.appendChild(createCapsule(1, 'KEY 1', YOUTUBE_API_KEY, 'yt_idx_1', 'yt_idx_2'));
-    container.appendChild(createCapsule(2, 'KEY 2', YOUTUBE_API_KEY2, 'yt_idx_2', 'yt_idx_1'));
+    const btn1 = createVisualBtn("KEY 1");
+    const btn2 = createVisualBtn("KEY 2");
 
-    // إضافة الحاوية للصفحة
+    container.appendChild(btn1);
+    container.appendChild(btn2);
     document.body.appendChild(container);
+
+    // ============================================================
+    // 3. منطق الفحص (Scanning Logic)
+    // ============================================================
+    
+    // دالة اختبار مفتاح
+    const testKey = async (key) => {
+        try {
+            const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=id&id=Ks-_Mh1QhMc&key=${key}`);
+            return res.status === 200;
+        } catch { return false; }
+    };
+
+    // دالة لتحديث الزر ليصبح "أخضر" وقابلاً للنقر (Manual Switcher)
+    const activateButton = (btn, label, storageKey, otherStorageKey, foundIndex) => {
+        // تحديث الشكل للأخضر (Active)
+        btn.style.background = '#10b981';
+        btn.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
+        btn.querySelector('.status-badge').innerText = `Idx: ${foundIndex}`;
+
+        // إضافة تأثيرات الماوس
+        btn.onmouseenter = () => btn.style.transform = 'scale(1.05)';
+        btn.onmouseleave = () => btn.style.transform = 'scale(1)';
+
+        // 🟢 إضافة وظيفة التبديل اليدوي (عند الضغط)
+        btn.onclick = () => {
+            btn.style.background = '#f59e0b'; // عودة للأصفر
+            btn.innerHTML = `<span>Switching...</span> ⌛`;
+
+            // منطق التبديل اليدوي (نفس كودك السابق)
+            let otherIndex = parseInt(localStorage.getItem(otherStorageKey)) || 0;
+            let nextIndex = (foundIndex + 1) % window.YT_KEYS_POOL.length;
+
+            if (nextIndex === otherIndex) {
+                nextIndex = (nextIndex + 1) % window.YT_KEYS_POOL.length;
+            }
+
+            localStorage.setItem(storageKey, nextIndex);
+            
+            console.log(`✅ Manual Switch: ${label} -> Index ${nextIndex}`);
+            setTimeout(() => location.reload(), 250);
+        };
+    };
+
+    console.log("🚀 Starting Key Scan...");
+
+    // ============================================================
+    // 4. حلقة البحث عن المفاتيح
+    // ============================================================
+    let foundKeysCount = 0;
+
+    for (let i = 0; i < window.YT_KEYS_POOL.length; i++) {
+        // إذا وجدنا مفتاحين، نتوقف
+        if (foundKeysCount >= 2) break;
+
+        // تحديث النص في الزر الجاري فحصه
+        const activeBtn = (foundKeysCount === 0) ? btn1 : btn2;
+        activeBtn.querySelector('.status-badge').innerText = `Checking [${i}]...`;
+
+        const isValid = await testKey(window.YT_KEYS_POOL[i]);
+
+        if (isValid) {
+            if (foundKeysCount === 0) {
+                // تعيين المفتاح الأول
+                window.YOUTUBE_API_KEY = window.YT_KEYS_POOL[i];
+                localStorage.setItem('yt_idx_1', i);
+                activateButton(btn1, "KEY 1", 'yt_idx_1', 'yt_idx_2', i);
+                foundKeysCount++;
+            } 
+            else if (foundKeysCount === 1) {
+                // تعيين المفتاح الثاني
+                window.YOUTUBE_API_KEY2 = window.YT_KEYS_POOL[i];
+                localStorage.setItem('yt_idx_2', i);
+                activateButton(btn2, "KEY 2", 'yt_idx_2', 'yt_idx_1', i);
+                foundKeysCount++;
+            }
+        }
+    }
+
+    // إذا فشل العثور على مفاتيح
+    if (foundKeysCount === 0) {
+        btn1.style.background = '#ef4444'; // أحمر
+        btn1.innerHTML = `<span>FAILED</span> <span>❌</span>`;
+    }
 }
 
-// تشغيل الدالة تلقائياً عند تحميل الصفحة
+// تشغيل عند التحميل
 document.addEventListener('DOMContentLoaded', addManualKeySwitcher);
 
 
@@ -7787,7 +8069,70 @@ function handleMenuAction(action, videoId) {
                 return false;
             }
         }
+// ============================================================
+// 🧹 نظام مسح الكاش الذكي (Smart Cache Cleaner)
+// يحمي الكوتا والقوائم المهمة من الحذف
+// ============================================================
 
+function clearAppCache() {
+    // 1. قائمة المفاتيح المحمية (WhiteList)
+    // هذه المفاتيح لن يتم حذفها أبداً
+    const protectedKeys = [
+        'suggestedVideosCache',
+        // أ. بيانات المقترحات (لتوفير الكوتا)
+        'dashboard_cached_data',       // الاسم الافتراضي لكاش الداشبورد
+        'dashboard_cache_timestamp',   // وقت التحديث
+        'suggested_videos_cache',      // كاش المقترحات الجانبية (إن وجد)
+        
+        // ب. مؤشرات API (مهم جداً عدم حذفها لكي لا يعود للصفر)
+        'yt_idx_1',
+        'yt_idx_2',
+        
+        // ج. القوائم الشخصية (اختياري - يفضل عدم حذف قوائم المستخدم)
+        'playlist_car_mode',
+        'playlist_tv_mode',
+        'playlist_watch_later',
+        'fav_dashboard_data',
+        'favorites_simple'
+    ];
+
+    let deletedCount = 0;
+    const totalKeys = localStorage.length;
+
+    // 2. تجميع المفاتيح المراد حذفها
+    // لا نحذف مباشرة داخل الحلقة لأن طول المصفوفة سيتغير
+    const keysToRemove = [];
+
+    for (let i = 0; i < totalKeys; i++) {
+        const key = localStorage.key(i);
+        
+        // هل المفتاح موجود في القائمة المحمية؟
+        if (!protectedKeys.includes(key)) {
+            keysToRemove.push(key);
+        }
+    }
+
+    // 3. تنفيذ الحذف
+    keysToRemove.forEach(key => {
+        localStorage.removeItem(key);
+        deletedCount++;
+    });
+
+    console.log(`🧹 Cache Cleaned: Removed ${deletedCount} items, Kept ${protectedKeys.length} important items.`);
+
+    // 4. رسالة للمستخدم
+    // نستخدم showMessageBox إذا كانت موجودة، أو alert
+    const msg = `تم تنظيف الذاكرة المؤقتة (${deletedCount} ملفات).\nتم الحفاظ على الفيديوهات المقترحة لتوفير الكوتا.`;
+    
+    if (typeof showMessageBox === 'function') {
+        showMessageBox("✅ " + msg);
+    } else {
+        alert("✅ " + msg);
+    }
+
+    // 5. تحديث الصفحة (اختياري)
+    setTimeout(() => location.reload(), 1000);
+}
         async function saveVideoToFavorites(rawVideoData, type) {
     const videoToSave = {
         id: rawVideoData.id,
@@ -9738,7 +10083,6 @@ const iframeSrcButtons = document.querySelectorAll('#screen-Reciters .iframe-src
 
         // 3. تهيئة واجهة المستخدم الخاصة بالـ Media
         populateYoutubeSuggestions();
-        renderSuggestedDashboard();
         
         // 4. تهيئة الخرائط والخدمات الأخرى
         loadGoogleMaps().then(initMap);
@@ -9761,6 +10105,8 @@ const iframeSrcButtons = document.querySelectorAll('#screen-Reciters .iframe-src
 
         updateTimerDisplay();
         renderDailyReminders();
+        renderSuggestedDashboard(suggestedVideos);
+
 
     }).catch(error => {
         console.error("Critical Initialization Failure:", error);
@@ -10009,11 +10355,43 @@ const iframeSrcButtons = document.querySelectorAll('#screen-Reciters .iframe-src
     });
 
     removeCacheButton.addEventListener('click', () => {
-        localStorage.clear();
-        showMessageBox('تم مسح ذاكرة التخزين المؤقت بنجاح. سيتم إعادة تحميل التطبيق.');
-        setTimeout(() => {
-            location.reload();
-        }, 2000);
+        const protectedKeys = [
+        'dashboard_cached_data',     // 🛡️ كاش الفيديوهات المقترحة (أهم واحد لتوفير الكوتا)
+        'dashboard_cache_timestamp', // ⏰ وقت التحديث
+        'yt_idx_1',                  // 🔑 مؤشر المفتاح الأول
+        'yt_idx_2',                  // 🔑 مؤشر المفتاح الثاني
+        'playlist_car_mode',         // 🚗 قائمة السيارة
+        'playlist_tv_mode',          // 📺 قائمة التلفاز
+        'playlist_watch_later',      // ⏰ المشاهدة لاحقاً
+        'fav_dashboard_data',        // ❤️ المفضلة
+        'FAV_CATEGORIES'             // 📂 تصنيفات المفضلة
+    ];
+
+    let deletedCount = 0;
+
+    // 2. تجميع المفاتيح التي يجب حذفها
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (!protectedKeys.includes(key)) {
+            keysToRemove.push(key);
+        }
+    }
+
+    // 3. التنفيذ: حذف المفاتيح غير المحمية فقط
+    keysToRemove.forEach(key => {
+        localStorage.removeItem(key);
+        deletedCount++;
+    });
+
+    console.log(`🧹 Cache Cleanup: Removed ${deletedCount} items. Protected Dashboard & Keys.`);
+
+    // 4. عرض الرسالة وإعادة التحميل
+    showMessageBox(`تم تنظيف الذاكرة (${deletedCount} ملفات). تم الحفاظ على الكاش والمفضلة.`);
+    
+    setTimeout(() => {
+        location.reload();
+    }, 2000);
     });
 
     zoomInButton.addEventListener('click', () => {
