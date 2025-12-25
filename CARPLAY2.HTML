@@ -34,8 +34,46 @@
         @import url('https://fonts.googleapis.com/css2?family=Amiri+Quran:wght@400;700&display=swap');
         /* NEW: Import Amiri font for Thuluth-like style */
         @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+.simple-suggestion-card.flex.flex-col.gap-2.p-3.rounded-xl.bg-white\/10.cursor-pointer.navigable.grid-item.flex-shrink-0 {
+    background: black;
+    width: 265px;
+    height: 250px;
+}
+button.navigable {
+    WIDTH: 68px;
+    HEIGHT: 35px;
+}
+#suggested-d-dashboard-parent {
+    position: relative !important;
+    width: 100% !important;
+    margin-top: 10px !important;
+}
 
+/* تنسيق الزر ليكون في أسفل يسار الحاوية */
+.playlist-shuffle-btn {
+    position: absolute !important;
+    bottom: 125px !important;
+    left: 150px !important;
+    z-index: 50 !important; /* لضمان ظهوره فوق الكروت */
+    
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    background: linear-gradient(135deg, #9333ea 0%, #2563eb 100%) !important;
+    color: white !important;
+    padding: 8px 16px !important;
+    border-radius: 12px !important;
+    font-size: 0.9rem !important;
+    font-weight: bold !important;
+    border: 1px solid rgba(255,255,255,0.2) !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5) !important;
+    cursor: pointer !important;
+}
 
+.playlist-shuffle-btn:hover {
+    transform: scale(1.05) !important;
+    filter: brightness(1.1) !important;
+}
 
 .simple-suggestion-card:hover, .simple-suggestion-card:focus {
     transform: scale(1.05) !important;
@@ -55,8 +93,8 @@
     display: flex !important;
     flex-direction: row !important; /* الصورة فوق النص */
     flex-shrink: 0 !important; /* هـام جداً: يمنع انكماش المربع ليبقى بارزاً للخارج */
-    width: 340px !important; /* عرض المربع الأخضر */
-    height: 200px !important;
+    width: 240px !important; /* عرض المربع الأخضر */
+    height: 140px !important;
     background: #156d41 !important; /* اللون الأخضر */
     border-radius: 12px !important;
     padding: 8px !important;
@@ -81,7 +119,7 @@
 }
 
 div#favorites-popup-grid {
-    display: -webkit-box !important;
+    display: flex !important;
     overflow: visible !important;
 }
 
@@ -2409,6 +2447,7 @@ div#map{display:none}
                     <!-- UPDATED: Dashboard layout changed -->
                     <div class="dashboard-main-grid grid grid-cols-1 md:grid-cols-3 grid-rows-[80%_20%] gap-4 md:gap-6 h-full w-full grid-container">
                         <!-- Map Widget (Now first) -->
+                        <button class="playlist-shuffle-btn navigable grid-item" style="position: absolute; bottom: 15px; left: 15px; z-index: 100; display: flex; align-items: center; gap: 8px;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shuffle" class="lucide lucide-shuffle"><path d="m18 14 4 4-4 4"></path><path d="m18 2 4 4-4 4"></path><path d="M2 18h1.973a4 4 0 0 0 3.3-1.7l5.454-8.6a4 4 0 0 1 3.3-1.7H22"></path><path d="M2 6h1.972a4 4 0 0 1 3.6 2.2"></path><path d="M22 18h-6.041a4 4 0 0 1-3.3-1.8l-.359-.45"></path></svg> تشغيل الكل</button>
                         <div id="map" class="rounded-3xl relative overflow-hidden flex items-center justify-center glass-surface glass-surface--svg p-1 col-span-1 row-start-1 navigable grid-item" tabindex="0">
                             <div id="dashboard-google-map" class="full-iframe"></div>
                              <!-- NEW: Geolocation Error Overlay -->
@@ -2963,6 +3002,83 @@ div#map{display:none}
 
     <script>
 
+
+
+// ============================================================
+// 1. SYSTEM HEADER (يوضع في أول سطر في الملف)
+// ============================================================
+
+// تعريف المصفوفة
+window.YT_KEYS_POOL = [
+    "AIzaSyAjdVZ2Rodp6ZVEF1pZT195kAtGELolxSI", // 0
+    "AIzaSyBYThRM6tVnzgFgdHOUAN6DN8jQd54OKeg", // 1
+    "AIzaSyB7QdfI0br5BfP71hOr36hz2dRWG_l0G8k", // 2
+    "AIzaSyBdhcRo-EsvIduedQd-jFHfrEj9NeiP7pU", // 3
+    "AIzaSyBLrMA6plsSZtqg2iY9Z1N1fJAHNmgGxos", // 4
+    "AIzaSyCaqMPtn-egmEQk7XmTel--xsXV1Xbdp7o", // 5
+    "AIzaSyDj4w1H3Is_rmTLhl40zER7AgYhT_tKASo", // 6
+    "AIzaSyBYThRM6tVnzgFgdHOUAN6DN8jQd54OKeg", // 7
+    "AIzaSyBeTHs25EsKeDFtIS5kq8iDATz-2c8hBrI", // 8
+    "AIzaSyAjdVZ2Rodp6ZVEF1pZT195kAtGELolxSI"  // 9
+];
+
+// --- إصلاح الذاكرة (Memory Fix) ---
+// قراءة القيم كـ نصوص أولاً
+const rawIdx1 = localStorage.getItem('yt_idx_1');
+const rawIdx2 = localStorage.getItem('yt_idx_2');
+
+// التحويل لأرقام (إذا كان null نستخدم الافتراضي)
+let sIdx1 = (rawIdx1 !== null) ? parseInt(rawIdx1) : 0;
+let sIdx2 = (rawIdx2 !== null) ? parseInt(rawIdx2) : 1;
+
+// التأكد من أن الأرقام منطقية (داخل حدود المصفوفة)
+if (sIdx1 >= window.YT_KEYS_POOL.length) sIdx1 = 0;
+if (sIdx2 >= window.YT_KEYS_POOL.length) sIdx2 = 1;
+
+// تعيين المتغيرات
+window.YOUTUBE_API_KEY = window.YT_KEYS_POOL[sIdx1];
+window.YOUTUBE_API_KEY2 = window.YT_KEYS_POOL[sIdx2];
+
+// تعريف المتغيرات المساعدة
+window.currentKeyIndex = sIdx1; 
+var observer = null;
+
+console.log(`🚀 SYSTEM STARTED: Reading Memory...`);
+console.log(`   👉 Key 1 (Main): Index [${sIdx1}]`);
+console.log(`   👉 Key 2 (Aux):  Index [${sIdx2}]`);
+// بدلاً من كتابة HTML string، استخدم هذا الأسلوب داخل دالة render:
+const parent = document.querySelector('.dashboard-main-grid'); // أو العنصر المحدد
+
+// 1. إنشاء الزر
+const btn = document.createElement('button');
+btn.className = 'playlist-shuffle-btn navigable grid-item';
+btn.innerHTML = `<svg ...>...</svg> تشغيل الكل`; // ضع الـ SVG هنا
+
+// 2. تنسيق الموقع (أو استخدم CSS class)
+Object.assign(btn.style, {
+    position: 'absolute',
+    bottom: '15px',
+    left: '15px',
+    zIndex: '9999',
+        width: '9rem',
+    height: '3rem',
+    
+    color:'transparent !important',
+    background: 'transparent !important'
+// مهم جداً
+});
+
+// 3. ربط الحدث مباشرة
+btn.onclick = (e) => {
+    console.log("Button Clicked!"); // للتجربة في الكونسول
+    e.stopPropagation(); // منع انتقال النقر للعناصر الخلفية
+    e.preventDefault();
+    playAsShufflePlaylist();
+};
+
+// 4. الإضافة
+parent.appendChild(btn);
+
         async function loadDashboardSuggestions() {
     const gridContainer = document.getElementById('favorites-popup-grid');
     if (!gridContainer) return;
@@ -3007,57 +3123,220 @@ div#map{display:none}
         console.error("Failed to load dashboard suggestions:", error);
     }
 }
-        // --- الثوابت والإعدادات العامة ---
-const YT_KEYS_POOL = [
-    "AIzaSyB3Rk_x-Xponn6i-PXuTgPr2wisD28GvuM", // الأساسي 1
-    "AIzaSyD-XZi8ESBCdZ8hZ4YA9vYFkN2fyfk6wns", // الأساسي 2
-    "AIzaSyB7QdfI0br5BfP71hOr36hz2dRWG_l0G8k", // احتياطي
-    "AIzaSyBdhcRo-EsvIduedQd-jFHfrEj9NeiP7pU", // احتياطي
-    "AIzaSyBLrMA6plsSZtqg2iY9Z1N1fJAHNmgGxos", // احتياطي
-    "AIzaSyCaqMPtn-egmEQk7XmTel--xsXV1Xbdp7o", // احتياطي
-    "AIzaSyDj4w1H3Is_rmTLhl40zER7AgYhT_tKASo", // احتياطي
-    "AIzaSyBYThRM6tVnzgFgdHOUAN6DN8jQd54OKeg", // احتياطي
-    "AIzaSyBeTHs25EsKeDFtIS5kq8iDATz-2c8hBrI", // احتياطي
-    "AIzaSyAjdVZ2Rodp6ZVEF1pZT195kAtGELolxSI"  // احتياطي
-];
 
-let currentKeyIndex = 0;
+
 const CACHE_KEY = 'suggestedVideosCache';
 const TARGET_ID = 'UCz9WVutRGBdn58dScZDh6uQ';
 const UPDATE_HOURS = [7,10, 14,16, 18]; 
 const NEW_JSONBIN_CHANNEL_IDS = '693fb33cae596e708f9ade6a';
 
-// --- الدوال المساعدة ---
+// ✅ دالة الجلب الذكية (النسخة النهائية المستقرة)
+async function fetchSafely(url, options = {}, retryCount = 0) {
+    if (!window.YT_KEYS_POOL) return fetch(url, options);
 
-// دالة الجلب الذكية التي تبدل المفاتيح تلقائياً عند نفاذ الكوتا
-async function fetchSafely(baseUrl) {
-    const getUrlWithKey = (url, key) => {
-        const separator = url.includes('?') ? '&' : '?';
-        if (url.includes('key=')) return url.replace(/key=[^&]+/, `key=${key}`);
-        return `${url}${separator}key=${key}`;
-    };
+    // 🛑 حماية: إيقاف الحلقة المفرغة بعد 4 محاولات
+    if (retryCount > 4) {
+        console.error("⛔ FetchSafely: Too many retries. Aborting.");
+        return null;
+    }
 
     try {
-        let response = await fetch(getUrlWithKey(baseUrl, YT_KEYS_POOL[currentKeyIndex]));
-        let data = await response.json();
+        const response = await fetch(url, options);
 
-        // إذا انتهت الكوتا (Error 403 / quotaExceeded)
-        if (data.error && (data.error.errors?.[0]?.reason === 'quotaExceeded' || data.error.code === 403)) {
-            if (currentKeyIndex < YT_KEYS_POOL.length - 1) {
-                console.warn(`[Quota] Key ${currentKeyIndex + 1} exhausted. Switching to Key ${currentKeyIndex + 2}...`);
-                currentKeyIndex++;
-                return fetchSafely(baseUrl); // إعادة المحاولة بالمفتاح الجديد
-            } else {
-                console.error("[Critical] All 10 YouTube API keys are exhausted!");
-                return data; 
+        // 403 = المفتاح احترق
+        if (response.status === 403) {
+            console.warn(`🔥 403 Error detected (Attempt ${retryCount + 1}/5)`);
+
+            // 1. معرفة المفتاح المستخدم حالياً من الرابط
+            const urlObj = new URL(url);
+            const currentKeyInUrl = urlObj.searchParams.get('key');
+            
+            // 2. البحث عن ترتيبه في المصفوفة
+            let failedIdx = window.YT_KEYS_POOL.indexOf(currentKeyInUrl);
+            
+            // إذا لم نجده، نعتمد على المتغيرات العامة
+            if (failedIdx === -1) {
+                // هل المفتاح الموجود في الرابط هو نفسه KEY1؟
+                if (window.YOUTUBE_API_KEY && url.includes(window.YOUTUBE_API_KEY)) {
+                    failedIdx = window.YT_KEYS_POOL.indexOf(window.YOUTUBE_API_KEY);
+                } else {
+                    failedIdx = 0; // افتراضي
+                }
             }
+
+            // 3. حساب المفتاح القادم
+            let nextIdx = (failedIdx + 1) % window.YT_KEYS_POOL.length;
+            
+            // 4. قفز التصادم (تجنب استخدام مفتاح المتغير الآخر)
+            const isVar1 = (window.YOUTUBE_API_KEY === window.YT_KEYS_POOL[failedIdx]);
+            const otherIdx = parseInt(localStorage.getItem(isVar1 ? 'yt_idx_2' : 'yt_idx_1')) || (isVar1 ? 1 : 0);
+            
+            if (nextIdx === otherIdx) {
+                nextIdx = (nextIdx + 1) % window.YT_KEYS_POOL.length;
+            }
+
+            // 5. تطبيق التغيير وحفظه
+            const newKey = window.YT_KEYS_POOL[nextIdx];
+            
+            if (isVar1) {
+                window.YOUTUBE_API_KEY = newKey;
+                localStorage.setItem('yt_idx_1', nextIdx);
+                console.log(`♻️ VAR 1 updated to Index ${nextIdx}`);
+            } else {
+                window.YOUTUBE_API_KEY2 = newKey;
+                localStorage.setItem('yt_idx_2', nextIdx);
+                console.log(`♻️ VAR 2 updated to Index ${nextIdx}`);
+            }
+
+            // 6. بناء الرابط الجديد (أهم خطوة لمنع التكرار)
+            let newUrl = url;
+            if (newUrl.includes('key=')) {
+                // استبدال المفتاح القديم بالجديد بدقة
+                newUrl = newUrl.replace(/key=[^&]+/, `key=${newKey}`);
+            } else {
+                const sep = newUrl.includes('?') ? '&' : '?';
+                newUrl = `${newUrl}${sep}key=${newKey}`;
+            }
+
+            console.log(`🔄 Retrying with NEW Key (Index ${nextIdx})...`);
+            
+            // إعادة المحاولة بالرابط الجديد + زيادة العداد
+            return fetchSafely(newUrl, options, retryCount + 1);
         }
-        return data;
-    } catch (err) {
-        console.error("Network Error:", err);
-        return { items: [] };
+
+        if (!response.ok && response.status !== 404) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        return await response.json();
+
+    } catch (e) {
+        console.error("Fetch Error:", e);
+        return null;
     }
 }
+
+// ============================================================
+// 🛠️ UNIVERSAL BOOKMARK MENU FIXER
+// Target: #video-popup-bookmark-button
+// ============================================================
+
+function fixVideoPopupBookmarkMenu() {
+    
+    // 1. إضافة CSS إجباري لضمان ظهور القائمة فوق الفيديو
+    const style = document.createElement('style');
+    style.textContent = `
+        /* تنسيق القائمة لتكون عائمة وحرة */
+        .video-bookmark-dropdown-fixed {
+            position: fixed !important; /* تثبيت بالنسبة للشاشة */
+            z-index: 2147483647 !important; /* أعلى طبقة في المتصفح */
+            background: rgba(30, 30, 30, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 8px 0;
+            min-width: 150px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            display: none; /* مخفية افتراضياً */
+        }
+
+        .video-bookmark-dropdown-fixed.show {
+            display: block !important;
+            animation: fadeInMenu 0.2s ease-out;
+        }
+
+        @keyframes fadeInMenu {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .video-bookmark-dropdown-fixed div {
+            padding: 8px 15px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background 0.2s;
+        }
+
+        .video-bookmark-dropdown-fixed div:hover {
+            background: rgba(255,255,255,0.1);
+            color: #4ade80; /* أخضر عند التحويم */
+        }
+    `;
+    document.head.appendChild(style);
+
+    // 2. المستمع العام للنقر (Event Delegation)
+    document.addEventListener('click', function(e) {
+        
+        // أ. هل تم الضغط على الزر المحدد؟
+        const btn = e.target.closest('#video-popup-bookmark-button');
+        
+        if (btn) {
+            e.stopPropagation(); // منع إغلاق القائمة فوراً
+            e.preventDefault();
+
+            // ب. البحث عن القائمة (أو إنشاؤها إذا لم تكن موجودة)
+            let menu = document.getElementById('global-video-bookmark-menu');
+            
+            if (!menu) {
+                // إنشاء القائمة ديناميكياً لأول مرة
+                menu = document.createElement('div');
+                menu.id = 'global-video-bookmark-menu';
+                menu.className = 'video-bookmark-dropdown-fixed';
+                
+                // محتوى القائمة (عدله حسب رغبتك)
+                menu.innerHTML = `
+                    <div onclick="saveToPlaylist('favorites')">❤️ Favorites</div>
+                    <div onclick="saveToPlaylist('watch_later')">⏰ Watch Later</div>
+                    <div onclick="saveToPlaylist('music')">🎵 Music</div>
+                    <div style="border-top:1px solid #444; margin-top:5px; padding-top:8px; color:#aaa">Cancel</div>
+                `;
+                document.body.appendChild(menu); // نضعها في الـ Body مباشرة لتجنب القص
+            }
+
+            // ج. تبديل الظهور
+            const isVisible = menu.classList.contains('show');
+            
+            // إغلاق أي قوائم أخرى
+            closeAllMenus();
+
+            if (!isVisible) {
+                // د. الحساب الرياضي للموقع (Magic Positioning) 📐
+                const rect = btn.getBoundingClientRect();
+                
+                // وضع القائمة أسفل الزر تماماً
+                menu.style.top = (rect.bottom + 8) + 'px'; 
+                
+                // محاذاة لليسار، ولكن نتأكد أنها لا تخرج عن يمين الشاشة
+                let leftPos = rect.left;
+                if (leftPos + 150 > window.innerWidth) {
+                    leftPos = window.innerWidth - 160; // إزاحة لليسار إذا كانت ستخرج
+                }
+                menu.style.left = leftPos + 'px';
+                
+                // إظهار القائمة
+                menu.classList.add('show');
+            }
+        } 
+        // هـ. إذا ضغطت خارج الزر والقائمة -> أغلق القائمة
+        else if (!e.target.closest('#global-video-bookmark-menu')) {
+            closeAllMenus();
+        }
+    });
+
+    // دالة مساعدة لإغلاق القوائم
+    function closeAllMenus() {
+        const menu = document.getElementById('global-video-bookmark-menu');
+        if (menu) menu.classList.remove('show');
+    }
+    
+    // التعامل مع التمرير (Scroll) - نغلق القائمة إذا قام المستخدم بالتمرير
+    window.addEventListener('scroll', closeAllMenus, true);
+    window.addEventListener('resize', closeAllMenus);
+}
+
+// تشغيل الإصلاح
+document.addEventListener('DOMContentLoaded', fixVideoPopupBookmarkMenu);
 
 function shouldRefreshNow(lastTimestamp) {
     if (!lastTimestamp) return true;
@@ -3070,30 +3349,10 @@ function shouldRefreshNow(lastTimestamp) {
     }
     return false;
 }
-/**
- * الدالة الرئيسية fetchSuggestedVideos() 
- * تضمن: 6 قنوات | 4 فيديوهات لكل قناة | استبعاد تام للـ Shorts (أقل من 2 دقيقة)
- */
 async function fetchSuggestedVideos() {
-    console.log("Fetching Long Videos Only (Min 2:00 duration)...");
-    const cachedData = localStorage.getItem(CACHE_KEY);
-
-    // 1. منطق الكاش والعشوائية (2 ثابت + 7 عشوائي من المخزن المفلتر)
-    if (cachedData) {
-        try {
-            const { timestamp, videos } = JSON.parse(cachedData);
-            if (!shouldRefreshNow(timestamp)) {
-                console.log("[Suggested] Randomizing from clean cache...");
-                const priority = videos.filter(v => v.channelId === TARGET_ID).slice(0, 2);
-                const others = videos.filter(v => v.channelId !== TARGET_ID)
-                                     .sort(() => 0.5 - Math.random())
-                                     .slice(0, 7);
-                return [...priority, ...others]; 
-            }
-        } catch (e) { localStorage.removeItem(CACHE_KEY); }
-    }
-
-    // 2. جلب قائمة القنوات
+    console.log("Fetching 30 videos (5 per channel)...");
+    
+    // 1. جلب قائمة القنوات
     let channelIdsArray = [];
     try {
         const res = await fetch(`https://api.jsonbin.io/v3/b/${NEW_JSONBIN_CHANNEL_IDS}/latest`, {
@@ -3101,87 +3360,81 @@ async function fetchSuggestedVideos() {
         });
         const data = await res.json();
         channelIdsArray = Array.isArray(data.record) ? data.record.slice(0, 6) : []; 
-    } catch (error) { return []; }
+    } catch (e) { return []; }
 
     let allVideosMap = new Map();
 
-    // 3. جلب الفيديوهات (طلب 5 نتائج لتعويض المستبعد منها)
-    try {
-        for (const id of channelIdsArray) {
-            // نطلب 3 أحدث + 2 أهم (المجموع 5 لكل قناة لضمان وجود بدائل للفيديوهات القصيرة)
-            const latestUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${id}&maxResults=3&type=video&order=date`;
-            const relevanceUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${id}&maxResults=2&type=video&order=relevance`;
-            
-            const [latestData, relevanceData] = await Promise.all([
-                fetchSafely(latestUrl),
-                fetchSafely(relevanceUrl)
-            ]);
-
-            [latestData, relevanceData].forEach(data => {
-                if (data && data.items) {
-                    data.items.forEach(item => {
-                        if (item.id?.videoId) {
-                            allVideosMap.set(item.id.videoId, {
-                                id: item.id.videoId,
-                                channelId: item.snippet.channelId,
-                                title: item.snippet.title,
-                                thumbnail: item.snippet.thumbnails.medium.url,
-                                channelTitle: item.snippet.channelTitle
-                            });
-                        }
+    // 2. جلب 5 فيديوهات لكل قناة
+    for (const id of channelIdsArray) {
+        const urls = [
+            `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${id}&maxResults=3&type=video&order=date`,
+            `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${id}&maxResults=2&type=video&order=relevance`
+        ];
+        
+        for (const url of urls) {
+            const data = await fetchSafely(url);
+            if (data?.items) {
+                data.items.forEach(item => {
+                    allVideosMap.set(item.id.videoId, {
+                        id: item.id.videoId,
+                        channelId: item.snippet.channelId,
+                        title: item.snippet.title,
+                        thumbnail: item.snippet.thumbnails.medium.url,
+                        channelTitle: item.snippet.channelTitle
                     });
-                }
-            });
-        }
-
-        let allVideos = Array.from(allVideosMap.values());
-        const videoIds = allVideos.map(v => v.id).join(',');
-
-        if (videoIds) {
-            const detailsData = await fetchSafely(`https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics&id=${videoIds}`);
-            if (detailsData && detailsData.items) {
-                detailsData.items.forEach(detail => {
-                    const video = allVideos.find(v => v.id === detail.id);
-                    if (video) {
-                        const isoDuration = detail.contentDetails?.duration;
-                        const formatted = formatDuration(isoDuration); // دالة التنسيق السابقة
-                        
-                        // ✅ الفلتر الصارم: تحويل المدة لثواني للتأكد من أنها فيديو طويل
-                        // استبعاد أي فيديو أقل من 120 ثانية (دقيقتين)
-                        const totalSeconds = parseISO8601ToSeconds(isoDuration);
-                        
-                        if (totalSeconds < 120) {
-                            video.isShort = true; // علامة للحذف
-                        } else {
-                            video.duration = formatted;
-                            video.views = parseInt(detail.statistics?.viewCount || 0);
-                            video.viewsDisplay = typeof formatViewCount === 'function' ? formatViewCount(video.views) : video.views;
-                        }
-                    }
                 });
             }
         }
+    }
 
-        // تنظيف القائمة تماماً من الفيديوهات القصيرة (Shorts)
-        const cleanVideos = allVideos.filter(v => !v.isShort);
+    let allVideos = Array.from(allVideosMap.values());
+    const videoIds = allVideos.map(v => v.id).join(',');
 
-        // حفظ القائمة النظيفة في الكاش
-        localStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: Date.now(), videos: cleanVideos }));
+    // 3. فلترة المدة (+2 دقيقة)
+    const detailsData = await fetchSafely(`https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics&id=${videoIds}`);
+    const cleanVideos = [];
+    
+    if (detailsData?.items) {
+        detailsData.items.forEach(detail => {
+            const video = allVideos.find(v => v.id === detail.id);
+            const totalSeconds = parseISO8601ToSeconds(detail.contentDetails.duration);
+            if (video && totalSeconds >= 120) {
+                video.duration = formatDuration(detail.contentDetails.duration);
+                cleanVideos.push(video);
+            }
+        });
+    }
 
-        // اختيار العرض النهائي (2 ثابت + 7 عشوائي)
-        const finalPriority = cleanVideos.filter(v => v.channelId === TARGET_ID).slice(0, 2);
-        const finalOthers = cleanVideos.filter(v => v.channelId !== TARGET_ID)
-                                       .sort(() => 0.5 - Math.random())
-                                       .slice(0, 7);
+    // تخزين الـ 30 كاملة للـ Shuffle
+    window.allFetchedVideos30 = cleanVideos; 
+    
+    // إرجاع 14 فقط للشبكة (2 قطامي + 12 عشوائي)
+    const priority = cleanVideos.filter(v => v.channelId === TARGET_ID).slice(0, 2);
+    const others = cleanVideos.filter(v => v.channelId !== TARGET_ID).sort(() => 0.5 - Math.random()).slice(0, 12);
+    
+    return [...priority, ...others];
+}
+function playAsShufflePlaylist() {
+    if (!window.currentSuggestedVideos || window.currentSuggestedVideos.length === 0) {
+        showMessageBox("جاري جلب الفيديوهات، يرجى الانتظار ثانية...");
+        return;
+    }
 
-        return [...finalPriority, ...finalOthers];
-
-    } catch (error) { return []; }
+    // خلط القائمة عشوائياً
+    const shuffled = [...window.currentSuggestedVideos].sort(() => 0.5 - Math.random());
+    const videoIds = shuffled.map(v => v.id);
+    
+    // تشغيل أول فيديو مع تمرير بقية القائمة في الرابط (YouTube Playlist Mode)
+    const firstId = videoIds[0];
+    const otherIds = videoIds.slice(1).join(',');
+    
+    // إغلاق أي نوافذ مفتوحة وتشغيل المشغل
+    showVideoPopup(firstId, 0);
+    
+    // بعد تحميل المشغل، نقوم بحقن القائمة في iframe يوتيوب إذا أردت استمرارية يوتيوب الأصلية
+    // أو الاعتماد على دالة onPlayerStateChange لتشغيل الفيديو التالي يدوياً (أفضل للتحكم)
 }
 
-/**
- * دالة مساعدة لتحويل مدة يوتيوب (ISO 8601) إلى ثواني بدقة
- */
 function parseISO8601ToSeconds(duration) {
     const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
     if (!match) return 0;
@@ -3195,57 +3448,88 @@ function renderSuggestedDashboard() {
     const container = document.getElementById('suggested-d-dashboard-container');
     if (!container) return;
 
-    // 1. تطبيق الحد الأقصى 20 على القائمة المجلوبة
+    // 1. تجهيز القائمة (بحد أقصى 20 فيديو)
     const list = suggestedVideos ? suggestedVideos.slice(0, 20) : []; 
     
-    console.log("[renderSuggestedDashboard] List Length:", suggestedVideos ? suggestedVideos.length : 0);
-    console.log("[renderSuggestedDashboard] Final Display List Length (Capped at 20):", list.length);
+    // 2. إنشاء أو التأكد من وجود "المغلف" (Parent Wrapper) للتحكم في مكان الزر
+    let parentWrapper = document.getElementById('suggested-dashboard-wrapper');
+    if (!parentWrapper) {
+        parentWrapper = document.createElement('div');
+        parentWrapper.id = 'suggested-dashboard-wrapper';
+        // جعل المغلف "relative" لكي نضع الزر بداخله بوضعية "absolute"
+        parentWrapper.style.position = 'relative';
+        parentWrapper.style.width = '100%';
+        
+        // نقل الحاوية الأصلية لتكون داخل المغلف الجديد
+        container.parentNode.insertBefore(parentWrapper, container);
+        parentWrapper.appendChild(container);
+    }
 
+    // تنظيف المحتوى القديم
     container.innerHTML = ''; 
+    const oldBtn = parentWrapper.querySelector('.playlist-shuffle-btn');
+    if (oldBtn) oldBtn.remove();
 
-    // 2. معالجة حالة عدم وجود بيانات
+    // 3. معالجة حالة عدم وجود بيانات
     if (list.length === 0) {
-        container.innerHTML = '<p class="text-center text-muted mt-4 w-full">لا توجد مقترحات حاليًا. (الرجاء التأكد من تحديث مفتاح YouTube API).</p>';
-        // 💡 إزالة تنسيقات Flexbox في حالة الفراغ لتوسيط الرسالة
+        container.innerHTML = '<p class="text-center text-muted mt-4 w-full">لا توجد مقترحات حاليًا.</p>';
         container.style.display = 'block'; 
         return;
     }
     
-    // 💡 إعادة تفعيل Flexbox في حالة وجود بيانات
+    // 4. إضافة زر "تشغيل الكل" في الزاوية السفلى اليسرى (Bottom Left)
+    const shuffleBtn = document.createElement('button');
+    shuffleBtn.className = 'playlist-shuffle-btn navigable grid-item';
+    shuffleBtn.innerHTML = `<i data-lucide="shuffle"></i> تشغيل الكل`;
+    
+    // وضع الزر بالنسبة للمغلف (أسفل اليسار)
+    Object.assign(shuffleBtn.style, {
+        position: 'absolute',
+        bottom: '15px',
+        left: '15px',
+        zIndex: '100',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px'
+    });
+
+    shuffleBtn.onclick = (e) => {
+        e.stopPropagation();
+        playAsShufflePlaylist(); // استدعاء دالة التشغيل التي برمجناها سابقاً
+    };
+    parentWrapper.appendChild(shuffleBtn);
+
+    // 5. بناء الكروت
     container.style.display = 'flex';
     const fragment = document.createDocumentFragment(); 
 
-    // 3. بناء عناصر HTML وتطبيق الكلاسات المطلوبة
     list.forEach(video => {
-        // نستخدم كلاسات مماثلة للمفضلة لتطبيق التنسيق CSS المطلوب (الصور)
         const card = document.createElement('div');
-        // يجب أن يحتوي هذا الكلاس على التنسيق المطلوب: display: flex; justify-content: space-evenly; flex-wrap: wrap;
         card.className = 'suggested-d-dashboard-card navigable grid-item p-2'; 
         card.tabIndex = 0; 
         
         card.innerHTML = `
             <img src="${video.thumbnail}" alt="${video.title}" loading="lazy">
-            
             <div class="video-details flex-grow-1"> 
                 <h6 class="mb-0 text-truncate">${video.title}</h6>
                 <p class="mb-1 text-muted small">${video.channelTitle}</p>
             </div>
-            
-            <div class="flex flex-col flex-grow min-w-0 h-full justify-between ml-2">
-                </div>
+            <div class="flex flex-col flex-grow min-w-0 h-full justify-between ml-2"></div>
         `;
         
-        // ربط حدث النقر لتشغيل الفيديو
         card.addEventListener('click', () => {
-             // يجب استبدال playVideoInPopup بآلية التشغيل الفعلية لديك
-             showVideoPopup(video.id); 
+            window.isAutoPlayMode = false; // اختيار يدوي يوقف التشغيل التلقائي
+            showVideoPopup(video.id); 
         });
 
         fragment.appendChild(card);
     });
     
-    // 4. إضافة جميع العناصر إلى DOM في خطوة واحدة
     container.appendChild(fragment);
+
+    // 6. تحديث الأيقونات وعناصر التنقل للريموت
+    if (window.lucide) lucide.createIcons();
+    if (typeof updateNavigableElements === 'function') updateNavigableElements();
 }
 
 const CACHE_DURATION_MS = 6 * 60 * 60 * 1000;
@@ -3850,75 +4134,30 @@ function toggleFullscreen(sectionId) {
         console.error(`Error: Section with ID ${sectionId} not found.`);
     }
 }
-/**
- * دالة JavaScript لمنع النوافذ المنبثقة والإعلانات داخل
- * 
- * 
- *  الصفحة.
- * تستهدف العناصر ذات الخصائص الشائعة للإعلانات المنبثقة (مثل التثبيت على الشاشة).
- */
-function blockInPagePopups() {
-    // 1. قائمة بفئات CSS (classes) الشائعة التي تستخدمها الإعلانات المنبثقة
-    const adClasses = [
-        '.ad-container',         // حاويات الإعلانات العامة
-        '.popup-ad-wrapper',     // مغلفات الإعلانات المنبثقة
-        '#div-gpt-ad',           // مُعرفات (IDs) شائعة لأنظمة إعلانات معينة
-        '.fixed-ad',             // إعلانات مُثبتة (Fixed) غالبًا ما تكون مزعجة
-        // يمكنك إضافة أي فئات أو مُعرفات تلاحظها في إعلانات موقعك هنا
-    ];
 
-    // 2. محددات (Selectors) تستهدف العناصر ذات النمط الثابت والشفافية العالية (قد تكون إعلانات أو أغطية لإعلانات)
-    const fixedSelectors = [
-        'div[style*="position: fixed"]',      // أي عنصر div ذو تثبيت مطلق
-        'div[style*="z-index: 9999"]',        // أي عنصر ذو قيمة z-index عالية جدًا
-        'div[id*="ad-"]'                      // أي عنصر يحتوي ID على كلمة 'ad-'
-    ];
-
-    // دمج جميع محددات الإعلانات في محدد واحد
-    const allAdSelectors = adClasses.join(', ') + ', ' + fixedSelectors.join(', ');
-
-    // 3. البحث عن جميع العناصر المطابقة للمحددات
-    const adElements = document.querySelectorAll(allAdSelectors);
-
-    if (adElements.length > 0) {
-        console.log(`Coding Partner: تم العثور على ${adElements.length} عناصر إعلانية مشتبه بها. جاري إخفاؤها...`);
-        
-        // 4. المرور على جميع العناصر المخالفة وإخفاؤها
-        adElements.forEach(element => {
-            // قم بإزالة العنصر بالكامل من DOM (أكثر فعالية)
-            element.remove(); 
-            
-            // أو قم فقط بإخفائه (إذا كنت تخشى من تأثير الإزالة على تنسيق الصفحة)
-            // element.style.display = 'none'; 
-        });
-    } else {
-        // console.log("Coding Partner: لم يتم العثور على إعلانات داخلية في الفحص الحالي.");
-    }
-}
-
-// 5. استخدام MutationObserver لمراقبة DOM (الهيكل) لضمان العمل حتى بعد تحميل الإعلانات بالـ AJAX
-// إذا كانت الإعلانات تُحمّل بعد تحميل الصفحة (وهو أمر شائع)، فهذا يضمن التقاطها.
-const observer = new MutationObserver(blockInPagePopups);
-
-// ابدأ المراقبة عند تحميل الصفحة
-// راقب جميع التغييرات في الجسم الرئيسي (body) والـ subtree (جميع العناصر الفرعية)
 document.addEventListener('DOMContentLoaded', () => {
-    // نفذ الدالة مرة واحدة عند التحميل الأولي
-    blockInPagePopups(); 
+  if (typeof observer === 'undefined' || !observer) {
+        console.warn("⚠️ Observer was missing, creating a new instance...");
+        window.observer = new MutationObserver((mutations) => {
+            // ضع هنا الكود الذي تريده أن يتنفذ عند حدوث تغييرات
+            // mutations.forEach(...)
+        });
+    }
 
-    // ابدأ المراقبة المستمرة للتغييرات اللاحقة
-    observer.observe(document.body, { 
-        childList: true, 
-        subtree: true, 
-        attributes: true 
-    });
+    // 2. التأكد من وجود document.body قبل المراقبة
+    if (document.body) {
+        // --- الكود الخاص بك (الآن أصبح آمناً) ---
+        observer.observe(document.body, { 
+            childList: true, 
+            subtree: true, 
+            attributes: true 
+        });
+        console.log("✅ Observer started successfully on document.body");
+    } else {
+        console.error("❌ document.body not found! Observer could not start.");
+    }
 });
 
-
-
-// يمكنك أيضًا تشغيل الدالة بشكل دوري كل 5 ثوانٍ كطبقة حماية إضافية
-// setInterval(blockInPagePopups, 5000);
-// دالة جديدة لتحديث ودجت التاريخ الكامل في شاشة الحاسوب/التلفاز
 function updateFullDateWidget() {
     const dateWidgetContainer = document.getElementById('full-date-widget-container');
     if (!dateWidgetContainer) return;
@@ -4091,8 +4330,7 @@ async function displayLastWatchedVideo() {
         lucide.createIcons();
 
         // --- API Keys ---
-        const YOUTUBE_API_KEY = 'AIzaSyBdhcRo-EsvIduedQd-jFHfrEj9NeiP7pU';
-        const YOUTUBE_API_KEY2 = 'AIzaSyB7QdfI0br5BfP71hOr36hz2dRWG_l0G8k';
+        
         const AI_ASSISTANT_API_KEY = 'AIzaSyBMmtON9ww4dJxMHrl1wKyWTvI0ipJXJws'; 
         const WEATHER_API_KEY = '7acefc26deee4904a2393917252207'; 
         const GOOGLE_MAPS_API_KEY = 'AIzaSyBRqAHJ2elbE_Z7NXXYC50XZpqi6HbG6Rk';
@@ -6167,40 +6405,31 @@ function updateMinimizedControlsState() {
          playbackSelect.value = currentRate.toFixed(1).toString(); 
     }
 }
-
-   function onPlayerStateChange(event) {
-    if (event.data == YT.PlayerState.PLAYING) {
-        popupPlayer.setPlaybackQuality('tiny');
-        progressInterval = setInterval(() => {
-            const videoId = popupPlayer.getVideoData().video_id;
-            const currentTime = popupPlayer.getCurrentTime();
-            const duration = popupPlayer.getDuration();
-            updateVideoProgress(videoId, currentTime, duration);
-        }, 5000); 
-
-    } else if (event.data == YT.PlayerState.ENDED) {
-        if (progressInterval) clearInterval(progressInterval);
-        
+function onPlayerStateChange(event) {
+    if (event.data == YT.PlayerState.ENDED) {
         const videoData = popupPlayer.getVideoData();
         const videoId = videoData ? videoData.video_id : null;
-        markVideoAsWatched(videoId);
-        
-        if (popupPlayer) {
-            popupPlayer.destroy();
-            popupPlayer = null;
+
+        // إذا كان وضع Shuffle مفعل
+        if (window.isAutoPlayMode && window.currentSuggestedVideos) {
+            const currentIndex = window.currentSuggestedVideos.findIndex(v => v.id === videoId);
+            
+            if (currentIndex > -1 && currentIndex < window.currentSuggestedVideos.length - 1) {
+                // تشغيل الفيديو التالي من الـ 30
+                const nextVideo = window.currentSuggestedVideos[currentIndex + 1];
+                showVideoPopup(nextVideo.id, 0);
+                return; 
+            } else {
+                // انتهاء القائمة
+                window.isAutoPlayMode = false;
+                showMessageBox("انتهت قائمة التشغيل");
+            }
         }
-        
-        // 🚀 التغيير الحاسم هنا:
-        // بدلاً من عرض المفضلة القديمة، نستدعي محرك المقترحات الذكية
+
+        // العودة للمقترحات العادية (14 فيديو) عند انتهاء القائمة أو إذا كان الوضع مطفأ
+        if (popupPlayer) { popupPlayer.destroy(); popupPlayer = null; }
         showDashboardSuggestionsInPopup(); 
-        
-    } else {
-         if (progressInterval) {
-            clearInterval(progressInterval);
-            progressInterval = null;
-        }
     }
-    updateMinimizedControlsState();
 }
 
 function createSimpleSuggestionCard(video, type) {
@@ -6226,22 +6455,50 @@ function createSimpleSuggestionCard(video, type) {
     return card;
 }
 
+function playAsShufflePlaylist() {
+    const btn = document.querySelector('.playlist-shuffle-btn');
+    
+    if (window.isAutoPlayMode) {
+        // حالة الإيقاف
+        window.isAutoPlayMode = false;
+        if (btn) {
+            btn.innerHTML = `<i data-lucide="shuffle"></i> تشغيل الكل (Playlist)`;
+            btn.style.background = "linear-gradient(135deg, #9333ea 0%, #2563eb 100%)";
+        }
+    } else {
+        // حالة التشغيل
+        if (!window.allFetchedVideos30 || window.allFetchedVideos30.length === 0) return;
+        
+        window.isAutoPlayMode = true;
+        window.currentSuggestedVideos = [...window.allFetchedVideos30].sort(() => 0.5 - Math.random());
+
+        if (btn) {
+            btn.innerHTML = `<i data-lucide="square"></i> إيقاف التشغيل التلقائي`;
+            btn.style.background = "linear-gradient(135deg, #ef4444 0%, #991b1b 100%)"; // لون أحمر للإيقاف
+        }
+
+        const firstVideo = window.currentSuggestedVideos[0];
+        showVideoPopup(firstVideo.id, 0);
+    }
+    if (window.lucide) lucide.createIcons();
+}
+
+
 async function showDashboardSuggestionsInPopup() {
     const container = videoPopupPlayerContainer;
     
-    // 1. عرض شاشة تحميل وتجهيز النافذة
+    // 1. إظهار مؤشر التحميل وتجهيز النافذة
     container.innerHTML = `
-        <div class="p-8 text-center text-white">
-            <div class="animate-spin inline-block w-8 h-8 border-4 border-t-transparent border-white rounded-full mb-2"></div>
-            <p>جاري جلب مقترحات ذكية...</p>
+        <div class="p-8 text-center text-white flex flex-col items-center justify-center min-h-[200px]">
+            <div class="animate-spin inline-block w-10 h-10 border-4 border-t-transparent border-purple-500 rounded-full mb-4"></div>
+            <p class="text-lg font-medium">جاري جلب مقترحات ذكية...</p>
         </div>`;
     
     videoPopupContainer.style.display = 'flex';
     videoPopupContainer.classList.add('active');
 
     try {
-        // 2. جلب الفيديوهات من المصدر الجديد (fetchSuggestedVideos)
-        // هذه الدالة تجلب (4 فيديوهات لكل قناة | +2 دقيقة | بدون Shorts)
+        // 2. جلب الفيديوهات (تعيد 14 فيديو للعرض وتخزن 30 في window.allFetchedVideos30)
         const suggestedVideos = await fetchSuggestedVideos();
 
         if (!suggestedVideos || suggestedVideos.length === 0) {
@@ -6249,32 +6506,66 @@ async function showDashboardSuggestionsInPopup() {
             return;
         }
 
-        // 3. بناء الهيكل المتوافق مع الـ CSS الذي جعل العناصر تخرج للخارج
-        // لاحظ استخدام id="favorites-popup-grid" لأنه المرتبط بتنسيقات البروز لديك
-        let cardsHTML = `<div id="favorites-popup-grid">`;
+        // 3. تحديد حالة الزر (نص، أيقونة، ولون) بناءً على وضع التفعيل الحالي
+        const isAuto = window.isAutoPlayMode;
+        const btnText = isAuto ? "إيقاف التشغيل التلقائي" : "تشغيل الكل (Playlist)";
+        const btnIcon = isAuto ? "square" : "shuffle";
+        const btnStyle = isAuto 
+            ? "background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%) !important;" // أحمر للإيقاف
+            : "background: linear-gradient(135deg, #9333ea 0%, #2563eb 100%) !important;"; // أزرق/بنفسجي للتشغيل
 
+        // 4. بناء الهيكل الكامل (الزر في الأعلى والشبكة في الأسفل)
+        let fullHTML = `
+            <div class="suggestions-main-wrapper flex flex-col items-center gap-6 w-full" style="overflow: visible;">
+                
+                <button class="playlist-shuffle-btn navigable grid-item" 
+                        onclick="playAsShufflePlaylist()" 
+                        style="${btnStyle} z-index: 100; margin-bottom: 15px;">
+                    <i data-lucide="${btnIcon}"></i> 
+                    <span>${btnText}</span>
+                </button>
+
+                <div id="favorites-popup-grid" class="flex flex-row flex-nowrap gap-4 px-4 pb-8">
+        `;
+
+        // 5. إضافة البطاقات (الـ 14 فيديو المفلترة)
         suggestedVideos.forEach(video => {
-            // إنشاء البطاقة بالبيانات الجديدة
-            const card = createSimpleSuggestionCard(video, 'SUGGEST'); 
-            cardsHTML += card.outerHTML; 
+            const card = createSimpleSuggestionCard(video, 'SUGGEST');
+            card.classList.add('flex-shrink-0'); // لضمان عدم الانكماش والبروز للخارج
+            fullHTML += card.outerHTML;
         });
 
-        cardsHTML += '</div>';
-        container.innerHTML = cardsHTML;
+        fullHTML += `
+                </div>
+            </div>
+        `;
 
-        // 4. ربط أحداث النقر لتشغيل الفيديو المختار
+        // 6. حقن الكتلة كاملة في الواجهة
+        container.innerHTML = fullHTML;
+
+        // 7. تحديث الأيقونات وعناصر التنقل للريموت
+        if (window.lucide) lucide.createIcons();
+        if (typeof updateNavigableElements === 'function') updateNavigableElements();
+
+        // 8. ربط أحداث النقر للكروت (اختيار فيديو يدوي يوقف وضع الـ Playlist)
         container.querySelectorAll('.simple-suggestion-card').forEach(card => {
             card.addEventListener('click', (e) => {
-                const nextVideoId = e.currentTarget.dataset.videoId;
-                if (nextVideoId) {
-                    // تشغيل الفيديو (مع تصفير التقدم لأنه فيديو جديد)
-                    showVideoPopup(nextVideoId, 0); 
+                const videoId = e.currentTarget.dataset.videoId;
+                if (videoId) {
+                    window.isAutoPlayMode = false; // تعطيل الأوتوبلاي عند الاختيار اليدوي
+                    showVideoPopup(videoId, 0); 
                 }
             });
         });
 
+        // 9. نقل التركيز تلقائياً للزر الرئيسي لتسهيل التحكم
+        setTimeout(() => {
+            const mainBtn = container.querySelector('.playlist-shuffle-btn');
+            if (mainBtn) setFocus(mainBtn);
+        }, 200);
+
     } catch (e) {
-        console.error("Error displaying suggested videos:", e);
+        console.error("Critical error in showDashboardSuggestionsInPopup:", e);
         container.innerHTML = `<p class="p-8 text-center text-red-500">حدث خطأ أثناء تحميل المقترحات.</p>`;
     }
 }
@@ -7161,46 +7452,248 @@ button.addEventListener('click', () => {
              document.body.removeEventListener('click', closeFavoritesMenu);
         }
 
-        function showFavoritesMenu(button, video) {
-            closeFavoritesMenu(); // Close any existing menu first
+        /**
+ * تعرض قائمة خيارات الحفظ (المفضلة) بجانب الزر المضغوط.
+ * @param {HTMLElement} btnElement - الزر الذي تم ضغطه (this)
+ * @param {Event} event - حدث النقر
+ */
+function showFavoritesMenu(btnElement, event) {
+    // 1. منع انتشار الحدث والسلوك الافتراضي
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
 
-            const menu = document.createElement('div');
-            menu.className = 'favorites-menu';
-            const rect = button.getBoundingClientRect();
+    // 2. التحقق من وجود فيديو حالي
+    const currentVideoId = (typeof currentPlayingVideoId !== 'undefined') ? currentPlayingVideoId : null;
+    if (!currentVideoId) {
+        console.error("No video ID found to add to favorites.");
+        return;
+    }
 
-            menu.style.top = `${rect.bottom + 5}px`;
-            menu.style.left = `${rect.left}px`;
-            
-            menu.innerHTML = `
-                <button data-type="D" class="navigable grid-item" tabindex="0">
-                     <i data-lucide="folder-plus" class="w-4 h-4 text-blue-400"></i> CAR LIST
-                </button>
-                <button data-type="M" class="navigable grid-item" tabindex="0">
-                    <i data-lucide="folder-plus" class="w-4 h-4 text-pink-400"></i> TV LIST
-                </button>
-            `;
+    // 3. تحديد العنصر المرجعي (الزر) لتحديد الموقع
+    // نحاول استخدام العنصر الممرر، وإذا لم يوجد نستخدم هدف الحدث
+    let target = btnElement;
+    if (!target && event) {
+        target = event.currentTarget || event.target;
+    }
 
-            document.body.appendChild(menu);
-            menu.classList.add('show');
+    // إذا فشلنا في تحديد مكان الزر، لا يمكننا فتح القائمة بجانبه
+    if (!target) {
+        console.error("Critical: Cannot determine menu position (Target is null).");
+        // حل احتياطي: إضافة مباشرة للمفضلة دون قائمة
+        addToFavorites(currentVideoId); 
+        return;
+    }
 
-            menu.addEventListener('click', e => e.stopPropagation());
+    // 4. إغلاق أي قائمة مفتوحة سابقاً
+    const existingMenu = document.getElementById('fav-popup-menu');
+    if (existingMenu) existingMenu.remove();
 
-            menu.querySelectorAll('button').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
-                    e.stopPropagation();
-                    const type = btn.dataset.type;
-                    await saveVideoToFavorites(video, type);
-                    closeFavoritesMenu();
-                });
-            });
+    // 5. حساب الإحداثيات (هذا هو الجزء الذي كان يسبب الخطأ سابقاً)
+    const rect = target.getBoundingClientRect();
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
 
-            lucide.createIcons();
-            setFocus(menu.querySelector('button'));
+    // 6. إنشاء القائمة
+    const menu = document.createElement('div');
+    menu.id = 'fav-popup-menu';
+    
+    // تنسيق القائمة (يمكنك نقله لـ CSS)
+    Object.assign(menu.style, {
+        position: 'absolute',
+        top: `${rect.bottom + scrollTop + 10}px`, // أسفل الزر بـ 10 بكسل
+        left: `${rect.left + scrollLeft}px`,      // محاذاة لليسار
+        zIndex: '2147483647',                     // أعلى طبقة
+        backgroundColor: '#1f2937',               // لون خلفية داكن
+        color: 'white',
+        padding: '8px 0',
+        borderRadius: '12px',
+        boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
+        minWidth: '200px',
+        border: '1px solid rgba(255,255,255,0.1)',
+        display: 'flex',
+        flexDirection: 'column',
+        fontFamily: 'sans-serif'
+    });
 
-            setTimeout(() => {
-                document.body.addEventListener('click', closeFavoritesMenu, { once: true });
-            }, 0);
+    // 7. محتوى القائمة (الخيارات)
+    menu.innerHTML = `
+        <div class="menu-item" onclick="handleMenuAction('ADD', '${currentVideoId}')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path></svg>
+            <span>إضافة للمفضلة</span>
+        </div>
+        <div class="menu-item" onclick="handleMenuAction('SHARE', '${currentVideoId}')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+            <span>مشاركة الرابط</span>
+        </div>
+        <div style="height: 1px; background: rgba(255,255,255,0.1); margin: 5px 0;"></div>
+        <div class="menu-item text-red" onclick="handleMenuAction('CLOSE', null)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            <span>إغلاق</span>
+        </div>
+    `;
+
+    // 8. إضافة تنسيقات العناصر الداخلية (Hover effect)
+    const styleTag = document.createElement('style');
+    styleTag.textContent = `
+        #fav-popup-menu .menu-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.2s;
+            font-size: 14px;
         }
+        #fav-popup-menu .menu-item:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        #fav-popup-menu .text-red { color: #ff6b6b; }
+    `;
+    menu.appendChild(styleTag);
+
+    // 9. إضافة القائمة للصفحة (Body) لضمان ظهورها فوق كل شيء
+    document.body.appendChild(menu);
+
+    // 10. معالجة إغلاق القائمة عند النقر خارجها
+    setTimeout(() => {
+        const closeMenuHandler = (e) => {
+            if (!menu.contains(e.target) && e.target !== target) {
+                menu.remove();
+                document.removeEventListener('click', closeMenuHandler);
+            }
+        };
+        document.addEventListener('click', closeMenuHandler);
+    }, 100);
+}
+
+function addManualKeySwitcher() {
+    // منع تكرار العنصر في الصفحة
+    if (document.getElementById('manual-key-switcher')) return;
+
+    // 1. الحاوية الرئيسية (Dock) - شكل عائم وشفاف في المنتصف
+    const container = document.createElement('div');
+    container.id = 'manual-key-switcher';
+    Object.assign(container.style, {
+        position: 'fixed', 
+        bottom: '150px', 
+        left: '20%', 
+        transform: 'translateX(-50%)', // لتوسيط العنصر تماماً
+        zIndex: '9999999', 
+        display: 'flex', 
+        gap: '15px', // مسافة بين الكبسولتين
+        padding: '12px 25px', 
+        background: 'rgba(20, 20, 20, 0.8)', // خلفية داكنة شفافة
+        borderRadius: '50px', // حواف دائرية بالكامل للحاوية
+        backdropFilter: 'blur(10px)', // تأثير الزجاج
+        boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+        border: '1px solid rgba(255,255,255,0.1)'
+    });
+
+    // 2. دالة لإنشاء الكبسولة (الزر)
+    const createCapsule = (id, label, activeVar, storageKey, otherStorageKey) => {
+        const btn = document.createElement('button');
+        btn.className = 'navigable'; // لدعم التنقل بالريموت إن وجد
+        
+        // 🔍 استخراج رقم الإندكس الحقيقي من المصفوفة لضمان دقة العرض
+        let realIndex = YT_KEYS_POOL.indexOf(activeVar);
+        
+        // في حال عدم العثور عليه (خطأ ما)، نضع قيمة افتراضية للعرض فقط
+        if (realIndex === -1) realIndex = (id === 1) ? 0 : 1;
+
+        // تصميم الكبسولة
+        Object.assign(btn.style, {
+            border: 'none', 
+            cursor: 'pointer',
+            padding: '10px 24px', 
+            borderRadius: '30px', // حواف دائرية للزر نفسه
+            fontSize: '13px', 
+            fontWeight: 'bold', 
+            fontFamily: 'sans-serif',
+            color: '#fff', 
+            background: '#10b981', // 🟢 أخضر = المفتاح صالح ونشط
+            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)', // توهج أخضر خفيف
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '10px',
+            transition: 'all 0.2s ease',
+            outline: 'none'
+        });
+
+        // محتوى الكبسولة (الاسم + الرقم)
+        btn.innerHTML = `
+            <span>${label}</span>
+            <span style="background:rgba(0,0,0,0.25); padding:2px 10px; border-radius:12px; font-size:11px;">
+                Idx: ${realIndex}
+            </span>
+        `;
+
+        // عند التمرير بالماوس (Hover)
+        btn.onmouseenter = () => btn.style.transform = 'scale(1.05)';
+        btn.onmouseleave = () => btn.style.transform = 'scale(1)';
+
+        // 🟢 عند الضغط (Action)
+        btn.onclick = () => {
+            // 1. تغيير المظهر للأصفر (جاري العمل)
+            btn.style.background = '#f59e0b'; // 🟡 أصفر
+            btn.style.boxShadow = '0 4px 12px rgba(245, 158, 11, 0.4)';
+            btn.innerHTML = `<span>Switching...</span> ⌛`;
+            
+            // 2. معرفة مكان المفتاح الآخر لتجنبه (Anti-Collision)
+            let otherIndex = parseInt(localStorage.getItem(otherStorageKey)) || (id === 1 ? 1 : 0);
+
+            // 3. حساب الرقم التالي (دوران 0-9)
+            let nextIndex = (realIndex + 1) % YT_KEYS_POOL.length;
+
+            // 4. القفز إذا كان الرقم القادم مشغولاً
+            if (nextIndex === otherIndex) {
+                console.warn(`🦘 Index ${nextIndex} busy. Skipping...`);
+                nextIndex = (nextIndex + 1) % YT_KEYS_POOL.length;
+            }
+
+            // 5. حفظ الإعداد الجديد
+            localStorage.setItem(storageKey, nextIndex);
+
+            // 6. إعادة تحميل الصفحة لتطبيق التغيير
+            console.log(`✅ ${label} switched to Index ${nextIndex}. Reloading...`);
+            setTimeout(() => location.reload(), 250);
+        };
+
+        return btn;
+    };
+
+    // 3. إضافة الكبسولتين للحاوية
+    // نمرر المتغيرات الحالية (YOUTUBE_API_KEY) لكي يعرف الزر أي رقم يعرض
+    container.appendChild(createCapsule(1, 'KEY 1', YOUTUBE_API_KEY, 'yt_idx_1', 'yt_idx_2'));
+    container.appendChild(createCapsule(2, 'KEY 2', YOUTUBE_API_KEY2, 'yt_idx_2', 'yt_idx_1'));
+
+    // إضافة الحاوية للصفحة
+    document.body.appendChild(container);
+}
+
+// تشغيل الدالة تلقائياً عند تحميل الصفحة
+document.addEventListener('DOMContentLoaded', addManualKeySwitcher);
+
+
+function handleMenuAction(action, videoId) {
+    const menu = document.getElementById('fav-popup-menu');
+    if (menu) menu.remove();
+
+    if (action === 'ADD' && videoId) {
+        if (typeof addToFavorites === 'function') {
+            addToFavorites(videoId);
+        } else {
+            console.warn("addToFavorites function is missing!");
+        }
+    } else if (action === 'SHARE' && videoId) {
+        const url = `https://youtu.be/${videoId}`;
+        navigator.clipboard.writeText(url).then(() => {
+            // يمكن استبدال هذا بـ showMessageBox
+            alert("تم نسخ رابط الفيديو!");
+        });
+    }
+}
 
         async function fetchFavorites(type) {
             const binId = type === 'D' ? JSONBIN_BIN_ID_FAV_D : JSONBIN_BIN_ID_FAV_M;
@@ -7692,7 +8185,7 @@ async function centerMapOnUserLocation() {
                 // 2. الانتظار لتحديث مؤشرات الازدحام باستخدام الموقع الجديد
                 await updateTrafficIndicators(); 
                 
-                showMessageBox(`تم تحديث الخريطة ومؤشرات الازدحام بنجاح.`); 
+               
             }, 
             // 🛑 الفشل: خطأ في الوصول
             async (err) => { // 👈 يجب أن تكون الدالة async للتعامل مع await
@@ -7778,7 +8271,7 @@ function parseDurationToSeconds(isoDuration) {
                 }
             } catch (err) {
                 console.error('Error calculating directions:', err);
-                showMessageBox('حدث خطأ أثناء حساب الاتجاهات.');
+                
             }
         }
 
