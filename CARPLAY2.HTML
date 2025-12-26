@@ -30,6 +30,68 @@
         onload="this.media='all'"
     >
     <style>
+
+        /* 1. تعديل مسار الصورة: الانتقال من الابن المباشر إلى البحث داخل الـ div */
+.suggested-d-dashboard-card.navigable.grid-item.p-2 div > img {
+    width: 11.1rem !important;
+    height: 6.1rem !important;
+    object-fit: cover !important;
+    border-radius: 12px !important;
+    display: block; /* لضمان عدم وجود مسافات غريبة بالأسفل */
+}
+
+/* 2. تنسيق حاوية الصورة والزر (لضمان العوم الصحيح) */
+.suggested-d-dashboard-card.navigable.grid-item.p-2 > div {
+    position: relative; /* ضروري لكي يعمل التموضع المطلق للزر */
+    width: 11.1rem !important;
+    height: 6.1rem !important;
+    border-radius: 12px;
+    overflow: hidden; /* لقص حواف الصورة والزر عند الزوايا */
+}
+
+/* 3. تنسيق زر الـ Bookmark العائم */
+.dashboard-only-bookmark {
+    position: absolute !important;
+    top: 5px !important;
+    right: 5px !important;
+    z-index: 10; /* فوق الصورة */
+    background: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 50% !important;
+    width: 28px !important;
+    height: 28px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: white !important;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* 4. تأثير التركيز (Focus) للريموت كنترول */
+.dashboard-only-bookmark:focus, 
+.dashboard-only-bookmark.tv-focus {
+    background: #9333ea !important; /* بنفسجي */
+    transform: scale(1.1);
+    border-color: white !important;
+    box-shadow: 0 0 10px rgba(147, 51, 234, 0.8);
+    outline: none;
+}
+
+/* تصغير أيقونة البوكمارك */
+.dashboard-only-bookmark svg {
+    width: 14px !important;
+    height: 14px !important;
+}
+
+/* 5. الاستمرار في إخفاء النصوص القديمة */
+.suggested-d-dashboard-card.navigable.grid-item.p-2 .video-details,
+.suggested-d-dashboard-card.navigable.grid-item.p-2 h6,
+.suggested-d-dashboard-card.navigable.grid-item.p-2 p {
+    display: none !important;
+}
+
         /* Import Amiri Quran font for Adhkar text */
         @import url('https://fonts.googleapis.com/css2?family=Amiri+Quran:wght@400;700&display=swap');
         /* NEW: Import Amiri font for Thuluth-like style */
@@ -38,7 +100,7 @@
     background: black;
     width: 265px;
     height: 250px;
-border:solid;
+    border:solid;
 }
 
 #suggested-d-dashboard-parent {
@@ -3674,14 +3736,23 @@ function renderSuggestedDashboard(videosInput = null) {
     // 5. بناء الكروت (بالهيكل القديم المباشر)
     const fragment = document.createDocumentFragment(); 
 
-    finalDisplayList.forEach(video => {
+  finalDisplayList.forEach(video => {
         const card = document.createElement('div');
-        // استخدام الكلاسات القديمة تماماً ليتفاعل معها الـ CSS
+        // ✅ الحفاظ على الكلاسات القديمة ليتعرف عليها الـ CSS الخاص بك
         card.className = 'suggested-d-dashboard-card navigable grid-item p-2'; 
         card.tabIndex = 0; 
         
         card.innerHTML = `
-            <img src="${video.thumbnail}" alt="${video.title}" loading="lazy">
+            <div style="position:relative; width:100%;">
+                <img src="${video.thumbnail}" alt="${video.title}" loading="lazy">
+                
+                <button id="dash-bk-${video.id}" 
+                        class="dashboard-only-bookmark navigable grid-item" 
+                        tabindex="0">
+                    <i data-lucide="bookmark"></i>
+                </button>
+            </div>
+
             <div class="video-details flex-grow-1"> 
                 <h6 class="mb-0 text-truncate">${video.title}</h6>
                 <p class="mb-1 text-muted small">${video.channelTitle}</p>
@@ -3689,9 +3760,21 @@ function renderSuggestedDashboard(videosInput = null) {
             <div class="flex flex-col flex-grow min-w-0 h-full justify-between ml-2"></div>
         `;
         
-        card.addEventListener('click', () => {
-            window.isAutoPlayMode = false;
-            showVideoPopup(video.id); 
+        // 1. ربط الزر الجديد بقائمة المفضلة (Car/TV)
+        const bookmarkBtn = card.querySelector(`#dash-bk-${video.id}`);
+        bookmarkBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // منع تشغيل الفيديو
+            if (typeof showFavoritesMenu === 'function') {
+                showFavoritesMenu(bookmarkBtn, video);
+            }
+        });
+
+        // 2. النقر على الكارت يشغل الفيديو (بشرط عدم النقر على زر الحفظ)
+        card.addEventListener('click', (e) => {
+            if (!e.target.closest('.dashboard-only-bookmark')) {
+                window.isAutoPlayMode = false;
+                showVideoPopup(video.id); 
+            }
         });
 
         fragment.appendChild(card);
@@ -7176,25 +7259,8 @@ async function removeReciterFromList(reciterName) {
         showMessageBox(`حدث خطأ أثناء إزالة القارئ ${reciterName}.`);
     }
 }
-// --- REPLACE THIS FUNCTION AGAIN ---
-       // --- REPLACE THIS FUNCTION AGAIN ---
-       // --- REPLACE THIS FUNCTION AGAIN ---
- /**
- * REPLACED: Fetches and populates the content for the Media screen tabs (Reciters, Channels, Tools, Saved).
- * The Reciters list is now dynamically fetched from JSONBin.io.
- */
-/**
- * REPLACED & COMPLETE: Fetches and populates the content for the Media screen tabs (Reciters, Channels, Tools, Saved).
- * It uses the global cache (localRecitersCache) and falls back to fetching only if the cache is empty.
- */
-/**
- * REPLACED & COMPLETE: Fetches and populates the content for the Media screen tabs 
- * (Reciters, Channels, Tools, Saved). It uses the global cache for data consistency.
- */
 async function populateYoutubeSuggestions() {
     const suggestionsContent = document.getElementById('suggestions-content');
-
-    
     if (!suggestionsContent) {
         console.error("suggestions-content element not found!");
         return;
@@ -7474,6 +7540,120 @@ async function populateYoutubeSuggestions() {
 
     lucide.createIcons();
     updateNavigableElements();
+}
+
+/**
+ * RENAMED & REFINED: Handles the search action specifically for finding a Reciter Channel.
+ * Applies strong filtering for 'type=channel' and 'relevanceLanguage=ar'.
+ */
+async function handleSearchForReciterChannel() {
+    // 🛑 نستخدم هنا المُعرّف الصحيح من نافذة القراء المنبثقة
+    const inputEl = document.getElementById('new-reciter-name-input'); 
+    const resultsContainer = document.getElementById('channel-search-results'); // نفس اسم حاوية النتائج
+    const confirmBtn = document.getElementById('search-channel-confirm'); // نفس اسم زر البحث
+    const query = inputEl.value.trim();
+
+    if (!query) {
+        showMessageBox("الرجاء إدخال اسم القارئ/القناة للبحث.");
+        return;
+    }
+    // ... (بقية منطق التحميل والتأكد) ...
+    // ... (بقية منطق التحميل والتأكد) ...
+
+    try {
+        // 🛑 API Call: Filtered for Channel Type and Arabic Relevance
+        const API_URL = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=channel&key=${YOUTUBE_API_KEY}&maxResults=10&relevanceLanguage=ar`; 
+        
+        const response = await fetch(API_URL);
+        
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+        const data = await response.json();
+        
+        displayReciterSearchResults(data.items);
+        
+    } catch (error) {
+        // ... (بقية منطق الخطأ) ...
+    } finally {
+        // ... (بقية منطق التحميل) ...
+    }
+}
+
+/**
+ * NEW: Displays the search results (channels) inside the "Add Reciter" modal.
+ * It creates cards with an "Add" button, which calls handleAddReciter.
+ * @param {Array} channels - List of channel search results from YouTube API.
+ */
+function displayReciterSearchResults(channels) {
+    const resultsContainer = document.getElementById('channel-search-results');
+    resultsContainer.innerHTML = '';
+
+    if (!channels || channels.length === 0) {
+        resultsContainer.innerHTML = '<p class="text-center text-white/70">لم يتم العثور على قنوات بهذا الاسم باللغة العربية.</p>';
+        updateNavigableElements();
+        return;
+    }
+
+    channels.forEach(channel => {
+        const channelId = channel.id.channelId;
+        const channelTitle = channel.snippet.title;
+        const channelThumbnail = channel.snippet.thumbnails.default.url;
+        
+        // التحقق مما إذا كان القارئ (الاسم) موجوداً بالفعل في قائمة القراء
+        const isSaved = localRecitersCache.some(r => r.name === channelTitle); 
+
+        const resultCard = document.createElement('div');
+        resultCard.className = 'flex items-center gap-4 p-3 rounded-xl bg-white/5 navigable grid-item';
+        resultCard.tabIndex = 0; // لضمان التنقل بالريموت
+        
+        resultCard.innerHTML = `
+            <img src="${channelThumbnail}" alt="${channelTitle}" class="w-16 h-16 rounded-full object-cover flex-shrink-0" onerror="this.onerror=null;this.src='https://placehold.co/64x64';">
+            <div class="flex-grow min-w-0">
+                <h4 class="font-bold truncate text-lg">${channelTitle}</h4>
+                <p class="text-sm text-white/60 truncate">${channel.snippet.description || 'قناة يوتيوب'}</p>
+            </div>
+            <button 
+                class="add-reciter-from-search-btn p-2 rounded-full transition-colors flex-shrink-0 navigable grid-item" 
+                data-reciter-name="${channelTitle}" 
+                data-reciter-image="${channelThumbnail}"
+                ${isSaved ? 'disabled' : ''}
+                tabindex="0"
+                style="background-color: ${isSaved ? '#10B981' : '#9333ea'};"
+            >
+                <i data-lucide="${isSaved ? 'check' : 'plus'}" class="w-5 h-5 text-white"></i>
+            </button>
+        `;
+        resultsContainer.appendChild(resultCard);
+
+        // ربط حدث النقر على زر الإضافة
+        if (!isSaved) {
+            resultCard.querySelector('.add-reciter-from-search-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                const btn = e.currentTarget;
+                const name = btn.dataset.reciterName;
+                const image = btn.dataset.reciterImage;
+                handleAddReciter(name, image, btn); 
+            });
+            // ربط النقر على البطاقة نفسها بفتح القناة (ميزة إضافية)
+            resultCard.addEventListener('click', (e) => {
+                if(e.target.closest('button')) return; // لا تفعل شيئًا إذا تم النقر على الزر
+                showMessageBox(`لتشغيل فيديوهات القناة، انقر على زر الإضافة ثم ابحث باسم القارئ في الشاشة الرئيسية.`);
+            });
+        } else {
+             // إذا كان محفوظًا، اجعل النقر على البطاقة يفتح نافذة "تمت الإضافة"
+             resultCard.addEventListener('click', () => showMessageBox(`تمت إضافة القارئ "${channelTitle}" بالفعل. يمكنك الآن البحث به في شاشة الوسائط.`));
+        }
+    });
+    
+    lucide.createIcons();
+    // 🛑 يجب تحديث العناصر القابلة للتنقل بعد إضافة النتائج
+    updateNavigableElements();
+    
+    // نقل التركيز إلى أول نتيجة
+    setTimeout(() => {
+        const firstResult = resultsContainer.querySelector('.grid-item');
+        if (firstResult) setFocus(firstResult);
+    }, 50);
 }
 
 /**
