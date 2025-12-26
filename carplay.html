@@ -30,6 +30,68 @@
         onload="this.media='all'"
     >
     <style>
+
+        /* 1. تعديل مسار الصورة: الانتقال من الابن المباشر إلى البحث داخل الـ div */
+.suggested-d-dashboard-card.navigable.grid-item.p-2 div > img {
+    width: 11.1rem !important;
+    height: 6.1rem !important;
+    object-fit: cover !important;
+    border-radius: 12px !important;
+    display: block; /* لضمان عدم وجود مسافات غريبة بالأسفل */
+}
+
+/* 2. تنسيق حاوية الصورة والزر (لضمان العوم الصحيح) */
+.suggested-d-dashboard-card.navigable.grid-item.p-2 > div {
+    position: relative; /* ضروري لكي يعمل التموضع المطلق للزر */
+    width: 11.1rem !important;
+    height: 6.1rem !important;
+    border-radius: 12px;
+    overflow: hidden; /* لقص حواف الصورة والزر عند الزوايا */
+}
+
+/* 3. تنسيق زر الـ Bookmark العائم */
+.dashboard-only-bookmark {
+    position: absolute !important;
+    top: 5px !important;
+    right: 5px !important;
+    z-index: 10; /* فوق الصورة */
+    background: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 50% !important;
+    width: 28px !important;
+    height: 28px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: white !important;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* 4. تأثير التركيز (Focus) للريموت كنترول */
+.dashboard-only-bookmark:focus, 
+.dashboard-only-bookmark.tv-focus {
+    background: #9333ea !important; /* بنفسجي */
+    transform: scale(1.1);
+    border-color: white !important;
+    box-shadow: 0 0 10px rgba(147, 51, 234, 0.8);
+    outline: none;
+}
+
+/* تصغير أيقونة البوكمارك */
+.dashboard-only-bookmark svg {
+    width: 14px !important;
+    height: 14px !important;
+}
+
+/* 5. الاستمرار في إخفاء النصوص القديمة */
+.suggested-d-dashboard-card.navigable.grid-item.p-2 .video-details,
+.suggested-d-dashboard-card.navigable.grid-item.p-2 h6,
+.suggested-d-dashboard-card.navigable.grid-item.p-2 p {
+    display: none !important;
+}
+
         /* Import Amiri Quran font for Adhkar text */
         @import url('https://fonts.googleapis.com/css2?family=Amiri+Quran:wght@400;700&display=swap');
         /* NEW: Import Amiri font for Thuluth-like style */
