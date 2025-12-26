@@ -7259,25 +7259,9 @@ async function removeReciterFromList(reciterName) {
         showMessageBox(`حدث خطأ أثناء إزالة القارئ ${reciterName}.`);
     }
 }
-// --- REPLACE THIS FUNCTION AGAIN ---
-       // --- REPLACE THIS FUNCTION AGAIN ---
-       // --- REPLACE THIS FUNCTION AGAIN ---
- /**
- * REPLACED: Fetches and populates the content for the Media screen tabs (Reciters, Channels, Tools, Saved).
- * The Reciters list is now dynamically fetched from JSONBin.io.
- */
-/**
- * REPLACED & COMPLETE: Fetches and populates the content for the Media screen tabs (Reciters, Channels, Tools, Saved).
- * It uses the global cache (localRecitersCache) and falls back to fetching only if the cache is empty.
- */
-/**
- * REPLACED & COMPLETE: Fetches and populates the content for the Media screen tabs 
- * (Reciters, Channels, Tools, Saved). It uses the global cache for data consistency.
- */
+
 async function populateYoutubeSuggestions() {
     const suggestionsContent = document.getElementById('suggestions-content');
-
-    
     if (!suggestionsContent) {
         console.error("suggestions-content element not found!");
         return;
@@ -7601,6 +7585,78 @@ async function handleSearchForReciterChannel() {
  * It creates cards with an "Add" button, which calls handleAddReciter.
  * @param {Array} channels - List of channel search results from YouTube API.
  */
+function displayReciterSearchResults(channels) {
+    const resultsContainer = document.getElementById('channel-search-results');
+    resultsContainer.innerHTML = '';
+
+    if (!channels || channels.length === 0) {
+        resultsContainer.innerHTML = '<p class="text-center text-white/70">لم يتم العثور على قنوات بهذا الاسم باللغة العربية.</p>';
+        updateNavigableElements();
+        return;
+    }
+
+    channels.forEach(channel => {
+        const channelId = channel.id.channelId;
+        const channelTitle = channel.snippet.title;
+        const channelThumbnail = channel.snippet.thumbnails.default.url;
+        
+        // التحقق مما إذا كان القارئ (الاسم) موجوداً بالفعل في قائمة القراء
+        const isSaved = localRecitersCache.some(r => r.name === channelTitle); 
+
+        const resultCard = document.createElement('div');
+        resultCard.className = 'flex items-center gap-4 p-3 rounded-xl bg-white/5 navigable grid-item';
+        resultCard.tabIndex = 0; // لضمان التنقل بالريموت
+        
+        resultCard.innerHTML = `
+            <img src="${channelThumbnail}" alt="${channelTitle}" class="w-16 h-16 rounded-full object-cover flex-shrink-0" onerror="this.onerror=null;this.src='https://placehold.co/64x64';">
+            <div class="flex-grow min-w-0">
+                <h4 class="font-bold truncate text-lg">${channelTitle}</h4>
+                <p class="text-sm text-white/60 truncate">${channel.snippet.description || 'قناة يوتيوب'}</p>
+            </div>
+            <button 
+                class="add-reciter-from-search-btn p-2 rounded-full transition-colors flex-shrink-0 navigable grid-item" 
+                data-reciter-name="${channelTitle}" 
+                data-reciter-image="${channelThumbnail}"
+                ${isSaved ? 'disabled' : ''}
+                tabindex="0"
+                style="background-color: ${isSaved ? '#10B981' : '#9333ea'};"
+            >
+                <i data-lucide="${isSaved ? 'check' : 'plus'}" class="w-5 h-5 text-white"></i>
+            </button>
+        `;
+        resultsContainer.appendChild(resultCard);
+
+        // ربط حدث النقر على زر الإضافة
+        if (!isSaved) {
+            resultCard.querySelector('.add-reciter-from-search-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                const btn = e.currentTarget;
+                const name = btn.dataset.reciterName;
+                const image = btn.dataset.reciterImage;
+                handleAddReciter(name, image, btn); 
+            });
+            // ربط النقر على البطاقة نفسها بفتح القناة (ميزة إضافية)
+            resultCard.addEventListener('click', (e) => {
+                if(e.target.closest('button')) return; // لا تفعل شيئًا إذا تم النقر على الزر
+                showMessageBox(`لتشغيل فيديوهات القناة، انقر على زر الإضافة ثم ابحث باسم القارئ في الشاشة الرئيسية.`);
+            });
+        } else {
+             // إذا كان محفوظًا، اجعل النقر على البطاقة يفتح نافذة "تمت الإضافة"
+             resultCard.addEventListener('click', () => showMessageBox(`تمت إضافة القارئ "${channelTitle}" بالفعل. يمكنك الآن البحث به في شاشة الوسائط.`));
+        }
+    });
+    
+    lucide.createIcons();
+    // 🛑 يجب تحديث العناصر القابلة للتنقل بعد إضافة النتائج
+    updateNavigableElements();
+    
+    // نقل التركيز إلى أول نتيجة
+    setTimeout(() => {
+        const firstResult = resultsContainer.querySelector('.grid-item');
+        if (firstResult) setFocus(firstResult);
+    }, 50);
+}
+
 function displayReciterSearchResults(channels) {
     const resultsContainer = document.getElementById('channel-search-results');
     resultsContainer.innerHTML = '';
