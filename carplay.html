@@ -30,7 +30,37 @@
         onload="this.media='all'"
     >
     <style>
+/* 1. The Container: Enable Horizontal Scrolling */
+#favorites-popup-grid {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important; /* Prevents cards from dropping to next line */
+    overflow-x: auto !important;  /* Enables horizontal scroll */
+    overflow-y: hidden !important;
+    gap: 16px !important;
+    width: 100% !important;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling for iOS */
+    scrollbar-width: none; /* Hides scrollbar in Firefox */
+    padding-bottom: 20px !important; /* Extra space for shadow/focus effects */
+}
 
+/* 2. Hide Scrollbar for Chrome, Safari and Edge */
+#favorites-popup-grid::-webkit-scrollbar {
+    display: none;
+}
+
+/* 3. The Cards: Fixed Width and No Shrinking */
+.simple-suggestion-card {
+    flex: 0 0 auto !important; /* CRITICAL: Prevents cards from shrinking to fit the screen */
+    width: 200px !important;   /* Set a fixed width for the cards */
+    transition: transform 0.2s ease;
+}
+
+/* Optional: Focus effect to match dashboard */
+.simple-suggestion-card:focus {
+    outline: 3px solid #9333ea;
+    transform: scale(1.05);
+}
         /* 1. تعديل مسار الصورة: الانتقال من الابن المباشر إلى البحث داخل الـ div */
 .suggested-d-dashboard-card.navigable.grid-item.p-2 div > img {
     width: 11.1rem !important;
@@ -44,7 +74,7 @@
 .suggested-d-dashboard-card.navigable.grid-item.p-2 > div {
     position: relative; /* ضروري لكي يعمل التموضع المطلق للزر */
     width: 11.1rem !important;
-    height: 6.1rem !important;
+    height: 7.1rem !important;
     border-radius: 12px;
     overflow: hidden; /* لقص حواف الصورة والزر عند الزوايا */
 }
@@ -1749,7 +1779,7 @@ div#youtube-readers-section {
             position: relative;
         }
         .car-cam-360-container img {
-            height: 160%;
+            height: 160% !important;
             width: 100%; 
             object-fit: cover;
         }
@@ -3083,6 +3113,40 @@ window.onYouTubeIframeAPIReady = function() {
     console.log("✅ YouTube API is Ready.");
 };
 
+function playRandomSuggested() {
+    // جلب القائمة المفلترة (بدون المكتملة)
+    const availableVideos = filterWatchedVideos(window.suggestedVideos || []);
+    
+    if (availableVideos.length === 0) {
+        console.log("كل الفيديوهات تمت مشاهدتها! جاري إعادة تصفير القائمة...");
+        // اختياري: مسح قائمة المكتملة إذا انتهت الفيديوهات
+        return;
+    }
+
+    const randomIndex = Math.floor(Math.random() * Math.min(availableVideos.length, 30));
+    const selectedVideo = availableVideos[randomIndex];
+    
+    playYoutubeVideo(selectedVideo.id, selectedVideo.title);
+}
+
+
+function filterWatchedVideos(videoList) {
+    // جلب قائمة الفيديوهات التي اكتملت مشاهدتها من الكاش المحلي
+    const watchedData = JSON.parse(localStorage.getItem('youtube_watched_history') || '{}');
+    
+    // استبعاد الفيديوهات التي تم وسمها كـ "مكتملة" (مثلاً تجاوزت 95% من وقتها)
+    // أو الفيديوهات الموجودة في قائمة 'completed'
+    const completedVideos = JSON.parse(localStorage.getItem('completed_videos_ids') || '[]');
+
+    return videoList.filter(video => {
+        // لا تستبعد البث المباشر أبداً
+        if (video.isLive) return true;
+        
+        // استبعاد إذا كان الفيديو في قائمة المكتملة
+        return !completedVideos.includes(video.id);
+    });
+}
+
 // 2. دالة لجلب المكتبة يدوياً إذا تأخرت
 function loadYouTubeApi() {
     if (window.YT && window.YT.Player) {
@@ -3525,21 +3589,17 @@ function shouldRefreshNow(lastTimestamp) {
     return false;
 }
 async function fetchSuggestedVideos() {
-    const CACHE_KEY = 'suggestedVideosCache_Pure';
-    const lastUpdate = localStorage.getItem('last_fetch_timestamp_pure');
+    const CACHE_KEY = 'suggestedVideosCache_Final';
+    const lastUpdate = localStorage.getItem('last_fetch_timestamp_final');
     const now = Date.now();
     const FOUR_HOURS = 4 * 60 * 60 * 1000;
 
-    // 1. نظام الكاش الذكي
+    // 1. استخدام الكاش لتوفير الكوتا وسرعة الاستجابة
     const cachedData = localStorage.getItem(CACHE_KEY);
     if (cachedData && lastUpdate && (now - lastUpdate < FOUR_HOURS)) {
-        console.log("📦 Loading Pure Content from Cache");
-        return JSON.parse(cachedData);
+        return filterWatchedVideos(JSON.parse(cachedData));
     }
 
-    console.log("📥 Fetching Pure Videos & Live Streams...");
-
-    // 2. جلب قائمة الـ 6 قنوات
     let channelIdsArray = [];
     try {
         const res = await fetch(`https://api.jsonbin.io/v3/b/${NEW_JSONBIN_CHANNEL_IDS}/latest`, {
@@ -3548,52 +3608,61 @@ async function fetchSuggestedVideos() {
         const data = await res.json();
         channelIdsArray = Array.isArray(data.record) ? data.record.slice(0, 6) : [];
     } catch (e) {
-        return JSON.parse(localStorage.getItem(CACHE_KEY) || "[]");
+        return filterWatchedVideos(JSON.parse(localStorage.getItem(CACHE_KEY) || "[]"));
     }
 
-    let allPureVideos = [];
+    let allFetchedItems = [];
 
     for (const channelId of channelIdsArray) {
         try {
-            // تحويل الـ Channel ID إلى Uploads Playlist ID (تبديل UC بـ UU)
-            const uploadsId = channelId.replace(/^UC/, 'UU');
+            // أ. جلب البث المباشر الحالي (Live Now) - تكلفة 10 كوتا لكنها ضرورية للمباشر
+            const liveUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&type=video&eventType=live&key=${YOUTUBE_API_KEY}`;
+            const liveData = await fetchSafely(liveUrl);
+            
+            if (liveData?.items?.length > 0) {
+                liveData.items.forEach(item => {
+                    allFetchedItems.push({
+                        id: item.id.videoId,
+                        title: `🔴 مباشر: ${item.snippet.title}`,
+                        thumbnail: item.snippet.thumbnails.medium?.url,
+                        channelTitle: item.snippet.channelTitle,
+                        publishedAt: item.snippet.publishedAt,
+                        isLive: true // علامة مميزة للبث المباشر
+                    });
+                });
+            }
 
-            // طلب PlaylistItems: يعطينا الفيديوهات الطويلة والجديدة مباشرة
-            // نطلب 8 فيديوهات من كل قناة لضمان التنوع
-            const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${uploadsId}&maxResults=8&key=${YOUTUBE_API_KEY}`;
-            
-            const data = await fetchSafely(url);
-            
-            if (data?.items) {
-                data.items.forEach(item => {
-                    // استخراج البيانات مع التأكد من أنها ليست فيديو خاص أو محذوف
-                    if (item.snippet.title !== "Private video" && item.snippet.title !== "Deleted video") {
-                        allPureVideos.push({
+            // ب. جلب الفيديوهات العادية (Uploads) - تكلفة 1 كوتا (نقية من Shorts)
+            const uploadsId = channelId.replace(/^UC/, 'UU');
+            const uploadsUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${uploadsId}&maxResults=10&key=${YOUTUBE_API_KEY}`;
+            const uploadsData = await fetchSafely(uploadsUrl);
+
+            if (uploadsData?.items) {
+                uploadsData.items.forEach(item => {
+                    if (item.snippet.title !== "Private video") {
+                        allFetchedItems.push({
                             id: item.snippet.resourceId.videoId,
                             title: item.snippet.title,
-                            thumbnail: item.snippet.thumbnails.medium?.url || item.snippet.thumbnails.high?.url,
+                            thumbnail: item.snippet.thumbnails.medium?.url,
                             channelTitle: item.snippet.channelTitle,
                             publishedAt: item.snippet.publishedAt,
-                            description: item.snippet.description // مفيد لمعرفة ما إذا كان بثاً مباشراً
+                            isLive: false
                         });
                     }
                 });
             }
-        } catch (err) {
-            console.error(`Error fetching channel ${channelId}:`, err);
-        }
+        } catch (err) { console.error("Error fetching channel:", channelId); }
     }
 
-    // 3. ترتيب الفيديوهات (الأحدث أولاً من كل القنوات بشكل مختلط)
-    allPureVideos.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+    // ترتيب: البث المباشر أولاً ثم الأحدث تاريخاً
+    allFetchedItems.sort((a, b) => (b.isLive - a.isLive) || new Date(b.publishedAt) - new Date(a.publishedAt));
 
-    // 4. حفظ النتائج في الكاش
-    if (allPureVideos.length > 0) {
-        localStorage.setItem(CACHE_KEY, JSON.stringify(allPureVideos));
-        localStorage.setItem('last_fetch_timestamp_pure', Date.now());
+    if (allFetchedItems.length > 0) {
+        localStorage.setItem(CACHE_KEY, JSON.stringify(allFetchedItems));
+        localStorage.setItem('last_fetch_timestamp_final', Date.now());
     }
 
-    return allPureVideos;
+    return filterWatchedVideos(allFetchedItems);
 }
 
 function playAsShufflePlaylist() {
