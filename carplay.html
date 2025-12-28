@@ -6944,95 +6944,87 @@ function playAsShufflePlaylist() {
 }
 async function showDashboardSuggestionsInPopup() {
     const container = videoPopupPlayerContainer;
-    if (!container) return;
-
+    
+    // 1. إظهار مؤشر التحميل وتجهيز النافذة
     container.innerHTML = `
-        <div class="flex flex-col items-center justify-center p-20 w-full text-white">
-            <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-purple-500 mb-4"></div>
-            <p class="text-xl font-bold animate-pulse text-purple-300">جاري تصفية التلاوات الطويلة...</p>
+        <div class="p-8 text-center text-white flex flex-col items-center justify-center min-h-[200px]">
+            <div class="animate-spin inline-block w-10 h-10 border-4 border-t-transparent border-purple-500 rounded-full mb-4"></div>
+            <p class="text-lg font-medium">جاري جلب مقترحات ذكية...</p>
         </div>`;
-
+    
     videoPopupContainer.style.display = 'flex';
     videoPopupContainer.classList.add('active');
 
     try {
-        const allVideos = await fetchSuggestedVideos(); 
+        // 2. جلب الفيديوهات (تعيد 14 فيديو للعرض وتخزن 30 في window.allFetchedVideos30)
+        const suggestedVideos = await fetchSuggestedVideos();
 
-        if (!allVideos || allVideos.length === 0) {
-            container.innerHTML = `<div class="p-10 text-center text-white/70 text-xl">انتهت جميع المقترحات المتاحة حالياً.</div>`;
+        if (!suggestedVideos || suggestedVideos.length === 0) {
+            container.innerHTML = `<p class="p-8 text-center text-white/70">لم نتمكن من العثور على مقترحات حالياً.</p>`;
             return;
         }
 
+        // 3. تحديد حالة الزر (نص، أيقونة، ولون) بناءً على وضع التفعيل الحالي
         const isAuto = window.isAutoPlayMode;
+        const btnText = isAuto ? "إيقاف التشغيل التلقائي" : "تشغيل الكل (Playlist)";
+        const btnIcon = isAuto ? "square" : "shuffle";
         const btnStyle = isAuto 
-            ? "background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%) !important;" 
-            : "background: linear-gradient(135deg, #9333ea 0%, #2563eb 100%) !important;";
+            ? "background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%) !important;" // أحمر للإيقاف
+            : "background: linear-gradient(135deg, #9333ea 0%, #2563eb 100%) !important;"; // أزرق/بنفسجي للتشغيل
 
-        let htmlContent = `
-            <div class="suggestions-popup-wrapper flex flex-col items-center w-full gap-6" style="height: 100%; padding: 30px 0;">
+        // 4. بناء الهيكل الكامل (الزر في الأعلى والشبكة في الأسفل)
+        let fullHTML = `
+            <div class="suggestions-main-wrapper flex flex-col items-center gap-6 w-full" style="overflow: visible;">
                 
-                <button id="popup-shuffle-btn" class="playlist-shuffle-btn navigable grid-item" 
+                <button class="playlist-shuffle-btn navigable grid-item" 
                         onclick="playAsShufflePlaylist()" 
-                        style="${btnStyle} z-index: 100; transform: scale(1.1); min-width: 15rem;">
-                    <i data-lucide="${isAuto ? 'square' : 'shuffle'}"></i> 
-                    <span>${isAuto ? "إيقاف التشغيل التلقائي" : "تشغيل الكل (Playlist)"}</span>
+                        style="${btnStyle} z-index: 100; margin-bottom: 15px;">
+                    <i data-lucide="${btnIcon}"></i> 
+                    <span>${btnText}</span>
                 </button>
 
-                <div id="favorites-popup-grid" class="flex flex-row flex-nowrap gap-4 px-10 w-full" 
-                     style="overflow-x: auto; overflow-y: hidden; scrollbar-width: none; -ms-overflow-style: none; padding-bottom: 20px;">
+                <div id="favorites-popup-grid" class="flex flex-row flex-nowrap gap-4 px-4 pb-8">
         `;
 
-        allVideos.forEach(video => {
-            // علامة المباشر (تمويه أحمر)
-            const liveBadge = video.isLive ? 
-                `<div class="absolute top-2 left-2 flex items-center gap-1 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md animate-pulse z-10 shadow-lg">
-                    <span class="w-1.5 h-1.5 bg-white rounded-full"></span> مباشر
-                 </div>` : '';
-
-            htmlContent += `
-                <div class="simple-suggestion-card flex flex-col gap-2 p-3 rounded-2xl bg-white/5 border border-white/10 cursor-pointer navigable grid-item flex-shrink-0" 
-                     tabindex="0" data-video-id="${video.id}" 
-                     style="width: 14rem; transition: all 0.3s ease; position: relative;">
-                    
-                    <div class="video-thumbnail-wrapper relative w-full h-[120px] overflow-hidden rounded-xl">
-                        ${liveBadge}
-                        <img src="${video.thumbnail}" class="w-full h-full object-cover" loading="lazy">
-                        <span class="absolute bottom-2 right-2 bg-black/80 text-white text-[10px] px-2 py-1 rounded border border-white/10">
-                            ${video.isLive ? '🔴 LIVE' : video.duration}
-                        </span>
-                    </div>
-
-                    <div class="video-info flex flex-col gap-1 mt-1">
-                        <h4 class="font-bold text-sm text-white line-clamp-2 leading-tight ${video.isLive ? 'text-red-400' : ''}" style="height: 2.4rem; overflow: hidden;">
-                            ${video.title}
-                        </h4>
-                        <p class="text-xs text-white/40 truncate">${video.channelTitle}</p>
-                    </div>
-                </div>
-            `;
+        // 5. إضافة البطاقات (الـ 14 فيديو المفلترة)
+        suggestedVideos.forEach(video => {
+            const card = createSimpleSuggestionCard(video, 'SUGGEST');
+            card.classList.add('flex-shrink-0'); // لضمان عدم الانكماش والبروز للخارج
+            fullHTML += card.outerHTML;
         });
 
-        htmlContent += `</div></div>`;
-        container.innerHTML = htmlContent;
+        fullHTML += `
+                </div>
+            </div>
+        `;
 
+        // 6. حقن الكتلة كاملة في الواجهة
+        container.innerHTML = fullHTML;
+
+        // 7. تحديث الأيقونات وعناصر التنقل للريموت
         if (window.lucide) lucide.createIcons();
         if (typeof updateNavigableElements === 'function') updateNavigableElements();
 
+        // 8. ربط أحداث النقر للكروت (اختيار فيديو يدوي يوقف وضع الـ Playlist)
         container.querySelectorAll('.simple-suggestion-card').forEach(card => {
             card.addEventListener('click', (e) => {
-                window.isAutoPlayMode = false;
-                showVideoPopup(e.currentTarget.dataset.videoId, 0); 
+                const videoId = e.currentTarget.dataset.videoId;
+                if (videoId) {
+                    window.isAutoPlayMode = false; // تعطيل الأوتوبلاي عند الاختيار اليدوي
+                    showVideoPopup(videoId, 0); 
+                }
             });
         });
 
+        // 9. نقل التركيز تلقائياً للزر الرئيسي لتسهيل التحكم
         setTimeout(() => {
-            const shuffleBtn = document.getElementById('popup-shuffle-btn');
-            if (shuffleBtn) setFocus(shuffleBtn);
-        }, 150);
+            const mainBtn = container.querySelector('.playlist-shuffle-btn');
+            if (mainBtn) setFocus(mainBtn);
+        }, 200);
 
-    } catch (err) {
-        console.error("Popup Error:", err);
-        container.innerHTML = `<div class="p-10 text-center text-red-400">خطأ في الاتصال بيوتيوب.</div>`;
+    } catch (e) {
+        console.error("Critical error in showDashboardSuggestionsInPopup:", e);
+        container.innerHTML = `<p class="p-8 text-center text-red-500">حدث خطأ أثناء تحميل المقترحات.</p>`;
     }
 }
         function handleFullScreenChange() {
