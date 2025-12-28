@@ -3688,6 +3688,7 @@ function processSelection(allVideos) {
                            .sort(() => 0.5 - Math.random()) 
                            .slice(0, 12);
 
+
     // 4. دمج القائمة (إجمالي 14) وخلطها عشوائياً لكي لا يكون الثابت في البداية دائماً
     const finalSelection = [...priority, ...others].sort(() => 0.5 - Math.random());
     
@@ -3698,24 +3699,40 @@ function processSelection(allVideos) {
 }
 
 function playAsShufflePlaylist() {
-    if (!window.currentSuggestedVideos || window.currentSuggestedVideos.length === 0) {
-        showMessageBox("جاري جلب الفيديوهات، يرجى الانتظار ثانية...");
-        return;
-    }
+    const btn = document.querySelector('.playlist-shuffle-btn') || document.getElementById('popup-shuffle-btn');
+    
+    if (window.isAutoPlayMode) {
+        // إيقاف التشغيل التلقائي
+        window.isAutoPlayMode = false;
+        if (btn) {
+            btn.innerHTML = `<i data-lucide="shuffle"></i> تشغيل الكل (Playlist)`;
+            btn.style.background = "linear-gradient(135deg, #9333ea 0%, #2563eb 100%)";
+        }
+    } else {
+        // 🛑 الجزء المهم: جلب الفيديوهات غير المكتملة فقط من المخزن (window.allFetchedVideos30)
+        // الذي تم تعبئته وتصفيته داخل دالة processSelection
+        let availableVideos = window.allFetchedVideos30 || [];
 
-    // خلط القائمة عشوائياً
-    const shuffled = [...window.currentSuggestedVideos].sort(() => 0.5 - Math.random());
-    const videoIds = shuffled.map(v => v.id);
-    
-    // تشغيل أول فيديو مع تمرير بقية القائمة في الرابط (YouTube Playlist Mode)
-    const firstId = videoIds[0];
-    const otherIds = videoIds.slice(1).join(',');
-    
-    // إغلاق أي نوافذ مفتوحة وتشغيل المشغل
-    showVideoPopup(firstId, 0);
-    
-    // بعد تحميل المشغل، نقوم بحقن القائمة في iframe يوتيوب إذا أردت استمرارية يوتيوب الأصلية
-    // أو الاعتماد على دالة onPlayerStateChange لتشغيل الفيديو التالي يدوياً (أفضل للتحكم)
+        if (availableVideos.length === 0) {
+            showMessageBox("لقد شاهدت جميع الفيديوهات المتاحة! قم بمسح سجل المشاهدة لإعادة البدء.");
+            return;
+        }
+
+        window.isAutoPlayMode = true;
+        
+        // خلط القائمة المفلترة عشوائياً
+        window.currentSuggestedVideos = [...availableVideos].sort(() => 0.5 - Math.random());
+
+        if (btn) {
+            btn.innerHTML = `<i data-lucide="square"></i> إيقاف التشغيل التلقائي`;
+            btn.style.background = "linear-gradient(135deg, #ef4444 0%, #991b1b 100%)";
+        }
+
+        // تشغيل أول فيديو من القائمة المفلترة
+        const firstVideo = window.currentSuggestedVideos[0];
+        showVideoPopup(firstVideo.id, 0);
+    }
+    if (window.lucide) lucide.createIcons();
 }
 
 function parseISO8601ToSeconds(duration) {
@@ -6875,24 +6892,39 @@ function onPlayerStateChange(event) {
         const videoData = popupPlayer.getVideoData();
         const videoId = videoData ? videoData.video_id : null;
 
-        // إذا كان وضع Shuffle مفعل
+        // ✅ 1. تسجيل الفيديو كـ "مكتمل" فور انتهائه لضمان عدم ظهوره مجدداً
+        if (videoId) {
+            let completed = JSON.parse(localStorage.getItem('completed_videos_ids') || '[]');
+            if (!completed.includes(videoId)) {
+                completed.push(videoId);
+                localStorage.setItem('completed_videos_ids', JSON.stringify(completed));
+                console.log(`✅ Video ${videoId} marked as completed.`);
+            }
+        }
+
+        // 2. إذا كان وضع Shuffle مفعل
         if (window.isAutoPlayMode && window.currentSuggestedVideos) {
             const currentIndex = window.currentSuggestedVideos.findIndex(v => v.id === videoId);
             
             if (currentIndex > -1 && currentIndex < window.currentSuggestedVideos.length - 1) {
-                // تشغيل الفيديو التالي من الـ 30
+                // تشغيل الفيديو التالي
                 const nextVideo = window.currentSuggestedVideos[currentIndex + 1];
                 showVideoPopup(nextVideo.id, 0);
                 return; 
             } else {
-                // انتهاء القائمة
+                // انتهاء القائمة العشوائية
                 window.isAutoPlayMode = false;
-                showMessageBox("انتهت قائمة التشغيل");
+                showMessageBox("انتهت قائمة التشغيل المتاحة");
             }
         }
 
-        // العودة للمقترحات العادية (14 فيديو) عند انتهاء القائمة أو إذا كان الوضع مطفأ
-        if (popupPlayer) { popupPlayer.destroy(); popupPlayer = null; }
+        // 3. العودة للمقترحات العادية (ستقوم تلقائياً باستبعاد الفيديوهات المكتملة)
+        if (popupPlayer) { 
+            popupPlayer.destroy(); 
+            popupPlayer = null; 
+        }
+        
+        // إعادة رسم النافذة المنبثقة: ستقوم fetchSuggestedVideos الآن بفلترة الفيديو الذي انتهى للتو
         showDashboardSuggestionsInPopup(); 
     }
 }
