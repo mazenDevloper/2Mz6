@@ -62,28 +62,33 @@
     transform: scale(1.05);
 }
         /* 1. تعديل مسار الصورة: الانتقال من الابن المباشر إلى البحث داخل الـ div */
-.suggested-d-dashboard-card.navigable.grid-item.p-2 div > img {
-    width: 11.1rem !important;
-    height: 6.1rem !important;
-    object-fit: cover !important;
-    border-radius: 12px !important;
-    display: block; /* لضمان عدم وجود مسافات غريبة بالأسفل */
+/* 1. تكبير حاوية الصورة والزر داخل الكارت */
+.suggested-d-dashboard-card.navigable.grid-item.p-2 > div {
+    position: relative;
+    /* الحجم القديم كان 11.1rem × 6.1rem */
+    width: 14rem !important;   /* العرض الجديد */
+    height: 8rem !important;   /* الطول الجديد */
+    border-radius: 15px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
 }
 
-/* 2. تنسيق حاوية الصورة والزر (لضمان العوم الصحيح) */
-.suggested-d-dashboard-card.navigable.grid-item.p-2 > div {
-    position: relative; /* ضروري لكي يعمل التموضع المطلق للزر */
-    width: 11.1rem !important;
-    height: 7.1rem !important;
-    border-radius: 12px;
-    overflow: hidden; /* لقص حواف الصورة والزر عند الزوايا */
+/* 2. تكبير الصورة نفسها لتملأ الحاوية الجديدة */
+.suggested-d-dashboard-card.navigable.grid-item.p-2 div > img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    border-radius: 15px !important;
+    display: block;
 }
 
 /* 3. تنسيق زر الـ Bookmark العائم */
 .dashboard-only-bookmark {
     position: absolute !important;
-    top: 5px !important;
-    right: 5px !important;
+      width: 42px !important;
+    height: 42px !important;
+    top: 8px !important;
+    right: 8px !important;
     z-index: 10; /* فوق الصورة */
     background: rgba(0, 0, 0, 0.5) !important;
     backdrop-filter: blur(4px);
