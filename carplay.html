@@ -3594,10 +3594,10 @@ async function fetchSuggestedVideos() {
     const now = Date.now();
     const FOUR_HOURS = 4 * 60 * 60 * 1000;
 
-    // 1. استخدام الكاش لتوفير الكوتا وسرعة الاستجابة
+    // 1. نظام الكاش لتقليل استهلاك الكوتا
     const cachedData = localStorage.getItem(CACHE_KEY);
     if (cachedData && lastUpdate && (now - lastUpdate < FOUR_HOURS)) {
-        return filterWatchedVideos(JSON.parse(cachedData));
+        return processSelection(JSON.parse(cachedData));
     }
 
     let channelIdsArray = [];
@@ -3608,61 +3608,88 @@ async function fetchSuggestedVideos() {
         const data = await res.json();
         channelIdsArray = Array.isArray(data.record) ? data.record.slice(0, 6) : [];
     } catch (e) {
-        return filterWatchedVideos(JSON.parse(localStorage.getItem(CACHE_KEY) || "[]"));
+        return processSelection(JSON.parse(localStorage.getItem(CACHE_KEY) || "[]"));
     }
 
     let allFetchedItems = [];
 
     for (const channelId of channelIdsArray) {
         try {
-            // أ. جلب البث المباشر الحالي (Live Now) - تكلفة 10 كوتا لكنها ضرورية للمباشر
+            // جلب المباشر (Live)
             const liveUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&type=video&eventType=live&key=${YOUTUBE_API_KEY}`;
             const liveData = await fetchSafely(liveUrl);
-            
-            if (liveData?.items?.length > 0) {
+            if (liveData?.items) {
                 liveData.items.forEach(item => {
                     allFetchedItems.push({
                         id: item.id.videoId,
-                        title: `🔴 مباشر: ${item.snippet.title}`,
+                        title: item.snippet.title,
                         thumbnail: item.snippet.thumbnails.medium?.url,
                         channelTitle: item.snippet.channelTitle,
+                        channelId: item.snippet.channelId,
                         publishedAt: item.snippet.publishedAt,
-                        isLive: true // علامة مميزة للبث المباشر
+                        isLive: true
                     });
                 });
             }
 
-            // ب. جلب الفيديوهات العادية (Uploads) - تكلفة 1 كوتا (نقية من Shorts)
+            // جلب الفيديوهات العادية (UU)
             const uploadsId = channelId.replace(/^UC/, 'UU');
             const uploadsUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${uploadsId}&maxResults=10&key=${YOUTUBE_API_KEY}`;
             const uploadsData = await fetchSafely(uploadsUrl);
-
             if (uploadsData?.items) {
                 uploadsData.items.forEach(item => {
-                    if (item.snippet.title !== "Private video") {
-                        allFetchedItems.push({
-                            id: item.snippet.resourceId.videoId,
-                            title: item.snippet.title,
-                            thumbnail: item.snippet.thumbnails.medium?.url,
-                            channelTitle: item.snippet.channelTitle,
-                            publishedAt: item.snippet.publishedAt,
-                            isLive: false
-                        });
-                    }
+                    allFetchedItems.push({
+                        id: item.snippet.resourceId.videoId,
+                        title: item.snippet.title,
+                        thumbnail: item.snippet.thumbnails.medium?.url,
+                        channelTitle: item.snippet.channelTitle,
+                        channelId: item.snippet.channelId,
+                        publishedAt: item.snippet.publishedAt,
+                        isLive: false
+                    });
                 });
             }
-        } catch (err) { console.error("Error fetching channel:", channelId); }
+        } catch (err) { console.error("Error fetching channel"); }
     }
 
-    // ترتيب: البث المباشر أولاً ثم الأحدث تاريخاً
-    allFetchedItems.sort((a, b) => (b.isLive - a.isLive) || new Date(b.publishedAt) - new Date(a.publishedAt));
-
+    // حفظ الخام في الكاش
     if (allFetchedItems.length > 0) {
         localStorage.setItem(CACHE_KEY, JSON.stringify(allFetchedItems));
         localStorage.setItem('last_fetch_timestamp_final', Date.now());
     }
 
-    return filterWatchedVideos(allFetchedItems);
+    return processSelection(allFetchedItems);
+}
+
+// دالة تطبيق مبدأ 2 من القناة المختارة + 12 عشوائي (المجموع 14)
+function processSelection(allVideos) {
+    // 1. فلترة الفيديوهات التي تمت مشاهدتها بالكامل (Completed)
+    const completedVideos = JSON.parse(localStorage.getItem('completed_videos_ids') || '[]');
+    const available = allVideos.filter(v => !completedVideos.includes(v.id));
+
+    // 2. اختيار أول فيديوهين من القناة المفضلة بشرط (المدة > 5 دقائق)
+    // ملاحظة: البث المباشر (isLive) يُعتبر دائماً فوق الـ 5 دقائق برمجياً هنا
+    const priority = available.filter(v => {
+        if (v.channelId !== TARGET_ID) return false;
+        
+        // تحويل المدة النصية (مثل 08:15) إلى ثواني للفحص
+        const durationInSecs = parseDurationToSeconds(v.duration || "00:00");
+        return v.isLive || durationInSecs > 300; 
+    }).slice(0, 2);
+
+    // 3. اختيار 12 فيديو من البقية بشكل عشوائي تماماً (بما في ذلك المباشر من قنوات أخرى)
+    // نستبعد الفيديوهات التي تم اختيارها في الـ Priority لمنع التكرار
+    const others = available.filter(v => !priority.find(p => p.id === v.id))
+                           .sort(() => 0.5 - Math.random()) 
+                           .slice(0, 12);
+
+    // 4. دمج القائمة (إجمالي 14) وخلطها عشوائياً لكي لا يكون الثابت في البداية دائماً
+    const finalSelection = [...priority, ...others].sort(() => 0.5 - Math.random());
+    
+    // تخزين القائمة الكاملة المفلترة للتشغيل التلقائي (Shuffle)
+    window.allFetchedVideos30 = available; 
+    
+    return finalSelection;
 }
 
 function playAsShufflePlaylist() {
@@ -6915,94 +6942,99 @@ function playAsShufflePlaylist() {
     }
     if (window.lucide) lucide.createIcons();
 }
-
-
 async function showDashboardSuggestionsInPopup() {
     const container = videoPopupPlayerContainer;
-    
-    // 1. إظهار مؤشر التحميل وتجهيز النافذة
+    if (!container) return;
+
     container.innerHTML = `
-        <div class="p-8 text-center text-white flex flex-col items-center justify-center min-h-[200px]">
-            <div class="animate-spin inline-block w-10 h-10 border-4 border-t-transparent border-purple-500 rounded-full mb-4"></div>
-            <p class="text-lg font-medium">جاري جلب مقترحات ذكية...</p>
+        <div class="flex flex-col items-center justify-center p-20 w-full text-white">
+            <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-purple-500 mb-4"></div>
+            <p class="text-xl font-bold animate-pulse text-purple-300">جاري تصفية التلاوات الطويلة...</p>
         </div>`;
-    
+
     videoPopupContainer.style.display = 'flex';
     videoPopupContainer.classList.add('active');
 
     try {
-        // 2. جلب الفيديوهات (تعيد 14 فيديو للعرض وتخزن 30 في window.allFetchedVideos30)
-        const suggestedVideos = await fetchSuggestedVideos();
+        const allVideos = await fetchSuggestedVideos(); 
 
-        if (!suggestedVideos || suggestedVideos.length === 0) {
-            container.innerHTML = `<p class="p-8 text-center text-white/70">لم نتمكن من العثور على مقترحات حالياً.</p>`;
+        if (!allVideos || allVideos.length === 0) {
+            container.innerHTML = `<div class="p-10 text-center text-white/70 text-xl">انتهت جميع المقترحات المتاحة حالياً.</div>`;
             return;
         }
 
-        // 3. تحديد حالة الزر (نص، أيقونة، ولون) بناءً على وضع التفعيل الحالي
         const isAuto = window.isAutoPlayMode;
-        const btnText = isAuto ? "إيقاف التشغيل التلقائي" : "تشغيل الكل (Playlist)";
-        const btnIcon = isAuto ? "square" : "shuffle";
         const btnStyle = isAuto 
-            ? "background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%) !important;" // أحمر للإيقاف
-            : "background: linear-gradient(135deg, #9333ea 0%, #2563eb 100%) !important;"; // أزرق/بنفسجي للتشغيل
+            ? "background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%) !important;" 
+            : "background: linear-gradient(135deg, #9333ea 0%, #2563eb 100%) !important;";
 
-        // 4. بناء الهيكل الكامل (الزر في الأعلى والشبكة في الأسفل)
-        let fullHTML = `
-            <div class="suggestions-main-wrapper flex flex-col items-center gap-6 w-full" style="overflow: visible;">
+        let htmlContent = `
+            <div class="suggestions-popup-wrapper flex flex-col items-center w-full gap-6" style="height: 100%; padding: 30px 0;">
                 
-                <button class="playlist-shuffle-btn navigable grid-item" 
+                <button id="popup-shuffle-btn" class="playlist-shuffle-btn navigable grid-item" 
                         onclick="playAsShufflePlaylist()" 
-                        style="${btnStyle} z-index: 100; margin-bottom: 15px;">
-                    <i data-lucide="${btnIcon}"></i> 
-                    <span>${btnText}</span>
+                        style="${btnStyle} z-index: 100; transform: scale(1.1); min-width: 15rem;">
+                    <i data-lucide="${isAuto ? 'square' : 'shuffle'}"></i> 
+                    <span>${isAuto ? "إيقاف التشغيل التلقائي" : "تشغيل الكل (Playlist)"}</span>
                 </button>
 
-                <div id="favorites-popup-grid" class="flex flex-row flex-nowrap gap-4 px-4 pb-8">
+                <div id="favorites-popup-grid" class="flex flex-row flex-nowrap gap-4 px-10 w-full" 
+                     style="overflow-x: auto; overflow-y: hidden; scrollbar-width: none; -ms-overflow-style: none; padding-bottom: 20px;">
         `;
 
-        // 5. إضافة البطاقات (الـ 14 فيديو المفلترة)
-        suggestedVideos.forEach(video => {
-            const card = createSimpleSuggestionCard(video, 'SUGGEST');
-            card.classList.add('flex-shrink-0'); // لضمان عدم الانكماش والبروز للخارج
-            fullHTML += card.outerHTML;
+        allVideos.forEach(video => {
+            // علامة المباشر (تمويه أحمر)
+            const liveBadge = video.isLive ? 
+                `<div class="absolute top-2 left-2 flex items-center gap-1 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md animate-pulse z-10 shadow-lg">
+                    <span class="w-1.5 h-1.5 bg-white rounded-full"></span> مباشر
+                 </div>` : '';
+
+            htmlContent += `
+                <div class="simple-suggestion-card flex flex-col gap-2 p-3 rounded-2xl bg-white/5 border border-white/10 cursor-pointer navigable grid-item flex-shrink-0" 
+                     tabindex="0" data-video-id="${video.id}" 
+                     style="width: 14rem; transition: all 0.3s ease; position: relative;">
+                    
+                    <div class="video-thumbnail-wrapper relative w-full h-[120px] overflow-hidden rounded-xl">
+                        ${liveBadge}
+                        <img src="${video.thumbnail}" class="w-full h-full object-cover" loading="lazy">
+                        <span class="absolute bottom-2 right-2 bg-black/80 text-white text-[10px] px-2 py-1 rounded border border-white/10">
+                            ${video.isLive ? '🔴 LIVE' : video.duration}
+                        </span>
+                    </div>
+
+                    <div class="video-info flex flex-col gap-1 mt-1">
+                        <h4 class="font-bold text-sm text-white line-clamp-2 leading-tight ${video.isLive ? 'text-red-400' : ''}" style="height: 2.4rem; overflow: hidden;">
+                            ${video.title}
+                        </h4>
+                        <p class="text-xs text-white/40 truncate">${video.channelTitle}</p>
+                    </div>
+                </div>
+            `;
         });
 
-        fullHTML += `
-                </div>
-            </div>
-        `;
+        htmlContent += `</div></div>`;
+        container.innerHTML = htmlContent;
 
-        // 6. حقن الكتلة كاملة في الواجهة
-        container.innerHTML = fullHTML;
-
-        // 7. تحديث الأيقونات وعناصر التنقل للريموت
         if (window.lucide) lucide.createIcons();
         if (typeof updateNavigableElements === 'function') updateNavigableElements();
 
-        // 8. ربط أحداث النقر للكروت (اختيار فيديو يدوي يوقف وضع الـ Playlist)
         container.querySelectorAll('.simple-suggestion-card').forEach(card => {
             card.addEventListener('click', (e) => {
-                const videoId = e.currentTarget.dataset.videoId;
-                if (videoId) {
-                    window.isAutoPlayMode = false; // تعطيل الأوتوبلاي عند الاختيار اليدوي
-                    showVideoPopup(videoId, 0); 
-                }
+                window.isAutoPlayMode = false;
+                showVideoPopup(e.currentTarget.dataset.videoId, 0); 
             });
         });
 
-        // 9. نقل التركيز تلقائياً للزر الرئيسي لتسهيل التحكم
         setTimeout(() => {
-            const mainBtn = container.querySelector('.playlist-shuffle-btn');
-            if (mainBtn) setFocus(mainBtn);
-        }, 200);
+            const shuffleBtn = document.getElementById('popup-shuffle-btn');
+            if (shuffleBtn) setFocus(shuffleBtn);
+        }, 150);
 
-    } catch (e) {
-        console.error("Critical error in showDashboardSuggestionsInPopup:", e);
-        container.innerHTML = `<p class="p-8 text-center text-red-500">حدث خطأ أثناء تحميل المقترحات.</p>`;
+    } catch (err) {
+        console.error("Popup Error:", err);
+        container.innerHTML = `<div class="p-10 text-center text-red-400">خطأ في الاتصال بيوتيوب.</div>`;
     }
 }
-
         function handleFullScreenChange() {
             if (popupPlayer && typeof popupPlayer.getPlayerState === 'function' && popupPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
                 const isFullScreen = document.fullscreenElement === popupPlayer.getIframe() || document.webkitFullscreenElement === popupPlayer.getIframe();
@@ -8788,21 +8820,12 @@ async function centerMapOnUserLocation() {
     }
 }
 
-
-
-function parseDurationToSeconds(isoDuration) {
-    if (!isoDuration || typeof isoDuration !== 'string') return 0;
-    
-    const regex = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/;
-    const matches = isoDuration.match(regex);
-    
-    if (!matches) return 0;
-
-    const hours = parseInt(matches[1]) || 0;
-    const minutes = parseInt(matches[2]) || 0;
-    const seconds = parseInt(matches[3]) || 0;
-
-    return (hours * 3600) + (minutes * 60) + seconds;
+function parseDurationToSeconds(durationStr) {
+    if (!durationStr || durationStr === "مباشر") return 9999; // قيمة عالية للمباشر
+    const parts = durationStr.split(':').map(Number);
+    if (parts.length === 3) return (parts[0] * 3600) + (parts[1] * 60) + parts[2]; // H:M:S
+    if (parts.length === 2) return (parts[0] * 60) + parts[1]; // M:S
+    return 0;
 }
         
         async function calculateAndDisplayRouteTo(destinationCoords) {
