@@ -409,6 +409,61 @@ span.text-xs.text-white\/50.flex-shrink-0 {
     right: 4rem !important;
 }
 
+#universal-date-display {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 0;
+    margin-top: auto; /* يدفعه لأسفل الحاوية */
+    clear: both;
+}
+
+.date-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 10px 30px;
+    border-radius: 50px;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.day-highlight {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 4px;
+}
+
+.date-details {
+    display: flex;
+    gap: 10px;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.6);
+    white-space: nowrap;
+}
+
+.separator {
+    color: #a855f7;
+    font-weight: bold;
+}
+
+.hijri-text {
+    color: #c084fc; /* لون الهجري المميز */
+}
+
+/* تحسين للمقاسات الصغيرة جداً */
+@media (max-width: 600px) {
+    .date-details {
+        flex-direction: column;
+        gap: 2px;
+    }
+    .separator {
+        display: none;
+    }
+}
 #floating-minimized-video-button .rate-btn {
     /* تنسيق مربع صغير ومدمج */
     width: 40px !important;
@@ -2658,9 +2713,10 @@ div#map{display:none}
 
 
                         <div id="tv" class="glass-surface glass-surface--svg p-4 flex flex-col items-center justify-center text-center car-cam-360-container col-span-1 row-start-1 navigable grid-item" tabindex="0"></div>
-
+ <div id="universal-date-display" class="navigable"></div>
 
                     </div>
+                   
                 </section>
 
                 <!-- Media (YouTube) Screen -->
@@ -3105,11 +3161,7 @@ div#map{display:none}
     </div>
 
     <script>
-        // ============================================================
-// 📺 YOUTUBE API SETUP (يجب وضعه في بداية الملف)
-// ============================================================
 
-// تعريف المتغير العام
 window.isYouTubeApiReady = false;
 
 // 1. الدالة التي يناديها اليوتيوب تلقائياً عند انتهاء التحميل
@@ -3634,6 +3686,7 @@ async function fetchSuggestedVideos() {
                 // ب- جلب 25 فيديو (لضمان وجود مساحة كافية لتخطي الـ Shorts)
                 // أضفنا contentDetails لجلب المدة الزمنية مباشرة
                 const videosUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails&playlistId=${uploadsId}&maxResults=25&key=${YOUTUBE_API_KEY}`;
+                // يجب أن يحتوي الرابط على part=snippet,contentDetails
                 const videosData = await fetch(videosUrl).then(r => r.json());
 
                 if (videosData?.items) {
@@ -4551,34 +4604,41 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function updateFullDateWidget() {
-    const dateWidgetContainer = document.getElementById('full-date-widget-container');
-    if (!dateWidgetContainer) return;
+    // تحديد المعرفين معاً
+    const oldContainer = document.getElementById('full-date-widget-container');
+    const newContainer = document.getElementById('universal-date-display');
+
+    // إذا لم يكن أي منهما موجوداً، نوقف الدالة
+    if (!oldContainer && !newContainer) return;
 
     const today = new Date();
-    // نجعل السنة 2025 لتتوافق مع بيانات أوقات الصلاة لديك
-    today.setFullYear(2025);
-const yesterday = new Date(today);
-yesterday.setDate(today.getDate() - 1);
+    today.setFullYear(2025); // تثبيت السنة 2025
 
-// Format Gregorian date (optional, if you still want to show today's Gregorian)
-const gregorianDate = new Intl.DateTimeFormat('ar-GB', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-}).format(today);
+    // إعداد التنسيقات
+    const dayName = new Intl.DateTimeFormat('ar-SA', { weekday: 'long' }).format(today);
+    const gregDate = new Intl.DateTimeFormat('ar-SA', { day: 'numeric', month: 'long', year: 'numeric' }).format(today);
+    const hijriDate = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', { day: 'numeric', month: 'long', year: 'numeric' }).format(today);
 
-// Format Hijri date for *yesterday*
-const hijriDateYesterday = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-}).format(yesterday);
+    // الهيكل الموحد
+    const dateHTML = `
+        <div class="date-wrapper">
+            <span class="day-highlight">${dayName}</span>
+            <div class="date-details">
+                <span class="greg-text">${gregDate}</span>
+                <span class="separator">|</span>
+                <span class="hijri-text">${hijriDate}</span>
+            </div>
+        </div>
+    `;
 
-// Update the DOM
-dateWidgetContainer.innerHTML = `
-    <p id="gregorian-date">${gregorianDate}</p>
-    <p id="hijri-date">${hijriDateYesterday}</p>
-`;
+    if (oldContainer) {
+        oldContainer.innerHTML = dateHTML;
+    }
+
+    // ملء المعرف الجديد إذا وجد
+    if (newContainer) {
+        newContainer.innerHTML = dateHTML;
+    }
 }
 
 // REPLACE the current displayLastWatchedVideo function with this one
