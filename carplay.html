@@ -7626,10 +7626,6 @@ async function populateYoutubeSuggestions() {
     updateNavigableElements();
 }
 
-/**
- * RENAMED & REFINED: Handles the search action specifically for finding a Reciter Channel.
- * Applies strong filtering for 'type=channel' and 'relevanceLanguage=ar'.
- */
 async function handleSearchForReciterChannel() {
     // 🛑 نستخدم هنا المُعرّف الصحيح من نافذة القراء المنبثقة
     const inputEl = document.getElementById('new-reciter-name-input'); 
