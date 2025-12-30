@@ -30,6 +30,14 @@
         onload="this.media='all'"
     >
     <style>
+
+    .scroll-viewport::-webkit-scrollbar {
+    display: none; /* إخفاء في Chrome و Safari */
+}
+.scroll-viewport {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
 /* 1. The Container: Enable Horizontal Scrolling */
 #favorites-popup-grid {
     display: flex !important;
@@ -3413,7 +3421,7 @@ async function initSuggestedDashboard() {
     }
 }
 
-const TARGET_ID = 'UCz9WVutRGBdn58dScZDh6uQ';
+const TARGET_ID = 'UCZPY2lpYyo6Y5mxk2CczJXg';
 const UPDATE_HOURS = [7,10, 14,16, 18]; 
 const NEW_JSONBIN_CHANNEL_IDS = '693fb33cae596e708f9ade6a';
 
@@ -7107,7 +7115,7 @@ function playAsShufflePlaylist() {
 async function showDashboardSuggestionsInPopup() {
     const container = videoPopupPlayerContainer;
     
-    // 1. إظهار مؤشر التحميل وتجهيز النافذة
+    // 1. إظهار مؤشر التحميل
     container.innerHTML = `
         <div class="p-8 text-center text-white flex flex-col items-center justify-center min-h-[200px]">
             <div class="animate-spin inline-block w-10 h-10 border-4 border-t-transparent border-purple-500 rounded-full mb-4"></div>
@@ -7118,7 +7126,6 @@ async function showDashboardSuggestionsInPopup() {
     videoPopupContainer.classList.add('active');
 
     try {
-        // 2. جلب الفيديوهات (تعيد 14 فيديو للعرض وتخزن 30 في window.allFetchedVideos30)
         const suggestedVideos = await fetchSuggestedVideos();
 
         if (!suggestedVideos || suggestedVideos.length === 0) {
@@ -7126,66 +7133,67 @@ async function showDashboardSuggestionsInPopup() {
             return;
         }
 
-        // 3. تحديد حالة الزر (نص، أيقونة، ولون) بناءً على وضع التفعيل الحالي
         const isAuto = window.isAutoPlayMode;
         const btnText = isAuto ? "إيقاف التشغيل التلقائي" : "تشغيل الكل (Playlist)";
         const btnIcon = isAuto ? "square" : "shuffle";
         const btnStyle = isAuto 
-            ? "background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%) !important;" // أحمر للإيقاف
-            : "background: linear-gradient(135deg, #9333ea 0%, #2563eb 100%) !important;"; // أزرق/بنفسجي للتشغيل
+            ? "background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%) !important;" 
+            : "background: linear-gradient(135deg, #9333ea 0%, #2563eb 100%) !important;";
 
-        // 4. بناء الهيكل الكامل (الزر في الأعلى والشبكة في الأسفل)
+        // 4. بناء الهيكل: 
+        // أضفنا container خارجي بـ overflow-x: auto و container داخلي بـ overflow: visible
         let fullHTML = `
-            <div class="suggestions-main-wrapper flex flex-col items-center gap-6 w-full" style="overflow: visible;">
+            <div class="suggestions-main-wrapper flex flex-col items-center gap-2 w-full h-full" style="overflow: hidden;">
                 
                 <button class="playlist-shuffle-btn navigable grid-item" 
                         onclick="playAsShufflePlaylist()" 
-                        style="${btnStyle} z-index: 100; margin-bottom: 15px;">
+                        style="${btnStyle} z-index: 100; margin-bottom: 10px; flex-shrink: 0;">
                     <i data-lucide="${btnIcon}"></i> 
                     <span>${btnText}</span>
                 </button>
 
-                <div id="favorites-popup-grid" class="flex flex-row flex-nowrap gap-4 px-4 pb-8">
+                <div class="scroll-viewport w-full" style="overflow-x: auto; overflow-y: visible; padding: 20px 0; scroll-behavior: smooth; -webkit-overflow-scrolling: touch;">
+                    
+                    <div id="favorites-popup-grid" class="flex flex-row flex-nowrap gap-6 px-10" style="overflow: visible; width: max-content; min-width: 100%;">
         `;
 
-        // 5. إضافة البطاقات (الـ 14 فيديو المفلترة)
         suggestedVideos.forEach(video => {
             const card = createSimpleSuggestionCard(video, 'SUGGEST');
-            card.classList.add('flex-shrink-0'); // لضمان عدم الانكماش والبروز للخارج
+            // التأكد من أن الكرت لا ينكمش ويسمح بالبروز
+            card.style.flexShrink = "0";
+            card.style.transition = "transform 0.3s ease"; 
             fullHTML += card.outerHTML;
         });
 
         fullHTML += `
+                    </div>
                 </div>
             </div>
         `;
 
-        // 6. حقن الكتلة كاملة في الواجهة
         container.innerHTML = fullHTML;
 
-        // 7. تحديث الأيقونات وعناصر التنقل للريموت
         if (window.lucide) lucide.createIcons();
         if (typeof updateNavigableElements === 'function') updateNavigableElements();
 
-        // 8. ربط أحداث النقر للكروت (اختيار فيديو يدوي يوقف وضع الـ Playlist)
+        // 8. ربط أحداث النقر
         container.querySelectorAll('.simple-suggestion-card').forEach(card => {
             card.addEventListener('click', (e) => {
                 const videoId = e.currentTarget.dataset.videoId;
                 if (videoId) {
-                    window.isAutoPlayMode = false; // تعطيل الأوتوبلاي عند الاختيار اليدوي
+                    window.isAutoPlayMode = false;
                     showVideoPopup(videoId, 0); 
                 }
             });
         });
 
-        // 9. نقل التركيز تلقائياً للزر الرئيسي لتسهيل التحكم
         setTimeout(() => {
             const mainBtn = container.querySelector('.playlist-shuffle-btn');
             if (mainBtn) setFocus(mainBtn);
         }, 200);
 
     } catch (e) {
-        console.error("Critical error in showDashboardSuggestionsInPopup:", e);
+        console.error("Error in showDashboardSuggestionsInPopup:", e);
         container.innerHTML = `<p class="p-8 text-center text-red-500">حدث خطأ أثناء تحميل المقترحات.</p>`;
     }
 }
