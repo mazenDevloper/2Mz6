@@ -30,7 +30,48 @@
         onload="this.media='all'"
     >
     <style>
+/* تحرير الحاوية الرئيسية للمقترحات */
+.suggestions-main-wrapper {
+    overflow: visible !important; /* السماح بالبروز فوق أزرار الإغلاق وغيرها */
+    width: 100%;
+}
 
+/* حاوية العرض التي تسمح بالسكرول */
+.scroll-viewport {
+    width: 100vw; /* جعل العرض بكامل شاشة النافذة */
+    margin-left: calc(-50vw + 50%); /* تقنية لتوسيط الحاوية وتوسيعها */
+    overflow-x: auto !important;
+    overflow-y: visible !important; /* أهم سطر للسماح للكروت بالخروج للأعلى والأسفل */
+    padding: 40px 0 !important; /* مساحة كافية للتكبير (Hover) */
+    scrollbar-width: none; /* إخفاء السكرول في فيرفوكس */
+}
+
+.scroll-viewport::-webkit-scrollbar {
+    display: none; /* إخفاء السكرول في كروم */
+}
+
+/* ضمان أن الحاوية الداخلية لا تقص المحتوى */
+#favorites-popup-grid {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 25px !important;
+    padding: 0 100px !important; /* مساحة بداية ونهاية السكرول */
+    overflow: visible !important; 
+    width: max-content !important;
+}
+
+/* تأثير التكبير عند الوقوف بالريموت أو الماوس */
+.simple-suggestion-card {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    z-index: 1;
+}
+
+.simple-suggestion-card:focus, .simple-suggestion-card:hover {
+    transform: scale(1.15) translateY(-10px) !important; /* الكرت سيخرج للأعلى ويكبر */
+    z-index: 100 !important;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+}
     .scroll-viewport::-webkit-scrollbar {
     display: none; /* إخفاء في Chrome و Safari */
 }
@@ -142,7 +183,7 @@
 .simple-suggestion-card.flex.flex-col.gap-2.p-3.rounded-xl.bg-white\/10.cursor-pointer.navigable.grid-item.flex-shrink-0 {
     background: black;
     width: 265px;
-    height: 250px;
+    height: 214px;
     border:solid;
 }
 
