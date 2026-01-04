@@ -30,6 +30,26 @@
         onload="this.media='all'"
     >
     <style>
+        /* إخفاء العناصر افتراضياً */
+#bottom-left-controls {
+    display: none !important;
+}
+
+/* 1. إظهار أزرار التحكم اليسرى (Pause, Zoom) فقط في شاشة الراديو */
+body.app-Radio-active #bottom-left-controls {
+    display: flex !important;
+}
+
+/* 2. إظهار أزرار KEY 1/2 (فحص المفاتيح) فقط في الداشبورد */
+body.app-Dashboard-active #manual-key-switcher {
+    display: flex !important;
+}
+
+/* 3. إظهار الكبسولة الصوتية في كل مكان ماعدا شاشة الميديا (إذا كانت كبيرة) */
+body.app-Media-active #floating-minimized-video-button {
+    opacity: 0.1; /* جعلها شفافة جداً في الميديا لكي لا تحجب التابات */
+    pointer-events: none;
+}
 
 div#universal-date-display>.date-wrapper>span.day-highlight {
     font-size:3.4rem!important;
@@ -219,16 +239,15 @@ div#manual-key-switcher>button {
 }
 
 div#manual-key-switcher {
-    bottom: 4rem!important;
+    bottom: 6rem!important;
     transform: scale(0.7) !important;
 }
 /* تنسيق الزر ليكون في أسفل يسار الحاوية */
 .playlist-shuffle-btn {
     position: absolute !important;
-    bottom: 125px !important;
-    left: 150px !important;
+    bottom: 47px !important;
+    left: 77px !important;
     z-index: 50 !important; /* لضمان ظهوره فوق الكروت */
-    
     display: flex !important;
     align-items: center !important;
     gap: 8px !important;
@@ -2680,7 +2699,7 @@ div#map{display:none}
                     <!-- UPDATED: Dashboard layout changed -->
                     <div class="dashboard-main-grid grid grid-cols-1 md:grid-cols-3 grid-rows-[80%_20%] gap-4 md:gap-6 h-full w-full grid-container">
                         <!-- Map Widget (Now first) -->
-                        <button class="playlist-shuffle-btn navigable grid-item" style="position: absolute; bottom: 15px; left: 15px; z-index: 100; display: flex; align-items: center; gap: 8px;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shuffle" class="lucide lucide-shuffle"><path d="m18 14 4 4-4 4"></path><path d="m18 2 4 4-4 4"></path><path d="M2 18h1.973a4 4 0 0 0 3.3-1.7l5.454-8.6a4 4 0 0 1 3.3-1.7H22"></path><path d="M2 6h1.972a4 4 0 0 1 3.6 2.2"></path><path d="M22 18h-6.041a4 4 0 0 1-3.3-1.8l-.359-.45"></path></svg> تشغيل الكل</button>
+                        <button class="playlist-shuffle-btn navigable grid-item" style="position: absolute;bottom: 15px;left: 15px;z-index: 9999;background: transparent!important;color: transparent!important;width: 9rem;height: 3rem;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shuffle" class="lucide lucide-shuffle"><path d="m18 14 4 4-4 4"></path><path d="m18 2 4 4-4 4"></path><path d="M2 18h1.973a4 4 0 0 0 3.3-1.7l5.454-8.6a4 4 0 0 1 3.3-1.7H22"></path><path d="M2 6h1.972a4 4 0 0 1 3.6 2.2"></path><path d="M22 18h-6.041a4 4 0 0 1-3.3-1.8l-.359-.45"></path></svg> تشغيل الكل</button>
                         <div id="map" class="rounded-3xl relative overflow-hidden flex items-center justify-center glass-surface glass-surface--svg p-1 col-span-1 row-start-1 navigable grid-item" tabindex="0">
                             <div id="dashboard-google-map" class="full-iframe"></div>
                              <!-- NEW: Geolocation Error Overlay -->
@@ -3386,9 +3405,8 @@ Object.assign(btn.style, {
     bottom: '15px',
     left: '15px',
     zIndex: '9999',
-        width: '9rem',
+    width: '9rem',
     height: '3rem',
-    
     color:'transparent !important',
     background: 'transparent !important'
 // مهم جداً
@@ -4379,68 +4397,77 @@ function startFullDateUpdates() {
     }
 }
 // لا نحتاج لـ stopFullDateUpdates حيث أنها تعمل ببطء شديد
-
 function switchApp(appName) {
-    // 1. الإيقاف العام لجميع المؤقتات ذات التردد العالي والمنخفض (Clean Slate)
+    // 1. الإيقاف العام لجميع المؤقتات (Clean Slate)
     stopClockAndTimer();
     stopCarSimulation();
     stopWeatherUpdates(); 
-    stopDashboardLocationTracking(); // 👈 إيقاف تتبع الموقع
+    stopDashboardLocationTracking();
 
     // 2. تحديث الشاشة النشطة
     const newIndex = appOrder.indexOf(appName);
     if (newIndex === -1) return;
     currentAppIndex = newIndex;
     
-    // تحديث الفئات المرئية (إخفاء الشاشات وإظهار الشاشة الجديدة)
+    // تحديث الفئات المرئية للشاشات والأيقونات
     appScreens.forEach(s => s.classList.remove('active'));
     sidebarIcons.forEach(i => i.classList.remove('active'));
+    
     const screen = document.getElementById(`screen-${appName}`);
     if (screen) screen.classList.add('active');
+    
     const icon = document.querySelector(`.app-icon[data-app="${appName}"]`);
     if (icon) icon.classList.add('active');
 
+    // 🚀 3. الجزء الجديد: التحكم الذكي في ظهور العناصر (Logic-Based UI)
+    // نقوم بتحديث الـ class الخاص بالجسم للتحكم في العناصر عبر CSS
+    document.body.className = `animated-bg text-white overflow-hidden theme-gradient-1 app-${appName}-active`;
+    
+    // إضافة وسم إضافي إذا كان المشغل مصغراً للحفاظ على تناسق التصميم
+    if (appState.isVideoPlayerMinimized) {
+        document.body.classList.add('video-minimized');
+    }
 
-    // 3. التشغيل الشرطي للمؤقتات (Conditional Start)
+    // 4. التشغيل الشرطي للمؤقتات (Conditional Start)
 
-    // A. المؤقتات المطلوبة في Dashboard
+    // A. منطق شاشة Dashboard
     if (appName === 'Dashboard') {
-        startClockAndTimer();       // 1s (الساعة والعداد التنازلي)
-        startWeatherUpdates();      // الطقس (جلب كل 5 دقائق)
+        startClockAndTimer();       // 1s
+        startWeatherUpdates();      // 5m
         startDashboardLocationTracking();
-        updateTimerDisplay(); // تتبع الموقع للـ Heading وتحديث الخريطة
+        updateTimerDisplay(); 
         renderFavoritesDashboard();
        
         setTimeout(() => {
             if (dashboardGoogleMap) {
                 const numericHeading = directionToDegrees(appState.car.direction);
                 dashboardGoogleMap.setHeading(numericHeading);
-                
-                // نركز الخريطة على الموقع الحالي لضمان تحديثها بالكامل
                 if (appState.currentLocation) {
                      dashboardGoogleMap.setCenter(appState.currentLocation);
                 }
             }
-            // 💡 تحديث مؤشرات الازدحام فوراً عند فتح الشاشة
             updateTrafficIndicators(); 
         }, 0); 
     }
     
-    // B. المؤقتات المطلوبة في شاشة 3D (Map)
+    // B. منطق شاشة 3D (Map)
     if (appName === 'Map') {
-        startCarSimulation();       // محاكاة القيادة (2 ثانية)
-        startWeatherUpdates();      // الطقس (جلب كل 5 دقائق)
-        startDashboardLocationTracking(); // تتبع الموقع للخريطة/Heading
+        startCarSimulation(); 
+        startWeatherUpdates();
+        startDashboardLocationTracking();
     } 
     
-    // C. المؤقتات المطلوبة في شاشة Weather
-    if (appName === 'Weather') {t
+    // C. منطق شاشة Weather
+    if (appName === 'Weather') {
         startWeatherUpdates();
     }
     
-    // 4. نقل التركيز الأولي بعد التبديل
+    // 5. نقل التركيز الأولي ونظام الـ Navigable
     const activeScreen = document.getElementById(`screen-${appName}`);
     if (activeScreen) {
+        // تحديث مصفوفة العناصر القابلة للتنقل بناءً على الشاشة الجديدة
+        if (typeof updateNavigableElements === 'function') updateNavigableElements();
+        
         setTimeout(() => {
             const firstItem = activeScreen.querySelector('.grid-item');
             if (firstItem) setFocus(firstItem);
@@ -4686,12 +4713,14 @@ function updateFullDateWidget() {
     if (!oldContainer && !newContainer) return;
 
     const today = new Date();
-    today.setFullYear(2025); // تثبيت السنة 2025
+     const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
 
     // إعداد التنسيقات
     const dayName = new Intl.DateTimeFormat('ar-SA', { weekday: 'long' }).format(today);
     const gregDate = new Intl.DateTimeFormat('ar-SA', { day: 'numeric', month: 'long', year: 'numeric' }).format(today);
-    const hijriDate = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', { day: 'numeric', month: 'long', year: 'numeric' }).format(today);
+    const hijriDate = new Intl.DateTimeFormat('ar-OM-u-ca-islamic', { day: 'numeric', month: 'long', year: 'numeric' }).format(yesterday);
+
 
     // الهيكل الموحد
     const dateHTML = `
@@ -9545,49 +9574,40 @@ async function fetchWeatherData() {
             update3dScreenWidgets(); 
         }
    
-  const prayerTimes = [
-    {"date":"2026-01-01","day":"الخميس","fajr":"05:36","sunrise":"06:53","dhuhr":"12:32","asr":"03:43","maghrib":"06:06","isha":"07:18"},
-    {"date":"2026-01-02","day":"الجمعة","fajr":"05:36","sunrise":"06:53","dhuhr":"12:32","asr":"03:43","maghrib":"06:07","isha":"07:19"},
-    {"date":"2026-01-03","day":"السبت","fajr":"05:37","sunrise":"06:54","dhuhr":"12:33","asr":"03:44","maghrib":"06:07","isha":"07:19"},
-    {"date":"2026-01-04","day":"الأحد","fajr":"05:37","sunrise":"06:54","dhuhr":"12:33","asr":"03:45","maghrib":"06:08","isha":"07:20"},
-    {"date":"2026-01-05","day":"الإثنين","fajr":"05:37","sunrise":"06:54","dhuhr":"12:34","asr":"03:45","maghrib":"06:08","isha":"07:20"},
-    {"date":"2026-01-06","day":"الثلاثاء","fajr":"05:38","sunrise":"06:55","dhuhr":"12:34","asr":"03:46","maghrib":"06:09","isha":"07:21"},
-    {"date":"2026-01-07","day":"الأربعاء","fajr":"05:38","sunrise":"06:55","dhuhr":"12:35","asr":"03:46","maghrib":"06:10","isha":"07:21"},
-    {"date":"2026-01-08","day":"الخميس","fajr":"05:38","sunrise":"06:55","dhuhr":"12:35","asr":"03:47","maghrib":"06:10","isha":"07:22"},
-    {"date":"2026-01-09","day":"الجمعة","fajr":"05:39","sunrise":"06:55","dhuhr":"12:36","asr":"03:47","maghrib":"06:11","isha":"07:22"},
-    {"date":"2026-01-10","day":"السبت","fajr":"05:39","sunrise":"06:56","dhuhr":"12:36","asr":"03:48","maghrib":"06:11","isha":"07:23"},
-    {"date":"2026-01-11","day":"الأحد","fajr":"05:39","sunrise":"06:56","dhuhr":"12:36","asr":"03:49","maghrib":"06:12","isha":"07:24"},
-    {"date":"2026-01-12","day":"الإثنين","fajr":"05:40","sunrise":"06:56","dhuhr":"12:37","asr":"03:49","maghrib":"06:13","isha":"07:24"},
-    {"date":"2026-01-13","day":"الثلاثاء","fajr":"05:40","sunrise":"06:56","dhuhr":"12:37","asr":"03:50","maghrib":"06:13","isha":"07:25"},
-    {"date":"2026-01-14","day":"الأربعاء","fajr":"05:40","sunrise":"06:56","dhuhr":"12:38","asr":"03:50","maghrib":"06:14","isha":"07:25"},
-    {"date":"2026-01-15","day":"الخميس","fajr":"05:40","sunrise":"06:56","dhuhr":"12:38","asr":"03:51","maghrib":"06:14","isha":"07:26"},
-    {"date":"2026-01-16","day":"الجمعة","fajr":"05:40","sunrise":"06:56","dhuhr":"12:38","asr":"03:51","maghrib":"06:15","isha":"07:26"},
-    {"date":"2026-01-17","day":"السبت","fajr":"05:41","sunrise":"06:57","dhuhr":"12:39","asr":"03:52","maghrib":"06:16","isha":"07:27"},
-    {"date":"2026-01-18","day":"الأحد","fajr":"05:41","sunrise":"06:57","dhuhr":"12:39","asr":"03:52","maghrib":"06:16","isha":"07:27"},
-    {"date":"2026-01-19","day":"الإثنين","fajr":"05:41","sunrise":"06:57","dhuhr":"12:39","asr":"03:53","maghrib":"06:17","isha":"07:28"},
-    {"date":"2026-01-20","day":"الثلاثاء","fajr":"05:41","sunrise":"06:57","dhuhr":"12:40","asr":"03:53","maghrib":"06:17","isha":"07:28"},
-    {"date":"2026-01-21","day":"الأربعاء","fajr":"05:41","sunrise":"06:57","dhuhr":"12:40","asr":"03:54","maghrib":"06:18","isha":"07:29"},
-    {"date":"2026-01-22","day":"الخميس","fajr":"05:41","sunrise":"06:57","dhuhr":"12:40","asr":"03:54","maghrib":"06:19","isha":"07:29"},
-    {"date":"2026-01-23","day":"الجمعة","fajr":"05:41","sunrise":"06:57","dhuhr":"12:40","asr":"03:55","maghrib":"06:19","isha":"07:30"},
-    {"date":"2026-01-24","day":"السبت","fajr":"05:41","sunrise":"06:56","dhuhr":"12:41","asr":"03:55","maghrib":"06:20","isha":"07:30"},
-    {"date":"2026-01-25","day":"الأحد","fajr":"05:41","sunrise":"06:56","dhuhr":"12:41","asr":"03:56","maghrib":"06:20","isha":"07:31"},
-    {"date":"2026-01-26","day":"الإثنين","fajr":"05:41","sunrise":"06:56","dhuhr":"12:41","asr":"03:56","maghrib":"06:21","isha":"07:31"},
-    {"date":"2026-01-27","day":"الثلاثاء","fajr":"05:41","sunrise":"06:56","dhuhr":"12:41","asr":"03:57","maghrib":"06:21","isha":"07:31"},
-    {"date":"2026-01-28","day":"الأربعاء","fajr":"05:41","sunrise":"06:56","dhuhr":"12:41","asr":"03:57","maghrib":"06:22","isha":"07:32"},
-    {"date":"2026-01-29","day":"الخميس","fajr":"05:41","sunrise":"06:56","dhuhr":"12:42","asr":"03:57","maghrib":"06:23","isha":"07:32"},
-    {"date":"2026-01-30","day":"الجمعة","fajr":"05:41","sunrise":"06:56","dhuhr":"12:42","asr":"03:58","maghrib":"06:23","isha":"07:33"},
-    {"date":"2026-01-31","day":"السبت","fajr":"05:41","sunrise":"06:55","dhuhr":"12:42","asr":"03:58","maghrib":"06:24","isha":"07:33"}
+const prayerTimes = [
+    {"date":"2026-01-01","day":"الخميس","fajr":"05:36","sunrise":"06:53","dhuhr":"12:32","asr":"15:43","maghrib":"18:06","isha":"19:18"},
+    {"date":"2026-01-02","day":"الجمعة","fajr":"05:36","sunrise":"06:53","dhuhr":"12:32","asr":"15:43","maghrib":"18:07","isha":"19:19"},
+    {"date":"2026-01-03","day":"السبت","fajr":"05:37","sunrise":"06:54","dhuhr":"12:33","asr":"15:44","maghrib":"18:07","isha":"19:19"},
+    {"date":"2026-01-04","day":"الأحد","fajr":"05:37","sunrise":"06:54","dhuhr":"12:33","asr":"15:45","maghrib":"18:08","isha":"19:20"},
+    {"date":"2026-01-05","day":"الإثنين","fajr":"05:37","sunrise":"06:54","dhuhr":"12:34","asr":"15:45","maghrib":"18:08","isha":"19:20"},
+    {"date":"2026-01-06","day":"الثلاثاء","fajr":"05:38","sunrise":"06:55","dhuhr":"12:34","asr":"15:46","maghrib":"18:09","isha":"19:21"},
+    {"date":"2026-01-07","day":"الأربعاء","fajr":"05:38","sunrise":"06:55","dhuhr":"12:35","asr":"15:46","maghrib":"18:10","isha":"19:21"},
+    {"date":"2026-01-08","day":"الخميس","fajr":"05:38","sunrise":"06:55","dhuhr":"12:35","asr":"15:47","maghrib":"18:10","isha":"19:22"},
+    {"date":"2026-01-09","day":"الجمعة","fajr":"05:39","sunrise":"06:55","dhuhr":"12:36","asr":"15:47","maghrib":"18:11","isha":"19:22"},
+    {"date":"2026-01-10","day":"السبت","fajr":"05:39","sunrise":"06:56","dhuhr":"12:36","asr":"15:48","maghrib":"18:11","isha":"19:23"},
+    {"date":"2026-01-11","day":"الأحد","fajr":"05:39","sunrise":"06:56","dhuhr":"12:36","asr":"15:49","maghrib":"18:12","isha":"19:24"},
+    {"date":"2026-01-12","day":"الإثنين","fajr":"05:40","sunrise":"06:56","dhuhr":"12:37","asr":"15:49","maghrib":"18:13","isha":"19:24"},
+    {"date":"2026-01-13","day":"الثلاثاء","fajr":"05:40","sunrise":"06:56","dhuhr":"12:37","asr":"15:50","maghrib":"18:13","isha":"19:25"},
+    {"date":"2026-01-14","day":"الأربعاء","fajr":"05:40","sunrise":"06:56","dhuhr":"12:38","asr":"15:50","maghrib":"18:14","isha":"19:25"},
+    {"date":"2026-01-15","day":"الخميس","fajr":"05:40","sunrise":"06:56","dhuhr":"12:38","asr":"15:51","maghrib":"18:14","isha":"19:26"},
+    {"date":"2026-01-16","day":"الجمعة","fajr":"05:40","sunrise":"06:56","dhuhr":"12:38","asr":"15:51","maghrib":"18:15","isha":"19:26"},
+    {"date":"2026-01-17","day":"السبت","fajr":"05:41","sunrise":"06:57","dhuhr":"12:39","asr":"15:52","maghrib":"18:16","isha":"19:27"},
+    {"date":"2026-01-18","day":"الأحد","fajr":"05:41","sunrise":"06:57","dhuhr":"12:39","asr":"15:52","maghrib":"18:16","isha":"19:27"},
+    {"date":"2026-01-19","day":"الإثنين","fajr":"05:41","sunrise":"06:57","dhuhr":"12:39","asr":"15:53","maghrib":"18:17","isha":"19:28"},
+    {"date":"2026-01-20","day":"الثلاثاء","fajr":"05:41","sunrise":"06:57","dhuhr":"12:40","asr":"15:53","maghrib":"18:17","isha":"19:28"},
+    {"date":"2026-01-21","day":"الأربعاء","fajr":"05:41","sunrise":"06:57","dhuhr":"12:40","asr":"15:54","maghrib":"18:18","isha":"19:29"},
+    {"date":"2026-01-22","day":"الخميس","fajr":"05:41","sunrise":"06:57","dhuhr":"12:40","asr":"15:54","maghrib":"18:19","isha":"19:29"},
+    {"date":"2026-01-23","day":"الجمعة","fajr":"05:41","sunrise":"06:57","dhuhr":"12:40","asr":"15:55","maghrib":"18:19","isha":"19:30"},
+    {"date":"2026-01-24","day":"السبت","fajr":"05:41","sunrise":"06:56","dhuhr":"12:41","asr":"15:55","maghrib":"18:20","isha":"19:30"},
+    {"date":"2026-01-25","day":"الأحد","fajr":"05:41","sunrise":"06:56","dhuhr":"12:41","asr":"15:56","maghrib":"18:20","isha":"19:31"},
+    {"date":"2026-01-26","day":"الإثنين","fajr":"05:41","sunrise":"06:56","dhuhr":"12:41","asr":"15:56","maghrib":"18:21","isha":"19:31"},
+    {"date":"2026-01-27","day":"الثلاثاء","fajr":"05:41","sunrise":"06:56","dhuhr":"12:41","asr":"15:57","maghrib":"18:21","isha":"19:31"},
+    {"date":"2026-01-28","day":"الأربعاء","fajr":"05:41","sunrise":"06:56","dhuhr":"12:41","asr":"15:57","maghrib":"18:22","isha":"19:32"},
+    {"date":"2026-01-29","day":"الخميس","fajr":"05:41","sunrise":"06:56","dhuhr":"12:42","asr":"15:57","maghrib":"18:23","isha":"19:32"},
+    {"date":"2026-01-30","day":"الجمعة","fajr":"05:41","sunrise":"06:56","dhuhr":"12:42","asr":"15:58","maghrib":"18:23","isha":"19:33"},
+    {"date":"2026-01-31","day":"السبت","fajr":"05:41","sunrise":"06:55","dhuhr":"12:42","asr":"15:58","maghrib":"18:24","isha":"19:33"}
 ];
 
-   
-  
-   
- 
-/**
- * Converts a 24-hour time string (HH:MM) to a 12-hour time string (H:MM).
- * * @param {string} time24h - Time in 24-hour format (e.g., "15:36").
- * @returns {string} Time in 12-hour format (e.g., "3:36").
- */
 function convertTo12Hour(time24h) {
     if (!time24h || typeof time24h !== 'string' || time24h === '--:--') {
         return time24h; // Return as is if invalid or not loaded
