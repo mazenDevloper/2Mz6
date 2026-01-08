@@ -35,6 +35,32 @@
     display: none !important;
 }
 
+#screen-DashboardCarPlay .glass-surface {
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+}
+
+#screen-DashboardCarPlay .navigable:focus {
+    transform: scale(1.02);
+    border: 2px solid rgba(255, 255, 255, 0.5) !important;
+    box-shadow: 0 0 40px rgba(59, 130, 246, 0.4) !important;
+}
+
+@keyframes pulse-slow {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.02); opacity: 0.9; }
+}
+
+.animate-pulse-slow {
+    animation: pulse-slow 4s infinite ease-in-out;
+}
+
+#carplay-prayer-mini-grid .prayer-item {
+    background: rgba(255,255,255,0.03);
+    border-radius: 1rem;
+    padding: 8px;
+    text-align: center;
+}
+
 /* 1. إظهار أزرار التحكم اليسرى (Pause, Zoom) فقط في شاشة الراديو */
 body.app-Radio-active #bottom-left-controls {
     display: flex !important;
@@ -2887,7 +2913,54 @@ div#map{display:none}
                         </div>
                     </div>
                 </section>
-                
+                <section id="screen-DashboardCarPlay" class="app-screen p-4 flex-col h-full bg-black/40 backdrop-blur-md">
+    <div class="grid grid-cols-12 grid-rows-6 gap-4 h-full w-full max-w-7xl mx-auto p-2">
+        
+        <div class="col-span-8 row-span-6 glass-surface glass-surface--svg rounded-[2.5rem] overflow-hidden relative border border-white/20 shadow-2xl navigable grid-item" tabindex="0">
+            <div id="carplay-mini-map" class="w-full h-full"></div>
+            <div class="absolute bottom-4 left-4 bg-black/60 p-3 rounded-2xl backdrop-blur-md border border-white/10 flex items-center gap-3">
+                <i data-lucide="navigation" class="w-5 h-5 text-blue-400"></i>
+                <span class="text-sm font-bold truncate max-w-[150px]" id="carplay-location-text">جاري التحديد...</span>
+            </div>
+        </div>
+
+        <div class="col-span-4 row-span-4 glass-surface glass-surface--svg rounded-[2.5rem] p-6 flex flex-col items-center justify-between border border-white/20 shadow-xl navigable grid-item" tabindex="0">
+            <div class="w-full flex justify-between items-center mb-2">
+                <span class="text-xs font-bold text-white/50 tracking-widest uppercase">Now Playing</span>
+                <i data-lucide="music" class="w-4 h-4 text-purple-400"></i>
+            </div>
+            <img id="carplay-media-thumb" src="https://i.ytimg.com/vi/vzkrqeodX6s/mqdefault.jpg" class="w-32 h-32 rounded-3xl object-cover shadow-2xl border-2 border-white/10 mb-4 animate-pulse-slow">
+            <div class="text-center w-full">
+                <h3 id="carplay-media-title" class="text-lg font-bold truncate">لا يوجد مقطع حالياً</h3>
+                <p id="carplay-media-channel" class="text-sm text-white/60">يوتيوب ميديا</p>
+            </div>
+            <div class="flex gap-6 mt-4 items-center">
+                <i data-lucide="skip-back" class="w-6 h-6 opacity-50"></i>
+                <div class="p-4 bg-white/10 rounded-full border border-white/20 shadow-lg">
+                    <i data-lucide="play" class="w-8 h-8 fill-white"></i>
+                </div>
+                <i data-lucide="skip-forward" class="w-6 h-6 opacity-50"></i>
+            </div>
+        </div>
+
+        <div class="col-span-4 row-span-3 glass-surface glass-surface--svg rounded-[2.5rem] p-5 flex flex-col justify-center border border-white/20 shadow-xl navigable grid-item" tabindex="0">
+             <div class="flex items-center gap-3 mb-4 bg-white/5 p-3 rounded-2xl border border-white/10">
+                <div class="w-10 h-10 rounded-full bg-orange-500/20 flex items-center justify-center">
+                    <i data-lucide="sun" class="w-6 h-6 text-orange-400"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-white/50">الأذان القادم</p>
+                    <h4 id="carplay-next-prayer-name" class="text-xl font-black text-orange-300">--</h4>
+                </div>
+                <div class="mr-auto text-2xl font-black text-white" id="carplay-next-prayer-time">--:--</div>
+            </div>
+            <div class="grid grid-cols-2 gap-2" id="carplay-prayer-mini-grid">
+                </div>
+        </div>
+
+        
+    </div>
+</section>
                 <!-- Radio Screen -->
                 <section id="screen-Radio" class="app-screen items-center justify-center h-full w-full p-4 md:p-6">
        
@@ -3152,6 +3225,11 @@ div#map{display:none}
                 <button data-app="Media" class="app-icon navigable grid-item" tabindex="0">
                     <i data-lucide="play-circle"></i>
                 </button>
+
+                <button data-app="DashboardCarPlay" class="app-icon navigable grid-item" tabindex="0">
+    <i data-lucide="layout-template" class="text-blue-400"></i>
+</button>
+                
                  <button data-app="Radio" class="app-icon navigable grid-item" tabindex="0">
                     <i data-lucide="radio"></i>
                 </button>
@@ -5680,14 +5758,54 @@ function updateUI() {
         car360Image.src = appState.custom360Image || default360ImageSrc;
     }
 
+    if (currentAppIndex === appOrder.indexOf('DashboardCarPlay')) {
+        updateCarPlayDashboard();
+    }
+
 }
 
-// Make sure appState includes humidity (it should already if fetchWeatherData is correct)
-// Inside fetchWeatherData, ensure humidity is stored:
-// appState.weather.humidity = data.current.humidity; // Add this line if missing
+function updateCarPlayDashboard() {
+    // 1. تحديث الطقس من الحالة العالمية
+    const tempEl = document.getElementById('carplay-weather-temp');
+    if (tempEl) tempEl.textContent = `${Math.round(appState.weather.temperature || 0)}°`;
+    
+    const descEl = document.getElementById('carplay-weather-desc');
+    if (descEl) descEl.textContent = appState.weather.description || '--';
 
+    // 2. تحديث الصلاة القادمة والوقت
+    const nextPrayerName = document.getElementById('carplay-next-prayer-name');
+    const nextPrayerTime = document.getElementById('carplay-next-prayer-time');
+    if (nextPrayerName) nextPrayerName.textContent = appState.prayerTimes.nextPrayer || '--';
+    if (nextPrayerTime && appState.prayerTimes.nextPrayerIqamaTime) {
+        nextPrayerTime.textContent = appState.prayerTimes.nextPrayerIqamaTime.toLocaleTimeString('ar-SA', { hour: 'numeric', minute: '2-digit', hour12: true });
+    }
+
+    // 3. تحديث السرعة (Live)
+    const speedEl = document.getElementById('carplay-speed');
+    if (speedEl) speedEl.innerHTML = `${appState.car.speed} <small class="text-sm font-normal opacity-60">km/h</small>`;
+
+    // 4. تحديث الميديا (سحب البيانات من مشغل يوتيوب النشط)
+    if (popupPlayer && typeof popupPlayer.getVideoData === 'function') {
+        const videoData = popupPlayer.getVideoData();
+        const playerState = popupPlayer.getPlayerState();
+        
+        if (videoData) {
+            document.getElementById('carplay-media-title').textContent = videoData.title;
+            document.getElementById('carplay-media-channel').textContent = videoData.author;
+            document.getElementById('carplay-media-thumb').src = `https://i.ytimg.com/vi/${videoData.video_id}/mqdefault.jpg`;
+            
+            // تغيير أيقونة التشغيل بناءً على حالة الفيديو
+            const playIcon = document.querySelector('#screen-DashboardCarPlay [data-lucide="play"], #screen-DashboardCarPlay [data-lucide="pause"]');
+            if (playIcon) {
+                const isPlaying = (playerState === YT.PlayerState.PLAYING);
+                playIcon.setAttribute('data-lucide', isPlaying ? 'pause' : 'play');
+                lucide.createIcons(); // لإعادة رسم الأيقونة الجديدة
+            }
+        }
+    }
+}
         // --- App Switching and Navigation Logic ---
-        const appOrder = ['Dashboard', 'Media', 'Radio', 'Athkar', 'Reciters', 'Weather', 'Map', 'Quran'];
+const appOrder = ['Dashboard', 'Media', 'DashboardCarPlay', 'Radio', 'Athkar', 'Reciters', 'Weather', 'Map', 'Quran'];
         let currentAppIndex = 0;
 
        function switchApp(appName) {
@@ -5713,7 +5831,35 @@ function updateUI() {
 
 
     // 3. التشغيل الشرطي للمؤقتات (Conditional Start)
+if (appName === 'DashboardCarPlay') {
+    // 1. تحديث البيانات النصية فوراً (الطقس، الصلاة، السرعة)
+    updateCarPlayDashboard();
 
+    // 2. معالجة الخريطة (نقل الخريطة الحالية لتوفير الـ API)
+    setTimeout(() => {
+        const miniMapContainer = document.getElementById('carplay-mini-map');
+        const mainMapElement = document.getElementById('dashboard-google-map');
+
+        if (miniMapContainer && mainMapElement) {
+            // نقل عنصر الخريطة من الداشبورد القديم إلى حاوية CarPlay
+            miniMapContainer.appendChild(mainMapElement);
+            
+            // إعادة ضبط المركز والزوم ليتناسب مع الحجم الجديد
+            if (dashboardGoogleMap && appState.currentLocation) {
+                google.maps.event.trigger(dashboardGoogleMap, 'resize');
+                dashboardGoogleMap.setCenter(appState.currentLocation);
+                dashboardGoogleMap.setZoom(17);
+                dashboardGoogleMap.setTilt(45);
+            }
+        }
+        
+        // تحديث اسم الموقع في التسمية التوضيحية
+        const locationText = document.getElementById('carplay-location-text');
+        if (locationText) {
+            locationText.textContent = appState.weather.location || "موقعك الحالي";
+        }
+    }, 100);
+}
     // A. المؤقتات المطلوبة في Dashboard
     if (appName === 'Dashboard') {
         startClockAndTimer(); // 1s/2s (الساعة والعداد التنازلي)
