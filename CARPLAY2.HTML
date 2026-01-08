@@ -30,30 +30,180 @@
         onload="this.media='all'"
     >
     <style>
-
-        /* 1. تعديل مسار الصورة: الانتقال من الابن المباشر إلى البحث داخل الـ div */
-.suggested-d-dashboard-card.navigable.grid-item.p-2 div > img {
-    width: 11.1rem !important;
-    height: 6.1rem !important;
-    object-fit: cover !important;
-    border-radius: 12px !important;
-    display: block; /* لضمان عدم وجود مسافات غريبة بالأسفل */
+        /* إخفاء العناصر افتراضياً */
+#bottom-left-controls {
+    display: none !important;
 }
 
-/* 2. تنسيق حاوية الصورة والزر (لضمان العوم الصحيح) */
+#screen-DashboardCarPlay .glass-surface {
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+}
+
+#screen-DashboardCarPlay .navigable:focus {
+    transform: scale(1.02);
+    border: 2px solid rgba(255, 255, 255, 0.5) !important;
+    box-shadow: 0 0 40px rgba(59, 130, 246, 0.4) !important;
+}
+
+@keyframes pulse-slow {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.02); opacity: 0.9; }
+}
+
+.animate-pulse-slow {
+    animation: pulse-slow 4s infinite ease-in-out;
+}
+
+#carplay-prayer-mini-grid .prayer-item {
+    background: rgba(255,255,255,0.03);
+    border-radius: 1rem;
+    padding: 8px;
+    text-align: center;
+}
+
+/* 1. إظهار أزرار التحكم اليسرى (Pause, Zoom) فقط في شاشة الراديو */
+body.app-Radio-active #bottom-left-controls {
+    display: flex !important;
+}
+
+/* 2. إظهار أزرار KEY 1/2 (فحص المفاتيح) فقط في الداشبورد */
+body.app-Dashboard-active #manual-key-switcher {
+    display: flex !important;
+}
+
+/* 3. إظهار الكبسولة الصوتية في كل مكان ماعدا شاشة الميديا (إذا كانت كبيرة) */
+body.app-Media-active #floating-minimized-video-button {
+    opacity: 0.1; /* جعلها شفافة جداً في الميديا لكي لا تحجب التابات */
+    pointer-events: none;
+}
+
+div#universal-date-display>.date-wrapper>span.day-highlight {
+    font-size:3.4rem!important;
+}
+
+div#universal-date-display>.date-wrapper>.date-details {
+      font-size:3.4rem!important;
+}
+
+.date-wrapper>span.day-highlight {
+    font-size:1.8rem!important;
+    color:white;
+}
+
+.date-wrapper>.date-details {
+      font-size:1.3rem!important;
+    color:white;
+}
+
+
+/* تحرير الحاوية الرئيسية للمقترحات */
+.suggestions-main-wrapper {
+    overflow: visible !important; /* السماح بالبروز فوق أزرار الإغلاق وغيرها */
+    width: 100%;
+}
+
+/* حاوية العرض التي تسمح بالسكرول */
+.scroll-viewport {
+    width: 200vw !important; /* جعل العرض بكامل شاشة النافذة */
+    margin-left: calc(-68vw + -100%); /* تقنية لتوسيط الحاوية وتوسيعها */
+    overflow-x: auto !important;
+    overflow-y: visible !important; /* أهم سطر للسماح للكروت بالخروج للأعلى والأسفل */
+    padding: 40px 0 !important; /* مساحة كافية للتكبير (Hover) */
+    scrollbar-width: none; /* إخفاء السكرول في فيرفوكس */
+}
+
+.scroll-viewport::-webkit-scrollbar {
+    display: none; /* إخفاء السكرول في كروم */
+}
+
+/* ضمان أن الحاوية الداخلية لا تقص المحتوى */
+#favorites-popup-grid {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 25px !important;
+    padding: 0 100px !important; /* مساحة بداية ونهاية السكرول */
+    overflow: visible !important; 
+    width: max-content !important;
+}
+
+/* تأثير التكبير عند الوقوف بالريموت أو الماوس */
+.simple-suggestion-card {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    z-index: 1;
+}
+
+.simple-suggestion-card:focus, .simple-suggestion-card:hover {
+    transform: scale(1.15) translateY(-10px) !important; /* الكرت سيخرج للأعلى ويكبر */
+    z-index: 100 !important;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+}
+    .scroll-viewport::-webkit-scrollbar {
+    display: none; /* إخفاء في Chrome و Safari */
+}
+.scroll-viewport {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+/* 1. The Container: Enable Horizontal Scrolling */
+#favorites-popup-grid {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important; /* Prevents cards from dropping to next line */
+    overflow-x: auto !important;  /* Enables horizontal scroll */
+    overflow-y: hidden !important;
+    gap: 16px !important;
+    width: 100% !important;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling for iOS */
+    scrollbar-width: none; /* Hides scrollbar in Firefox */
+    padding-bottom: 20px !important; /* Extra space for shadow/focus effects */
+}
+
+/* 2. Hide Scrollbar for Chrome, Safari and Edge */
+#favorites-popup-grid::-webkit-scrollbar {
+    display: none;
+}
+
+/* 3. The Cards: Fixed Width and No Shrinking */
+.simple-suggestion-card {
+    flex: 0 0 auto !important; /* CRITICAL: Prevents cards from shrinking to fit the screen */
+    width: 200px !important;   /* Set a fixed width for the cards */
+    transition: transform 0.2s ease;
+}
+
+/* Optional: Focus effect to match dashboard */
+.simple-suggestion-card:focus {
+    outline: 3px solid #9333ea;
+    transform: scale(1.05);
+}
+        /* 1. تعديل مسار الصورة: الانتقال من الابن المباشر إلى البحث داخل الـ div */
+/* 1. تكبير حاوية الصورة والزر داخل الكارت */
 .suggested-d-dashboard-card.navigable.grid-item.p-2 > div {
-    position: relative; /* ضروري لكي يعمل التموضع المطلق للزر */
-    width: 11.1rem !important;
-    height: 6.1rem !important;
-    border-radius: 12px;
-    overflow: hidden; /* لقص حواف الصورة والزر عند الزوايا */
+    position: relative;
+    /* الحجم القديم كان 11.1rem × 6.1rem */
+    width: 14rem !important;   /* العرض الجديد */
+    height: 8rem !important;   /* الطول الجديد */
+    border-radius: 15px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+/* 2. تكبير الصورة نفسها لتملأ الحاوية الجديدة */
+.suggested-d-dashboard-card.navigable.grid-item.p-2 div > img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    border-radius: 15px !important;
+    display: block;
 }
 
 /* 3. تنسيق زر الـ Bookmark العائم */
 .dashboard-only-bookmark {
     position: absolute !important;
-    top: 5px !important;
-    right: 5px !important;
+      width: 42px !important;
+    height: 42px !important;
+    top: 8px !important;
+    right: 8px !important;
     z-index: 10; /* فوق الصورة */
     background: rgba(0, 0, 0, 0.5) !important;
     backdrop-filter: blur(4px);
@@ -99,7 +249,7 @@
 .simple-suggestion-card.flex.flex-col.gap-2.p-3.rounded-xl.bg-white\/10.cursor-pointer.navigable.grid-item.flex-shrink-0 {
     background: black;
     width: 265px;
-    height: 250px;
+    height: 214px;
     border:solid;
 }
 
@@ -115,16 +265,15 @@ div#manual-key-switcher>button {
 }
 
 div#manual-key-switcher {
-    bottom: 4rem!important;
+    bottom: 6rem!important;
     transform: scale(0.7) !important;
 }
 /* تنسيق الزر ليكون في أسفل يسار الحاوية */
 .playlist-shuffle-btn {
     position: absolute !important;
-    bottom: 125px !important;
-    left: 150px !important;
+    bottom: 47px !important;
+    left: 77px !important;
     z-index: 50 !important; /* لضمان ظهوره فوق الكروت */
-    
     display: flex !important;
     align-items: center !important;
     gap: 8px !important;
@@ -156,6 +305,11 @@ div#manual-key-switcher {
     display: block !important;
     flex-direction: row !important;
     gap: 10px !important;
+}
+#video-popup-player-container {
+  
+    height: 155% 1important;
+   
 }
 
 .simple-suggestion-card.flex.items-center.gap-3.p-2.rounded-lg.bg-white\/10.cursor-pointer.navigable.grid-item {
@@ -374,6 +528,61 @@ span.text-xs.text-white\/50.flex-shrink-0 {
     right: 4rem !important;
 }
 
+#universal-date-display {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 0;
+    margin-top: auto; /* يدفعه لأسفل الحاوية */
+    clear: both;
+}
+
+.date-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 10px 30px;
+    border-radius: 50px;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.day-highlight {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 4px;
+}
+
+.date-details {
+    display: flex;
+    gap: 10px;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.6);
+    white-space: nowrap;
+}
+
+.separator {
+    color: #a855f7;
+    font-weight: bold;
+}
+
+.hijri-text {
+    color: #c084fc; /* لون الهجري المميز */
+}
+
+/* تحسين للمقاسات الصغيرة جداً */
+@media (max-width: 600px) {
+    .date-details {
+        flex-direction: column;
+        gap: 2px;
+    }
+    .separator {
+        display: none;
+    }
+}
 #floating-minimized-video-button .rate-btn {
     /* تنسيق مربع صغير ومدمج */
     width: 40px !important;
@@ -1749,7 +1958,7 @@ div#youtube-readers-section {
             position: relative;
         }
         .car-cam-360-container img {
-            height: 160%;
+            height: 160% !important;
             width: 100%; 
             object-fit: cover;
         }
@@ -2516,7 +2725,7 @@ div#map{display:none}
                     <!-- UPDATED: Dashboard layout changed -->
                     <div class="dashboard-main-grid grid grid-cols-1 md:grid-cols-3 grid-rows-[80%_20%] gap-4 md:gap-6 h-full w-full grid-container">
                         <!-- Map Widget (Now first) -->
-                        <button class="playlist-shuffle-btn navigable grid-item" style="position: absolute; bottom: 15px; left: 15px; z-index: 100; display: flex; align-items: center; gap: 8px;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shuffle" class="lucide lucide-shuffle"><path d="m18 14 4 4-4 4"></path><path d="m18 2 4 4-4 4"></path><path d="M2 18h1.973a4 4 0 0 0 3.3-1.7l5.454-8.6a4 4 0 0 1 3.3-1.7H22"></path><path d="M2 6h1.972a4 4 0 0 1 3.6 2.2"></path><path d="M22 18h-6.041a4 4 0 0 1-3.3-1.8l-.359-.45"></path></svg> تشغيل الكل</button>
+                        <button class="playlist-shuffle-btn navigable grid-item" style="position: absolute;bottom: 15px;left: 15px;z-index: 9999;background: transparent!important;color: transparent!important;width: 9rem;height: 3rem;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shuffle" class="lucide lucide-shuffle"><path d="m18 14 4 4-4 4"></path><path d="m18 2 4 4-4 4"></path><path d="M2 18h1.973a4 4 0 0 0 3.3-1.7l5.454-8.6a4 4 0 0 1 3.3-1.7H22"></path><path d="M2 6h1.972a4 4 0 0 1 3.6 2.2"></path><path d="M22 18h-6.041a4 4 0 0 1-3.3-1.8l-.359-.45"></path></svg> تشغيل الكل</button>
                         <div id="map" class="rounded-3xl relative overflow-hidden flex items-center justify-center glass-surface glass-surface--svg p-1 col-span-1 row-start-1 navigable grid-item" tabindex="0">
                             <div id="dashboard-google-map" class="full-iframe"></div>
                              <!-- NEW: Geolocation Error Overlay -->
@@ -2623,9 +2832,10 @@ div#map{display:none}
 
 
                         <div id="tv" class="glass-surface glass-surface--svg p-4 flex flex-col items-center justify-center text-center car-cam-360-container col-span-1 row-start-1 navigable grid-item" tabindex="0"></div>
-
+ <div id="universal-date-display" class="navigable"></div>
 
                     </div>
+                   
                 </section>
 
                 <!-- Media (YouTube) Screen -->
@@ -2703,7 +2913,71 @@ div#map{display:none}
                         </div>
                     </div>
                 </section>
-                
+                <section id="screen-DashboardCarPlay" class="app-screen p-4 flex-col h-full bg-black/40 backdrop-blur-md">
+    <div class="grid grid-cols-12 grid-rows-6 gap-4 h-full w-full max-w-7xl mx-auto p-2">
+        
+        <div class="col-span-8 row-span-4 glass-surface glass-surface--svg rounded-[2.5rem] overflow-hidden relative border border-white/20 shadow-2xl navigable grid-item" tabindex="0">
+            <div id="carplay-mini-map" class="w-full h-full"></div>
+            <div class="absolute bottom-4 left-4 bg-black/60 p-3 rounded-2xl backdrop-blur-md border border-white/10 flex items-center gap-3">
+                <i data-lucide="navigation" class="w-5 h-5 text-blue-400"></i>
+                <span class="text-sm font-bold truncate max-w-[150px]" id="carplay-location-text">جاري التحديد...</span>
+            </div>
+        </div>
+
+        <div class="col-span-4 row-span-3 glass-surface glass-surface--svg rounded-[2.5rem] p-6 flex flex-col items-center justify-between border border-white/20 shadow-xl navigable grid-item" tabindex="0">
+            <div class="w-full flex justify-between items-center mb-2">
+                <span class="text-xs font-bold text-white/50 tracking-widest uppercase">Now Playing</span>
+                <i data-lucide="music" class="w-4 h-4 text-purple-400"></i>
+            </div>
+            <img id="carplay-media-thumb" src="https://i.ytimg.com/vi/Ks-_Mh1QhMc/mqdefault.jpg" class="w-32 h-32 rounded-3xl object-cover shadow-2xl border-2 border-white/10 mb-4 animate-pulse-slow">
+            <div class="text-center w-full">
+                <h3 id="carplay-media-title" class="text-lg font-bold truncate">لا يوجد مقطع حالياً</h3>
+                <p id="carplay-media-channel" class="text-sm text-white/60">يوتيوب ميديا</p>
+            </div>
+            <div class="flex gap-6 mt-4 items-center">
+                <i data-lucide="skip-back" class="w-6 h-6 opacity-50"></i>
+                <div class="p-4 bg-white/10 rounded-full border border-white/20 shadow-lg">
+                    <i data-lucide="play" class="w-8 h-8 fill-white"></i>
+                </div>
+                <i data-lucide="skip-forward" class="w-6 h-6 opacity-50"></i>
+            </div>
+        </div>
+
+        <div class="col-span-4 row-span-3 glass-surface glass-surface--svg rounded-[2.5rem] p-5 flex flex-col justify-center border border-white/20 shadow-xl navigable grid-item" tabindex="0">
+             <div class="flex items-center gap-3 mb-4 bg-white/5 p-3 rounded-2xl border border-white/10">
+                <div class="w-10 h-10 rounded-full bg-orange-500/20 flex items-center justify-center">
+                    <i data-lucide="sun" class="w-6 h-6 text-orange-400"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-white/50">الأذان القادم</p>
+                    <h4 id="carplay-next-prayer-name" class="text-xl font-black text-orange-300">--</h4>
+                </div>
+                <div class="mr-auto text-2xl font-black text-white" id="carplay-next-prayer-time">--:--</div>
+            </div>
+            <div class="grid grid-cols-2 gap-2" id="carplay-prayer-mini-grid">
+                </div>
+        </div>
+
+        <div class="col-span-8 row-span-2 flex gap-4">
+            <div class="flex-1 glass-surface glass-surface--svg rounded-[2.5rem] p-4 flex items-center gap-4 border border-white/20 shadow-lg navigable grid-item" tabindex="0">
+                <div class="p-4 bg-green-500/20 rounded-3xl border border-green-500/30">
+                    <i data-lucide="gauge" class="w-8 h-8 text-green-400"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-white/50">سرعة القيادة</p>
+                    <h2 class="text-3xl font-black" id="carplay-speed">0 <small class="text-sm font-normal opacity-60">km/h</small></h2>
+                </div>
+            </div>
+            <div class="flex-1 glass-surface glass-surface--svg rounded-[2.5rem] p-4 flex items-center gap-4 border border-white/20 shadow-lg navigable grid-item" tabindex="0">
+                <img id="carplay-weather-icon" src="https://cdn.weatherapi.com/weather/64x64/day/113.png" class="w-12 h-12 drop-shadow-lg">
+                <div>
+                    <p class="text-xs text-white/50" id="carplay-weather-desc">جاري التحديث...</p>
+                    <h2 class="text-3xl font-black" id="carplay-weather-temp">--°</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
                 <!-- Radio Screen -->
                 <section id="screen-Radio" class="app-screen items-center justify-center h-full w-full p-4 md:p-6">
        
@@ -2794,7 +3068,7 @@ div#map{display:none}
             class="full-iframe flex-grow"
             onclick="toggleIframeFullscreen('reciters-iframe')"  class="fullscreen-toggle-button navigable grid-item"
             title="Reciters/TV"
-            src="https://www.kooora.com"
+            src="https://hihi2.com/"
             allow="geolocation; fullscreen"  allowfullscreen="true"          webkitallowfullscreen="true"    mozallowfullscreen="true">  
             <i class="fas fa-expand"></i> 
                 </iframe>
@@ -2805,7 +3079,7 @@ div#map{display:none}
 
 
 
-        <button data-src="https://www.kooora.com" class="iframe-src-button bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item active" tabindex="0">
+        <button data-src="https://hihi2.com/" class="iframe-src-button bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item active" tabindex="0">
             مباريات
         </button>
         <button data-src="https://direct.aflam4you.net/playeraf.php?vid=9311&aflam_s=1&aflam_k=ff09665543234455" class="iframe-src-button bg-black-600 hover:bg-black-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
@@ -2968,6 +3242,11 @@ div#map{display:none}
                 <button data-app="Media" class="app-icon navigable grid-item" tabindex="0">
                     <i data-lucide="play-circle"></i>
                 </button>
+
+                <button data-app="DashboardCarPlay" class="app-icon navigable grid-item" tabindex="0">
+    <i data-lucide="layout-template" class="text-blue-400"></i>
+</button>
+                
                  <button data-app="Radio" class="app-icon navigable grid-item" tabindex="0">
                     <i data-lucide="radio"></i>
                 </button>
@@ -3070,11 +3349,7 @@ div#map{display:none}
     </div>
 
     <script>
-        // ============================================================
-// 📺 YOUTUBE API SETUP (يجب وضعه في بداية الملف)
-// ============================================================
 
-// تعريف المتغير العام
 window.isYouTubeApiReady = false;
 
 // 1. الدالة التي يناديها اليوتيوب تلقائياً عند انتهاء التحميل
@@ -3082,6 +3357,40 @@ window.onYouTubeIframeAPIReady = function() {
     window.isYouTubeApiReady = true;
     console.log("✅ YouTube API is Ready.");
 };
+
+function playRandomSuggested() {
+    // جلب القائمة المفلترة (بدون المكتملة)
+    const availableVideos = filterWatchedVideos(window.suggestedVideos || []);
+    
+    if (availableVideos.length === 0) {
+        console.log("كل الفيديوهات تمت مشاهدتها! جاري إعادة تصفير القائمة...");
+        // اختياري: مسح قائمة المكتملة إذا انتهت الفيديوهات
+        return;
+    }
+
+    const randomIndex = Math.floor(Math.random() * Math.min(availableVideos.length, 30));
+    const selectedVideo = availableVideos[randomIndex];
+    
+    playYoutubeVideo(selectedVideo.id, selectedVideo.title);
+}
+
+
+function filterWatchedVideos(videoList) {
+    // جلب قائمة الفيديوهات التي اكتملت مشاهدتها من الكاش المحلي
+    const watchedData = JSON.parse(localStorage.getItem('youtube_watched_history') || '{}');
+    
+    // استبعاد الفيديوهات التي تم وسمها كـ "مكتملة" (مثلاً تجاوزت 95% من وقتها)
+    // أو الفيديوهات الموجودة في قائمة 'completed'
+    const completedVideos = JSON.parse(localStorage.getItem('completed_videos_ids') || '[]');
+
+    return videoList.filter(video => {
+        // لا تستبعد البث المباشر أبداً
+        if (video.isLive) return true;
+        
+        // استبعاد إذا كان الفيديو في قائمة المكتملة
+        return !completedVideos.includes(video.id);
+    });
+}
 
 // 2. دالة لجلب المكتبة يدوياً إذا تأخرت
 function loadYouTubeApi() {
@@ -3108,17 +3417,16 @@ loadYouTubeApi();
 // ============================================================
 
 window.YT_KEYS_POOL = [
- "AIzaSyBLrMA6plsSZtqg2iY9Z1N1fJAHNmgGxos", // 4
+    "AIzaSyAjdVZ2Rodp6ZVEF1pZT195kAtGELolxSI", // 0
+    "AIzaSyDULoFJLWNIO9hn0u8siLz-BzTi7eM-CX4",
+    "AIzaSyBYThRM6tVnzgFgdHOUAN6DN8jQd54OKeg", // 1
+    "AIzaSyB7QdfI0br5BfP71hOr36hz2dRWG_l0G8k", // 2
+    "AIzaSyBdhcRo-EsvIduedQd-jFHfrEj9NeiP7pU", // 3
+    "AIzaSyBLrMA6plsSZtqg2iY9Z1N1fJAHNmgGxos", // 4
     "AIzaSyCaqMPtn-egmEQk7XmTel--xsXV1Xbdp7o", // 5
     "AIzaSyDj4w1H3Is_rmTLhl40zER7AgYhT_tKASo", // 6
     "AIzaSyBYThRM6tVnzgFgdHOUAN6DN8jQd54OKeg", // 7
     "AIzaSyBeTHs25EsKeDFtIS5kq8iDATz-2c8hBrI", // 8
-    "AIzaSyAjdVZ2Rodp6ZVEF1pZT195kAtGELolxSI", // 0
-    "AIzaSyDULoFJLWNIO9hn0u8siLz-BzTi7eM-CX4",
-    "AIzaSyCHEX1seZcrf4QcAHmuU9XrMHHd_p57Giw",
-    "AIzaSyBYThRM6tVnzgFgdHOUAN6DN8jQd54OKeg", // 1
-    "AIzaSyB7QdfI0br5BfP71hOr36hz2dRWG_l0G8k", // 2
-    "AIzaSyBdhcRo-EsvIduedQd-jFHfrEj9NeiP7pU", // 3
     "AIzaSyAjdVZ2Rodp6ZVEF1pZT195kAtGELolxSI"  // 9
 ];
 
@@ -3192,9 +3500,8 @@ Object.assign(btn.style, {
     bottom: '15px',
     left: '15px',
     zIndex: '9999',
-        width: '9rem',
+    width: '9rem',
     height: '3rem',
-    
     color:'transparent !important',
     background: 'transparent !important'
 // مهم جداً
@@ -3293,7 +3600,7 @@ async function initSuggestedDashboard() {
     }
 }
 
-const TARGET_ID = 'UCz9WVutRGBdn58dScZDh6uQ';
+const TARGET_ID = 'UCZPY2lpYyo6Y5mxk2CczJXg';
 const UPDATE_HOURS = [7,10, 14,16, 18]; 
 const NEW_JSONBIN_CHANNEL_IDS = '693fb33cae596e708f9ade6a';
 
@@ -3525,143 +3832,212 @@ function shouldRefreshNow(lastTimestamp) {
     }
     return false;
 }
-
-/**
- * جلب مقترحات الفيديوهات بشكل ذكي وشامل
- * المميزات: حماية الكوتا، دعم الكاش، جلب من 6 قنوات، فلترة Shorts
- */
 async function fetchSuggestedVideos() {
-    const CACHE_KEY = 'suggestedVideosCache';
-    console.log("🚀 [System] Starting comprehensive video fetch...");
+    const CACHE_KEY = 'suggestedVideosCache_Official_v3';
+    const lastUpdate = localStorage.getItem('last_fetch_timestamp_official');
+    const now = Date.now();
+    const FOUR_HOURS = 4 * 60 * 60 * 1000;
 
-    // 1. فحص الكاش المستقر أولاً (لتجنب استهلاك الكوتا إذا كان متاحاً)
+    // 1. فحص الكاش لتقليل استهلاك الـ API
     const cachedData = localStorage.getItem(CACHE_KEY);
-    if (cachedData) {
-        try {
-            const parsed = JSON.parse(cachedData);
-            if (Array.isArray(parsed) && parsed.length > 5) {
-                console.log(`📦 [Cache] Stable data found (${parsed.length} videos). Using it to save quota.`);
-                window.allFetchedVideos30 = parsed; // حفظ للـ Shuffle
-                window.suggestedVideos = parsed;    // للمتغير العام
-                return parsed;
-            }
-        } catch (e) { console.error("Cache parse error", e); }
+    if (cachedData && lastUpdate && (now - lastUpdate < FOUR_HOURS)) {
+        console.log("♻️ جلب البيانات من الكاش...");
+        return processSelection(JSON.parse(cachedData));
     }
 
-    // 2. إذا لم يوجد كاش أو كان فارغاً، نبدأ الجلب الفعلي
+    // 2. جلب قائمة الـ IDs من JSONBin (القنوات الـ 6)
     let channelIdsArray = [];
     try {
-        // جلب القنوات الـ 6 من JSONBIN
         const res = await fetch(`https://api.jsonbin.io/v3/b/${NEW_JSONBIN_CHANNEL_IDS}/latest`, {
             headers: { 'X-Access-Key': JSONBIN_ACCESS_KEY_CHANNELS }
         });
         const data = await res.json();
-        // أخذ أول 6 قنوات فقط كما طلبت
-        channelIdsArray = Array.isArray(data.record) ? data.record.slice(0, 6) : []; 
-        console.log(`📡 [JSONBIN] Target Channels: ${channelIdsArray.length}`);
+        channelIdsArray = Array.isArray(data.record) ? data.record.slice(0, 6) : [];
     } catch (e) {
-        console.error("❌ Failed to fetch channel list from JSONBIN", e);
-        return JSON.parse(localStorage.getItem(CACHE_KEY) || "[]");
-    }
-
-    let allVideosMap = new Map();
-
-    // 3. جلب 5 فيديوهات من كل قناة (3 أحدث + 2 أهم)
-    for (const id of channelIdsArray) {
-        // انتظر قليلاً بين القنوات لتجنب ضغط الـ API
-        await new Promise(r => setTimeout(r, 200));
-
-        const urls = [
-            `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${id}&maxResults=3&type=video&order=date`,
-            `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${id}&maxResults=2&type=video&order=relevance`
-        ];
-        
-        for (const url of urls) {
-            // fetchSafely هو الذي يقوم بتبديل المفاتيح تلقائياً عند الخطأ 403
-            const data = await fetchSafely(url); 
-            if (data && data.items) {
-                data.items.forEach(item => {
-                    allVideosMap.set(item.id.videoId, {
-                        id: item.id.videoId,
-                        channelId: item.snippet.channelId,
-                        title: item.snippet.title,
-                        thumbnail: item.snippet.thumbnails.medium?.url || item.snippet.thumbnails.default?.url,
-                        channelTitle: item.snippet.channelTitle,
-                        publishedAt: item.snippet.publishedAt
-                    });
-                });
-            }
-        }
-    }
-
-    const allFetched = Array.from(allVideosMap.values());
-    if (allFetched.length === 0) {
-        console.warn("⚠️ [API] No videos returned. Fallback to empty cache.");
+        console.error("❌ فشل جلب القنوات من JSONBin:", e);
+        if (cachedData) return processSelection(JSON.parse(cachedData));
         return [];
     }
 
-    // 4. جلب التفاصيل (ContentDetails) لفلترة الـ Shorts وحساب المدة
-    const videoIds = allFetched.map(v => v.id).join(',');
-    const detailsUrl = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics&id=${videoIds}`;
-    const detailsData = await fetchSafely(detailsUrl);
+    let allFetchedItems = [];
 
-    const cleanVideos = [];
-    if (detailsData && detailsData.items) {
-        detailsData.items.forEach(detail => {
-            const video = allFetched.find(v => v.id === detail.id);
-            if (!video) return;
+    // 3. حلقة الجلب لكل قناة بمنطق "الميديا" والفلترة المسبقة
+    for (const channelId of channelIdsArray) {
+        try {
+            // أ- الحصول على معرف قائمة التحميلات الرسمي (Uploads)
+            const channelRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${channelId}&key=${YOUTUBE_API_KEY}`);
+            const channelData = await channelRes.json();
+            const uploadsId = channelData?.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
 
-            // تحويل المدة من ISO8601 (مثل PT5M20S) إلى ثواني
-            const durationSec = parseISO8601ToSeconds(detail.contentDetails.duration);
-            
-            // فلترة: استبعاد أي فيديو أقل من دقيقتين (Shorts حماية)
-            if (durationSec >= 120) {
-                video.duration = formatDuration(detail.contentDetails.duration);
-                video.viewCount = detail.statistics.viewCount;
-                video.viewsDisplay = formatViewCount(detail.statistics.viewCount);
-                video.publishedDisplay = formatTimeAgo(video.publishedAt);
-                cleanVideos.push(video);
+            if (uploadsId) {
+                // ب- جلب 25 فيديو (لضمان وجود مساحة كافية لتخطي الـ Shorts)
+                // أضفنا contentDetails لجلب المدة الزمنية مباشرة
+                const videosUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails&playlistId=${uploadsId}&maxResults=25&key=${YOUTUBE_API_KEY}`;
+                // يجب أن يحتوي الرابط على part=snippet,contentDetails
+                const videosData = await fetch(videosUrl).then(r => r.json());
+
+                if (videosData?.items) {
+                    let validVideosFromThisChannel = 0;
+
+                    for (const item of videosData.items) {
+                        // حد أقصى 8 فيديوهات من كل قناة لضمان التنوع في الـ 30 فيديو الكلية
+                        if (validVideosFromThisChannel >= 8) break;
+
+                        const duration = item.contentDetails?.duration; // صيغة ISO 8601
+                        const durationInSecs = parseDurationToSeconds(duration);
+
+                        // 🛑 الشرط المطلوب: تخطي أي فيديو أقل من 180 ثانية (3 دقائق)
+                        if (durationInSecs < 180) {
+                            console.log(`⏩ تخطي فيديو قصير: ${item.snippet.title} (${durationInSecs}s)`);
+                            continue; // ابحث في الفيديو التالي
+                        }
+
+                        // إذا اجتاز الشرط، يتم إضافته للمصفوفة
+                        allFetchedItems.push({
+                            id: item.snippet.resourceId.videoId,
+                            title: item.snippet.title,
+                            thumbnail: item.snippet.thumbnails.medium?.url || item.snippet.thumbnails.high?.url,
+                            channelTitle: item.snippet.channelTitle,
+                            channelId: channelId,
+                            duration: duration, // نحفظ الصيغة لعرضها أو لفلترة إضافية
+                            isLive: false
+                        });
+                        validVideosFromThisChannel++;
+                    }
+                }
             }
-        });
+
+            // ج- جلب البث المباشر الحالي (إن وجد) - المباشر دائماً مقبول
+            const liveUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&type=video&eventType=live&key=${YOUTUBE_API_KEY}`;
+            const liveData = await fetch(liveUrl).then(r => r.json());
+            if (liveData?.items) {
+                liveData.items.forEach(item => {
+                    allFetchedItems.push({
+                        id: item.id.videoId,
+                        title: item.snippet.title,
+                        thumbnail: item.snippet.thumbnails.medium?.url,
+                        channelTitle: item.snippet.channelTitle,
+                        channelId: channelId,
+                        isLive: true,
+                        duration: "LIVE"
+                    });
+                });
+            }
+
+        } catch (err) {
+            console.error(`⚠️ خطأ في معالجة القناة ${channelId}:`, err);
+        }
     }
 
-    console.log(`✅ [Success] Processed ${cleanVideos.length} valid videos.`);
-
-    // 5. التخزين النهائي في الكاش والمتغيرات العالمية
-    if (cleanVideos.length > 0) {
-        localStorage.setItem(CACHE_KEY, JSON.stringify(cleanVideos));
-        window.allFetchedVideos30 = cleanVideos; // القائمة الكاملة للـ Shuffle
-        window.suggestedVideos = cleanVideos;    // للمتغير العام
+    // 4. التخزين النهائي في الكاش
+    if (allFetchedItems.length > 0) {
+        localStorage.setItem(CACHE_KEY, JSON.stringify(allFetchedItems));
+        localStorage.setItem('last_fetch_timestamp_official', Date.now().toString());
     }
 
-    // 6. منطق الترتيب للعرض (Priority لـ TARGET_ID + عشوائي للبقية)
-    const priority = cleanVideos.filter(v => v.channelId === TARGET_ID).slice(0, 2);
-    const others = cleanVideos.filter(v => v.channelId !== TARGET_ID)
-                              .sort(() => 0.5 - Math.random())
-                              .slice(0, 14); // عرض 14 فيديو إضافي
+    // 5. إرسال النتائج إلى دالة الاختيار (2 مثبت + 12 عشوائي)
+    return processSelection(allFetchedItems);
+}
+// دالة تطبيق مبدأ 2 من القناة المختارة + 12 عشوائي (المجموع 14)
+function processSelection(allVideos) {
+    // 1. فلترة الفيديوهات التي تمت مشاهدتها بالكامل (Completed)
+    const completedVideos = JSON.parse(localStorage.getItem('completed_videos_ids') || '[]');
+    const available = allVideos.filter(v => !completedVideos.includes(v.id));
 
-    return [...priority, ...others];
+    // 2. اختيار أول فيديوهين من القناة المفضلة بشرط (المدة > 5 دقائق)
+    const priorityPool = available.filter(v => {
+        if (v.channelId !== TARGET_ID) return false;
+        const durationInSecs = parseDurationToSeconds(v.duration || "00:00");
+        return v.isLive || durationInSecs > 300; 
+    }).sort(() => 0.5 - Math.random()); // خلط داخل القناة المفضلة لجلب فيديوهات مختلفة في كل مرة
+
+    // استخراج أول فيديوهين مثبتين
+    const fixedTwo = priorityPool.slice(0, 2);
+
+    // 3. تجهيز "خزانات" لكل قناة من القنوات الـ 5 الأخرى للتناوب
+    const otherChannelIds = [...new Set(available.map(v => v.channelId))].filter(id => id !== TARGET_ID);
+    
+    const pools = {};
+    // إضافة القناة المفضلة للمداورة (بقية فيديوهاتها بعد أول 2)
+    pools[TARGET_ID] = priorityPool.slice(2); 
+    
+    // إضافة بقية القنوات
+    otherChannelIds.forEach(id => {
+        pools[id] = available.filter(v => v.channelId === id).sort(() => 0.5 - Math.random());
+    });
+
+    // مصفوفة الترتيب (المفضلة ثم القنوات الأخرى بالترتيب)
+    const rotationOrder = [TARGET_ID, ...otherChannelIds];
+
+    // 4. بناء القائمة النهائية (الترتيب التناوبي)
+    let finalSelection = [...fixedTwo]; // نبدأ بالاثنين المثبتين
+    
+    let poolPointer = 0;
+    let safetyCounter = 0;
+
+    // استكمال العدد لـ 14 كرت بالتناوب
+    while (finalSelection.length < 14 && safetyCounter < 100) {
+        const currentChannelId = rotationOrder[poolPointer % rotationOrder.length];
+        const currentPool = pools[currentChannelId];
+
+        if (currentPool && currentPool.length > 0) {
+            const video = currentPool.shift();
+            // التأكد من عدم تكرار الفيديوهات المثبتة
+            if (!finalSelection.find(v => v.id === video.id)) {
+                finalSelection.push(video);
+            }
+        }
+
+        poolPointer++;
+        safetyCounter++;
+        
+        // إذا فرغت كل الخزانات، اخرج
+        const totalRemaining = Object.values(pools).reduce((acc, curr) => acc + curr.length, 0);
+        if (totalRemaining === 0) break;
+    }
+
+    // تخزين القائمة الكاملة المفلترة للتشغيل التلقائي (Shuffle)
+    window.allFetchedVideos30 = available; 
+    
+    console.log("✅ تم الترتيب التناوبي: 2 مفضلة + البقية بالتناوب بين القنوات");
+    return finalSelection;
 }
 
 function playAsShufflePlaylist() {
-    if (!window.currentSuggestedVideos || window.currentSuggestedVideos.length === 0) {
-        showMessageBox("جاري جلب الفيديوهات، يرجى الانتظار ثانية...");
-        return;
-    }
+    const btn = document.querySelector('.playlist-shuffle-btn') || document.getElementById('popup-shuffle-btn');
+    
+    if (window.isAutoPlayMode) {
+        // إيقاف التشغيل التلقائي
+        window.isAutoPlayMode = false;
+        if (btn) {
+            btn.innerHTML = `<i data-lucide="shuffle"></i> تشغيل الكل (Playlist)`;
+            btn.style.background = "linear-gradient(135deg, #9333ea 0%, #2563eb 100%)";
+        }
+    } else {
+        // 🛑 الجزء المهم: جلب الفيديوهات غير المكتملة فقط من المخزن (window.allFetchedVideos30)
+        // الذي تم تعبئته وتصفيته داخل دالة processSelection
+        let availableVideos = window.allFetchedVideos30 || [];
 
-    // خلط القائمة عشوائياً
-    const shuffled = [...window.currentSuggestedVideos].sort(() => 0.5 - Math.random());
-    const videoIds = shuffled.map(v => v.id);
-    
-    // تشغيل أول فيديو مع تمرير بقية القائمة في الرابط (YouTube Playlist Mode)
-    const firstId = videoIds[0];
-    const otherIds = videoIds.slice(1).join(',');
-    
-    // إغلاق أي نوافذ مفتوحة وتشغيل المشغل
-    showVideoPopup(firstId, 0);
-    
-    // بعد تحميل المشغل، نقوم بحقن القائمة في iframe يوتيوب إذا أردت استمرارية يوتيوب الأصلية
-    // أو الاعتماد على دالة onPlayerStateChange لتشغيل الفيديو التالي يدوياً (أفضل للتحكم)
+        if (availableVideos.length === 0) {
+            showMessageBox("لقد شاهدت جميع الفيديوهات المتاحة! قم بمسح سجل المشاهدة لإعادة البدء.");
+            return;
+        }
+
+        window.isAutoPlayMode = true;
+        
+        // خلط القائمة المفلترة عشوائياً
+        window.currentSuggestedVideos = [...availableVideos].sort(() => 0.5 - Math.random());
+
+        if (btn) {
+            btn.innerHTML = `<i data-lucide="square"></i> إيقاف التشغيل التلقائي`;
+            btn.style.background = "linear-gradient(135deg, #ef4444 0%, #991b1b 100%)";
+        }
+
+        // تشغيل أول فيديو من القائمة المفلترة
+        const firstVideo = window.currentSuggestedVideos[0];
+        showVideoPopup(firstVideo.id, 0);
+    }
+    if (window.lucide) lucide.createIcons();
 }
 
 function parseISO8601ToSeconds(duration) {
@@ -4116,68 +4492,77 @@ function startFullDateUpdates() {
     }
 }
 // لا نحتاج لـ stopFullDateUpdates حيث أنها تعمل ببطء شديد
-
 function switchApp(appName) {
-    // 1. الإيقاف العام لجميع المؤقتات ذات التردد العالي والمنخفض (Clean Slate)
+    // 1. الإيقاف العام لجميع المؤقتات (Clean Slate)
     stopClockAndTimer();
     stopCarSimulation();
     stopWeatherUpdates(); 
-    stopDashboardLocationTracking(); // 👈 إيقاف تتبع الموقع
+    stopDashboardLocationTracking();
 
     // 2. تحديث الشاشة النشطة
     const newIndex = appOrder.indexOf(appName);
     if (newIndex === -1) return;
     currentAppIndex = newIndex;
     
-    // تحديث الفئات المرئية (إخفاء الشاشات وإظهار الشاشة الجديدة)
+    // تحديث الفئات المرئية للشاشات والأيقونات
     appScreens.forEach(s => s.classList.remove('active'));
     sidebarIcons.forEach(i => i.classList.remove('active'));
+    
     const screen = document.getElementById(`screen-${appName}`);
     if (screen) screen.classList.add('active');
+    
     const icon = document.querySelector(`.app-icon[data-app="${appName}"]`);
     if (icon) icon.classList.add('active');
 
+    // 🚀 3. الجزء الجديد: التحكم الذكي في ظهور العناصر (Logic-Based UI)
+    // نقوم بتحديث الـ class الخاص بالجسم للتحكم في العناصر عبر CSS
+    document.body.className = `animated-bg text-white overflow-hidden theme-gradient-1 app-${appName}-active`;
+    
+    // إضافة وسم إضافي إذا كان المشغل مصغراً للحفاظ على تناسق التصميم
+    if (appState.isVideoPlayerMinimized) {
+        document.body.classList.add('video-minimized');
+    }
 
-    // 3. التشغيل الشرطي للمؤقتات (Conditional Start)
+    // 4. التشغيل الشرطي للمؤقتات (Conditional Start)
 
-    // A. المؤقتات المطلوبة في Dashboard
+    // A. منطق شاشة Dashboard
     if (appName === 'Dashboard') {
-        startClockAndTimer();       // 1s (الساعة والعداد التنازلي)
-        startWeatherUpdates();      // الطقس (جلب كل 5 دقائق)
+        startClockAndTimer();       // 1s
+        startWeatherUpdates();      // 5m
         startDashboardLocationTracking();
-        updateTimerDisplay(); // تتبع الموقع للـ Heading وتحديث الخريطة
+        updateTimerDisplay(); 
         renderFavoritesDashboard();
        
         setTimeout(() => {
             if (dashboardGoogleMap) {
                 const numericHeading = directionToDegrees(appState.car.direction);
                 dashboardGoogleMap.setHeading(numericHeading);
-                
-                // نركز الخريطة على الموقع الحالي لضمان تحديثها بالكامل
                 if (appState.currentLocation) {
                      dashboardGoogleMap.setCenter(appState.currentLocation);
                 }
             }
-            // 💡 تحديث مؤشرات الازدحام فوراً عند فتح الشاشة
             updateTrafficIndicators(); 
         }, 0); 
     }
     
-    // B. المؤقتات المطلوبة في شاشة 3D (Map)
+    // B. منطق شاشة 3D (Map)
     if (appName === 'Map') {
-        startCarSimulation();       // محاكاة القيادة (2 ثانية)
-        startWeatherUpdates();      // الطقس (جلب كل 5 دقائق)
-        startDashboardLocationTracking(); // تتبع الموقع للخريطة/Heading
+        startCarSimulation(); 
+        startWeatherUpdates();
+        startDashboardLocationTracking();
     } 
     
-    // C. المؤقتات المطلوبة في شاشة Weather
-    if (appName === 'Weather') {t
+    // C. منطق شاشة Weather
+    if (appName === 'Weather') {
         startWeatherUpdates();
     }
     
-    // 4. نقل التركيز الأولي بعد التبديل
+    // 5. نقل التركيز الأولي ونظام الـ Navigable
     const activeScreen = document.getElementById(`screen-${appName}`);
     if (activeScreen) {
+        // تحديث مصفوفة العناصر القابلة للتنقل بناءً على الشاشة الجديدة
+        if (typeof updateNavigableElements === 'function') updateNavigableElements();
+        
         setTimeout(() => {
             const firstItem = activeScreen.querySelector('.grid-item');
             if (firstItem) setFocus(firstItem);
@@ -4415,34 +4800,43 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function updateFullDateWidget() {
-    const dateWidgetContainer = document.getElementById('full-date-widget-container');
-    if (!dateWidgetContainer) return;
+    // تحديد المعرفين معاً
+    const oldContainer = document.getElementById('full-date-widget-container');
+    const newContainer = document.getElementById('universal-date-display');
+
+    // إذا لم يكن أي منهما موجوداً، نوقف الدالة
+    if (!oldContainer && !newContainer) return;
 
     const today = new Date();
-    // نجعل السنة 2025 لتتوافق مع بيانات أوقات الصلاة لديك
-    today.setFullYear(2025);
-const yesterday = new Date(today);
-yesterday.setDate(today.getDate() - 1);
+     const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
 
-// Format Gregorian date (optional, if you still want to show today's Gregorian)
-const gregorianDate = new Intl.DateTimeFormat('ar-GB', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-}).format(today);
+    // إعداد التنسيقات
+    const dayName = new Intl.DateTimeFormat('ar-SA', { weekday: 'long' }).format(today);
+    const gregDate = new Intl.DateTimeFormat('ar-SA', { day: 'numeric', month: 'long', year: 'numeric' }).format(today);
+    const hijriDate = new Intl.DateTimeFormat('ar-OM-u-ca-islamic', { day: 'numeric', month: 'long', year: 'numeric' }).format(yesterday);
 
-// Format Hijri date for *yesterday*
-const hijriDateYesterday = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-}).format(yesterday);
 
-// Update the DOM
-dateWidgetContainer.innerHTML = `
-    <p id="gregorian-date">${gregorianDate}</p>
-    <p id="hijri-date">${hijriDateYesterday}</p>
-`;
+    // الهيكل الموحد
+    const dateHTML = `
+        <div class="date-wrapper">
+            <span class="day-highlight">${dayName}</span>
+            <div class="date-details">
+                <span class="greg-text">${gregDate}</span>
+                <span class="separator">|</span>
+                <span class="hijri-text">${hijriDate}</span>
+            </div>
+        </div>
+    `;
+
+    if (oldContainer) {
+        oldContainer.innerHTML = dateHTML;
+    }
+
+    // ملء المعرف الجديد إذا وجد
+    if (newContainer) {
+        newContainer.innerHTML = dateHTML;
+    }
 }
 
 // REPLACE the current displayLastWatchedVideo function with this one
@@ -5388,7 +5782,7 @@ function updateUI() {
 // appState.weather.humidity = data.current.humidity; // Add this line if missing
 
         // --- App Switching and Navigation Logic ---
-        const appOrder = ['Dashboard', 'Media', 'Radio', 'Athkar', 'Reciters', 'Weather', 'Map', 'Quran'];
+const appOrder = ['Dashboard', 'Media', 'DashboardCarPlay', 'Radio', 'Athkar', 'Reciters', 'Weather', 'Map', 'Quran'];
         let currentAppIndex = 0;
 
        function switchApp(appName) {
@@ -5414,7 +5808,25 @@ function updateUI() {
 
 
     // 3. التشغيل الشرطي للمؤقتات (Conditional Start)
-
+if (appName === 'DashboardCarPlay') {
+    updateCarPlayDashboard();
+    // تفعيل خريطة مصغرة خاصة بالداشبورد الجديد
+    setTimeout(() => {
+        if (window.google && appState.currentLocation) {
+            const miniMap = new google.maps.Map(document.getElementById('carplay-mini-map'), {
+                center: appState.currentLocation,
+                zoom: 17,
+                disableDefaultUI: true,
+                styles: darkMapStyle, // استخدام نفس الستايل الداكن
+                tilt: 45
+            });
+            new google.maps.Marker({
+                position: appState.currentLocation,
+                map: miniMap,
+                icon: { url: 'https://dmusera.netlify.app/3606.png', scaledSize: new google.maps.Size(40, 40) }
+            });
+        }
+    }, 300);}
     // A. المؤقتات المطلوبة في Dashboard
     if (appName === 'Dashboard') {
         startClockAndTimer(); // 1s/2s (الساعة والعداد التنازلي)
@@ -6821,24 +7233,39 @@ function onPlayerStateChange(event) {
         const videoData = popupPlayer.getVideoData();
         const videoId = videoData ? videoData.video_id : null;
 
-        // إذا كان وضع Shuffle مفعل
+        // ✅ 1. تسجيل الفيديو كـ "مكتمل" فور انتهائه لضمان عدم ظهوره مجدداً
+        if (videoId) {
+            let completed = JSON.parse(localStorage.getItem('completed_videos_ids') || '[]');
+            if (!completed.includes(videoId)) {
+                completed.push(videoId);
+                localStorage.setItem('completed_videos_ids', JSON.stringify(completed));
+                console.log(`✅ Video ${videoId} marked as completed.`);
+            }
+        }
+
+        // 2. إذا كان وضع Shuffle مفعل
         if (window.isAutoPlayMode && window.currentSuggestedVideos) {
             const currentIndex = window.currentSuggestedVideos.findIndex(v => v.id === videoId);
             
             if (currentIndex > -1 && currentIndex < window.currentSuggestedVideos.length - 1) {
-                // تشغيل الفيديو التالي من الـ 30
+                // تشغيل الفيديو التالي
                 const nextVideo = window.currentSuggestedVideos[currentIndex + 1];
                 showVideoPopup(nextVideo.id, 0);
                 return; 
             } else {
-                // انتهاء القائمة
+                // انتهاء القائمة العشوائية
                 window.isAutoPlayMode = false;
-                showMessageBox("انتهت قائمة التشغيل");
+                showMessageBox("انتهت قائمة التشغيل المتاحة");
             }
         }
 
-        // العودة للمقترحات العادية (14 فيديو) عند انتهاء القائمة أو إذا كان الوضع مطفأ
-        if (popupPlayer) { popupPlayer.destroy(); popupPlayer = null; }
+        // 3. العودة للمقترحات العادية (ستقوم تلقائياً باستبعاد الفيديوهات المكتملة)
+        if (popupPlayer) { 
+            popupPlayer.destroy(); 
+            popupPlayer = null; 
+        }
+        
+        // إعادة رسم النافذة المنبثقة: ستقوم fetchSuggestedVideos الآن بفلترة الفيديو الذي انتهى للتو
         showDashboardSuggestionsInPopup(); 
     }
 }
@@ -6893,12 +7320,10 @@ function playAsShufflePlaylist() {
     }
     if (window.lucide) lucide.createIcons();
 }
-
-
 async function showDashboardSuggestionsInPopup() {
     const container = videoPopupPlayerContainer;
     
-    // 1. إظهار مؤشر التحميل وتجهيز النافذة
+    // 1. إظهار مؤشر التحميل
     container.innerHTML = `
         <div class="p-8 text-center text-white flex flex-col items-center justify-center min-h-[200px]">
             <div class="animate-spin inline-block w-10 h-10 border-4 border-t-transparent border-purple-500 rounded-full mb-4"></div>
@@ -6909,7 +7334,6 @@ async function showDashboardSuggestionsInPopup() {
     videoPopupContainer.classList.add('active');
 
     try {
-        // 2. جلب الفيديوهات (تعيد 14 فيديو للعرض وتخزن 30 في window.allFetchedVideos30)
         const suggestedVideos = await fetchSuggestedVideos();
 
         if (!suggestedVideos || suggestedVideos.length === 0) {
@@ -6917,70 +7341,70 @@ async function showDashboardSuggestionsInPopup() {
             return;
         }
 
-        // 3. تحديد حالة الزر (نص، أيقونة، ولون) بناءً على وضع التفعيل الحالي
         const isAuto = window.isAutoPlayMode;
         const btnText = isAuto ? "إيقاف التشغيل التلقائي" : "تشغيل الكل (Playlist)";
         const btnIcon = isAuto ? "square" : "shuffle";
         const btnStyle = isAuto 
-            ? "background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%) !important;" // أحمر للإيقاف
-            : "background: linear-gradient(135deg, #9333ea 0%, #2563eb 100%) !important;"; // أزرق/بنفسجي للتشغيل
+            ? "background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%) !important;" 
+            : "background: linear-gradient(135deg, #9333ea 0%, #2563eb 100%) !important;";
 
-        // 4. بناء الهيكل الكامل (الزر في الأعلى والشبكة في الأسفل)
+        // 4. بناء الهيكل: 
+        // أضفنا container خارجي بـ overflow-x: auto و container داخلي بـ overflow: visible
         let fullHTML = `
-            <div class="suggestions-main-wrapper flex flex-col items-center gap-6 w-full" style="overflow: visible;">
+            <div class="suggestions-main-wrapper flex flex-col items-center gap-2 w-full h-full" style="overflow: hidden;">
                 
                 <button class="playlist-shuffle-btn navigable grid-item" 
                         onclick="playAsShufflePlaylist()" 
-                        style="${btnStyle} z-index: 100; margin-bottom: 15px;">
+                        style="${btnStyle} z-index: 100; margin-bottom: 10px; flex-shrink: 0;">
                     <i data-lucide="${btnIcon}"></i> 
                     <span>${btnText}</span>
                 </button>
 
-                <div id="favorites-popup-grid" class="flex flex-row flex-nowrap gap-4 px-4 pb-8">
+                <div class="scroll-viewport w-full" style="overflow-x: auto; overflow-y: visible; padding: 20px 0; scroll-behavior: smooth; -webkit-overflow-scrolling: touch;">
+                    
+                    <div id="favorites-popup-grid" class="flex flex-row flex-nowrap gap-6 px-10" style="overflow: visible; width: max-content; min-width: 100%;">
         `;
 
-        // 5. إضافة البطاقات (الـ 14 فيديو المفلترة)
         suggestedVideos.forEach(video => {
             const card = createSimpleSuggestionCard(video, 'SUGGEST');
-            card.classList.add('flex-shrink-0'); // لضمان عدم الانكماش والبروز للخارج
+            // التأكد من أن الكرت لا ينكمش ويسمح بالبروز
+            card.style.flexShrink = "0";
+            card.style.transition = "transform 0.3s ease"; 
             fullHTML += card.outerHTML;
         });
 
         fullHTML += `
+                    </div>
                 </div>
             </div>
         `;
 
-        // 6. حقن الكتلة كاملة في الواجهة
         container.innerHTML = fullHTML;
 
-        // 7. تحديث الأيقونات وعناصر التنقل للريموت
         if (window.lucide) lucide.createIcons();
         if (typeof updateNavigableElements === 'function') updateNavigableElements();
 
-        // 8. ربط أحداث النقر للكروت (اختيار فيديو يدوي يوقف وضع الـ Playlist)
+        // 8. ربط أحداث النقر
         container.querySelectorAll('.simple-suggestion-card').forEach(card => {
             card.addEventListener('click', (e) => {
                 const videoId = e.currentTarget.dataset.videoId;
                 if (videoId) {
-                    window.isAutoPlayMode = false; // تعطيل الأوتوبلاي عند الاختيار اليدوي
+                    window.isAutoPlayMode = false;
                     showVideoPopup(videoId, 0); 
                 }
             });
         });
 
-        // 9. نقل التركيز تلقائياً للزر الرئيسي لتسهيل التحكم
         setTimeout(() => {
             const mainBtn = container.querySelector('.playlist-shuffle-btn');
             if (mainBtn) setFocus(mainBtn);
         }, 200);
 
     } catch (e) {
-        console.error("Critical error in showDashboardSuggestionsInPopup:", e);
+        console.error("Error in showDashboardSuggestionsInPopup:", e);
         container.innerHTML = `<p class="p-8 text-center text-red-500">حدث خطأ أثناء تحميل المقترحات.</p>`;
     }
 }
-
         function handleFullScreenChange() {
             if (popupPlayer && typeof popupPlayer.getPlayerState === 'function' && popupPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
                 const isFullScreen = document.fullscreenElement === popupPlayer.getIframe() || document.webkitFullscreenElement === popupPlayer.getIframe();
@@ -7543,10 +7967,6 @@ async function populateYoutubeSuggestions() {
     updateNavigableElements();
 }
 
-/**
- * RENAMED & REFINED: Handles the search action specifically for finding a Reciter Channel.
- * Applies strong filtering for 'type=channel' and 'relevanceLanguage=ar'.
- */
 async function handleSearchForReciterChannel() {
     // 🛑 نستخدم هنا المُعرّف الصحيح من نافذة القراء المنبثقة
     const inputEl = document.getElementById('new-reciter-name-input'); 
@@ -8766,21 +9186,12 @@ async function centerMapOnUserLocation() {
     }
 }
 
-
-
-function parseDurationToSeconds(isoDuration) {
-    if (!isoDuration || typeof isoDuration !== 'string') return 0;
-    
-    const regex = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/;
-    const matches = isoDuration.match(regex);
-    
-    if (!matches) return 0;
-
-    const hours = parseInt(matches[1]) || 0;
-    const minutes = parseInt(matches[2]) || 0;
-    const seconds = parseInt(matches[3]) || 0;
-
-    return (hours * 3600) + (minutes * 60) + seconds;
+function parseDurationToSeconds(durationStr) {
+    if (!durationStr || durationStr === "مباشر") return 9999; // قيمة عالية للمباشر
+    const parts = durationStr.split(':').map(Number);
+    if (parts.length === 3) return (parts[0] * 3600) + (parts[1] * 60) + parts[2]; // H:M:S
+    if (parts.length === 2) return (parts[0] * 60) + parts[1]; // M:S
+    return 0;
 }
         
         async function calculateAndDisplayRouteTo(destinationCoords) {
@@ -9275,76 +9686,41 @@ async function fetchWeatherData() {
             appState.car.temp = (Math.random() * 30 + 70).toFixed(1); 
             update3dScreenWidgets(); 
         }
-
-        // --- Prayer Times Integration ---
-        const prayerTimes = [ {"date":"2025-12-01","fajr":"05:20","sunrise":"06:36","dhuhr":"12:17","asr":"15:30","maghrib":"17:53","isha":"19:05"},
-
-    {"date":"2025-12-02","fajr":"05:20","sunrise":"06:37","dhuhr":"12:18","asr":"15:30","maghrib":"17:53","isha":"19:05"},
-
-    {"date":"2025-12-03","fajr":"05:21","sunrise":"06:37","dhuhr":"12:18","asr":"15:30","maghrib":"17:54","isha":"19:06"},
-
-    {"date":"2025-12-04","fajr":"05:21","sunrise":"06:38","dhuhr":"12:18","asr":"15:30","maghrib":"17:54","isha":"19:06"},
-
-    {"date":"2025-12-05","fajr":"05:21","sunrise":"06:38","dhuhr":"12:18","asr":"15:31","maghrib":"17:54","isha":"19:06"},
-
-    {"date":"2025-12-06","fajr":"05:22","sunrise":"06:39","dhuhr":"12:19","asr":"15:31","maghrib":"17:54","isha":"19:06"},
-
-    {"date":"2025-12-07","fajr":"05:22","sunrise":"06:39","dhuhr":"12:19","asr":"15:31","maghrib":"17:55","isha":"19:06"},
-
-    {"date":"2025-12-08","fajr":"05:23","sunrise":"06:40","dhuhr":"12:20","asr":"15:31","maghrib":"17:55","isha":"19:07"},
-
-    {"date":"2025-12-09","fajr":"05:23","sunrise":"06:40","dhuhr":"12:20","asr":"15:32","maghrib":"17:55","isha":"19:07"},
-
-    {"date":"2025-12-10","fajr":"05:24","sunrise":"06:41","dhuhr":"12:20","asr":"15:32","maghrib":"17:56","isha":"19:07"},
-
-    {"date":"2025-12-11","fajr":"05:24","sunrise":"06:41","dhuhr":"12:20","asr":"15:33","maghrib":"17:56","isha":"19:08"},
-
-    {"date":"2025-12-12","fajr":"05:25","sunrise":"06:42","dhuhr":"12:21","asr":"15:33","maghrib":"17:57","isha":"19:08"},
-
-    {"date":"2025-12-13","fajr":"05:25","sunrise":"06:42","dhuhr":"12:21","asr":"15:33","maghrib":"17:57","isha":"19:08"},
-
-    {"date":"2025-12-14","fajr":"05:26","sunrise":"06:43","dhuhr":"12:22","asr":"15:33","maghrib":"17:57","isha":"19:09"},
-
-    {"date":"2025-12-15","fajr":"05:26","sunrise":"06:43","dhuhr":"12:22","asr":"15:34","maghrib":"17:58","isha":"19:09"},
-
-    {"date":"2025-12-16","fajr":"05:27","sunrise":"06:44","dhuhr":"12:22","asr":"15:34","maghrib":"17:58","isha":"19:09"},
-
-    {"date":"2025-12-17","fajr":"05:27","sunrise":"06:44","dhuhr":"12:23","asr":"15:35","maghrib":"17:59","isha":"19:10"},
-
-    {"date":"2025-12-18","fajr":"05:28","sunrise":"06:45","dhuhr":"12:23","asr":"15:35","maghrib":"17:59","isha":"19:10"},
-
-    {"date":"2025-12-19","fajr":"05:28","sunrise":"06:45","dhuhr":"12:24","asr":"15:36","maghrib":"18:00","isha":"19:11"},
-
-    {"date":"2025-12-20","fajr":"05:29","sunrise":"06:46","dhuhr":"12:24","asr":"15:36","maghrib":"18:00","isha":"19:11"},
-
-    {"date":"2025-12-21","fajr":"05:29","sunrise":"06:46","dhuhr":"12:25","asr":"15:37","maghrib":"18:01","isha":"19:12"},
-
-    {"date":"2025-12-22","fajr":"05:30","sunrise":"06:47","dhuhr":"12:25","asr":"15:37","maghrib":"18:01","isha":"19:12"},
-
-    {"date":"2025-12-23","fajr":"05:31","sunrise":"06:48","dhuhr":"12:26","asr":"15:38","maghrib":"18:02","isha":"19:13"},
-
-    {"date":"2025-12-24","fajr":"05:31","sunrise":"06:48","dhuhr":"12:26","asr":"15:38","maghrib":"18:02","isha":"19:13"},
-
-    {"date":"2025-12-25","fajr":"05:32","sunrise":"06:49","dhuhr":"12:27","asr":"15:39","maghrib":"18:03","isha":"19:14"},
-
-    {"date":"2025-12-26","fajr":"05:32","sunrise":"06:49","dhuhr":"12:28","asr":"15:39","maghrib":"18:03","isha":"19:14"},
-
-    {"date":"2025-12-27","fajr":"05:33","sunrise":"06:50","dhuhr":"12:28","asr":"15:40","maghrib":"18:04","isha":"19:15"},
-
-    {"date":"2025-12-28","fajr":"05:34","sunrise":"06:50","dhuhr":"12:29","asr":"15:40","maghrib":"18:04","isha":"19:15"},
-
-    {"date":"2025-12-29","fajr":"05:34","sunrise":"06:51","dhuhr":"12:29","asr":"15:41","maghrib":"18:05","isha":"19:16"},
-
-    {"date":"2025-12-30","fajr":"05:35","sunrise":"06:52","dhuhr":"12:30","asr":"15:41","maghrib":"18:05","isha":"19:16"},
-
-    {"date":"2025-12-31","fajr":"05:36","sunrise":"06:53","dhuhr":"12:30","asr":"15:42","maghrib":"18:06","isha":"19:17"}
-
+   
+const prayerTimes = [
+    {"date":"2026-01-01","day":"الخميس","fajr":"05:36","sunrise":"06:53","dhuhr":"12:32","asr":"15:43","maghrib":"18:06","isha":"19:18"},
+    {"date":"2026-01-02","day":"الجمعة","fajr":"05:36","sunrise":"06:53","dhuhr":"12:32","asr":"15:43","maghrib":"18:07","isha":"19:19"},
+    {"date":"2026-01-03","day":"السبت","fajr":"05:37","sunrise":"06:54","dhuhr":"12:33","asr":"15:44","maghrib":"18:07","isha":"19:19"},
+    {"date":"2026-01-04","day":"الأحد","fajr":"05:37","sunrise":"06:54","dhuhr":"12:33","asr":"15:45","maghrib":"18:08","isha":"19:20"},
+    {"date":"2026-01-05","day":"الإثنين","fajr":"05:37","sunrise":"06:54","dhuhr":"12:34","asr":"15:45","maghrib":"18:08","isha":"19:20"},
+    {"date":"2026-01-06","day":"الثلاثاء","fajr":"05:38","sunrise":"06:55","dhuhr":"12:34","asr":"15:46","maghrib":"18:09","isha":"19:21"},
+    {"date":"2026-01-07","day":"الأربعاء","fajr":"05:38","sunrise":"06:55","dhuhr":"12:35","asr":"15:46","maghrib":"18:10","isha":"19:21"},
+    {"date":"2026-01-08","day":"الخميس","fajr":"05:38","sunrise":"06:55","dhuhr":"12:35","asr":"15:47","maghrib":"18:10","isha":"19:22"},
+    {"date":"2026-01-09","day":"الجمعة","fajr":"05:39","sunrise":"06:55","dhuhr":"12:36","asr":"15:47","maghrib":"18:11","isha":"19:22"},
+    {"date":"2026-01-10","day":"السبت","fajr":"05:39","sunrise":"06:56","dhuhr":"12:36","asr":"15:48","maghrib":"18:11","isha":"19:23"},
+    {"date":"2026-01-11","day":"الأحد","fajr":"05:39","sunrise":"06:56","dhuhr":"12:36","asr":"15:49","maghrib":"18:12","isha":"19:24"},
+    {"date":"2026-01-12","day":"الإثنين","fajr":"05:40","sunrise":"06:56","dhuhr":"12:37","asr":"15:49","maghrib":"18:13","isha":"19:24"},
+    {"date":"2026-01-13","day":"الثلاثاء","fajr":"05:40","sunrise":"06:56","dhuhr":"12:37","asr":"15:50","maghrib":"18:13","isha":"19:25"},
+    {"date":"2026-01-14","day":"الأربعاء","fajr":"05:40","sunrise":"06:56","dhuhr":"12:38","asr":"15:50","maghrib":"18:14","isha":"19:25"},
+    {"date":"2026-01-15","day":"الخميس","fajr":"05:40","sunrise":"06:56","dhuhr":"12:38","asr":"15:51","maghrib":"18:14","isha":"19:26"},
+    {"date":"2026-01-16","day":"الجمعة","fajr":"05:40","sunrise":"06:56","dhuhr":"12:38","asr":"15:51","maghrib":"18:15","isha":"19:26"},
+    {"date":"2026-01-17","day":"السبت","fajr":"05:41","sunrise":"06:57","dhuhr":"12:39","asr":"15:52","maghrib":"18:16","isha":"19:27"},
+    {"date":"2026-01-18","day":"الأحد","fajr":"05:41","sunrise":"06:57","dhuhr":"12:39","asr":"15:52","maghrib":"18:16","isha":"19:27"},
+    {"date":"2026-01-19","day":"الإثنين","fajr":"05:41","sunrise":"06:57","dhuhr":"12:39","asr":"15:53","maghrib":"18:17","isha":"19:28"},
+    {"date":"2026-01-20","day":"الثلاثاء","fajr":"05:41","sunrise":"06:57","dhuhr":"12:40","asr":"15:53","maghrib":"18:17","isha":"19:28"},
+    {"date":"2026-01-21","day":"الأربعاء","fajr":"05:41","sunrise":"06:57","dhuhr":"12:40","asr":"15:54","maghrib":"18:18","isha":"19:29"},
+    {"date":"2026-01-22","day":"الخميس","fajr":"05:41","sunrise":"06:57","dhuhr":"12:40","asr":"15:54","maghrib":"18:19","isha":"19:29"},
+    {"date":"2026-01-23","day":"الجمعة","fajr":"05:41","sunrise":"06:57","dhuhr":"12:40","asr":"15:55","maghrib":"18:19","isha":"19:30"},
+    {"date":"2026-01-24","day":"السبت","fajr":"05:41","sunrise":"06:56","dhuhr":"12:41","asr":"15:55","maghrib":"18:20","isha":"19:30"},
+    {"date":"2026-01-25","day":"الأحد","fajr":"05:41","sunrise":"06:56","dhuhr":"12:41","asr":"15:56","maghrib":"18:20","isha":"19:31"},
+    {"date":"2026-01-26","day":"الإثنين","fajr":"05:41","sunrise":"06:56","dhuhr":"12:41","asr":"15:56","maghrib":"18:21","isha":"19:31"},
+    {"date":"2026-01-27","day":"الثلاثاء","fajr":"05:41","sunrise":"06:56","dhuhr":"12:41","asr":"15:57","maghrib":"18:21","isha":"19:31"},
+    {"date":"2026-01-28","day":"الأربعاء","fajr":"05:41","sunrise":"06:56","dhuhr":"12:41","asr":"15:57","maghrib":"18:22","isha":"19:32"},
+    {"date":"2026-01-29","day":"الخميس","fajr":"05:41","sunrise":"06:56","dhuhr":"12:42","asr":"15:57","maghrib":"18:23","isha":"19:32"},
+    {"date":"2026-01-30","day":"الجمعة","fajr":"05:41","sunrise":"06:56","dhuhr":"12:42","asr":"15:58","maghrib":"18:23","isha":"19:33"},
+    {"date":"2026-01-31","day":"السبت","fajr":"05:41","sunrise":"06:55","dhuhr":"12:42","asr":"15:58","maghrib":"18:24","isha":"19:33"}
 ];
-/**
- * Converts a 24-hour time string (HH:MM) to a 12-hour time string (H:MM).
- * * @param {string} time24h - Time in 24-hour format (e.g., "15:36").
- * @returns {string} Time in 12-hour format (e.g., "3:36").
- */
+
 function convertTo12Hour(time24h) {
     if (!time24h || typeof time24h !== 'string' || time24h === '--:--') {
         return time24h; // Return as is if invalid or not loaded
