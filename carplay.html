@@ -4518,10 +4518,12 @@ function switchApp(appName) {
        
         setTimeout(() => {
             if (dashboardGoogleMap) {
-                const numericHeading = directionToDegrees(appState.car.direction);
-                dashboardGoogleMap.setHeading(numericHeading);
+                google.maps.event.trigger(dashboardGoogleMap, 'resize');
+               
                 if (appState.currentLocation) {
                      dashboardGoogleMap.setCenter(appState.currentLocation);
+                     const numericHeading = directionToDegrees(appState.car.direction);
+                    dashboardGoogleMap.setHeading(numericHeading);
                 }
             }
             updateTrafficIndicators(); 
@@ -5832,33 +5834,34 @@ const appOrder = ['Dashboard', 'Media', 'DashboardCarPlay', 'Radio', 'Athkar', '
 
     // 3. التشغيل الشرطي للمؤقتات (Conditional Start)
 if (appName === 'DashboardCarPlay') {
-    // 1. تحديث البيانات النصية فوراً (الطقس، الصلاة، السرعة)
-    updateCarPlayDashboard();
+        // 1. تحديث البيانات النصية فوراً (الطقس، الصلاة، السرعة، الميديا)
+        updateCarPlayDashboard();
 
-    // 2. معالجة الخريطة (نقل الخريطة الحالية لتوفير الـ API)
-    setTimeout(() => {
-        const miniMapContainer = document.getElementById('carplay-mini-map');
-        const mainMapElement = document.getElementById('dashboard-google-map');
-
-        if (miniMapContainer && mainMapElement) {
-            // نقل عنصر الخريطة من الداشبورد القديم إلى حاوية CarPlay
-            miniMapContainer.appendChild(mainMapElement);
-            
-            // إعادة ضبط المركز والزوم ليتناسب مع الحجم الجديد
-            if (dashboardGoogleMap && appState.currentLocation) {
-                google.maps.event.trigger(dashboardGoogleMap, 'resize');
-                dashboardGoogleMap.setCenter(appState.currentLocation);
-                dashboardGoogleMap.setZoom(17);
-                dashboardGoogleMap.setTilt(45);
+        // 2. معالجة الخريطة (النسخة المستقلة الخاصة بكاربلاي)
+        setTimeout(() => {
+            if (carplayGoogleMap) {
+                // 🚀 الخطوة الأهم: إجبار الخريطة على الظهور في حاويتها
+                google.maps.event.trigger(carplayGoogleMap, 'resize');
+                
+                if (appState.currentLocation) {
+                    // إعادة ضبط المركز والزاوية ثلاثية الأبعاد (3D Perspective)
+                    carplayGoogleMap.setCenter(appState.currentLocation);
+                    carplayGoogleMap.setZoom(19); // زووم مثالي لرؤية المباني 3D
+                    carplayGoogleMap.setTilt(45); // إمالةiOS 26 المريحة للعين
+                    
+                    // تدوير الخريطة حسب اتجاه السيارة الحالي
+                    const currentHeading = directionToDegrees(appState.car.direction);
+                    carplayGoogleMap.setHeading(currentHeading);
+                }
             }
-        }
-        
-        // تحديث اسم الموقع في التسمية التوضيحية
-        const locationText = document.getElementById('carplay-location-text');
-        if (locationText) {
-            locationText.textContent = appState.weather.location || "موقعك الحالي";
-        }
-    }, 100);
+            
+            // تحديث نصوص الموقع في واجهة كاربلاي
+            const locationText = document.getElementById('carplay-location-text');
+            if (locationText) {
+                locationText.textContent = appState.weather.location || "موقعك الحالي";
+            }
+        }, 150); // تأخير بسيط لضمان اكتمال ظهور الشاشة (Transition)
+    
 }
     // A. المؤقتات المطلوبة في Dashboard
     if (appName === 'Dashboard') {
@@ -8947,7 +8950,7 @@ async function initMaps() {
         // 🚀 إعدادات الخريطة المتجهة (Vector) لدعم الـ 3D الحقيقي
         const mapConfigs = {
             center: appState.currentLocation || { lat: 17.067330, lng: 54.160190 },
-            zoom: 18,
+            zoom: 19,
             disableDefaultUI: true,
             mapTypeId: 'roadmap',
             // 🛑 تفعيل الـ Map ID الخاص بك (6c6951a9289b612a97923702)
