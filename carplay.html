@@ -8955,7 +8955,7 @@ async function initMaps() {
             mapTypeId: 'roadmap',
             // 🛑 تفعيل الـ Map ID الخاص بك (6c6951a9289b612a97923702)
             mapId: '6c6951a9289b612a97923702', 
-            tilt: 67.5,           // زاوية الميل لرؤية الأفق والمباني
+            tilt: 80,           // زاوية الميل لرؤية الأفق والمباني
             heading: 0,           // الاتجاه الابتدائي (الشمال)
             renderingType: google.maps.RenderingType.VECTOR, // إجبار وضع المتجهات
             gestureHandling: 'greedy'
@@ -8970,7 +8970,7 @@ async function initMaps() {
             position: mapConfigs.center,
             map: dashboardGoogleMap,
             icon: { 
-                url: 'https://dmusera.netlify.app/3606.png', 
+                url: 'https://dmusera.netlify.app/carpin.png', 
                 scaledSize: new google.maps.Size(70, 70),
                 anchor: new google.maps.Point(35, 35)
             }
@@ -9016,27 +9016,47 @@ async function initMaps() {
  * 2. دالة تحديث الموقع والمزامنة (Smart Sync)
  * تقوم بتحريك السيارة وتدوير الكاميرا خلفها في الشاشتين في نفس اللحظة.
  */
+/**
+ * التحديث الشامل لموقع السيارة والخرائط ثلاثية الأبعاد
+ * يقوم بتحديث الموقع، تدوير الكاميرا خلف السيارة، وتحريك الماركرات في الشاشتين.
+ */
 function updateGoogleMapLocation(pos) {
     if (!pos || !pos.coords) return;
 
     const { latitude: lat, longitude: lng, heading } = pos.coords;
     const newLatLng = { lat, lng };
-    
-    // تحديث الحالة العالمية
-    appState.currentLocation = newLatLng;
 
-    // 🧭 استخراج زاوية الاتجاه (إذا لم تتوفر من الحساسات نستخدم 0)
-    const currentHeading = (heading !== null && !isNaN(heading)) ? heading : 0;
-    
-    // تحديث الاتجاه الحرفي للبوصلة (للأدوات الأخرى)
+    // 1. حساب الزاوية (Heading)
+    let currentHeading = 0;
+
+    if (heading !== null && !isNaN(heading)) {
+        // أ. استخدام الزاوية القادمة من مستشعر الجهاز (GPS/Compass)
+        currentHeading = heading;
+    } else if (appState.currentLocation) {
+        // ب. (احتياطي) حساب الزاوية يدوياً بناءً على المسار المحرك
+        const dy = lat - appState.currentLocation.lat;
+        const dx = Math.cos(Math.PI / 180 * lat) * (lng - appState.currentLocation.lng);
+        const angle = Math.atan2(dx, dy) * (180 / Math.PI);
+        
+        // لا نغير الاتجاه إلا إذا كانت السيارة تتحرك فعلياً لتجنب الاهتزاز
+        if (Math.abs(dx) > 0.00001 || Math.abs(dy) > 0.00001) {
+            currentHeading = angle;
+        } else {
+            // إذا كانت السيارة متوقفة، نحافظ على آخر اتجاه معروف
+            currentHeading = dashboardGoogleMap ? dashboardGoogleMap.getHeading() : 0;
+        }
+    }
+
+    // 2. تحديث الحالة العامة للتطبيق
+    appState.currentLocation = newLatLng;
     if (typeof bearingToDirection === 'function') {
         appState.car.direction = bearingToDirection(currentHeading);
     }
 
-    // 1️⃣ تحديث خريطة الداشبورد
+    // 3. تحديث خريطة الداشبورد (الرئيسية)
     if (dashboardGoogleMap) {
         dashboardGoogleMap.setCenter(newLatLng);
-        // التدوير الحي: يجعل الخريطة تدور مع اتجاه السيارة (Heading Up)
+        // التدوير الحي: تدوير الخريطة لتكون للأمام دائماً
         dashboardGoogleMap.setHeading(currentHeading); 
         
         if (dashboardGoogleMarker) {
@@ -9044,25 +9064,24 @@ function updateGoogleMapLocation(pos) {
         }
     }
 
-    // 2️⃣ تحديث خريطة CarPlay
+    // 4. تحديث خريطة CarPlay (المصغرة)
     if (carplayGoogleMap) {
         carplayGoogleMap.setCenter(newLatLng);
-        // تدوير متزامن
+        // مزامنة التدوير مع الخريطة الرئيسية
         carplayGoogleMap.setHeading(currentHeading);
         
-        if (carplayGoogleMarker) {
+        if (typeof carplayGoogleMarker !== 'undefined' && carplayGoogleMarker) {
             carplayGoogleMarker.setPosition(newLatLng);
         }
     }
 
-    // تحديث مؤشرات الازدحام أوتوماتيكياً عند الحركة
+    // 5. تحديث العناصر التفاعلية الأخرى
     if (typeof updateTrafficIndicators === 'function') {
-        updateTrafficIndicators();
+        updateTrafficIndicators(); // تحديث ألوان الازدحام بناءً على الموقع الجديد
     }
     
-    // تحديث الويدجت في الشاشات الأخرى
     if (typeof update3dScreenWidgets === 'function') {
-        update3dScreenWidgets();
+        update3dScreenWidgets(); // تحديث البوصلة والبيانات في شاشة الـ 3D
     }
 }
         // --- المتغير العام لحفظ مُعرّف الـ watchPosition ---
