@@ -8971,7 +8971,7 @@ async function initMaps() {
             map: dashboardGoogleMap,
             icon: { 
                 url: 'https://dmusera.netlify.app/3606.png', 
-                scaledSize: new google.maps.Size(70, 80),
+                scaledSize: new google.maps.Size(70, 90),
                 anchor: new google.maps.Point(35, 35)
             }
         });
@@ -8981,7 +8981,12 @@ async function initMaps() {
             carplayGoogleMap = new google.maps.Map(miniMapElement, {
                 ...mapConfigs,
                 zoom: 17, // زووم أقرب قليلاً للكار بلاي
-                tilt: 45  // ميل أخف ليتناسب مع المساحة الصغيرة
+                tilt: 45,
+                heading: 0,
+    // 🛑 الأسطر الضرورية لعمل التدوير:
+    headingInteractionEnabled: true,
+    tiltInteractionEnabled: true,
+    renderingType: google.maps.RenderingType.VECTOR  // ميل أخف ليتناسب مع المساحة الصغيرة
             });
             const trafficLayerMini = new google.maps.TrafficLayer();
             trafficLayerMini.setMap(carplayGoogleMap);
@@ -8991,7 +8996,7 @@ async function initMaps() {
                 map: carplayGoogleMap,
                 icon: { 
                     url: 'https://dmusera.netlify.app/3606.png', 
-                    scaledSize: new google.maps.Size(75, 85),
+                    scaledSize: new google.maps.Size(75, 95),
                     anchor: new google.maps.Point(22, 22)
                 }
             });
