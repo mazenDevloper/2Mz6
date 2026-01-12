@@ -34,7 +34,11 @@
 #bottom-left-controls {
     display: none !important;
 }
-
+#carplay-mini-map, #video-popup-container {
+    transform: translateZ(0); /* هذا السطر السحري يعزل العنصر في طبقة GPU خاصة */
+    backface-visibility: hidden;
+    perspective: 1000;
+}
 #screen-DashboardCarPlay .glass-surface {
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
 }
@@ -5830,8 +5834,12 @@ const appOrder = ['Dashboard', 'Media', 'DashboardCarPlay', 'Radio', 'Athkar', '
     if (screen) screen.classList.add('active');
     const icon = document.querySelector(`.app-icon[data-app="${appName}"]`);
     if (icon) icon.classList.add('active');
-
-
+if (appName === 'DashboardCarPlay' && isVideoPlaying) {
+    carplayGoogleMap.setOptions({
+        tilt: 45, // تقليل الميل يقلل عدد المباني المرندرة
+        isFractionalZoomEnabled: false // تحسين الأداء
+    });
+}
     // 3. التشغيل الشرطي للمؤقتات (Conditional Start)
 if (appName === 'DashboardCarPlay') {
         // 1. تحديث البيانات النصية فوراً (الطقس، الصلاة، السرعة، الميديا)
@@ -8960,11 +8968,23 @@ async function initMaps() {
             renderingType: google.maps.RenderingType.VECTOR, // إجبار وضع المتجهات
             gestureHandling: 'greedy'
         };
-
+        dashboardGoogleMap = new google.maps.Map(document.getElementById('dashboard-google-map'), {
+    center: { lat: 17.06, lng: 54.16 },
+    zoom: 18,
+    mapId: '6c6951a9289b612a97923702', // الـ ID الخاص بك
+    tilt: 67.5,
+    heading: 0,
+    // 🛑 الأسطر الضرورية لتفعيل دوران الخريطة:
+    renderingType: google.maps.RenderingType.VECTOR,
+    headingInteractionEnabled: true 
+});
         // --- أ. إنشاء خريطة الداشبورد (الرئيسية) ---
-        dashboardGoogleMap = new google.maps.Map(mainMapElement, mapConfigs);
+      //  dashboardGoogleMap = new google.maps.Map(mainMapElement, mapConfigs);
         const trafficLayerMain = new google.maps.TrafficLayer();
         trafficLayerMain.setMap(dashboardGoogleMap);
+
+
+
 
         dashboardGoogleMarker = new google.maps.Marker({
             position: mapConfigs.center,
