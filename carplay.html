@@ -5871,34 +5871,35 @@ if (appName === 'DashboardCarPlay' && isVideoPlaying) {
     });
 }
 const floatingVideo = document.getElementById('floating-minimized-video-button');
+const minimizeBtn = document.getElementById('video-popup-minimize-button');
+const restoreBtn = document.querySelector('.minimized-restore-btn');
 
-    // 3. التشغيل الشرطي للمؤقتات (Conditional Start)
 if (appName === 'DashboardCarPlay') {
-        // 1. إدارة العناصر العائمة (تصغير البوب آب تلقائياً)
-        
-        if (floatingVideo) {
-            // إخفاء البوب آب تماماً لتوفير المعالج وتجنب تداخله مع الخريطة
-            floatingVideo.style.display = 'none';
+        // 1. إدارة الفيديو (التصغير الآلي للتحول إلى كبسولة)
+        // نبحث عن زر التصغير الأصلي في البوب أب ونضغط عليه آلياً
+        const minimizeBtn = document.getElementById('video-popup-minimize-button');
+        if (appState.isVideoPlayerActive && minimizeBtn) {
+            minimizeBtn.click(); 
         }
 
-        // 2. تحديث بيانات الواجهة (الطقس، الصلاة، الميديا، والكبسولة)
+        // 2. تحديث بيانات واجهة CarPlay (الطقس، الصلاة، السرعة، الميديا)
         if (typeof updateCarPlayDashboard === 'function') {
             updateCarPlayDashboard();
         }
 
-        // 3. معالجة الخريطة ثلاثية الأبعاد (3D Map Refresh)
+        // 3. إنعاش ومعالجة الخريطة ثلاثية الأبعاد (3D Map)
         setTimeout(() => {
             if (carplayGoogleMap) {
-                // إجبار الخريطة على حساب أبعادها بعد ظهور الشاشة
+                // إجبار الخريطة على حساب أبعاد الحاوية الجديدة
                 google.maps.event.trigger(carplayGoogleMap, 'resize');
                 
                 if (appState.currentLocation) {
-                    // إعادة ضبط المركز والزوايا (Tilt 45 المريح للملاحة)
+                    // ضبط المركز والميل (Tilt 45) والزووم
                     carplayGoogleMap.setCenter(appState.currentLocation);
                     carplayGoogleMap.setZoom(18); 
                     carplayGoogleMap.setTilt(45);
                     
-                    // تدوير الخريطة حسب اتجاه السيارة الحالي (Heading Up)
+                    // تدوير الخريطة لتكون موجهة للأمام (Heading Up)
                     if (typeof directionToDegrees === 'function') {
                         const currentHeading = directionToDegrees(appState.car.direction);
                         carplayGoogleMap.setHeading(currentHeading);
@@ -5906,18 +5907,23 @@ if (appName === 'DashboardCarPlay') {
                 }
             }
             
-            // تحديث نص الموقع الجغرافي في الكبسولة أو التسمية
+            // تحديث نص الموقع الجغرافي
             const locationText = document.getElementById('carplay-location-text');
             if (locationText) {
                 locationText.textContent = appState.weather.location || "موقعك الحالي";
             }
-        }, 150); // تأخير بسيط لضمان اكتمال حركة الانتقال (Transition)
+        }, 150); // تأخير بسيط لضمان استقرار الواجهة قبل الرسم
 
-        // 4. تفعيل وضع التحديث الدوري الخفيف للكبسولة
-        if (typeof startCarPlayUpdates === 'function') {
-            startCarPlayUpdates();
+    } else {
+        // 4. منطق الخروج من CarPlay إلى أي شاشة أخرى (إعادة البوب أب)
+        // نبحث عن زر الاستعادة (الذي يظهر عند تصغير الفيديو) ونضغط عليه آلياً
+        const restoreBtn = document.getElementById('floating-minimized-video-button');
+        if (appState.isVideoPlayerActive && restoreBtn) {
+            // نتحقق إذا كان الفيديو مصغراً حالياً قبل الضغط
+            restoreBtn.click();
         }
     }
+    
     // A. المؤقتات المطلوبة في Dashboard
     if (appName === 'Dashboard') {
         startClockAndTimer(); // 1s/2s (الساعة والعداد التنازلي)
