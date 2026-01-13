@@ -5771,14 +5771,10 @@ function updateUI() {
 }
 
 function updateCarPlayDashboard() {
-    // 1. تحديث الطقس من الحالة العالمية
+    // --- 1. تحديث الطقس والصلاة والسرعة (كودك الحالي) ---
     const tempEl = document.getElementById('carplay-weather-temp');
     if (tempEl) tempEl.textContent = `${Math.round(appState.weather.temperature || 0)}°`;
     
-    const descEl = document.getElementById('carplay-weather-desc');
-    if (descEl) descEl.textContent = appState.weather.description || '--';
-
-    // 2. تحديث الصلاة القادمة والوقت
     const nextPrayerName = document.getElementById('carplay-next-prayer-name');
     const nextPrayerTime = document.getElementById('carplay-next-prayer-time');
     if (nextPrayerName) nextPrayerName.textContent = appState.prayerTimes.nextPrayer || '--';
@@ -5786,30 +5782,64 @@ function updateCarPlayDashboard() {
         nextPrayerTime.textContent = appState.prayerTimes.nextPrayerIqamaTime.toLocaleTimeString('ar-SA', { hour: 'numeric', minute: '2-digit', hour12: true });
     }
 
-    // 3. تحديث السرعة (Live)
     const speedEl = document.getElementById('carplay-speed');
-    if (speedEl) speedEl.innerHTML = `${appState.car.speed} <small class="text-sm font-normal opacity-60">km/h</small>`;
+    if (speedEl) speedEl.innerHTML = `${appState.car.speed} <small class="text-xs font-normal opacity-60">km/h</small>`;
 
-    // 4. تحديث الميديا (سحب البيانات من مشغل يوتيوب النشط)
+    // --- 2. تحديث الكبسولة (الميديا) وربط الأزرار ---
     if (popupPlayer && typeof popupPlayer.getVideoData === 'function') {
         const videoData = popupPlayer.getVideoData();
         const playerState = popupPlayer.getPlayerState();
         
-        if (videoData) {
+        if (videoData && videoData.title) {
+            // تحديث النصوص والصورة
             document.getElementById('carplay-media-title').textContent = videoData.title;
             document.getElementById('carplay-media-channel').textContent = videoData.author;
-            document.getElementById('carplay-media-thumb').src = `https://i.ytimg.com/vi/${videoData.video_id}/mqdefault.jpg`;
-            
-            // تغيير أيقونة التشغيل بناءً على حالة الفيديو
-            const playIcon = document.querySelector('#screen-DashboardCarPlay [data-lucide="play"], #screen-DashboardCarPlay [data-lucide="pause"]');
-            if (playIcon) {
-                const isPlaying = (playerState === YT.PlayerState.PLAYING);
-                playIcon.setAttribute('data-lucide', isPlaying ? 'pause' : 'play');
-                lucide.createIcons(); // لإعادة رسم الأيقونة الجديدة
+            const thumbImg = document.getElementById('carplay-media-thumb');
+            if (thumbImg.src !== `https://i.ytimg.com/vi/${videoData.video_id}/mqdefault.jpg`) {
+                thumbImg.src = `https://i.ytimg.com/vi/${videoData.video_id}/mqdefault.jpg`;
             }
+            
+            // --- 3. ربط أزرار التحكم في الكبسولة بالمشغل الرئيسي ---
+            
+            // زر التشغيل/الإيقاف
+            const playBtn = document.getElementById('carplay-capsule-play-pause');
+            if (playBtn) {
+                const isPlaying = (playerState === YT.PlayerState.PLAYING);
+                playBtn.innerHTML = isPlaying ? '<i data-lucide="pause"></i>' : '<i data-lucide="play"></i>';
+                
+                playBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    if (isPlaying) popupPlayer.pauseVideo();
+                    else popupPlayer.playVideo();
+                    setTimeout(updateCarPlayDashboard, 100); // تحديث فوري للأيقونة
+                };
+            }
+
+            // زر التالي (مرتبط بمشغل اليوتيوب)
+            const nextBtn = document.getElementById('carplay-capsule-next');
+            if (nextBtn) {
+                nextBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    if (typeof playNextVideo === 'function') playNextVideo(); 
+                    else popupPlayer.nextVideo();
+                };
+            }
+
+            // زر السابق
+            const prevBtn = document.getElementById('carplay-capsule-prev');
+            if (prevBtn) {
+                prevBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    if (typeof playPrevVideo === 'function') playPrevVideo();
+                    else popupPlayer.previousVideo();
+                };
+            }
+
+            if (window.lucide) lucide.createIcons();
         }
     }
 }
+
         // --- App Switching and Navigation Logic ---
 const appOrder = ['Dashboard', 'Media', 'DashboardCarPlay', 'Radio', 'Athkar', 'Reciters', 'Weather', 'Map', 'Quran'];
         let currentAppIndex = 0;
@@ -5840,37 +5870,54 @@ if (appName === 'DashboardCarPlay' && isVideoPlaying) {
         isFractionalZoomEnabled: false // تحسين الأداء
     });
 }
+const floatingVideo = document.getElementById('floating-minimized-video-button');
+
     // 3. التشغيل الشرطي للمؤقتات (Conditional Start)
 if (appName === 'DashboardCarPlay') {
-        // 1. تحديث البيانات النصية فوراً (الطقس، الصلاة، السرعة، الميديا)
-        updateCarPlayDashboard();
+        // 1. إدارة العناصر العائمة (تصغير البوب آب تلقائياً)
+        
+        if (floatingVideo) {
+            // إخفاء البوب آب تماماً لتوفير المعالج وتجنب تداخله مع الخريطة
+            floatingVideo.style.display = 'none';
+        }
 
-        // 2. معالجة الخريطة (النسخة المستقلة الخاصة بكاربلاي)
+        // 2. تحديث بيانات الواجهة (الطقس، الصلاة، الميديا، والكبسولة)
+        if (typeof updateCarPlayDashboard === 'function') {
+            updateCarPlayDashboard();
+        }
+
+        // 3. معالجة الخريطة ثلاثية الأبعاد (3D Map Refresh)
         setTimeout(() => {
             if (carplayGoogleMap) {
-                // 🚀 الخطوة الأهم: إجبار الخريطة على الظهور في حاويتها
+                // إجبار الخريطة على حساب أبعادها بعد ظهور الشاشة
                 google.maps.event.trigger(carplayGoogleMap, 'resize');
                 
                 if (appState.currentLocation) {
-                    // إعادة ضبط المركز والزاوية ثلاثية الأبعاد (3D Perspective)
+                    // إعادة ضبط المركز والزوايا (Tilt 45 المريح للملاحة)
                     carplayGoogleMap.setCenter(appState.currentLocation);
-                    carplayGoogleMap.setZoom(19); // زووم مثالي لرؤية المباني 3D
-                    carplayGoogleMap.setTilt(45); // إمالةiOS 26 المريحة للعين
+                    carplayGoogleMap.setZoom(18); 
+                    carplayGoogleMap.setTilt(45);
                     
-                    // تدوير الخريطة حسب اتجاه السيارة الحالي
-                    const currentHeading = directionToDegrees(appState.car.direction);
-                    carplayGoogleMap.setHeading(currentHeading);
+                    // تدوير الخريطة حسب اتجاه السيارة الحالي (Heading Up)
+                    if (typeof directionToDegrees === 'function') {
+                        const currentHeading = directionToDegrees(appState.car.direction);
+                        carplayGoogleMap.setHeading(currentHeading);
+                    }
                 }
             }
             
-            // تحديث نصوص الموقع في واجهة كاربلاي
+            // تحديث نص الموقع الجغرافي في الكبسولة أو التسمية
             const locationText = document.getElementById('carplay-location-text');
             if (locationText) {
                 locationText.textContent = appState.weather.location || "موقعك الحالي";
             }
-        }, 150); // تأخير بسيط لضمان اكتمال ظهور الشاشة (Transition)
-    
-}
+        }, 150); // تأخير بسيط لضمان اكتمال حركة الانتقال (Transition)
+
+        // 4. تفعيل وضع التحديث الدوري الخفيف للكبسولة
+        if (typeof startCarPlayUpdates === 'function') {
+            startCarPlayUpdates();
+        }
+    }
     // A. المؤقتات المطلوبة في Dashboard
     if (appName === 'Dashboard') {
         startClockAndTimer(); // 1s/2s (الساعة والعداد التنازلي)
@@ -8942,10 +8989,6 @@ function directionToDegrees(direction) {
 
 let carplayGoogleMap;   // خريطة CarPlay المصغرة
 
-/**
- * 1. دالة تهيئة الخرائط المزدوجة (3D Vector Mode)
- * تقوم بإنشاء خريطتين مستقلتين تماماً مع تفعيل مظهر iOS 26 المائل.
- */
 async function initMaps() {
     if (mapsInitialized) return;
     
@@ -8955,96 +8998,73 @@ async function initMaps() {
 
         if (!mainMapElement) return;
 
-        // 🚀 إعدادات الخريطة المتجهة (Vector) لدعم الـ 3D الحقيقي
-        const mapConfigs = {
+        // 1. 🚀 الإعدادات المشتركة لخرائط المتجهات 3D
+        const commonConfigs = {
             center: appState.currentLocation || { lat: 17.067330, lng: 54.160190 },
-            zoom: 19,
-            disableDefaultUI: false,
             mapTypeId: 'roadmap',
-            // 🛑 تفعيل الـ Map ID الخاص بك (6c6951a9289b612a97923702)
             mapId: '6c6951a9289b612a97923702', 
-            tilt: 80,           // زاوية الميل لرؤية الأفق والمباني
-            heading: 0,           // الاتجاه الابتدائي (الشمال)
-            renderingType: google.maps.RenderingType.VECTOR, // إجبار وضع المتجهات
+            disableDefaultUI: false,
+            renderingType: google.maps.RenderingType.VECTOR,
+            headingInteractionEnabled: true, // تفعيل التدوير للكل
+            tiltInteractionEnabled: true,    // تفعيل الميل للكل
             gestureHandling: 'greedy'
         };
-        dashboardGoogleMap = new google.maps.Map(document.getElementById('dashboard-google-map'), {
-    center: { lat: 17.06, lng: 54.16 },
-    zoom: 18,
-    mapId: '6c6951a9289b612a97923702', // الـ ID الخاص بك
-    tilt: 67.5,
-    heading: 0,
-    // 🛑 الأسطر الضرورية لتفعيل دوران الخريطة:
-    renderingType: google.maps.RenderingType.VECTOR,
-    headingInteractionEnabled: true 
-});
-        // --- أ. إنشاء خريطة الداشبورد (الرئيسية) ---
-      //  dashboardGoogleMap = new google.maps.Map(mainMapElement, mapConfigs);
+
+        // 2. --- أ. خريطة الداشبورد (الآن أصبحت هي القوية والنشطة) ---
+        dashboardGoogleMap = new google.maps.Map(mainMapElement, {
+            ...commonConfigs,
+            zoom: 20,          // زووم قريب جداً وتفصيلي للداشبورد
+            tilt: 80,          // أقصى إمالة لرؤية الأفق والمباني (قيمة كاربلاي سابقاً)
+            heading: 0
+        });
+
         const trafficLayerMain = new google.maps.TrafficLayer();
         trafficLayerMain.setMap(dashboardGoogleMap);
 
-
-
-
         dashboardGoogleMarker = new google.maps.Marker({
-            position: mapConfigs.center,
+            position: commonConfigs.center,
             map: dashboardGoogleMap,
             icon: { 
                 url: 'https://dmusera.netlify.app/3606.png', 
                 scaledSize: new google.maps.Size(70, 90),
-                anchor: new google.maps.Point(35, 35)
+                anchor: new google.maps.Point(35, 45)
             }
         });
 
-        // --- ب. إنشاء خريطة CarPlay (المصغرة) ---
+        // 3. --- ب. خريطة CarPlay (أصبحت الآن أخف وأقل ميلاً) ---
         if (miniMapElement) {
             carplayGoogleMap = new google.maps.Map(miniMapElement, {
-                ...mapConfigs,
-                zoom: 17, // زووم أقرب قليلاً للكار بلاي
-                tilt: 45,
-                heading: 0,
-    // 🛑 الأسطر الضرورية لعمل التدوير:
-    headingInteractionEnabled: true,
-    tiltInteractionEnabled: true,
-    renderingType: google.maps.RenderingType.VECTOR  // ميل أخف ليتناسب مع المساحة الصغيرة
+                ...commonConfigs,
+                zoom: 17,          // زووم أبعد قليلاً لرؤية أشمل
+                tilt: 45,          // ميل كلاسيكي مريح (قيمة الداشبورد سابقاً)
+                heading: 0
             });
+
             const trafficLayerMini = new google.maps.TrafficLayer();
             trafficLayerMini.setMap(carplayGoogleMap);
             
             carplayGoogleMarker = new google.maps.Marker({
-                position: mapConfigs.center,
+                position: commonConfigs.center,
                 map: carplayGoogleMap,
                 icon: { 
                     url: 'https://dmusera.netlify.app/3606.png', 
-                    scaledSize: new google.maps.Size(75, 95),
-                    anchor: new google.maps.Point(22, 22)
+                    scaledSize: new google.maps.Size(40, 55),
+                    anchor: new google.maps.Point(20, 27)
                 }
             });
         }
 
-        // تهيئة خدمة التوجيهات
         directionsService = new google.maps.DirectionsService();
-        
         mapsInitialized = true;
-        console.log("✅ 3D Vector Maps initialized successfully.");
+        console.log("✅ Maps logic swapped: Dashboard is now Primary 3D.");
         
-        // بدء تتبع الموقع الفعلي
         startContinuousLocationTracking();
 
     } catch (error) {
         console.error("❌ Map Init Error:", error);
-        showGeolocationErrorOnMap("تعذر تحميل الخرائط ثلاثية الأبعاد. تأكد من مفتاح الـ API.");
     }
 }
 
-/**
- * 2. دالة تحديث الموقع والمزامنة (Smart Sync)
- * تقوم بتحريك السيارة وتدوير الكاميرا خلفها في الشاشتين في نفس اللحظة.
- */
-/**
- * التحديث الشامل لموقع السيارة والخرائط ثلاثية الأبعاد
- * يقوم بتحديث الموقع، تدوير الكاميرا خلف السيارة، وتحريك الماركرات في الشاشتين.
- */
 function updateGoogleMapLocation(pos) {
     if (!pos || !pos.coords) return;
 
