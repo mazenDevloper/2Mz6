@@ -5791,73 +5791,79 @@ function updateUI() {
 }
 
 function updateCarPlayDashboard() {
-    // --- 1. تحديث الطقس والصلاة والسرعة (كودك الحالي) ---
+    // 1. تحديث الطقس من الحالة العالمية
     const tempEl = document.getElementById('carplay-weather-temp');
     if (tempEl) tempEl.textContent = `${Math.round(appState.weather.temperature || 0)}°`;
     
+    const descEl = document.getElementById('carplay-weather-desc');
+    if (descEl) descEl.textContent = appState.weather.description || '--';
+
+    // 2. تحديث الصلاة القادمة والوقت
     const nextPrayerName = document.getElementById('carplay-next-prayer-name');
     const nextPrayerTime = document.getElementById('carplay-next-prayer-time');
     if (nextPrayerName) nextPrayerName.textContent = appState.prayerTimes.nextPrayer || '--';
     if (nextPrayerTime && appState.prayerTimes.nextPrayerIqamaTime) {
-        nextPrayerTime.textContent = appState.prayerTimes.nextPrayerIqamaTime.toLocaleTimeString('ar-SA', { hour: 'numeric', minute: '2-digit', hour12: true });
+        nextPrayerTime.textContent = appState.prayerTimes.nextPrayerIqamaTime.toLocaleTimeString('ar-SA', { 
+            hour: 'numeric', 
+            minute: '2-digit', 
+            hour12: true 
+        });
     }
 
+    // 3. تحديث السرعة الحية (Live Speed)
     const speedEl = document.getElementById('carplay-speed');
     if (speedEl) speedEl.innerHTML = `${appState.car.speed} <small class="text-xs font-normal opacity-60">km/h</small>`;
 
-    // --- 2. تحديث الكبسولة (الميديا) وربط الأزرار ---
+    // 4. تحديث الميديا والربط مع مشغل يوتيوب (YouTube Player Sync)
+    const minPlayPauseBtn = document.getElementById('minimized-play-pause-btn');
+    
     if (popupPlayer && typeof popupPlayer.getVideoData === 'function') {
         const videoData = popupPlayer.getVideoData();
         const playerState = popupPlayer.getPlayerState();
-        
-        if (videoData && videoData.title) {
-            // تحديث النصوص والصورة
-            document.getElementById('carplay-media-title').textContent = videoData.title;
-            document.getElementById('carplay-media-channel').textContent = videoData.author;
+        const isPlaying = (playerState === YT.PlayerState.PLAYING);
+
+        if (videoData && videoData.video_id) {
+            // تحديث النصوص والصورة في واجهة CarPlay
+            const titleEl = document.getElementById('carplay-media-title');
+            const channelEl = document.getElementById('carplay-media-channel');
             const thumbImg = document.getElementById('carplay-media-thumb');
-            if (thumbImg.src !== `https://i.ytimg.com/vi/${videoData.video_id}/mqdefault.jpg`) {
-                thumbImg.src = `https://i.ytimg.com/vi/${videoData.video_id}/mqdefault.jpg`;
+
+            if (titleEl) titleEl.textContent = videoData.title;
+            if (channelEl) channelEl.textContent = videoData.author;
+            if (thumbImg) {
+                const thumbUrl = `https://i.ytimg.com/vi/${videoData.video_id}/mqdefault.jpg`;
+                if (thumbImg.src !== thumbUrl) thumbImg.src = thumbUrl;
             }
-            
-            // --- 3. ربط أزرار التحكم في الكبسولة بالمشغل الرئيسي ---
-            
-            // زر التشغيل/الإيقاف
-            const playBtn = document.getElementById('carplay-capsule-play-pause');
-            if (playBtn) {
-                const isPlaying = (playerState === YT.PlayerState.PLAYING);
-                playBtn.innerHTML = isPlaying ? '<i data-lucide="pause"></i>' : '<i data-lucide="play"></i>';
+
+            // 🔗 ربط زر minimized-play-pause-btn (التحكم في التشغيل)
+            if (minPlayPauseBtn) {
+                // تحديث الأيقونة بصرياً
+                minPlayPauseBtn.innerHTML = isPlaying ? 
+                    '<i data-lucide="pause"></i>' : 
+                    '<i data-lucide="play"></i>';
                 
-                playBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    if (isPlaying) popupPlayer.pauseVideo();
-                    else popupPlayer.playVideo();
-                    setTimeout(updateCarPlayDashboard, 100); // تحديث فوري للأيقونة
+                // إضافة الوظيفة البرمجية عند النقر
+                minPlayPauseBtn.onclick = (e) => {
+                    e.stopPropagation(); // منع استعادة النافذة الكبيرة عند الضغط على الزر فقط
+                    if (isPlaying) {
+                        popupPlayer.pauseVideo();
+                    } else {
+                        popupPlayer.playVideo();
+                    }
+                    // تحديث الواجهة فوراً لضمان سلاسة الأيقونة
+                    setTimeout(updateCarPlayDashboard, 100);
                 };
             }
-
-            // زر التالي (مرتبط بمشغل اليوتيوب)
-            const nextBtn = document.getElementById('carplay-capsule-next');
-            if (nextBtn) {
-                nextBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    if (typeof playNextVideo === 'function') playNextVideo(); 
-                    else popupPlayer.nextVideo();
-                };
-            }
-
-            // زر السابق
-            const prevBtn = document.getElementById('carplay-capsule-prev');
-            if (prevBtn) {
-                prevBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    if (typeof playPrevVideo === 'function') playPrevVideo();
-                    else popupPlayer.previousVideo();
-                };
-            }
-
-            if (window.lucide) lucide.createIcons();
         }
+    } else {
+        // حالة عدم وجود فيديو نشط
+        const titleEl = document.getElementById('carplay-media-title');
+        if (titleEl) titleEl.textContent = "لا يوجد مقطع حالياً";
+        if (minPlayPauseBtn) minPlayPauseBtn.onclick = null;
     }
+
+    // رندرة أيقونات Lucide الجديدة إذا وجدت
+    if (window.lucide) lucide.createIcons();
 }
 
         // --- App Switching and Navigation Logic ---
@@ -7534,7 +7540,44 @@ async function showDashboardSuggestionsInPopup() {
         }
 
         // This function is duplicated, removing one instance.
+        function updateCarPlayMediaSync() {
+    // التأكد من وجود المشغل وجاهزية استخراج البيانات
+    if (popupPlayer && typeof popupPlayer.getVideoData === 'function') {
+        const videoData = popupPlayer.getVideoData();
+        const playerState = popupPlayer.getPlayerState(); // جلب حالة التشغيل (Play/Pause)
         
+        if (videoData && videoData.video_id) {
+            // 1. تحديث العنوان (Title)
+            const titleEl = document.getElementById('carplay-media-title');
+            if (titleEl) titleEl.textContent = videoData.title;
+
+            // 2. تحديث اسم القناة (Author)
+            const channelEl = document.getElementById('carplay-media-channel');
+            if (channelEl) channelEl.textContent = videoData.author;
+
+            // 3. تحديث صورة الغلاف (Thumbnail)
+            const thumbEl = document.getElementById('carplay-media-thumb');
+            const thumbUrl = `https://i.ytimg.com/vi/${videoData.video_id}/mqdefault.jpg`;
+            if (thumbEl && thumbEl.src !== thumbUrl) {
+                thumbEl.src = thumbUrl;
+            }
+
+            // 4. تحديث أيقونة التشغيل/الإيقاف في كاربلاي
+            const carplayPlayBtn = document.getElementById('carplay-capsule-play-pause');
+            if (carplayPlayBtn) {
+                const isPlaying = (playerState === YT.PlayerState.PLAYING);
+                carplayPlayBtn.innerHTML = isPlaying ? 
+                    '<i data-lucide="pause" class="text-white"></i>' : 
+                    '<i data-lucide="play" class="text-white"></i>';
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+    } else {
+        // حالة عدم وجود فيديو يعمل
+        document.getElementById('carplay-media-title').textContent = "لا يوجد مقطع حالياً";
+        document.getElementById('carplay-media-channel').textContent = "يوتيوب ميديا";
+    }
+}
         // NEW: Function to handle next/previous navigation buttons
         function updateNavigationButtons(currentQuery) {
             // Reset and hide buttons by default
@@ -9092,6 +9135,8 @@ async function initMaps() {
  * تحديث موقع وتدوير الخرائط في الداشبورد وكار بلاي
  * @param {GeolocationPosition} pos - بيانات الموقع من المتصفح
  */
+
+
 function updateGoogleMapLocation(pos) {
     if (!pos || !pos.coords) return;
 
@@ -9146,6 +9191,7 @@ function updateGoogleMapLocation(pos) {
         if (currentAppIndex === appOrder.indexOf('DashboardCarPlay') || appState.car.speed > 0) {
             carplayGoogleMap.setCenter(newLatLng);
             carplayGoogleMap.setHeading(currentHeading);
+            updateCarPlayMediaSync();
             
             if (typeof carplayGoogleMarker !== 'undefined' && carplayGoogleMarker) {
                 carplayGoogleMarker.setPosition(newLatLng);
@@ -10584,8 +10630,9 @@ renderFavoritesDashboard();
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. **الجلب الأولي لبيانات JSONBin (ASYNCHRONOUS)**
-    // يتم استخدام Promise.all لانتظار نتائج الجلب الرئيسية
+
+
+
 const recitersIframe = document.getElementById('reciters-iframe');
 const iframeSrcButtons = document.querySelectorAll('#screen-Reciters .iframe-src-button');
 
@@ -10667,6 +10714,7 @@ window.initMap = function() { initMaps(); };
     const floatingMinimizedVideoButton = document.getElementById('floating-minimized-video-button');
     const floatingMicButton = document.getElementById('floating-mic-button'); // 🛑 الزر الجديد
     const addVideoByUrlBtn = document.getElementById('add-video-by-url-btn');
+    
 
     // 🛑 ربط زر إضافة الفيديو بالرابط
     addVideoByUrlBtn?.addEventListener('click', promptAddVideoByUrl);
@@ -10957,6 +11005,9 @@ window.initMap = function() { initMaps(); };
             navigateBackToMainSearch();
         }
     });
+
+    
+
 });
 
 
