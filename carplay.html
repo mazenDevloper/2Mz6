@@ -4514,24 +4514,44 @@ function switchApp(appName) {
 
     // A. منطق شاشة Dashboard
     if (appName === 'Dashboard') {
-        startClockAndTimer();       // 1s
-        startWeatherUpdates();      // 5m
-        startDashboardLocationTracking();
-        updateTimerDisplay(); 
-        renderFavoritesDashboard();
-       
+        // 1. إعادة تشغيل المؤقتات الأساسية (ساعة وعداد الصلاة والطقس)
+        startClockAndTimer();       // تحديث كل 1 ثانية
+        startWeatherUpdates();      // تحديث كل 5 دقائق
+        
+        // 2. تحديث واجهة الصلاة والبيانات المفضلة
+        updateTimerDisplay();       
+        renderFavoritesDashboard(); 
+
+        // 3. إنعاش الخريطة ثلاثية الأبعاد (3D Map Wake-up)
         setTimeout(() => {
             if (dashboardGoogleMap) {
+                // أ. إجبار الخريطة على إعادة حساب أبعاد الحاوية (تجنب الشاشة السوداء)
                 google.maps.event.trigger(dashboardGoogleMap, 'resize');
-               
+                
                 if (appState.currentLocation) {
-                     dashboardGoogleMap.setCenter(appState.currentLocation);
-                     const numericHeading = directionToDegrees(appState.car.direction);
-                    dashboardGoogleMap.setHeading(numericHeading);
+                    // ب. إعادة ضبط المركز والزووم (التفصيلي 20)
+                    dashboardGoogleMap.setCenter(appState.currentLocation);
+                    dashboardGoogleMap.setZoom(20); 
+                    
+                    // ج. تطبيق الإمالة الحادة (Tilt 80) لرؤية المباني والأفق
+                    dashboardGoogleMap.setTilt(80); 
+                    
+                    // د. استرجاع آخر اتجاه للسيارة وتطبيق التدوير فوراً (Heading Up)
+                    if (typeof directionToDegrees === 'function') {
+                        const numericHeading = directionToDegrees(appState.car.direction);
+                        dashboardGoogleMap.setHeading(numericHeading);
+                    }
                 }
             }
-            updateTrafficIndicators(); 
-        }, 0); 
+            
+            // 4. تحديث مؤشرات الازدحام المروري للمنازل (Live Traffic)
+            if (typeof updateTrafficIndicators === 'function') {
+                updateTrafficIndicators(); 
+            }
+        }, 50); // تأخير بسيط جداً لضمان ظهور الـ DOM
+
+        // 5. تفعيل تتبع الموقع المستمر (لضمان الدوران أثناء القيادة)
+        startContinuousLocationTracking();
     }
     
     // B. منطق شاشة 3D (Map)
@@ -5923,7 +5943,7 @@ if (appName === 'DashboardCarPlay') {
             restoreBtn.click();
         }
     }
-    
+
     // A. المؤقتات المطلوبة في Dashboard
     if (appName === 'Dashboard') {
         startClockAndTimer(); // 1s/2s (الساعة والعداد التنازلي)
@@ -9004,23 +9024,23 @@ async function initMaps() {
 
         if (!mainMapElement) return;
 
-        // 1. 🚀 الإعدادات المشتركة لخرائط المتجهات 3D
+        // 1. 🚀 الإعدادات الأساسية المشتركة (Vector Engine)
         const commonConfigs = {
             center: appState.currentLocation || { lat: 17.067330, lng: 54.160190 },
             mapTypeId: 'roadmap',
             mapId: '6c6951a9289b612a97923702', 
-            disableDefaultUI: false,
+            disableDefaultUI: true, // إخفاء الأزرار الافتراضية لمظهر أنيق
             renderingType: google.maps.RenderingType.VECTOR,
-            headingInteractionEnabled: true, // تفعيل التدوير للكل
-            tiltInteractionEnabled: true,    // تفعيل الميل للكل
+            headingInteractionEnabled: true,
+            tiltInteractionEnabled: true,
             gestureHandling: 'greedy'
         };
 
-        // 2. --- أ. خريطة الداشبورد (الآن أصبحت هي القوية والنشطة) ---
+        // 2. --- أ. إنشاء خريطة الداشبورد (الرئيسية بـ Tilt 80) ---
         dashboardGoogleMap = new google.maps.Map(mainMapElement, {
             ...commonConfigs,
-            zoom: 20,          // زووم قريب جداً وتفصيلي للداشبورد
-            tilt: 80,          // أقصى إمالة لرؤية الأفق والمباني (قيمة كاربلاي سابقاً)
+            zoom: 20,
+            tilt: 65, // ميل حاد لرؤية الأفق والمباني
             heading: 0
         });
 
@@ -9032,17 +9052,17 @@ async function initMaps() {
             map: dashboardGoogleMap,
             icon: { 
                 url: 'https://dmusera.netlify.app/3606.png', 
-                scaledSize: new google.maps.Size(70, 90),
+                scaledSize: new google.maps.Size(75, 95),
                 anchor: new google.maps.Point(35, 45)
             }
         });
 
-        // 3. --- ب. خريطة CarPlay (أصبحت الآن أخف وأقل ميلاً) ---
+        // 3. --- ب. إنشاء خريطة CarPlay (المصغرة بـ Tilt 45) ---
         if (miniMapElement) {
             carplayGoogleMap = new google.maps.Map(miniMapElement, {
                 ...commonConfigs,
-                zoom: 17,          // زووم أبعد قليلاً لرؤية أشمل
-                tilt: 45,          // ميل كلاسيكي مريح (قيمة الداشبورد سابقاً)
+                zoom: 20,
+                tilt: 65, // ميل أخف لتقليل استهلاك الـ CPU في CarPlay
                 heading: 0
             });
 
@@ -9054,7 +9074,7 @@ async function initMaps() {
                 map: carplayGoogleMap,
                 icon: { 
                     url: 'https://dmusera.netlify.app/3606.png', 
-                    scaledSize: new google.maps.Size(40, 55),
+                    scaledSize: new google.maps.Size(70, 95),
                     anchor: new google.maps.Point(20, 27)
                 }
             });
@@ -9062,139 +9082,81 @@ async function initMaps() {
 
         directionsService = new google.maps.DirectionsService();
         mapsInitialized = true;
-        console.log("✅ Maps logic swapped: Dashboard is now Primary 3D.");
-        
-        startContinuousLocationTracking();
+        console.log("✅ Maps System Initialized: Dashboard (3D) & CarPlay (2.5D)");
 
     } catch (error) {
         console.error("❌ Map Init Error:", error);
     }
 }
-
+/**
+ * تحديث موقع وتدوير الخرائط في الداشبورد وكار بلاي
+ * @param {GeolocationPosition} pos - بيانات الموقع من المتصفح
+ */
 function updateGoogleMapLocation(pos) {
     if (!pos || !pos.coords) return;
 
     const { latitude: lat, longitude: lng, heading } = pos.coords;
     const newLatLng = { lat, lng };
 
-    // 1. حساب الزاوية (Heading)
+    // 1. حساب زاوية الاتجاه (Heading)
     let currentHeading = 0;
 
     if (heading !== null && !isNaN(heading)) {
-        // أ. استخدام الزاوية القادمة من مستشعر الجهاز (GPS/Compass)
+        // استخدام بيانات الحساس المباشرة (Compass)
         currentHeading = heading;
     } else if (appState.currentLocation) {
-        // ب. (احتياطي) حساب الزاوية يدوياً بناءً على المسار المحرك
+        // حساب الزاوية رياضياً بين النقطة السابقة والحالية
         const dy = lat - appState.currentLocation.lat;
         const dx = Math.cos(Math.PI / 180 * lat) * (lng - appState.currentLocation.lng);
-        const angle = Math.atan2(dx, dy) * (180 / Math.PI);
         
-        // لا نغير الاتجاه إلا إذا كانت السيارة تتحرك فعلياً لتجنب الاهتزاز
+        // التحقق من أن السيارة تتحرك فعلياً لتجنب التدوير العشوائي عند التوقف
         if (Math.abs(dx) > 0.00001 || Math.abs(dy) > 0.00001) {
-            currentHeading = angle;
+            currentHeading = Math.atan2(dx, dy) * (180 / Math.PI);
         } else {
-            // إذا كانت السيارة متوقفة، نحافظ على آخر اتجاه معروف
+            // المحافظة على آخر زاوية إذا كانت السيارة متوقفة
             currentHeading = dashboardGoogleMap ? dashboardGoogleMap.getHeading() : 0;
         }
     }
 
-    // 2. تحديث الحالة العامة للتطبيق
+    // 2. تحديث الحالة العالمية للتطبيق (AppState)
+    appState.previousLocation = appState.currentLocation;
     appState.currentLocation = newLatLng;
+    
     if (typeof bearingToDirection === 'function') {
         appState.car.direction = bearingToDirection(currentHeading);
     }
 
-    // 3. تحديث خريطة الداشبورد (الرئيسية)
+    // 3. تحديث خريطة الداشبورد (إجبار التدوير والتحرك)
     if (dashboardGoogleMap) {
         dashboardGoogleMap.setCenter(newLatLng);
-        // التدوير الحي: تدوير الخريطة لتكون للأمام دائماً
-        dashboardGoogleMap.setHeading(currentHeading); 
+        
+        // تطبيق التدوير فقط إذا كان المحرك يدعم الـ VECTOR
+        if (dashboardGoogleMap.getRenderingType() === google.maps.RenderingType.VECTOR) {
+            dashboardGoogleMap.setHeading(currentHeading);
+        }
         
         if (dashboardGoogleMarker) {
             dashboardGoogleMarker.setPosition(newLatLng);
         }
     }
 
-    // 4. تحديث خريطة CarPlay (المصغرة)
+    // 4. تحديث خريطة CarPlay (مزامنة مع الداشبورد)
     if (carplayGoogleMap) {
-        carplayGoogleMap.setCenter(newLatLng);
-        // مزامنة التدوير مع الخريطة الرئيسية
-        carplayGoogleMap.setHeading(currentHeading);
-        
-        if (typeof carplayGoogleMarker !== 'undefined' && carplayGoogleMarker) {
-            carplayGoogleMarker.setPosition(newLatLng);
+        // تحسين الأداء: لا نحدث مركز خريطة كاربلاي إلا إذا كانت ظاهرة أو السرعة > 0
+        if (currentAppIndex === appOrder.indexOf('DashboardCarPlay') || appState.car.speed > 0) {
+            carplayGoogleMap.setCenter(newLatLng);
+            carplayGoogleMap.setHeading(currentHeading);
+            
+            if (typeof carplayGoogleMarker !== 'undefined' && carplayGoogleMarker) {
+                carplayGoogleMarker.setPosition(newLatLng);
+            }
         }
     }
 
-    // 5. تحديث العناصر التفاعلية الأخرى
-    if (typeof updateTrafficIndicators === 'function') {
-        updateTrafficIndicators(); // تحديث ألوان الازدحام بناءً على الموقع الجديد
-    }
-    
-    if (typeof update3dScreenWidgets === 'function') {
-        update3dScreenWidgets(); // تحديث البوصلة والبيانات في شاشة الـ 3D
-    }
+    // 5. تحديث المؤشرات الرسومية الأخرى (البوصلة والازدحام)
+    if (typeof updateTrafficIndicators === 'function') updateTrafficIndicators();
+    if (typeof update3dScreenWidgets === 'function') update3dScreenWidgets();
 }
-        // --- المتغير العام لحفظ مُعرّف الـ watchPosition ---
-let locationWatchId = null;
-
-/**
- * Starts continuous geolocation tracking (watchPosition) to get live coordinates
- * and heading data, ensuring high accuracy for map rotation.
- */
-function startContinuousLocationTracking() {
-    // نوقف أي تتبع سابق لضمان عدم تكرار المؤقت
-    stopDashboardLocationTracking(); 
-    
-    if (navigator.geolocation) {
-        // 🛑 CRITICAL: تمكين الدقة العالية لتمكين قراءة Heading
-        locationWatchId = navigator.geolocation.watchPosition(
-            (pos) => { 
-                const overlay = document.getElementById('geolocation-error-overlay');
-                if (overlay) overlay.classList.add('hidden');
-                const mapControls = document.querySelector('#dashboard-google-map ~ .absolute');
-                if (mapControls) mapControls.style.display = 'flex';
-                
-                // 👈 استدعاء تحديث الموقع وتدوير الخريطة
-                updateGoogleMapLocation(pos); 
-                appState.hasShownGeolocationError = false; 
-
-                if (!initialLocationFetched) {
-                    fetchWeatherData();
-                    initialLocationFetched = true;
-                }
-            }, 
-            (err) => { 
-                if (err.code === 1) { // PERMISSION_DENIED
-                    showGeolocationErrorOnMap('تم رفض إذن تحديد الموقع. يرجى تمكينه في إعدادات المتصفح.');
-                } else if (!appState.hasShownGeolocationError) {
-                    let msg = 'تعذر تتبع موقعك. يرجى التحقق من أذونات الموقع.';
-                    showMessageBox(msg); 
-                    appState.hasShownGeolocationError = true; 
-                }
-            }, 
-            // 💡 الإعدادات: طلب دقة عالية والحد الأقصى لعمر القراءة 5 ثواني
-            { enableHighAccuracy: true, timeout: 5000, maximumAge: 5000 } 
-        );
-    } else {
-        showGeolocationErrorOnMap('خدمة تحديد المواقع غير مدعومة في هذا المتصفح.');
-    }
-}
-
-/**
- * Stops the continuous geolocation watch process.
- */
-function stopDashboardLocationTracking() {
-    if (locationWatchId !== null) {
-        navigator.geolocation.clearWatch(locationWatchId);
-        locationWatchId = null;
-    }
-}
-        /**
- * REPLACED & FINALIZED: Gets the user's current geolocation (One-Time Fetch), 
- * centers the map, and immediately updates the traffic indicators. 
- * CRITICAL FIX: Uses a fallback location if permission is denied.
- */
 async function centerMapOnUserLocation() { 
     if (navigator.geolocation) { 
         navigator.geolocation.getCurrentPosition(
