@@ -9055,45 +9055,47 @@ async function initMaps() {
 
         if (!mainMapElement) return;
 
-        // 1. 🚀 الإعدادات الأساسية المشتركة (Vector Engine)
+        // 🚀 الإعدادات المشتركة لمحرك الـ Vector (ثلاثي الأبعاد)
         const commonConfigs = {
             center: appState.currentLocation || { lat: 17.067330, lng: 54.160190 },
             mapTypeId: 'roadmap',
             mapId: '6c6951a9289b612a97923702', 
-            disableDefaultUI: true, // إخفاء الأزرار الافتراضية لمظهر أنيق
+            disableDefaultUI: true,
             renderingType: google.maps.RenderingType.VECTOR,
-            headingInteractionEnabled: true,
-            tiltInteractionEnabled: true,
+            headingInteractionEnabled: true, // تفعيل التدوير البرمجي
+            tiltInteractionEnabled: true,    // تفعيل الإمالة البرمجية
             gestureHandling: 'greedy'
         };
 
-        // 2. --- أ. إنشاء خريطة الداشبورد (الرئيسية بـ Tilt 80) ---
+        // --- أ. خريطة الداشبورد (الرؤية الأساسية 3D) ---
         dashboardGoogleMap = new google.maps.Map(mainMapElement, {
             ...commonConfigs,
             zoom: 20,
-            tilt: 65, // ميل حاد لرؤية الأفق والمباني
+            tilt: 65,
             heading: 0
         });
 
+        // إضافة طبقة حركة المرور
         const trafficLayerMain = new google.maps.TrafficLayer();
         trafficLayerMain.setMap(dashboardGoogleMap);
 
+        // ماركر السيارة (الداشبورد)
         dashboardGoogleMarker = new google.maps.Marker({
             position: commonConfigs.center,
             map: dashboardGoogleMap,
             icon: { 
                 url: 'https://dmusera.netlify.app/3606.png', 
                 scaledSize: new google.maps.Size(75, 95),
-                anchor: new google.maps.Point(35, 45)
+                anchor: new google.maps.Point(37, 47)
             }
         });
 
-        // 3. --- ب. إنشاء خريطة CarPlay (المصغرة بـ Tilt 45) ---
+        // --- ب. خريطة CarPlay (الرؤية الثانوية) ---
         if (miniMapElement) {
             carplayGoogleMap = new google.maps.Map(miniMapElement, {
                 ...commonConfigs,
-                zoom: 20,
-                tilt: 65, // ميل أخف لتقليل استهلاك الـ CPU في CarPlay
+                zoom: 18,
+                tilt: 65,
                 heading: 0
             });
 
@@ -9106,24 +9108,19 @@ async function initMaps() {
                 icon: { 
                     url: 'https://dmusera.netlify.app/3606.png', 
                     scaledSize: new google.maps.Size(70, 95),
-                    anchor: new google.maps.Point(20, 27)
+                    anchor: new google.maps.Point(35, 47)
                 }
             });
         }
 
         directionsService = new google.maps.DirectionsService();
         mapsInitialized = true;
-        console.log("✅ Maps System Initialized: Dashboard (3D) & CarPlay (2.5D)");
+        console.log("✅ 3D Map Engine Initialized & Rotational Link Active.");
 
     } catch (error) {
         console.error("❌ Map Init Error:", error);
     }
 }
-/**
- * تحديث موقع وتدوير الخرائط في الداشبورد وكار بلاي
- * @param {GeolocationPosition} pos - بيانات الموقع من المتصفح
- */
-
 
 function updateGoogleMapLocation(pos) {
     if (!pos || !pos.coords) return;
@@ -9131,27 +9128,21 @@ function updateGoogleMapLocation(pos) {
     const { latitude: lat, longitude: lng, heading } = pos.coords;
     const newLatLng = { lat, lng };
 
-    // 1. حساب زاوية الاتجاه (Heading)
+    // 1. حساب الزاوية (Heading) من الحساسات أو عبر المسار
     let currentHeading = 0;
-
     if (heading !== null && !isNaN(heading)) {
-        // استخدام بيانات الحساس المباشرة (Compass)
         currentHeading = heading;
     } else if (appState.currentLocation) {
-        // حساب الزاوية رياضياً بين النقطة السابقة والحالية
         const dy = lat - appState.currentLocation.lat;
         const dx = Math.cos(Math.PI / 180 * lat) * (lng - appState.currentLocation.lng);
-        
-        // التحقق من أن السيارة تتحرك فعلياً لتجنب التدوير العشوائي عند التوقف
         if (Math.abs(dx) > 0.00001 || Math.abs(dy) > 0.00001) {
             currentHeading = Math.atan2(dx, dy) * (180 / Math.PI);
         } else {
-            // المحافظة على آخر زاوية إذا كانت السيارة متوقفة
             currentHeading = dashboardGoogleMap ? dashboardGoogleMap.getHeading() : 0;
         }
     }
 
-    // 2. تحديث الحالة العالمية للتطبيق (AppState)
+    // 2. تحديث الحالة العالمية
     appState.previousLocation = appState.currentLocation;
     appState.currentLocation = newLatLng;
     
@@ -9159,38 +9150,23 @@ function updateGoogleMapLocation(pos) {
         appState.car.direction = bearingToDirection(currentHeading);
     }
 
-    // 3. تحديث خريطة الداشبورد (إجبار التدوير والتحرك)
-    if (dashboardGoogleMap) {
-        dashboardGoogleMap.setCenter(newLatLng);
-        
-        // تطبيق التدوير فقط إذا كان المحرك يدعم الـ VECTOR
-        if (dashboardGoogleMap.getRenderingType() === google.maps.RenderingType.VECTOR) {
-            dashboardGoogleMap.setHeading(currentHeading);
-        }
-        
-        if (dashboardGoogleMarker) {
-            dashboardGoogleMarker.setPosition(newLatLng);
-        }
-    }
+    // 3. التحديث اللحظي للخريطة (التحريك والتدوير)
+    [dashboardGoogleMap, carplayGoogleMap].forEach((map, index) => {
+        if (map) {
+            map.setCenter(newLatLng);
+            map.setHeading(currentHeading); // التدوير اللحظي مع اتجاه الحركة
 
-    // 4. تحديث خريطة CarPlay (مزامنة مع الداشبورد)
-    if (carplayGoogleMap) {
-        // تحسين الأداء: لا نحدث مركز خريطة كاربلاي إلا إذا كانت ظاهرة أو السرعة > 0
-        if (currentAppIndex === appOrder.indexOf('DashboardCarPlay') || appState.car.speed > 0) {
-            carplayGoogleMap.setCenter(newLatLng);
-            carplayGoogleMap.setHeading(currentHeading);
-            updateCarPlayMediaSync();
-            
-            if (typeof carplayGoogleMarker !== 'undefined' && carplayGoogleMarker) {
-                carplayGoogleMarker.setPosition(newLatLng);
-            }
+            // تحديث مكان الماركر المناظر
+            const marker = (index === 0) ? dashboardGoogleMarker : carplayGoogleMarker;
+            if (marker) marker.setPosition(newLatLng);
         }
-    }
+    });
 
-    // 5. تحديث المؤشرات الرسومية الأخرى (البوصلة والازدحام)
+    // 4. مزامنة بقية عناصر الواجهة وشاشة الـ 3D
+    update3dScreenWidgets();
     if (typeof updateTrafficIndicators === 'function') updateTrafficIndicators();
-    if (typeof update3dScreenWidgets === 'function') update3dScreenWidgets();
 }
+
 async function centerMapOnUserLocation() { 
     if (navigator.geolocation) { 
         navigator.geolocation.getCurrentPosition(
@@ -10069,49 +10045,44 @@ function updateDigitalClock() {
  * to the Google Map object in the Dashboard for an oriented view.
  */
 function update3dScreenWidgets() {
-    // مراجع عناصر ويدجت الشاشة 3D
+    // 1. جلب مراجع العناصر في شاشة Map (الـ 3D)
     const weatherTempEl = document.getElementById('3d-screen-weather-temp');
     const nextPrayerEl = document.getElementById('3d-screen-next-prayer');
     const speedEl = document.getElementById('3d-screen-speed');
     const gearEl = document.getElementById('3d-screen-gear');
     const dirEl = document.getElementById('3d-screen-dir');
 
-    // 1. تحديث معلومات القيادة والطقس (الجانب الأيسر والأيمن)
-    
-    // تحديث درجة الحرارة
+    // 2. تحديث البيانات النصية
     if (weatherTempEl) {
         const temp = appState.weather.temperature !== null ? Math.round(appState.weather.temperature) : '--';
         weatherTempEl.textContent = `${temp}°C`;
     }
     
-    // تحديث معلومات القيادة
-    const currentCarDirection = appState.car.direction; // N, NE, E, etc.
-    
     if (nextPrayerEl) nextPrayerEl.textContent = appState.prayerTimes.nextPrayer || '--';
     if (speedEl) speedEl.textContent = `${appState.car.speed} km/h`;
     if (gearEl) gearEl.textContent = appState.car.gear;
-    if (dirEl) dirEl.textContent = currentCarDirection; // لعرض الاتجاه الحرفي
 
-    // --- 2. 🧭 تطبيق Heading على خريطة Dashboard ---
-    if (dashboardGoogleMap) {
-        // تحويل الاتجاه الحرفي (N, SW) إلى درجة رقمية (0-360)
-        const numericHeading = directionToDegrees(currentCarDirection); 
+    // 3. تدوير الخريطة بناءً على البوصلة النصية (NW, S, etc.) لضمان التطابق
+    const currentCarDirection = appState.car.direction; 
+    if (dirEl) dirEl.textContent = currentCarDirection;
+
+    if (dashboardGoogleMap && typeof directionToDegrees === 'function') {
+        const numericHeading = directionToDegrees(currentCarDirection);
         
-        // 🛑 الخطوة الحاسمة: تطبيق Heading على الخريطة
-        dashboardGoogleMap.setHeading(numericHeading); 
+        // تطبيق تدوير الخريطة فوراً ليتطابق مع اتجاه البوصلة
+        dashboardGoogleMap.setHeading(numericHeading);
         
-        // 💡 للحصول على تأثير أفضل، يجب أن تركز الخريطة على الموقع الحالي أيضاً
-        if (appState.currentLocation) {
-            dashboardGoogleMap.setCenter(appState.currentLocation);
+        // مزامنة خريطة كار بلاي إذا كنا في شاشتها
+        if (carplayGoogleMap && currentAppIndex === appOrder.indexOf('DashboardCarPlay')) {
+            carplayGoogleMap.setHeading(numericHeading);
         }
     }
 
-    // --- 3. تحديث ويدجت البوصلة و القمر ---
-    // تحديث أزرار البوصلة (Direction Buttons) لإضاءة الزر المناظر
-    updateDirectionButtons(); 
+    // 4. تحديث أزرار الاتجاهات (Compass Buttons) لإضاءة الاتجاه الحالي
+    updateDirectionButtons();
     
-    // تحديث ويدجت القمر (يظهر فقط ليلاً)
-    update3dMoonWidget(); 
+    // 5. تحديث ويدجت القمر في الشاشة 3D
+    if (typeof update3dMoonWidget === 'function') update3dMoonWidget();
 }
         /**
  * NEW: Updates the Moon Widget in the 3D screen using data from fetchWeatherData.
