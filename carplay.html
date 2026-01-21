@@ -9008,7 +9008,6 @@ async function initMaps() {
         const commonConfigs = {
             center: appState.currentLocation || { lat: 17.067330, lng: 54.160190 },
             mapTypeId: 'roadmap',
-            mapId: '6c6951a9289b612a97923702', 
             disableDefaultUI: false,
             renderingType: google.maps.RenderingType.VECTOR,
             headingInteractionEnabled: true, // تفعيل التدوير للكل
@@ -9019,6 +9018,7 @@ async function initMaps() {
         // 2. --- أ. خريطة الداشبورد (الآن أصبحت هي القوية والنشطة) ---
         dashboardGoogleMap = new google.maps.Map(mainMapElement, {
             ...commonConfigs,
+            mapId: '6c6951a9289b612af6d86b8d',
             zoom: 20,          // زووم قريب جداً وتفصيلي للداشبورد
             tilt: 80,          // أقصى إمالة لرؤية الأفق والمباني (قيمة كاربلاي سابقاً)
             heading: 0
@@ -9041,6 +9041,7 @@ async function initMaps() {
         if (miniMapElement) {
             carplayGoogleMap = new google.maps.Map(miniMapElement, {
                 ...commonConfigs,
+                mapId: '6c6951a9289b612a97923702', 
                 zoom: 17,          // زووم أبعد قليلاً لرؤية أشمل
                 tilt: 45,          // ميل كلاسيكي مريح (قيمة الداشبورد سابقاً)
                 heading: 0
