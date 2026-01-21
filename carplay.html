@@ -9071,70 +9071,42 @@ async function initMaps() {
         console.error("❌ Map Init Error:", error);
     }
 }
-
 function updateGoogleMapLocation(pos) {
-    if (!pos || !pos.coords) return;
+    if (!pos || !pos.coords || !dashboardGoogleMap) return;
 
     const { latitude: lat, longitude: lng, heading } = pos.coords;
     const newLatLng = { lat, lng };
+    
+    // تأكد من جلب الزاوية، وإذا كانت غير موجودة نستخدم 0
+    const currentHeading = (heading !== null && !isNaN(heading)) ? heading : 0;
 
-    // 1. حساب الزاوية (Heading)
-    let currentHeading = 0;
+    // 🚀 المفتاح هنا: استخدام moveCamera لإرسال كل الخصائص معاً
+    // هذا يمنع الخريطة من تجاهل أمر الدوران (Heading)
+    dashboardGoogleMap.moveCamera({
+        center: newLatLng,
+        heading: currentHeading,
+        tilt: 65, // نثبت الإمالة لضمان المظهر الـ 3D
+        zoom: 20  // نثبت الزووم لضمان الثبات البصري
+    });
 
-    if (heading !== null && !isNaN(heading)) {
-        // أ. استخدام الزاوية القادمة من مستشعر الجهاز (GPS/Compass)
-        currentHeading = heading;
-    } else if (appState.currentLocation) {
-        // ب. (احتياطي) حساب الزاوية يدوياً بناءً على المسار المحرك
-        const dy = lat - appState.currentLocation.lat;
-        const dx = Math.cos(Math.PI / 180 * lat) * (lng - appState.currentLocation.lng);
-        const angle = Math.atan2(dx, dy) * (180 / Math.PI);
-        
-        // لا نغير الاتجاه إلا إذا كانت السيارة تتحرك فعلياً لتجنب الاهتزاز
-        if (Math.abs(dx) > 0.00001 || Math.abs(dy) > 0.00001) {
-            currentHeading = angle;
-        } else {
-            // إذا كانت السيارة متوقفة، نحافظ على آخر اتجاه معروف
-            currentHeading = dashboardGoogleMap ? dashboardGoogleMap.getHeading() : 0;
-        }
-    }
-
-    // 2. تحديث الحالة العامة للتطبيق
-    appState.currentLocation = newLatLng;
-    if (typeof bearingToDirection === 'function') {
-        appState.car.direction = bearingToDirection(currentHeading);
-    }
-
-    // 3. تحديث خريطة الداشبورد (الرئيسية)
-    if (dashboardGoogleMap) {
-        dashboardGoogleMap.setCenter(newLatLng);
-        // التدوير الحي: تدوير الخريطة لتكون للأمام دائماً
-        dashboardGoogleMap.setHeading(currentHeading); 
-        
-        if (dashboardGoogleMarker) {
-            dashboardGoogleMarker.setPosition(newLatLng);
-        }
-    }
-
-    // 4. تحديث خريطة CarPlay (المصغرة)
+    // مزامنة خريطة CarPlay بنفس الأسلوب
     if (carplayGoogleMap) {
-        carplayGoogleMap.setCenter(newLatLng);
-        // مزامنة التدوير مع الخريطة الرئيسية
-        carplayGoogleMap.setHeading(currentHeading);
+        carplayGoogleMap.moveCamera({
+            center: newLatLng,
+            heading: currentHeading,
+            tilt: 45
+        });
         
         if (typeof carplayGoogleMarker !== 'undefined' && carplayGoogleMarker) {
             carplayGoogleMarker.setPosition(newLatLng);
         }
     }
 
-    // 5. تحديث العناصر التفاعلية الأخرى
-    if (typeof updateTrafficIndicators === 'function') {
-        updateTrafficIndicators(); // تحديث ألوان الازدحام بناءً على الموقع الجديد
-    }
+    // تحديث الماركر والحالة
+    if (dashboardGoogleMarker) dashboardGoogleMarker.setPosition(newLatLng);
+    appState.currentLocation = newLatLng;
     
-    if (typeof update3dScreenWidgets === 'function') {
-        update3dScreenWidgets(); // تحديث البوصلة والبيانات في شاشة الـ 3D
-    }
+    if (typeof update3dScreenWidgets === 'function') update3dScreenWidgets();
 }
         // --- المتغير العام لحفظ مُعرّف الـ watchPosition ---
 let locationWatchId = null;
