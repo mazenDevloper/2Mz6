@@ -42,6 +42,12 @@
 #screen-DashboardCarPlay .glass-surface {
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
 }
+#dashboard-google-map {
+    /* يمنع الوميض أثناء الدوران السريع */
+    backface-visibility: hidden;
+    transform: translate3d(0, 0, 0);
+    -webkit-perspective: 1000;
+}
 
 #screen-DashboardCarPlay .navigable:focus {
     transform: scale(1.02);
@@ -9018,7 +9024,8 @@ async function initMaps() {
         // 2. --- أ. خريطة الداشبورد (الآن أصبحت هي القوية والنشطة) ---
         dashboardGoogleMap = new google.maps.Map(mainMapElement, {
             ...commonConfigs,
-            mapId: '6c6951a9289b612af6d86b8d',
+            
+             mapId: '6c6951a9289b612a97923702',
             zoom: 20,          // زووم قريب جداً وتفصيلي للداشبورد
             tilt: 80,          // أقصى إمالة لرؤية الأفق والمباني (قيمة كاربلاي سابقاً)
             heading: 0
@@ -9041,7 +9048,7 @@ async function initMaps() {
         if (miniMapElement) {
             carplayGoogleMap = new google.maps.Map(miniMapElement, {
                 ...commonConfigs,
-                mapId: '6c6951a9289b612a97923702', 
+                mapId: '6c6951a9289b612af6d86b8d',
                 zoom: 17,          // زووم أبعد قليلاً لرؤية أشمل
                 tilt: 45,          // ميل كلاسيكي مريح (قيمة الداشبورد سابقاً)
                 heading: 0
@@ -9077,38 +9084,32 @@ function updateGoogleMapLocation(pos) {
     const { latitude: lat, longitude: lng, heading } = pos.coords;
     const newLatLng = { lat, lng };
     
-    // تأكد من جلب الزاوية، وإذا كانت غير موجودة نستخدم 0
-    const currentHeading = (heading !== null && !isNaN(heading)) ? heading : 0;
+    // استخدام الاتجاه القادم من السنسور أو الحفاظ على الاتجاه الحالي
+    const currentHeading = (heading !== null && !isNaN(heading)) ? heading : dashboardGoogleMap.getHeading();
 
-    // 🚀 المفتاح هنا: استخدام moveCamera لإرسال كل الخصائص معاً
-    // هذا يمنع الخريطة من تجاهل أمر الدوران (Heading)
+    // 🚀 التحديث الموحد (السر وراء نجاح الاختبار)
     dashboardGoogleMap.moveCamera({
         center: newLatLng,
         heading: currentHeading,
-        tilt: 65, // نثبت الإمالة لضمان المظهر الـ 3D
-        zoom: 20  // نثبت الزووم لضمان الثبات البصري
+        tilt: 70, // لضمان بقاء المنظر 3D
+        zoom: 20
     });
 
-    // مزامنة خريطة CarPlay بنفس الأسلوب
+    // مزامنة CarPlay
     if (carplayGoogleMap) {
         carplayGoogleMap.moveCamera({
             center: newLatLng,
             heading: currentHeading,
             tilt: 45
         });
-        
-        if (typeof carplayGoogleMarker !== 'undefined' && carplayGoogleMarker) {
-            carplayGoogleMarker.setPosition(newLatLng);
-        }
     }
 
-    // تحديث الماركر والحالة
+    // تحديث مكان الماركر (السيارة)
     if (dashboardGoogleMarker) dashboardGoogleMarker.setPosition(newLatLng);
-    appState.currentLocation = newLatLng;
     
-    if (typeof update3dScreenWidgets === 'function') update3dScreenWidgets();
+    // تحديث الحالة
+    appState.currentLocation = newLatLng;
 }
-        // --- المتغير العام لحفظ مُعرّف الـ watchPosition ---
 let locationWatchId = null;
 
 /**
