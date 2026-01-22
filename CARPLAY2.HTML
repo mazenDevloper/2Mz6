@@ -2934,24 +2934,32 @@ div#map{display:none}
             </div>
         </div>
 
-        <div class="col-span-4 row-span-4 glass-surface glass-surface--svg rounded-[2.5rem] p-6 flex flex-col items-center justify-between border border-white/20 shadow-xl navigable grid-item" tabindex="0">
-            <div class="w-full flex justify-between items-center mb-2">
-                <span class="text-xs font-bold text-white/50 tracking-widest uppercase">Now Playing</span>
-                <i data-lucide="music" class="w-4 h-4 text-purple-400"></i>
-            </div>
-            <img id="carplay-media-thumb" src="https://i.ytimg.com/vi/vzkrqeodX6s/mqdefault.jpg" class="w-32 h-32 rounded-3xl object-cover shadow-2xl border-2 border-white/10 mb-4 animate-pulse-slow">
-            <div class="text-center w-full">
-                <h3 id="carplay-media-title" class="text-lg font-bold truncate">لا يوجد مقطع حالياً</h3>
-                <p id="carplay-media-channel" class="text-sm text-white/60">يوتيوب ميديا</p>
-            </div>
-            <div class="flex gap-6 mt-4 items-center">
-                <i data-lucide="skip-back" class="w-6 h-6 opacity-50"></i>
-                <div class="p-4 bg-white/10 rounded-full border border-white/20 shadow-lg">
-                    <i data-lucide="play" class="w-8 h-8 fill-white"></i>
-                </div>
-                <i data-lucide="skip-forward" class="w-6 h-6 opacity-50"></i>
-            </div>
+<div id="carplay-card" class="col-span-4 row-span-4 glass-surface rounded-[2.5rem] p-6 flex flex-col items-center justify-between border border-white/20 shadow-xl navigable">
+    <div class="w-full flex justify-between items-center mb-2">
+        <span id="carplay-weather-temp" class="text-xs font-bold text-white/50 tracking-widest uppercase">0°</span>
+        <i data-lucide="music" class="w-4 h-4 text-purple-400"></i>
+    </div>
+
+    <img id="carplay-media-thumb" src="" class="w-32 h-32 rounded-3xl object-cover shadow-2xl border-2 border-white/10 mb-4">
+
+    <div class="text-center w-full">
+        <h3 id="carplay-media-title" class="text-lg font-bold truncate">Loading...</h3>
+        <p id="carplay-media-channel" class="text-sm text-white/60 mb-2">YouTube</p>
+        
+        <div class="flex justify-center gap-2 opacity-80">
+            <span id="carplay-next-prayer-name" class="text-[10px] bg-purple-500/20 px-2 py-0.5 rounded-full text-purple-300">--</span>
+            <span id="carplay-next-prayer-time" class="text-[10px] text-white/50">--:--</span>
         </div>
+    </div>
+
+    <div class="flex gap-6 mt-4 items-center">
+        <div id="carplay-capsule-prev" class="cursor-pointer"><i data-lucide="skip-back" class="w-6 h-6"></i></div>
+        <div id="carplay-capsule-play-pause" class="p-4 bg-white/10 rounded-full border border-white/20 cursor-pointer">
+            <i data-lucide="play" class="w-8 h-8 fill-white"></i>
+        </div>
+        <div id="carplay-capsule-next" class="cursor-pointer"><i data-lucide="skip-forward" class="w-6 h-6"></i></div>
+    </div>
+</div>
 
         <div class="col-span-4 row-span-3 glass-surface glass-surface--svg rounded-[2.5rem] p-5 flex flex-col justify-center border border-white/20 shadow-xl navigable grid-item" tabindex="0">
              <div class="flex items-center gap-3 mb-4 bg-white/5 p-3 rounded-2xl border border-white/10">
@@ -3344,6 +3352,7 @@ div#map{display:none}
     <script>
 
 window.isYouTubeApiReady = false;
+
 
 // 1. الدالة التي يناديها اليوتيوب تلقائياً عند انتهاء التحميل
 window.onYouTubeIframeAPIReady = function() {
@@ -5775,92 +5784,80 @@ function updateUI() {
     }
 
 }
+
 function updateCarPlayDashboard() {
-    // --- 1. تحديث الطقس والصلاة والسرعة ---
-    const tempEl = document.getElementById('carplay-weather-temp');
-    if (tempEl) tempEl.textContent = `${Math.round(appState.weather.temperature || 0)}°`;
+    // 1. المرجع العالمي الآمن للمشغل
+    const player = window.popupPlayer || window.player;
     
-    const nextPrayerName = document.getElementById('carplay-next-prayer-name');
-    const nextPrayerTime = document.getElementById('carplay-next-prayer-time');
-    if (nextPrayerName) nextPrayerName.textContent = appState.prayerTimes.nextPrayer || '--';
-    if (nextPrayerTime && appState.prayerTimes.nextPrayerIqamaTime) {
-        nextPrayerTime.textContent = appState.prayerTimes.nextPrayerIqamaTime.toLocaleTimeString('ar-SA', { hour: 'numeric', minute: '2-digit', hour12: true });
-    }
+    // 2. تحديث بيانات (الصلاة والطقس) - تعمل دائماً حتى لو الفيديو متوقف
+    try {
+        const prayerName = document.getElementById('carplay-next-prayer-name');
+        const prayerTime = document.getElementById('carplay-next-prayer-time');
+        const weatherTemp = document.getElementById('carplay-weather-temp');
 
-    const speedEl = document.getElementById('carplay-speed');
-    if (speedEl) speedEl.innerHTML = `${appState.car.speed} <small class="text-xs font-normal opacity-60">km/h</small>`;
+        if (prayerName) prayerName.textContent = appState.prayerTimes.nextPrayer || '--';
+        if (prayerTime && appState.prayerTimes.nextPrayerIqamaTime) {
+            prayerTime.textContent = appState.prayerTimes.nextPrayerIqamaTime.toLocaleTimeString('ar-SA', { hour: 'numeric', minute: '2-digit', hour12: true });
+        }
+        if (weatherTemp) weatherTemp.textContent = appState.weather.temperature !== null ? `${Math.round(appState.weather.temperature)}°` : '--°';
+    } catch (e) { console.warn("CarPlay Prayer/Weather Sync Error"); }
 
-    // --- 2. تحديث كبسولة الميديا (يوتيوب) ---
-    // نستخدم popupPlayer بناءً على منطقك الحالي
-    if (popupPlayer && typeof popupPlayer.getVideoData === 'function') {
-        const videoData = popupPlayer.getVideoData();
-        const playerState = popupPlayer.getPlayerState();
-        
-        // التحقق من وجود فيديو يعمل لتفادي الأخطاء
-        if (videoData && videoData.title) {
-            // أ. تحديث النصوص (العنوان والقناة)
-            const titleEl = document.getElementById('carplay-media-title');
-            const channelEl = document.getElementById('carplay-media-channel');
-            if (titleEl) titleEl.textContent = videoData.title;
-            if (channelEl) channelEl.textContent = videoData.author || "YouTube Media";
+    // 3. تحديث بيانات اليوتيوب (فقط إذا كان هناك فيديو محمل)
+    if (player && typeof player.getVideoData === 'function') {
+        try {
+            const videoData = player.getVideoData();
+            const playerState = player.getPlayerState();
+            
+            // التحقق من وجود ID للفيديو لضمان عدم تحديث بيانات فارغة
+            if (videoData && videoData.video_id) {
+                const titleEl = document.getElementById('carplay-media-title');
+                const channelEl = document.getElementById('carplay-media-channel');
+                const thumbEl = document.getElementById('carplay-media-thumb');
+                const playBtn = document.getElementById('carplay-capsule-play-pause');
 
-            // ب. تحديث الصورة (Thumbnail)
-            const thumbImg = document.getElementById('carplay-media-thumb');
-            if (thumbImg) {
-                const newThumb = `https://i.ytimg.com/vi/${videoData.video_id}/mqdefault.jpg`;
-                if (thumbImg.src !== newThumb) {
-                    thumbImg.src = newThumb;
+                if (titleEl) titleEl.textContent = videoData.title;
+                if (channelEl) channelEl.textContent = videoData.author;
+                if (thumbEl) {
+                    const thumbUrl = `https://i.ytimg.com/vi/${videoData.video_id}/mqdefault.jpg`;
+                    if (thumbEl.src !== thumbUrl) thumbEl.src = thumbUrl;
+                }
+
+                // مزامنة أيقونة التشغيل (Play/Pause)
+                if (playBtn) {
+                    const isPlaying = (playerState === 1); // 1 = PLAYING
+                    playBtn.innerHTML = isPlaying ? '<i data-lucide="pause"></i>' : '<i data-lucide="play"></i>';
+                    if (window.lucide) lucide.createIcons();
                 }
             }
-            
-            // --- 3. ربط أزرار التحكم ---
-            
-            // زر التشغيل/الإيقاف المؤقت
-            const playBtnContainer = document.querySelector('.media-info-controls-play'); // أو الـ ID الخاص بك
-            const isPlaying = (playerState === YT.PlayerState.PLAYING);
-            
-            if (playBtnContainer) {
-                // تحديث الأيقونة داخل الحاوية
-                playBtnContainer.innerHTML = isPlaying ? 
-                    '<i data-lucide="pause" class="w-8 h-8 fill-white"></i>' : 
-                    '<i data-lucide="play" class="w-8 h-8 fill-white"></i>';
-                
-                playBtnContainer.onclick = (e) => {
-                    e.stopPropagation();
-                    if (isPlaying) popupPlayer.pauseVideo();
-                    else popupPlayer.playVideo();
-                    // تحديث سريع للواجهة
-                    setTimeout(updateCarPlayDashboard, 150);
-                };
-            }
-
-            // زر "التالي" و "السابق" (نستخدم الكلاسات المتاحة في الـ HTML الخاص بك)
-            const nextBtn = document.querySelector('[data-lucide="skip-forward"]')?.parentElement;
-            const prevBtn = document.querySelector('[data-lucide="skip-back"]')?.parentElement;
-
-            if (nextBtn) {
-                nextBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    if (typeof playNextVideo === 'function') playNextVideo();
-                    else popupPlayer.nextVideo();
-                };
-            }
-
-            if (prevBtn) {
-                prevBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    if (typeof playPrevVideo === 'function') playPrevVideo();
-                    else popupPlayer.previousVideo();
-                };
-            }
-
-            // إعادة رندرة الأيقونات من مكتبة Lucide
-            if (window.lucide) {
-                lucide.createIcons();
-            }
-        }
+        } catch (mediaError) { console.warn("CarPlay Media Sync Pending..."); }
     }
 }
+
+// --- 2. محرك المراقبة (The Engine) ---
+// هذا الجزء يضمن التحديث في حالتين: دورياً وعند تغيير حالة الفيديو
+function initCarPlaySync() {
+    // تحديث كل ثانية لضمان دقة البيانات (الطقس والصلاة)
+    setInterval(updateCarPlayDashboard, 1000);
+
+    // ربط الأزرار فعلياً بالمشغل
+    const controls = {
+        'carplay-capsule-play-pause': () => {
+            const state = popupPlayer.getPlayerState();
+            state === 1 ? popupPlayer.pauseVideo() : popupPlayer.playVideo();
+            setTimeout(updateCarPlayDashboard, 100);
+        },
+        'carplay-capsule-next': () => popupPlayer.nextVideo(),
+        'carplay-capsule-prev': () => popupPlayer.previousVideo()
+    };
+
+    Object.entries(controls).forEach(([id, action]) => {
+        const el = document.getElementById(id);
+        if (el) el.onclick = (e) => { e.stopPropagation(); action(); };
+    });
+}
+
+// تشغيل النظام
+initCarPlaySync();
 
         // --- App Switching and Navigation Logic ---
 const appOrder = ['Dashboard', 'Media', 'DashboardCarPlay', 'Radio', 'Athkar', 'Reciters', 'Weather', 'Map', 'Quran'];
@@ -5886,65 +5883,67 @@ const appOrder = ['Dashboard', 'Media', 'DashboardCarPlay', 'Radio', 'Athkar', '
     if (screen) screen.classList.add('active');
     const icon = document.querySelector(`.app-icon[data-app="${appName}"]`);
     if (icon) icon.classList.add('active');
-if (appName === 'DashboardCarPlay' && isVideoPlaying) {
-    carplayGoogleMap.setOptions({
-        tilt: 45, // تقليل الميل يقلل عدد المباني المرندرة
-        isFractionalZoomEnabled: false // تحسين الأداء
-    });
-}
+
 const floatingVideo = document.getElementById('floating-minimized-video-button');
 const minimizeBtn = document.getElementById('video-popup-minimize-button');
 const restoreBtn = document.querySelector('.minimized-restore-btn');
 
 if (appName === 'DashboardCarPlay') {
-        // 1. إدارة الفيديو (التصغير الآلي للتحول إلى كبسولة)
-        // نبحث عن زر التصغير الأصلي في البوب أب ونضغط عليه آلياً
-        const minimizeBtn = document.getElementById('video-popup-minimize-button');
-        if (appState.isVideoPlayerActive && minimizeBtn) {
-            minimizeBtn.click(); 
-        }
+    // 1. إدارة الفيديو: التحويل التلقائي للوضع المصغر (Capsule)
+    const popupContainer = document.getElementById('video-popup-container');
+    const isPopupActive = popupContainer && popupContainer.classList.contains('active');
+    const minimizeBtn = document.getElementById('video-popup-minimize-button');
 
-        // 2. تحديث بيانات واجهة CarPlay (الطقس، الصلاة، السرعة، الميديا)
+    if (isPopupActive && minimizeBtn) {
+        minimizeBtn.click(); 
+    }
+
+    // 2. تحديث موحد للواجهة والخريطة (Unified UI & Map Refresh)
+    // نستخدم تأخير بسيط (150ms) لضمان أن المتصفح قام برسم حاوية CarPlay أولاً
+    setTimeout(() => {
+        // أ. تحديث النصوص (يوتيوب، صلاة، طقس)
         if (typeof updateCarPlayDashboard === 'function') {
             updateCarPlayDashboard();
         }
 
-        // 3. إنعاش ومعالجة الخريطة ثلاثية الأبعاد (3D Map)
-        setTimeout(() => {
-            if (carplayGoogleMap) {
-                // إجبار الخريطة على حساب أبعاد الحاوية الجديدة
-                google.maps.event.trigger(carplayGoogleMap, 'resize');
+        // ب. معالجة الخريطة ثلاثية الأبعاد
+        if (carplayGoogleMap) {
+            // إجبار الخريطة على حساب أبعاد الحاوية (حل مشكلة المساحة السوداء)
+            google.maps.event.trigger(carplayGoogleMap, 'resize');
+            
+            if (appState.currentLocation) {
+                // ضبط المركز والزووم والميل الاحترافي
+                carplayGoogleMap.setCenter(appState.currentLocation);
+                carplayGoogleMap.setZoom(18); 
+                carplayGoogleMap.setTilt(45);
                 
-                if (appState.currentLocation) {
-                    // ضبط المركز والميل (Tilt 45) والزووم
-                    carplayGoogleMap.setCenter(appState.currentLocation);
-                    carplayGoogleMap.setZoom(18); 
-                    carplayGoogleMap.setTilt(45);
-                    
-                    // تدوير الخريطة لتكون موجهة للأمام (Heading Up)
-                    if (typeof directionToDegrees === 'function') {
-                        const currentHeading = directionToDegrees(appState.car.direction);
-                        carplayGoogleMap.setHeading(currentHeading);
-                    }
+                // مزامنة اتجاه الخريطة مع اتجاه السيارة
+                if (typeof directionToDegrees === 'function') {
+                    const currentHeading = directionToDegrees(appState.car.direction);
+                    carplayGoogleMap.setHeading(currentHeading);
                 }
             }
-            
-            // تحديث نص الموقع الجغرافي
-            const locationText = document.getElementById('carplay-location-text');
-            if (locationText) {
-                locationText.textContent = appState.weather.location || "موقعك الحالي";
-            }
-        }, 150); // تأخير بسيط لضمان استقرار الواجهة قبل الرسم
-
-    } else {
-        // 4. منطق الخروج من CarPlay إلى أي شاشة أخرى (إعادة البوب أب)
-        // نبحث عن زر الاستعادة (الذي يظهر عند تصغير الفيديو) ونضغط عليه آلياً
-        const restoreBtn = document.getElementById('floating-minimized-video-button');
-        if (appState.isVideoPlayerActive && restoreBtn) {
-            // نتحقق إذا كان الفيديو مصغراً حالياً قبل الضغط
-            restoreBtn.click();
         }
+
+        // ج. تحديث نص الموقع الجغرافي
+        const locationText = document.getElementById('carplay-location-text');
+        if (locationText) {
+            locationText.textContent = appState.weather.location || "موقعك الحالي";
+        }
+        
+        console.log("✅ CarPlay View Sync Complete.");
+    }, 150);
+
+} else {
+    // 3. منطق الخروج من CarPlay: استعادة المشغل تلقائياً إذا كان يعمل
+    const restoreBtn = document.getElementById('floating-minimized-video-button');
+    // نتحقق من أن زر الاستعادة مرئي (أي أن الفيديو مصغر)
+    const isMinimized = restoreBtn && restoreBtn.style.display !== 'none';
+
+    if (isMinimized && typeof restoreVideoPopup === 'function') {
+        restoreVideoPopup();
     }
+}
     
     // A. المؤقتات المطلوبة في Dashboard
     if (appName === 'Dashboard') {
@@ -7348,6 +7347,7 @@ function updateMinimizedControlsState() {
     }
 }
 function onPlayerStateChange(event) {
+    updateCarPlayDashboard();
     if (event.data == YT.PlayerState.ENDED) {
         const videoData = popupPlayer.getVideoData();
         const videoId = videoData ? videoData.video_id : null;
