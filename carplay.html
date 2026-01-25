@@ -9078,6 +9078,8 @@ async function initMaps() {
             ...commonConfigs,
             
              mapId: '6c6951a9289b612a97923702',
+            mapTypeId: 'roadmap',
+    colorScheme: google.maps.ColorScheme.DARK,
             zoom: 20,          // زووم قريب جداً وتفصيلي للداشبورد
             tilt: 80,          // أقصى إمالة لرؤية الأفق والمباني (قيمة كاربلاي سابقاً)
             heading: 0
@@ -9101,6 +9103,8 @@ async function initMaps() {
             carplayGoogleMap = new google.maps.Map(miniMapElement, {
                 ...commonConfigs,
                 mapId: '6c6951a9289b612af6d86b8d',
+                            mapTypeId: 'roadmap',
+    colorScheme: google.maps.ColorScheme.DARK,
                 zoom: 17,          // زووم أبعد قليلاً لرؤية أشمل
                 tilt: 45,          // ميل كلاسيكي مريح (قيمة الداشبورد سابقاً)
                 heading: 0
