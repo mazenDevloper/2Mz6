@@ -8537,75 +8537,65 @@ async function handleSearchForReciterChannel() {
         // ... (بقية منطق التحميل) ...
     }
 }
-
-let carModel; // مرجع عالمي للسيارة
+// المتغير العالمي للوصول للسيارة
+let carModel; 
 
 async function setup3DCarMarker(map, initialPosition) {
-    console.log("🚀 [3D Init] Step 1: Function triggered.");
+    console.log("🚀 [3D System] Starting Final Setup...");
 
-    // 1. فحص وجود المكتبات في النطاق العالمي
+    // 1. حارس المكتبات: انتظار تحميل Three.js و GLTFLoader
     let retries = 0;
-    while (!window.THREE || (!window.GLTFLoader && !THREE.GLTFLoader)) {
-        if (retries > 10) {
-            console.error("❌ [3D Init] Error: Three.js or GLTFLoader timeout after 5s.");
-            return;
-        }
-        console.warn(`⏳ [3D Init] Waiting for libraries... Attempt ${retries + 1}`);
+    while (!window.THREE || !window.GLTFLoader) {
+        if (retries > 15) return console.error("❌ Three.js Libraries not found.");
         await new Promise(r => setTimeout(r, 500));
         retries++;
     }
-    console.log("✅ [3D Init] Step 2: Libraries found in window.");
 
-    // 2. تحديد نوع الـ Loader المتاح
-    let loader;
-    try {
-        if (window.GLTFLoader) {
-            loader = new window.GLTFLoader();
-            console.log("📦 [3D Init] Using window.GLTFLoader");
-        } else {
-            loader = new THREE.GLTFLoader();
-            console.log("📦 [3D Init] Using THREE.GLTFLoader");
-        }
-    } catch (e) {
-        console.error("❌ [3D Init] Failed to construct GLTFLoader:", e);
-        return;
-    }
-
+    const loader = new window.GLTFLoader();
     const overlay = new google.maps.WebGLOverlayView();
-    const modelUrl = 'https://dmusera.netlify.app/ES350E.glb?nocache=' + Date.now();
-
-// داخل overlay.onAdd
-loader.setCrossOrigin('anonymous'); // ضروري جداً للسماح بالسحب من Netlify
+    // استخدام nocache لضمان جلب أحدث نسخة من ملف Netlify
+    const modelUrl = 'https://dmusera.netlify.app/ES350E.glb?v=' + Date.now();
 
     overlay.onAdd = () => {
-        console.log("🎬 [3D Overlay] onAdd triggered. Creating Scene...");
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera();
 
-        // إضاءة
-        const ambientLight = new THREE.AmbientLight(0xffffff, 2.0);
+        // 2. 🎨 ضبط الإضاءة الاحترافية لإظهار ألوان الـ Lexus
+        // ضوء محيطي خفيف لملء الظلال
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7); 
         scene.add(ambientLight);
-        const sunLight = new THREE.DirectionalLight(0xffffff, 1.5);
-        sunLight.position.set(0, 50, 50);
+        
+        // ضوء موجه (مثل الشمس) لإعطاء لمعان وانعكاسات
+        const sunLight = new THREE.DirectionalLight(0xffffff, 1.2);
+        sunLight.position.set(10, 20, 10);
         scene.add(sunLight);
-        console.log("💡 [3D Overlay] Lights and Scene ready.");
 
-        // تحميل الملف
-        console.log(`📥 [3D Loader] Starting fetch for: ${modelUrl}`);
+        // 3. 📥 تحميل الموديل ومعالجة الإزاحة والحجم
         loader.load(modelUrl, (gltf) => {
             carModel = gltf.scene;
-            carModel.scale.set(15, 15, 15); 
-            carModel.rotation.x = Math.PI / 2; // تعديل المحور لسيارة ES350
+            
+            // ضبط الحجم النهائي (18 هو الحجم المثالي لزووم 20)
+            carModel.scale.set(18, 18, 18); 
+            
+            // تدوير الموديل ليكون مستوياً مع الأرض
+            carModel.rotation.x = Math.PI / 2; 
+
+            // 📍 تصحيح الإزاحة لليسار: تحريك مركز المجسم لليمين قليلاً (0.8)
+            // جرب تغيير 0.8 إلى 1.0 إذا كنت لا تزال تراها يساراً
+            carModel.position.set(0.8, 0, 0); 
+            
+            // التأكد من تفعيل الألوان والظلال لكل جزء من السيارة
+            carModel.traverse((child) => {
+                if (child.isMesh) {
+                    child.material.needsUpdate = true;
+                    child.castShadow = true;
+                }
+            });
+
             scene.add(carModel);
-            console.log("🚗 [3D Loader] SUCCESS: Lexus ES350 model added to Scene.");
-        }, (xhr) => {
-            // تتبع نسبة التحميل
-            if (xhr.lengthComputable) {
-                const percent = (xhr.loaded / xhr.total * 100).toFixed(0);
-                console.log(`⏳ [3D Loader] Progress: ${percent}%`);
-            }
-        }, (error) => {
-            console.error("❌ [3D Loader] Error loading GLB:", error);
+            console.log("✅ Lexus ES350 Ready & Centered.");
+        }, undefined, (error) => {
+            console.error("❌ Error loading GLB:", error);
         });
 
         overlay.scene = scene;
@@ -8613,10 +8603,10 @@ loader.setCrossOrigin('anonymous'); // ضروري جداً للسماح بالس
     };
 
     overlay.onContextRestored = ({ gl }) => {
-        console.log("🛠️ [3D Overlay] WebGL Context Restored.");
         overlay.renderer = new THREE.WebGLRenderer({
             canvas: gl.canvas,
             context: gl,
+            antialias: true, // تنعيم الحواف
             ...gl.getContextAttributes(),
         });
         overlay.renderer.autoClear = false;
@@ -8626,25 +8616,25 @@ loader.setCrossOrigin('anonymous'); // ضروري جداً للسماح بالس
         const { scene, camera, renderer } = overlay;
         if (!scene || !camera || !renderer) return;
 
-        // مزامنة الكاميرا مع موقع الخريطة
+        // 4. 📐 مصفوفة العرض (تحديد الارتفاع فوق الإسفلت)
         const matrix = transformer.fromLatLngAltitude({
             lat: initialPosition.lat,
             lng: initialPosition.lng,
-            altitude: 1.0 // رفعناها قليلاً للتأكد من رؤيتها
+            altitude: 0.1 // ارتفاع بسيط جداً لمنع التداخل مع الطريق
         });
         camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
 
-        // تدوير السيارة بناءً على اتجاه البوصلة
+        // 5. 🧭 مزامنة الاتجاه مع البوصلة
         if (carModel && appState.car && appState.car.direction) {
             const heading = directionToDegrees(appState.car.direction);
-            carModel.rotation.y = -(heading * Math.PI) / 180;
+            const rotationAngle = (heading * Math.PI) / 180;
+            carModel.rotation.y = -rotationAngle; 
         }
 
         renderer.render(scene, camera);
         overlay.requestRedraw();
     };
 
-    console.log("🗺️ [3D Init] Step 3: Attaching Overlay to Map.");
     overlay.setMap(map);
 }
 
