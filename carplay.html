@@ -13,6 +13,7 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <title>CarPlay</title>
+   
     <!-- Tailwind CSS CDN for utility classes -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons for modern, customizable SVG icons -->
@@ -21,6 +22,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <!-- Chart.js for the new weekly forecast chart -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+
     <!-- YouTube Iframe API -->
     <script src="https://www.youtube.com/iframe_api"></script>
     <link 
@@ -683,6 +686,16 @@ div#channel-search-results {
     cursor: pointer;
     backdrop-filter: blur(5px);
     transition: all 0.3s ease;
+}
+
+img#dash-nasa-moon {
+    HEIGHT: 9REM;
+    WIDTH: 9REM;
+}
+
+img#dash-media-thumb {
+    HEIGHT: 100%!IMPORTANT;
+    WIDTH: auto;
 }
 
 /* --- CSS Required for Traffic Buttons --- */
@@ -3415,6 +3428,24 @@ div#map{display:none}
         </button>
         </div>
     </div>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.152.0/build/three.module.js",
+      "three/examples/jsm/loaders/GLTFLoader": "https://unpkg.com/three@0.152.0/examples/jsm/loaders/GLTFLoader.js"
+    }
+  }
+</script>
+
+<script type="module">
+  import * as THREE from 'three';
+  import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+  
+  // هذه الخطوة هي الأهم: تجعل المكتبة مرئية لكل الملفات الأخرى
+  window.THREE = THREE;
+  window.GLTFLoader = GLTFLoader; 
+  console.log("✅ Three.js & GLTFLoader are now Global");
+</script>
 
     <script>
 let carplayRotationIndex = 0;
@@ -6061,6 +6092,7 @@ function updateCarPlayDashboard() {
                 const titleEl = document.getElementById('carplay-media-title');
                 const channelEl = document.getElementById('carplay-media-channel');
                 const thumbEl = document.getElementById('carplay-media-thumb');
+                const thumbEl1 = document.getElementById('dash-media-thumb');
                 const playBtn = document.getElementById('carplay-capsule-play-pause');
 
                 if (titleEl) titleEl.textContent = videoData.title;
@@ -6068,6 +6100,10 @@ function updateCarPlayDashboard() {
                 if (thumbEl) {
                     const thumbUrl = `https://i.ytimg.com/vi/${videoData.video_id}/mqdefault.jpg`;
                     if (thumbEl.src !== thumbUrl) thumbEl.src = thumbUrl;
+                }
+                if (thumbEl1) {
+                    const thumbUrl = `https://i.ytimg.com/vi/${videoData.video_id}/mqdefault.jpg`;
+                    if (thumbEl1.src !== thumbUrl) thumbEl1.src = thumbUrl;
                 }
 
                 // مزامنة أيقونة التشغيل (Play/Pause)
@@ -6093,6 +6129,7 @@ function forceUpdateCarPlayMedia(activePlayer) {
     const titleEl = document.getElementById('carplay-media-title');
     const channelEl = document.getElementById('carplay-media-channel');
     const thumbEl = document.getElementById('carplay-media-thumb');
+    const thumbEl1 = document.getElementById('dash-media-thumb');
 
     if (titleEl) titleEl.textContent = vData.title;
     if (channelEl) channelEl.textContent = vData.author;
@@ -6100,7 +6137,10 @@ function forceUpdateCarPlayMedia(activePlayer) {
         // نستخدم hqdefault لضمان جودة الصورة وسرعة التحميل
         thumbEl.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
     }
-
+if (thumbEl1 && videoId) {
+        // نستخدم hqdefault لضمان جودة الصورة وسرعة التحميل
+        thumbEl1.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+    }
     // تحديث أيقونة التشغيل في الكبسولة
     const playBtn = document.getElementById('carplay-capsule-play-pause');
     if (playBtn) {
@@ -8516,12 +8556,86 @@ async function handleSearchForReciterChannel() {
         // ... (بقية منطق التحميل) ...
     }
 }
-
 /**
- * NEW: Displays the search results (channels) inside the "Add Reciter" modal.
- * It creates cards with an "Add" button, which calls handleAddReciter.
- * @param {Array} channels - List of channel search results from YouTube API.
+ * إعداد ماركر السيارة ثلاثي الأبعاد Lexus ES350
+ * يدمج بين دقة الـ GPS وسلاسة الرسوميات
  */
+
+// متغيرات التحكم العالمية لضمان السلاسة
+let carModel; 
+let currentRotation = 0; // لتخزين الزاوية الحالية لعمل انتقال ناعم
+
+async function setup3DCarMarker(map) {
+    if (!map) return;
+    
+    // التأكد من وجود المكتبات
+    if (!window.THREE || !window.GLTFLoader) {
+        console.error("❌ Three.js or GLTFLoader missing");
+        return;
+    }
+
+    const loader = new window.GLTFLoader();
+    const overlay = new google.maps.WebGLOverlayView();
+
+    overlay.onAdd = () => {
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera();
+        
+        scene.add(new THREE.AmbientLight(0xffffff, 1.5));
+        const sun = new THREE.DirectionalLight(0xffffff, 2.0);
+        sun.position.set(10, 25, 10);
+        scene.add(sun);
+
+        loader.load('https://dmusera.netlify.app/ES350E.glb', (gltf) => {
+            window.carModel = gltf.scene;
+            window.carModel.rotation.x = Math.PI / 2;
+            scene.add(window.carModel);
+            console.log("✅ Car Model Loaded into Scene");
+        });
+
+        overlay.scene = scene;
+        overlay.camera = camera;
+    };
+
+    overlay.onContextRestored = ({ gl }) => {
+        overlay.renderer = new THREE.WebGLRenderer({
+            canvas: gl.canvas, context: gl, antialias: true, alpha: true,
+            ...gl.getContextAttributes(),
+        });
+        overlay.renderer.autoClear = false;
+    };
+
+    overlay.onDraw = ({ transformer }) => {
+    const { scene, camera, renderer } = overlay;
+    if (!scene || !camera || !renderer || !window.carModel) {
+        overlay.requestRedraw();
+        return;
+    }
+
+    // 🎯 السر هنا: نستخدم نفس موقع الكاميرا أو الموقع العالمي appState
+    const pos = (window.appState && appState.currentLocation) 
+                ? appState.currentLocation 
+                : { lat: 17.015, lng: 54.092 }; // صلالة
+
+    // 📏 الحجم الكبير (1.5)
+    const zoom = map.getZoom();
+    const scaleFactor = Math.pow(2, 20 - zoom); 
+    window.carModel.scale.set(1.2 * scaleFactor, 1.2 * scaleFactor, 1.2 * scaleFactor);
+
+    // 📐 التموضع في منتصف المصفوفة
+    const matrix = transformer.fromLatLngAltitude({
+        lat: pos.lat,
+        lng: pos.lng,
+        altitude: 1.0
+    });
+    
+    camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
+
+    renderer.render(scene, camera);
+    overlay.requestRedraw(); 
+};
+    overlay.setMap(map);
+}
 function displayReciterSearchResults(channels) {
     const resultsContainer = document.getElementById('channel-search-results');
     resultsContainer.innerHTML = '';
@@ -8755,7 +8869,7 @@ button.addEventListener('click', () => {
         }
 
         // --- Google Map and Geolocation (REFACTORED FOR RELIABILITY) ---
-        let mapsInitialized = false;
+       
         
         function showGeolocationErrorOnMap(message) {
             const overlay = document.getElementById('geolocation-error-overlay');
@@ -9301,79 +9415,84 @@ function directionToDegrees(direction) {
 
 let carplayGoogleMap;   // خريطة CarPlay المصغرة
 
+let mapsInitialized = false;
+
 async function initMaps() {
+    // 1. التحقق من عدم التكرار
     if (mapsInitialized) return;
     
     try {
         const mainMapElement = document.getElementById('dashboard-google-map');
         const miniMapElement = document.getElementById('carplay-mini-map');
 
-        if (!mainMapElement) return;
+        if (!mainMapElement) {
+            console.error("❌ Main map element not found");
+            return;
+        }
 
-        // 1. 🚀 الإعدادات المشتركة لخرائط المتجهات 3D
+        // 2. 🚀 الإعدادات المشتركة لخرائط المتجهات (يجب تعريفها أولاً)
         const commonConfigs = {
-            center: appState.currentLocation || { lat: 17.067330, lng: 54.160190 },
+            center: appState.currentLocation || { lat: 17.015, lng: 54.092 }, // صلالة كإحداثيات افتراضية
             mapTypeId: 'roadmap',
-            disableDefaultUI: false,
+            disableDefaultUI: true,
             renderingType: google.maps.RenderingType.VECTOR,
-            headingInteractionEnabled: true, // تفعيل التدوير للكل
-            tiltInteractionEnabled: true,    // تفعيل الميل للكل
+            headingInteractionEnabled: true,
+            tiltInteractionEnabled: true,
             gestureHandling: 'greedy'
         };
 
-        // 2. --- أ. خريطة الداشبورد (الآن أصبحت هي القوية والنشطة) ---
-        dashboardGoogleMap = new google.maps.Map(mainMapElement, {
+        // 3. --- أ. خريطة الداشبورد (3D) ---
+        // التعديل الذهبي: جعل الخريطة Global عبر window
+        window.dashboardGoogleMap = new google.maps.Map(mainMapElement, {
             ...commonConfigs,
-            
-             mapId: '6c6951a9289b612a97923702',
-            mapTypeId: 'roadmap',
-            zoom: 20,          // زووم قريب جداً وتفصيلي للداشبورد
-            tilt: 80,          // أقصى إمالة لرؤية الأفق والمباني (قيمة كاربلاي سابقاً)
+            mapId: '6c6951a9289b612a97923702', 
+            zoom: 19.5, // زووم مناسب للـ 3D
+            tilt: 65,   // زاوية مثالية للمجسمات
             heading: 0
         });
 
+        // 🚗 حقن ماركر السيارة ثلاثي الأبعاد فوراً
+        if (typeof setup3DCarMarker === 'function') {
+            setup3DCarMarker(window.dashboardGoogleMap);
+        }
+
+        // إضافة طبقة حركة المرور
         const trafficLayerMain = new google.maps.TrafficLayer();
-        trafficLayerMain.setMap(dashboardGoogleMap);
+        trafficLayerMain.setMap(window.dashboardGoogleMap);
 
-        dashboardGoogleMarker = new google.maps.Marker({
-            position: commonConfigs.center,
-            map: dashboardGoogleMap,
-            icon: { 
-                url: 'https://dmusera.netlify.app/3606.png', 
-                scaledSize: new google.maps.Size(70, 90),
-                anchor: new google.maps.Point(35, 45)
-            }
-        });
-
-        // 3. --- ب. خريطة CarPlay (أصبحت الآن أخف وأقل ميلاً) ---
+        // 4. --- ب. خريطة CarPlay (الوضع الليلي) ---
         if (miniMapElement) {
-            carplayGoogleMap = new google.maps.Map(miniMapElement, {
+            window.carplayGoogleMap = new google.maps.Map(miniMapElement, {
                 ...commonConfigs,
                 mapId: '6c6951a9289b612af6d86b8d',
-                            mapTypeId: 'roadmap',
-    colorScheme: google.maps.ColorScheme.DARK,
-                zoom: 19,          // زووم أبعد قليلاً لرؤية أشمل
-                tilt: 45,          // ميل كلاسيكي مريح (قيمة الداشبورد سابقاً)
-                heading: 0
+                colorScheme: google.maps.ColorScheme.DARK,
+                zoom: 19,
+                tilt: 45
             });
 
             const trafficLayerMini = new google.maps.TrafficLayer();
-            trafficLayerMini.setMap(carplayGoogleMap);
+            trafficLayerMini.setMap(window.carplayGoogleMap);
             
-            carplayGoogleMarker = new google.maps.Marker({
+            window.carplayGoogleMarker = new google.maps.Marker({
                 position: commonConfigs.center,
-                map: carplayGoogleMap,
+                map: window.carplayGoogleMap,
                 icon: { 
                     url: 'https://dmusera.netlify.app/3606.png', 
                     scaledSize: new google.maps.Size(80, 90),
-                    anchor: new google.maps.Point(20, 27)
+                    anchor: new google.maps.Point(40, 45)
                 }
             });
         }
 
+        // 5. تهيئة الخدمات الإضافية
         directionsService = new google.maps.DirectionsService();
+        directionsRenderer = new google.maps.DirectionsRenderer({
+            map: window.dashboardGoogleMap,
+            suppressMarkers: true 
+        });
+
         mapsInitialized = true;
-        console.log("✅ Maps logic swapped: Dashboard is now Primary 3D.");
+        console.log("✅ All Maps Initialized Successfully.");
         
         startContinuousLocationTracking();
 
@@ -9381,37 +9500,34 @@ async function initMaps() {
         console.error("❌ Map Init Error:", error);
     }
 }
+/**
+ * تحديث موقع الخريطة والسيارة الـ 3D بناءً على بيانات GPS
+ * تضمن هذه الدالة بقاء السيارة في منتصف الشاشة (Centering)
+ */
 function updateGoogleMapLocation(pos) {
-    if (!pos || !pos.coords || !dashboardGoogleMap) return;
+    if (!pos || !pos.coords || !window.dashboardGoogleMap) return;
 
     const { latitude: lat, longitude: lng, heading } = pos.coords;
-    const newLatLng = { lat, lng };
+    const newLatLng = { lat: lat, lng: lng };
     
-    // استخدام الاتجاه القادم من السنسور أو الحفاظ على الاتجاه الحالي
-    const currentHeading = (heading !== null && !isNaN(heading)) ? heading : dashboardGoogleMap.getHeading();
+    // 1. تحديث الحالة العالمية فوراً
+    window.appState.currentLocation = newLatLng;
 
-    // 🚀 التحديث الموحد (السر وراء نجاح الاختبار)
-    dashboardGoogleMap.moveCamera({
-        center: newLatLng,
+    const currentHeading = (heading !== null && !isNaN(heading)) ? heading : (window.dashboardGoogleMap.getHeading() || 0);
+
+    // 2. سنترة الكاميرا حول الموقع الجديد
+    window.dashboardGoogleMap.moveCamera({
+        center: newLatLng, 
         heading: currentHeading,
-        tilt: 70, // لضمان بقاء المنظر 3D
+        tilt: 70,
         zoom: 20
     });
 
-    // مزامنة CarPlay
-    if (carplayGoogleMap) {
-        carplayGoogleMap.moveCamera({
-            center: newLatLng,
-            heading: currentHeading,
-            tilt: 45
-        });
+    // 3. مزامنة دوران السيارة
+    if (window.carModel) {
+        const rotationAngle = -(currentHeading * Math.PI) / 180 + Math.PI;
+        window.carModel.rotation.y = rotationAngle;
     }
-
-    // تحديث مكان الماركر (السيارة)
-    if (dashboardGoogleMarker) dashboardGoogleMarker.setPosition(newLatLng);
-    
-    // تحديث الحالة
-    appState.currentLocation = newLatLng;
 }
 let locationWatchId = null;
 
