@@ -14,13 +14,13 @@
       "purpose": "any"
     },
     {
-      "src": "/eshome.png",
+      "src": "/lex512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/eshome.png",
+      "src": "/lex512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
