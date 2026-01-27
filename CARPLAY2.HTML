@@ -8587,31 +8587,31 @@ async function setup3DCarMarker(map) {
     };
 
     overlay.onDraw = ({ transformer }) => {
-        const { scene, camera, renderer } = overlay;
-        if (!scene || !camera || !renderer || !window.carModel) {
-            overlay.requestRedraw(); // استمرار المحاولة حتى يجهز الموديل
-            return;
-        }
+    const { scene, camera, renderer } = overlay;
+    if (!scene || !camera || !renderer || !window.carModel) return;
 
-        // جلب الموقع الحالي من appState الذي تحدثه دالة GPS
-        const pos = appState.currentLocation || { lat: 17.015, lng: 54.092 };
+    // 📍 1. جلب الموقع المحدث مباشرة من GPS
+    const pos = appState.currentLocation || { lat: 17.015, lng: 54.092 };
 
-        // حساب الحجم (Scalable) لضمان الظهور
-        const zoom = map.getZoom();
-        const scaleFactor = Math.pow(2, 20 - zoom); 
-        window.carModel.scale.set(0.5 * scaleFactor, 0.5 * scaleFactor, 0.5 * scaleFactor);
+    // 📏 2. حساب الحجم الكبير والثابت (Scalable)
+    const zoom = map.getZoom();
+    const scaleFactor = Math.pow(2, 20 - zoom); 
+    
+    // التكبير المطلوب (يمكنك تجربة 2.0 إذا أردتها أضخم)
+    const baseSize = 1.5; 
+    window.carModel.scale.set(baseSize * scaleFactor, baseSize * scaleFactor, baseSize * scaleFactor);
 
-        // ضبط المصفوفة مع ارتفاع آمن (1.0)
-        const matrix = transformer.fromLatLngAltitude({
-            lat: pos.lat,
-            lng: pos.lng,
-            altitude: 1.0 
-        });
-        camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
+    // 📐 3. مصفوفة العرض والارتفاع
+    const matrix = transformer.fromLatLngAltitude({
+        lat: pos.lat,
+        lng: pos.lng,
+        altitude: 1.0 // رفع بسيط لمنع تداخل العجلات مع الأرض
+    });
+    camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
 
-        renderer.render(scene, camera);
-        overlay.requestRedraw(); 
-    };
+    renderer.render(scene, camera);
+    overlay.requestRedraw(); 
+};
 
     overlay.setMap(map);
 }
