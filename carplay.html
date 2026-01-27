@@ -9504,6 +9504,46 @@ async function initMaps() {
  * تحديث موقع الخريطة والسيارة الـ 3D بناءً على بيانات GPS
  * تضمن هذه الدالة بقاء السيارة في منتصف الشاشة (Centering)
  */
+
+(function forceSyncAndCenter() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((pos) => {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+            const heading = pos.coords.heading || 0;
+
+            console.log(`📡 إشارة GPS قوية! الموقع: ${lat}, ${lng}`);
+
+            // 1. تحديث الحالة العالمية
+            window.appState.currentLocation = { lat, lng };
+
+            // 2. إجبار الخريطة على السنترة (السيارة في المركز تماماً)
+            if (window.dashboardGoogleMap) {
+                window.dashboardGoogleMap.moveCamera({
+                    center: { lat, lng },
+                    heading: heading,
+                    tilt: 70,
+                    zoom: 20
+                });
+                console.log("🎯 تم ضبط الخريطة على المركز.");
+            }
+
+            // 3. ضبط السيارة 3D (الحجم والتمركز)
+            if (window.carModel) {
+                // التأكد من الحجم الضخم (1.5)
+                const zoom = window.dashboardGoogleMap.getZoom();
+                const scale = 1.5 * Math.pow(2, 20 - zoom);
+                window.carModel.scale.set(scale, scale, scale);
+                
+                // تدوير السيارة لتنظر للأمام بناءً على GPS
+                window.carModel.rotation.y = -(heading * Math.PI) / 180 + Math.PI;
+            }
+        }, (err) => {
+            console.error("❌ فشل تحديد الموقع: " + err.message);
+        }, { enableHighAccuracy: true });
+    }
+})();
+
 function updateGoogleMapLocation(pos) {
     if (!pos || !pos.coords || !window.dashboardGoogleMap) return;
 
