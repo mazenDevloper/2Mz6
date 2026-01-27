@@ -8614,14 +8614,14 @@ async function setup3DCarMarker(map) {
     // الحجم الكبير (1.5)
     const zoom = map.getZoom();
     const scaleFactor = Math.pow(2, 20 - zoom); 
-    window.carModel.scale.set(1.5 * scaleFactor, 1.5 * scaleFactor, 1.5 * scaleFactor);
+    window.carModel.scale.set(1.2 * scaleFactor, 1.2 * scaleFactor, 1.2 * scaleFactor);
 
    
 const pos = window.appState.currentLocation || { lat: 17.015, lng: 54.092 };
 const matrix = transformer.fromLatLngAltitude({
     lat: pos.lat,
     lng: pos.lng,
-    altitude: 1.0 // الارتفاع لضمان عدم الغرق
+    altitude: 1.2 // الارتفاع لضمان عدم الغرق
 });
 
 
