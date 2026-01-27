@@ -8537,27 +8537,28 @@ async function handleSearchForReciterChannel() {
         // ... (بقية منطق التحميل) ...
     }
 }
-// متغيرات التحكم في الحركة النعمة
+// المتغيرات العالمية للتحكم بالسلاسة
 let carModel; 
 let targetRotation = 0;
 let currentRotation = 0;
 
 async function setup3DCarMarker(map) {
-    // 1. التأكد من جهوزية المكتبات
-    while (!window.THREE || !window.GLTFLoader) {
+    // 1. انتظار تحميل المكتبات وضمان وجودها في النطاق العالمي
+    while (!window.THREE || (!window.GLTFLoader && !THREE.GLTFLoader)) {
         await new Promise(r => setTimeout(r, 500));
     }
 
-    const loader = new window.GLTFLoader();
+    const loader = window.GLTFLoader ? new window.GLTFLoader() : new THREE.GLTFLoader();
     const overlay = new google.maps.WebGLOverlayView();
-    const modelUrl = 'https://dmusera.netlify.app/ES350E.glb';
+    // استخدام timestamp لتجنب الكاش الذي قد يسبب مشاكل في المتصفح
+    const modelUrl = 'https://dmusera.netlify.app/ES350E.glb?v=' + Date.now();
 
     overlay.onAdd = () => {
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera();
 
-        // 💡 إضاءة قوية وواضحة (تمت زيادتها بناءً على طلبك)
-        scene.add(new THREE.AmbientLight(0xffffff, 1.3)); 
+        // 💡 إضاءة مرتفعة (قوة 1.5 و 2.0) لإظهار ألوان السيارة بوضوح
+        scene.add(new THREE.AmbientLight(0xffffff, 1.5)); 
         const sun = new THREE.DirectionalLight(0xffffff, 2.0);
         sun.position.set(10, 25, 10);
         scene.add(sun);
@@ -8565,10 +8566,11 @@ async function setup3DCarMarker(map) {
         loader.load(modelUrl, (gltf) => {
             window.carModel = gltf.scene;
             carModel.scale.set(18, 18, 18); 
-            carModel.rotation.x = Math.PI / 2; // تعديل المحور ليتناسب مع الخريطة
+            carModel.rotation.x = Math.PI / 2; // تثبيت المحور الرأسي
             carModel.position.set(0, 0, 0); 
             scene.add(carModel);
-        });
+            console.log("🚗 3D Model Loaded Successfully");
+        }, undefined, (err) => console.error("❌ GLB Load Error:", err));
 
         overlay.scene = scene;
         overlay.camera = camera;
@@ -8589,29 +8591,28 @@ async function setup3DCarMarker(map) {
         const { scene, camera, renderer } = overlay;
         if (!scene || !camera || !renderer) return;
 
-        // 📍 مزامنة المصدر: نستخدم نفس إحداثيات موقع الخريطة النشط
-        const currentPos = appState.currentLocation || { lat: 17.06733, lng: 54.16019 };
+        // 📍 المصدر: الموقع الحالي من appState
+        const pos = (window.appState && appState.currentLocation) ? appState.currentLocation : { lat: 17.06733, lng: 54.16019 };
 
-        // 📏 تعديل الارتفاع: رفع السيارة بنسبة 0.9 لضمان عدم غرقها تحت الإسفلت
+        // 📏 الارتفاع: رفع السيارة لمستوى 1.0 (أعلى بقليل لتجنب الاختفاء تحت الأرض)
         const matrix = transformer.fromLatLngAltitude({
-            lat: currentPos.lat,
-            lng: currentPos.lng,
-            altitude: 0.9 
+            lat: pos.lat,
+            lng: pos.lng,
+            altitude: 1.0 
         });
         
         camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
 
-        // 🧭 تدوير انسيابي (Delayed Rotation) بنصف ثانية تقريباً
-        if (window.carModel && appState.car && appState.car.direction) {
+        // 🧭 الدوران الانسيابي (تأخير بسيط للنعومة)
+        if (window.carModel && window.appState && appState.car && appState.car.direction) {
             const headingDegrees = directionToDegrees(appState.car.direction);
             
-            // الزاوية المستهدفة مع قلبها 180 درجة لتنظر للأمام
+            // الزاوية المستهدفة (مع قلبها 180 درجة لتنظر للأمام)
             targetRotation = -(headingDegrees * Math.PI) / 180 + Math.PI;
 
-            // عامل التدرج (0.05) يعطي تأخير دوران بسيط ونعومة عالية
-            const lerpFactor = 0.05; 
+            // lerpFactor 0.1 يجعلها تلحق بالخريطة خلال نصف ثانية تقريباً
+            const lerpFactor = 0.1; 
             
-            // معالجة القفزة الزاوية (Shortest path rotation)
             let diff = targetRotation - currentRotation;
             while (diff < -Math.PI) diff += Math.PI * 2;
             while (diff > Math.PI) diff -= Math.PI * 2;
@@ -8621,12 +8622,11 @@ async function setup3DCarMarker(map) {
         }
 
         renderer.render(scene, camera);
-        overlay.requestRedraw(); // تحديث مستمر لضمان المزامنة
+        overlay.requestRedraw(); 
     };
 
     overlay.setMap(map);
 }
-
 function displayReciterSearchResults(channels) {
     const resultsContainer = document.getElementById('channel-search-results');
     resultsContainer.innerHTML = '';
