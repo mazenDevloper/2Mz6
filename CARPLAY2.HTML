@@ -8537,47 +8537,37 @@ async function handleSearchForReciterChannel() {
         // ... (بقية منطق التحميل) ...
     }
 }
-// المتغير العالمي للوصول للسيارة
+// متغيرات التحكم في الحركة النعمة
 let carModel; 
+let targetRotation = 0;
+let currentRotation = 0;
 
-async function setup3DCarMarker(map, initialPosition) {
-    // 1. حارس المكتبات: انتظار تحميل Three.js و GLTFLoader
-    let retries = 0;
+async function setup3DCarMarker(map) {
+    // 1. التأكد من جهوزية المكتبات
     while (!window.THREE || !window.GLTFLoader) {
-        if (retries > 20) return console.error("❌ Three.js Libraries not found.");
         await new Promise(r => setTimeout(r, 500));
-        retries++;
     }
 
     const loader = new window.GLTFLoader();
     const overlay = new google.maps.WebGLOverlayView();
-    const modelUrl = 'https://dmusera.netlify.app/ES350E.glb?v=2026_Final';
+    const modelUrl = 'https://dmusera.netlify.app/ES350E.glb';
 
     overlay.onAdd = () => {
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera();
 
-        // 2. 🎨 إضاءة متوازنة تظهر تفاصيل الـ Lexus بدون بياض زائد
-        scene.add(new THREE.AmbientLight(0xffffff, 0.7)); 
-        const sunLight = new THREE.DirectionalLight(0xffffff, 1.0);
-        sunLight.position.set(10, 20, 10);
-        scene.add(sunLight);
+        // 💡 إضاءة قوية وواضحة (تمت زيادتها بناءً على طلبك)
+        scene.add(new THREE.AmbientLight(0xffffff, 1.3)); 
+        const sun = new THREE.DirectionalLight(0xffffff, 2.0);
+        sun.position.set(10, 25, 10);
+        scene.add(sun);
 
-        // 3. 📥 تحميل الموديل ومعالجة الاتجاه والمركز
         loader.load(modelUrl, (gltf) => {
-            carModel = gltf.scene;
-            
-            // ضبط الحجم
+            window.carModel = gltf.scene;
             carModel.scale.set(18, 18, 18); 
-            
-            // تدوير الموديل ليكون مستوياً مع الأرض
-            carModel.rotation.x = Math.PI / 2; 
-
-            // 🎯 حل مشكلة الإزاحة: دفع السيارة للمنتصف (تعديل X)
-            carModel.position.set(0.6, 0, 0); 
-
+            carModel.rotation.x = Math.PI / 2; // تعديل المحور ليتناسب مع الخريطة
+            carModel.position.set(0, 0, 0); 
             scene.add(carModel);
-            console.log("✅ Lexus ES350 Ready: Centered & Directions Synced.");
         });
 
         overlay.scene = scene;
@@ -8589,6 +8579,7 @@ async function setup3DCarMarker(map, initialPosition) {
             canvas: gl.canvas,
             context: gl,
             antialias: true,
+            alpha: true,
             ...gl.getContextAttributes(),
         });
         overlay.renderer.autoClear = false;
@@ -8598,27 +8589,39 @@ async function setup3DCarMarker(map, initialPosition) {
         const { scene, camera, renderer } = overlay;
         if (!scene || !camera || !renderer) return;
 
+        // 📍 مزامنة المصدر: نستخدم نفس إحداثيات موقع الخريطة النشط
+        const currentPos = appState.currentLocation || { lat: 17.06733, lng: 54.16019 };
+
+        // 📏 تعديل الارتفاع: رفع السيارة بنسبة 0.9 لضمان عدم غرقها تحت الإسفلت
         const matrix = transformer.fromLatLngAltitude({
-            lat: initialPosition.lat,
-            lng: initialPosition.lng,
-            altitude: 0.05 // ارتفاع بسيط جداً لمنع التداخل مع الطريق
+            lat: currentPos.lat,
+            lng: currentPos.lng,
+            altitude: 0.9 
         });
+        
         camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
 
-        // 4. 🧭 مزامنة الاتجاه وتصحيح "النظر للوراء"
-        if (carModel && appState.car && appState.car.direction) {
+        // 🧭 تدوير انسيابي (Delayed Rotation) بنصف ثانية تقريباً
+        if (window.carModel && appState.car && appState.car.direction) {
             const headingDegrees = directionToDegrees(appState.car.direction);
             
-            /* 💡 الحل السحري: إضافة Math.PI (180 درجة) للزاوية 
-               لكي تلتف السيارة وتنظر للأمام بدلاً من الخلف.
-            */
-            const rotationAngle = (headingDegrees * Math.PI) / 180 + Math.PI;
+            // الزاوية المستهدفة مع قلبها 180 درجة لتنظر للأمام
+            targetRotation = -(headingDegrees * Math.PI) / 180 + Math.PI;
+
+            // عامل التدرج (0.05) يعطي تأخير دوران بسيط ونعومة عالية
+            const lerpFactor = 0.05; 
             
-            carModel.rotation.y = -rotationAngle; 
+            // معالجة القفزة الزاوية (Shortest path rotation)
+            let diff = targetRotation - currentRotation;
+            while (diff < -Math.PI) diff += Math.PI * 2;
+            while (diff > Math.PI) diff -= Math.PI * 2;
+            
+            currentRotation += diff * lerpFactor;
+            carModel.rotation.y = currentRotation;
         }
 
         renderer.render(scene, camera);
-        overlay.requestRedraw();
+        overlay.requestRedraw(); // تحديث مستمر لضمان المزامنة
     };
 
     overlay.setMap(map);
