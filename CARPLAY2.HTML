@@ -8537,40 +8537,36 @@ async function handleSearchForReciterChannel() {
         // ... (بقية منطق التحميل) ...
     }
 }
-// المتغيرات العالمية للتحكم بالسلاسة
+// متغيرات التحكم
 let carModel; 
 let targetRotation = 0;
 let currentRotation = 0;
 
 async function setup3DCarMarker(map) {
-    // 1. انتظار تحميل المكتبات وضمان وجودها في النطاق العالمي
-    while (!window.THREE || (!window.GLTFLoader && !THREE.GLTFLoader)) {
+    while (!window.THREE || !window.GLTFLoader) {
         await new Promise(r => setTimeout(r, 500));
     }
 
-    const loader = window.GLTFLoader ? new window.GLTFLoader() : new THREE.GLTFLoader();
+    const loader = new window.GLTFLoader();
     const overlay = new google.maps.WebGLOverlayView();
-    // استخدام timestamp لتجنب الكاش الذي قد يسبب مشاكل في المتصفح
-    const modelUrl = 'https://dmusera.netlify.app/ES350E.glb?v=' + Date.now();
+    const modelUrl = 'https://dmusera.netlify.app/ES350E.glb?v=final';
 
     overlay.onAdd = () => {
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera();
 
-        // 💡 إضاءة مرتفعة (قوة 1.5 و 2.0) لإظهار ألوان السيارة بوضوح
+        // إضاءة قوية لإظهار الألوان
         scene.add(new THREE.AmbientLight(0xffffff, 1.5)); 
         const sun = new THREE.DirectionalLight(0xffffff, 2.0);
         sun.position.set(10, 25, 10);
         scene.add(sun);
 
         loader.load(modelUrl, (gltf) => {
-            window.carModel = gltf.scene;
-            carModel.scale.set(18, 18, 18); 
-            carModel.rotation.x = Math.PI / 2; // تثبيت المحور الرأسي
-            carModel.position.set(0, 0, 0); 
+            carModel = gltf.scene;
+            // تدوير الموديل ليكون مستوياً
+            carModel.rotation.x = Math.PI / 2;
             scene.add(carModel);
-            console.log("🚗 3D Model Loaded Successfully");
-        }, undefined, (err) => console.error("❌ GLB Load Error:", err));
+        });
 
         overlay.scene = scene;
         overlay.camera = camera;
@@ -8587,43 +8583,47 @@ async function setup3DCarMarker(map) {
         overlay.renderer.autoClear = false;
     };
 
-    overlay.onDraw = ({ transformer }) => {
-        const { scene, camera, renderer } = overlay;
-        if (!scene || !camera || !renderer) return;
+   overlay.onDraw = ({ transformer }) => {
+    const { scene, camera, renderer } = overlay;
+    if (!scene || !camera || !renderer || !carModel) return;
 
-        // 📍 المصدر: الموقع الحالي من appState
-        const pos = (window.appState && appState.currentLocation) ? appState.currentLocation : { lat: 17.06733, lng: 54.16019 };
+    // 1. تحديد الموقع: الموقع الحقيقي أو (صلالة) كموقع افتراضي
+    const defaultLocation = { lat: 17.015, lng: 54.092 }; // إحداثيات صلالة
+    const pos = (window.appState && appState.currentLocation) ? 
+                appState.currentLocation : defaultLocation;
 
-        // 📏 الارتفاع: رفع السيارة لمستوى 1.0 (أعلى بقليل لتجنب الاختفاء تحت الأرض)
-        const matrix = transformer.fromLatLngAltitude({
-            lat: pos.lat,
-            lng: pos.lng,
-            altitude: 1.0 
-        });
-        
-        camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
+    // 2. حساب الحجم الثابت (Scalable Marker)
+    const zoom = map.getZoom();
+    const scaleFactor = Math.pow(2, 20 - zoom); 
+    const baseSize = 0.5; 
+    const finalScale = baseSize * scaleFactor;
+    carModel.scale.set(finalScale, finalScale, finalScale);
 
-        // 🧭 الدوران الانسيابي (تأخير بسيط للنعومة)
-        if (window.carModel && window.appState && appState.car && appState.car.direction) {
-            const headingDegrees = directionToDegrees(appState.car.direction);
-            
-            // الزاوية المستهدفة (مع قلبها 180 درجة لتنظر للأمام)
-            targetRotation = -(headingDegrees * Math.PI) / 180 + Math.PI;
+    // 3. مصفوفة العرض مع الارتفاع المصحح
+    const matrix = transformer.fromLatLngAltitude({
+        lat: pos.lat,
+        lng: pos.lng,
+        altitude: 1.0 // الرفع لتجنب الغرق تحت الأرض
+    });
+    camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
 
-            // lerpFactor 0.1 يجعلها تلحق بالخريطة خلال نصف ثانية تقريباً
-            const lerpFactor = 0.1; 
-            
-            let diff = targetRotation - currentRotation;
-            while (diff < -Math.PI) diff += Math.PI * 2;
-            while (diff > Math.PI) diff -= Math.PI * 2;
-            
-            currentRotation += diff * lerpFactor;
-            carModel.rotation.y = currentRotation;
-        }
+    // 4. الدوران الانسيابي (مع اتجاه افتراضي إذا لم يتوفر اتجاه حقيقي)
+    const direction = (appState.car && appState.car.direction) ? 
+                      directionToDegrees(appState.car.direction) : 0;
+    
+    targetRotation = -(direction * Math.PI) / 180 + Math.PI;
 
-        renderer.render(scene, camera);
-        overlay.requestRedraw(); 
-    };
+    const lerpFactor = 0.1; 
+    let diff = targetRotation - currentRotation;
+    while (diff < -Math.PI) diff += Math.PI * 2;
+    while (diff > Math.PI) diff -= Math.PI * 2;
+    
+    currentRotation += diff * lerpFactor;
+    carModel.rotation.y = currentRotation;
+
+    renderer.render(scene, camera);
+    overlay.requestRedraw(); 
+};
 
     overlay.setMap(map);
 }
