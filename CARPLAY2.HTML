@@ -688,6 +688,16 @@ div#channel-search-results {
     transition: all 0.3s ease;
 }
 
+img#dash-nasa-moon {
+    HEIGHT: 9REM;
+    WIDTH: 9REM;
+}
+
+img#dash-media-thumb {
+    HEIGHT: 100%!IMPORTANT;
+    WIDTH: auto;
+}
+
 /* --- CSS Required for Traffic Buttons --- */
 
 .home-traffic-btn {
@@ -6082,6 +6092,7 @@ function updateCarPlayDashboard() {
                 const titleEl = document.getElementById('carplay-media-title');
                 const channelEl = document.getElementById('carplay-media-channel');
                 const thumbEl = document.getElementById('carplay-media-thumb');
+                const thumbEl1 = document.getElementById('dash-media-thumb');
                 const playBtn = document.getElementById('carplay-capsule-play-pause');
 
                 if (titleEl) titleEl.textContent = videoData.title;
@@ -6089,6 +6100,10 @@ function updateCarPlayDashboard() {
                 if (thumbEl) {
                     const thumbUrl = `https://i.ytimg.com/vi/${videoData.video_id}/mqdefault.jpg`;
                     if (thumbEl.src !== thumbUrl) thumbEl.src = thumbUrl;
+                }
+                if (thumbEl1) {
+                    const thumbUrl = `https://i.ytimg.com/vi/${videoData.video_id}/mqdefault.jpg`;
+                    if (thumbEl1.src !== thumbUrl) thumbEl1.src = thumbUrl;
                 }
 
                 // مزامنة أيقونة التشغيل (Play/Pause)
@@ -6114,6 +6129,7 @@ function forceUpdateCarPlayMedia(activePlayer) {
     const titleEl = document.getElementById('carplay-media-title');
     const channelEl = document.getElementById('carplay-media-channel');
     const thumbEl = document.getElementById('carplay-media-thumb');
+    const thumbEl1 = document.getElementById('dash-media-thumb');
 
     if (titleEl) titleEl.textContent = vData.title;
     if (channelEl) channelEl.textContent = vData.author;
@@ -6121,7 +6137,10 @@ function forceUpdateCarPlayMedia(activePlayer) {
         // نستخدم hqdefault لضمان جودة الصورة وسرعة التحميل
         thumbEl.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
     }
-
+if (thumbEl1 && videoId) {
+        // نستخدم hqdefault لضمان جودة الصورة وسرعة التحميل
+        thumbEl1.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+    }
     // تحديث أيقونة التشغيل في الكبسولة
     const playBtn = document.getElementById('carplay-capsule-play-pause');
     if (playBtn) {
@@ -8590,29 +8609,26 @@ async function setup3DCarMarker(map) {
     const { scene, camera, renderer } = overlay;
     if (!scene || !camera || !renderer || !window.carModel) return;
 
-    // 📍 1. جلب الموقع المحدث مباشرة من GPS
+    // الموقع المباشر من GPS (الذي هو مركز الكاميرا الآن)
     const pos = appState.currentLocation || { lat: 17.015, lng: 54.092 };
 
-    // 📏 2. حساب الحجم الكبير والثابت (Scalable)
+    // الحجم الكبير (1.5)
     const zoom = map.getZoom();
     const scaleFactor = Math.pow(2, 20 - zoom); 
-    
-    // التكبير المطلوب (يمكنك تجربة 2.0 إذا أردتها أضخم)
-    const baseSize = 1.5; 
-    window.carModel.scale.set(baseSize * scaleFactor, baseSize * scaleFactor, baseSize * scaleFactor);
+    window.carModel.scale.set(1.5 * scaleFactor, 1.5 * scaleFactor, 1.5 * scaleFactor);
 
-    // 📐 3. مصفوفة العرض والارتفاع
+    // 📏 الارتفاع والتموضع
     const matrix = transformer.fromLatLngAltitude({
         lat: pos.lat,
         lng: pos.lng,
-        altitude: 1.0 // رفع بسيط لمنع تداخل العجلات مع الأرض
+        altitude: 1.0 // الارتفاع لضمان الظهور فوق الطرق
     });
+    
     camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
 
     renderer.render(scene, camera);
     overlay.requestRedraw(); 
 };
-
     overlay.setMap(map);
 }
 function displayReciterSearchResults(channels) {
@@ -9486,28 +9502,25 @@ function updateGoogleMapLocation(pos) {
     const { latitude: lat, longitude: lng, heading } = pos.coords;
     const newLatLng = { lat, lng };
     
-    // حفظ الموقع في الحالة العالمية فوراً
+    // حفظ الموقع في الحالة العالمية
     appState.currentLocation = newLatLng;
 
-    // جلب الاتجاه
+    // جلب الاتجاه الحقيقي
     const currentHeading = (heading !== null && !isNaN(heading)) ? heading : (window.dashboardGoogleMap.getHeading() || 0);
 
-    // 🚀 تحريك الكاميرا (بنفس طريقتك الناجحة)
+    // 🚀 التعديل الجوهري: جعل المركز (Center) هو موقع السيارة دائماً
     window.dashboardGoogleMap.moveCamera({
-        center: newLatLng,
+        center: newLatLng,     // الموقع الجديد للسيارة هو مركز الخريطة
         heading: currentHeading,
-        tilt: 70,
-        zoom: 20
+        tilt: 70,              // زاوية الميل لرؤية الـ 3D
+        zoom: 20               // مستوى التقريب
     });
 
-    // 🚗 تدوير السيارة الـ 3D (فقط إذا كانت محملة)
+    // مزامنة الموديل 3D
     if (window.carModel) {
         const rotationAngle = -(currentHeading * Math.PI) / 180 + Math.PI;
         window.carModel.rotation.y = rotationAngle;
     }
-
-    // تحديث الماركر التقليدي (كاحتياطي في CarPlay)
-    if (window.carplayGoogleMarker) window.carplayGoogleMarker.setPosition(newLatLng);
 }
 let locationWatchId = null;
 
