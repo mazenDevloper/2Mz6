@@ -8537,35 +8537,57 @@ async function handleSearchForReciterChannel() {
         // ... (بقية منطق التحميل) ...
     }
 }
-// متغيرات التحكم
+/**
+ * إعداد ماركر السيارة ثلاثي الأبعاد Lexus ES350
+ * يدمج بين دقة الـ GPS وسلاسة الرسوميات
+ */
+
+// متغيرات التحكم العالمية لضمان السلاسة
 let carModel; 
-let targetRotation = 0;
-let currentRotation = 0;
+let currentRotation = 0; // لتخزين الزاوية الحالية لعمل انتقال ناعم
 
 async function setup3DCarMarker(map) {
+    if (!map) return console.error("❌ Map object is required");
+
+    // 1. التأكد من تحميل المكتبات اللازمة
     while (!window.THREE || !window.GLTFLoader) {
         await new Promise(r => setTimeout(r, 500));
     }
 
     const loader = new window.GLTFLoader();
     const overlay = new google.maps.WebGLOverlayView();
-    const modelUrl = 'https://dmusera.netlify.app/ES350E.glb?v=final';
+    // استخدام Timestamp لضمان تحميل أحدث نسخة وتجنب مشاكل الكاش
+    const modelUrl = 'https://dmusera.netlify.app/ES350E.glb?v=' + Date.now();
 
     overlay.onAdd = () => {
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera();
 
-        // إضاءة قوية لإظهار الألوان
-        scene.add(new THREE.AmbientLight(0xffffff, 1.5)); 
-        const sun = new THREE.DirectionalLight(0xffffff, 2.0);
+        // 💡 إضاءة احترافية لإظهار لمعان السيارة وتفاصيلها المعدنية
+        scene.add(new THREE.AmbientLight(0xffffff, 1.5)); // ضوء محيطي قوي
+        const sun = new THREE.DirectionalLight(0xffffff, 2.0); // ضوء مباشر مثل الشمس
         sun.position.set(10, 25, 10);
         scene.add(sun);
 
+        // 📥 تحميل الموديل وتجهيزه
         loader.load(modelUrl, (gltf) => {
             carModel = gltf.scene;
-            // تدوير الموديل ليكون مستوياً
-            carModel.rotation.x = Math.PI / 2;
+            
+            // تدوير ابتدائي ليكون الموديل مستوياً مع سطح الخريطة
+            carModel.rotation.x = Math.PI / 2; 
+
+            // تفعيل الظلال والانعكاسات لكل جزء في السيارة
+            carModel.traverse((child) => {
+                if (child.isMesh) {
+                    child.material.needsUpdate = true;
+                    child.castShadow = true;
+                }
+            });
+
             scene.add(carModel);
+            console.log("🚗 Lexus ES350 3D Marker: Loaded & Ready.");
+        }, undefined, (error) => {
+            console.error("❌ GLB Loading Error:", error);
         });
 
         overlay.scene = scene;
@@ -8583,47 +8605,52 @@ async function setup3DCarMarker(map) {
         overlay.renderer.autoClear = false;
     };
 
-   overlay.onDraw = ({ transformer }) => {
-    const { scene, camera, renderer } = overlay;
-    if (!scene || !camera || !renderer || !carModel) return;
+    overlay.onDraw = ({ transformer }) => {
+        const { scene, camera, renderer } = overlay;
+        if (!scene || !camera || !renderer || !carModel) return;
 
-    // 1. تحديد الموقع: الموقع الحقيقي أو (صلالة) كموقع افتراضي
-    const defaultLocation = { lat: 17.015, lng: 54.092 }; // إحداثيات صلالة
-    const pos = (window.appState && appState.currentLocation) ? 
-                appState.currentLocation : defaultLocation;
+        // 📍 1. مزامنة الموقع: الموقع الحي من GPS أو صلالة كاحتياطي
+        const livePos = (window.appState && appState.currentLocation) 
+                        ? appState.currentLocation 
+                        : { lat: 17.015, lng: 54.092 };
 
-    // 2. حساب الحجم الثابت (Scalable Marker)
-    const zoom = map.getZoom();
-    const scaleFactor = Math.pow(2, 20 - zoom); 
-    const baseSize = 0.5; 
-    const finalScale = baseSize * scaleFactor;
-    carModel.scale.set(finalScale, finalScale, finalScale);
+        // 📏 2. الحجم الثابت (Scalable Marker):
+        // لضمان بقاء السيارة بنفس الحجم بصرياً عند تصغير/تكبير الخريطة
+        const zoom = map.getZoom();
+        const scaleFactor = Math.pow(2, 20 - zoom); 
+        const baseSize = 0.5; // الحجم الأساسي للماركر
+        const finalScale = baseSize * scaleFactor;
+        carModel.scale.set(finalScale, finalScale, finalScale);
 
-    // 3. مصفوفة العرض مع الارتفاع المصحح
-    const matrix = transformer.fromLatLngAltitude({
-        lat: pos.lat,
-        lng: pos.lng,
-        altitude: 1.0 // الرفع لتجنب الغرق تحت الأرض
-    });
-    camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
+        // 📐 3. مصفوفة العرض والارتفاع (Altitude):
+        // رفع السيارة بمقدار 0.9 لضمان عدم "غرق" العجلات تحت طبقة الطرق
+        const matrix = transformer.fromLatLngAltitude({
+            lat: livePos.lat,
+            lng: livePos.lng,
+            altitude: 0.9 
+        });
+        camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
 
-    // 4. الدوران الانسيابي (مع اتجاه افتراضي إذا لم يتوفر اتجاه حقيقي)
-    const direction = (appState.car && appState.car.direction) ? 
-                      directionToDegrees(appState.car.direction) : 0;
-    
-    targetRotation = -(direction * Math.PI) / 180 + Math.PI;
+        // 🧭 4. التدوير الدقيق بناءً على الـ GPS:
+        // نستخدم Heading مباشرة لتدوير مقدمة السيارة نحو مسار الحركة
+        const gpsHeading = (window.appState && appState.car && appState.car.heading) 
+                           ? appState.car.heading : 0;
+        
+        // تحويل الدرجات لراديان + قلب الاتجاه 180 درجة (Math.PI) ليكون للأمام
+        const targetRotation = -(gpsHeading * Math.PI) / 180 + Math.PI;
 
-    const lerpFactor = 0.1; 
-    let diff = targetRotation - currentRotation;
-    while (diff < -Math.PI) diff += Math.PI * 2;
-    while (diff > Math.PI) diff -= Math.PI * 2;
-    
-    currentRotation += diff * lerpFactor;
-    carModel.rotation.y = currentRotation;
+        // تنعيم الدوران (Lerp) ليعطي انطباع الانعطاف الواقعي بتأخير بسيط
+        let diff = targetRotation - currentRotation;
+        while (diff < -Math.PI) diff += Math.PI * 2;
+        while (diff > Math.PI) diff -= Math.PI * 2;
+        
+        currentRotation += diff * 0.15; // سرعة استجابة متوازنة (0.15)
+        carModel.rotation.y = currentRotation;
 
-    renderer.render(scene, camera);
-    overlay.requestRedraw(); 
-};
+        // 🎬 5. الرندرة النهائية
+        renderer.render(scene, camera);
+        overlay.requestRedraw(); 
+    };
 
     overlay.setMap(map);
 }
