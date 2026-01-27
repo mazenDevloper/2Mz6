@@ -9504,6 +9504,63 @@ async function initMaps() {
  * تحديث موقع الخريطة والسيارة الـ 3D بناءً على بيانات GPS
  * تضمن هذه الدالة بقاء السيارة في منتصف الشاشة (Centering)
  */
+(async function forceInitializeSystem() {
+    console.log("⏳ جاري التحقق من جاهزية خدمات جوجل ماب...");
+
+    // 1. وظيفة للانتظار حتى تجهز الخريطة والمكتبات
+    const waitForMap = () => {
+        return new Promise((resolve) => {
+            const check = setInterval(() => {
+                if (window.google && window.google.maps && (window.dashboardGoogleMap || window.initMap)) {
+                    clearInterval(check);
+                    resolve();
+                }
+            }, 500);
+        });
+    };
+
+    await waitForMap();
+    console.log("✅ خدمات جوجل ماب جاهزة الآن.");
+
+    // 2. إصلاح الأخطاء التي تعطل النظام
+    window.appState = window.appState || { currentLocation: { lat: 17.015, lng: 54.092 }, car: { heading: 0 } };
+    window.updateCarPlayCardData = () => { return; };
+
+    // 3. محاولة تشغيل initMap إذا لم تكن الخريطة بدأت بعد
+    if (!window.dashboardGoogleMap && typeof window.initMap === 'function') {
+        console.log("🛠️ تشغيل تهيئة الخريطة يدوياً...");
+        await window.initMap();
+    }
+
+    // 4. طلب الموقع الفعلي (GPS) ونقل السيارة للمركز
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((pos) => {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+            const heading = pos.coords.heading || 0;
+
+            console.log(`📍 تم تحديد موقعك الفعلي: ${lat}, ${lng}`);
+            appState.currentLocation = { lat, lng };
+
+            if (window.dashboardGoogleMap) {
+                // سنترة الخريطة في المنتصف تماماً
+                window.dashboardGoogleMap.moveCamera({
+                    center: { lat, lng },
+                    heading: heading,
+                    tilt: 70,
+                    zoom: 20
+                });
+
+                // إظهار وتكبير السيارة (1.5)
+                if (typeof setup3DCarMarker === 'function') {
+                    setup3DCarMarker(window.dashboardGoogleMap);
+                }
+            }
+        }, (err) => {
+            console.error("❌ فشل تحديد الموقع، تأكد من تفعيل GPS المتصفح.");
+        }, { enableHighAccuracy: true });
+    }
+})();
 
 (function forceSyncAndCenter() {
     if (navigator.geolocation) {
