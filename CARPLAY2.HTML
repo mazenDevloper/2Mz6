@@ -8547,47 +8547,26 @@ let carModel;
 let currentRotation = 0; // لتخزين الزاوية الحالية لعمل انتقال ناعم
 
 async function setup3DCarMarker(map) {
-    if (!map) return console.error("❌ Map object is required");
-
-    // 1. التأكد من تحميل المكتبات اللازمة
     while (!window.THREE || !window.GLTFLoader) {
         await new Promise(r => setTimeout(r, 500));
     }
 
     const loader = new window.GLTFLoader();
     const overlay = new google.maps.WebGLOverlayView();
-    // استخدام Timestamp لضمان تحميل أحدث نسخة وتجنب مشاكل الكاش
-    const modelUrl = 'https://dmusera.netlify.app/ES350E.glb?v=' + Date.now();
+    const modelUrl = 'https://dmusera.netlify.app/ES350E.glb';
 
     overlay.onAdd = () => {
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera();
-
-        // 💡 إضاءة احترافية لإظهار لمعان السيارة وتفاصيلها المعدنية
-        scene.add(new THREE.AmbientLight(0xffffff, 1.5)); // ضوء محيطي قوي
-        const sun = new THREE.DirectionalLight(0xffffff, 2.0); // ضوء مباشر مثل الشمس
+        scene.add(new THREE.AmbientLight(0xffffff, 1.5));
+        const sun = new THREE.DirectionalLight(0xffffff, 2.0);
         sun.position.set(10, 25, 10);
         scene.add(sun);
 
-        // 📥 تحميل الموديل وتجهيزه
         loader.load(modelUrl, (gltf) => {
-            carModel = gltf.scene;
-            
-            // تدوير ابتدائي ليكون الموديل مستوياً مع سطح الخريطة
-            carModel.rotation.x = Math.PI / 2; 
-
-            // تفعيل الظلال والانعكاسات لكل جزء في السيارة
-            carModel.traverse((child) => {
-                if (child.isMesh) {
-                    child.material.needsUpdate = true;
-                    child.castShadow = true;
-                }
-            });
-
+            window.carModel = gltf.scene;
+            carModel.rotation.x = Math.PI / 2;
             scene.add(carModel);
-            console.log("🚗 Lexus ES350 3D Marker: Loaded & Ready.");
-        }, undefined, (error) => {
-            console.error("❌ GLB Loading Error:", error);
         });
 
         overlay.scene = scene;
@@ -8596,10 +8575,7 @@ async function setup3DCarMarker(map) {
 
     overlay.onContextRestored = ({ gl }) => {
         overlay.renderer = new THREE.WebGLRenderer({
-            canvas: gl.canvas,
-            context: gl,
-            antialias: true,
-            alpha: true,
+            canvas: gl.canvas, context: gl, antialias: true, alpha: true,
             ...gl.getContextAttributes(),
         });
         overlay.renderer.autoClear = false;
@@ -8607,47 +8583,23 @@ async function setup3DCarMarker(map) {
 
     overlay.onDraw = ({ transformer }) => {
         const { scene, camera, renderer } = overlay;
-        if (!scene || !camera || !renderer || !carModel) return;
+        if (!scene || !camera || !renderer || !window.carModel) return;
 
-        // 📍 1. مزامنة الموقع: الموقع الحي من GPS أو صلالة كاحتياطي
-        const livePos = (window.appState && appState.currentLocation) 
-                        ? appState.currentLocation 
-                        : { lat: 17.015, lng: 54.092 };
+        // 📍 نستخدم دائماً أحدث موقع في appState (الذي تحدثه دالة التتبع الفعالة)
+        const pos = appState.currentLocation || { lat: 17.015, lng: 54.092 };
 
-        // 📏 2. الحجم الثابت (Scalable Marker):
-        // لضمان بقاء السيارة بنفس الحجم بصرياً عند تصغير/تكبير الخريطة
+        // 📏 موازنة الحجم (Scalable)
         const zoom = map.getZoom();
         const scaleFactor = Math.pow(2, 20 - zoom); 
-        const baseSize = 0.5; // الحجم الأساسي للماركر
-        const finalScale = baseSize * scaleFactor;
-        carModel.scale.set(finalScale, finalScale, finalScale);
+        carModel.scale.set(0.5 * scaleFactor, 0.5 * scaleFactor, 0.5 * scaleFactor);
 
-        // 📐 3. مصفوفة العرض والارتفاع (Altitude):
-        // رفع السيارة بمقدار 0.9 لضمان عدم "غرق" العجلات تحت طبقة الطرق
         const matrix = transformer.fromLatLngAltitude({
-            lat: livePos.lat,
-            lng: livePos.lng,
+            lat: pos.lat,
+            lng: pos.lng,
             altitude: 0.9 
         });
         camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
 
-        // 🧭 4. التدوير الدقيق بناءً على الـ GPS:
-        // نستخدم Heading مباشرة لتدوير مقدمة السيارة نحو مسار الحركة
-        const gpsHeading = (window.appState && appState.car && appState.car.heading) 
-                           ? appState.car.heading : 0;
-        
-        // تحويل الدرجات لراديان + قلب الاتجاه 180 درجة (Math.PI) ليكون للأمام
-        const targetRotation = -(gpsHeading * Math.PI) / 180 + Math.PI;
-
-        // تنعيم الدوران (Lerp) ليعطي انطباع الانعطاف الواقعي بتأخير بسيط
-        let diff = targetRotation - currentRotation;
-        while (diff < -Math.PI) diff += Math.PI * 2;
-        while (diff > Math.PI) diff -= Math.PI * 2;
-        
-        currentRotation += diff * 0.15; // سرعة استجابة متوازنة (0.15)
-        carModel.rotation.y = currentRotation;
-
-        // 🎬 5. الرندرة النهائية
         renderer.render(scene, camera);
         overlay.requestRedraw(); 
     };
@@ -9525,31 +9477,31 @@ function updateGoogleMapLocation(pos) {
     const { latitude: lat, longitude: lng, heading } = pos.coords;
     const newLatLng = { lat, lng };
     
-    // استخدام الاتجاه القادم من السنسور أو الحفاظ على الاتجاه الحالي
+    // 1. جلب الاتجاه الحقيقي من الـ GPS
     const currentHeading = (heading !== null && !isNaN(heading)) ? heading : dashboardGoogleMap.getHeading();
 
-    // 🚀 التحديث الموحد (السر وراء نجاح الاختبار)
+    // 2. تحديث الكاميرا (بنفس منطق نسختك الناجحة)
     dashboardGoogleMap.moveCamera({
         center: newLatLng,
         heading: currentHeading,
-        
-        tilt: 70, // لضمان بقاء المنظر 3D
+        tilt: 70, 
         zoom: 20
     });
 
-    // مزامنة CarPlay
-    if (carplayGoogleMap) {
-        carplayGoogleMap.moveCamera({
-            center: newLatLng,
-            heading: currentHeading,
-            tilt: 45
-        });
+    // 3. 🚀 السر الجديد: مزامنة دوران السيارة الـ 3D مع الـ GPS مباشرة
+    if (window.carModel) {
+        // نحول Heading الـ GPS إلى زاوية راديان للمحرك 3D
+        // نستخدم نفس قيمة currentHeading لضمان التطابق التام
+        const rotationAngle = -(currentHeading * Math.PI) / 180 + Math.PI;
+        window.carModel.rotation.y = rotationAngle; 
     }
 
-    // تحديث مكان الماركر (السيارة)
+    // مزامنة CarPlay والماركر التقليدي (للاحتياط)
+    if (carplayGoogleMap) {
+        carplayGoogleMap.moveCamera({ center: newLatLng, heading: currentHeading, tilt: 45 });
+    }
     if (dashboardGoogleMarker) dashboardGoogleMarker.setPosition(newLatLng);
     
-    // تحديث الحالة
     appState.currentLocation = newLatLng;
 }
 let locationWatchId = null;
