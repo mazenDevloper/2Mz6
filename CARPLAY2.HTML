@@ -8562,25 +8562,20 @@ async function handleSearchForReciterChannel() {
  */
 
 // متغيرات التحكم العالمية لضمان السلاسة
-let carModel; 
-let currentRotation = 0; // لتخزين الزاوية الحالية لعمل انتقال ناعم
+// المتغيرات العالمية للتحكم
+window.carOverlay = null; 
+window.carModel = null;
 
 async function setup3DCarMarker(map) {
-    if (!map) return;
-    
-    // التأكد من وجود المكتبات
-    if (!window.THREE || !window.GLTFLoader) {
-        console.error("❌ Three.js or GLTFLoader missing");
-        return;
-    }
+    if (!map || window.carOverlay) return; // منع التكرار القاطع
 
     const loader = new window.GLTFLoader();
     const overlay = new google.maps.WebGLOverlayView();
+    window.carOverlay = overlay;
 
     overlay.onAdd = () => {
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera();
-        
         scene.add(new THREE.AmbientLight(0xffffff, 1.5));
         const sun = new THREE.DirectionalLight(0xffffff, 2.0);
         sun.position.set(10, 25, 10);
@@ -8590,50 +8585,45 @@ async function setup3DCarMarker(map) {
             window.carModel = gltf.scene;
             window.carModel.rotation.x = Math.PI / 2;
             scene.add(window.carModel);
-            console.log("✅ Car Model Loaded into Scene");
         });
-
-        overlay.scene = scene;
-        overlay.camera = camera;
+        overlay.scene = scene; overlay.camera = camera;
     };
 
     overlay.onContextRestored = ({ gl }) => {
         overlay.renderer = new THREE.WebGLRenderer({
             canvas: gl.canvas, context: gl, antialias: true, alpha: true,
-            ...gl.getContextAttributes(),
         });
         overlay.renderer.autoClear = false;
     };
 
     overlay.onDraw = ({ transformer }) => {
-    const { scene, camera, renderer } = overlay;
-    if (!scene || !camera || !renderer || !window.carModel) return;
+        const { scene, camera, renderer } = overlay;
+        if (!scene || !camera || !renderer || !window.carModel) {
+            overlay.requestRedraw(); return;
+        }
 
-    // الموقع المباشر من GPS (الذي هو مركز الكاميرا الآن)
+        // 🎯 الماركر يتبع appState.currentLocation دائماً
+        const pos = window.appState.currentLocation || { lat: 17.015, lng: 54.092 };
+        const heading = window.appState.car.heading || 0;
 
-    // الحجم الكبير (1.5)
-    const zoom = map.getZoom();
-    const scaleFactor = Math.pow(2, 20 - zoom); 
-    window.carModel.scale.set(1.2 * scaleFactor, 1.2 * scaleFactor, 1.2 * scaleFactor);
+        // 📏 حجم ثابت (Scalable) مهما كان الزووم
+        const zoom = map.getZoom();
+        const scaleFactor = Math.pow(2, 20 - zoom);
+        window.carModel.scale.set(1.5 * scaleFactor, 1.5 * scaleFactor, 1.5 * scaleFactor);
 
-   
-const pos = window.appState.currentLocation || { lat: 17.015, lng: 54.092 };
-const matrix = transformer.fromLatLngAltitude({
-    lat: pos.lat,
-    lng: pos.lng,
-    altitude: 1.2 // الارتفاع لضمان عدم الغرق
-});
+        // 📐 السنترة المطلقة
+        const matrix = transformer.fromLatLngAltitude({ lat: pos.lat, lng: pos.lng, altitude: 1.0 });
+        camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
 
+        // 🧭 الدوران السلس
+        window.carModel.rotation.y = -(heading * Math.PI) / 180 + Math.PI;
 
-
-    
-    camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
-
-    renderer.render(scene, camera);
-    overlay.requestRedraw(); 
-};
+        renderer.render(scene, camera);
+        overlay.requestRedraw();
+    };
     overlay.setMap(map);
 }
+
 function displayReciterSearchResults(channels) {
     const resultsContainer = document.getElementById('channel-search-results');
     resultsContainer.innerHTML = '';
@@ -9444,7 +9434,7 @@ async function initMaps() {
         window.dashboardGoogleMap = new google.maps.Map(mainMapElement, {
             ...commonConfigs,
             mapId: '6c6951a9289b612a97923702', 
-            zoom: 17.5, // زووم مناسب للـ 3D
+            zoom: 19.5, // زووم مناسب للـ 3D
             tilt: 65,   // زاوية مثالية للمجسمات
             heading: 0
         });
@@ -9498,59 +9488,29 @@ async function initMaps() {
         console.error("❌ Map Init Error:", error);
     }
 }
-/**
- * تحديث موقع الخريطة والسيارة الـ 3D بناءً على بيانات GPS
- * تضمن هذه الدالة بقاء السيارة في منتصف الشاشة (Centering)
- */
+
+
+
+
 function updateGoogleMapLocation(pos) {
-    // 1. التحقق من وجود البيانات وكائن الخريطة
     if (!pos || !pos.coords || !window.dashboardGoogleMap) return;
 
     const { latitude: lat, longitude: lng, heading } = pos.coords;
     const newLatLng = { lat, lng };
-    
-    // 2. تحديث الحالة العالمية للموقع (appState)
-    // هذا المتغير هو ما تقرأ منه دالة الـ onDraw الخاصة بالسيارة 3D
+
+    // 1. تحديث الحالة
     window.appState.currentLocation = newLatLng;
+    window.appState.car.heading = (heading !== null && !isNaN(heading)) ? heading : window.dashboardGoogleMap.getHeading();
 
-    // 3. معالجة اتجاه الدوران (Heading)
-    // نستخدم القيمة من السنسور، وإذا كانت غير متوفرة نحافظ على الاتجاه الحالي
-    const currentHeading = (heading !== null && !isNaN(heading)) 
-                           ? heading 
-                           : (window.dashboardGoogleMap.getHeading() || 0);
-
-    // 🚀 4. التحديث الموحد للكاميرا (السر في السنترة)
-    // نستخدم moveCamera لضمان تحديث المركز، الدوران، والميل في لحظة واحدة
+    // 2. سنترة الكاميرا (الخريطة تتحرك تحت السيارة)
     window.dashboardGoogleMap.moveCamera({
-        center: newLatLng,     // إجبار الخريطة على التمركز حول السيارة
-        heading: currentHeading, // تدوير الخريطة مع اتجاه الحركة
-        tilt: 70,              // الحفاظ على منظور 3D احترافي
-        zoom: 18               // مستوى تقريب تفصيلي
+        center: newLatLng,
+        heading: window.appState.car.heading,
+        tilt: 70,
+        zoom: 20
     });
-
-    // 🚗 5. مزامنة دوران موديل السيارة 3D
-    // نقوم بتدوير الموديل ليتوافق تماماً مع اتجاه حركة الخريطة
-    if (window.carModel) {
-        // التحويل من درجات (GPS) إلى راديان (Three.js)
-        const rotationAngle = -(currentHeading * Math.PI) / 180 + Math.PI;
-        window.carModel.rotation.y = rotationAngle;
-    }
-
-    // 6. مزامنة بقية عناصر الواجهة (اختياري)
-    if (window.carplayGoogleMap) {
-        window.carplayGoogleMap.moveCamera({
-            center: newLatLng,
-            heading: currentHeading,
-            tilt: 45,
-            zoom: 19
-        });
-    }
-
-    // تحديث الماركر التقليدي في CarPlay (لوجود خريطة ثانية)
-    if (window.carplayGoogleMarker) {
-        window.carplayGoogleMarker.setPosition(newLatLng);
-    }
 }
+
 let locationWatchId = null;
 
 /**
