@@ -38,6 +38,27 @@
     display: none !important;
 }
 
+/* تنسيق الأرقام العملاقة داخل الكروت */
+.carousel-slide span[id*="-day-big"], 
+#carplay-weather-temp-big {
+    font-size: 5rem; /* حجم ضخم */
+    font-weight: 900;
+    line-height: 1;
+    display: block;
+    background: linear-gradient(to bottom, #ffffff, #a5a5a5);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+}
+
+/* تنسيق أسماء الشهور تحت الأرقام */
+.carousel-slide span[id*="-month-text"] {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.8);
+    margin-top: -5px;
+}
+
 #carplay-carousel-container {
     perspective: 1000px;
 }
@@ -2828,7 +2849,7 @@ div#map{display:none}
                              <div id="full-date-widget-container" class="hidden">
         </div>
                             <div id="weather-widget-container" class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center navigable grid-item" tabindex="0">
-    <div id="dash-carousel-container" class="relative w-full h-full flex flex-col items-center justify-center">
+<div id="dash-carousel-container" class="relative w-full h-full flex flex-col items-center justify-center">
         
         <div id="dash-card-media" class="carousel-slide-dash active w-full">
             <img id="dash-media-thumb" src="" class="w-24 h-24 rounded-2xl object-cover mb-2 shadow-lg">
@@ -2841,6 +2862,14 @@ div#map{display:none}
              <h3 class="text-lg font-bold text-purple-300">مرحلة القمر</h3>
                 <p id="carplay-moon-phase" class="text-sm text-white/60">NASA SVS</p>
         </div>
+     <div id="carplay-card-weather" class="carousel-slide flex flex-col items-center justify-center">
+    <span id="carplay-weather-temp-big" class="text-7xl font-black text-white">--°</span>
+    </div>
+
+    <div id="carplay-card-gregorian" class="carousel-slide flex flex-col items-center justify-center">
+    <span id="greg-day-big" class="text-7xl font-black text-blue-400">--</span>
+    <span id="greg-month-text" class="text-2xl font-bold text-white mt-[-10px]">--</span>
+    </div>
 
         <div id="dash-card-weather" class="carousel-slide-dash w-full">
             <img id="dash-weather-icon-big" src="" class="w-20 h-20 object-contain mb-1">
@@ -2860,7 +2889,7 @@ div#map{display:none}
             </div>
         </div>
     </div>
-                            </div>
+ </div>
                             <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center navigable grid-item" tabindex="0">
                                 <div id="digital-clock-widget" class="w-full h-full flex flex-col items-center justify-center text-center">
                                     <div id="digital-time">
@@ -2887,7 +2916,7 @@ div#map{display:none}
     
     <div id="suggested-d-dashboard-container" class="favorites-dashboard-horizontal-scroll flex-grow overflow-x-auto whitespace-nowrap flex gap-4" style="flex-direction: row; justify-content: flex-start;">
         </div>
-</div>
+    </div>
                        
                         <div id="favorites-d-dashboard-row" class="glass-surface glass-surface--svg p-4 flex col-span-full justify-start rounded-3xl navigable grid-item" tabindex="0" style="height: 180px;">
                 <div id="fav-d-dashboard-container" class="favorites-dashboard-horizontal-scroll flex-grow overflow-x-auto 
@@ -2903,7 +2932,7 @@ div#map{display:none}
                         
 
 
-                        <div id="tv" class="glass-surface glass-surface--svg p-4 flex flex-col items-center justify-center text-center car-cam-360-container col-span-1 row-start-1 navigable grid-item" tabindex="0"></div>
+<div id="tv" class="glass-surface glass-surface--svg p-4 flex flex-col items-center justify-center text-center car-cam-360-container col-span-1 row-start-1 navigable grid-item" tabindex="0"></div>
  <div id="universal-date-display" class="navigable"></div>
 
                     </div>
@@ -3450,8 +3479,21 @@ div#map{display:none}
     <script>
 let carplayRotationIndex = 0;
 let dashRotationIndex = 0;
-const carplaySlideIds = ['carplay-card-media', 'carplay-card-nasa', 'carplay-card-weather'];
-const dashSlideIds = ['dash-card-media', 'dash-card-nasa', 'dash-card-weather'];
+// مصفوفة CarPlay - أضفنا كرت الميلادي وكرت الهجري
+const carplaySlideIds = [
+    'carplay-card-media', 
+    'carplay-card-nasa', 
+    'carplay-card-weather', 
+    'carplay-card-gregorian'     // الكرت الجديد للهجري
+];
+
+// مصفوفة الداشبورد (إذا قمت بإنشاء نفس الكروت في شاشة الداشبورد أيضاً)
+const dashSlideIds = [
+    'dash-card-media', 
+    'dash-card-nasa', 
+    'dash-card-gregorian',   // الكرت الجديد       // الكرت الجديد
+    'dash-card-weather'      // الكرت القديم (المقاييس)
+];
 
 function updateAllDisplays() {
     const player = window.popupPlayer || window.player;
@@ -3473,6 +3515,24 @@ function updateAllDisplays() {
     }
 }
 
+function centerMapOnUserLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((pos) => {
+            // تحديث الموقع في الذاكرة أولاً
+            updateGoogleMapLocation(pos);
+
+            // التحقق من الجاهزية قبل التحريك
+            if (window.dashboardGoogleMap) {
+                const { latitude: lat, longitude: lng } = pos.coords;
+                window.dashboardGoogleMap.setCenter({ lat, lng });
+                window.dashboardGoogleMap.setZoom(19);
+            }
+        }, (err) => {
+            console.error("GPS Error:", err);
+        }, { enableHighAccuracy: true });
+    }
+}
+
 function rotateSlides(selector, idArray, type) {
     let idx = type === 'carplay' ? carplayRotationIndex : dashRotationIndex;
     idx = (idx + 1) % idArray.length;
@@ -3487,10 +3547,12 @@ function rotateSlides(selector, idArray, type) {
 }
 
 function syncDataToElements(player) {
+    // 🛑 إضافة تعريف الوقت أولاً (ضروري جداً لعمل التواريخ)
+    const now = new Date(); 
     const weather = appState.weather;
     const moon = appState.moonData;
 
-    // تحديث الميديا في الشاشتين
+    // 1. تحديث الميديا في الشاشتين
     if (player && typeof player.getVideoData === 'function') {
         const vData = player.getVideoData();
         const thumbUrl = `https://img.youtube.com/vi/${vData.video_id}/hqdefault.jpg`;
@@ -3503,7 +3565,33 @@ function syncDataToElements(player) {
         });
     }
 
-    // تحديث الطقس والمقاييس (Double Injection)
+    // 2. كرت الحرارة الكبيرة (CarPlay)
+    const tempBig = document.getElementById('carplay-weather-temp-big');
+    if (tempBig && weather && weather.temperature !== null) {
+        tempBig.textContent = `${Math.round(weather.temperature)}°`;
+    }
+
+    // 3. كرت التاريخ الميلادي (يوم كبير + شهر نصي)
+    const gregDay = document.getElementById('greg-day-big');
+    const gregMonth = document.getElementById('greg-month-text');
+    if (gregDay && gregMonth) {
+        gregDay.textContent = now.getDate();
+        gregMonth.textContent = new Intl.DateTimeFormat('ar-SA', { month: 'long' }).format(now);
+    }
+
+    // 4. كرت التاريخ الهجري (يوم كبير + شهر نصي)
+    const hijriDay = document.getElementById('hijri-day-big');
+    const hijriMonth = document.getElementById('hijri-month-text');
+    if (hijriDay && hijriMonth) {
+        try {
+            const formatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-uma', { day: 'numeric', month: 'long' });
+            const parts = formatter.formatToParts(now);
+            hijriDay.textContent = parts.find(p => p.type === 'day').value;
+            hijriMonth.textContent = parts.find(p => p.type === 'month').value;
+        } catch (e) { console.error("Error formatting Hijri date", e); }
+    }
+
+    // 5. تحديث الطقس والمقاييس (Double Injection)
     if (weather) {
         ['carplay', 'dash'].forEach(p => {
             const icon = document.getElementById(`${p}-weather-icon-big`);
@@ -3518,13 +3606,13 @@ function syncDataToElements(player) {
         });
     }
 
-    // تحديث القمر (ناسا)
+    // 6. تحديث القمر (ناسا)
     if (appState.dynamicMoonImageUrl) {
         ['carplay', 'dash'].forEach(p => {
             const img = document.getElementById(`${p}-nasa-moon`);
             const phaseTxt = document.getElementById(`${p}-moon-phase`);
             if (img) img.src = appState.dynamicMoonImageUrl;
-            if (phaseTxt) phaseTxt.textContent = `الإضاءة: ${moon?.phase.toFixed(1)}%`;
+            if (phaseTxt && moon) phaseTxt.textContent = `الإضاءة: ${moon.phase.toFixed(1)}%`;
         });
     }
 }
@@ -8562,25 +8650,20 @@ async function handleSearchForReciterChannel() {
  */
 
 // متغيرات التحكم العالمية لضمان السلاسة
-let carModel; 
-let currentRotation = 0; // لتخزين الزاوية الحالية لعمل انتقال ناعم
+// المتغيرات العالمية للتحكم
+window.carOverlay = null; 
+window.carModel = null;
 
 async function setup3DCarMarker(map) {
-    if (!map) return;
-    
-    // التأكد من وجود المكتبات
-    if (!window.THREE || !window.GLTFLoader) {
-        console.error("❌ Three.js or GLTFLoader missing");
-        return;
-    }
+    if (!map || window.carOverlay) return; // منع التكرار القاطع
 
     const loader = new window.GLTFLoader();
     const overlay = new google.maps.WebGLOverlayView();
+    window.carOverlay = overlay;
 
     overlay.onAdd = () => {
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera();
-        
         scene.add(new THREE.AmbientLight(0xffffff, 1.5));
         const sun = new THREE.DirectionalLight(0xffffff, 2.0);
         sun.position.set(10, 25, 10);
@@ -8590,52 +8673,21 @@ async function setup3DCarMarker(map) {
             window.carModel = gltf.scene;
             window.carModel.rotation.x = Math.PI / 2;
             scene.add(window.carModel);
-            console.log("✅ Car Model Loaded into Scene");
         });
-
-        overlay.scene = scene;
-        overlay.camera = camera;
+        overlay.scene = scene; overlay.camera = camera;
     };
 
     overlay.onContextRestored = ({ gl }) => {
         overlay.renderer = new THREE.WebGLRenderer({
             canvas: gl.canvas, context: gl, antialias: true, alpha: true,
-            ...gl.getContextAttributes(),
         });
         overlay.renderer.autoClear = false;
     };
 
-    overlay.onDraw = ({ transformer }) => {
-    const { scene, camera, renderer } = overlay;
-    if (!scene || !camera || !renderer || !window.carModel) {
-        overlay.requestRedraw();
-        return;
-    }
-
-    // 🎯 السر هنا: نستخدم نفس موقع الكاميرا أو الموقع العالمي appState
-    const pos = (window.appState && appState.currentLocation) 
-                ? appState.currentLocation 
-                : { lat: 17.015, lng: 54.092 }; // صلالة
-
-    // 📏 الحجم الكبير (1.5)
-    const zoom = map.getZoom();
-    const scaleFactor = Math.pow(2, 20 - zoom); 
-    window.carModel.scale.set(1.2 * scaleFactor, 1.2 * scaleFactor, 1.2 * scaleFactor);
-
-    // 📐 التموضع في منتصف المصفوفة
-    const matrix = transformer.fromLatLngAltitude({
-        lat: pos.lat,
-        lng: pos.lng,
-        altitude: 1.0
-    });
     
-    camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
-
-    renderer.render(scene, camera);
-    overlay.requestRedraw(); 
-};
     overlay.setMap(map);
 }
+
 function displayReciterSearchResults(channels) {
     const resultsContainer = document.getElementById('channel-search-results');
     resultsContainer.innerHTML = '';
@@ -9500,132 +9552,42 @@ async function initMaps() {
         console.error("❌ Map Init Error:", error);
     }
 }
-/**
- * تحديث موقع الخريطة والسيارة الـ 3D بناءً على بيانات GPS
- * تضمن هذه الدالة بقاء السيارة في منتصف الشاشة (Centering)
- */
-(async function forceInitializeSystem() {
-    console.log("⏳ جاري التحقق من جاهزية خدمات جوجل ماب...");
-
-    // 1. وظيفة للانتظار حتى تجهز الخريطة والمكتبات
-    const waitForMap = () => {
-        return new Promise((resolve) => {
-            const check = setInterval(() => {
-                if (window.google && window.google.maps && (window.dashboardGoogleMap || window.initMap)) {
-                    clearInterval(check);
-                    resolve();
-                }
-            }, 500);
-        });
-    };
-
-    await waitForMap();
-    console.log("✅ خدمات جوجل ماب جاهزة الآن.");
-
-    // 2. إصلاح الأخطاء التي تعطل النظام
-    window.appState = window.appState || { currentLocation: { lat: 17.015, lng: 54.092 }, car: { heading: 0 } };
-    window.updateCarPlayCardData = () => { return; };
-
-    // 3. محاولة تشغيل initMap إذا لم تكن الخريطة بدأت بعد
-    if (!window.dashboardGoogleMap && typeof window.initMap === 'function') {
-        console.log("🛠️ تشغيل تهيئة الخريطة يدوياً...");
-        await window.initMap();
-    }
-
-    // 4. طلب الموقع الفعلي (GPS) ونقل السيارة للمركز
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((pos) => {
-            const lat = pos.coords.latitude;
-            const lng = pos.coords.longitude;
-            const heading = pos.coords.heading || 0;
-
-            console.log(`📍 تم تحديد موقعك الفعلي: ${lat}, ${lng}`);
-            appState.currentLocation = { lat, lng };
-
-            if (window.dashboardGoogleMap) {
-                // سنترة الخريطة في المنتصف تماماً
-                window.dashboardGoogleMap.moveCamera({
-                    center: { lat, lng },
-                    heading: heading,
-                    tilt: 70,
-                    zoom: 20
-                });
-
-                // إظهار وتكبير السيارة (1.5)
-                if (typeof setup3DCarMarker === 'function') {
-                    setup3DCarMarker(window.dashboardGoogleMap);
-                }
-            }
-        }, (err) => {
-            console.error("❌ فشل تحديد الموقع، تأكد من تفعيل GPS المتصفح.");
-        }, { enableHighAccuracy: true });
-    }
-})();
-
-(function forceSyncAndCenter() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((pos) => {
-            const lat = pos.coords.latitude;
-            const lng = pos.coords.longitude;
-            const heading = pos.coords.heading || 0;
-
-            console.log(`📡 إشارة GPS قوية! الموقع: ${lat}, ${lng}`);
-
-            // 1. تحديث الحالة العالمية
-            window.appState.currentLocation = { lat, lng };
-
-            // 2. إجبار الخريطة على السنترة (السيارة في المركز تماماً)
-            if (window.dashboardGoogleMap) {
-                window.dashboardGoogleMap.moveCamera({
-                    center: { lat, lng },
-                    heading: heading,
-                    tilt: 70,
-                    zoom: 20
-                });
-                console.log("🎯 تم ضبط الخريطة على المركز.");
-            }
-
-            // 3. ضبط السيارة 3D (الحجم والتمركز)
-            if (window.carModel) {
-                // التأكد من الحجم الضخم (1.5)
-                const zoom = window.dashboardGoogleMap.getZoom();
-                const scale = 1.5 * Math.pow(2, 20 - zoom);
-                window.carModel.scale.set(scale, scale, scale);
-                
-                // تدوير السيارة لتنظر للأمام بناءً على GPS
-                window.carModel.rotation.y = -(heading * Math.PI) / 180 + Math.PI;
-            }
-        }, (err) => {
-            console.error("❌ فشل تحديد الموقع: " + err.message);
-        }, { enableHighAccuracy: true });
-    }
-})();
-
 function updateGoogleMapLocation(pos) {
-    if (!pos || !pos.coords || !window.dashboardGoogleMap) return;
+    if (!pos || !pos.coords) return;
 
     const { latitude: lat, longitude: lng, heading } = pos.coords;
-    const newLatLng = { lat: lat, lng: lng };
+    const newLatLng = { lat, lng };
     
-    // 1. تحديث الحالة العالمية فوراً
+    // حفظ الموقع في الحالة العالمية
     window.appState.currentLocation = newLatLng;
+    const currentHeading = (heading !== null && !isNaN(heading)) ? heading : 0;
 
-    const currentHeading = (heading !== null && !isNaN(heading)) ? heading : (window.dashboardGoogleMap.getHeading() || 0);
+    // 1. تحديث خريطة الداشبورد (الأصلية)
+    if (window.dashboardGoogleMap) {
+        window.dashboardGoogleMap.moveCamera({
+            center: newLatLng,
+            heading: currentHeading,
+            tilt: 70,
+            zoom: 19.5
+        });
+    }
 
-    // 2. سنترة الكاميرا حول الموقع الجديد
-    window.dashboardGoogleMap.moveCamera({
-        center: newLatLng, 
-        heading: currentHeading,
-        tilt: 70,
-        zoom: 20
-    });
+    // 2. تحديث خريطة CarPlay (المصغرة)
+    if (window.carplayGoogleMap) {
+        window.carplayGoogleMap.moveCamera({
+            center: newLatLng,
+            heading: currentHeading,
+            tilt: 45,
+            zoom: 18
+        });
+    }
 
-    // 3. مزامنة دوران السيارة
+    // 3. مزامنة موديل السيارة 3D
     if (window.carModel) {
-        const rotationAngle = -(currentHeading * Math.PI) / 180 + Math.PI;
-        window.carModel.rotation.y = rotationAngle;
+        window.carModel.rotation.y = -(currentHeading * Math.PI) / 180 + Math.PI;
     }
 }
+
 let locationWatchId = null;
 
 /**
@@ -9633,20 +9595,17 @@ let locationWatchId = null;
  * and heading data, ensuring high accuracy for map rotation.
  */
 function startContinuousLocationTracking() {
-    // نوقف أي تتبع سابق لضمان عدم تكرار المؤقت
     stopDashboardLocationTracking(); 
     
     if (navigator.geolocation) {
-        // 🛑 CRITICAL: تمكين الدقة العالية لتمكين قراءة Heading
         locationWatchId = navigator.geolocation.watchPosition(
             (pos) => { 
                 const overlay = document.getElementById('geolocation-error-overlay');
                 if (overlay) overlay.classList.add('hidden');
-                const mapControls = document.querySelector('#dashboard-google-map ~ .absolute');
-                if (mapControls) mapControls.style.display = 'flex';
                 
-                // 👈 استدعاء تحديث الموقع وتدوير الخريطة
+                // 🚀 السر في تشغيل الخريطتين هو تمرير الإحداثيات لدالة التحديث الشاملة
                 updateGoogleMapLocation(pos); 
+                
                 appState.hasShownGeolocationError = false; 
 
                 if (!initialLocationFetched) {
@@ -9655,19 +9614,16 @@ function startContinuousLocationTracking() {
                 }
             }, 
             (err) => { 
-                if (err.code === 1) { // PERMISSION_DENIED
-                    showGeolocationErrorOnMap('تم رفض إذن تحديد الموقع. يرجى تمكينه في إعدادات المتصفح.');
-                } else if (!appState.hasShownGeolocationError) {
-                    let msg = 'تعذر تتبع موقعك. يرجى التحقق من أذونات الموقع.';
-                    showMessageBox(msg); 
-                    appState.hasShownGeolocationError = true; 
+                console.error("GPS Error:", err);
+                if (err.code === 1) {
+                    showGeolocationErrorOnMap('يرجى تفعيل إذن الموقع الجغرافي.');
                 }
             }, 
-            // 💡 الإعدادات: طلب دقة عالية والحد الأقصى لعمر القراءة 5 ثواني
-            { enableHighAccuracy: true, timeout: 5000, maximumAge: 5000 } 
+            // 🛠️ تعديل ذهبي: جعل maximumAge هو 0 لضمان الموقع الحي (Live)
+            { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 } 
         );
     } else {
-        showGeolocationErrorOnMap('خدمة تحديد المواقع غير مدعومة في هذا المتصفح.');
+        showGeolocationErrorOnMap('خدمة تحديد المواقع غير مدعومة.');
     }
 }
 
