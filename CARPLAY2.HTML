@@ -8596,31 +8596,7 @@ async function setup3DCarMarker(map) {
         overlay.renderer.autoClear = false;
     };
 
-    overlay.onDraw = ({ transformer }) => {
-        const { scene, camera, renderer } = overlay;
-        if (!scene || !camera || !renderer || !window.carModel) {
-            overlay.requestRedraw(); return;
-        }
-
-        // 🎯 الماركر يتبع appState.currentLocation دائماً
-        const pos = window.appState.currentLocation || { lat: 17.015, lng: 54.092 };
-        const heading = window.appState.car.heading || 0;
-
-        // 📏 حجم ثابت (Scalable) مهما كان الزووم
-        const zoom = map.getZoom();
-        const scaleFactor = Math.pow(2, 20 - zoom);
-        window.carModel.scale.set(1.5 * scaleFactor, 1.5 * scaleFactor, 1.5 * scaleFactor);
-
-        // 📐 السنترة المطلقة
-        const matrix = transformer.fromLatLngAltitude({ lat: pos.lat, lng: pos.lng, altitude: 1.0 });
-        camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
-
-        // 🧭 الدوران السلس
-        window.carModel.rotation.y = -(heading * Math.PI) / 180 + Math.PI;
-
-        renderer.render(scene, camera);
-        overlay.requestRedraw();
-    };
+    
     overlay.setMap(map);
 }
 
@@ -9488,27 +9464,46 @@ async function initMaps() {
         console.error("❌ Map Init Error:", error);
     }
 }
-
-
-
-
 function updateGoogleMapLocation(pos) {
-    if (!pos || !pos.coords || !window.dashboardGoogleMap) return;
+    if (!pos || !pos.coords) return;
 
     const { latitude: lat, longitude: lng, heading } = pos.coords;
     const newLatLng = { lat, lng };
-
-    // 1. تحديث الحالة
+    
+    // 1. تحديث الحالة العالمية
     window.appState.currentLocation = newLatLng;
-    window.appState.car.heading = (heading !== null && !isNaN(heading)) ? heading : window.dashboardGoogleMap.getHeading();
+    const currentHeading = (heading !== null && !isNaN(heading)) ? heading : 0;
+    window.appState.car.heading = currentHeading;
 
-    // 2. سنترة الكاميرا (الخريطة تتحرك تحت السيارة)
-    window.dashboardGoogleMap.moveCamera({
-        center: newLatLng,
-        heading: window.appState.car.heading,
-        tilt: 70,
-        zoom: 20
-    });
+    // 2. تحديث خريطة الـ Dashboard (3D)
+    if (window.dashboardGoogleMap) {
+        window.dashboardGoogleMap.moveCamera({
+            center: newLatLng,
+            heading: currentHeading,
+            tilt: 70,
+            zoom: 20
+        });
+    }
+
+    // 3. تحديث خريطة الـ CarPlay (Mini Map)
+    if (window.carplayGoogleMap) {
+        window.carplayGoogleMap.moveCamera({
+            center: newLatLng,
+            heading: currentHeading,
+            tilt: 45,
+            zoom: 18
+        });
+    }
+
+    // 4. مزامنة الماركرات (لو كنت تستخدم ماركرات تقليدية)
+    if (window.carplayGoogleMarker) {
+        window.carplayGoogleMarker.setPosition(newLatLng);
+    }
+
+    // 5. مزامنة موديل السيارة 3D
+    if (window.carModel) {
+        window.carModel.rotation.y = -(currentHeading * Math.PI) / 180 + Math.PI;
+    }
 }
 
 let locationWatchId = null;
