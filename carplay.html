@@ -2759,704 +2759,626 @@ div#map{display:none}
 <body class="animated-bg text-white overflow-hidden theme-gradient-1 animation-paused">
     <!-- SVG Filter Definition for Liquid Glass Effect -->
     <svg style="position: absolute; width: 0; height: 0; overflow: hidden;">
-        <defs>
-            <filter id="glass-filter" colorInterpolationFilters="sRGB" x="0%" y="0%" width="100%" height="100%">
-                <feImage x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="map" 
-                    href="data:image/svg+xml,%3Csvg viewBox='0 0 400 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='red-grad' x1='100%25' y1='0%25' x2='0%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%230000'/%3E%3Cstop offset='100%25' stop-color='red'/%3E%3C/linearGradient%3E%3ClinearGradient id='blue-grad' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230000'/%3E%3Cstop offset='100%25' stop-color='blue'/%3E%3C/defs%3E%3Crect x='0' y='0' width='400' height='200' fill='black'/%3E%3Crect x='0' y='0' width='400' height='200' rx='20' fill='url(%23red-grad)'/%3E%3Crect x='0' y='0' width='400' height='200' rx='20' fill='url(%23blue-grad)' style='mix-blend-mode: difference'/%3E%3Crect x='1.4' y='1.4' width='397.2' height='197.2' rx='20' fill='hsl(0 0% 50% / 0.93)' style='filter:blur(11px)'/%3E%3C/svg%3E"/>
-                
-                <feDisplacementMap in="SourceGraphic" in2="map" id="redchannel" scale="300" xChannelSelector="R" yChannelSelector="G" result="dispRed" />
-                <feColorMatrix in="dispRed" type="matrix" values="1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0" result="red" />
-                
-                <feDisplacementMap in="SourceGraphic" in2="map" id="greenchannel" scale="310" xChannelSelector="R" yChannelSelector="G" result="dispGreen" />
-                <feColorMatrix in="dispGreen" type="matrix" values="0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0" result="green" />
-                
-                <feDisplacementMap in="SourceGraphic" in2="map" id="bluechannel" scale="320" xChannelSelector="R" yChannelSelector="G" result="dispBlue" />
-                <feColorMatrix in="blue" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0" result="blue" />
-                
-                <feBlend in="red" in2="green" mode="screen" result="rg" />
-                <feBlend in="rg" in2="blue" mode="screen" result="output" />
-                
-                <feGaussianBlur in="output" stdDeviation="5" />
-            </filter>
-        </defs>
-    </svg>
-
-    <div class="w-full h-screen flex flex-col items-center justify-center p-4 sm:p-6">
-        
-        <!-- Top Bar: Wifi, 5G, Current Time -->
-        <div class="w-full max-w-7xl flex justify-between items-center text-white/80 text-sm px-4 py-2 absolute top-4 left-1/2 -translate-x-1/2 z-10 top-bar">
-            <div class="flex items-center gap-2">
-              
+  <defs>
+    <filter id="glass-filter" colorInterpolationFilters="sRGB" x="0%" y="0%" width="100%" height="100%">
+      <feImage x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="map" href="data:image/svg+xml,%3Csvg viewBox='0 0 400 200'
+				xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='red-grad' x1='100%25' y1='0%25' x2='0%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%230000'/%3E%3Cstop offset='100%25' stop-color='red'/%3E%3C/linearGradient%3E%3ClinearGradient id='blue-grad' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230000'/%3E%3Cstop offset='100%25' stop-color='blue'/%3E%3C/defs%3E%3Crect x='0' y='0' width='400' height='200' fill='black'/%3E%3Crect x='0' y='0' width='400' height='200' rx='20' fill='url(%23red-grad)'/%3E%3Crect x='0' y='0' width='400' height='200' rx='20' fill='url(%23blue-grad)' style='mix-blend-mode: difference'/%3E%3Crect x='1.4' y='1.4' width='397.2' height='197.2' rx='20' fill='hsl(0 0% 50% / 0.93)' style='filter:blur(11px)'/%3E%3C/svg%3E" />
+      <feDisplacementMap in="SourceGraphic" in2="map" id="redchannel" scale="300" xChannelSelector="R" yChannelSelector="G" result="dispRed" />
+      <feColorMatrix in="dispRed" type="matrix" values="1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0" result="red" />
+      <feDisplacementMap in="SourceGraphic" in2="map" id="greenchannel" scale="310" xChannelSelector="R" yChannelSelector="G" result="dispGreen" />
+      <feColorMatrix in="dispGreen" type="matrix" values="0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0" result="green" />
+      <feDisplacementMap in="SourceGraphic" in2="map" id="bluechannel" scale="320" xChannelSelector="R" yChannelSelector="G" result="dispBlue" />
+      <feColorMatrix in="blue" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0" result="blue" />
+      <feBlend in="red" in2="green" mode="screen" result="rg" />
+      <feBlend in="rg" in2="blue" mode="screen" result="output" />
+      <feGaussianBlur in="output" stdDeviation="5" />
+    </filter>
+  </defs>
+</svg>
+<div class="w-full h-screen flex flex-col items-center justify-center p-4 sm:p-6">
+  <!-- Top Bar: Wifi, 5G, Current Time -->
+  <div class="w-full max-w-7xl flex justify-between items-center text-white/80 text-sm px-4 py-2 absolute top-4 left-1/2 -translate-x-1/2 z-10 top-bar">
+    <div class="flex items-center gap-2"></div>
+  </div>
+  <!-- Lexus Logo Fixed at Top Center -->
+  <img src="https://dmusera.netlify.app/Lexus-Logo.wine.svg" width="200px" alt="Lexus Logo" class="fixed top-2 left-1/2 -translate-x-1/2 h-12 z-[1000] opacity-80" style="filter: invert(1) grayscale(100%) brightness(200%);" />
+  <!-- Main CarPlay Interface Container -->
+  <div id="carplay-main-interface" class="flex flex-row shadow-2xl rounded-3xl overflow-hidden bg-black/20 border border-white/10">
+    <!-- Main content area for app screens -->
+    <main class="flex-1 flex flex-col h-full">
+      <!-- Dashboard Screen -->
+      <section id="screen-Dashboard" class="app-screen p-4 md:p-6 flex-col h-full">
+        <!-- UPDATED: Dashboard layout changed -->
+        <div class="dashboard-main-grid grid grid-cols-1 md:grid-cols-3 grid-rows-[80%_20%] gap-4 md:gap-6 h-full w-full grid-container">
+          <!-- Map Widget (Now first) -->
+          <button class="playlist-shuffle-btn navigable grid-item" style="position: absolute;bottom: 15px;left: 15px;z-index: 9999;background: transparent!important;color: transparent!important;width: 9rem;height: 3rem;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shuffle" class="lucide lucide-shuffle">
+              <path d="m18 14 4 4-4 4"></path>
+              <path d="m18 2 4 4-4 4"></path>
+              <path d="M2 18h1.973a4 4 0 0 0 3.3-1.7l5.454-8.6a4 4 0 0 1 3.3-1.7H22"></path>
+              <path d="M2 6h1.972a4 4 0 0 1 3.6 2.2"></path>
+              <path d="M22 18h-6.041a4 4 0 0 1-3.3-1.8l-.359-.45"></path>
+            </svg> تشغيل الكل </button>
+          <div id="map" class="rounded-3xl relative overflow-hidden flex items-center justify-center glass-surface glass-surface--svg p-1 col-span-1 row-start-1 navigable grid-item" tabindex="0">
+            <div id="dashboard-google-map" class="full-iframe"></div>
+            <!-- NEW: Geolocation Error Overlay -->
+            <div id="geolocation-error-overlay" class="hidden absolute top-0 left-0 w-full h-full bg-black/70 text-white flex-col items-center justify-center text-center p-4 z-10 rounded-3xl">
+              <i data-lucide="map-pin-off" class="w-12 h-12 text-red-500 mb-4"></i>
+              <h3 class="font-bold text-lg mb-2">خدمة تحديد المواقع معطلة</h3>
+              <p class="text-sm text-white/80">يرجى تمكين أذونات الموقع في إعدادات المتصفح لهذا الموقع للاستفادة من ميزات الخريطة.</p>
             </div>
-           
-        </div>
-
-        <!-- Lexus Logo Fixed at Top Center -->
-        <img src="https://dmusera.netlify.app/Lexus-Logo.wine.svg" width="200px" alt="Lexus Logo" class="fixed top-2 left-1/2 -translate-x-1/2 h-12 z-[1000] opacity-80" style="filter: invert(1) grayscale(100%) brightness(200%);" />
-
-        <!-- Main CarPlay Interface Container -->
-        <div id="carplay-main-interface" class="flex flex-row shadow-2xl rounded-3xl overflow-hidden bg-black/20 border border-white/10">
-            
-            <!-- Main content area for app screens -->
-            <main class="flex-1 flex flex-col h-full">
-                
-                <!-- Dashboard Screen -->
-                <section id="screen-Dashboard" class="app-screen p-4 md:p-6 flex-col h-full">
-                    <!-- UPDATED: Dashboard layout changed -->
-                    <div class="dashboard-main-grid grid grid-cols-1 md:grid-cols-3 grid-rows-[80%_20%] gap-4 md:gap-6 h-full w-full grid-container">
-                        <!-- Map Widget (Now first) -->
-                        <button class="playlist-shuffle-btn navigable grid-item" style="position: absolute;bottom: 15px;left: 15px;z-index: 9999;background: transparent!important;color: transparent!important;width: 9rem;height: 3rem;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shuffle" class="lucide lucide-shuffle"><path d="m18 14 4 4-4 4"></path><path d="m18 2 4 4-4 4"></path><path d="M2 18h1.973a4 4 0 0 0 3.3-1.7l5.454-8.6a4 4 0 0 1 3.3-1.7H22"></path><path d="M2 6h1.972a4 4 0 0 1 3.6 2.2"></path><path d="M22 18h-6.041a4 4 0 0 1-3.3-1.8l-.359-.45"></path></svg> تشغيل الكل</button>
-                        <div id="map" class="rounded-3xl relative overflow-hidden flex items-center justify-center glass-surface glass-surface--svg p-1 col-span-1 row-start-1 navigable grid-item" tabindex="0">
-                            <div id="dashboard-google-map" class="full-iframe"></div>
-                             <!-- NEW: Geolocation Error Overlay -->
-                             <div id="geolocation-error-overlay" class="hidden absolute top-0 left-0 w-full h-full bg-black/70 text-white flex-col items-center justify-center text-center p-4 z-10 rounded-3xl">
-                                <i data-lucide="map-pin-off" class="w-12 h-12 text-red-500 mb-4"></i>
-                                <h3 class="font-bold text-lg mb-2">خدمة تحديد المواقع معطلة</h3>
-                                <p class="text-sm text-white/80">يرجى تمكين أذونات الموقع في إعدادات المتصفح لهذا الموقع للاستفادة من ميزات الخريطة.</p>
-                            </div>
-                            <div class="absolute bottom-4 left-4 flex gap-2">
-    
-    <button id="get-my-location-button-dashboard" class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center text-sm navigable grid-item" tabindex="0" title="تحديث الموقع">
-        <i data-lucide="map-pin" class="w-5 h-5"></i>
-    </button>
-    
-    <button id="go-to-home-1-button" class="home-traffic-btn navigable grid-item" tabindex="0" title="المنزل 1">
-        المنزل 1 (--%) 
-    </button>
-    
-    <button id="go-to-home-2-button" class="home-traffic-btn navigable grid-item" tabindex="0" title="المنزل 2">
-        المنزل 2 (--%)
-    </button>
-</div>
-                        </div>
-
-                        <!-- 360 Camera View (Stays in middle) -->
-                        <div class="glass-surface glass-surface--svg p-2 flex flex-col items-center justify-center text-center car-cam-360-container col-span-1 row-start-1 navigable grid-item" tabindex="0">
-                            <img id="car-360-image" src="https://dmusera.netlify.app/es350gb.png" alt="عرض الكاميرا 360 درجة للسيارة" class="w-full h-full object-contain rounded-lg opacity-80">
-                            <div class="car-cam-360-controls grid-container">
-                                <input type="file" id="upload-360-image-input" accept="image/*" class="hidden" />
-                                <button id="upload-360-image-button" class="navigable grid-item" tabindex="0">
-                                    <i data-lucide="upload" class="w-4 h-4"></i> تحميل صورة
-                                </button>
-                                <button id="reset-360-image-button" class="navigable grid-item" tabindex="0">
-                                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i> إعادة تعيين
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <!-- Weather and Clock/Prayer Widgets (Now third) -->
-                        <div class="flex flex-col gap-4 md:gap-6 col-span-1 row-start-1 grid-container">
-                             <div id="full-date-widget-container" class="hidden">
-        </div>
-                            <div id="weather-widget-container" class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center navigable grid-item" tabindex="0">
-<div id="dash-carousel-container" class="relative w-full h-full flex flex-col items-center justify-center">
-        
-        <div id="dash-card-media" class="carousel-slide-dash active w-full">
-            <img id="dash-media-thumb" src="" class="w-24 h-24 rounded-2xl object-cover mb-2 shadow-lg">
-            <h3 id="dash-media-title" class="text-xs font-bold truncate px-2">YouTube</h3>
-        </div>
-
-        <div id="dash-card-nasa" class="carousel-slide-dash w-full">
-            <img id="dash-nasa-moon" src="" class="w-24 h-24 rounded-full object-cover mb-2 border border-purple-500/20">
-            
-             <h3 class="text-lg font-bold text-purple-300">مرحلة القمر</h3>
-                <p id="carplay-moon-phase" class="text-sm text-white/60">NASA SVS</p>
-        </div>
-     <div id="carplay-card-weather" class="carousel-slide flex flex-col items-center justify-center">
-    <span id="carplay-weather-temp-big" class="text-7xl font-black text-white">--°</span>
-    </div>
-
-    <div id="carplay-card-gregorian" class="carousel-slide flex flex-col items-center justify-center">
-    <span id="greg-day-big" class="text-7xl font-black text-blue-400">--</span>
-    <span id="greg-month-text" class="text-2xl font-bold text-white mt-[-10px]">--</span>
-    </div>
-
-        <div id="dash-card-weather" class="carousel-slide-dash w-full">
-            <img id="dash-weather-icon-big" src="" class="w-20 h-20 object-contain mb-1">
-            <div class="grid grid-cols-3 gap-1 w-full mt-1">
-                <div class="bg-black/20 p-1.5 rounded-lg text-center">
-                    <div class="font-bold text-sm text-blue-300" id="dash-metric-temp">--°</div>
-                    <div class="text-[8px] opacity-60">Temp</div>
-                </div>
-                <div class="bg-black/20 p-1.5 rounded-lg text-center">
-                    <div class="font-bold text-sm text-yellow-300" id="dash-metric-uv">--</div>
-                    <div class="text-[8px] opacity-60">UV</div>
-                </div>
-                <div class="bg-black/20 p-1.5 rounded-lg text-center">
-                    <div class="font-bold text-sm text-cyan-300" id="dash-metric-humidity">--%</div>
-                    <div class="text-[8px] opacity-60">Hum</div>
-                </div>
+            <div class="absolute bottom-4 left-4 flex gap-2">
+              <button id="get-my-location-button-dashboard" class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center text-sm navigable grid-item" tabindex="0" title="تحديث الموقع">
+                <i data-lucide="map-pin" class="w-5 h-5"></i>
+              </button>
+              <button id="go-to-home-1-button" class="home-traffic-btn navigable grid-item" tabindex="0" title="المنزل 1"> المنزل 1 (--%) </button>
+              <button id="go-to-home-2-button" class="home-traffic-btn navigable grid-item" tabindex="0" title="المنزل 2"> المنزل 2 (--%) </button>
             </div>
-        </div>
-    </div>
- </div>
-                            <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center navigable grid-item" tabindex="0">
-                                <div id="digital-clock-widget" class="w-full h-full flex flex-col items-center justify-center text-center">
-                                    <div id="digital-time">
-                                        
-                                        <span class="hours">00</span>:<span class="minutes">00</span><span id="time-icon-container"></span>
-                                    </div>
-                                    <div id="digital-date">
-                                        <div id="digital-date-line1">  </div>
-                                        <div id="digital-date-line2"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Prayer Times Row (Stays at bottom) -->
-                        <div class="glass-surface glass-surface--svg p-4 flex flex-col items-center justify-center text-center col-span-full row-start-2 navigable grid-item" tabindex="0">
-                            <div id="prayer-times-container" class="prayer-times-row grid-container">
-                                <!-- Prayer times will be loaded here by JavaScript -->
-                                <p class="text-white/70 col-span-full">جاري تحميل أوقات الصلاة...</p>
-                            </div>
-                            
-                        </div>
-                    <div id="suggested-d-dashboard-row" class="glass-surface glass-surface--svg p-4 flex col-span-full justify-start rounded-3xl navigable grid-item" tabindex="0" style="height: 180px;"> 
-    
-    <div id="suggested-d-dashboard-container" class="favorites-dashboard-horizontal-scroll flex-grow overflow-x-auto whitespace-nowrap flex gap-4" style="flex-direction: row; justify-content: flex-start;">
-        </div>
-    </div>
-                       
-                        <div id="favorites-d-dashboard-row" class="glass-surface glass-surface--svg p-4 flex col-span-full justify-start rounded-3xl navigable grid-item" tabindex="0" style="height: 180px;">
-                <div id="fav-d-dashboard-container" class="favorites-dashboard-horizontal-scroll flex-grow overflow-x-auto 
+          </div>
+          <!-- 360 Camera View (Stays in middle) -->
+          <div class="glass-surface glass-surface--svg p-2 flex flex-col items-center justify-center text-center car-cam-360-container col-span-1 row-start-1 navigable grid-item" tabindex="0">
+            <img id="car-360-image" src="https://dmusera.netlify.app/es350gb.png" alt="عرض الكاميرا 360 درجة للسيارة" class="w-full h-full object-contain rounded-lg opacity-80">
+            <div class="car-cam-360-controls grid-container">
+              <input type="file" id="upload-360-image-input" accept="image/*" class="hidden" />
+              <button id="upload-360-image-button" class="navigable grid-item" tabindex="0">
+                <i data-lucide="upload" class="w-4 h-4"></i> تحميل صورة </button>
+              <button id="reset-360-image-button" class="navigable grid-item" tabindex="0">
+                <i data-lucide="rotate-ccw" class="w-4 h-4"></i> إعادة تعيين </button>
+            </div>
+          </div>
+          <!-- Weather and Clock/Prayer Widgets (Now third) -->
+          <div class="flex flex-col gap-4 md:gap-6 col-span-1 row-start-1 grid-container">
+            <div id="full-date-widget-container" class="hidden"></div>
+            <div id="weather-widget-container" class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center navigable grid-item" tabindex="0">
+              <div id="dash-carousel-container" class="relative w-full h-full flex flex-col items-center justify-center">
+                <div id="dash-card-media" class="carousel-slide-dash active w-full">
+                  <img id="dash-media-thumb" src="" class="w-24 h-24 rounded-2xl object-cover mb-2 shadow-lg">
+                  <h3 id="dash-media-title" class="text-xs font-bold truncate px-2">YouTube</h3>
+                </div>
+                <div id="dash-card-nasa" class="carousel-slide-dash w-full">
+                  <img id="dash-nasa-moon" src="" class="w-24 h-24 rounded-full object-cover mb-2 border border-purple-500/20">
+                  <h3 class="text-lg font-bold text-purple-300">مرحلة القمر</h3>
+                  <p id="carplay-moon-phase" class="text-sm text-white/60">NASA SVS</p>
+                </div>
+                <div id="carplay-card-weather" class="carousel-slide flex flex-col items-center justify-center">
+                  <span id="carplay-weather-temp-big" class="text-7xl font-black text-white">--°</span>
+                </div>
+                <div id="dash-card-weather" class="carousel-slide-dash w-full">
+                  <img id="dash-weather-icon-big" src="" class="w-20 h-20 object-contain mb-1">
+                  <div class="grid grid-cols-3 gap-1 w-full mt-1">
+                    <div class="bg-black/20 p-1.5 rounded-lg text-center">
+                      <div class="font-bold text-sm text-blue-300" id="dash-metric-temp">--°</div>
+                      <div class="text-[8px] opacity-60">Temp</div>
+                    </div>
+                    <div class="bg-black/20 p-1.5 rounded-lg text-center">
+                      <div class="font-bold text-sm text-yellow-300" id="dash-metric-uv">--</div>
+                      <div class="text-[8px] opacity-60">UV</div>
+                    </div>
+                    <div class="bg-black/20 p-1.5 rounded-lg text-center">
+                      <div class="font-bold text-sm text-cyan-300" id="dash-metric-humidity">--%</div>
+                      <div class="text-[8px] opacity-60">Hum</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center navigable grid-item" tabindex="0">
+              <div id="digital-clock-widget" class="w-full h-full flex flex-col items-center justify-center text-center">
+                <div id="digital-time">
+                  <span class="hours">00</span>: <span class="minutes">00</span>
+                  <span id="time-icon-container"></span>
+                </div>
+                <div id="digital-date">
+                  <div id="digital-date-line1"></div>
+                  <div id="digital-date-line2"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Prayer Times Row (Stays at bottom) -->
+          <div class="glass-surface glass-surface--svg p-4 flex flex-col items-center justify-center text-center col-span-full row-start-2 navigable grid-item" tabindex="0">
+            <div id="prayer-times-container" class="prayer-times-row grid-container">
+              <!-- Prayer times will be loaded here by JavaScript -->
+              <p class="text-white/70 col-span-full">جاري تحميل أوقات الصلاة...</p>
+            </div>
+          </div>
+          <div id="suggested-d-dashboard-row" class="glass-surface glass-surface--svg p-4 flex col-span-full justify-start rounded-3xl navigable grid-item" tabindex="0" style="height: 180px;">
+            <div id="suggested-d-dashboard-container" class="favorites-dashboard-horizontal-scroll flex-grow overflow-x-auto whitespace-nowrap flex gap-4" style="flex-direction: row; justify-content: flex-start;"></div>
+          </div>
+          <div id="favorites-d-dashboard-row" class="glass-surface glass-surface--svg p-4 flex col-span-full justify-start rounded-3xl navigable grid-item" tabindex="0" style="height: 180px;">
+            <div id="fav-d-dashboard-container" class="favorites-dashboard-horizontal-scroll flex-grow overflow-x-auto 
                  whitespace-nowrap 
                  flex 
-                 gap-4" 
-          style="flex-direction: row; justify-content: flex-start;">
-    
-                    <p class="text-white/70 text-center p-4 w-full">جاري التحميل...</p>
-                </div>
+                 gap-4" style="flex-direction: row; justify-content: flex-start;">
+              <p class="text-white/70 text-center p-4 w-full">جاري التحميل...</p>
             </div>
-            
-                        
-
-
-<div id="tv" class="glass-surface glass-surface--svg p-4 flex flex-col items-center justify-center text-center car-cam-360-container col-span-1 row-start-1 navigable grid-item" tabindex="0"></div>
- <div id="universal-date-display" class="navigable"></div>
-
-                    </div>
-                   
-                </section>
-
-                <!-- Media (YouTube) Screen -->
-                <section id="screen-Media" class="app-screen p-4 md:p-6 flex-col items-center h-full relative">
-                    <button 
-        id="fullscreen-screen-Media-btn" 
-        onclick="toggleFullscreen('screen-Media')"  class="fullscreen-toggle-button navigable grid-item"
-        title="Toggle Fullscreen Map"
-    >
-        <i class="fas fa-expand"></i> 
-    </button><!-- NEW: Floating "Back to Search" Button -->
-                    <button id="back-to-search-floating-button" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-5 rounded-full shadow-lg z-50 flex items-center gap-2 navigable grid-item" tabindex="0" style="display: none;">
-                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
-                        <span>العودة إلى البحث</span>
-                    </button>
-
-                    <div class="w-full flex flex-col gap-4">
-                        <!-- Search Row -->
-                        <div class="w-full flex flex-row items-center gap-2 grid-container flex-shrink-0">
-                            <button id="youtube-search-button" class="bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center navigable grid-item" tabindex="0">
-                                <i data-lucide="search"></i>
-                            </button>
-                            <button id="floating-keyboard-button" class="glass-surface glass-surface--svg rounded-full navigable grid-item " tabindex="0">
-        <i data-lucide="keyboard" class="w-6 h-6"></i>
-    </button>
-                            <button id="clear-search-button" class="navigable grid-item" tabindex="0">
-                                <i data-lucide="x" class="w-5 h-5"></i>
-                            </button>
-                            <input type="text" id="youtube-search-input" placeholder="ابحث في يوتيوب..." class="flex-grow p-3 rounded-full bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 navigable grid-item" tabindex="0" readonly="true" />
-                        </div>
-                        
-                        <div id="youtube-suggestions" class="w-full flex-grow flex flex-col">
-    
-    <div id="last-watched-container" class="hidden">
+          </div>
+          <div id="tv" class="glass-surface glass-surface--svg p-4 flex flex-col items-center justify-center text-center car-cam-360-container col-span-1 row-start-1 navigable grid-item" tabindex="0"></div>
+          <div id="universal-date-display" class="navigable"></div>
         </div>
-
-    <div id="suggestions-content" class="flex flex-col gap-4 w-full">
+      </section>
+      <!-- Media (YouTube) Screen -->
+      <section id="screen-Media" class="app-screen p-4 md:p-6 flex-col items-center h-full relative">
+        <button id="fullscreen-screen-Media-btn" onclick="toggleFullscreen('screen-Media')" class="fullscreen-toggle-button navigable grid-item" title="Toggle Fullscreen Map">
+          <i class="fas fa-expand"></i>
+        </button>
+        <!-- NEW: Floating "Back to Search" Button -->
+        <button id="back-to-search-floating-button" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-5 rounded-full shadow-lg z-50 flex items-center gap-2 navigable grid-item" tabindex="0" style="display: none;">
+          <i data-lucide="arrow-left" class="w-5 h-5"></i>
+          <span>العودة إلى البحث</span>
+        </button>
+        <div class="w-full flex flex-col gap-4">
+          <!-- Search Row -->
+          <div class="w-full flex flex-row items-center gap-2 grid-container flex-shrink-0">
+            <button id="youtube-search-button" class="bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center navigable grid-item" tabindex="0">
+              <i data-lucide="search"></i>
+            </button>
+            <button id="floating-keyboard-button" class="glass-surface glass-surface--svg rounded-full navigable grid-item " tabindex="0">
+              <i data-lucide="keyboard" class="w-6 h-6"></i>
+            </button>
+            <button id="clear-search-button" class="navigable grid-item" tabindex="0">
+              <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <input type="text" id="youtube-search-input" placeholder="ابحث في يوتيوب..." class="flex-grow p-3 rounded-full bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 navigable grid-item" tabindex="0" readonly="true" />
+          </div>
+          <div id="youtube-suggestions" class="w-full flex-grow flex flex-col">
+            <div id="last-watched-container" class="hidden"></div>
+            <div id="suggestions-content" class="flex flex-col gap-4 w-full"></div>
+          </div>
         </div>
-
-</div>
-                        
-                    </div>
-
-                    <div id="youtube-video-list-view" class="hidden flex-col items-center justify-center h-full w-full absolute top-0 left-0 p-4 overflow-y-auto gap-4 flex-grow bg-black/50 backdrop-blur-sm">
-                        <button id="back-to-playlists-from-videos" class="absolute top-4 left-4 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm navigable grid-item z-10" tabindex="0">
-                            <i data-lucide="arrow-left" class="w-4 h-4"></i> العودة
-                        </button>
-                        <h2 class="text-3xl font-bold mb-4 text-center w-full pt-12">فيديوهات قائمة التشغيل</h2>
-                        <div id="video-list-container" class="flex flex-col gap-4 w-full grid-container"></div>
-                        <button id="back-to-playlists-bottom-button" class="mt-4 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-full transition-colors duration-200 flex items-center justify-center gap-2 text-base navigable grid-item" tabindex="0">
-                            <i data-lucide="arrow-left" class="w-5 h-5"></i> العودة إلى البحث
-                        </button>
-                    </div> 
-
-                    <div id="youtube-search-results-view" class="hidden flex-col h-full w-full absolute top-0 left-0 bg-black/50 backdrop-blur-sm">
-                      
-                        <div id="search-results-container" class="flex flex-col gap-4 w-full p-4 overflow-y-auto flex-grow grid-container"></div>
-                        
-                        <!-- NEW: Bottom navigation container -->
-                        <div class="w-full grid grid-cols-3 items-center p-2 sticky bottom-0 bg-black/40 backdrop-blur-sm flex-shrink-0 search-results-nav">
-                            <!-- Previous Button container -->
-                            <div class="flex justify-start">
-                                <button id="previous-item-button" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-full transition-all duration-200 flex items-center justify-center gap-2 text-sm navigable grid-item" style="display: none;" tabindex="0"></button>
-                            </div>
-                            <!-- Back Button container -->
-                            <div class="flex justify-center">
-                                <button id="back-to-playlists-bottom-button-search" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-full transition-all duration-200 flex items-center justify-center gap-2 text-sm navigable grid-item" tabindex="0">
-                                    <i data-lucide="arrow-left" class="w-5 h-5"></i> العودة إلى البحث
-                                </button>
-                            </div>
-                            <!-- Next Button container -->
-                            <div class="flex justify-end">
-                                <button id="next-item-button" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-full transition-all duration-200 flex items-center justify-center gap-2 text-sm navigable grid-item" style="display: none;" tabindex="0"></button>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-                <section id="screen-DashboardCarPlay" class="app-screen p-4 flex-col h-full bg-black/40 backdrop-blur-md">
-    <div class="grid grid-cols-12 grid-rows-6 gap-4 h-full w-full max-w-7xl mx-auto p-2">
-        
-        <div class="col-span-8 row-span-6 glass-surface glass-surface--svg rounded-[2.5rem] overflow-hidden relative border border-white/20 shadow-2xl navigable grid-item" tabindex="0">
+        <div id="youtube-video-list-view" class="hidden flex-col items-center justify-center h-full w-full absolute top-0 left-0 p-4 overflow-y-auto gap-4 flex-grow bg-black/50 backdrop-blur-sm">
+          <button id="back-to-playlists-from-videos" class="absolute top-4 left-4 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm navigable grid-item z-10" tabindex="0">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i> العودة </button>
+          <h2 class="text-3xl font-bold mb-4 text-center w-full pt-12">فيديوهات قائمة التشغيل</h2>
+          <div id="video-list-container" class="flex flex-col gap-4 w-full grid-container"></div>
+          <button id="back-to-playlists-bottom-button" class="mt-4 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-full transition-colors duration-200 flex items-center justify-center gap-2 text-base navigable grid-item" tabindex="0">
+            <i data-lucide="arrow-left" class="w-5 h-5"></i> العودة إلى البحث </button>
+        </div>
+        <div id="youtube-search-results-view" class="hidden flex-col h-full w-full absolute top-0 left-0 bg-black/50 backdrop-blur-sm">
+          <div id="search-results-container" class="flex flex-col gap-4 w-full p-4 overflow-y-auto flex-grow grid-container"></div>
+          <!-- NEW: Bottom navigation container -->
+          <div class="w-full grid grid-cols-3 items-center p-2 sticky bottom-0 bg-black/40 backdrop-blur-sm flex-shrink-0 search-results-nav">
+            <!-- Previous Button container -->
+            <div class="flex justify-start">
+              <button id="previous-item-button" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-full transition-all duration-200 flex items-center justify-center gap-2 text-sm navigable grid-item" style="display: none;" tabindex="0"></button>
+            </div>
+            <!-- Back Button container -->
+            <div class="flex justify-center">
+              <button id="back-to-playlists-bottom-button-search" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-full transition-all duration-200 flex items-center justify-center gap-2 text-sm navigable grid-item" tabindex="0">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i> العودة إلى البحث </button>
+            </div>
+            <!-- Next Button container -->
+            <div class="flex justify-end">
+              <button id="next-item-button" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-full transition-all duration-200 flex items-center justify-center gap-2 text-sm navigable grid-item" style="display: none;" tabindex="0"></button>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section id="screen-DashboardCarPlay" class="app-screen p-4 flex-col h-full bg-black/40 backdrop-blur-md">
+        <div class="grid grid-cols-12 grid-rows-6 gap-4 h-full w-full max-w-7xl mx-auto p-2">
+          <div class="col-span-8 row-span-6 glass-surface glass-surface--svg rounded-[2.5rem] overflow-hidden relative border border-white/20 shadow-2xl navigable grid-item" tabindex="0">
             <div id="carplay-mini-map" class="w-full h-full"></div>
             <div class="absolute bottom-4 left-4 bg-black/60 p-3 rounded-2xl backdrop-blur-md border border-white/10 flex items-center gap-3">
-                <i data-lucide="navigation" class="w-5 h-5 text-blue-400"></i>
-                <span class="text-sm font-bold truncate max-w-[150px]" id="carplay-location-text">جاري التحديد...</span>
+              <i data-lucide="navigation" class="w-5 h-5 text-blue-400"></i>
+              <span class="text-sm font-bold truncate max-w-[150px]" id="carplay-location-text">جاري التحديد...</span>
             </div>
-        </div>
-<div id="carplay-card" class="col-span-4 row-span-4 glass-surface rounded-[2.5rem] p-6 flex flex-col items-center justify-between border border-white/20 shadow-xl overflow-hidden relative">
-    <div id="carplay-carousel-container" class="relative w-full h-full flex flex-col items-center justify-center">
-        
-        <div id="carplay-card-media" class="carousel-slide active w-full">
-            <img id="carplay-media-thumb" src="" class="w-32 h-32 rounded-3xl object-cover shadow-2xl border-2 border-white/10 mb-4">
-            <div class="text-center w-full">
-                <h3 id="carplay-media-title" class="text-lg font-bold truncate">جاري التحميل...</h3>
-                <p id="carplay-media-channel" class="text-sm text-white/60">YouTube</p>
-            </div>
-        </div>
-
-        <div id="carplay-card-nasa" class="carousel-slide w-full">
-            <img id="carplay-nasa-moon" src="" class="w-32 h-32 rounded-full object-cover shadow-2xl border-2 border-purple-500/30 mb-4">
-            <div class="text-center w-full">
-                <h3 class="text-lg font-bold text-purple-300">مرحلة القمر</h3>
-                <p id="carplay-moon-phase" class="text-sm text-white/60">NASA SVS</p>
-            </div>
-        </div>
-
-        <div id="carplay-card-weather" class="carousel-slide w-full">
-            <div class="flex flex-col items-center w-full">
-                <img id="carplay-weather-icon-big" src="" class="w-24 h-24 object-contain mb-2">
-                <div class="grid grid-cols-3 gap-2 w-full px-2 mt-2">
+          </div>
+          <div id="carplay-card" class="col-span-4 row-span-4 glass-surface rounded-[2.5rem] p-6 flex flex-col items-center justify-between border border-white/20 shadow-xl overflow-hidden relative">
+            <div id="carplay-carousel-container" class="relative w-full h-full flex flex-col items-center justify-center">
+              <div id="carplay-card-media" class="carousel-slide active w-full">
+                <img id="carplay-media-thumb" src="" class="w-32 h-32 rounded-3xl object-cover shadow-2xl border-2 border-white/10 mb-4">
+                <div class="text-center w-full">
+                  <h3 id="carplay-media-title" class="text-lg font-bold truncate">جاري التحميل...</h3>
+                  <p id="carplay-media-channel" class="text-sm text-white/60">YouTube</p>
+                </div>
+              </div>
+              <div id="carplay-card-nasa" class="carousel-slide w-full">
+                <img id="carplay-nasa-moon" src="" class="w-32 h-32 rounded-full object-cover shadow-2xl border-2 border-purple-500/30 mb-4">
+                <div class="text-center w-full">
+                  <h3 class="text-lg font-bold text-purple-300">مرحلة القمر</h3>
+                  <p id="carplay-moon-phase" class="text-sm text-white/60">NASA SVS</p>
+                </div>
+              </div>
+              <div id="carplay-card-weather" class="carousel-slide w-full">
+                <div class="flex flex-col items-center w-full">
+                  <img id="carplay-weather-icon-big" src="" class="w-24 h-24 object-contain mb-2">
+                  <div class="grid grid-cols-3 gap-2 w-full px-2 mt-2">
                     <div class="bg-black/20 p-2 rounded-xl text-center border border-white/5">
-                        <div class="font-bold text-base text-blue-400" id="carplay-metric-temp">--°</div>
-                        <div class="text-[10px] opacity-70">حرارة</div>
+                      <div class="font-bold text-base text-blue-400" id="carplay-metric-temp">--°</div>
+                      <div class="text-[10px] opacity-70">حرارة</div>
                     </div>
                     <div class="bg-black/20 p-2 rounded-xl text-center border border-white/5">
-                        <div class="font-bold text-base text-yellow-400" id="carplay-metric-uv">--</div>
-                        <div class="text-[10px] opacity-70">UV</div>
+                      <div class="font-bold text-base text-yellow-400" id="carplay-metric-uv">--</div>
+                      <div class="text-[10px] opacity-70">UV</div>
                     </div>
                     <div class="bg-black/20 p-2 rounded-xl text-center border border-white/5">
-                        <div class="font-bold text-base text-cyan-400" id="carplay-metric-humidity">--%</div>
-                        <div class="text-[10px] opacity-70">رطوبة</div>
+                      <div class="font-bold text-base text-cyan-400" id="carplay-metric-humidity">--%</div>
+                      <div class="text-[10px] opacity-70">رطوبة</div>
                     </div>
+                  </div>
                 </div>
+              </div>
             </div>
-        </div>
-    </div>
-    <div class="flex gap-6 mt-4 items-center z-10">
-        <div id="carplay-capsule-prev" class="cursor-pointer opacity-50 hover:opacity-100"><i data-lucide="skip-back" class="w-6 h-6"></i></div>
-        <div id="carplay-capsule-play-pause" class="p-4 bg-white/10 rounded-full border border-white/20 cursor-pointer"><i data-lucide="play" class="w-8 h-8 fill-white"></i></div>
-        <div id="carplay-capsule-next" class="cursor-pointer opacity-50 hover:opacity-100"><i data-lucide="skip-forward" class="w-6 h-6"></i></div>
-    </div>
-</div>
-
-        <div class="col-span-4 row-span-3 glass-surface glass-surface--svg rounded-[2.5rem] p-5 flex flex-col justify-center border border-white/20 shadow-xl navigable grid-item" tabindex="0">
-             <div class="flex items-center gap-3 mb-4 bg-white/5 p-3 rounded-2xl border border-white/10">
-                <div class="w-10 h-10 rounded-full bg-orange-500/20 flex items-center justify-center">
-                    <i data-lucide="sun" class="w-6 h-6 text-orange-400"></i>
-                </div>
-                <div>
-                    <p class="text-xs text-white/50">الأذان القادم</p>
-                    <h4 id="carplay-next-prayer-name" class="text-xl font-black text-orange-300">--</h4>
-                </div>
-                <div class="mr-auto text-2xl font-black text-white" id="carplay-next-prayer-time">--:--</div>
+            <div class="flex gap-6 mt-4 items-center z-10">
+              <div id="carplay-capsule-prev" class="cursor-pointer opacity-50 hover:opacity-100">
+                <i data-lucide="skip-back" class="w-6 h-6"></i>
+              </div>
+              <div id="carplay-capsule-play-pause" class="p-4 bg-white/10 rounded-full border border-white/20 cursor-pointer">
+                <i data-lucide="play" class="w-8 h-8 fill-white"></i>
+              </div>
+              <div id="carplay-capsule-next" class="cursor-pointer opacity-50 hover:opacity-100">
+                <i data-lucide="skip-forward" class="w-6 h-6"></i>
+              </div>
             </div>
-            <div class="grid grid-cols-2 gap-2" id="carplay-prayer-mini-grid">
-                </div>
+          </div>
+          <div class="col-span-4 row-span-3 glass-surface glass-surface--svg rounded-[2.5rem] p-5 flex flex-col justify-center border border-white/20 shadow-xl navigable grid-item" tabindex="0">
+            <div class="flex items-center gap-3 mb-4 bg-white/5 p-3 rounded-2xl border border-white/10">
+              <div class="w-10 h-10 rounded-full bg-orange-500/20 flex items-center justify-center">
+                <i data-lucide="sun" class="w-6 h-6 text-orange-400"></i>
+              </div>
+              <div>
+                <p class="text-xs text-white/50">الأذان القادم</p>
+                <h4 id="carplay-next-prayer-name" class="text-xl font-black text-orange-300">--</h4>
+              </div>
+              <div class="mr-auto text-2xl font-black text-white" id="carplay-next-prayer-time">--:--</div>
+            </div>
+            <div class="grid grid-cols-2 gap-2" id="carplay-prayer-mini-grid"></div>
+          </div>
         </div>
-
-        
-    </div>
-</section>
-                <!-- Radio Screen -->
-                <section id="screen-Radio" class="app-screen items-center justify-center h-full w-full p-4 md:p-6">
-       
-                   <iframe id="iframe-Radio" class="full-iframe" title="Quran Reciters" src="https://quran.com/radio" allow="geolocation"></iframe>
-                             <button 
-        id="fullscreen-radio-iframe-btn" 
-        onclick="toggleIframeFullscreen('iframe-Radio')"  class="fullscreen-toggle-button navigable grid-item"
-        title="Toggle Fullscreen Map"
-    >
-        <i class="fas fa-expand"></i> 
-    </button>
-                </section>
-
-                <!-- Athkar Screen -->
-                <section id="screen-Athkar" class="app-screen p-4 md:p-6 flex-col items-center h-full">
-                    <div class="tabs-container flex p-1 rounded-full bg-black/20 self-center mb-4">
-                        <button id="tab-sabah" class="tab-button navigable grid-item tv-focus active" tabindex="0">أذكار الصباح</button>
-                        <button id="tab-masaa" class="tab-button navigable grid-item" tabindex="0">أذكار المساء</button>
-                        <button id="tab-monthly" class="tab-button navigable grid-item" tabindex="0">التذكيرات الشهرية</button>
-                    </div>
-                    <div id="athkar-content-container" class="w-full flex-grow overflow-y-auto">
-                                     <button 
-        id="fullscreen-athkar-btn" 
-        onclick="toggleFullscreen('athkar-content-container')"  class="fullscreen-toggle-button navigable grid-item"
-        title="Toggle Fullscreen Map"
-    >
-        <i class="fas fa-expand"></i> 
-    </button>
-                        <!-- Morning Athkar Panel -->
-                        <div id="athkar-sabah-content" class="tab-content athkar-grid"><div id="ts-1" class="athkar-item navigable grid-item athkar-color-1" tabindex="0"><p>آية الكرسي</p><span class="repetition">(مرة واحدة)</span></div><div id="ts-2" class="athkar-item navigable grid-item athkar-color-2" tabindex="0"><p>اللهم أعني على ذكرك وشكرك وحسن عبادتك.</p></div><div id="ts-3" class="athkar-item navigable grid-item athkar-color-3" tabindex="0"><p> سورة الإخلاص، سورة الفلق، سورة الناس</p><span class="repetition">(٣ مرات)</span></div>
-                        <div id="ts-4" class="athkar-item navigable grid-item athkar-color-5" tabindex="0"><p>اللهم بك أصبحنا، وبك أمسينا، وبك نحيا، وبك نموت، وإليك النشور.</p></div>
-                        <div id="tm-3" class="athkar-item navigable grid-item athkar-color-4" tabindex="0"><p>حسبي الله لا إله إلا هو عليه توكلت وهو رب العرش العظيم</p><span class="repetition">(٧ مرات)</span></div>
-                        
-                        <div id="tm-1" class="athkar-item navigable grid-item athkar-color-1" tabindex="0"><p>بسم الله الذي لا يضر مع اسمه شيء في الأرض ولا في السماء وهو السميع العليم</p><span class="repetition">(٣ مرات)</span></div>
-                        <div id="tm-2" class="athkar-item navigable grid-item athkar-color-2" tabindex="0"><p>يا حي يا قيوم برحمتك أستغيث، أصلح لي شأني كله ولا تكلني إلى نفسي طرفة عين.</p></div>
-                        <div id="tl-1" class="athkar-item navigable grid-item athkar-color-3 col-span-2" tabindex="0"><p>اللهم عالم الغيب والشهادة فاطر السماوات والأرض، رب كل شيء ومليكه، أشهد أن لا إله إلا أنت، أعوذ بك من شر نفسي، ومن شر الشيطان وشركه، وأن أقترف على نفسي سوءاً أو أجره إلى مسلم.</p></div>
-                        <div id="tl-2" class="athkar-item navigable grid-item athkar-color-4 col-span-2" tabindex="0"><p>سيد الاستغغار: اللهم أنت ربي لا إله إلا أنت، خلقتني وأنا عبدك، وأنا على عهدك ووعدك ما استطعت، أعوذ بك من شر ما صنعت، أبوء لك بنعمتك علي، وأبوء بذنبي فاغفر لي، فإنه لا يغفر الذنوب إلا أنت.</p></div>
-                        <div id="tsl-1" class="athkar-item navigable grid-item athkar-color-5 col-span-4" tabindex="0"><p>اللهم إني أسألك العفو والعافية في الدنيا والآخرة، اللهم إني أسألك العفو والعافية في ديني ودنياي وأهلي ومالي، اللهم استر عوراتي وآمن روعاتي، اللهم احفظني من بين يدي ومن خلفي وعن يميني وعن شمالي ومن فوقي، وأعوذ بعظمتك أن أغتال من تحتي.</p></div>
-                        <div id="tsl-2" class="athkar-item navigable grid-item athkar-color-1 col-span-4" tabindex="0"><p>أصبحنا وأصبح الملك لله، والحمد لله، لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير. رب أسألك خير ما في هذا اليوم وخير ما بعده، وأعوذ بك من شر ما في هذا اليوم وشر ما بعده، رب أعوذ بك من الكسل وسوء الكبر، رب أعوذ بك من عذاب في النار وعذاب في القبر.</p></div>
-                         <div id="tsl-3" class="athkar-item navigable grid-item athkar-color-1 col-span-4" tabindex="0"><p></p></div>
-
-                        </div>
-                        
-                        <!-- Evening Athkar Panel -->
-                        <div id="athkar-masaa-content" class="tab-content athkar-grid hidden">
-                         
-                            <div id="ts-1" class="athkar-item navigable grid-item athkar-color-1" tabindex="0"><p>آية الكرسي</p><span class="repetition">(مرة واحدة)</span></div>
-                            <div id="ts-2" class="athkar-item navigable grid-item athkar-color-2" tabindex="0"><p>اللهم أعني على ذكرك وشكرك وحسن عبادتك.</p></div
-                            ><div id="ts-3" class="athkar-item navigable grid-item athkar-color-3" tabindex="0"><p>المعوذات: سورة الإخلاص، سورة الفلق، سورة الناس</p><span class="repetition">(٣ مرات)</span></div>
-                            <div id="ts-4" class="athkar-item navigable grid-item athkar-color-4" tabindex="0"><p>حسبي الله لا إله إلا هو عليه توكلت وهو رب العرش العظيم</p><span class="repetition">(٧ مرات)</span>
-                            </div><div id="tm-1" class="athkar-item navigable grid-item athkar-color-5" tabindex="0"><p>اللهم بك أمسينا، وبك أصبحنا، وبك نحيا، وبك نموت، وإليك المصير.</p></div>
-                            <div id="tm-2" class="athkar-item navigable grid-item athkar-color-1" tabindex="0"><p>بسم الله الذي لا يضر مع اسمه شيء في الأرض ولا في السماء وهو السميع العليم</p><span class="repetition">(٣ مرات)</span></div>
-                            <div id="tm-3" class="athkar-item navigable grid-item athkar-color-2" tabindex="0"><p>يا حي يا قيوم برحمتك أستغيث، أصلح لي شأني كله ولا تكلني إلى نفسي طرفة عين.</p></div>
-                            <div id="tl-1" class="athkar-item navigable grid-item athkar-color-3" tabindex="0"><p>اللهم ما أمسى بي من نعمة أو بأحد من خلقك فمنك وحدك لا شريك لك، فلك الحمد ولك الشكر.</p></div>
-                            <div id="tl-2" class="athkar-item navigable grid-item athkar-color-4 col-span-2" tabindex="0"><p>سيد الاستغغار: اللهم أنت ربي لا إله إلا أنت، خلقتني وأنا عبدك، وأنا على عهدك ووعدك ما استطعت، أعوذ بك من شر ما صنعت، أبوء لك بنعمتك علي، وأبوء بذنبي فاغفر لي، فإنه لا يغفر الذنوب إلا أنت.</p></div>
-                            <div id="tsl-1" class="athkar-item navigable grid-item athkar-color-5 col-span-4" tabindex="0"><p>اللهم إني أسألك العفو والعافية في الدنيا والآخرة، اللهم إني أسألك العفو والعافية في ديني ودنياي وأهلي ومالي، اللهم استر عوراتي وآمن روعاتي، اللهم احفظني من بين يدي ومن خلفي وعن يميني وعن شمالي ومن فوقي، وأعوذ بعظمتك أن أغتال من تحتي.</p></div>
-                            <div id="tsl-2" class="athkar-item navigable grid-item athkar-color-1 col-span-4" tabindex="0"><p>أمسينا وأمسى الملك لله، والحمد لله، لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير. رب أسألك خير ما في هذه الليلة وخير ما بعدها، وأعوذ بك من شر ما في هذه الليلة وشر ما بعدها، رب أعوذ بك من الكسل وسوء الكبر، رب أعوذ بك من عذاب في النار وعذاب في القبر.</p></div>
-                            <div id="tsl-4" class="athkar-item navigable grid-item athkar-color-1 col-span-4" tabindex="0"><p></p></div>
-
-                            </div> <!-- NEW: Monthly Reminders Panel -->
-                        <div id="athkar-monthly-content" class="tab-content athkar-grid-monthly hidden">
-                            <div class="athkar-item navigable grid-item header col-span-5" tabindex="0"><p>تذكيرات وأعمال شهرية</p></div>
-                            <div class="athkar-item navigable grid-item athkar-color-1" tabindex="0"><p>الصدقة الشهرية</p></div>
-                            <div class="athkar-item navigable grid-item athkar-color-2" tabindex="0"><p>صيام الأيام البيض</p><span class="repetition">(١٣، ١٤، ١٥)</span></div>
-                            <div class="athkar-item navigable grid-item athkar-color-3" tabindex="0"><p>قراءة سورة الكهف</p><span class="repetition">(كل جمعة)</span></div>
-                            <div class="athkar-item navigable grid-item athkar-color-4" tabindex="0"><p>صلة الرحم</p></div>
-                            <div class="athkar-item navigable grid-item athkar-color-5" tabindex="0"><p> حفظ القرأن </p></div>
-                            <div class="athkar-item navigable grid-item athkar-color-1 col-span-2" tabindex="0"><p>جلسة محاسبة للنفس</p></div>
-                            <div class="athkar-item navigable grid-item athkar-color-2" tabindex="0"><p>التخطيط للشهر الجديد</p></div>
-                            <div class="athkar-item navigable grid-item athkar-color-3 col-span-2" tabindex="0"><p>تعلم مسألة فقهية جديدة</p></div>
-                            <div id="tsl-5" class="athkar-item navigable grid-item athkar-color-1 col-span-4" tabindex="0"><p></p></div>
-
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Reciters Screen -->
-               
-                <section id="screen-Reciters" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full w-full">
-<button 
-        id="fullscreen-reciters-iframe-btn" 
-        onclick="toggleIframeFullscreen('reciters-iframe')"  class="fullscreen-toggle-button navigable grid-item"
-        title="Toggle Fullscreen Map"
-    >
-        
-    </button>
-    <iframe id="reciters-iframe"
-            class="full-iframe flex-grow"
-            onclick="toggleIframeFullscreen('reciters-iframe')"  class="fullscreen-toggle-button navigable grid-item"
-            title="Reciters/TV"
-            src="https://hihi2.com/"
-            allow="geolocation; fullscreen"  allowfullscreen="true"          webkitallowfullscreen="true"    mozallowfullscreen="true">  
-            <i class="fas fa-expand"></i> 
-                </iframe>
-    
-    <div class="mb-4 flex flex-wrap justify-center gap-2 flex-shrink-0 grid-container" style="
+      </section>
+      <!-- Radio Screen -->
+      <section id="screen-Radio" class="app-screen items-center justify-center h-full w-full p-4 md:p-6">
+        <iframe id="iframe-Radio" class="full-iframe" title="Quran Reciters" src="https://quran.com/radio" allow="geolocation"></iframe>
+        <button id="fullscreen-radio-iframe-btn" onclick="toggleIframeFullscreen('iframe-Radio')" class="fullscreen-toggle-button navigable grid-item" title="Toggle Fullscreen Map">
+          <i class="fas fa-expand"></i>
+        </button>
+      </section>
+      <!-- Athkar Screen -->
+      <section id="screen-Athkar" class="app-screen p-4 md:p-6 flex-col items-center h-full">
+        <div class="tabs-container flex p-1 rounded-full bg-black/20 self-center mb-4">
+          <button id="tab-sabah" class="tab-button navigable grid-item tv-focus active" tabindex="0">أذكار الصباح</button>
+          <button id="tab-masaa" class="tab-button navigable grid-item" tabindex="0">أذكار المساء</button>
+          <button id="tab-monthly" class="tab-button navigable grid-item" tabindex="0">التذكيرات الشهرية</button>
+        </div>
+        <div id="athkar-content-container" class="w-full flex-grow overflow-y-auto">
+          <button id="fullscreen-athkar-btn" onclick="toggleFullscreen('athkar-content-container')" class="fullscreen-toggle-button navigable grid-item" title="Toggle Fullscreen Map">
+            <i class="fas fa-expand"></i>
+          </button>
+          <!-- Morning Athkar Panel -->
+          <div id="athkar-sabah-content" class="tab-content athkar-grid">
+            <div id="ts-1" class="athkar-item navigable grid-item athkar-color-1" tabindex="0">
+              <p>آية الكرسي</p>
+              <span class="repetition">(مرة واحدة)</span>
+            </div>
+            <div id="ts-2" class="athkar-item navigable grid-item athkar-color-2" tabindex="0">
+              <p>اللهم أعني على ذكرك وشكرك وحسن عبادتك.</p>
+            </div>
+            <div id="ts-3" class="athkar-item navigable grid-item athkar-color-3" tabindex="0">
+              <p> سورة الإخلاص، سورة الفلق، سورة الناس</p>
+              <span class="repetition">(٣ مرات)</span>
+            </div>
+            <div id="ts-4" class="athkar-item navigable grid-item athkar-color-5" tabindex="0">
+              <p>اللهم بك أصبحنا، وبك أمسينا، وبك نحيا، وبك نموت، وإليك النشور.</p>
+            </div>
+            <div id="tm-3" class="athkar-item navigable grid-item athkar-color-4" tabindex="0">
+              <p>حسبي الله لا إله إلا هو عليه توكلت وهو رب العرش العظيم</p>
+              <span class="repetition">(٧ مرات)</span>
+            </div>
+            <div id="tm-1" class="athkar-item navigable grid-item athkar-color-1" tabindex="0">
+              <p>بسم الله الذي لا يضر مع اسمه شيء في الأرض ولا في السماء وهو السميع العليم</p>
+              <span class="repetition">(٣ مرات)</span>
+            </div>
+            <div id="tm-2" class="athkar-item navigable grid-item athkar-color-2" tabindex="0">
+              <p>يا حي يا قيوم برحمتك أستغيث، أصلح لي شأني كله ولا تكلني إلى نفسي طرفة عين.</p>
+            </div>
+            <div id="tl-1" class="athkar-item navigable grid-item athkar-color-3 col-span-2" tabindex="0">
+              <p>اللهم عالم الغيب والشهادة فاطر السماوات والأرض، رب كل شيء ومليكه، أشهد أن لا إله إلا أنت، أعوذ بك من شر نفسي، ومن شر الشيطان وشركه، وأن أقترف على نفسي سوءاً أو أجره إلى مسلم.</p>
+            </div>
+            <div id="tl-2" class="athkar-item navigable grid-item athkar-color-4 col-span-2" tabindex="0">
+              <p>سيد الاستغغار: اللهم أنت ربي لا إله إلا أنت، خلقتني وأنا عبدك، وأنا على عهدك ووعدك ما استطعت، أعوذ بك من شر ما صنعت، أبوء لك بنعمتك علي، وأبوء بذنبي فاغفر لي، فإنه لا يغفر الذنوب إلا أنت.</p>
+            </div>
+            <div id="tsl-1" class="athkar-item navigable grid-item athkar-color-5 col-span-4" tabindex="0">
+              <p>اللهم إني أسألك العفو والعافية في الدنيا والآخرة، اللهم إني أسألك العفو والعافية في ديني ودنياي وأهلي ومالي، اللهم استر عوراتي وآمن روعاتي، اللهم احفظني من بين يدي ومن خلفي وعن يميني وعن شمالي ومن فوقي، وأعوذ بعظمتك أن أغتال من تحتي.</p>
+            </div>
+            <div id="tsl-2" class="athkar-item navigable grid-item athkar-color-1 col-span-4" tabindex="0">
+              <p>أصبحنا وأصبح الملك لله، والحمد لله، لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير. رب أسألك خير ما في هذا اليوم وخير ما بعده، وأعوذ بك من شر ما في هذا اليوم وشر ما بعده، رب أعوذ بك من الكسل وسوء الكبر، رب أعوذ بك من عذاب في النار وعذاب في القبر.</p>
+            </div>
+            <div id="tsl-3" class="athkar-item navigable grid-item athkar-color-1 col-span-4" tabindex="0">
+              <p></p>
+            </div>
+          </div>
+          <!-- Evening Athkar Panel -->
+          <div id="athkar-masaa-content" class="tab-content athkar-grid hidden">
+            <div id="ts-1" class="athkar-item navigable grid-item athkar-color-1" tabindex="0">
+              <p>آية الكرسي</p>
+              <span class="repetition">(مرة واحدة)</span>
+            </div>
+            <div id="ts-2" class="athkar-item navigable grid-item athkar-color-2" tabindex="0">
+              <p>اللهم أعني على ذكرك وشكرك وحسن عبادتك.</p>
+            </div>
+            <div id="ts-3" class="athkar-item navigable grid-item athkar-color-3" tabindex="0">
+              <p>المعوذات: سورة الإخلاص، سورة الفلق، سورة الناس</p>
+              <span class="repetition">(٣ مرات)</span>
+            </div>
+            <div id="ts-4" class="athkar-item navigable grid-item athkar-color-4" tabindex="0">
+              <p>حسبي الله لا إله إلا هو عليه توكلت وهو رب العرش العظيم</p>
+              <span class="repetition">(٧ مرات)</span>
+            </div>
+            <div id="tm-1" class="athkar-item navigable grid-item athkar-color-5" tabindex="0">
+              <p>اللهم بك أمسينا، وبك أصبحنا، وبك نحيا، وبك نموت، وإليك المصير.</p>
+            </div>
+            <div id="tm-2" class="athkar-item navigable grid-item athkar-color-1" tabindex="0">
+              <p>بسم الله الذي لا يضر مع اسمه شيء في الأرض ولا في السماء وهو السميع العليم</p>
+              <span class="repetition">(٣ مرات)</span>
+            </div>
+            <div id="tm-3" class="athkar-item navigable grid-item athkar-color-2" tabindex="0">
+              <p>يا حي يا قيوم برحمتك أستغيث، أصلح لي شأني كله ولا تكلني إلى نفسي طرفة عين.</p>
+            </div>
+            <div id="tl-1" class="athkar-item navigable grid-item athkar-color-3" tabindex="0">
+              <p>اللهم ما أمسى بي من نعمة أو بأحد من خلقك فمنك وحدك لا شريك لك، فلك الحمد ولك الشكر.</p>
+            </div>
+            <div id="tl-2" class="athkar-item navigable grid-item athkar-color-4 col-span-2" tabindex="0">
+              <p>سيد الاستغغار: اللهم أنت ربي لا إله إلا أنت، خلقتني وأنا عبدك، وأنا على عهدك ووعدك ما استطعت، أعوذ بك من شر ما صنعت، أبوء لك بنعمتك علي، وأبوء بذنبي فاغفر لي، فإنه لا يغفر الذنوب إلا أنت.</p>
+            </div>
+            <div id="tsl-1" class="athkar-item navigable grid-item athkar-color-5 col-span-4" tabindex="0">
+              <p>اللهم إني أسألك العفو والعافية في الدنيا والآخرة، اللهم إني أسألك العفو والعافية في ديني ودنياي وأهلي ومالي، اللهم استر عوراتي وآمن روعاتي، اللهم احفظني من بين يدي ومن خلفي وعن يميني وعن شمالي ومن فوقي، وأعوذ بعظمتك أن أغتال من تحتي.</p>
+            </div>
+            <div id="tsl-2" class="athkar-item navigable grid-item athkar-color-1 col-span-4" tabindex="0">
+              <p>أمسينا وأمسى الملك لله، والحمد لله، لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير. رب أسألك خير ما في هذه الليلة وخير ما بعدها، وأعوذ بك من شر ما في هذه الليلة وشر ما بعدها، رب أعوذ بك من الكسل وسوء الكبر، رب أعوذ بك من عذاب في النار وعذاب في القبر.</p>
+            </div>
+            <div id="tsl-4" class="athkar-item navigable grid-item athkar-color-1 col-span-4" tabindex="0">
+              <p></p>
+            </div>
+          </div>
+          <!-- NEW: Monthly Reminders Panel -->
+          <div id="athkar-monthly-content" class="tab-content athkar-grid-monthly hidden">
+            <div class="athkar-item navigable grid-item header col-span-5" tabindex="0">
+              <p>تذكيرات وأعمال شهرية</p>
+            </div>
+            <div class="athkar-item navigable grid-item athkar-color-1" tabindex="0">
+              <p>الصدقة الشهرية</p>
+            </div>
+            <div class="athkar-item navigable grid-item athkar-color-2" tabindex="0">
+              <p>صيام الأيام البيض</p>
+              <span class="repetition">(١٣، ١٤، ١٥)</span>
+            </div>
+            <div class="athkar-item navigable grid-item athkar-color-3" tabindex="0">
+              <p>قراءة سورة الكهف</p>
+              <span class="repetition">(كل جمعة)</span>
+            </div>
+            <div class="athkar-item navigable grid-item athkar-color-4" tabindex="0">
+              <p>صلة الرحم</p>
+            </div>
+            <div class="athkar-item navigable grid-item athkar-color-5" tabindex="0">
+              <p> حفظ القرأن </p>
+            </div>
+            <div class="athkar-item navigable grid-item athkar-color-1 col-span-2" tabindex="0">
+              <p>جلسة محاسبة للنفس</p>
+            </div>
+            <div class="athkar-item navigable grid-item athkar-color-2" tabindex="0">
+              <p>التخطيط للشهر الجديد</p>
+            </div>
+            <div class="athkar-item navigable grid-item athkar-color-3 col-span-2" tabindex="0">
+              <p>تعلم مسألة فقهية جديدة</p>
+            </div>
+            <div id="tsl-5" class="athkar-item navigable grid-item athkar-color-1 col-span-4" tabindex="0">
+              <p></p>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Reciters Screen -->
+      <section id="screen-Reciters" class="app-screen p-4 md:p-6 flex-col items-center justify-center h-full w-full">
+        <button id="fullscreen-reciters-iframe-btn" onclick="toggleIframeFullscreen('reciters-iframe')" class="fullscreen-toggle-button navigable grid-item" title="Toggle Fullscreen Map"></button>
+        <iframe id="reciters-iframe" class="full-iframe flex-grow" onclick="toggleIframeFullscreen('reciters-iframe')" class="fullscreen-toggle-button navigable grid-item" title="Reciters/TV" src="https://hihi2.com/" allow="geolocation; fullscreen" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true">
+          <i class="fas fa-expand"></i>
+        </iframe>
+        <div class="mb-4 flex flex-wrap justify-center gap-2 flex-shrink-0 grid-container" style="
     transform: scale(1.1);
 ">
-
-
-
-        <button data-src="https://hihi2.com/" class="iframe-src-button bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item active" tabindex="0">
-            مباريات
-        </button>
-        <button data-src="https://direct.aflam4you.net/playeraf.php?vid=9311&aflam_s=1&aflam_k=ff09665543234455" class="iframe-src-button bg-black-600 hover:bg-black-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
-            ثمانية 1
-        </button>
-         <button data-src="https://direct.aflam4you.net/zremb472.php?vid=68&aflam_s=1&aflam_w=360&aflam_h=250&aflam_k=1831551111111" class="iframe-src-button bg-purple-700 hover:bg-purple-800 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
-            beIN 1
-        </button>
-        <button data-src="https://direct.aflam4you.net//zremb472.php?vid=2&aflam_s=1&aflam_w=360&aflam_h=250&aflam_k=183871551111" class="iframe-src-button bg-purple-700 hover:bg-purple-800 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
-            beIN 2
-        </button>
-
-        <button data-src="https://direct.aflam4you.net/playeraf.php?vid=1&aflam_s=1&aflam_k=ff09665543234455" class="iframe-src-button bg-purple-700 hover:bg-purple-800 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
-            beIN 3
-        </button>
-        <button data-src="https://player.mangomolo.com/v1/live?id=MTY4&channelid=MTYx&countries=Q0M=&w=100%25&h=100%25&filter=DENY&signature=3fd1e8dd84138a41bf33d93afd4a7f09&language=en&app_id=&fullscreen=yes&player_profile=&base_url=aHR0cHM6Ly9heW4ub20vbGl2ZS8xNjEvJUQ5JTgyJUQ5JTg2JUQ4JUE3JUQ4JUE5LSVEOCVCOSVEOSU4NSVEOCVBNyVEOSU4Ni0lRDklODUlRDglQTglRDglQTclRDglQjQlRDglQjE=&autoplay=true&vast=true" class="iframe-src-button bg-red-800 hover:bg-red-900 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
-            عمان مباشر
-        </button>
-        <button data-src="https://play.arab-stream.live/p/mbc-1-ksa.html" class="iframe-src-button bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
-            MBC 1
-        </button>
-        <button data-src="https://direct.aflam4you.net/playeraf.php?vid=51&aflam_s=1&aflam_k=ff09665543234455" class="iframe-src-button bg-yellow-800 hover:bg-yellow-900 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
-            القران الكريم
-        </button>
-    
-        <button data-src="https://direct.aflam4you.net/playeraf.php?vid=4834&aflam_s=1&aflam_k=ff09665543234455" class="iframe-src-button bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
-            ثمانية 2
-        </button>
-        <button data-src="https://direct.aflam4you.net/playeraf.php?vid=94&aflam_s=1&aflam_k=ff09665543234455" class="iframe-src-button bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
-            ثمانية 3
-        </button>
-       
-        <button data-src="https://direct.aflam4you.net/zremb472.php?vid=500&aflam_s=1&aflam_w=360&aflam_h=250&aflam_k=1831551111111" class="iframe-src-button bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
-            MBC ACTION
-        </button>
-        <button data-src="https://direct.aflam4you.net/browse-watch-koora_live-tv-live-videos-1-date.html" class="iframe-src-button bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0">
-           OTHERS 
-        </button>
+          <button data-src="https://hihi2.com/" class="iframe-src-button bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item active" tabindex="0"> مباريات </button>
+          <button data-src="https://direct.aflam4you.net/playeraf.php?vid=9311&aflam_s=1&aflam_k=ff09665543234455" class="iframe-src-button bg-black-600 hover:bg-black-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0"> ثمانية 1 </button>
+          <button data-src="https://direct.aflam4you.net/zremb472.php?vid=68&aflam_s=1&aflam_w=360&aflam_h=250&aflam_k=1831551111111" class="iframe-src-button bg-purple-700 hover:bg-purple-800 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0"> beIN 1 </button>
+          <button data-src="https://direct.aflam4you.net//zremb472.php?vid=2&aflam_s=1&aflam_w=360&aflam_h=250&aflam_k=183871551111" class="iframe-src-button bg-purple-700 hover:bg-purple-800 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0"> beIN 2 </button>
+          <button data-src="https://direct.aflam4you.net/playeraf.php?vid=1&aflam_s=1&aflam_k=ff09665543234455" class="iframe-src-button bg-purple-700 hover:bg-purple-800 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0"> beIN 3 </button>
+          <button data-src="https://player.mangomolo.com/v1/live?id=MTY4&channelid=MTYx&countries=Q0M=&w=100%25&h=100%25&filter=DENY&signature=3fd1e8dd84138a41bf33d93afd4a7f09&language=en&app_id=&fullscreen=yes&player_profile=&base_url=aHR0cHM6Ly9heW4ub20vbGl2ZS8xNjEvJUQ5JTgyJUQ5JTg2JUQ4JUE3JUQ4JUE5LSVEOCVCOSVEOSU4NSVEOCVBNyVEOSU4Ni0lRDklODUlRDglQTglRDglQTclRDglQjQlRDglQjE=&autoplay=true&vast=true" class="iframe-src-button bg-red-800 hover:bg-red-900 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0"> عمان مباشر </button>
+          <button data-src="https://play.arab-stream.live/p/mbc-1-ksa.html" class="iframe-src-button bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0"> MBC 1 </button>
+          <button data-src="https://direct.aflam4you.net/playeraf.php?vid=51&aflam_s=1&aflam_k=ff09665543234455" class="iframe-src-button bg-yellow-800 hover:bg-yellow-900 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0"> القران الكريم </button>
+          <button data-src="https://direct.aflam4you.net/playeraf.php?vid=4834&aflam_s=1&aflam_k=ff09665543234455" class="iframe-src-button bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0"> ثمانية 2 </button>
+          <button data-src="https://direct.aflam4you.net/playeraf.php?vid=94&aflam_s=1&aflam_k=ff09665543234455" class="iframe-src-button bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0"> ثمانية 3 </button>
+          <button data-src="https://direct.aflam4you.net/zremb472.php?vid=500&aflam_s=1&aflam_w=360&aflam_h=250&aflam_k=1831551111111" class="iframe-src-button bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0"> MBC ACTION </button>
+          <button data-src="https://direct.aflam4you.net/browse-watch-koora_live-tv-live-videos-1-date.html" class="iframe-src-button bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full transition-colors duration-200 text-sm navigable grid-item" tabindex="0"> OTHERS </button>
         </div>
-
-</section>
-
-                <!-- Weather Screen -->
-                <section id="screen-Weather" class="app-screen p-4 md:p-6 flex-col items-center justify-start h-full">
-                  
-                    <div class="w-full h-full flex flex-col gap-4 flex-grow">
-                        <!-- Hourly Forecast -->
-                        <div id="hourly-forecast-container" class="grid grid-cols-7 gap-2 w-full glass-surface glass-surface--svg p-3 rounded-3xl">
-                            <!-- JS will populate this -->
-                            <div class="text-center text-white/70 col-span-7">جاري تحميل التوقعات...</div>
-                        </div>
-                        <!-- Location Temperatures -->
-                        <div id="location-temps-container" class="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full flex-grow">
-                            <!-- JS will populate this -->
-                            <div class="text-center text-white/70 col-span-full">جاري تحميل البيانات الجديدة...</div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 3D Screen (Formerly Map Screen) -->
-                <section id="screen-Map" class="app-screen p-4 md:p-6 flex-col h-full items-center justify-center relative">
-                    <button 
-        id="fullscreen-map-btn" 
-        onclick="toggleIframeFullscreen('screen-Map')"  class="fullscreen-toggle-button navigable grid-item"
-        title="Toggle Fullscreen Map"
-    >
-        <i class="fas fa-expand"></i> 
-    </button>
-                    <div class="w-full h-full bg-black2 rounded-3xl flex items-center justify-center p-1 overflow:hidden">
-                        <iframe id="cardash" title="LEXSUS ES" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share WIDTH="95%" HEIGHT="95%" src="https://sketchfab.com/models/17ed331fd31f491fa3907156f0b0b55e/embed?autostart=1&preload=1&annotations_visible=0&annotation=0&annotation_cycle=6&transparent=1&ui_theme=dark"> </iframe>
-                    </div>
-                    <!-- Right side widget -->
-                    <div id="right-side-info-widgets" class="absolute top-8 right-8 flex flex-col gap-3 z-10">
-    
-    <div id="3d-screen-weather-widget" class="p-3 rounded-2xl text-center flex items-center gap-2 navigable grid-item" tabindex="0" style="background-color: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px);">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="thermometer" class="lucide lucide-thermometer w-6 h-6 text-red-400"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path></svg>
-        <span class="text-xl font-bold" id="3d-screen-weather-temp">--°C</span>
-    </div>
-    
-    <div id="3d-screen-moon-widget" class="p-4 rounded-2xl text-center flex flex-col items-center justify-center navigable grid-item glass-surface glass-surface--svg" tabindex="0">
-        <img id="3d-moon-icon" src="https://cdn.weatherapi.com/weather/64x64/night/113.png" alt="Moon Phase" class="moon-icon-large mb-2" />
-        <div class="text-sm text-white/70">القمر (إضاءة)</div>
-        <div class="text-2xl font-bold" id="3d-moon-phase">--%</div>
-    </div>
-</div>
-                    
-                    <!-- NEW: Left side widgets -->
-                    <div id="3d-screen-info-widgets" class="absolute top-8 left-8 flex flex-col gap-3 z-10">
-                        <div class="p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
-                            <i data-lucide="moon" class="w-7 h-7 text-cyan-300"></i>
-                            <div>
-                                <div class="text-sm text-white/70">الصلاة القادمة</div>
-                                <div class="text-xl font-bold" id="3d-screen-next-prayer">--</div>
-                            </div>
-                        </div>
-
-
-                        <div class="p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
-                            <i data-lucide="gauge-circle" class="w-7 h-7 text-green-400"></i>
-                            <div>
-                                <div class="text-sm text-white/70">السرعة</div>
-                                <div class="text-xl font-bold" id="3d-screen-speed">-- km/h</div>
-                            </div>
-                        </div>
-                         <div id="geares" class="p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
-                            <i data-lucide="parking-circle" class="w-7 h-7 text-orange-400"></i>
-                            <div>
-                                <div class="text-sm text-white/70">القير</div>
-                                <div class="text-xl font-bold" id="3d-screen-gear">--</div>
-                            </div>
-                        </div>
-                        <!-- NEW: Direction Widget -->
-                        <div class="p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
-                            <i data-lucide="compass" class="w-7 h-7 text-blue-300"></i>
-                            <div>
-                                <div class="text-sm text-white/70">الاتجاه</div>
-                                <div class="text-xl font-bold" id="3d-screen-dir">--</div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- NEW: Sticky Directional Controls -->
-                    <div id="direction-controls-3d" class="absolute top-1/2 -translate-y-1/2 right-8 grid grid-cols-3 z-10">
-    <button data-dir="NE" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">NE</button>
-    <button data-dir="N" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">N</button>
-    <button data-dir="NW" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">NW</button>
-    
-    <button data-dir="E" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">E</button>
-    <div class="center-spacer w-10 h-10"></div> <button data-dir="W" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">W</button>
-    
-    <button data-dir="SE" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">SE</button>
-    <button data-dir="S" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">S</button>
-    <button data-dir="SW" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">SW</button>
-</div>
-                </section>
-
-                <!-- Electronic Quran App Screen -->
-                <section id="screen-Quran" class="app-screen flex-col items-center justify-center h-full relative">
-                               <button 
-        id="fullscreen-screen-Quran-btn" 
-        onclick="toggleIframeFullscreen('quran-iframe')"  class="fullscreen-toggle-button navigable grid-item"
-        title="Toggle Fullscreen Map"
-    >
-        <i class="fas fa-expand"></i> 
-    </button>
-                   <div id="quran-quick-access" class="mt-4 bg-black/30 p-4 rounded-xl flex flex-col gap-3 items-end z-20 glass-surface glass-surface--svg w-full max-w-md">
-                        <button id="quran-go-button" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm self-center navigable grid-item" tabindex="0"></button>
-                    </div>
-                    <div class="w-full h-full glass-surface glass-surface--svg p-4 rounded-xl flex flex-col items-center flex-grow" style="height: 100%!important;">
-                        <iframe id="quran-iframe" class="full-iframe" src="https://quran.com/?lang=ar" lang="ar" title="القرآن الكريم" frameborder="0" allow="fullscreen; picture-in-picture"></iframe>
-                    </div>
-                </section>
-
-            </main>
-
-            <!-- Navigation Dock (Left Sidebar) -->
-            <nav class="w-20 sm:w-24 bg-black/20 flex flex-col items-center justify-start pt-8 p-2 space-y-4 border-l border-white/10 flex-shrink-0 transition-opacity 0.3s ease grid-container">
-                <button data-app="Dashboard" class="app-icon navigable grid-item" tabindex="0">
-                    <i data-lucide="layout-grid"></i>
-                </button>
-                <button data-app="Media" class="app-icon navigable grid-item" tabindex="0">
-                    <i data-lucide="play-circle"></i>
-                </button>
-
-                <button data-app="DashboardCarPlay" class="app-icon navigable grid-item" tabindex="0">
-    <i data-lucide="layout-template" class="text-blue-400"></i>
-</button>
-                
-                 <button data-app="Radio" class="app-icon navigable grid-item" tabindex="0">
-                    <i data-lucide="radio"></i>
-                </button>
-                <button data-app="Athkar" class="app-icon navigable grid-item" tabindex="0">
-                    <i data-lucide="book-heart"></i>
-                </button>
-                <button data-app="Reciters" class="app-icon navigable grid-item" tabindex="0"> 
-                    <i data-lucide="tv"></i> 
-                </button>
-                <button data-app="Weather" class="app-icon navigable grid-item" tabindex="0"> 
-                    <i data-lucide="cloud-sun"></i> 
-                </button>
-                <button data-app="Map" class="app-icon navigable grid-item" tabindex="0">
-                    <i data-lucide="map"></i> 
-                </button>
-                <button data-app="Quran" class="app-icon navigable grid-item" tabindex="0">
-                    <i data-lucide="book-open"></i>
-                </button>
-            </nav>
+      </section>
+      <!-- Weather Screen -->
+      <section id="screen-Weather" class="app-screen p-4 md:p-6 flex-col items-center justify-start h-full">
+        <div class="w-full h-full flex flex-col gap-4 flex-grow">
+          <!-- Hourly Forecast -->
+          <div id="hourly-forecast-container" class="grid grid-cols-7 gap-2 w-full glass-surface glass-surface--svg p-3 rounded-3xl">
+            <!-- JS will populate this -->
+            <div class="text-center text-white/70 col-span-7">جاري تحميل التوقعات...</div>
+          </div>
+          <!-- Location Temperatures -->
+          <div id="location-temps-container" class="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full flex-grow">
+            <!-- JS will populate this -->
+            <div class="text-center text-white/70 col-span-full">جاري تحميل البيانات الجديدة...</div>
+          </div>
         </div>
-    </div>
-
-    <!-- Floating UI Elements -->
-    <button id="floating-media-button" class="glass-surface glass-surface--svg rounded-full navigable grid-item" tabindex="0">
-        <img src="https://imgs.search.brave.com/XDd5Wmrn5fv_N_K9IAwx2BnetQI2wEZh4jQvIHQm6PE/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4w/Lmljb25maW5kZXIu/Y29tL2RhdGEvaWNv/bnMvdHV0cy8xMjgv/eW91dHViZS5wbmc" width="22px" alt="YouTube" class="w-full h-full object-contain p-1" />
-    </button>
-    <button id="add-video-by-url-btn" 
-        class="navigable grid-item bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-full shadow-lg" 
-        title="إضافة فيديو بالرابط">
-    <i data-lucide="plus-circle" class="w-6 h-6"></i>
-</button>
-    
-    <button id="start-trip-floating-button" class="glass-surface glass-surface--svg rounded-full navigable grid-item" tabindex="0">
-        <i data-lucide="map-pin" class="w-6 h-6"></i> بدء الرحلة
-    </button>
-
-    <!-- NEW: Minimized Video Button -->
-   <div id="floating-minimized-video-button" class="navigable grid-item glass-surface glass-surface--svg" tabindex="0">
-  
-    <button id="minimized-restore-btn" title="تكبير/استعادة" class="p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors navigable grid-item">
-        <i data-lucide="maximize-2" class="w-5 h-5"></i> 
-    </button>
-    
-    <div class="flex flex-col items-start overflow-hidden flex-grow px-1 min-w-0">
-        <span class="minimized-title font-semibold text-sm truncate w-full">جاري تشغيل الصوت...</span>
-    </div>
-    
-    
-    <button id="minimized-play-pause-btn" title="تشغيل/إيقاف" class="p-2 rounded-full bg-white/20 text-white/90 hover:bg-white/30 transition-colors navigable grid-item">
-        <i data-lucide="play" class="w-5 h-5 play-icon"></i>
-        <i data-lucide="pause" class="w-5 h-5 pause-icon hidden"></i>
-    </button>
-      <div id="playback-rates-group" class="flex gap-1 flex-shrink-0">
-        <button data-rate="1.0" class="rate-btn  navigable grid-item" tabindex="0">1.0x</button>
-        <button data-rate="1.25" class="rate-btn navigable grid-item" tabindex="0">1.25x</button>
-        <button data-rate="1.65" class="rate-btn navigable grid-item" tabindex="0">1.65x</button>
-    </div>
-</div>
-
-    <!-- NEW: Bottom Left Controls -->
-    <button id="floating-mic-button" 
-        class="navigable grid-item floating-button" 
-        tabindex="0" 
-        title="البحث الصوتي"
-        >
-    
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="mic" class="w-6 h-6">
-        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path>
-        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-        <line x1="12" x2="12" y1="19" y2="22"></line>
-    </svg>
-</button>
-    <div id="bottom-left-controls" class="fixed bottom-4 left-4 flex flex-row gap-2 z-[100] grid-container">
-        <button id="pause-animation-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="إيقاف/تشغيل الحركة">
-            <i data-lucide="play" class="w-5 h-5"></i>
-            <i data-lucide="pause" class="w-5 h-5 hidden"></i>
+      </section>
+      <!-- 3D Screen (Formerly Map Screen) -->
+      <section id="screen-Map" class="app-screen p-4 md:p-6 flex-col h-full items-center justify-center relative">
+        <button id="fullscreen-map-btn" onclick="toggleIframeFullscreen('screen-Map')" class="fullscreen-toggle-button navigable grid-item" title="Toggle Fullscreen Map">
+          <i class="fas fa-expand"></i>
         </button>
-        <button id="zoom-in-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="تكبير">
-            <i data-lucide="zoom-in" class="w-5 h-5"></i>
-        </button>
-        <button id="zoom-out-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="تصغير">
-            <i data-lucide="zoom-out" class="w-5 h-5"></i>
-        </button>
-        <button id="remove-cache-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="مسح ذاكرة التخزين المؤقت">
-            <i data-lucide="trash-2" class="w-5 h-5"></i>
-        </button>
-    </div>
-
-    <!-- Video Pop-up Container -->
-    <div id="video-popup-container">
-        <div id="video-popup-player-container"></div>
-        <div class="video-popup-controls grid-container">
-            <button id="video-popup-close-button" title="إغلاق الفيديو" class="navigable grid-item" tabindex="0">
-                <i data-lucide="x" class="w-4 h-4"></i>
-            </button>
-            <button id="video-popup-minimize-button" title="تصغير إلى كبسولة" class="navigable grid-item" tabindex="0">
-            <i data-lucide="chevrons-down-up" class="w-4 h-4"></i>
-        </button>
+        <div class="w-full h-full bg-black2 rounded-3xl flex items-center justify-center p-1 overflow:hidden">
+          <iframe id="cardash" title="LEXSUS ES" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share WIDTH="95%" HEIGHT="95%" src="https://sketchfab.com/models/17ed331fd31f491fa3907156f0b0b55e/embed?autostart=1&preload=1&annotations_visible=0&annotation=0&annotation_cycle=6&transparent=1&ui_theme=dark"></iframe>
         </div>
-    </div>
+        <!-- Right side widget -->
+        <div id="right-side-info-widgets" class="absolute top-8 right-8 flex flex-col gap-3 z-10">
+          <div id="3d-screen-weather-widget" class="p-3 rounded-2xl text-center flex items-center gap-2 navigable grid-item" tabindex="0" style="background-color: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="thermometer" class="lucide lucide-thermometer w-6 h-6 text-red-400">
+              <path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path>
+            </svg>
+            <span class="text-xl font-bold" id="3d-screen-weather-temp">--°C</span>
+          </div>
+          <div id="3d-screen-moon-widget" class="p-4 rounded-2xl text-center flex flex-col items-center justify-center navigable grid-item glass-surface glass-surface--svg" tabindex="0">
+            <img id="3d-moon-icon" src="https://cdn.weatherapi.com/weather/64x64/night/113.png" alt="Moon Phase" class="moon-icon-large mb-2" />
+            <div class="text-sm text-white/70">القمر (إضاءة)</div>
+            <div class="text-2xl font-bold" id="3d-moon-phase">--%</div>
+          </div>
+        </div>
+        <!-- NEW: Left side widgets -->
+        <div id="3d-screen-info-widgets" class="absolute top-8 left-8 flex flex-col gap-3 z-10">
+          <div class="p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
+            <i data-lucide="moon" class="w-7 h-7 text-cyan-300"></i>
+            <div>
+              <div class="text-sm text-white/70">الصلاة القادمة</div>
+              <div class="text-xl font-bold" id="3d-screen-next-prayer">--</div>
+            </div>
+          </div>
+          <div class="p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
+            <i data-lucide="gauge-circle" class="w-7 h-7 text-green-400"></i>
+            <div>
+              <div class="text-sm text-white/70">السرعة</div>
+              <div class="text-xl font-bold" id="3d-screen-speed">-- km/h</div>
+            </div>
+          </div>
+          <div id="geares" class="p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
+            <i data-lucide="parking-circle" class="w-7 h-7 text-orange-400"></i>
+            <div>
+              <div class="text-sm text-white/70">القير</div>
+              <div class="text-xl font-bold" id="3d-screen-gear">--</div>
+            </div>
+          </div>
+          <!-- NEW: Direction Widget -->
+          <div class="p-3 rounded-2xl text-center flex items-center gap-3 navigable grid-item" tabindex="0">
+            <i data-lucide="compass" class="w-7 h-7 text-blue-300"></i>
+            <div>
+              <div class="text-sm text-white/70">الاتجاه</div>
+              <div class="text-xl font-bold" id="3d-screen-dir">--</div>
+            </div>
+          </div>
+        </div>
+        <!-- NEW: Sticky Directional Controls -->
+        <div id="direction-controls-3d" class="absolute top-1/2 -translate-y-1/2 right-8 grid grid-cols-3 z-10">
+          <button data-dir="NE" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">NE</button>
+          <button data-dir="N" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">N</button>
+          <button data-dir="NW" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">NW</button>
+          <button data-dir="E" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">E</button>
+          <div class="center-spacer w-10 h-10"></div>
+          <button data-dir="W" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">W</button>
+          <button data-dir="SE" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">SE</button>
+          <button data-dir="S" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">S</button>
+          <button data-dir="SW" class="glass-surface glass-surface--svg p-2 rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold navigable grid-item" tabindex="0">SW</button>
+        </div>
+      </section>
+      <!-- Electronic Quran App Screen -->
+      <section id="screen-Quran" class="app-screen flex-col items-center justify-center h-full relative">
+        <button id="fullscreen-screen-Quran-btn" onclick="toggleIframeFullscreen('quran-iframe')" class="fullscreen-toggle-button navigable grid-item" title="Toggle Fullscreen Map">
+          <i class="fas fa-expand"></i>
+        </button>
+        <div id="quran-quick-access" class="mt-4 bg-black/30 p-4 rounded-xl flex flex-col gap-3 items-end z-20 glass-surface glass-surface--svg w-full max-w-md">
+          <button id="quran-go-button" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-colors duration-200 flex items-center gap-2 text-sm self-center navigable grid-item" tabindex="0"></button>
+        </div>
+        <div class="w-full h-full glass-surface glass-surface--svg p-4 rounded-xl flex flex-col items-center flex-grow" style="height: 100%!important;">
+          <iframe id="quran-iframe" class="full-iframe" src="https://quran.com/?lang=ar" lang="ar" title="القرآن الكريم" frameborder="0" allow="fullscreen; picture-in-picture"></iframe>
+        </div>
+      </section>
+    </main>
+    <!-- Navigation Dock (Left Sidebar) -->
+    <nav class="w-20 sm:w-24 bg-black/20 flex flex-col items-center justify-start pt-8 p-2 space-y-4 border-l border-white/10 flex-shrink-0 transition-opacity 0.3s ease grid-container">
+      <button data-app="Dashboard" class="app-icon navigable grid-item" tabindex="0">
+        <i data-lucide="layout-grid"></i>
+      </button>
+      <button data-app="Media" class="app-icon navigable grid-item" tabindex="0">
+        <i data-lucide="play-circle"></i>
+      </button>
+      <button data-app="DashboardCarPlay" class="app-icon navigable grid-item" tabindex="0">
+        <i data-lucide="layout-template" class="text-blue-400"></i>
+      </button>
+      <button data-app="Radio" class="app-icon navigable grid-item" tabindex="0">
+        <i data-lucide="radio"></i>
+      </button>
+      <button data-app="Athkar" class="app-icon navigable grid-item" tabindex="0">
+        <i data-lucide="book-heart"></i>
+      </button>
+      <button data-app="Reciters" class="app-icon navigable grid-item" tabindex="0">
+        <i data-lucide="tv"></i>
+      </button>
+      <button data-app="Weather" class="app-icon navigable grid-item" tabindex="0">
+        <i data-lucide="cloud-sun"></i>
+      </button>
+      <button data-app="Map" class="app-icon navigable grid-item" tabindex="0">
+        <i data-lucide="map"></i>
+      </button>
+      <button data-app="Quran" class="app-icon navigable grid-item" tabindex="0">
+        <i data-lucide="book-open"></i>
+      </button>
+    </nav>
+  </div>
+</div>
+<!-- Floating UI Elements -->
+<button id="floating-media-button" class="glass-surface glass-surface--svg rounded-full navigable grid-item" tabindex="0">
+  <img src="https://imgs.search.brave.com/XDd5Wmrn5fv_N_K9IAwx2BnetQI2wEZh4jQvIHQm6PE/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4w/Lmljb25maW5kZXIu/Y29tL2RhdGEvaWNv/bnMvdHV0cy8xMjgv/eW91dHViZS5wbmc" width="22px" alt="YouTube" class="w-full h-full object-contain p-1" />
+</button>
+<button id="add-video-by-url-btn" class="navigable grid-item bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-full shadow-lg" title="إضافة فيديو بالرابط">
+  <i data-lucide="plus-circle" class="w-6 h-6"></i>
+</button>
+<button id="start-trip-floating-button" class="glass-surface glass-surface--svg rounded-full navigable grid-item" tabindex="0">
+  <i data-lucide="map-pin" class="w-6 h-6"></i> بدء الرحلة </button>
+<!-- NEW: Minimized Video Button -->
+<div id="floating-minimized-video-button" class="navigable grid-item glass-surface glass-surface--svg" tabindex="0">
+  <button id="minimized-restore-btn" title="تكبير/استعادة" class="p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors navigable grid-item">
+    <i data-lucide="maximize-2" class="w-5 h-5"></i>
+  </button>
+  <div class="flex flex-col items-start overflow-hidden flex-grow px-1 min-w-0">
+    <span class="minimized-title font-semibold text-sm truncate w-full">جاري تشغيل الصوت...</span>
+  </div>
+  <button id="minimized-play-pause-btn" title="تشغيل/إيقاف" class="p-2 rounded-full bg-white/20 text-white/90 hover:bg-white/30 transition-colors navigable grid-item">
+    <i data-lucide="play" class="w-5 h-5 play-icon"></i>
+    <i data-lucide="pause" class="w-5 h-5 pause-icon hidden"></i>
+  </button>
+  <div id="playback-rates-group" class="flex gap-1 flex-shrink-0">
+    <button data-rate="1.0" class="rate-btn  navigable grid-item" tabindex="0">1.0x</button>
+    <button data-rate="1.25" class="rate-btn navigable grid-item" tabindex="0">1.25x</button>
+    <button data-rate="1.65" class="rate-btn navigable grid-item" tabindex="0">1.65x</button>
+  </div>
+</div>
+<!-- NEW: Bottom Left Controls -->
+<button id="floating-mic-button" class="navigable grid-item floating-button" tabindex="0" title="البحث الصوتي">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="mic" class="w-6 h-6">
+    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path>
+    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+    <line x1="12" x2="12" y1="19" y2="22"></line>
+  </svg>
+</button>
+<div id="bottom-left-controls" class="fixed bottom-4 left-4 flex flex-row gap-2 z-[100] grid-container">
+  <button id="pause-animation-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="إيقاف/تشغيل الحركة">
+    <i data-lucide="play" class="w-5 h-5"></i>
+    <i data-lucide="pause" class="w-5 h-5 hidden"></i>
+  </button>
+  <button id="zoom-in-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="تكبير">
+    <i data-lucide="zoom-in" class="w-5 h-5"></i>
+  </button>
+  <button id="zoom-out-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="تصغير">
+    <i data-lucide="zoom-out" class="w-5 h-5"></i>
+  </button>
+  <button id="remove-cache-button" class="glass-surface glass-surface--svg rounded-full p-3 navigable grid-item" tabindex="0" title="مسح ذاكرة التخزين المؤقت">
+    <i data-lucide="trash-2" class="w-5 h-5"></i>
+  </button>
+</div>
+<!-- Video Pop-up Container -->
+<div id="video-popup-container">
+  <div id="video-popup-player-container"></div>
+  <div class="video-popup-controls grid-container">
+    <button id="video-popup-close-button" title="إغلاق الفيديو" class="navigable grid-item" tabindex="0">
+      <i data-lucide="x" class="w-4 h-4"></i>
+    </button>
+    <button id="video-popup-minimize-button" title="تصغير إلى كبسولة" class="navigable grid-item" tabindex="0">
+      <i data-lucide="chevrons-down-up" class="w-4 h-4"></i>
+    </button>
+  </div>
+</div>
   <script type="importmap">
   {
     "imports": {
@@ -3477,82 +3399,79 @@ div#map{display:none}
 </script>
 
     <script>
+        // 1. المتغيرات المركزية للتدوير
 let carplayRotationIndex = 0;
 let dashRotationIndex = 0;
-// مصفوفة CarPlay - أضفنا كرت الميلادي وكرت الهجري
+
+// 2. مصفوفات المعرفات (تأكد أن هذه الـ IDs تطابق الموجود في الـ HTML لديك)
 const carplaySlideIds = [
     'carplay-card-media', 
     'carplay-card-nasa', 
-    'carplay-card-weather', 
-    'carplay-card-gregorian'     // الكرت الجديد للهجري
+    'carplay-card-weather'
 ];
 
-// مصفوفة الداشبورد (إذا قمت بإنشاء نفس الكروت في شاشة الداشبورد أيضاً)
 const dashSlideIds = [
     'dash-card-media', 
     'dash-card-nasa', 
-    'dash-card-gregorian',   // الكرت الجديد       // الكرت الجديد
-    'dash-card-weather'      // الكرت القديم (المقاييس)
+    'dash-card-weather'
 ];
 
+// 3. المحرك الرئيسي للتحديث (يعمل كل ثانية)
 function updateAllDisplays() {
     const player = window.popupPlayer || window.player;
     const now = Date.now();
 
-    // 1. مزامنة البيانات (الحقن المباشر)
+    // مزامنة البيانات للكل
     syncDataToElements(player);
 
-    // 2. تدوير كروت CarPlay (كل 7 ثواني)
+    // تدوير كروت CarPlay كل 7 ثواني
     if (!window.lastCarplaySwap || (now - window.lastCarplaySwap > 7000)) {
-        rotateSlides('.carousel-slide', carplaySlideIds, 'carplay');
+        rotateSlidesSpecific('.carousel-slide', carplaySlideIds, 'carplay');
         window.lastCarplaySwap = now;
     }
 
-    // 3. تدوير كروت الداشبورد (كل 7 ثواني)
+    // تدوير كروت الداشبورد كل 7 ثواني
     if (!window.lastDashSwap || (now - window.lastDashSwap > 7000)) {
-        rotateSlides('.carousel-slide-dash', dashSlideIds, 'dash');
+        rotateSlidesSpecific('.carousel-slide-dash', dashSlideIds, 'dash');
         window.lastDashSwap = now;
     }
 }
 
-function centerMapOnUserLocation() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((pos) => {
-            // تحديث الموقع في الذاكرة أولاً
-            updateGoogleMapLocation(pos);
-
-            // التحقق من الجاهزية قبل التحريك
-            if (window.dashboardGoogleMap) {
-                const { latitude: lat, longitude: lng } = pos.coords;
-                window.dashboardGoogleMap.setCenter({ lat, lng });
-                window.dashboardGoogleMap.setZoom(19);
-            }
-        }, (err) => {
-            console.error("GPS Error:", err);
-        }, { enableHighAccuracy: true });
+// 4. دالة التدوير المحسنة لمنع التداخل
+function rotateSlidesSpecific(selector, idArray, type) {
+    let idx;
+    if (type === 'carplay') {
+        carplayRotationIndex = (carplayRotationIndex + 1) % idArray.length;
+        idx = carplayRotationIndex;
+    } else {
+        dashRotationIndex = (dashRotationIndex + 1) % idArray.length;
+        idx = dashRotationIndex;
     }
-}
-
-function rotateSlides(selector, idArray, type) {
-    let idx = type === 'carplay' ? carplayRotationIndex : dashRotationIndex;
-    idx = (idx + 1) % idArray.length;
-    
-    if (type === 'carplay') carplayRotationIndex = idx;
-    else dashRotationIndex = idx;
 
     const nextId = idArray[idx];
+    
+    // تحديث الكلاسات بصرياً
     document.querySelectorAll(selector).forEach(slide => {
-        slide.classList.toggle('active', slide.id === nextId);
+        if (slide.id === nextId) {
+            slide.classList.add('active');
+            slide.classList.remove('hidden');
+        } else {
+            slide.classList.remove('active');
+            // تأخير الإخفاء لضمان سلاسة الأنيميشن
+            setTimeout(() => {
+                if (!slide.classList.contains('active')) slide.classList.add('hidden');
+            }, 600); 
+        }
     });
 }
 
+// 5. دالة حقن البيانات الموحدة
 function syncDataToElements(player) {
-    // 🛑 إضافة تعريف الوقت أولاً (ضروري جداً لعمل التواريخ)
     const now = new Date(); 
     const weather = appState.weather;
     const moon = appState.moonData;
 
-    // 1. تحديث الميديا في الشاشتين
+    // أ. تحديث الميديا
     if (player && typeof player.getVideoData === 'function') {
         const vData = player.getVideoData();
         const thumbUrl = `https://img.youtube.com/vi/${vData.video_id}/hqdefault.jpg`;
@@ -3565,48 +3484,20 @@ function syncDataToElements(player) {
         });
     }
 
-    // 2. كرت الحرارة الكبيرة (CarPlay)
-    const tempBig = document.getElementById('carplay-weather-temp-big');
-    if (tempBig && weather && weather.temperature !== null) {
-        tempBig.textContent = `${Math.round(weather.temperature)}°`;
-    }
-
-    // 3. كرت التاريخ الميلادي (يوم كبير + شهر نصي)
-    const gregDay = document.getElementById('greg-day-big');
-    const gregMonth = document.getElementById('greg-month-text');
-    if (gregDay && gregMonth) {
-        gregDay.textContent = now.getDate();
-        gregMonth.textContent = new Intl.DateTimeFormat('ar-SA', { month: 'long' }).format(now);
-    }
-
-    // 4. كرت التاريخ الهجري (يوم كبير + شهر نصي)
-    const hijriDay = document.getElementById('hijri-day-big');
-    const hijriMonth = document.getElementById('hijri-month-text');
-    if (hijriDay && hijriMonth) {
-        try {
-            const formatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-uma', { day: 'numeric', month: 'long' });
-            const parts = formatter.formatToParts(now);
-            hijriDay.textContent = parts.find(p => p.type === 'day').value;
-            hijriMonth.textContent = parts.find(p => p.type === 'month').value;
-        } catch (e) { console.error("Error formatting Hijri date", e); }
-    }
-
-    // 5. تحديث الطقس والمقاييس (Double Injection)
+    // ب. تحديث الطقس والمقاييس
     if (weather) {
         ['carplay', 'dash'].forEach(p => {
+            const tempBig = document.getElementById(`${p}-weather-temp-big`);
             const icon = document.getElementById(`${p}-weather-icon-big`);
-            const temp = document.getElementById(`${p}-metric-temp`);
-            const uv = document.getElementById(`${p}-metric-uv`);
-            const hum = document.getElementById(`${p}-metric-humidity`);
-
+            const tempMetric = document.getElementById(`${p}-metric-temp`);
+            
+            if (tempBig) tempBig.textContent = `${Math.round(weather.temperature)}°`;
             if (icon) icon.src = weather.iconUrl;
-            if (temp) temp.textContent = `${Math.round(weather.temperature)}°`;
-            if (uv) uv.textContent = Math.round(weather.uvIndex);
-            if (hum) hum.textContent = `${weather.humidity}%`;
+            if (tempMetric) tempMetric.textContent = `${Math.round(weather.temperature)}°C`;
         });
     }
 
-    // 6. تحديث القمر (ناسا)
+    // ج. تحديث القمر (NASA)
     if (appState.dynamicMoonImageUrl) {
         ['carplay', 'dash'].forEach(p => {
             const img = document.getElementById(`${p}-nasa-moon`);
@@ -3617,106 +3508,9 @@ function syncDataToElements(player) {
     }
 }
 
-// تشغيل المحرك
+// 6. تشغيل النظام
 if (window.globalSyncInterval) clearInterval(window.globalSyncInterval);
 window.globalSyncInterval = setInterval(updateAllDisplays, 1000);
-
-function syncAllDisplayData(player) {
-    // 1. تحديث الميديا (كما هي)
-    if (player && typeof player.getVideoData === 'function') {
-        const vData = player.getVideoData();
-        const url = `https://img.youtube.com/vi/${vData.video_id}/hqdefault.jpg`;
-        ['carplay', 'dash'].forEach(p => {
-            const title = document.getElementById(`${p}-media-title`);
-            const thumb = document.getElementById(`${p}-media-thumb`);
-            if (title) title.textContent = vData.title;
-            if (thumb) thumb.src = url;
-        });
-    }
-
-    // 2. تحديث بيانات الطقس والمقاييس (Double Injection)
-    const weather = appState.weather;
-    if (weather) {
-        const prefixes = ['carplay', 'dash'];
-        prefixes.forEach(p => {
-            // تحديث الأيقونة الكبيرة
-            const icon = document.getElementById(`${p}-weather-icon-big`);
-            if (icon) icon.src = weather.iconUrl;
-
-            // تحديث المقاييس الثلاثة
-            const temp = document.getElementById(`${p}-metric-temp`);
-            const uv = document.getElementById(`${p}-metric-uv`);
-            const hum = document.getElementById(`${p}-metric-humidity`);
-
-            if (temp) temp.textContent = `${Math.round(weather.temperature)}°C`;
-            if (uv) uv.textContent = Math.round(weather.uvIndex);
-            if (hum) hum.textContent = `${weather.humidity}%`;
-            
-            // تحديث الوصف (اختياري)
-            const desc = document.getElementById(`${p}-weather-desc`);
-            if (desc) desc.textContent = weather.description;
-        });
-    }
-
-    // 3. تحديث بيانات القمر (NASA)
-    if (appState.dynamicMoonImageUrl) {
-        ['carplay', 'dash'].forEach(p => {
-            const moonImg = document.getElementById(`${p}-nasa-moon`);
-            const moonTxt = document.getElementById(`${p}-moon-phase`);
-            if (moonImg) moonImg.src = appState.dynamicMoonImageUrl;
-            if (moonTxt) moonTxt.textContent = `الإضاءة: ${appState.moonData?.phase.toFixed(1)}%`;
-        });
-    }
-}
-
-        let currentCarPlaySlide = 0;
-const carplaySlides = ['card-media', 'card-nasa', 'card-weather'];
-
-function rotateCarPlayCards() {
-    // 1. تحديد السلايد الحالي والقادم
-    const oldSlideId = carplaySlides[currentCarPlaySlide];
-    currentCarPlaySlide = (currentCarPlaySlide + 1) % carplaySlides.length;
-    const newSlideId = carplaySlides[currentCarPlaySlide];
-
-    // 2. تحديث البيانات في الكروت قبل العرض (مزامنة)
-    updateCarPlayCardData();
-
-    // 3. التبديل البصري
-    document.querySelectorAll('.carousel-slide').forEach(s => {
-        s.classList.remove('active');
-        setTimeout(() => s.classList.add('hidden'), 6000); // إخفاء بعد الأنيميشن
-    });
-
-    const nextSlide = document.getElementById(newSlideId);
-    if (nextSlide) {
-        nextSlide.classList.remove('hidden');
-        setTimeout(() => nextSlide.classList.add('active'), 6000);
-    }
-}
-
-function updateCarPlayCardData() {
-    // أ. بيانات الميديا (يتم تحديثها تلقائياً عبر دالتك الأصلية updateCarPlayDashboard)
-    
-    // ب. بيانات ناسا (القمر)
-    const moonImg = document.getElementById('carplay-nasa-moon');
-    const moonText = document.getElementById('carplay-moon-phase');
-    if (appState.dynamicMoonImageUrl && moonImg) {
-        moonImg.src = appState.dynamicMoonImageUrl;
-        moonText.textContent = `الإضاءة: ${appState.moonData?.phase.toFixed(1)}%`;
-    }
-
-    // ج. بيانات الطقس
-    const weatherIcon = document.getElementById('carplay-weather-icon-big');
-    const weatherTemp = document.getElementById('carplay-weather-temp-big');
-    if (appState.weather && weatherIcon) {
-        weatherIcon.src = appState.weather.iconUrl;
-        weatherTemp.textContent = `${Math.round(appState.weather.temperature)}°`;
-    }
-}
-
-// 🚀 تشغيل التبديل التلقائي كل 3 ثوانٍ
-if (window.carplayRotationInterval) clearInterval(window.carplayRotationInterval);
-window.carplayRotationInterval = setInterval(rotateCarPlayCards, 6000);
 
 window.isYouTubeApiReady = false;
 
@@ -9468,165 +9262,120 @@ function directionToDegrees(direction) {
 let carplayGoogleMap;   // خريطة CarPlay المصغرة
 
 let mapsInitialized = false;
-
+// --- 1. تهيئة الخرائط مع إعدادات الرؤية البعيدة ---
 async function initMaps() {
-    // 1. التحقق من عدم التكرار
     if (mapsInitialized) return;
     
     try {
         const mainMapElement = document.getElementById('dashboard-google-map');
-        const miniMapElement = document.getElementById('carplay-mini-map');
+        if (!mainMapElement) return;
 
-        if (!mainMapElement) {
-            console.error("❌ Main map element not found");
-            return;
-        }
-
-        // 2. 🚀 الإعدادات المشتركة لخرائط المتجهات (يجب تعريفها أولاً)
+        // إعدادات الخريطة: زووم 18 لرؤية أبعد وراحة بصرية
         const commonConfigs = {
-            center: appState.currentLocation || { lat: 17.015, lng: 54.092 }, // صلالة كإحداثيات افتراضية
+            center: appState.currentLocation || { lat: 17.021, lng: 54.110 },
             mapTypeId: 'roadmap',
             disableDefaultUI: true,
             renderingType: google.maps.RenderingType.VECTOR,
-            headingInteractionEnabled: true,
-            tiltInteractionEnabled: true,
-            gestureHandling: 'greedy'
+            zoom: 18, 
+            tilt: 65,
+            mapId: '6c6951a9289b612a97923702' // تأكد من صحة الـ Map ID
         };
 
-        // 3. --- أ. خريطة الداشبورد (3D) ---
-        // التعديل الذهبي: جعل الخريطة Global عبر window
-        window.dashboardGoogleMap = new google.maps.Map(mainMapElement, {
-            ...commonConfigs,
-            mapId: '6c6951a9289b612a97923702', 
-            zoom: 19.5, // زووم مناسب للـ 3D
-            tilt: 65,   // زاوية مثالية للمجسمات
-            heading: 0
-        });
-
-        // 🚗 حقن ماركر السيارة ثلاثي الأبعاد فوراً
-        if (typeof setup3DCarMarker === 'function') {
-            setup3DCarMarker(window.dashboardGoogleMap);
-        }
+        window.dashboardGoogleMap = new google.maps.Map(mainMapElement, commonConfigs);
 
         // إضافة طبقة حركة المرور
-        const trafficLayerMain = new google.maps.TrafficLayer();
-        trafficLayerMain.setMap(window.dashboardGoogleMap);
+        new google.maps.TrafficLayer().setMap(window.dashboardGoogleMap);
 
-        // 4. --- ب. خريطة CarPlay (الوضع الليلي) ---
-        if (miniMapElement) {
-            window.carplayGoogleMap = new google.maps.Map(miniMapElement, {
-                ...commonConfigs,
-                mapId: '6c6951a9289b612af6d86b8d',
-                colorScheme: google.maps.ColorScheme.DARK,
-                zoom: 19,
-                tilt: 45
-            });
-
-            const trafficLayerMini = new google.maps.TrafficLayer();
-            trafficLayerMini.setMap(window.carplayGoogleMap);
-            
-            window.carplayGoogleMarker = new google.maps.Marker({
-                position: commonConfigs.center,
-                map: window.carplayGoogleMap,
-                icon: { 
-                    url: 'https://dmusera.netlify.app/3606.png', 
-                    scaledSize: new google.maps.Size(80, 90),
-                    anchor: new google.maps.Point(40, 45)
-                }
-            });
-        }
-
-        // 5. تهيئة الخدمات الإضافية
-        directionsService = new google.maps.DirectionsService();
-        directionsRenderer = new google.maps.DirectionsRenderer({
-            map: window.dashboardGoogleMap,
-            suppressMarkers: true 
-        });
+        // 🚗 تشغيل محرك السيارة 3D
+        setup3DCarSystem(window.dashboardGoogleMap);
 
         mapsInitialized = true;
-        console.log("✅ All Maps Initialized Successfully.");
-        
-        startContinuousLocationTracking();
-
+        startContinuousLocationTracking(); // بدء التتبع الحي
+        console.log("✅ نظام الملاحة والتتبع جاهز.");
     } catch (error) {
-        console.error("❌ Map Init Error:", error);
+        console.error("❌ فشل تهيئة الخريطة:", error);
     }
 }
+
+// --- 2. محرك الجرافيك (onDraw) وحل مشكلة الإزاحة والجمود ---
+function setup3DCarSystem(map) {
+    const overlay = new google.maps.WebGLOverlayView();
+
+    overlay.onAdd = () => {
+        const loader = new window.GLTFLoader();
+        overlay.scene = new THREE.Scene();
+        overlay.camera = new THREE.PerspectiveCamera();
+        overlay.scene.add(new THREE.AmbientLight(0xffffff, 4));
+        
+        loader.load('https://dmusera.netlify.app/ES350E.glb', (gltf) => {
+            window.carModel = gltf.scene;
+            window.carModel.rotation.x = Math.PI / 2;
+            overlay.scene.add(window.carModel);
+        });
+    };
+
+    overlay.onContextRestored = ({ gl }) => {
+        overlay.renderer = new THREE.WebGLRenderer({
+            canvas: gl.canvas, context: gl, antialias: true, alpha: true
+        });
+        overlay.renderer.autoClear = false;
+    };
+
+    overlay.onDraw = ({ transformer }) => {
+        const { renderer, scene, camera } = overlay;
+        if (!renderer || !window.carModel || !renderer.getContext()) return;
+
+        // ✨ حل الإزاحة لليسار: مطابقة أبعاد الكانفاس في كل فريم
+        const canvas = renderer.getContext().canvas;
+        renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+        camera.aspect = canvas.clientWidth / canvas.clientHeight;
+        camera.updateProjectionMatrix();
+
+        // 🎯 التتبع الحي: ربط موقع السيارة بالـ appState المحدث من الـ GPS
+        const pos = window.appState.currentLocation;
+        const heading = window.appState.car.heading || 0;
+
+        const matrix = transformer.fromLatLngAltitude({ ...pos, altitude: 1.0 });
+        camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
+
+        // 📏 تصغير الحجم (معامل 1.1) لتبدو السيارة متناسقة مع الطريق
+        const scale = 1.1 * Math.pow(2, 20 - map.getZoom());
+        window.carModel.scale.set(scale, scale, scale);
+        window.carModel.rotation.y = -(heading * Math.PI) / 180 + Math.PI;
+
+        renderer.render(scene, camera);
+        overlay.requestRedraw(); // ضمان استمرار الحركة وعدم الثبات
+    };
+
+    overlay.setMap(map);
+    window.carOverlay = overlay;
+}
+
+// --- 3. دالة التحديث اللحظي للموقع (تزامن الخريطة والسيارة) ---
 function updateGoogleMapLocation(pos) {
     if (!pos || !pos.coords) return;
 
     const { latitude: lat, longitude: lng, heading } = pos.coords;
     const newLatLng = { lat, lng };
-    
-    // حفظ الموقع في الحالة العالمية
-    window.appState.currentLocation = newLatLng;
-    const currentHeading = (heading !== null && !isNaN(heading)) ? heading : 0;
+    const currentHeading = heading || 0;
 
-    // 1. تحديث خريطة الداشبورد (الأصلية)
+    // تحديث الحالة العالمية التي تقرأ منها دالة onDraw
+    window.appState.currentLocation = newLatLng;
+    window.appState.car.heading = currentHeading;
+
+    // تحريك كاميرا الخريطة لتتبع السيارة
     if (window.dashboardGoogleMap) {
         window.dashboardGoogleMap.moveCamera({
             center: newLatLng,
             heading: currentHeading,
-            tilt: 70,
-            zoom: 19.5
+            zoom: 18,
+            tilt: 65
         });
     }
 
-    // 2. تحديث خريطة CarPlay (المصغرة)
-    if (window.carplayGoogleMap) {
-        window.carplayGoogleMap.moveCamera({
-            center: newLatLng,
-            heading: currentHeading,
-            tilt: 45,
-            zoom: 18
-        });
-    }
-
-    // 3. مزامنة موديل السيارة 3D
-    if (window.carModel) {
-        window.carModel.rotation.y = -(currentHeading * Math.PI) / 180 + Math.PI;
-    }
+    // إجبار الأوفرلاي على إعادة الرسم فوراً لمنع القفزات البصرية
+    if (window.carOverlay) window.carOverlay.requestRedraw();
 }
-
-let locationWatchId = null;
-
-/**
- * Starts continuous geolocation tracking (watchPosition) to get live coordinates
- * and heading data, ensuring high accuracy for map rotation.
- */
-function startContinuousLocationTracking() {
-    stopDashboardLocationTracking(); 
-    
-    if (navigator.geolocation) {
-        locationWatchId = navigator.geolocation.watchPosition(
-            (pos) => { 
-                const overlay = document.getElementById('geolocation-error-overlay');
-                if (overlay) overlay.classList.add('hidden');
-                
-                // 🚀 السر في تشغيل الخريطتين هو تمرير الإحداثيات لدالة التحديث الشاملة
-                updateGoogleMapLocation(pos); 
-                
-                appState.hasShownGeolocationError = false; 
-
-                if (!initialLocationFetched) {
-                    fetchWeatherData();
-                    initialLocationFetched = true;
-                }
-            }, 
-            (err) => { 
-                console.error("GPS Error:", err);
-                if (err.code === 1) {
-                    showGeolocationErrorOnMap('يرجى تفعيل إذن الموقع الجغرافي.');
-                }
-            }, 
-            // 🛠️ تعديل ذهبي: جعل maximumAge هو 0 لضمان الموقع الحي (Live)
-            { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 } 
-        );
-    } else {
-        showGeolocationErrorOnMap('خدمة تحديد المواقع غير مدعومة.');
-    }
-}
-
 /**
  * Stops the continuous geolocation watch process.
  */
