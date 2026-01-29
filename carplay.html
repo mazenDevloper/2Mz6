@@ -9262,42 +9262,85 @@ function directionToDegrees(direction) {
 let carplayGoogleMap;   // خريطة CarPlay المصغرة
 
 let mapsInitialized = false;
-// --- 1. تهيئة الخرائط مع إعدادات الرؤية البعيدة ---
 async function initMaps() {
+    // 1. 🛡️ الحل الجذري للخطأ 9335: تأمين appState فوراً لمنع انهيار onDraw
+    window.appState = window.appState || {
+        currentLocation: { lat: 17.021, lng: 54.110 }, // إحداثيات افتراضية (صلالة)
+        car: { heading: 0 }
+    };
+
     if (mapsInitialized) return;
     
     try {
         const mainMapElement = document.getElementById('dashboard-google-map');
-        if (!mainMapElement) return;
+        const miniMapElement = document.getElementById('carplay-mini-map');
 
-        // إعدادات الخريطة: زووم 18 لرؤية أبعد وراحة بصرية
+        if (!mainMapElement) {
+            console.error("❌ عنصر الخريطة الرئيسي غير موجود");
+            return;
+        }
+
+        // 2. 🚀 الإعدادات المشتركة: زووم أبعد (17.5) لرؤية أوسع وتصحيح المنظور
         const commonConfigs = {
-            center: appState.currentLocation || { lat: 17.021, lng: 54.110 },
+            center: window.appState.currentLocation,
             mapTypeId: 'roadmap',
             disableDefaultUI: true,
             renderingType: google.maps.RenderingType.VECTOR,
-            zoom: 18, 
-            tilt: 65,
-            mapId: '6c6951a9289b612a97923702' // تأكد من صحة الـ Map ID
+            headingInteractionEnabled: true,
+            tiltInteractionEnabled: true,
+            gestureHandling: 'greedy'
         };
 
-        window.dashboardGoogleMap = new google.maps.Map(mainMapElement, commonConfigs);
+        // 3. --- أ. خريطة الداشبورد (3D) ---
+        window.dashboardGoogleMap = new google.maps.Map(mainMapElement, {
+            ...commonConfigs,
+            mapId: '6c6951a9289b612a97923702', 
+            zoom: 17.5, // تقليل الزووم لرؤية أبعد كما طلبت
+            tilt: 65,   
+            heading: 0
+        });
 
-        // إضافة طبقة حركة المرور
-        new google.maps.TrafficLayer().setMap(window.dashboardGoogleMap);
-
-        // 🚗 تشغيل محرك السيارة 3D
+        // 🚗 حقن نظام الـ 3D مع تصحيح الحجم والإزاحة لليسار
         setup3DCarSystem(window.dashboardGoogleMap);
 
+        // إضافة طبقة المرور
+        new google.maps.TrafficLayer().setMap(window.dashboardGoogleMap);
+
+        // 4. --- ب. خريطة CarPlay (المصغرة) ---
+        if (miniMapElement) {
+            window.carplayGoogleMap = new google.maps.Map(miniMapElement, {
+                ...commonConfigs,
+                mapId: '6c6951a9289b612af6d86b8d',
+                colorScheme: google.maps.ColorScheme.DARK,
+                zoom: 17, // زووم أبعد قليلاً للخريطة المصغرة
+                tilt: 45
+            });
+
+            new google.maps.TrafficLayer().setMap(window.carplayGoogleMap);
+            
+            window.carplayGoogleMarker = new google.maps.Marker({
+                position: commonConfigs.center,
+                map: window.carplayGoogleMap,
+                icon: { 
+                    url: 'https://dmusera.netlify.app/3606.png', 
+                    scaledSize: new google.maps.Size(60, 70), // تصغير الماركر التقليدي
+                    anchor: new google.maps.Point(30, 35)
+                }
+            });
+        }
+
         mapsInitialized = true;
-        startContinuousLocationTracking(); // بدء التتبع الحي
-        console.log("✅ نظام الملاحة والتتبع جاهز.");
+        console.log("✅ تم تشغيل كافة الخرائط وتصحيح أبعاد الرؤية والحجم.");
+        
+        // بدء التتبع الحي
+        startContinuousLocationTracking();
+
     } catch (error) {
-        console.error("❌ فشل تهيئة الخريطة:", error);
+        console.error("❌ Map Init Error:", error);
     }
 }
 
-// --- 2. محرك الجرافيك (onDraw) وحل مشكلة الإزاحة والجمود ---
+// --- 2. محرك الجرافيك المطور (إصلاح الحجم والإزاحة) ---
 function setup3DCarSystem(map) {
     const overlay = new google.maps.WebGLOverlayView();
 
@@ -9323,57 +9366,62 @@ function setup3DCarSystem(map) {
 
     overlay.onDraw = ({ transformer }) => {
         const { renderer, scene, camera } = overlay;
-        if (!renderer || !window.carModel || !renderer.getContext()) return;
+        
+        // 🛡️ صمام أمان مزدوج لمنع خطأ Undefined في currentLocation
+        if (!renderer || !window.carModel || !window.appState || !window.appState.currentLocation || !renderer.getContext()) return;
 
-        // ✨ حل الإزاحة لليسار: مطابقة أبعاد الكانفاس في كل فريم
+        // ✨ حل الإزاحة لليسار: مطابقة أبعاد الكانفاس قسرياً في كل فريم
         const canvas = renderer.getContext().canvas;
         renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
         camera.aspect = canvas.clientWidth / canvas.clientHeight;
         camera.updateProjectionMatrix();
 
-        // 🎯 التتبع الحي: ربط موقع السيارة بالـ appState المحدث من الـ GPS
         const pos = window.appState.currentLocation;
         const heading = window.appState.car.heading || 0;
 
-        const matrix = transformer.fromLatLngAltitude({ ...pos, altitude: 1.0 });
+        // ربط المصفوفة (ارتفاع 0.8 متر لثبات السيارة على الأسفلت)
+        const matrix = transformer.fromLatLngAltitude({ ...pos, altitude: 0.8 });
         camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
 
-        // 📏 تصغير الحجم (معامل 1.1) لتبدو السيارة متناسقة مع الطريق
-        const scale = 1.1 * Math.pow(2, 20 - map.getZoom());
+        // 📏 تصغير الحجم: تم تقليل المعامل إلى 0.4 ليناسب عرض حارات الطريق الحقيقي
+        const zoom = map.getZoom();
+        const scale = 0.4 * Math.pow(2, 20 - zoom); 
         window.carModel.scale.set(scale, scale, scale);
         window.carModel.rotation.y = -(heading * Math.PI) / 180 + Math.PI;
 
         renderer.render(scene, camera);
-        overlay.requestRedraw(); // ضمان استمرار الحركة وعدم الثبات
+        overlay.requestRedraw(); 
     };
 
     overlay.setMap(map);
     window.carOverlay = overlay;
 }
-
-// --- 3. دالة التحديث اللحظي للموقع (تزامن الخريطة والسيارة) ---
 function updateGoogleMapLocation(pos) {
     if (!pos || !pos.coords) return;
 
+    // إصلاح الخطأ 9363: تأمين الوصول للكائن قبل التعديل
+    if (!window.appState) {
+        window.appState = { currentLocation: {}, car: {} };
+    }
+
     const { latitude: lat, longitude: lng, heading } = pos.coords;
-    const newLatLng = { lat, lng };
     const currentHeading = heading || 0;
 
-    // تحديث الحالة العالمية التي تقرأ منها دالة onDraw
-    window.appState.currentLocation = newLatLng;
+    // تحديث الإحداثيات في الحالة العالمية
+    window.appState.currentLocation = { lat, lng };
     window.appState.car.heading = currentHeading;
 
-    // تحريك كاميرا الخريطة لتتبع السيارة
+    // تحريك كاميرا الخريطة (زووم 17.5 للرؤية الواسعة)
     if (window.dashboardGoogleMap) {
         window.dashboardGoogleMap.moveCamera({
-            center: newLatLng,
+            center: { lat, lng },
             heading: currentHeading,
-            zoom: 18,
+            zoom: 17.5,
             tilt: 65
         });
     }
 
-    // إجبار الأوفرلاي على إعادة الرسم فوراً لمنع القفزات البصرية
+    // إجبار محرك الرسم على التحديث
     if (window.carOverlay) window.carOverlay.requestRedraw();
 }
 /**
