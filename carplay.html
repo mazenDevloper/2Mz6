@@ -50,9 +50,7 @@
     -webkit-text-fill-color: transparent;
     filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
 }
-.grid.grid-cols-3.gap-1.w-full.mt-1 {
-    margin-top: 3rem;
-}
+
 /* تنسيق أسماء الشهور تحت الأرقام */
 .carousel-slide span[id*="-month-text"] {
     font-size: 1.5rem;
@@ -2842,15 +2840,15 @@ div#map{display:none}
                   <h3 class="text-lg font-bold text-purple-300">مرحلة القمر</h3>
                   <p id="carplay-moon-phase" class="text-sm text-white/60">NASA SVS</p>
                 </div>
+                
                 <div id="carplay-card-weather" class="carousel-slide flex flex-col items-center justify-center">
                   <span id="carplay-weather-temp-big" class="text-7xl font-black text-white">--°</span>
                 </div>
                 <div id="dash-card-weather" class="carousel-slide-dash w-full">
-                  <img id="dash-weather-icon-big" src="" class="w-10 h-10 object-contain mb-1">
+                  <img id="dash-weather-icon-big" src="" class="w-20 h-20 object-contain mb-1">
                   <div class="grid grid-cols-3 gap-1 w-full mt-1">
                     <div class="bg-black/20 p-1.5 rounded-lg text-center">
                       <div class="font-bold text-sm text-blue-300" id="dash-metric-temp">--°</div>
-						<br/>
                       <div class="text-[8px] opacity-60">Temp</div>
                     </div>
                     <div class="bg-black/20 p-1.5 rounded-lg text-center">
@@ -9396,46 +9394,66 @@ function setup3DCarSystem(map) {
         overlay.requestRedraw(); 
     };
 
+
     overlay.setMap(map);
     window.carOverlay = overlay;
 }
-function updateGoogleMapLocation(pos) {
-    if (!pos || !pos.coords) return;
 
-    // تأمين الكائنات لمنع أخطاء Undefined السابقة
-    if (!window.appState) window.appState = { currentLocation: {}, car: {} };
+// 1. القيم المثالية التي اخترتها
+window.tuner = {
+    zoom: 19,
+    tilt: 65,
+    scale: 0.7,
+    offset: 40
+};
+
+// 2. دالة التحديث التلقائي المستمر (Live Stream)
+function startLiveTracking() {
+    if (navigator.geolocation) {
+        if (window.locationWatchId) navigator.geolocation.clearWatch(window.locationWatchId);
+
+        window.locationWatchId = navigator.geolocation.watchPosition(
+            (pos) => {
+                updateGoogleMapLocation(pos);
+                console.log("🛰️ GPS Updated: Lat " + pos.coords.latitude.toFixed(5));
+            },
+            (err) => console.error("🚨 GPS Error:", err),
+            { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+        );
+        console.log("✅ التتبع التلقائي مستمر الآن دون الحاجة للزر.");
+    }
+}
+
+// 3. محرك الكاميرا والإزاحة
+function updateGoogleMapLocation(pos) {
+    if (!pos || !pos.coords || !window.dashboardGoogleMap) return;
 
     const { latitude: lat, longitude: lng, heading } = pos.coords;
     const currentHeading = heading || 0;
 
-    // 1. تحديث الإحداثيات الحقيقية للسيارة
+    // تحديث الحالة العالمية
+    window.appState = window.appState || { currentLocation: {}, car: {} };
     window.appState.currentLocation = { lat, lng };
     window.appState.car.heading = currentHeading;
 
-    if (window.dashboardGoogleMap) {
-        // 2. السنترة الأصلية (تجعل السيارة في المركز مؤقتاً)
-        window.dashboardGoogleMap.moveCamera({
-            center: { lat, lng },
-            heading: currentHeading,
-            zoom: 17.5,
-            tilt: 65
-            
-        });
+    // ملاحقة الكاميرا بالقيم المثالية
+    window.dashboardGoogleMap.moveCamera({
+        center: { lat, lng },
+        heading: currentHeading,
+        zoom: window.tuner.zoom,
+        tilt: window.tuner.tilt
+    });
 
-        // 3. ✨ الحقن الفوري للإزاحة (Offset)
-        // تنفيذ panBy(50, 0) فوراً بعد تحريك الكاميرا ليتم سحب الخريطة لليمين بصرياً
-        // مما يجعل السيارة تظهر "مزاحة لليسار" بالنسبة لك
-        window.dashboardGoogleMap.panBy(50, 0); 
-    }
+    // تطبيق الإزاحة لليسار (40px)
+    window.dashboardGoogleMap.panBy(window.tuner.offset, 0);
 
-    // 4. إجبار الموديل 3D على الرسم في موقعه الحقيقي مع تصحيح الحجم
-    if (window.carOverlay) {
-        window.carOverlay.requestRedraw();
-    }
+    // إعادة رسم السيارة 3D
+    if (window.carOverlay) window.carOverlay.requestRedraw();
 }
-/**
- * Stops the continuous geolocation watch process.
- */
+
+// تشغيل النظام
+startLiveTracking();
+
 function stopDashboardLocationTracking() {
     if (locationWatchId !== null) {
         navigator.geolocation.clearWatch(locationWatchId);
