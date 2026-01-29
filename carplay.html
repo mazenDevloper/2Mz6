@@ -9399,30 +9399,36 @@ function setup3DCarSystem(map) {
 function updateGoogleMapLocation(pos) {
     if (!pos || !pos.coords) return;
 
-    // إصلاح الخطأ 9363: تأمين الوصول للكائن قبل التعديل
-    if (!window.appState) {
-        window.appState = { currentLocation: {}, car: {} };
-    }
+    // تأمين الكائنات لمنع أخطاء Undefined السابقة
+    if (!window.appState) window.appState = { currentLocation: {}, car: {} };
 
     const { latitude: lat, longitude: lng, heading } = pos.coords;
     const currentHeading = heading || 0;
 
-    // تحديث الإحداثيات في الحالة العالمية
+    // 1. تحديث الإحداثيات الحقيقية للسيارة
     window.appState.currentLocation = { lat, lng };
     window.appState.car.heading = currentHeading;
 
-    // تحريك كاميرا الخريطة (زووم 17.5 للرؤية الواسعة)
     if (window.dashboardGoogleMap) {
+        // 2. السنترة الأصلية (تجعل السيارة في المركز مؤقتاً)
         window.dashboardGoogleMap.moveCamera({
             center: { lat, lng },
             heading: currentHeading,
             zoom: 17.5,
-            tilt: 65
+            tilt: 65,
+            extraAnim: { duration: 500 }
         });
+
+        // 3. ✨ الحقن الفوري للإزاحة (Offset)
+        // تنفيذ panBy(50, 0) فوراً بعد تحريك الكاميرا ليتم سحب الخريطة لليمين بصرياً
+        // مما يجعل السيارة تظهر "مزاحة لليسار" بالنسبة لك
+        window.dashboardGoogleMap.panBy(50, 0); 
     }
 
-    // إجبار محرك الرسم على التحديث
-    if (window.carOverlay) window.carOverlay.requestRedraw();
+    // 4. إجبار الموديل 3D على الرسم في موقعه الحقيقي مع تصحيح الحجم
+    if (window.carOverlay) {
+        window.carOverlay.requestRedraw();
+    }
 }
 /**
  * Stops the continuous geolocation watch process.
