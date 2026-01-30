@@ -169,6 +169,14 @@ div#universal-date-display>.date-wrapper>.date-details {
     color:white;
 }
 
+.gmnoprint.gm-bundled-control.gm-bundled-control-on-bottom {
+    bottom: 16rem!important;
+}
+
+span#carplay-weather-temp-big {
+    background: #ffffffb0;
+    -webkit-background-clip: text;
+}
 
 /* تحرير الحاوية الرئيسية للمقترحات */
 .suggestions-main-wrapper {
@@ -3425,10 +3433,10 @@ const savedTunerData = localStorage.getItem('custom_tuner_settings');
 const savedTuner = savedTunerData ? JSON.parse(savedTunerData) : null;
 
 window.tuner = savedTuner || { 
-    zoom: 20, 
-    tilt: 60, 
-    scale: 0.75, 
-    offset: 40 
+    zoom: 19.5, 
+    tilt: 65, 
+    scale: 1.02, 
+    offset: 50 
 };
 
 // 2. دالة تعديل الحجم (Car Scale)
@@ -3450,6 +3458,7 @@ function adjustTilt(amount) {
     
     // تطبيق التغيير على الخريطة فوراً
     window.dashboardGoogleMap.setTilt(newTilt);
+    
     window.tuner.tilt = newTilt;
     console.log("📐 الميلان الجديد:", newTilt);
 }
@@ -3527,6 +3536,8 @@ window.adjustScale = function(amount) {
     window.tuner.scale = Math.max(0.1, (window.tuner.scale || 0.75) + amount);
     if (window.carOverlay) window.carOverlay.requestRedraw();
 };
+    
+    
         // 1. المتغيرات المركزية للتدوير
 let carplayRotationIndex = 0;
 let dashRotationIndex = 0;
@@ -9418,14 +9429,14 @@ async function initMaps() {
             tiltInteractionEnabled: true,
             gestureHandling: 'greedy'
         };
-
+ 
         // 3. --- أ. خريطة الداشبورد (3D) ---
         window.dashboardGoogleMap = new google.maps.Map(mainMapElement, {
             ...commonConfigs,
             mapId: '6c6951a9289b612a97923702', 
             zoom: 17.5, // تقليل الزووم لرؤية أبعد كما طلبت
             tilt: 65,   
-            heading: 0
+            heading: 0, disableDefaultUI: false
         });
 
         // 🚗 حقن نظام الـ 3D مع تصحيح الحجم والإزاحة لليسار
@@ -9467,7 +9478,20 @@ async function initMaps() {
         console.error("❌ Map Init Error:", error);
     }
 }
-
+// التأكد من وجود كائن الخريطة قبل التعديل
+if (window.dashboardGoogleMap) {
+    window.dashboardGoogleMap.setOptions({
+        disableDefaultUI: false,
+        fullscreenControl: true,
+        streetViewControl: true,
+        fullscreenControlOptions: {
+        position: google.maps.ControlPosition.LEFT_BOTTOM // نقله لأسفل اليسار
+    }
+    });
+} else {
+    console.warn("⚠️ الخريطة لم تجهز بعد، سيتم المحاولة بعد ثانية...");
+    setTimeout(() => { if(window.dashboardGoogleMap) window.dashboardGoogleMap.setOptions({disableDefaultUI: false}); }, 1000);
+}
 // --- 2. محرك الجرافيك المطور (إصلاح الحجم والإزاحة) ---
 function setup3DCarSystem(map) {
     const overlay = new google.maps.WebGLOverlayView();
@@ -9476,9 +9500,9 @@ function setup3DCarSystem(map) {
         const loader = new window.GLTFLoader();
         overlay.scene = new THREE.Scene();
         overlay.camera = new THREE.PerspectiveCamera();
-        overlay.scene.add(new THREE.AmbientLight(0xffffff, 4));
+        overlay.scene.add(new THREE.AmbientLight(0xffffff, 6));
         
-        loader.load('https://dmusera.netlify.app/ES350E.glb', (gltf) => {
+        loader.load('https://dmusera.netlify.app/ES350E.gltf', (gltf) => {
             window.carModel = gltf.scene;
             window.carModel.rotation.x = Math.PI / 2;
             overlay.scene.add(window.carModel);
@@ -9512,7 +9536,7 @@ function setup3DCarSystem(map) {
 
     // 📏 الحجم الديناميكي: يقرأ من window.tuner.scale المحفوظ
     const zoom = window.dashboardGoogleMap.getZoom();
-    const baseScale = window.tuner.scale || 0.75; 
+    const baseScale = window.tuner.scale || 0.85; 
     const finalScale = baseScale * Math.pow(2, 20 - zoom); 
     
     window.carModel.scale.set(finalScale, finalScale, finalScale);
@@ -9531,10 +9555,10 @@ function setup3DCarSystem(map) {
 
 // 1. القيم المثالية التي اخترتها
 window.tuner = {
-    zoom: 20,
-    tilt: 60,
-    scale: 0.75,
-    offset: 40
+    zoom: 19.5,
+    tilt: 65,
+    scale: 0.9,
+    offset: 45
 };
 
 // 2. دالة التحديث التلقائي المستمر (Live Stream)
