@@ -8591,7 +8591,7 @@ async function setup3DCarMarker(map) {
         sun.position.set(10, 25, 10);
         scene.add(sun);
 
-        loader.load('https://dmusera.netlify.app/ES350E.glb', (gltf) => {
+        loader.load('https://dmusera.netlify.app/ES350E.gltf', (gltf) => {
             window.carModel = gltf.scene;
             window.carModel.rotation.x = Math.PI / 2;
             scene.add(window.carModel);
