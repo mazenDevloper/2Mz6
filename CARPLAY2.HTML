@@ -3458,14 +3458,22 @@ function adjustTilt(amount) {
 function saveCurrentTuner() {
     if (!window.dashboardGoogleMap) return;
 
-    // تحديث القيم من الحالة الفعلية للخريطة قبل الحفظ
+    // 1. قنص القيم الحالية من الخريطة (التي ضبطتها بأصابعك)
     window.tuner.zoom = window.dashboardGoogleMap.getZoom();
     window.tuner.tilt = window.dashboardGoogleMap.getTilt();
-
-    // تخزين البيانات في الكاش
-    localStorage.setItem('custom_tuner_settings', JSON.stringify(window.tuner));
     
-    alert("💾 تم حفظ الثيم بنجاح!");
+    // 2. القيمة الحالية للسكيل موجودة بالفعل في window.tuner.scale
+
+    // 3. التخزين في ذاكرة المتصفح للأبد
+    localStorage.setItem('custom_tuner_settings', JSON.stringify(window.tuner));
+
+    // 4. إنهاء وضع التفاعل لتعود الكاميرا للملاحقة التلقائية بالقيم الجديدة
+    isUserInteracting = false;
+
+    alert(`✅ تم الحفظ بنجاح!
+الزوم الجديد: ${window.tuner.zoom.toFixed(1)}
+الميلان: ${window.tuner.tilt}
+حجم السيارة: ${window.tuner.scale}`);
 }
         // 1. المتغيرات المركزية للتدوير
 let carplayRotationIndex = 0;
@@ -9432,34 +9440,41 @@ function setup3DCarSystem(map) {
         overlay.renderer.autoClear = false;
     };
 
-    overlay.onDraw = ({ transformer }) => {
-        const { renderer, scene, camera } = overlay;
-        
-        // 🛡️ صمام أمان مزدوج لمنع خطأ Undefined في currentLocation
-        if (!renderer || !window.carModel || !window.appState || !window.appState.currentLocation || !renderer.getContext()) return;
+overlay.onDraw = ({ transformer }) => {
+    const { renderer, scene, camera } = overlay;
+    
+    // 🛡️ صمام أمان شامل
+    if (!renderer || !window.carModel || !window.appState || !window.appState.currentLocation || !renderer.getContext()) return;
 
-        // ✨ حل الإزاحة لليسار: مطابقة أبعاد الكانفاس قسرياً في كل فريم
-        const canvas = renderer.getContext().canvas;
-        renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
-        camera.aspect = canvas.clientWidth / canvas.clientHeight;
-        camera.updateProjectionMatrix();
+    // ✨ الحفاظ على أبعاد الكانفاس وسلاسة العرض
+    const canvas = renderer.getContext().canvas;
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+    camera.aspect = canvas.clientWidth / canvas.clientHeight;
+    camera.updateProjectionMatrix();
 
-        const pos = window.appState.currentLocation;
-        const heading = window.appState.car.heading || 0;
+    const pos = window.appState.currentLocation;
+    const heading = window.appState.car.heading || 0;
 
-        // ربط المصفوفة (ارتفاع 0.8 متر لثبات السيارة على الأسفلت)
-        const matrix = transformer.fromLatLngAltitude({ ...pos, altitude: 0.8 });
-        camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
+    // 🚀 حل مشكلة الاختفاء: رفع الارتفاع إلى 3.5 متر ليكون فوق الأرصفة والمباني الصغيرة
+    // تم استبدال الـ 0.8 بـ 3.5 لضمان الظهور الدائم
+    const matrix = transformer.fromLatLngAltitude({ ...pos, altitude: 3.5 });
+    camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
 
-        // 📏 تصغير الحجم: تم تقليل المعامل إلى 0.4 ليناسب عرض حارات الطريق الحقيقي
-        const zoom = map.getZoom();
-        const scale = 0.4 * Math.pow(2, 20 - zoom); 
-        window.carModel.scale.set(scale, scale, scale);
-        window.carModel.rotation.y = -(heading * Math.PI) / 180 + Math.PI;
+    // 📏 الحجم الديناميكي: تم ربطه بـ window.tuner.scale بدلاً من القيمة الثابتة 0.4
+    const zoom = map.getZoom();
+    // نستخدم القيمة المحفوظة في التونر أو 0.75 كافتراضي
+    const baseScale = window.tuner.scale || 0.75; 
+    const scale = baseScale * Math.pow(2, 20 - zoom); 
+    
+    window.carModel.scale.set(scale, scale, scale);
+    window.carModel.rotation.y = -(heading * Math.PI) / 180 + Math.PI;
 
-        renderer.render(scene, camera);
-        overlay.requestRedraw(); 
-    };
+    // 💎 تأمين ظهور السيارة فوق المباني (Render Order)
+    window.carModel.renderOrder = 999; 
+
+    renderer.render(scene, camera);
+    overlay.requestRedraw(); 
+};
 
 
     overlay.setMap(map);
@@ -9477,31 +9492,61 @@ window.tuner = {
 // 2. دالة التحديث التلقائي المستمر (Live Stream)
 function startLiveTracking() {
     if (navigator.geolocation) {
-        if (window.locationWatchId) navigator.geolocation.clearWatch(window.locationWatchId);
-
         window.locationWatchId = navigator.geolocation.watchPosition(
             (pos) => {
-                updateGoogleMapLocation(pos);
-                console.log("🛰️ GPS Updated: Lat " + pos.coords.latitude.toFixed(5));
+                const { latitude: lat, longitude: lng, heading } = pos.coords;
+                
+                // 1. تحديث إحداثيات السيارة في الذاكرة فوراً
+                window.appState.currentLocation = { lat, lng };
+                window.appState.car.heading = heading || 0;
+
+                // 2. استدعاء apply تلقائياً مع كل حركة GPS
+                // هذا هو السر لظهور السيارة باستمرار
+                if (window.tuner && typeof window.tuner.apply === 'function') {
+                    window.tuner.apply();
+                }
+
+                console.log("🛰️ تتبع حي نشط: السيارة تظهر وتتحرك...");
             },
-            (err) => console.error("🚨 GPS Error:", err),
-            { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+            (err) => console.error("GPS Error:", err),
+            { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
         );
-        console.log("✅ التتبع التلقائي مستمر الآن دون الحاجة للزر.");
     }
 }
+// متغير لمنع التحديث التلقائي أثناء اللمس
+let isUserInteracting = false;
+
+// مستمعات الأحداث لاكتشاف التفاعل اليدوي
+if (window.dashboardGoogleMap) {
+    const map = window.dashboardGoogleMap;
+    map.addListener('dragstart', () => isUserInteracting = true);
+    map.addListener('zoom_changed', () => {
+        if (isUserInteracting) {
+            // تحديث قيم التونر فورياً عند تغيير الزوم بالأصابع
+            window.tuner.zoom = map.getZoom();
+        }
+    });
+}
+
 function updateGoogleMapLocation(pos) {
     if (!pos || !pos.coords || !window.dashboardGoogleMap) return;
 
     const { latitude: lat, longitude: lng, heading } = pos.coords;
+    window.appState.currentLocation = { lat, lng };
+    window.appState.car.heading = heading || 0;
 
-    window.dashboardGoogleMap.moveCamera({
-        center: { lat, lng },
-        heading: heading || 0,
-        // القراءة من التونر المحفوظ أو المعدل يدوياً
-        zoom: window.tuner.zoom,
-        tilt: window.tuner.tilt
-    });
+    // إذا كان المستخدم يحرك الخريطة، نحدث الموقع فقط بدون تغيير الزوم أو التلت
+    if (isUserInteracting) {
+        window.dashboardGoogleMap.setCenter({ lat, lng });
+    } else {
+        // إذا كان النظام مستقراً، نستخدم قيم التونر المحفوظة
+        window.dashboardGoogleMap.moveCamera({
+            center: { lat, lng },
+            zoom: window.tuner.zoom,
+            tilt: window.tuner.tilt,
+            heading: heading || 0
+        });
+    }
 
     window.dashboardGoogleMap.panBy(window.tuner.offset, 0);
     if (window.carOverlay) window.carOverlay.requestRedraw();
