@@ -63,6 +63,10 @@
     perspective: 1000px;
 }
 
+.grid.grid-cols-3.gap-1.w-full.mt-1 {
+    margin-top: 4.25rem!important;
+}
+
 div#weather-widget-container {
     width: 100% !important;
     height:40%  !important;
@@ -2811,8 +2815,23 @@ div#map{display:none}
               <button id="get-my-location-button-dashboard" class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full transition-colors duration-200 flex items-center justify-center text-sm navigable grid-item" tabindex="0" title="تحديث الموقع">
                 <i data-lucide="map-pin" class="w-5 h-5"></i>
               </button>
-              <button id="go-to-home-1-button" class="home-traffic-btn navigable grid-item" tabindex="0" title="المنزل 1"> المنزل 1 (--%) </button>
-              <button id="go-to-home-2-button" class="home-traffic-btn navigable grid-item" tabindex="0" title="المنزل 2"> المنزل 2 (--%) </button>
+              <div id="map-tuner-controls" class="relative z-[1000] flex flex-col gap-2">
+    <div class="flex gap-2 bg-black/50 p-2 rounded-xl backdrop-blur">
+        <button onclick="adjustScale(0.05)" class="bg-white/20 px-3 py-1 rounded text-white">+</button>
+        <span class="text-white text-xs self-center">car</span>
+        <button onclick="adjustScale(-0.05)" class="bg-white/20 px-3 py-1 rounded text-white">-</button>
+    </div>
+    <div class="flex gap-2 bg-black/50 p-2 rounded-xl backdrop-blur border border-white/10">
+        <button onclick="adjustTilt(5)" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded text-white">↑</button>
+        <span class="text-white text-[10px] uppercase font-bold self-center w-8 text-center">Tilt</span>
+        <button onclick="adjustTilt(-5)" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded text-white">↓</button>
+    </div>
+   
+</div>
+             <button id="save-tuner-btn" onclick="saveCurrentTuner()" 
+            class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-2xl font-bold shadow-lg transition-all">
+        💾
+    </button>
             </div>
           </div>
           <!-- 360 Camera View (Stays in middle) -->
@@ -3400,6 +3419,73 @@ div#map{display:none}
 </script>
 
     <script>
+    // 1. تحميل الإعدادات المخزنة أو استخدام الافتراضية
+// قمنا بتوحيد اسم المتغير إلى savedTuner لمنع خطأ الـ ReferenceError
+const savedTunerData = localStorage.getItem('custom_tuner_settings');
+const savedTuner = savedTunerData ? JSON.parse(savedTunerData) : null;
+
+window.tuner = savedTuner || { 
+    zoom: 20, 
+    tilt: 60, 
+    scale: 0.75, 
+    offset: 40 
+};
+
+// 2. دالة تعديل الحجم (Car Scale)
+function adjustScale(amount) {
+    // نضمن أننا نعدل القيمة الموجودة حالياً
+    window.tuner.scale = Math.max(0.1, (window.tuner.scale || 0.75) + amount);
+    
+    // إرسال أمر تحديث للسيارة فوراً
+    if (window.carOverlay) window.carOverlay.requestRedraw();
+    console.log("📏 الحجم الجديد:", window.tuner.scale.toFixed(2));
+}
+
+// 3. دالة تعديل الميلان (Tilt) المربوطة بالأزرار ↑ ↓
+function adjustTilt(amount) {
+    if (!window.dashboardGoogleMap) return;
+    
+    let currentTilt = window.dashboardGoogleMap.getTilt();
+    let newTilt = Math.min(Math.max(currentTilt + amount, 0), 75);
+    
+    // تطبيق التغيير على الخريطة فوراً
+    window.dashboardGoogleMap.setTilt(newTilt);
+    window.tuner.tilt = newTilt;
+    console.log("📐 الميلان الجديد:", newTilt);
+}
+
+// 4. دالة الحفظ الموحدة (💾)
+// حفظ الحالة الحالية كافتراضية للمتصفح
+window.saveCurrentTuner = function() {
+    if (!window.dashboardGoogleMap) return;
+    
+    // تحديث كائن التونر بالقيم الحالية التي تراها العين
+    window.tuner.zoom = window.dashboardGoogleMap.getZoom();
+    window.tuner.tilt = window.dashboardGoogleMap.getTilt();
+    
+    // التخزين الدائم في الكاش
+    localStorage.setItem('custom_tuner_settings', JSON.stringify(window.tuner));
+    
+    // إنهاء وضع التعديل لتعود الكاميرا للملاحقة التلقائية
+    window.isUserAdjusting = false;
+
+    console.log("💾 تم الحفظ بنجاح:", window.tuner);
+    alert("تم حفظ إعدادات العرض المفضلة");
+};
+
+// تعديل الميلان (Tilt)
+window.adjustTilt = function(amount) {
+    if (!window.dashboardGoogleMap) return;
+    let newTilt = Math.min(Math.max(window.dashboardGoogleMap.getTilt() + amount, 0), 75);
+    window.dashboardGoogleMap.setTilt(newTilt);
+    window.tuner.tilt = newTilt;
+};
+
+// تعديل الحجم (Scale)
+window.adjustScale = function(amount) {
+    window.tuner.scale = Math.max(0.1, (window.tuner.scale || 0.75) + amount);
+    if (window.carOverlay) window.carOverlay.requestRedraw();
+};
         // 1. المتغيرات المركزية للتدوير
 let carplayRotationIndex = 0;
 let dashRotationIndex = 0;
@@ -9364,36 +9450,39 @@ function setup3DCarSystem(map) {
         });
         overlay.renderer.autoClear = false;
     };
-
     overlay.onDraw = ({ transformer }) => {
-        const { renderer, scene, camera } = overlay;
-        
-        // 🛡️ صمام أمان مزدوج لمنع خطأ Undefined في currentLocation
-        if (!renderer || !window.carModel || !window.appState || !window.appState.currentLocation || !renderer.getContext()) return;
+    const { renderer, scene, camera } = overlay;
+    
+    // صمام أمان للتحقق من وجود كافة البيانات
+    if (!renderer || !window.carModel || !window.appState?.currentLocation) return;
 
-        // ✨ حل الإزاحة لليسار: مطابقة أبعاد الكانفاس قسرياً في كل فريم
-        const canvas = renderer.getContext().canvas;
-        renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
-        camera.aspect = canvas.clientWidth / canvas.clientHeight;
-        camera.updateProjectionMatrix();
+    // تحديث أبعاد الريندرر لضمان عدم تمدد الصورة
+    const canvas = renderer.getContext().canvas;
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+    camera.aspect = canvas.clientWidth / canvas.clientHeight;
+    camera.updateProjectionMatrix();
 
-        const pos = window.appState.currentLocation;
-        const heading = window.appState.car.heading || 0;
+    const pos = window.appState.currentLocation;
+    const heading = window.appState.car.heading || 0;
 
-        // ربط المصفوفة (ارتفاع 0.8 متر لثبات السيارة على الأسفلت)
-        const matrix = transformer.fromLatLngAltitude({ ...pos, altitude: 0.8 });
-        camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
+    // 🚀 الارتفاع: 3.5 متر لضمان الظهور فوق الأرصفة والمباني
+    const matrix = transformer.fromLatLngAltitude({ ...pos, altitude: 3.5 });
+    camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
 
-        // 📏 تصغير الحجم: تم تقليل المعامل إلى 0.4 ليناسب عرض حارات الطريق الحقيقي
-        const zoom = map.getZoom();
-        const scale = 0.4 * Math.pow(2, 20 - zoom); 
-        window.carModel.scale.set(scale, scale, scale);
-        window.carModel.rotation.y = -(heading * Math.PI) / 180 + Math.PI;
+    // 📏 الحجم الديناميكي: يقرأ من window.tuner.scale المحفوظ
+    const zoom = window.dashboardGoogleMap.getZoom();
+    const baseScale = window.tuner.scale || 0.75; 
+    const finalScale = baseScale * Math.pow(2, 20 - zoom); 
+    
+    window.carModel.scale.set(finalScale, finalScale, finalScale);
+    window.carModel.rotation.y = -(heading * Math.PI) / 180 + Math.PI;
 
-        renderer.render(scene, camera);
-        overlay.requestRedraw(); 
-    };
+    // الأولوية القصوى للظهور
+    window.carModel.renderOrder = 9999;
 
+    renderer.render(scene, camera);
+    overlay.requestRedraw(); 
+};
 
     overlay.setMap(map);
     window.carOverlay = overlay;
@@ -9401,55 +9490,85 @@ function setup3DCarSystem(map) {
 
 // 1. القيم المثالية التي اخترتها
 window.tuner = {
-    zoom: 19,
-    tilt: 65,
-    scale: 0.7,
+    zoom: 20,
+    tilt: 60,
+    scale: 0.75,
     offset: 40
 };
 
 // 2. دالة التحديث التلقائي المستمر (Live Stream)
 function startLiveTracking() {
     if (navigator.geolocation) {
-        if (window.locationWatchId) navigator.geolocation.clearWatch(window.locationWatchId);
-
         window.locationWatchId = navigator.geolocation.watchPosition(
             (pos) => {
-                updateGoogleMapLocation(pos);
-                console.log("🛰️ GPS Updated: Lat " + pos.coords.latitude.toFixed(5));
+                const { latitude: lat, longitude: lng, heading } = pos.coords;
+                
+                // 1. تحديث إحداثيات السيارة في الذاكرة فوراً
+                window.appState.currentLocation = { lat, lng };
+                window.appState.car.heading = heading || 0;
+
+                // 2. استدعاء apply تلقائياً مع كل حركة GPS
+                // هذا هو السر لظهور السيارة باستمرار
+                if (window.tuner && typeof window.tuner.apply === 'function') {
+                    window.tuner.apply();
+                }
+
+                console.log("🛰️ تتبع حي نشط: السيارة تظهر وتتحرك...");
             },
-            (err) => console.error("🚨 GPS Error:", err),
-            { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+            (err) => console.error("GPS Error:", err),
+            { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
         );
-        console.log("✅ التتبع التلقائي مستمر الآن دون الحاجة للزر.");
     }
 }
+// متغير لمنع التحديث التلقائي أثناء اللمس
+let isUserInteracting = false;
 
-// 3. محرك الكاميرا والإزاحة
-function updateGoogleMapLocation(pos) {
+// مستمعات الأحداث لاكتشاف التفاعل اليدوي
+if (window.dashboardGoogleMap) {
+    const map = window.dashboardGoogleMap;
+    map.addListener('dragstart', () => isUserInteracting = true);
+    map.addListener('zoom_changed', () => {
+        if (isUserInteracting) {
+            // تحديث قيم التونر فورياً عند تغيير الزوم بالأصابع
+            window.tuner.zoom = map.getZoom();
+        }
+    });
+}
+
+// تعريف الدالة كعالمية لضمان عملها مع كل الأزرار
+window.updateGoogleMapLocation = function(pos) {
     if (!pos || !pos.coords || !window.dashboardGoogleMap) return;
 
     const { latitude: lat, longitude: lng, heading } = pos.coords;
     const currentHeading = heading || 0;
 
-    // تحديث الحالة العالمية
-    window.appState = window.appState || { currentLocation: {}, car: {} };
+    // 1. تحديث الحالة في الذاكرة
     window.appState.currentLocation = { lat, lng };
     window.appState.car.heading = currentHeading;
 
-    // ملاحقة الكاميرا بالقيم المثالية
-    window.dashboardGoogleMap.moveCamera({
+    // 2. إعدادات الكاميرا (نستخدم القيم من window.tuner المحفوظة)
+    const cameraOptions = {
         center: { lat, lng },
         heading: currentHeading,
-        zoom: window.tuner.zoom,
         tilt: window.tuner.tilt
-    });
+    };
 
-    // تطبيق الإزاحة لليسار (40px)
-    window.dashboardGoogleMap.panBy(window.tuner.offset, 0);
+    // 3. ذكاء الملاحقة: إذا كان المستخدم لا يلمس الخريطة، نطبق الزوم المحفوظ
+    if (!window.isUserAdjusting) {
+        cameraOptions.zoom = window.tuner.zoom;
+        
+        // تحريك الكاميرا بسلاسة
+        window.dashboardGoogleMap.moveCamera(cameraOptions);
+        
+        // تطبيق الإزاحة لليسار (Offset)
+        window.dashboardGoogleMap.panBy(window.tuner.offset, 0);
+    }
 
-    // إعادة رسم السيارة 3D
-    if (window.carOverlay) window.carOverlay.requestRedraw();
-}
+    // 4. إجبار السيارة 3D على إعادة الرسم في الموقع الجديد
+    if (window.carOverlay) {
+        window.carOverlay.requestRedraw();
+    }
+};
 
 // تشغيل النظام
 startLiveTracking();
