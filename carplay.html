@@ -2905,7 +2905,7 @@ div#map{display:none}
     
     <div class="absolute bg-black/70 backdrop-blur-md p-3 min-h-[40%] flex items-center overflow-hidden">
         <div id="dash-media-title-container" class="w-full relative overflow-hidden">
-            <h3 id="dash-media-title1" class="minimized-title text-lg font-black text-white leading-tight whitespace-nowrap inline-block">
+            <h3 id="dash-media-title" class="minimized-title text-lg font-black text-white leading-tight whitespace-nowrap inline-block">
                 جاري التحميل...
             </h3>
         </div>
@@ -3722,41 +3722,30 @@ function rotateSlidesSpecific(selector, idArray, type) {
 
 // 5. دالة حقن البيانات الموحدة
 function syncDataToElements(player) {
+const player = window.popupPlayer;
+    const dashTitle = document.getElementById('dash-media-title');
+    const dashThumb = document.getElementById('dash-media-thumb');
 
-const activePlayer = player || window.popupPlayer || window.player;
-    const dashTitleEl = document.getElementById('dash-media-title');
-    const dashThumbEl = document.getElementById('dash-media-thumb');
-
-    // 2. استخراج العنوان بأولوية (المشغل أولاً ثم عنوان الصفحة)
-    let finalTitle = "";
-    if (activePlayer && typeof activePlayer.getVideoData === 'function') {
-        finalTitle = activePlayer.getVideoData().title;
-    }
-    
-    // إذا كان المشغل غير جاهز أو العنوان فارغ، استخدم عنوان الصفحة (الذي نجح في الكونسول)
-    if (!finalTitle || finalTitle === "جاري التحميل...") {
-        finalTitle = document.title.split(' - YouTube')[0];
-    }
-
-    // 3. تحديث واجهة الداش
-    if (dashTitleEl && finalTitle && finalTitle !== "جاري التحميل...") {
-        dashTitleEl.textContent = finalTitle;
+    // التأكد من أن المشغل جاهز ويحتوي على دالة جلب البيانات
+    if (player && typeof player.getVideoData === 'function') {
+        const vData = player.getVideoData();
         
-        // تحديث الصورة المصغرة (Thumbnail)
-        if (dashThumbEl && activePlayer && activePlayer.getVideoData) {
-            const vData = activePlayer.getVideoData();
-            dashThumbEl.src = `https://img.youtube.com/vi/${vData.video_id}/hqdefault.jpg`;
-        }
+        // استخدام نفس المنطق الذي نجح في كود "الكبسولة" الخاص بك
+        const title = (vData && vData.title) ? vData.title : null;
 
-        // 4. تفعيل التحريك (Marquee) إذا كان العنوان طويلاً
-        const container = document.getElementById('dash-media-title-container');
-        if (container && dashTitleEl.scrollWidth > container.offsetWidth) {
-            dashTitleEl.className = "text-lg font-black text-white animate-marquee whitespace-nowrap";
-        } else {
-            dashTitleEl.className = "text-lg font-black text-white line-clamp-2";
+        if (title && title !== 'جاري التحميل...') {
+            // تحديث العنوان
+            if (dashTitle) dashTitle.textContent = title;
+            
+            // تحديث الصورة
+            if (dashThumb && vData.video_id) {
+                dashThumb.src = `https://img.youtube.com/vi/${vData.video_id}/hqdefault.jpg`;
+            }
+            
+            // تفعيل التحريك (Marquee) إذا كان العنوان طويلاً
+            handleMarquee(dashTitle);
         }
     }
-
     const now = new Date(); 
     const weather = appState.weather;
     const moon = appState.moonData;
@@ -7519,7 +7508,7 @@ async function showVideoPopup(videoId, startOverride = null) {
         // المشغل غير موجود -> إنشاء جديد
         videoPopupPlayerContainer.innerHTML = '<div id="video-popup-player"></div>';
         
-        popupPlayer = new YT.Player('video-popup-player', {
+        window.popupPlayer = new YT.Player('video-popup-player', {
             height: '100%', 
             width: '100%', 
             videoId: videoId,
