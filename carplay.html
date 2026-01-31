@@ -3722,30 +3722,43 @@ function rotateSlidesSpecific(selector, idArray, type) {
 
 // 5. دالة حقن البيانات الموحدة
 function syncDataToElements(player) {
-const player = window.popupPlayer;
-    const dashTitle = document.getElementById('dash-media-title');
-    const dashThumb = document.getElementById('dash-media-thumb');
+// 1. تحديد المشغل والعناصر
+const activePlayer = window.popupPlayer || window.player || player; //
+const dashTitleEl = document.getElementById('dash-media-title');
+const dashThumbEl = document.getElementById('dash-media-thumb');
 
-    // التأكد من أن المشغل جاهز ويحتوي على دالة جلب البيانات
-    if (player && typeof player.getVideoData === 'function') {
-        const vData = player.getVideoData();
-        
-        // استخدام نفس المنطق الذي نجح في كود "الكبسولة" الخاص بك
-        const title = (vData && vData.title) ? vData.title : null;
+// 2. استخراج العنوان بأولوية ذكية
+let finalTitle = "";
+if (activePlayer && typeof activePlayer.getVideoData === 'function') {
+    const vData = activePlayer.getVideoData();
+    finalTitle = (vData && vData.title) ? vData.title : ""; //
+}
 
-        if (title && title !== 'جاري التحميل...') {
-            // تحديث العنوان
-            if (dashTitle) dashTitle.textContent = title;
-            
-            // تحديث الصورة
-            if (dashThumb && vData.video_id) {
-                dashThumb.src = `https://img.youtube.com/vi/${vData.video_id}/hqdefault.jpg`;
-            }
-            
-            // تفعيل التحريك (Marquee) إذا كان العنوان طويلاً
-            handleMarquee(dashTitle);
+// الحل البديل: إذا فشل المشغل، استخدم عنوان الصفحة (نفس منطق الكونسول الناجح)
+if (!finalTitle || finalTitle === "جاري التحميل...") {
+    finalTitle = document.title.split(' - YouTube')[0]; //
+}
+
+// 3. التحديث الفعلي للواجهة
+if (dashTitleEl && finalTitle && finalTitle !== "" && finalTitle !== "جاري التحميل...") {
+    dashTitleEl.textContent = finalTitle; //
+    
+    // تحديث الصورة
+    if (dashThumbEl && activePlayer && typeof activePlayer.getVideoData === 'function') {
+        const vData = activePlayer.getVideoData();
+        if (vData.video_id) {
+            dashThumbEl.src = `https://img.youtube.com/vi/${vData.video_id}/hqdefault.jpg`; //
         }
     }
+
+    // 4. ضبط التحريك (Marquee)
+    const container = document.getElementById('dash-media-title-container');
+    if (container && dashTitleEl.scrollWidth > container.offsetWidth) {
+        dashTitleEl.className = "text-lg font-black text-white animate-marquee whitespace-nowrap"; //
+    } else {
+        dashTitleEl.className = "text-lg font-black text-white line-clamp-2"; //
+    }
+}
     const now = new Date(); 
     const weather = appState.weather;
     const moon = appState.moonData;
