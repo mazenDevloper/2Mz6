@@ -67,6 +67,14 @@
     margin-top: 4.25rem!important;
 }
 
+span#greg-day-num {
+    transform: scale(2);
+    filter: none!important;
+    opacity: 70%;
+}
+
+
+
 div#weather-widget-container {
     width: 100% !important;
     height:40%  !important;
@@ -176,8 +184,8 @@ div#universal-date-display>.date-wrapper>.date-details {
 span#carplay-weather-temp-big {
     background: #ffffffb0;
     -webkit-background-clip: text;
+    position: fixed;
 }
-
 /* تحرير الحاوية الرئيسية للمقترحات */
 .suggestions-main-wrapper {
     overflow: visible !important; /* السماح بالبروز فوق أزرار الإغلاق وغيرها */
@@ -2870,6 +2878,7 @@ div#map{display:none}
              class="absolute inset-0 flex items-center justify-center z-10 font-black text-6xl opacity-30" 
              style="webkit-text-stroke: 1.5px rgba(255,255,255,0.7); pointer-events: none; text-shadow: 0 4px 10px rgba(0,0,0,0.5);transform: scale(3.5);">
             ${hijriDay}
+            
         </div>
         
         <img id="dash-nasa-moon" 
@@ -2884,7 +2893,9 @@ div#map{display:none}
 
 <div id="dash-card-gregorian-date" class="carousel-slide-dash w-full flex flex-col items-center justify-center p-4">
     <div class="glass-date-wrapper flex flex-col items-center">
-        <span id="greg-day-num" class="text-7xl font-black leading-none tracking-tighter" >
+        <span id="greg-day-num" class="text-7xl font-black leading-none tracking-tighter"   
+                   style="pointer-events: none; text-shadow: rgba(0, 0, 0, 0.16) 0px 4px 10px; font-weight: 900; -webkit-text-fill-color: transparent; background-image: linear-gradient(rgb(255, 255, 255) 0%, rgb(161, 161, 161) 100%); background-clip: text;">
+ 
             
         </span>
         <span id="greg-month-name" class="text-2xl font-bold text-white/90 mt-2 italic" >
@@ -2894,9 +2905,9 @@ div#map{display:none}
 </div>
                 
                 <div id="carplay-card-weather" class="carousel-slide flex flex-col items-center justify-center">
-                  <span id="carplay-weather-temp-big" class="text-7xl font-black text-white">--°</span>
                 </div>
                 <div id="dash-card-weather" class="carousel-slide-dash w-full">
+                                                      <span id="carplay-weather-temp-big" class="text-7xl font-black text-white">--°</span>
                   <img id="dash-weather-icon-big" src="" class="w-20 h-20 object-contain mb-1">
                   <div class="grid grid-cols-3 gap-1 w-full mt-1">
                     <div class="bg-black/20 p-1.5 rounded-lg text-center">
@@ -3620,8 +3631,8 @@ window.updateGregorianCard = function() {
     const today = new Date(); //
     
     // تنسيق البيانات
-    const dayFormatter = new Intl.DateTimeFormat('ar-SA', { day: 'numeric' }); //
-    const monthFormatter = new Intl.DateTimeFormat('ar-SA', { month: 'long' }); //
+    const dayFormatter = new Intl.DateTimeFormat('en-SA', { day: 'numeric' }); //
+    const monthFormatter = new Intl.DateTimeFormat('en-SA', { month: 'long' }); //
     
     const dayInArabic = dayFormatter.format(today); //
     const monthInArabic = monthFormatter.format(today); //
@@ -5175,9 +5186,7 @@ function updateFullDateWidget() {
     // إذا لم يكن أي منهما موجوداً، نوقف الدالة
     if (!oldContainer && !newContainer) return;
 
-    const today = new Date();
-     const yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
+   
 
     // إعداد التنسيقات
     const dayName = new Intl.DateTimeFormat('ar-SA', { weekday: 'long' }).format(today);
@@ -9621,7 +9630,7 @@ function setup3DCarSystem(map) {
 window.tuner = {
     zoom: 19.5,
     tilt: 65,
-    scale: 0.9,
+    scale: 1.02,
     offset: 45
 };
 
@@ -10907,9 +10916,9 @@ function update3dMoonWidget() {
         // دالة تحديث الرقم الهجري فوق القمر
 function updateMoonHijriOverlay() {
     const today = new Date();
-    
-    // الكود الخاص بك لجلب اليوم الهجري
-    const hijriDay = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {day: 'numeric'}).format(today);
+     const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);// الكود الخاص بك لجلب اليوم الهجري
+    const hijriDay = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {day: 'numeric'}).format(yesterday);
     
     // ربط القيمة بالعنصر في الواجهة
     const hijriOverlay = document.getElementById('hijri-moon-overlay');
@@ -11335,9 +11344,9 @@ loadPrayerTimes();
 
         const checkWeatherAndSpeak = () => {
              const today = new Date();
-             today.setFullYear(2025);
+             today.setFullYear(2026);
              const gregorianDate = new Intl.DateTimeFormat('en-UK', { month: 'long', day: 'numeric' }).format(today);
-             const hijriDate = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', { weekday: 'long'}).format(today);
+             const hijriDate = new Intl.DateTimeFormat('ar-OM-u-ca-islamic', { weekday: 'long'}).format(today);
 
             const speak = (textToSpeak) => {
                 if ('speechSynthesis' in window) {
