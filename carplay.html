@@ -51,6 +51,17 @@
     filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
 }
 
+div#weather-widget-container {
+    padding: 1.2px!important;
+}
+
+.absolute.bg-black\/70.backdrop-blur-md.p-3.min-h-\[40\%\].flex.items-center.overflow-hidden {
+    width: 100%;
+    bottom: 0px;
+    height: 20%;
+}
+
+
 /* تنسيق أسماء الشهور تحت الأرقام */
 .carousel-slide span[id*="-month-text"] {
     font-size: 1.5rem;
@@ -2892,7 +2903,7 @@ div#map{display:none}
                 <div id="dash-card-media" class="carousel-slide-dash active w-full h-full relative overflow-hidden rounded-2xl">
     <img id="dash-media-thumb" src="" class="absolute inset-0 w-full h-full object-cover shadow-lg">
     
-    <div class="absolute bottom-0 left-0 right-0 bg-black/70 backdrop-blur-md p-3 min-h-[40%] flex items-center overflow-hidden">
+    <div class="absolute bg-black/70 backdrop-blur-md p-3 min-h-[40%] flex items-center overflow-hidden">
         <div id="dash-media-title-container" class="w-full relative overflow-hidden">
             <h3 id="dash-media-title" class="text-lg font-black text-white leading-tight whitespace-nowrap inline-block">
                 جاري التحميل...
@@ -3712,27 +3723,44 @@ function rotateSlidesSpecific(selector, idArray, type) {
 // 5. دالة حقن البيانات الموحدة
 function syncDataToElements(player) {
 
-if (player && typeof player.getVideoData === 'function') {
-        const vData = player.getVideoData();
-        const titleEl = document.getElementById('dash-media-title');
-        const container = document.getElementById('dash-media-title-container');
+const activePlayer = player || window.popupPlayer || window.player;
+    
+    // 2. الوصول لعنوان الميديا (تأكد من مطابقة الـ IDs)
+    const titleEl = document.getElementById('dash-media-title');
+    const thumbEl = document.getElementById('dash-media-thumb');
+    const container = document.getElementById('dash-media-title-container');
 
-        if (titleEl && vData.title) {
+    if (activePlayer && typeof activePlayer.getVideoData === 'function') {
+        const vData = activePlayer.getVideoData();
+        
+        // التحقق من أن العنوان ليس فارغاً
+        if (vData && vData.title && vData.title.trim() !== "") {
             titleEl.textContent = vData.title;
+            
+            // تحديث الصورة المصغرة بدقة عالية
+            if (thumbEl) {
+                thumbEl.src = `https://img.youtube.com/vi/${vData.video_id}/hqdefault.jpg`;
+            }
 
-            // فحص طول النص بالنسبة للحاوية
+            // 3. منطق التحريك (Marquee) بناءً على الحجم الجديد 100%
             const isLong = titleEl.scrollWidth > container.offsetWidth;
-
+            
             if (isLong) {
-                // إذا كان طويلاً: اجعله يتحرك في سطر واحد
-                titleEl.classList.remove('line-clamp-2');
                 titleEl.classList.add('animate-marquee');
+                titleEl.classList.remove('line-clamp-2', 'whitespace-normal');
+                titleEl.style.whiteSpace = 'nowrap';
             } else {
-                // إذا كان قصيراً: اجعله يظهر في سطرين ثابتين
                 titleEl.classList.remove('animate-marquee');
                 titleEl.classList.add('line-clamp-2');
+                titleEl.style.whiteSpace = 'normal';
             }
-        }}
+        }
+    } else {
+        // إذا لم يبدأ المشغل بعد، أظهر رسالة انتظار احترافية
+        if (titleEl && titleEl.textContent === "جاري التحميل...") {
+            titleEl.textContent = "بانتظار تشغيل الفيديو...";
+        }
+    }
 
     const now = new Date(); 
     const weather = appState.weather;
