@@ -3724,41 +3724,36 @@ function rotateSlidesSpecific(selector, idArray, type) {
 function syncDataToElements(player) {
 
 const activePlayer = player || window.popupPlayer || window.player;
-    
-    // 2. الوصول لعنوان الميديا (تأكد من مطابقة الـ IDs)
-    const titleEl = document.getElementById('dash-media-title');
-    const thumbEl = document.getElementById('dash-media-thumb');
-    const container = document.getElementById('dash-media-title-container');
+    const dashTitleEl = document.getElementById('dash-media-title');
+    const dashThumbEl = document.getElementById('dash-media-thumb');
 
+    // 2. استخراج العنوان بأولوية (المشغل أولاً ثم عنوان الصفحة)
+    let finalTitle = "";
     if (activePlayer && typeof activePlayer.getVideoData === 'function') {
-        const vData = activePlayer.getVideoData();
-        
-        // التحقق من أن العنوان ليس فارغاً
-        if (vData && vData.title && vData.title.trim() !== "") {
-            titleEl.textContent = vData.title;
-            
-            // تحديث الصورة المصغرة بدقة عالية
-            if (thumbEl) {
-                thumbEl.src = `https://img.youtube.com/vi/${vData.video_id}/hqdefault.jpg`;
-            }
+        finalTitle = activePlayer.getVideoData().title;
+    }
+    
+    // إذا كان المشغل غير جاهز أو العنوان فارغ، استخدم عنوان الصفحة (الذي نجح في الكونسول)
+    if (!finalTitle || finalTitle === "جاري التحميل...") {
+        finalTitle = document.title.split(' - YouTube')[0];
+    }
 
-            // 3. منطق التحريك (Marquee) بناءً على الحجم الجديد 100%
-            const isLong = titleEl.scrollWidth > container.offsetWidth;
-            
-            if (isLong) {
-                titleEl.classList.add('animate-marquee');
-                titleEl.classList.remove('line-clamp-2', 'whitespace-normal');
-                titleEl.style.whiteSpace = 'nowrap';
-            } else {
-                titleEl.classList.remove('animate-marquee');
-                titleEl.classList.add('line-clamp-2');
-                titleEl.style.whiteSpace = 'normal';
-            }
+    // 3. تحديث واجهة الداش
+    if (dashTitleEl && finalTitle && finalTitle !== "جاري التحميل...") {
+        dashTitleEl.textContent = finalTitle;
+        
+        // تحديث الصورة المصغرة (Thumbnail)
+        if (dashThumbEl && activePlayer && activePlayer.getVideoData) {
+            const vData = activePlayer.getVideoData();
+            dashThumbEl.src = `https://img.youtube.com/vi/${vData.video_id}/hqdefault.jpg`;
         }
-    } else {
-        // إذا لم يبدأ المشغل بعد، أظهر رسالة انتظار احترافية
-        if (titleEl && titleEl.textContent === "جاري التحميل...") {
-            titleEl.textContent = "بانتظار تشغيل الفيديو...";
+
+        // 4. تفعيل التحريك (Marquee) إذا كان العنوان طويلاً
+        const container = document.getElementById('dash-media-title-container');
+        if (container && dashTitleEl.scrollWidth > container.offsetWidth) {
+            dashTitleEl.className = "text-lg font-black text-white animate-marquee whitespace-nowrap";
+        } else {
+            dashTitleEl.className = "text-lg font-black text-white line-clamp-2";
         }
     }
 
