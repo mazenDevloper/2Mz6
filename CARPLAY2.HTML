@@ -9668,17 +9668,42 @@ if (window.dashboardGoogleMap) {
     setTimeout(() => { if(window.dashboardGoogleMap) window.dashboardGoogleMap.setOptions({disableDefaultUI: false}); }, 1000);
 }
 // --- 2. محرك الجرافيك المطور (إصلاح الحجم والإزاحة) ---
-function setup3DCarSystem(map) {
+async function setup3DCarSystem(map) {
+    if (!map || window.carOverlay) return;
+
     const overlay = new google.maps.WebGLOverlayView();
+    window.carOverlay = overlay;
 
     overlay.onAdd = () => {
         const loader = new window.GLTFLoader();
         overlay.scene = new THREE.Scene();
         overlay.camera = new THREE.PerspectiveCamera();
-        overlay.scene.add(new THREE.AmbientLight(0xffffff, 6));
         
+        // إضاءة محيطة قوية لإظهار الألوان ومنع السواد
+        overlay.scene.add(new THREE.AmbientLight(0xffffff, 4)); 
+        const sun = new THREE.DirectionalLight(0xffffff, 2);
+        sun.position.set(10, 25, 10);
+        overlay.scene.add(sun);
+
         loader.load('https://dmusera.netlify.app/ES350E.gltf', (gltf) => {
             window.carModel = gltf.scene;
+            
+            // إصلاح شامل للألوان والطبقات لمنع الانفصال
+            window.carModel.traverse(node => {
+                if (node.isMesh) {
+                    node.material.depthWrite = true;
+                    node.material.transparent = false;
+                    node.material.side = THREE.DoubleSide; // إظهار الأبواب من الداخل والخارج
+                    
+                    // إجبار اللون الأصلي على الظهور (حل مشكلة الأبيض والأسود)
+                    if (node.material.color) {
+                        node.material.emissive = node.material.color.clone();
+                        node.material.emissiveIntensity = 0.2; // إضاءة ذاتية خفيفة
+                    }
+                    node.material.needsUpdate = true;
+                }
+            });
+
             window.carModel.rotation.x = Math.PI / 2;
             overlay.scene.add(window.carModel);
         });
@@ -9686,48 +9711,45 @@ function setup3DCarSystem(map) {
 
     overlay.onContextRestored = ({ gl }) => {
         overlay.renderer = new THREE.WebGLRenderer({
-            canvas: gl.canvas, context: gl, antialias: true, alpha: true
+            canvas: gl.canvas,
+            context: gl,
+            antialias: true,
+            alpha: true
         });
         overlay.renderer.autoClear = false;
     };
+
     overlay.onDraw = ({ transformer }) => {
-    const { renderer, scene, camera } = overlay;
-    
-    // صمام أمان للتحقق من وجود كافة البيانات
-    if (!renderer || !window.carModel || !window.appState?.currentLocation) return;
+        const { renderer, scene, camera } = overlay;
+        if (!renderer || !window.carModel || !window.appState?.currentLocation) return;
 
-    // تحديث أبعاد الريندرر لضمان عدم تمدد الصورة
-    const canvas = renderer.getContext().canvas;
-    renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
-    camera.aspect = canvas.clientWidth / canvas.clientHeight;
-    camera.updateProjectionMatrix();
+        // 1. إعادة ضبط حالة WebGL لمنع "تلاحق" الطبقات للكاميرا
+        renderer.resetState();
 
-    const pos = window.appState.currentLocation;
-    const heading = window.appState.car.heading || 0;
+        const pos = window.appState.currentLocation;
+        const heading = window.appState.car.heading || 0;
 
-    // 🚀 الارتفاع: 3.5 متر لضمان الظهور فوق الأرصفة والمباني
-    const matrix = transformer.fromLatLngAltitude({ ...pos, altitude: 3.5 });
-    camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
+        // 2. ربط الموديل بإحداثيات الخريطة والارتفاع المطلوب (3.5 متر)
+        const matrix = transformer.fromLatLngAltitude({ ...pos, altitude: 3.5 });
+        camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
 
-    // 📏 الحجم الديناميكي: يقرأ من window.tuner.scale المحفوظ
-    const zoom = window.dashboardGoogleMap.getZoom();
-    const baseScale = window.tuner.scale || 0.85; 
-    const finalScale = baseScale * Math.pow(2, 20 - zoom); 
-    
-    window.carModel.scale.set(finalScale, finalScale, finalScale);
-    window.carModel.rotation.y = -(heading * Math.PI) / 180 + Math.PI;
+        // 3. مزامنة الحجم والدوران بناءً على الزووم
+        const zoom = window.dashboardGoogleMap.getZoom();
+        const baseScale = window.tuner?.scale || 0.85; 
+        const finalScale = baseScale * Math.pow(2, 20 - zoom); 
+        
+        window.carModel.scale.set(finalScale, finalScale, finalScale);
+        window.carModel.rotation.y = -(heading * Math.PI) / 180 + Math.PI;
 
-    // الأولوية القصوى للظهور
-    window.carModel.renderOrder = 9999;
+        // ضمان عدم تداخل الطبقات (Z-fighting)
+        window.carModel.renderOrder = 9999;
 
-    renderer.render(scene, camera);
-    overlay.requestRedraw(); 
-};
+        renderer.render(scene, camera);
+        overlay.requestRedraw(); 
+    };
 
     overlay.setMap(map);
-    window.carOverlay = overlay;
 }
-
 // 1. القيم المثالية التي اخترتها
 window.tuner = {
     zoom: 19.5,
