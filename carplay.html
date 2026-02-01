@@ -765,8 +765,8 @@ img#dash-nasa-moon {
 }
 
 img#dash-media-thumb {
-    WIDTH: 100%!IMPORTANT;
-    HEIGHT: auto;
+    HEIGHT: 100%!IMPORTANT;
+    WIDTH: auto;
 }
 
 /* --- CSS Required for Traffic Buttons --- */
@@ -1320,6 +1320,10 @@ button#tab-tarteel {
 
 .glass-surface.glass-surface--svg.youtube-video-card.navigable.grid-item {
     direction: ltr!important;
+}
+div#dash-card-media {
+    min-width: 14rem!important;
+    /* height: 15rem!important; */
 }
 
         .glass-surface__content {
@@ -2897,7 +2901,7 @@ div#map{display:none}
             <div id="weather-widget-container" class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center navigable grid-item" tabindex="0">
               <div id="dash-carousel-container" class="relative w-full h-full flex flex-col items-center justify-center">
                 <div id="dash-card-media" class="carousel-slide-dash active w-full h-full relative overflow-hidden rounded-2xl">
-    <img id="dash-media-thumb" src="" class="absolute inset-0 w-full object-cover shadow-lg">
+    <img id="dash-media-thumb" src="" class="absolute inset-0 w-full h-full object-cover shadow-lg">
     
     <div class="absolute bg-black/70 backdrop-blur-md p-3 min-h-[40%] flex items-center overflow-hidden">
         <div id="dash-media-title-container" class="w-full relative overflow-hidden">
@@ -8746,7 +8750,7 @@ async function setup3DCarMarker(map) {
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera();
         scene.add(new THREE.AmbientLight(0xffffff, 1.5));
-        const sun = new THREE.DirectionalLight(0xffffff, 2.0);
+        const sun = new THREE.DirectionalLight(0xffffff, 1.4);
         sun.position.set(10, 25, 10);
         scene.add(sun);
 
