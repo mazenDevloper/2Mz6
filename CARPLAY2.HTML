@@ -763,12 +763,12 @@ img#dash-nasa-moon {
     HEIGHT: 9REM;
     WIDTH: 9REM;
 }
-
+/*
 img#dash-media-thumb {
-    HEIGHT: 100%!IMPORTANT;
-    WIDTH: auto;
+    WIDTH: 100%!IMPORTANT;
+    HEIGHT: auto;
 }
-
+*/
 /* --- CSS Required for Traffic Buttons --- */
 
 .home-traffic-btn {
@@ -1321,10 +1321,7 @@ button#tab-tarteel {
 .glass-surface.glass-surface--svg.youtube-video-card.navigable.grid-item {
     direction: ltr!important;
 }
-div#dash-card-media {
-    min-width: 14rem!important;
-    /* height: 15rem!important; */
-}
+
 
         .glass-surface__content {
             width: 100%;
@@ -9679,26 +9676,51 @@ async function setup3DCarSystem(map) {
         overlay.scene = new THREE.Scene();
         overlay.camera = new THREE.PerspectiveCamera();
         
-        // إضاءة محيطة قوية لإظهار الألوان ومنع السواد
-        overlay.scene.add(new THREE.AmbientLight(0xffffff, 4)); 
-        const sun = new THREE.DirectionalLight(0xffffff, 2);
-        sun.position.set(10, 25, 10);
-        overlay.scene.add(sun);
+        // 1. نظام إضاءة "الاستوديو" لإبراز اللمعة النقطية (Specular)
+        overlay.scene.add(new THREE.AmbientLight(0xffffff, 0.8)); // ضوء محيطي متوازن
+        
+        // كشافات جانبية منخفضة لتركيز اللمعة على الجوانب وليس السقف
+        const light1 = new THREE.DirectionalLight(0xffffff, 0.8);
+        light1.position.set(25, 8, 15); 
+        overlay.scene.add(light1);
+
+        const light2 = new THREE.DirectionalLight(0xffffff, 0.75);
+        light2.position.set(-25, 5, 15); 
+        overlay.scene.add(light2);
 
         loader.load('https://dmusera.netlify.app/ES350E.gltf', (gltf) => {
             window.carModel = gltf.scene;
             
-            // إصلاح شامل للألوان والطبقات لمنع الانفصال
             window.carModel.traverse(node => {
                 if (node.isMesh) {
-                    node.material.depthWrite = true;
-                    node.material.transparent = false;
-                    node.material.side = THREE.DoubleSide; // إظهار الأبواب من الداخل والخارج
+                    const originalColor = node.material.color.clone();
+                    const isTransparent = node.material.transparent || node.material.opacity < 0.9;
                     
-                    // إجبار اللون الأصلي على الظهور (حل مشكلة الأبيض والأسود)
-                    if (node.material.color) {
-                        node.material.emissive = node.material.color.clone();
-                        node.material.emissiveIntensity = 0.2; // إضاءة ذاتية خفيفة
+                    // 2. منطق الفرز اللوني الذكي (عجلات وزجاج مقابل الهيكل)
+                    const isNeutral = (originalColor.r === originalColor.g && originalColor.g === originalColor.b) || 
+                                     (originalColor.r < 0.5 && originalColor.g < 0.5 && originalColor.b < 0.5);
+
+                    if (isTransparent || isNeutral) {
+                        // العجلات والزجاج: الحفاظ على التباين الداكن والشفافية
+                        node.material = new THREE.MeshPhongMaterial({
+                            color: isTransparent ? originalColor : 0x050505,
+                            specular: 0x444444,
+                            shininess: 100,
+                            side: THREE.DoubleSide,
+                            transparent: isTransparent,
+                            opacity: node.material.opacity
+                        });
+                    } else {
+                        // 3. الهيكل: الذهب الملكي العميق (القيم المثالية المعتمدة)
+                        node.material = new THREE.MeshStandardMaterial({
+    color: 0xe9d491, 
+    metalness: 0.9,       // لإعطاء مظهر المعدن اللماع
+    roughness: 0.15,      // القيمة التي طلبتها (كلما زادت قلّ اللمعان المرآتي)
+    emissive: 0x221100, 
+    emissiveIntensity: 0.2,
+    side: THREE.DoubleSide
+    // ملاحظة: MeshStandardMaterial لا تدعم shininess أو specular لأنها تعمل بقوانين الفيزياء
+});
                     }
                     node.material.needsUpdate = true;
                 }
@@ -9711,10 +9733,7 @@ async function setup3DCarSystem(map) {
 
     overlay.onContextRestored = ({ gl }) => {
         overlay.renderer = new THREE.WebGLRenderer({
-            canvas: gl.canvas,
-            context: gl,
-            antialias: true,
-            alpha: true
+            canvas: gl.canvas, context: gl, antialias: true, alpha: true
         });
         overlay.renderer.autoClear = false;
     };
@@ -9723,26 +9742,23 @@ async function setup3DCarSystem(map) {
         const { renderer, scene, camera } = overlay;
         if (!renderer || !window.carModel || !window.appState?.currentLocation) return;
 
-        // 1. إعادة ضبط حالة WebGL لمنع "تلاحق" الطبقات للكاميرا
+        // إعادة ضبط الحالة لمنع تداخل الطبقات عند تحريك الكاميرا
         renderer.resetState();
 
         const pos = window.appState.currentLocation;
         const heading = window.appState.car.heading || 0;
+        const zoom = window.dashboardGoogleMap.getZoom();
 
-        // 2. ربط الموديل بإحداثيات الخريطة والارتفاع المطلوب (3.5 متر)
+        // ربط السيارة بالإحداثيات والارتفاع الثابت
         const matrix = transformer.fromLatLngAltitude({ ...pos, altitude: 3.5 });
         camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
 
-        // 3. مزامنة الحجم والدوران بناءً على الزووم
-        const zoom = window.dashboardGoogleMap.getZoom();
+        // مزامنة الحجم والدوران
         const baseScale = window.tuner?.scale || 0.85; 
         const finalScale = baseScale * Math.pow(2, 20 - zoom); 
         
         window.carModel.scale.set(finalScale, finalScale, finalScale);
         window.carModel.rotation.y = -(heading * Math.PI) / 180 + Math.PI;
-
-        // ضمان عدم تداخل الطبقات (Z-fighting)
-        window.carModel.renderOrder = 9999;
 
         renderer.render(scene, camera);
         overlay.requestRedraw(); 
