@@ -9680,11 +9680,11 @@ async function setup3DCarSystem(map) {
         overlay.scene.add(new THREE.AmbientLight(0xffffff, 0.8)); // ضوء محيطي متوازن
         
         // كشافات جانبية منخفضة لتركيز اللمعة على الجوانب وليس السقف
-        const light1 = new THREE.DirectionalLight(0xffffff, 1.2);
+        const light1 = new THREE.DirectionalLight(0xffffff, 0.8);
         light1.position.set(25, 8, 15); 
         overlay.scene.add(light1);
 
-        const light2 = new THREE.DirectionalLight(0xffffff, 1.0);
+        const light2 = new THREE.DirectionalLight(0xffffff, 0.75);
         light2.position.set(-25, 5, 15); 
         overlay.scene.add(light2);
 
