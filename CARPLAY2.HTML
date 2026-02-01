@@ -51,6 +51,17 @@
     filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
 }
 
+div#weather-widget-container {
+    padding: 1.2px!important;
+}
+
+.absolute.bg-black\/70.backdrop-blur-md.p-3.min-h-\[40\%\].flex.items-center.overflow-hidden {
+    width: 100%;
+    bottom: 0px;
+    height: 20%;
+}
+
+
 /* تنسيق أسماء الشهور تحت الأرقام */
 .carousel-slide span[id*="-month-text"] {
     font-size: 1.5rem;
@@ -66,6 +77,14 @@
 .grid.grid-cols-3.gap-1.w-full.mt-1 {
     margin-top: 4.25rem!important;
 }
+
+span#greg-day-num {
+    transform: scale(2);
+    filter: none!important;
+    opacity: 70%;
+}
+
+
 
 div#weather-widget-container {
     width: 100% !important;
@@ -169,7 +188,15 @@ div#universal-date-display>.date-wrapper>.date-details {
     color:white;
 }
 
+.gmnoprint.gm-bundled-control.gm-bundled-control-on-bottom {
+    bottom: 16rem!important;
+}
 
+span#carplay-weather-temp-big {
+    background: #ffffffb0;
+    -webkit-background-clip: text;
+    position: fixed;
+}
 /* تحرير الحاوية الرئيسية للمقترحات */
 .suggestions-main-wrapper {
     overflow: visible !important; /* السماح بالبروز فوق أزرار الإغلاق وغيرها */
@@ -479,6 +506,25 @@ h6.mb-0.text-truncate,
     display: none !important;
 }
 
+@keyframes marquee {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+}
+
+.animate-marquee {
+    display: inline-block;
+    animation: marquee 8s linear infinite;
+    padding-left: 10%;
+}
+
+/* لسطرين إذا كان النص قصيراً */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    white-space: normal !important;
+}
 
 #fav-d-dashboard-container{justify-content:space-evenly!important;}
 
@@ -1274,6 +1320,10 @@ button#tab-tarteel {
 
 .glass-surface.glass-surface--svg.youtube-video-card.navigable.grid-item {
     direction: ltr!important;
+}
+div#dash-card-media {
+    min-width: 14rem!important;
+    /* height: 15rem!important; */
 }
 
         .glass-surface__content {
@@ -2850,20 +2900,55 @@ div#map{display:none}
             <div id="full-date-widget-container" class="hidden"></div>
             <div id="weather-widget-container" class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center navigable grid-item" tabindex="0">
               <div id="dash-carousel-container" class="relative w-full h-full flex flex-col items-center justify-center">
-                <div id="dash-card-media" class="carousel-slide-dash active w-full">
-                  <img id="dash-media-thumb" src="" class="w-24 h-24 rounded-2xl object-cover mb-2 shadow-lg">
-                  <h3 id="dash-media-title" class="text-xs font-bold truncate px-2">YouTube</h3>
-                </div>
-                <div id="dash-card-nasa" class="carousel-slide-dash w-full">
-                  <img id="dash-nasa-moon" src="" class="w-24 h-24 rounded-full object-cover mb-2 border border-purple-500/20">
-                  <h3 class="text-lg font-bold text-purple-300">مرحلة القمر</h3>
-                  <p id="carplay-moon-phase" class="text-sm text-white/60">NASA SVS</p>
-                </div>
+                <div id="dash-card-media" class="carousel-slide-dash active w-full h-full relative overflow-hidden rounded-2xl">
+    <img id="dash-media-thumb" src="" class="absolute inset-0 w-full h-full object-cover shadow-lg">
+    
+    <div class="absolute bg-black/70 backdrop-blur-md p-3 min-h-[40%] flex items-center overflow-hidden">
+        <div id="dash-media-title-container" class="w-full relative overflow-hidden">
+            <h3 id="dash-media-title" class="minimized-title text-lg font-black text-white leading-tight whitespace-nowrap inline-block">
+                جاري التحميل...
+            </h3>
+        </div>
+    </div>
+</div>
+                
+                <div id="dash-card-nasa" class="carousel-slide-dash w-full relative flex flex-col items-center justify-center">
+    
+    <div class="relative w-24 h-24 mb-2">
+        <div id="hijri-moon-overlay" 
+             class="absolute inset-0 flex items-center justify-center z-10 font-black text-6xl opacity-30" 
+             style="webkit-text-stroke: 1.5px rgba(255,255,255,0.7); pointer-events: none; text-shadow: 0 4px 10px rgba(0,0,0,0.5);transform: scale(3.5);">
+            ${hijriDay}
+            
+        </div>
+        
+        <img id="dash-nasa-moon" 
+             src="" 
+             class="w-full h-full rounded-full object-cover border border-purple-500/20 shadow-lg">
+    </div>
+
+    <h3 class="text-lg font-bold text-purple-300 leading-none">مرحلة القمر</h3>
+    <p id="carplay-moon-phase" class="text-[10px] text-white/50 mt-1 uppercase tracking-widest">NASA SVS</p>
+
+</div>
+
+<div id="dash-card-gregorian-date" class="carousel-slide-dash w-full flex flex-col items-center justify-center p-4">
+    <div class="glass-date-wrapper flex flex-col items-center">
+        <span id="greg-day-num" class="text-7xl font-black leading-none tracking-tighter"   
+                   style="pointer-events: none; text-shadow: rgba(0, 0, 0, 0.16) 0px 4px 10px; font-weight: 900; -webkit-text-fill-color: transparent; background-image: linear-gradient(rgb(255, 255, 255) 0%, rgb(161, 161, 161) 100%); background-clip: text;">
+ 
+            
+        </span>
+        <span id="greg-month-name" class="text-2xl font-bold text-white/90 mt-2 italic" >
+            11
+        </span>
+    </div>
+</div>
                 
                 <div id="carplay-card-weather" class="carousel-slide flex flex-col items-center justify-center">
-                  <span id="carplay-weather-temp-big" class="text-7xl font-black text-white">--°</span>
                 </div>
                 <div id="dash-card-weather" class="carousel-slide-dash w-full">
+                                                      <span id="carplay-weather-temp-big" class="text-7xl font-black text-white">--°</span>
                   <img id="dash-weather-icon-big" src="" class="w-20 h-20 object-contain mb-1">
                   <div class="grid grid-cols-3 gap-1 w-full mt-1">
                     <div class="bg-black/20 p-1.5 rounded-lg text-center">
@@ -2879,8 +2964,11 @@ div#map{display:none}
                       <div class="text-[8px] opacity-60">Hum</div>
                     </div>
                   </div>
+
                 </div>
-              </div>
+
+
+              </div> <!-- cour close-->
             </div>
             <div class="glass-surface glass-surface--svg p-4 flex-grow flex flex-col items-center justify-center text-center navigable grid-item" tabindex="0">
               <div id="digital-clock-widget" class="w-full h-full flex flex-col items-center justify-center text-center">
@@ -3425,10 +3513,10 @@ const savedTunerData = localStorage.getItem('custom_tuner_settings');
 const savedTuner = savedTunerData ? JSON.parse(savedTunerData) : null;
 
 window.tuner = savedTuner || { 
-    zoom: 20, 
-    tilt: 60, 
-    scale: 0.75, 
-    offset: 40 
+    zoom: 19.5, 
+    tilt: 65, 
+    scale: 1.02, 
+    offset: 50 
 };
 
 // 2. دالة تعديل الحجم (Car Scale)
@@ -3450,31 +3538,86 @@ function adjustTilt(amount) {
     
     // تطبيق التغيير على الخريطة فوراً
     window.dashboardGoogleMap.setTilt(newTilt);
+    
     window.tuner.tilt = newTilt;
     console.log("📐 الميلان الجديد:", newTilt);
 }
 
 // 4. دالة الحفظ الموحدة (💾)
-function saveCurrentTuner() {
+// حفظ الحالة الحالية كافتراضية للمتصفح
+// 1. تحديث دالة الحفظ لإظهار القيم المحفوظة في رسالة
+window.saveCurrentTuner = function() {
     if (!window.dashboardGoogleMap) return;
-
-    // 1. قنص القيم الحالية من الخريطة (التي ضبطتها بأصابعك)
-    window.tuner.zoom = window.dashboardGoogleMap.getZoom();
-    window.tuner.tilt = window.dashboardGoogleMap.getTilt();
     
-    // 2. القيمة الحالية للسكيل موجودة بالفعل في window.tuner.scale
+    // قنص القيم الحقيقية من الحالة الحالية للخريطة والموديل
+    const currentZoom = window.dashboardGoogleMap.getZoom();
+    const currentTilt = window.dashboardGoogleMap.getTilt();
+    const currentScale = window.tuner.scale || 0.75;
+    const currentOffset = window.tuner.offset || 40;
 
-    // 3. التخزين في ذاكرة المتصفح للأبد
+    // تحديث الكائن العالمي
+    window.tuner.zoom = currentZoom;
+    window.tuner.tilt = currentTilt;
+    // السكيل والافسيت يتم تحديثهما لحظياً عبر أزرارهم بالفعل
+
+    // الحفظ في ذاكرة المتصفح (الكاش)
     localStorage.setItem('custom_tuner_settings', JSON.stringify(window.tuner));
+    
+    // إنهاء وضع التعديل اليدوي لتعود الكاميرا للملاحقة التلقائية
+    window.isUserAdjusting = false;
 
-    // 4. إنهاء وضع التفاعل لتعود الكاميرا للملاحقة التلقائية بالقيم الجديدة
-    isUserInteracting = false;
+    // إظهار الرسالة المطلوبة بالقيم الحقيقية
+    alert(`✅ تم حفظ إعدادات الثيم بنجاح!
+-------------------------
+🔍 مستوى الزوم: ${currentZoom.toFixed(2)}
+📐 زاوية الميلان: ${currentTilt}°
+🚗 حجم السيارة: ${currentScale.toFixed(2)}
+↔️ الإزاحة الجانبية: ${currentOffset}px`);
 
-    alert(`✅ تم الحفظ بنجاح!
-الزوم الجديد: ${window.tuner.zoom.toFixed(1)}
-الميلان: ${window.tuner.tilt}
-حجم السيارة: ${window.tuner.scale}`);
-}
+    console.log("💾 Saved Settings:", window.tuner);
+};
+
+// 2. تحديث دالة الملاحقة لضمان استخدام القيم المحفوظة
+window.updateGoogleMapLocation = function(pos) {
+    if (!pos || !pos.coords || !window.dashboardGoogleMap) return;
+
+    const { latitude: lat, longitude: lng, heading } = pos.coords;
+    const currentHeading = heading || 0;
+
+    window.appState.currentLocation = { lat, lng };
+    window.appState.car.heading = currentHeading;
+
+    const cameraOptions = {
+        center: { lat, lng },
+        heading: currentHeading,
+        tilt: window.tuner.tilt // استخدام الميلان المحفوظ
+    };
+
+    // لا نغير الزوم إذا كان المستخدم يلمس الخريطة حالياً
+    if (!window.isUserAdjusting) {
+        cameraOptions.zoom = window.tuner.zoom; // استخدام الزوم المحفوظ
+        window.dashboardGoogleMap.moveCamera(cameraOptions);
+        window.dashboardGoogleMap.panBy(window.tuner.offset, 0);
+    }
+
+    if (window.carOverlay) window.carOverlay.requestRedraw();
+};
+
+// تعديل الميلان (Tilt)
+window.adjustTilt = function(amount) {
+    if (!window.dashboardGoogleMap) return;
+    let newTilt = Math.min(Math.max(window.dashboardGoogleMap.getTilt() + amount, 0), 75);
+    window.dashboardGoogleMap.setTilt(newTilt);
+    window.tuner.tilt = newTilt;
+};
+
+// تعديل الحجم (Scale)
+window.adjustScale = function(amount) {
+    window.tuner.scale = Math.max(0.1, (window.tuner.scale || 0.75) + amount);
+    if (window.carOverlay) window.carOverlay.requestRedraw();
+};
+    
+    
         // 1. المتغيرات المركزية للتدوير
 let carplayRotationIndex = 0;
 let dashRotationIndex = 0;
@@ -3482,18 +3625,20 @@ let dashRotationIndex = 0;
 // 2. مصفوفات المعرفات (تأكد أن هذه الـ IDs تطابق الموجود في الـ HTML لديك)
 const carplaySlideIds = [
     'carplay-card-media', 
-    'carplay-card-nasa', 
+    'carplay-card-nasa',
     'carplay-card-weather'
 ];
 
 const dashSlideIds = [
     'dash-card-media', 
     'dash-card-nasa', 
-    'dash-card-weather'
+    'dash-card-weather',
+    'dash-card-gregorian-date' // السطر الجديد المضاف هنا
 ];
 
 // 3. المحرك الرئيسي للتحديث (يعمل كل ثانية)
 function updateAllDisplays() {
+    window.updateGregorianCard();
     const player = window.popupPlayer || window.player;
     const now = Date.now();
 
@@ -3513,6 +3658,40 @@ function updateAllDisplays() {
     }
 }
 
+window.updateGregorianCard = function() {
+    // جلب العناصر والتأكد من وجودها
+    const dayEl = document.getElementById('greg-day-num');
+    const monthEl = document.getElementById('greg-month-name');
+    
+    // إذا لم يجد العناصر، يحاول البحث عنها مرة أخرى بعد ثانية (حل مشكلة التأخير)
+    if (!dayEl || !monthEl) {
+        console.warn("⚠️ لم يتم العثور على IDs التاريخ بعد، سيتم المحاولة مجدداً...");
+        return; 
+    }
+
+    const today = new Date(); //
+    
+    // تنسيق البيانات
+    const dayFormatter = new Intl.DateTimeFormat('en-SA', { day: 'numeric' }); //
+    const monthFormatter = new Intl.DateTimeFormat('en-SA', { month: 'long' }); //
+    
+    const dayInArabic = dayFormatter.format(today); //
+    const monthInArabic = monthFormatter.format(today); //
+    
+    // تحديث النصوص
+    dayEl.innerText = dayInArabic; //
+    monthEl.innerText = monthInArabic; //
+    
+    // تطبيق التنسيق الزجاجي
+    Object.assign(dayEl.style, {
+        backgroundImage: 'linear-gradient(180deg, #ffffff 0%, #a1a1a1 100%)', //
+        webkitBackgroundClip: 'text', //
+        webkitTextFillColor: 'transparent', //
+        filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.4))', //
+        fontWeight: '900' //
+    });
+};
+// تحديث تلقائي كل ساعة لضمان دقة التاريخ عند منتصف الليل
 // 4. دالة التدوير المحسنة لمنع التداخل
 function rotateSlidesSpecific(selector, idArray, type) {
     let idx;
@@ -3543,9 +3722,47 @@ function rotateSlidesSpecific(selector, idArray, type) {
 
 // 5. دالة حقن البيانات الموحدة
 function syncDataToElements(player) {
+// 1. تحديد المشغل والعناصر
+const activePlayer = window.popupPlayer || window.player || player; //
+const dashTitleEl = document.getElementById('dash-media-title');
+const dashThumbEl = document.getElementById('dash-media-thumb');
+
+// 2. استخراج العنوان بأولوية ذكية
+let finalTitle = "";
+if (activePlayer && typeof activePlayer.getVideoData === 'function') {
+    const vData = activePlayer.getVideoData();
+    finalTitle = (vData && vData.title) ? vData.title : ""; //
+}
+
+// الحل البديل: إذا فشل المشغل، استخدم عنوان الصفحة (نفس منطق الكونسول الناجح)
+if (!finalTitle || finalTitle === "جاري التحميل...") {
+    finalTitle = document.title.split(' - YouTube')[0]; //
+}
+
+// 3. التحديث الفعلي للواجهة
+if (dashTitleEl && finalTitle && finalTitle !== "" && finalTitle !== "جاري التحميل...") {
+    dashTitleEl.textContent = finalTitle; //
+    
+    // تحديث الصورة
+    if (dashThumbEl && activePlayer && typeof activePlayer.getVideoData === 'function') {
+        const vData = activePlayer.getVideoData();
+        if (vData.video_id) {
+            dashThumbEl.src = `https://img.youtube.com/vi/${vData.video_id}/hqdefault.jpg`; //
+        }
+    }
+
+    // 4. ضبط التحريك (Marquee)
+    const container = document.getElementById('dash-media-title-container');
+    if (container && dashTitleEl.scrollWidth > container.offsetWidth) {
+        dashTitleEl.className = "text-lg font-black text-white animate-marquee whitespace-nowrap"; //
+    } else {
+        dashTitleEl.className = "text-lg font-black text-white line-clamp-2"; //
+    }
+}
     const now = new Date(); 
     const weather = appState.weather;
     const moon = appState.moonData;
+
 
     // أ. تحديث الميديا
     if (player && typeof player.getVideoData === 'function') {
@@ -5048,9 +5265,7 @@ function updateFullDateWidget() {
     // إذا لم يكن أي منهما موجوداً، نوقف الدالة
     if (!oldContainer && !newContainer) return;
 
-    const today = new Date();
-     const yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
+   
 
     // إعداد التنسيقات
     const dayName = new Intl.DateTimeFormat('ar-SA', { weekday: 'long' }).format(today);
@@ -7306,7 +7521,7 @@ async function showVideoPopup(videoId, startOverride = null) {
         // المشغل غير موجود -> إنشاء جديد
         videoPopupPlayerContainer.innerHTML = '<div id="video-popup-player"></div>';
         
-        popupPlayer = new YT.Player('video-popup-player', {
+        window.popupPlayer = new YT.Player('video-popup-player', {
             height: '100%', 
             width: '100%', 
             videoId: videoId,
@@ -8535,12 +8750,35 @@ async function setup3DCarMarker(map) {
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera();
         scene.add(new THREE.AmbientLight(0xffffff, 1.5));
-        const sun = new THREE.DirectionalLight(0xffffff, 2.0);
+        const sun = new THREE.DirectionalLight(0xffffff, 1.4);
         sun.position.set(10, 25, 10);
         scene.add(sun);
 
-        loader.load('https://dmusera.netlify.app/ES350E.glb', (gltf) => {
+       loader.load('https://dmusera.netlify.app/ES350E.gltf', (gltf) => {
             window.carModel = gltf.scene;
+            
+            window.carModel.traverse(node => {
+                if (node.isMesh) {
+                    // 1. معالجة الألوان الأساسية لإظهار الطبقات الملونة
+                    if (node.material) {
+                        // منع الألوان من الانطفاء بسبب غياب الضوء المحيط
+                        node.material.emissive = node.material.color.clone().multiplyScalar(0.2); 
+                        
+                        // 2. إصلاح مشكلة الأجزاء السوداء الناتجة عن المعدنية العالية
+                        node.material.metalness = 0.4; // تقليل المعدنية لإظهار اللون الحقيقي
+                        node.material.roughness = 0.5; // زيادة الخشونة لتقليل الانعكاسات السوداء
+
+                        // 3. إجبار الطبقات على الظهور ومنع الشفافية الخاطئة
+                        node.material.depthWrite = true;
+                        node.material.transparent = false;
+                        node.material.side = THREE.DoubleSide; // إظهار الأبواب والقطع من الداخل والخارج
+                        
+                        // تحديث المادة لإظهار التغييرات فوراً
+                        node.material.needsUpdate = true;
+                    }
+                }
+            });
+
             window.carModel.rotation.x = Math.PI / 2;
             scene.add(window.carModel);
         });
@@ -9366,14 +9604,14 @@ async function initMaps() {
             tiltInteractionEnabled: true,
             gestureHandling: 'greedy'
         };
-
+ 
         // 3. --- أ. خريطة الداشبورد (3D) ---
         window.dashboardGoogleMap = new google.maps.Map(mainMapElement, {
             ...commonConfigs,
             mapId: '6c6951a9289b612a97923702', 
             zoom: 17.5, // تقليل الزووم لرؤية أبعد كما طلبت
             tilt: 65,   
-            heading: 0
+            heading: 0, disableDefaultUI: false
         });
 
         // 🚗 حقن نظام الـ 3D مع تصحيح الحجم والإزاحة لليسار
@@ -9415,7 +9653,20 @@ async function initMaps() {
         console.error("❌ Map Init Error:", error);
     }
 }
-
+// التأكد من وجود كائن الخريطة قبل التعديل
+if (window.dashboardGoogleMap) {
+    window.dashboardGoogleMap.setOptions({
+        disableDefaultUI: false,
+        fullscreenControl: true,
+        streetViewControl: true,
+        fullscreenControlOptions: {
+        position: google.maps.ControlPosition.LEFT_BOTTOM // نقله لأسفل اليسار
+    }
+    });
+} else {
+    console.warn("⚠️ الخريطة لم تجهز بعد، سيتم المحاولة بعد ثانية...");
+    setTimeout(() => { if(window.dashboardGoogleMap) window.dashboardGoogleMap.setOptions({disableDefaultUI: false}); }, 1000);
+}
 // --- 2. محرك الجرافيك المطور (إصلاح الحجم والإزاحة) ---
 function setup3DCarSystem(map) {
     const overlay = new google.maps.WebGLOverlayView();
@@ -9424,9 +9675,9 @@ function setup3DCarSystem(map) {
         const loader = new window.GLTFLoader();
         overlay.scene = new THREE.Scene();
         overlay.camera = new THREE.PerspectiveCamera();
-        overlay.scene.add(new THREE.AmbientLight(0xffffff, 4));
+        overlay.scene.add(new THREE.AmbientLight(0xffffff, 6));
         
-        loader.load('https://dmusera.netlify.app/ES350E.glb', (gltf) => {
+        loader.load('https://dmusera.netlify.app/ES350E.gltf', (gltf) => {
             window.carModel = gltf.scene;
             window.carModel.rotation.x = Math.PI / 2;
             overlay.scene.add(window.carModel);
@@ -9439,14 +9690,13 @@ function setup3DCarSystem(map) {
         });
         overlay.renderer.autoClear = false;
     };
-
-overlay.onDraw = ({ transformer }) => {
+    overlay.onDraw = ({ transformer }) => {
     const { renderer, scene, camera } = overlay;
     
-    // 🛡️ صمام أمان شامل
-    if (!renderer || !window.carModel || !window.appState || !window.appState.currentLocation || !renderer.getContext()) return;
+    // صمام أمان للتحقق من وجود كافة البيانات
+    if (!renderer || !window.carModel || !window.appState?.currentLocation) return;
 
-    // ✨ الحفاظ على أبعاد الكانفاس وسلاسة العرض
+    // تحديث أبعاد الريندرر لضمان عدم تمدد الصورة
     const canvas = renderer.getContext().canvas;
     renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
     camera.aspect = canvas.clientWidth / canvas.clientHeight;
@@ -9455,27 +9705,24 @@ overlay.onDraw = ({ transformer }) => {
     const pos = window.appState.currentLocation;
     const heading = window.appState.car.heading || 0;
 
-    // 🚀 حل مشكلة الاختفاء: رفع الارتفاع إلى 3.5 متر ليكون فوق الأرصفة والمباني الصغيرة
-    // تم استبدال الـ 0.8 بـ 3.5 لضمان الظهور الدائم
+    // 🚀 الارتفاع: 3.5 متر لضمان الظهور فوق الأرصفة والمباني
     const matrix = transformer.fromLatLngAltitude({ ...pos, altitude: 3.5 });
     camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
 
-    // 📏 الحجم الديناميكي: تم ربطه بـ window.tuner.scale بدلاً من القيمة الثابتة 0.4
-    const zoom = map.getZoom();
-    // نستخدم القيمة المحفوظة في التونر أو 0.75 كافتراضي
-    const baseScale = window.tuner.scale || 0.75; 
-    const scale = baseScale * Math.pow(2, 20 - zoom); 
+    // 📏 الحجم الديناميكي: يقرأ من window.tuner.scale المحفوظ
+    const zoom = window.dashboardGoogleMap.getZoom();
+    const baseScale = window.tuner.scale || 0.85; 
+    const finalScale = baseScale * Math.pow(2, 20 - zoom); 
     
-    window.carModel.scale.set(scale, scale, scale);
+    window.carModel.scale.set(finalScale, finalScale, finalScale);
     window.carModel.rotation.y = -(heading * Math.PI) / 180 + Math.PI;
 
-    // 💎 تأمين ظهور السيارة فوق المباني (Render Order)
-    window.carModel.renderOrder = 999; 
+    // الأولوية القصوى للظهور
+    window.carModel.renderOrder = 9999;
 
     renderer.render(scene, camera);
     overlay.requestRedraw(); 
 };
-
 
     overlay.setMap(map);
     window.carOverlay = overlay;
@@ -9483,36 +9730,44 @@ overlay.onDraw = ({ transformer }) => {
 
 // 1. القيم المثالية التي اخترتها
 window.tuner = {
-    zoom: 20,
-    tilt: 60,
-    scale: 0.75,
-    offset: 40
+    zoom: 19.5,
+    tilt: 65,
+    scale: 1.02,
+    offset: 45
 };
 
 // 2. دالة التحديث التلقائي المستمر (Live Stream)
-function startLiveTracking() {
+window.startLiveTracking = function() {
     if (navigator.geolocation) {
+        // تنظيف أي مراقب قديم لتجنب تكرار العمليات واستهلاك البطارية
+        if (window.locationWatchId) {
+            navigator.geolocation.clearWatch(window.locationWatchId);
+        }
+
+        // تشغيل المراقب المستمر (watchPosition)
         window.locationWatchId = navigator.geolocation.watchPosition(
             (pos) => {
-                const { latitude: lat, longitude: lng, heading } = pos.coords;
-                
-                // 1. تحديث إحداثيات السيارة في الذاكرة فوراً
-                window.appState.currentLocation = { lat, lng };
-                window.appState.car.heading = heading || 0;
-
-                // 2. استدعاء apply تلقائياً مع كل حركة GPS
-                // هذا هو السر لظهور السيارة باستمرار
-                if (window.tuner && typeof window.tuner.apply === 'function') {
-                    window.tuner.apply();
+                // نرسل الإحداثيات فوراً لدالة التحديث الرئيسية
+                // وهي التي تتولى تحريك الكاميرا، تدوير الخريطة، وإزاحة السيارة
+                if (typeof window.updateGoogleMapLocation === 'function') {
+                    window.updateGoogleMapLocation(pos);
                 }
-
-                console.log("🛰️ تتبع حي نشط: السيارة تظهر وتتحرك...");
             },
-            (err) => console.error("GPS Error:", err),
-            { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
+            (err) => {
+                console.error("🚨 فشل التتبع التلقائي:", err.message);
+            },
+            {
+                enableHighAccuracy: true, // استخدام أدق إشارة GPS ممكنة
+                maximumAge: 0,            // جلب الموقع الحالي بدقة اللحظة
+                timeout: 10000            // مهلة 10 ثوانٍ للتواصل مع الأقمار
+            }
         );
+        console.log("%c📡 نظام الملاحقة المستمرة نشط الآن...", "color: #00e676; font-weight: bold;");
     }
-}
+};
+
+// تشغيل الدالة فور تحميل الصفحة لتبدأ الملاحقة فوراً
+window.startLiveTracking();
 // متغير لمنع التحديث التلقائي أثناء اللمس
 let isUserInteracting = false;
 
@@ -9528,29 +9783,7 @@ if (window.dashboardGoogleMap) {
     });
 }
 
-function updateGoogleMapLocation(pos) {
-    if (!pos || !pos.coords || !window.dashboardGoogleMap) return;
 
-    const { latitude: lat, longitude: lng, heading } = pos.coords;
-    window.appState.currentLocation = { lat, lng };
-    window.appState.car.heading = heading || 0;
-
-    // إذا كان المستخدم يحرك الخريطة، نحدث الموقع فقط بدون تغيير الزوم أو التلت
-    if (isUserInteracting) {
-        window.dashboardGoogleMap.setCenter({ lat, lng });
-    } else {
-        // إذا كان النظام مستقراً، نستخدم قيم التونر المحفوظة
-        window.dashboardGoogleMap.moveCamera({
-            center: { lat, lng },
-            zoom: window.tuner.zoom,
-            tilt: window.tuner.tilt,
-            heading: heading || 0
-        });
-    }
-
-    window.dashboardGoogleMap.panBy(window.tuner.offset, 0);
-    if (window.carOverlay) window.carOverlay.requestRedraw();
-}
 
 // تشغيل النظام
 startLiveTracking();
@@ -10782,13 +11015,32 @@ function update3dMoonWidget() {
             }
             if (nextIdx >= 0 && nextIdx < items.length) { setFocus(items[nextIdx]); }
         }
-        
+        // دالة تحديث الرقم الهجري فوق القمر
+function updateMoonHijriOverlay() {
+    const today = new Date();
+     const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);// الكود الخاص بك لجلب اليوم الهجري
+    const hijriDay = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {day: 'numeric'}).format(yesterday);
+    
+    // ربط القيمة بالعنصر في الواجهة
+    const hijriOverlay = document.getElementById('hijri-moon-overlay');
+    
+    if (hijriOverlay) {
+        hijriOverlay.innerText = hijriDay;
+        console.log("🌙 تم تحديث اليوم الهجري فوق القمر إلى: " + hijriDay);
+    }
+}
+
+// تشغيل التحديث فوراً
+updateMoonHijriOverlay();
         // --- Welcome Voice Message ---
         function playWelcomeMessage() {
             const today = new Date();
-            today.setFullYear(2025);
+            today.setFullYear(2026);
             const gregorianDate = new Intl.DateTimeFormat('en-UK', { month: 'long', day: 'numeric' }).format(today);
             const hijriDate = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', { weekday: 'long'}).format(today);
+            const hijriDay = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {day: 'numeric'}).format(today);
+
 
             let welcomeText = '';
             let weatherText = '';
@@ -11194,9 +11446,9 @@ loadPrayerTimes();
 
         const checkWeatherAndSpeak = () => {
              const today = new Date();
-             today.setFullYear(2025);
+             today.setFullYear(2026);
              const gregorianDate = new Intl.DateTimeFormat('en-UK', { month: 'long', day: 'numeric' }).format(today);
-             const hijriDate = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', { weekday: 'long'}).format(today);
+             const hijriDate = new Intl.DateTimeFormat('ar-OM-u-ca-islamic', { weekday: 'long'}).format(today);
 
             const speak = (textToSpeak) => {
                 if ('speechSynthesis' in window) {
