@@ -765,8 +765,8 @@ img#dash-nasa-moon {
 }
 
 img#dash-media-thumb {
-    HEIGHT: 100%!IMPORTANT;
-    WIDTH: auto;
+    WIDTH: 100%!IMPORTANT;
+    HEIGHT: auto;
 }
 
 /* --- CSS Required for Traffic Buttons --- */
@@ -1321,10 +1321,7 @@ button#tab-tarteel {
 .glass-surface.glass-surface--svg.youtube-video-card.navigable.grid-item {
     direction: ltr!important;
 }
-div#dash-card-media {
-    min-width: 14rem!important;
-    /* height: 15rem!important; */
-}
+
 
         .glass-surface__content {
             width: 100%;
@@ -8754,8 +8751,31 @@ async function setup3DCarMarker(map) {
         sun.position.set(10, 25, 10);
         scene.add(sun);
 
-        loader.load('https://dmusera.netlify.app/ES350E.gltf', (gltf) => {
+       loader.load('https://dmusera.netlify.app/ES350E.gltf', (gltf) => {
             window.carModel = gltf.scene;
+            
+            window.carModel.traverse(node => {
+                if (node.isMesh) {
+                    // 1. معالجة الألوان الأساسية لإظهار الطبقات الملونة
+                    if (node.material) {
+                        // منع الألوان من الانطفاء بسبب غياب الضوء المحيط
+                        node.material.emissive = node.material.color.clone().multiplyScalar(0.2); 
+                        
+                        // 2. إصلاح مشكلة الأجزاء السوداء الناتجة عن المعدنية العالية
+                        node.material.metalness = 0.4; // تقليل المعدنية لإظهار اللون الحقيقي
+                        node.material.roughness = 0.5; // زيادة الخشونة لتقليل الانعكاسات السوداء
+
+                        // 3. إجبار الطبقات على الظهور ومنع الشفافية الخاطئة
+                        node.material.depthWrite = true;
+                        node.material.transparent = false;
+                        node.material.side = THREE.DoubleSide; // إظهار الأبواب والقطع من الداخل والخارج
+                        
+                        // تحديث المادة لإظهار التغييرات فوراً
+                        node.material.needsUpdate = true;
+                    }
+                }
+            });
+
             window.carModel.rotation.x = Math.PI / 2;
             scene.add(window.carModel);
         });
@@ -9645,17 +9665,67 @@ if (window.dashboardGoogleMap) {
     setTimeout(() => { if(window.dashboardGoogleMap) window.dashboardGoogleMap.setOptions({disableDefaultUI: false}); }, 1000);
 }
 // --- 2. محرك الجرافيك المطور (إصلاح الحجم والإزاحة) ---
-function setup3DCarSystem(map) {
+async function setup3DCarSystem(map) {
+    if (!map || window.carOverlay) return;
+
     const overlay = new google.maps.WebGLOverlayView();
+    window.carOverlay = overlay;
 
     overlay.onAdd = () => {
         const loader = new window.GLTFLoader();
         overlay.scene = new THREE.Scene();
         overlay.camera = new THREE.PerspectiveCamera();
-        overlay.scene.add(new THREE.AmbientLight(0xffffff, 6));
         
+        // 1. نظام إضاءة "الاستوديو" لإبراز اللمعة النقطية (Specular)
+        overlay.scene.add(new THREE.AmbientLight(0xffffff, 0.8)); // ضوء محيطي متوازن
+        
+        // كشافات جانبية منخفضة لتركيز اللمعة على الجوانب وليس السقف
+        const light1 = new THREE.DirectionalLight(0xffffff, 1.2);
+        light1.position.set(25, 8, 15); 
+        overlay.scene.add(light1);
+
+        const light2 = new THREE.DirectionalLight(0xffffff, 1.0);
+        light2.position.set(-25, 5, 15); 
+        overlay.scene.add(light2);
+
         loader.load('https://dmusera.netlify.app/ES350E.gltf', (gltf) => {
             window.carModel = gltf.scene;
+            
+            window.carModel.traverse(node => {
+                if (node.isMesh) {
+                    const originalColor = node.material.color.clone();
+                    const isTransparent = node.material.transparent || node.material.opacity < 0.9;
+                    
+                    // 2. منطق الفرز اللوني الذكي (عجلات وزجاج مقابل الهيكل)
+                    const isNeutral = (originalColor.r === originalColor.g && originalColor.g === originalColor.b) || 
+                                     (originalColor.r < 0.5 && originalColor.g < 0.5 && originalColor.b < 0.5);
+
+                    if (isTransparent || isNeutral) {
+                        // العجلات والزجاج: الحفاظ على التباين الداكن والشفافية
+                        node.material = new THREE.MeshPhongMaterial({
+                            color: isTransparent ? originalColor : 0x050505,
+                            specular: 0x444444,
+                            shininess: 100,
+                            side: THREE.DoubleSide,
+                            transparent: isTransparent,
+                            opacity: node.material.opacity
+                        });
+                    } else {
+                        // 3. الهيكل: الذهب الملكي العميق (القيم المثالية المعتمدة)
+                        node.material = new THREE.MeshPhongMaterial({
+                            color: 0xBA8D3D,       // ذهبي غني أغمق قليلاً لمنع البهتان
+                            specular: 0x777777,    // رمادي خافت لتقليل وهج البياض
+                            shininess: 2500,       // لمعة مركزة جداً ونقطية
+                            emissive: 0x221100,    // توهج دافئ لعمق اللون
+                            emissiveIntensity: 0.1,
+                            side: THREE.DoubleSide,
+                            flatShading: false
+                        });
+                    }
+                    node.material.needsUpdate = true;
+                }
+            });
+
             window.carModel.rotation.x = Math.PI / 2;
             overlay.scene.add(window.carModel);
         });
@@ -9667,44 +9737,35 @@ function setup3DCarSystem(map) {
         });
         overlay.renderer.autoClear = false;
     };
+
     overlay.onDraw = ({ transformer }) => {
-    const { renderer, scene, camera } = overlay;
-    
-    // صمام أمان للتحقق من وجود كافة البيانات
-    if (!renderer || !window.carModel || !window.appState?.currentLocation) return;
+        const { renderer, scene, camera } = overlay;
+        if (!renderer || !window.carModel || !window.appState?.currentLocation) return;
 
-    // تحديث أبعاد الريندرر لضمان عدم تمدد الصورة
-    const canvas = renderer.getContext().canvas;
-    renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
-    camera.aspect = canvas.clientWidth / canvas.clientHeight;
-    camera.updateProjectionMatrix();
+        // إعادة ضبط الحالة لمنع تداخل الطبقات عند تحريك الكاميرا
+        renderer.resetState();
 
-    const pos = window.appState.currentLocation;
-    const heading = window.appState.car.heading || 0;
+        const pos = window.appState.currentLocation;
+        const heading = window.appState.car.heading || 0;
+        const zoom = window.dashboardGoogleMap.getZoom();
 
-    // 🚀 الارتفاع: 3.5 متر لضمان الظهور فوق الأرصفة والمباني
-    const matrix = transformer.fromLatLngAltitude({ ...pos, altitude: 3.5 });
-    camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
+        // ربط السيارة بالإحداثيات والارتفاع الثابت
+        const matrix = transformer.fromLatLngAltitude({ ...pos, altitude: 3.5 });
+        camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
 
-    // 📏 الحجم الديناميكي: يقرأ من window.tuner.scale المحفوظ
-    const zoom = window.dashboardGoogleMap.getZoom();
-    const baseScale = window.tuner.scale || 0.85; 
-    const finalScale = baseScale * Math.pow(2, 20 - zoom); 
-    
-    window.carModel.scale.set(finalScale, finalScale, finalScale);
-    window.carModel.rotation.y = -(heading * Math.PI) / 180 + Math.PI;
+        // مزامنة الحجم والدوران
+        const baseScale = window.tuner?.scale || 0.85; 
+        const finalScale = baseScale * Math.pow(2, 20 - zoom); 
+        
+        window.carModel.scale.set(finalScale, finalScale, finalScale);
+        window.carModel.rotation.y = -(heading * Math.PI) / 180 + Math.PI;
 
-    // الأولوية القصوى للظهور
-    window.carModel.renderOrder = 9999;
-
-    renderer.render(scene, camera);
-    overlay.requestRedraw(); 
-};
+        renderer.render(scene, camera);
+        overlay.requestRedraw(); 
+    };
 
     overlay.setMap(map);
-    window.carOverlay = overlay;
 }
-
 // 1. القيم المثالية التي اخترتها
 window.tuner = {
     zoom: 19.5,
