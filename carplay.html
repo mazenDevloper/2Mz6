@@ -8746,7 +8746,7 @@ async function setup3DCarMarker(map) {
     overlay.onAdd = () => {
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera();
-        scene.add(new THREE.AmbientLight(0xffffff, 1.5));
+        scene.add(new THREE.AmbientLight(0xffffff, 5.5));
         const sun = new THREE.DirectionalLight(0xffffff, 1.4);
         sun.position.set(10, 25, 10);
         scene.add(sun);
