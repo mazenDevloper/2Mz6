@@ -9677,10 +9677,10 @@ async function setup3DCarSystem(map) {
         overlay.camera = new THREE.PerspectiveCamera();
         
         // 1. نظام إضاءة "الاستوديو" لإبراز اللمعة النقطية (Specular)
-        overlay.scene.add(new THREE.AmbientLight(0xffffff, 0.8)); // ضوء محيطي متوازن
+        overlay.scene.add(new THREE.AmbientLight(0xffffff, 0.65)); // ضوء محيطي متوازن
         
         // كشافات جانبية منخفضة لتركيز اللمعة على الجوانب وليس السقف
-        const light1 = new THREE.DirectionalLight(0xffffff, 0.8);
+        const light1 = new THREE.DirectionalLight(0xffffff, 0.68);
         light1.position.set(25, 8, 15); 
         overlay.scene.add(light1);
 
