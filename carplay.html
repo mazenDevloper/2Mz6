@@ -37,7 +37,19 @@
 #bottom-left-controls {
     display: none !important;
 }
+/* تمييز الكارت المختار */
+.grid-item:focus, .navigable:focus {
+    transform: scale(1.08) !important;
+    border: 3px solid #0A84FF !important; /* أزرق CarPlay */
+    box-shadow: 0 0 20px rgba(10, 132, 255, 0.6) !important;
+    z-index: 100;
+}
 
+/* إخفاء السكرول بار لمنع تشتيت المستخدم */
+.tab-content, .reader-container {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
 /* تنسيق الأرقام العملاقة داخل الكروت */
 .carousel-slide span[id*="-day-big"], 
 #carplay-weather-temp-big {
@@ -49,6 +61,22 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+}
+
+/* Prevent focus ring clipping in scrolled containers */
+.favorites-dashboard-horizontal-scroll, 
+.scroll-viewport {
+    overflow-y: visible !important;
+    padding-top: 15px !important;
+    padding-bottom: 15px !important;
+}
+
+/* Clear visual indicator for Remote users */
+.navigable:focus {
+    transform: scale(1.1) translateY(-5px) !important;
+    outline: 4px solid #0A84FF !important;
+    z-index: 100 !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
 }
 
 div#weather-widget-container {
@@ -3137,7 +3165,7 @@ div#map{display:none}
       <!-- Athkar Screen -->
       <section id="screen-Athkar" class="app-screen p-4 md:p-6 flex-col items-center h-full">
         <div class="tabs-container flex p-1 rounded-full bg-black/20 self-center mb-4">
-          <button id="tab-sabah" class="tab-button navigable grid-item tv-focus active" tabindex="0">أذكار الصباح</button>
+          <button id="tab-sabah" class="tab-button navigable grid-item active" tabindex="0">أذكار الصباح</button>
           <button id="tab-masaa" class="tab-button navigable grid-item" tabindex="0">أذكار المساء</button>
           <button id="tab-monthly" class="tab-button navigable grid-item" tabindex="0">التذكيرات الشهرية</button>
         </div>
@@ -3500,6 +3528,262 @@ div#map{display:none}
 </script>
 
     <script>
+// --- تعريف اتجاه الصفحة ---
+const isRTL = document.documentElement.dir === 'rtl';
+
+// --- الدالة الرئيسية (Main Entry) ---
+function handleNavigation(e) {
+    const key = e.key.toLowerCase();
+    const activeEl = document.activeElement;
+
+    // 1. إعادة التركيز إذا فُقد أو عند بدء التشغيل
+    if (!activeEl || activeEl === document.body) {
+        if (key === 'arrowdown' || key === 'enter') {
+            const firstIcon = document.querySelector('nav .app-icon');
+            if (firstIcon) setFocus(firstIcon);
+            e.preventDefault();
+            return;
+        }
+    }
+
+    // 2. تصنيف العنصر النشط
+    const inScrollList = activeEl.closest('.favorites-dashboard-horizontal-scroll, .scroll-viewport');
+    // تحديد ما إذا كان العنصر عائماً (مثل أزرار التحكم السفلية)
+    const isFloating = activeEl.closest('#bottom-left-controls, #floating-media-button, #floating-mic-button, #floating-minimized-video-button, #back-to-search-floating-button, #add-video-by-url-btn');
+
+    // 3. توجيه المنطق
+    if (isFloating) {
+        handleFloatingNav(key, activeEl); // منطق الهروب من الأزرار العائمة
+    } else if (inScrollList) {
+        handleScrollListNav(key, activeEl); // منطق القوائم المنزلقة
+    } else {
+        // الملاحة المكانية الذكية لباقي العناصر
+        handleSpatialNav(key, activeEl);
+    }
+}
+
+// --- منطق الأزرار العائمة (Fixed Floating Buttons) ---
+function handleFloatingNav(key, el) {
+    if (key === 'arrowup') {
+        // الهروب للمحتوى الرئيسي
+        jumpToMainContent();
+    } else if (key === 'arrowright') {
+        // الهروب للقائمة الجانبية
+        focusSidebar();
+    } else if (key === 'arrowleft') {
+        // التنقل بين الأزرار المجاورة
+        handleSpatialNav(key, el); 
+    } else if (key === 'enter' || key === 'ok') {
+        el.click();
+    }
+}
+
+// --- منطق القوائم المنزلقة (Scroll Lists) ---
+function handleScrollListNav(key, el) {
+    const container = el.parentElement;
+    const items = Array.from(container.querySelectorAll('.grid-item'));
+    const idx = items.indexOf(el);
+
+    if (key === 'arrowright') { // RTL: السابق (لليمين)
+        if (idx > 0) {
+            setFocus(items[idx - 1]);
+            container.scrollBy({ left: 200, behavior: 'smooth' });
+        } else {
+            focusSidebar(); // الخروج للقائمة
+        }
+    } else if (key === 'arrowleft') { // RTL: التالي (لليسار)
+        if (idx < items.length - 1) {
+            setFocus(items[idx + 1]);
+            container.scrollBy({ left: -200, behavior: 'smooth' });
+        }
+    } else if (key === 'arrowup') {
+        handleSpatialNav('up', el);
+    } else if (key === 'arrowdown') {
+        handleSpatialNav('down', el);
+    } else if (key === 'enter' || key === 'ok') {
+        el.click();
+    }
+}
+
+// --- الملاحة المكانية الذكية (Spatial Navigation) ---
+function handleSpatialNav(key, el) {
+    const directionMap = {
+        'arrowup': 'up', 'arrowdown': 'down',
+        'arrowleft': 'left', 'arrowright': 'right',
+        'enter': 'enter', 'ok': 'enter'
+    };
+    const direction = directionMap[key];
+    if (!direction) return;
+
+    if (direction === 'enter') {
+        el.click();
+        return;
+    }
+
+    const nextEl = findNextFocus(el, direction);
+
+    if (nextEl) {
+        setFocus(nextEl);
+    } else {
+        // منطق الحواف (Edge Cases)
+        const inSidebar = el.closest('nav');
+        // من السايدبار -> للمحتوى (يسار في العربية)
+        if (inSidebar && direction === 'left') { 
+             jumpToMainContent();
+        }
+        // من المحتوى -> للسايدبار (يمين في العربية)
+        else if (!inSidebar && direction === 'right') {
+            focusSidebar();
+        }
+    }
+}
+
+// --- خوارزمية البحث الهندسي (Geometric Search) ---
+function findNextFocus(currentEl, direction) {
+    const rect = currentEl.getBoundingClientRect();
+    const currentCenter = {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2
+    };
+
+    const allCandidates = Array.from(document.querySelectorAll('.navigable, .grid-item')).filter(el => {
+        return el !== currentEl && el.offsetParent !== null && !el.closest('.hidden');
+    });
+
+    let bestCandidate = null;
+    let minDistance = Infinity;
+
+    allCandidates.forEach(candidate => {
+        const cRect = candidate.getBoundingClientRect();
+        const cCenter = {
+            x: cRect.left + cRect.width / 2,
+            y: cRect.top + cRect.height / 2
+        };
+
+        let isValid = false;
+        // تسامح 20px لتعويض الفروقات البسيطة في المحاذاة
+        switch (direction) {
+            case 'up': isValid = cRect.bottom <= rect.top + 20; break;
+            case 'down': isValid = cRect.top >= rect.bottom - 20; break;
+            case 'left': isValid = cRect.right <= rect.left + 20; break;
+            case 'right': isValid = cRect.left >= rect.right - 20; break;
+        }
+
+        if (isValid) {
+            // حساب المسافة الإقليدية
+            const dist = Math.sqrt(Math.pow(cCenter.x - currentCenter.x, 2) + Math.pow(cCenter.y - currentCenter.y, 2));
+            
+            // إضافة وزن للمحاذاة (تفضيل العناصر التي على نفس الخط)
+            const alignmentBonus = (direction === 'up' || direction === 'down') 
+                ? Math.abs(cCenter.x - currentCenter.x) 
+                : Math.abs(cCenter.y - currentCenter.y);
+
+            const totalScore = dist + (alignmentBonus * 2.5); 
+
+            if (totalScore < minDistance) {
+                minDistance = totalScore;
+                bestCandidate = candidate;
+            }
+        }
+    });
+
+    return bestCandidate;
+}
+
+// --- دوال مساعدة ---
+function jumpToMainContent() {
+    const activeScreen = document.querySelector('.app-screen.active');
+    if (!activeScreen) return;
+    
+    // البحث عن أول عنصر محتوى رئيسي
+    const target = activeScreen.querySelector('.tab-content:not(.hidden) .grid-item') || 
+                   activeScreen.querySelector('.dashboard-main-grid .grid-item') ||
+                   activeScreen.querySelector('.grid-item');
+
+    if (target) setFocus(target);
+}
+
+function focusSidebar() {
+    const activeIcon = document.querySelector('nav .app-icon.active') || document.querySelector('nav .app-icon');
+    if (activeIcon) setFocus(activeIcon);
+}
+
+function setFocus(el) {
+    if (!el) return;
+    document.querySelectorAll('.tv-focus').forEach(i => i.classList.remove('tv-focus'));
+    el.classList.add('tv-focus');
+    el.focus({ preventScroll: true });
+    el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+}
+
+
+
+
+
+
+
+
+
+function handleHorizontalMapping(key, el) {
+    const items = Array.from(el.parentElement.querySelectorAll('.grid-item'));
+    const idx = items.indexOf(el);
+
+    switch(key) {
+        case 'arrowright': // Move Next
+            if (idx < items.length - 1) {
+                setFocus(items[idx + 1]);
+                items[idx + 1].parentElement.scrollBy({ left: 250, behavior: 'smooth' });
+            }
+            break;
+        case 'arrowleft': // Move Previous
+            if (idx > 0) {
+                setFocus(items[idx - 1]);
+                items[idx - 1].parentElement.scrollBy({ left: -250, behavior: 'smooth' });
+            } else {
+                // Exit to Sidebar if at the start
+                const sidebarIcon = document.querySelector('nav .app-icon.active');
+                if (sidebarIcon) setFocus(sidebarIcon);
+            }
+            break;
+        case 'arrowup': // Exit to Search Row
+            const searchInput = document.getElementById('youtube-search-input');
+            if (searchInput) setFocus(searchInput);
+            break;
+    }
+}
+
+function handleGridMapping(key, el) {
+    const container = el.closest('.grid-container') || el.closest('.reader-container');
+    if (!container) return;
+
+   const currentScreen = el.closest('.app-screen');
+    const items = Array.from(currentScreen.querySelectorAll('.navigable')).filter(i => i.offsetParent !== null);
+    const idx = items.indexOf(el);
+
+    if (key === 'arrowleft' && (idx === 0 || el.classList.contains('app-icon'))) {
+        // العودة للتاب أو القائمة الجانبية
+        const activeIcon = document.querySelector('nav .app-icon.active');
+        setFocus(activeIcon);
+        return;
+    }
+
+
+    switch(key) {
+        case 'arrowright': if (idx % cols !== 0) setFocus(items[idx - 1]); break;
+        case 'arrowleft': 
+            if ((idx + 1) % cols === 0) {
+                const sidebarIcon = document.querySelector('nav .app-icon.active');
+                if (sidebarIcon) setFocus(sidebarIcon);
+            } else if (idx < items.length - 1) {
+                setFocus(items[idx + 1]);
+            }
+            break;
+        case 'arrowup': if (idx >= cols) setFocus(items[idx - cols]); break;
+        case 'arrowdown': if (idx + cols < items.length) setFocus(items[idx + cols]); break;
+    }
+}
+
+
     // 1. تحميل الإعدادات المخزنة أو استخدام الافتراضية
 // قمنا بتوحيد اسم المتغير إلى savedTuner لمنع خطأ الـ ReferenceError
 const savedTunerData = localStorage.getItem('custom_tuner_settings');
@@ -4691,88 +4975,7 @@ function startVoiceToText() {
     }
 }
 
-/**
- * تعرض قائمة مفضلة السيارة (favoritesD) في لوحة القيادة (Dashboard)
- * باستخدام تصميم تمرير أفقي (Horizontal Scroll) يعرض 3.5 بطاقات في اللحظة الواحدة.
- * * ملاحظة: تعتمد هذه الدالة على:
- * 1. المتغير العام 'favoritesD' لبيانات الفيديوهات.
- * 2. دالة 'parseDurationToSeconds' لتحويل مدة الفيديو إلى ثوانٍ.
- */
-function renderFavoritesDashboard() {
-    const container = document.getElementById('fav-d-dashboard-container');
-    if (!container) return;
 
-    // 1. القراءة من المتغير العام (الذي تم تعبئته في DOMContentLoaded)
-    const list = favoritesD; 
-    
-    console.log("[renderFavoritesDashboard] Final List Length:", list.length);
-
-    // 2. تهيئة الحاوية ومسح المحتوى القديم
-    container.innerHTML = ''; 
-    
-    // 🛑 يجب التأكد من وجود هذه الفئات في HTML: overflow-x-auto whitespace-nowrap flex gap-4
-    // container.style.flexDirection = 'row'; // لم يعد ضرورياً إذا استخدمنا flex في HTML
-
-    if (list.length === 0) {
-        // عرض رسالة الخطأ إذا كانت القائمة فارغة فعلاً
-        container.innerHTML = `<p class="text-white/50 text-center p-4 w-full">لا توجد فيديوهات محفوظة في قائمة السيارة.</p>`;
-        
-        // عند الفراغ، يجب إزالة تنسيقات Flex للحاوية الأب للسماح بالتوسيط الصحيح للرسالة
-        container.classList.remove('flex', 'gap-4'); 
-        container.style.justifyContent = 'center'; 
-        return;
-    }
-    
-    // إعادة إضافة تنسيقات Flex وضبط المحاذاة للحالة العادية (إذا تم إزالتها في حالة القائمة الفارغة)
-    container.classList.add('flex', 'gap-4');
-    container.style.justifyContent = 'flex-start';
-
-    list.forEach(video => {
-        // التحقق من صلاحية بيانات الفيديو قبل العرض
-        if (!video || !video.id) return;
-        
-        const card = document.createElement('div');
-        
-        // 🚀 التعديل الحاسم: تعيين عرض البطاقة لتمكين 3.5 عرض
-        // min-w-[28%] (25% لـ 4 بطاقات، 28% لـ 3.5) مع احتساب المسافات (gap-4)
-        card.className = 'fav-d-dashboard-card navigable grid-item flex-shrink-0 min-w-[28%] md:min-w-[27%]'; 
-        
-        card.tabIndex = 0;
-        card.dataset.videoId = video.id;
-
-        // منطق حساب التقدم (يتطلب دالة parseDurationToSeconds)
-        const durationInSeconds = typeof parseDurationToSeconds === 'function' ? parseDurationToSeconds(video.duration) : (video.duration || 1); 
-        const progressPercent = (video.progress > 0 && durationInSeconds > 0) 
-            ? (video.progress / durationInSeconds) * 100 
-            : 0;
-
-        card.innerHTML = `
-            <img src="${video.thumbnail || 'https://placehold.co/80x45'}" 
-                 alt="${video.title}" 
-                 class="w-[80px] h-full object-cover rounded-md flex-shrink-0">
-            <div class="flex flex-col flex-grow min-w-0 h-full justify-between ml-2">
-                <h4 class="text-sm font-semibold truncate">${video.title}</h4>
-                <p class="text-xs text-white/50">${video.channelTitle || 'قناة غير معروفة'}</p>
-                
-                <div class="w-full h-1.5 bg-gray-600 rounded-full overflow-hidden mt-1">
-                    <div class="bg-red-500 h-full" style="width: ${Math.min(progressPercent, 100)}%;"></div>
-                </div>
-            </div>
-            <i data-lucide="play-circle" class="w-6 h-6 text-blue-400 flex-shrink-0 ml-2"></i>
-        `;
-
-        // 4. ربط الحدث لتشغيل الفيديو
-        card.addEventListener('click', () => {
-            showVideoPopup(video.id, video.progress); 
-        });
-
-        container.appendChild(card);
-    });
-    
-    // 5. تحديث الأيقونات وعناصر التنقل
-    lucide.createIcons();
-    updateNavigableElements();
-}
 
 function playSpeechAnnouncement(message) {
     if (!('speechSynthesis' in window) || !message) {
@@ -5008,19 +5211,43 @@ function switchApp(appName) {
         startWeatherUpdates();
     }
     
-    // 5. نقل التركيز الأولي ونظام الـ Navigable
+   // ... (باقي كود switchApp في الأعلى) ...
+
     const activeScreen = document.getElementById(`screen-${appName}`);
+    
     if (activeScreen) {
-        // تحديث مصفوفة العناصر القابلة للتنقل بناءً على الشاشة الجديدة
         if (typeof updateNavigableElements === 'function') updateNavigableElements();
         
         setTimeout(() => {
-            const firstItem = activeScreen.querySelector('.grid-item');
+            let firstItem;
+
+            if (appName === 'Media') {
+                // 🛑 1. استهداف "الكروت" تحديداً (باستخدام كلاس البطاقة وليس grid-item العام)
+                firstItem = activeScreen.querySelector('.youtube-reader-card');
+
+                // 🛑 2. إذا لم نجد كروت، نذهب للتاب النشط (مثلاً "القراء")
+                if (!firstItem) {
+                    firstItem = activeScreen.querySelector('.tab-button.active');
+                }
+
+                // 🛑 3. حماية إضافية: إذا كان العنصر المختار هو زر التكبير، تجاهله وابحث عن غيره
+                if (firstItem && firstItem.id === 'fullscreen-screen-Media-btn') {
+                    // ابحث عن أول عنصر في الشاشة ليس هو زر التكبير
+                    const allItems = Array.from(activeScreen.querySelectorAll('.navigable, .grid-item'));
+                    firstItem = allItems.find(el => el.id !== 'fullscreen-screen-Media-btn' && el.offsetParent !== null);
+                }
+
+            } else {
+                // الوضع الطبيعي لباقي الشاشات
+                firstItem = activeScreen.querySelector('.grid-item, .navigable');
+            }
+
+            // تنفيذ التركيز
             if (firstItem) setFocus(firstItem);
-        }, 150);
+            
+        }, 250); // وقت كافٍ لضمان تحميل القائمة
     }
 }
-
         /**
  * Toggles a section element between its normal state and fullscreen mode.
  * * @param {string} sectionId - The ID of the section element (e.g., 'screen-Dashboard').
@@ -5258,15 +5485,17 @@ function updateFullDateWidget() {
     // إذا لم يكن أي منهما موجوداً، نوقف الدالة
     if (!oldContainer && !newContainer) return;
 
-   
+    // 🛑 [إصلاح هام]: تعريف المتغيرات لتجنب خطأ ReferenceError
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1); // الهجري يسبق بيوم حسب طلبك
 
     // إعداد التنسيقات
     const dayName = new Intl.DateTimeFormat('ar-SA', { weekday: 'long' }).format(today);
     const gregDate = new Intl.DateTimeFormat('ar-SA', { day: 'numeric', month: 'long', year: 'numeric' }).format(today);
     const hijriDate = new Intl.DateTimeFormat('ar-OM-u-ca-islamic', { day: 'numeric', month: 'long', year: 'numeric' }).format(yesterday);
 
-
-    // الهيكل الموحد
+    // الهيكل الموحد (كما هو في كودك)
     const dateHTML = `
         <div class="date-wrapper">
             <span class="day-highlight">${dayName}</span>
@@ -5286,6 +5515,114 @@ function updateFullDateWidget() {
     if (newContainer) {
         newContainer.innerHTML = dateHTML;
     }
+}
+
+function renderFavoritesDashboard() {
+    const container = document.getElementById('fav-d-dashboard-container');
+    
+    // 1. فحص الأمان لضمان وجود العنصر
+    if (!container) {
+        console.warn("⚠️ Container #fav-d-dashboard-container not found!");
+        return;
+    }
+
+    // 2. استخدام القائمة العالمية (مع مصفوفة احتياطية فارغة لتجنب الأخطاء)
+    const list = favoritesD || []; 
+    
+    console.log(`📊 تحديث داشبورد السيارة: ${list.length} فيديو.`);
+
+    // 3. تنظيف الحاوية بالكامل
+    container.innerHTML = ''; 
+    
+    // 4. ضبط خصائص الحاوية (Flex & Scroll)
+    container.className = 'favorites-dashboard-horizontal-scroll flex-grow overflow-x-auto whitespace-nowrap flex gap-4';
+
+    // 5. معالجة القائمة الفارغة
+    if (list.length === 0) {
+        container.style.justifyContent = 'center'; 
+        container.innerHTML = '<p class="text-white/50 text-center p-4 w-full self-center">لا توجد فيديوهات محفوظة في قائمة السيارة.</p>';
+        return;
+    }
+    
+    // إعادة المحاذاة لليسار عند وجود محتوى
+    container.style.justifyContent = 'flex-start';
+
+    // 6. بناء الكروت
+    list.forEach(video => {
+        if (!video || !video.id) return;
+        
+        const card = document.createElement('div');
+        
+        // تنسيق الكارت: عرض نسبي لضمان ظهور 3.5 كارت
+        card.className = 'fav-d-dashboard-card navigable grid-item flex-shrink-0 relative group'; 
+        card.style.minWidth = '28%'; 
+        card.style.maxWidth = '28%';
+        card.setAttribute('tabindex', '0');
+        card.tabIndex = 0;
+        card.dataset.videoId = video.id;
+
+        // حساب نسبة شريط التقدم
+        const durationSec = typeof parseDurationToSeconds === 'function' ? parseDurationToSeconds(video.duration) : 100;
+        const progressPercent = (video.progress > 0) ? (video.progress / durationSec) * 100 : 0;
+
+        card.innerHTML = `
+            <div class="relative w-full h-32 rounded-xl overflow-hidden border border-white/10 bg-black/20">
+                <img src="${video.thumbnail || 'https://placehold.co/320x180'}" 
+                     alt="${video.title}"
+                     class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                     loading="lazy">
+                
+                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
+                
+                <button class="remove-fav-btn absolute top-2 left-2 p-1.5 bg-red-600/90 rounded-full opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity navigable grid-item" title="إزالة من القائمة">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                </button>
+
+                <div class="absolute bottom-2 right-2 left-2 flex flex-col gap-1">
+                    <h4 class="text-sm font-bold text-white truncate text-right leading-tight">${video.title}</h4>
+                    <p class="text-[10px] text-gray-300 truncate text-right">${video.channelTitle || ''}</p>
+                    
+                    <div class="w-full h-1 bg-gray-600/50 rounded-full overflow-hidden mt-1">
+                        <div class="h-full bg-blue-500" style="width: ${Math.min(progressPercent, 100)}%"></div>
+                    </div>
+                </div>
+                
+                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                    <i data-lucide="play-circle" class="w-8 h-8 text-white/90 drop-shadow-md"></i>
+                </div>
+            </div>
+        `;
+
+        // --- ربط الأحداث ---
+
+        // 1. تشغيل الفيديو
+        card.addEventListener('click', (e) => {
+            // منع التشغيل إذا ضغطنا على زر الحذف
+            if (!e.target.closest('.remove-fav-btn')) {
+                window.isAutoPlayMode = false;
+                showVideoPopup(video.id, video.progress); 
+            }
+        });
+
+        // 2. حذف الفيديو (Binding Fix)
+        const delBtn = card.querySelector('.remove-fav-btn');
+        if (delBtn) {
+            delBtn.addEventListener('click', async (e) => {
+                e.stopPropagation(); // منع تشغيل الفيديو
+                // استدعاء دالة الحذف وتمرير النوع 'D' للسيارة
+                await removeVideoFromFavorites(video.id, 'D'); 
+                // إعادة الرسم فوراً ستتم داخل removeVideoFromFavorites إذا كانت مبرمجة بشكل صحيح،
+                // أو يمكننا استدعاؤها يدوياً هنا لضمان التحديث البصري الفوري:
+                // renderFavoritesDashboard(); (اختياري إذا كانت دالة الحذف تقوم بذلك)
+            });
+        }
+
+        container.appendChild(card);
+    });
+
+    // 7. تحديث الأيقونات ونظام التنقل
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    if (typeof updateNavigableElements === 'function') updateNavigableElements();
 }
 
 // REPLACE the current displayLastWatchedVideo function with this one
@@ -7884,6 +8221,7 @@ function createSimpleSuggestionCard(video, type) {
     // إضافة الكلاسات التي تضمن البروز والتصميم المتفق عليه
     card.className = 'simple-suggestion-card flex flex-col gap-2 p-3 rounded-xl bg-white/10 cursor-pointer navigable grid-item flex-shrink-0';
     card.tabIndex = 0;
+    card.setAttribute('tabindex', '0');
     card.dataset.videoId = video.id;
 
     card.innerHTML = `
@@ -8406,6 +8744,7 @@ async function populateYoutubeSuggestions() {
 
             const card = document.createElement('div');
             card.className = 'youtube-reader-card navigable grid-item relative group';
+            card.setAttribute('tabindex', '0');
             card.tabIndex = 0;
             // 💡 الترتيب: العنصر الأول يأخذ order: 1، والبقية تبدأ من 3 (لتفسح المجال لزر الإضافة)
             card.style.order = (index < 1) ? 1 : index + 2; 
@@ -8544,20 +8883,39 @@ async function populateYoutubeSuggestions() {
         const tabs = [recitersTabButton, channTabButton, toolsTabButton, savedDTabButton, savedMTabButton];
         const contents = [recitersContent, channContent, toolsContent, savedDContent, savedMContent];
 
-        tabs.forEach((tab, index) => {
-            tab.addEventListener('click', () => {
-                tabs.forEach(t => t.classList.remove('active'));
-                contents.forEach(c => c.classList.add('hidden'));
-                tab.classList.add('active');
-                contents[index].classList.remove('hidden');
+       tabs.forEach((tab, index) => {
+    tab.addEventListener('click', () => {
+        // 1. التبديل التقليدي بين التابات
+        tabs.forEach(t => t.classList.remove('active'));
+        contents.forEach(c => c.classList.add('hidden'));
+        tab.classList.add('active');
+        contents[index].classList.remove('hidden');
 
-                if (tab.id === 'tab-saved-d') { loadSavedVideos('D'); } 
-                else if (tab.id === 'tab-saved-m') { loadSavedVideos('M'); }
+        // 2. تحميل البيانات الخاصة بالمفضلة إذا لزم الأمر
+        if (tab.id === 'tab-saved-d') { loadSavedVideos('D'); } 
+        else if (tab.id === 'tab-saved-m') { loadSavedVideos('M'); }
 
-                const firstItem = contents[index].querySelector('.grid-item');
-                if (firstItem) setFocus(firstItem); else setFocus(tab);
-            });
-        });
+        // 3. 🚀 التعديل الجوهري: استخدام setTimeout لضمان ظهور الكروت في الـ DOM
+        setTimeout(() => {
+            // تحديث قائمة العناصر القابلة للتنقل لتشمل الكروت الجديدة
+            if (typeof updateNavigableElements === 'function') {
+                updateNavigableElements();
+            }
+
+            // البحث عن أول كارت (grid-item) أو أي عنصر قابل للملاحة داخل المحتوى النشط
+            const firstItem = contents[index].querySelector('.grid-item, .navigable');
+            
+            if (firstItem) {
+                // سحب التركيز من التاب الجانبي إلى الكروت مباشرة
+                setFocus(firstItem); 
+                console.log("🎯 Focus moved to content: " + tab.textContent);
+            } else {
+                // إذا لم توجد كروت (قائمة فارغة)، ابقِ التركيز على التاب نفسه
+                setFocus(tab);
+            }
+        }, 200); // 200 مللي ثانية كافية لرسم العناصر في CarPlay UI
+    });
+});
 
     } catch (error) {
         console.log("[Debug] Error in populating tabs:", error);
@@ -10847,126 +11205,165 @@ function update3dMoonWidget() {
         
         // --- MASTER KEY HANDLER (REFACTORED) ---
         function handleRemoteControlInput(e) {
-            const key = e.key.toLowerCase();
-            const activeEl = document.activeElement;
+    const key = e.key.toLowerCase();
+    const activeEl = document.activeElement;
 
-          
+    // --- الأولولية 1: إذا كان مشغل الفيديو نشطاً ---
+    if (videoPopupContainer.classList.contains('active') || appState.isVideoPlayerMinimized) {
+        const customHandledKeys = [
+            'arrowup', 'arrowdown', 'arrowleft', 'arrowright',
+            'enter', 'ok', 'p',
+            'b', 'stop', 'red', 'colorf0red', 'x',
+            'yellow', 'colorf2yellow', '8',
+            '9' 
+        ];
 
-       
+        if (customHandledKeys.includes(key)) {
+            e.preventDefault();
 
-            // --- Priority 1: Video Player is Active ---
-            if (videoPopupContainer.classList.contains('active') || appState.isVideoPlayerMinimized) {
-                const customHandledKeys = [
-                    'arrowup', 'arrowdown', 'arrowleft', 'arrowright',
-                    'enter', 'ok', 'p',
-                    'b', 'stop', 'red', 'colorf0red', 'x',
-                    'yellow', 'colorf2yellow', '8',
-                    '9' // Added for fullscreen
-                ];
-
-                if (customHandledKeys.includes(key)) {
-                    e.preventDefault();
-
-                    if (key === 'yellow' || key === 'colorf2yellow' || key === '8') {
-                        if (appState.isVideoPlayerMinimized) restoreVideoPopup();
-                        else minimizeVideoPopup();
-                        return;
-                    }
-                    if (key === 'b' || key === 'stop' || key === 'red' || key === 'colorf0red' || key === 'x') {
-                        hideVideoPopup();
-                        return;
-                    }
-                    if (key === 'enter' || key === 'ok' || key === 'p') {
-                        const playerState = popupPlayer.getPlayerState();
-                        if (playerState === YT.PlayerState.PLAYING) popupPlayer.pauseVideo();
-                        else popupPlayer.playVideo();
-                        return;
-                    }
-                    if (key === '9') {
-                        toggleFullScreen();
-                        return;
-                    }
-                    
-                    const currentTime = popupPlayer.getCurrentTime();
-                    const currentVolume = popupPlayer.getVolume();
-                    
-                }
-                // For other keys (like 'f', 'm', spacebar), do nothing and let the event bubble up.
+            if (key === 'yellow' || key === 'colorf2yellow' || key === '8') {
+                if (appState.isVideoPlayerMinimized) restoreVideoPopup();
+                else minimizeVideoPopup();
                 return;
             }
-
-            // --- Priority 2: Typing in Search Bar ---
-            const isTyping = !youtubeSearchInput.readOnly && activeEl === youtubeSearchInput;
-            if (isTyping) {
-                if (key === 'enter' || key === 'ok') {
-                    e.preventDefault();
-                    youtubeSearchButton.click();
-                } else if (key.length === 1 && (key.match(/[a-z0-9\s]/i) || key.match(/[\u0600-\u06FF]/))) {
-                    // Allow default typing
-                } else if (key === 'backspace') {
-                    // Allow default backspace
-                } else {
-                    handleNavigation(e);
-                }
+            if (key === 'b' || key === 'stop' || key === 'red' || key === 'colorf0red' || key === 'x') {
+                hideVideoPopup();
                 return;
             }
-
-            // --- Priority 3: Standard Arrow/OK Navigation ---
-            handleNavigation(e);
+            if (key === 'enter' || key === 'ok' || key === 'p') {
+                const playerState = popupPlayer.getPlayerState();
+                if (playerState === YT.PlayerState.PLAYING) popupPlayer.pauseVideo();
+                else popupPlayer.playVideo();
+                return;
+            }
+            if (key === '9') {
+                toggleFullScreen();
+                return;
+            }
         }
+        return;
+    }
 
-        function handleNavigation(e) {
-            const key = e.key.toLowerCase();
-            if (!['arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'enter', 'ok'].includes(key)) return;
-            
-            e.preventDefault(); // Prevent default scroll for navigation keys
+    // --- الأولولية 2: وضع الكتابة في حقل البحث ---
+    const isTyping = !youtubeSearchInput.readOnly && activeEl === youtubeSearchInput;
+    if (isTyping) {
+        if (key === 'enter' || key === 'ok') {
+            e.preventDefault();
+            youtubeSearchButton.click();
+        } else if (key.length === 1 || key === 'backspace') {
+            // السماح بالكتابة العادية
+        } else {
+            handleNavigationLogic(e); // استخدام منطق التنقل للأزرار الأخرى
+        }
+        return;
+    }
 
-            const activeEl = document.activeElement;
-            if (!activeEl || activeEl === document.body) {
-                const firstIcon = document.querySelector('nav .app-icon');
-                if (firstIcon) setFocus(firstIcon);
-                return;
-            }
+    // --- الأولولية 3: نظام التنقل الذكي (المحرك الجديد) ---
+    handleNavigationLogic(e);
+}
 
-            const inNav = activeEl.closest('nav');
-            const inMediaScreen = activeEl.closest('#screen-Media');
+// دالة المحرك التي تختار طريقة التنقل بناءً على نوع الحاوية
+function handleNavigationLogic(e) {
+    const key = e.key.toLowerCase();
+    const activeEl = document.activeElement;
+    if (!activeEl) return;
 
-            if (inNav) {
-                handleNavSidebarNavigation(e, activeEl);
-            } else if (inMediaScreen) {
-                handleMediaScreenNavigation(e, activeEl);
+    // فحص: هل العنصر داخل قائمة منزلقة أفقية؟
+    const isHorizontalList = activeEl.closest('.favorites-dashboard-horizontal-scroll') || 
+                             activeEl.closest('.scroll-viewport') ||
+                             activeEl.closest('#favorites-popup-grid');
+
+    if (isHorizontalList) {
+        handleHorizontalMapping(key, activeEl);
+    } else {
+        handleGridMapping(key, activeEl);
+    }
+}
+
+// التنقل في القوائم الأفقية (Dashboard & Suggestions)
+function handleHorizontalMapping(key, el) {
+    const parent = el.parentElement;
+    const items = Array.from(parent.querySelectorAll('.grid-item'));
+    const idx = items.indexOf(el);
+
+    switch(key) {
+        case 'arrowright': // في RTL السهم الأيمن يعود للخلف
+            if (idx > 0) setFocus(items[idx - 1]);
+            else setFocus(document.querySelector('nav .app-icon.active')); // الرجوع للسايدبار
+            break;
+        case 'arrowleft': // السهم الأيسر يتقدم للأمام
+            if (idx < items.length - 1) setFocus(items[idx + 1]);
+            break;
+        case 'arrowup': // الخروج للأعلى
+            setFocus(document.getElementById('youtube-search-input'));
+            break;
+    }
+}
+
+// التنقل في الجداول (Channels & Reciters Grid)
+function handleGridMapping(key, el) {
+    const container = el.closest('.grid-container') || el.closest('.reader-container') || el.closest('nav');
+    if (!container) return;
+
+    const items = Array.from(container.querySelectorAll('.grid-item')).filter(i => i.offsetParent !== null);
+    const idx = items.indexOf(el);
+    
+    // حساب عدد الأعمدة بناءً على موضع العناصر في الصفحة
+    const firstItemTop = items[0].getBoundingClientRect().top;
+    const cols = items.filter(item => Math.abs(item.getBoundingClientRect().top - firstItemTop) < 10).length || 1;
+
+    switch(key) {
+        case 'arrowright': 
+            if (idx % cols !== 0) setFocus(items[idx - 1]); 
+            break;
+        case 'arrowleft': 
+            if ((idx + 1) % cols === 0 || idx === items.length - 1) {
+                setFocus(document.querySelector('nav .app-icon.active')); // الذهاب للسايدبار عند نهاية الصف
             } else {
-                const container = activeEl.closest('.grid-container');
-                if (container) {
-                    handleGenericGridNavigation(e, activeEl, container);
-                }
+                setFocus(items[idx + 1]);
             }
-        }
+            break;
+        case 'arrowup': 
+            if (idx >= cols) setFocus(items[idx - cols]); 
+            break;
+        case 'arrowdown': 
+            if (idx + cols < items.length) setFocus(items[idx + cols]); 
+            break;
+        case 'enter': case 'ok': 
+            el.click(); 
+            break;
+    }
+}
 
-        function handleNavSidebarNavigation(e, activeEl) {
-            const icons = Array.from(document.querySelectorAll('nav .app-icon'));
-            const idx = icons.indexOf(activeEl);
-            let nextIdx = -1;
-            switch (e.key.toLowerCase()) {
-                case 'arrowup':
-                    nextIdx = idx > 0 ? idx - 1 : icons.length - 1;
-                    break;
-                case 'arrowdown':
-                    nextIdx = idx < icons.length - 1 ? idx + 1 : 0;
-                    break;
-                case 'arrowright': // In RTL, right arrow should go to main content
-                    const screen = document.querySelector('.app-screen.active');
-                    if (screen) {
-                        const firstItem = screen.querySelector('.grid-item');
-                        if (firstItem) setFocus(firstItem);
-                    }
-                    return;
-                case 'enter': case 'ok':
-                    activeEl.click();
-                    return;
+       function handleNavSidebarNavigation(e, activeEl) {
+    const icons = Array.from(document.querySelectorAll('nav .app-icon'));
+    const idx = icons.indexOf(activeEl);
+    let nextIdx = -1;
+    
+    const key = e.key.toLowerCase();
+
+    switch (key) {
+        case 'arrowup':
+            nextIdx = idx > 0 ? idx - 1 : icons.length - 1;
+            break;
+        case 'arrowdown':
+            nextIdx = idx < icons.length - 1 ? idx + 1 : 0;
+            break;
+        case 'arrowright': // 🚀 الحل هنا: الانتقال للمحتوى
+            const activeScreen = document.querySelector('.app-screen.active');
+            // البحث عن أول كارت أو زر داخل الشاشة
+            const firstContentItem = activeScreen.querySelector('.navigable, .grid-item');
+            if (firstContentItem) {
+                setFocus(firstContentItem);
+                return; // الخروج لمنع تغيير أيقونة التاب
             }
-            if (nextIdx !== -1) setFocus(icons[nextIdx]);
-        }
+            break;
+        case 'enter': case 'ok':
+            activeEl.click();
+            return;
+    }
+    if (nextIdx !== -1) setFocus(icons[nextIdx]);
+}
         
         function handleMediaScreenNavigation(e, activeEl) {
             const searchRow = document.querySelector('#screen-Media .flex.flex-row.items-center.gap-2.grid-container');
