@@ -412,29 +412,29 @@
     </div>
   </div>
 
-  <!-- =========================
-       CDN Libraries (JS)
-       - Bootstrap bundle
-       - Day.js: time
-       - Hammer.js: swipe
-       - Howler: audio abstraction (optional)
-       - MapLibre GL: map
-  ========================== -->
+  export const API = {
+    // استدعاء الفانكشن من المسار الصحيح
+    async fetchWeather(city) {
+        const res = await fetch(`/.netlify/functions/weather?city=${city}`);
+        return await res.json();
+    },
+    async getReminders() {
+        const res = await fetch(`/.netlify/functions/reminders`);
+        return await res.json();
+    }
+};
+  
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/howler@2.2.4/dist/howler.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/howler@2.2.4/dist/howler.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.min.js"></script>
 
-  <!-- App code (ES modules) -->
-  <script type="module" src="/assets/app.js"></script>
-  <script type="module" src="/assets/store.js"></script>
+<script type="module" src="/assets/store.js"></script>
 <script type="module" src="/assets/api.js"></script>
 <script type="module" src="/assets/templates.js"></script>
 <script type="module" src="/assets/ui.js"></script>
-<script src="/apis/reminders.js"></script>
-<script src="/apis/weather.js"></script>
-<script src="/apis/youtube.js"></script>
+<script type="module" src="/assets/app.js"></script>
 
 </body>
 </html>
