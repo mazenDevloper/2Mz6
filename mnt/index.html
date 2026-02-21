@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>CarPlay-like Web UI — Netlify Dynamic</title>
+
+  <!-- =========================
+       CDN Libraries (CSS)
+       - Bootstrap: layout utilities
+       - Font Awesome: icons
+       - MapLibre: real maps without API key
+  ========================== -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/assets/app.css" />
+</head>
+<body>
+  <noscript>لازم تفعّل JavaScript.</noscript>
+
+  <!-- Root shell -->
+  <div class="cp-shell" id="appRoot" aria-label="CarPlay-like shell">
+
+    <!-- Top bar -->
+    <header class="cp-topbar" role="banner">
+      <div class="cp-topbar__left">
+        <div class="cp-pill" title="حالة الاتصال">
+          <span class="cp-dot" id="connDot"></span>
+          <span>اتصال: <strong id="connText">Online</strong></span>
+        </div>
+        <div class="cp-pill" title="الشبكة">
+          <i class="fa-solid fa-signal"></i>
+          <span id="carrierText">LTE</span>
+        </div>
+      </div>
+
+      <div class="cp-topbar__center">
+        <div class="cp-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input id="globalSearch" type="search" placeholder="ابحث: يوتيوب / أماكن / رسائل…" autocomplete="off" />
+          <button class="cp-iconbtn" id="globalSearchBtn" title="بحث">
+            <i class="fa-solid fa-arrow-left"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="cp-topbar__right">
+        <div class="cp-pill" title="GPS">
+          <i class="fa-solid fa-location-dot"></i>
+          <span id="gpsText">GPS</span>
+        </div>
+        <div class="cp-pill" title="الوقت">
+          <i class="fa-regular fa-clock"></i>
+          <strong id="clockText">--:--</strong>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main grid: dock + content -->
+    <div class="cp-main" role="main">
+
+      <!-- Dock (left) -->
+      <nav class="cp-dock" aria-label="Dock">
+        <button class="cp-appbtn is-active" data-view="home" title="الرئيسية">
+          <i class="fa-solid fa-house"></i>
+          <span>Home</span>
+        </button>
+        <button class="cp-appbtn" data-view="maps" title="الخرائط">
+          <i class="fa-solid fa-map"></i>
+          <span>Maps</span>
+        </button>
+        <button class="cp-appbtn" data-view="music" title="الموسيقى">
+          <i class="fa-solid fa-music"></i>
+          <span>Music</span>
+        </button>
+        <button class="cp-appbtn" data-view="weather" title="الطقس">
+          <i class="fa-solid fa-cloud-sun"></i>
+          <span>Weather</span>
+        </button>
+        <button class="cp-appbtn" data-view="reminders" title="التذكيرات">
+          <i class="fa-regular fa-circle-check"></i>
+          <span>Rem</span>
+        </button>
+        <button class="cp-appbtn" data-view="messages" title="الرسائل">
+          <i class="fa-solid fa-comment-dots"></i>
+          <span>Msgs</span>
+        </button>
+        <button class="cp-appbtn" data-view="phone" title="الهاتف">
+          <i class="fa-solid fa-phone"></i>
+          <span>Phone</span>
+        </button>
+        <button class="cp-appbtn" data-view="settings" title="الإعدادات">
+          <i class="fa-solid fa-gear"></i>
+          <span>Set</span>
+        </button>
+      </nav>
+
+      <!-- Content container -->
+      <section class="cp-content" aria-label="Content">
+
+        <!-- Toast -->
+        <div class="cp-toast" id="toast" role="status" aria-live="polite" aria-atomic="true">
+          <div class="cp-card cp-toast__card">
+            <div class="cp-toast__icon"><i class="fa-solid fa-bell"></i></div>
+            <div class="cp-toast__body">
+              <div class="cp-toast__row">
+                <strong id="toastTitle">تنبيه</strong>
+                <span id="toastTime" class="cp-muted">الآن</span>
+              </div>
+              <div id="toastMsg" class="cp-muted">…</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Views (single-page) -->
+        <div class="cp-view is-active" id="view-home" data-view-root>
+          <div class="cp-view__head">
+            <div>
+              <h2>الرئيسية</h2>
+              <p class="cp-muted">واجهة ديناميك + Netlify Functions (بدون مفاتيح في المتصفح)</p>
+            </div>
+            <div class="cp-chip" id="syncChip"><i class="fa-solid fa-rotate"></i> Sync</div>
+          </div>
+
+          <div class="cp-grid">
+            <div class="cp-col">
+              <div class="cp-card">
+                <div class="cp-card__row">
+                  <div>
+                    <div class="cp-muted">Now Playing</div>
+                    <div class="cp-h" id="homeNowTitle">—</div>
+                    <div class="cp-muted" id="homeNowMeta">—</div>
+                  </div>
+                  <button class="cp-pillbtn" id="homePlayBtn">
+                    <i class="fa-solid fa-play" id="homePlayIcon"></i>
+                    <span id="homePlayText">تشغيل</span>
+                  </button>
+                </div>
+                <div class="cp-progress"><div id="homeProg"></div></div>
+              </div>
+
+              <div class="cp-card">
+                <div class="cp-card__row">
+                  <div>
+                    <div class="cp-muted">Weather</div>
+                    <div class="cp-h" id="homeWeather">—</div>
+                    <div class="cp-muted" id="homeWeatherMeta">—</div>
+                  </div>
+                  <button class="cp-pillbtn" id="homeWeatherRefresh"><i class="fa-solid fa-arrows-rotate"></i> تحديث</button>
+                </div>
+              </div>
+
+              <div class="cp-card">
+                <div class="cp-card__head">
+                  <h3>آخر التذكيرات</h3>
+                  <div class="cp-muted">من JSONBin (عبر Proxy)</div>
+                </div>
+                <div class="cp-list" id="homeRemindersList"></div>
+              </div>
+            </div>
+
+            <div class="cp-col">
+              <div class="cp-card">
+                <div class="cp-card__head">
+                  <h3>Quick Search (YouTube)</h3>
+                  <div class="cp-muted">بيستخدم Key Pool داخل Netlify Function</div>
+                </div>
+                <div class="cp-inline">
+                  <input class="cp-input" id="ytQuickQ" placeholder="اكتب كلمة…" />
+                  <button class="cp-btn" id="ytQuickBtn"><i class="fa-brands fa-youtube"></i> بحث</button>
+                </div>
+                <div class="cp-list" id="ytQuickList"></div>
+              </div>
+
+              <div class="cp-card">
+                <div class="cp-card__head">
+                  <h3>Inbox</h3>
+                  <div class="cp-muted">ديناميك (JSONBin أو Local fallback)</div>
+                </div>
+                <div class="cp-list" id="homeInbox"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cp-view" id="view-maps">
+          <div class="cp-view__head">
+            <div>
+              <h2>الخرائط</h2>
+              <p class="cp-muted">MapLibre + OSM بدون API Key</p>
+            </div>
+            <div class="cp-inline">
+              <input class="cp-input" id="mapsQuery" placeholder="بحث مكان (placeholder)…" />
+              <button class="cp-btn" id="mapsGo"><i class="fa-solid fa-route"></i> Go</button>
+            </div>
+          </div>
+
+          <div class="cp-card cp-mapwrap">
+            <div id="map" class="cp-map"></div>
+            <div class="cp-mapHud">
+              <div class="cp-chip"><i class="fa-solid fa-location-arrow"></i> <span id="mapHudText">جاهز</span></div>
+              <button class="cp-iconbtn" id="mapCenter" title="مركز"><i class="fa-solid fa-crosshairs"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="cp-view" id="view-music">
+          <div class="cp-view__head">
+            <div>
+              <h2>الموسيقى</h2>
+              <p class="cp-muted">بحث يوتيوب (metadata) + مشغل بسيط</p>
+            </div>
+            <div class="cp-inline">
+              <input class="cp-input" id="ytQ" placeholder="ابحث على يوتيوب…" />
+              <button class="cp-btn" id="ytBtn"><i class="fa-brands fa-youtube"></i> بحث</button>
+            </div>
+          </div>
+
+          <div class="cp-grid cp-grid--music">
+            <div class="cp-card">
+              <div class="cp-card__head">
+                <h3>Now Playing</h3>
+                <div class="cp-muted" id="npMeta">—</div>
+              </div>
+
+              <div class="cp-now">
+                <div class="cp-album" id="npThumb" aria-label="Artwork"></div>
+                <div>
+                  <div class="cp-h" id="npTitle">—</div>
+                  <div class="cp-muted" id="npChannel">—</div>
+                  <div class="cp-controls">
+                    <button class="cp-iconbtn" id="npPrev" title="السابق"><i class="fa-solid fa-backward-step"></i></button>
+                    <button class="cp-btn" id="npPlay"><i class="fa-solid fa-play" id="npPlayIcon"></i> <span id="npPlayText">تشغيل</span></button>
+                    <button class="cp-iconbtn" id="npNext" title="التالي"><i class="fa-solid fa-forward-step"></i></button>
+                    <button class="cp-iconbtn" id="npShuffle" title="عشوائي"><i class="fa-solid fa-shuffle"></i></button>
+                  </div>
+                  <div class="cp-progress"><div id="npProg"></div></div>
+                </div>
+              </div>
+
+              <div class="cp-card__foot cp-muted">
+                ملاحظة: تشغيل يوتيوب مباشرة داخل Car UI ليه قيود؛ إحنا هنا بنجيب metadata وبنعرض embed عند الطلب.
+              </div>
+            </div>
+
+            <div class="cp-card">
+              <div class="cp-card__head">
+                <h3>نتائج البحث</h3>
+                <div class="cp-muted" id="ytStatus">—</div>
+              </div>
+              <div class="cp-list" id="ytList"></div>
+            </div>
+
+            <div class="cp-card">
+              <div class="cp-card__head">
+                <h3>Preview</h3>
+                <div class="cp-muted">Embed</div>
+              </div>
+              <div class="cp-embed" id="ytEmbed">
+                <div class="cp-muted">اختار فيديو…</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cp-view" id="view-weather">
+          <div class="cp-view__head">
+            <div>
+              <h2>الطقس</h2>
+              <p class="cp-muted">WeatherAPI عبر Netlify Function</p>
+            </div>
+            <div class="cp-inline">
+              <input class="cp-input" id="weatherCity" placeholder="مدينة…" value="Cairo" />
+              <button class="cp-btn" id="weatherBtn"><i class="fa-solid fa-cloud"></i> تحديث</button>
+            </div>
+          </div>
+
+          <div class="cp-grid cp-grid--weather">
+            <div class="cp-card">
+              <div class="cp-card__head">
+                <h3>الحالة الآن</h3>
+                <div class="cp-muted" id="wMeta">—</div>
+              </div>
+              <div class="cp-weatherNow">
+                <div class="cp-weatherBig" id="wTemp">—</div>
+                <div>
+                  <div class="cp-h" id="wCond">—</div>
+                  <div class="cp-muted" id="wMore">—</div>
+                </div>
+              </div>
+            </div>
+            <div class="cp-card">
+              <div class="cp-card__head">
+                <h3>تفاصيل</h3>
+                <div class="cp-muted">(ديناميك)</div>
+              </div>
+              <div class="cp-kv" id="wKv"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cp-view" id="view-reminders">
+          <div class="cp-view__head">
+            <div>
+              <h2>التذكيرات</h2>
+              <p class="cp-muted">CRUD حقيقي (JSONBin) + Offline cache</p>
+            </div>
+            <div class="cp-inline">
+              <button class="cp-btn" id="remNew"><i class="fa-solid fa-plus"></i> جديد</button>
+              <button class="cp-btn" id="remSync"><i class="fa-solid fa-rotate"></i> Sync</button>
+            </div>
+          </div>
+
+          <div class="cp-card">
+            <div class="cp-list" id="remList"></div>
+          </div>
+        </div>
+
+        <div class="cp-view" id="view-messages">
+          <div class="cp-view__head">
+            <div>
+              <h2>الرسائل</h2>
+              <p class="cp-muted">ديناميك (JSONBin) + إرسال محلي</p>
+            </div>
+            <div class="cp-inline">
+              <input class="cp-input" id="msgTo" placeholder="إلى…" />
+              <input class="cp-input" id="msgText" placeholder="رسالة…" />
+              <button class="cp-btn" id="msgSend"><i class="fa-solid fa-paper-plane"></i> إرسال</button>
+            </div>
+          </div>
+
+          <div class="cp-card">
+            <div class="cp-list" id="msgList"></div>
+          </div>
+        </div>
+
+        <div class="cp-view" id="view-phone">
+          <div class="cp-view__head">
+            <div>
+              <h2>الهاتف</h2>
+              <p class="cp-muted">سجل المكالمات (JSONBin/Local)</p>
+            </div>
+            <div class="cp-inline">
+              <input class="cp-input" id="callName" placeholder="اسم…" />
+              <button class="cp-btn" id="callAdd"><i class="fa-solid fa-phone"></i> إضافة</button>
+            </div>
+          </div>
+
+          <div class="cp-card">
+            <div class="cp-list" id="callList"></div>
+          </div>
+        </div>
+
+        <div class="cp-view" id="view-settings">
+          <div class="cp-view__head">
+            <div>
+              <h2>الإعدادات</h2>
+              <p class="cp-muted">Accent + اتصال + وضع Offline</p>
+            </div>
+            <div class="cp-inline">
+              <button class="cp-btn" id="testToast"><i class="fa-solid fa-bell"></i> Test Toast</button>
+              <button class="cp-btn" id="clearCache"><i class="fa-solid fa-trash"></i> Clear Cache</button>
+            </div>
+          </div>
+
+          <div class="cp-grid cp-grid--settings">
+            <div class="cp-card">
+              <div class="cp-card__head">
+                <h3>الألوان</h3>
+                <div class="cp-muted">اختار Accent</div>
+              </div>
+              <div class="cp-swatches">
+                <button class="cp-swatch" data-accent="#4aa3ff" style="--sw:#4aa3ff" title="أزرق"></button>
+                <button class="cp-swatch" data-accent="#30d158" style="--sw:#30d158" title="أخضر"></button>
+                <button class="cp-swatch" data-accent="#ff9f0a" style="--sw:#ff9f0a" title="برتقالي"></button>
+                <button class="cp-swatch" data-accent="#ff453a" style="--sw:#ff453a" title="أحمر"></button>
+                <button class="cp-swatch" data-accent="#bf5af2" style="--sw:#bf5af2" title="بنفسجي"></button>
+              </div>
+            </div>
+
+            <div class="cp-card">
+              <div class="cp-card__head">
+                <h3>حالة النظام</h3>
+                <div class="cp-muted">Debug</div>
+              </div>
+              <div class="cp-kv" id="sysKv"></div>
+            </div>
+
+            <div class="cp-card">
+              <div class="cp-card__head">
+                <h3>ملاحظات أمان</h3>
+                <div class="cp-muted">مهم</div>
+              </div>
+              <div class="cp-muted" style="line-height:1.8;">
+                متحطّش أي API Key في الكلاينت. استخدم Netlify Environment Variables + Functions.
+                لو مفاتيحك اتنشرت قبل كده، اعمل Rotate/Regenerate فورًا.
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </div>
+  </div>
+
+  <!-- =========================
+       CDN Libraries (JS)
+       - Bootstrap bundle
+       - Day.js: time
+       - Hammer.js: swipe
+       - Howler: audio abstraction (optional)
+       - MapLibre GL: map
+  ========================== -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/howler@2.2.4/dist/howler.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.min.js"></script>
+
+  <!-- App code (ES modules) -->
+  <script type="module" src="/assets/app.js"></script>
+</body>
+</html>
