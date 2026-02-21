@@ -1,7 +1,7 @@
 // أوقات الصلاة والتذكيرات
 // ملف: prayer.js
 
-const prayerTimes = [
+export const prayerTimes = [
     {"date":"2026-02-01","day":"الأحد","fajr":"05:41","sunrise":"06:55","dhuhr":"12:42","asr":"15:59","maghrib":"18:24","isha":"19:34"},
     {"date":"2026-02-02","day":"الاثنين","fajr":"05:41","sunrise":"06:55","dhuhr":"12:42","asr":"15:59","maghrib":"18:25","isha":"19:34"},
     {"date":"2026-02-03","day":"الثلاثاء","fajr":"05:40","sunrise":"06:55","dhuhr":"12:42","asr":"15:59","maghrib":"18:25","isha":"19:34"},
