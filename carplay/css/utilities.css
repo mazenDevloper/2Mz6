@@ -1,0 +1,820 @@
+/* تنسيقات إضافية وأدوات مساعدة */
+
+/* ===== CSS Block 1 ===== */
+
+        /* إخفاء العناصر افتراضياً */
+#bottom-left-controls {
+    display: none !important;
+}
+
+
+/* إخفاء السكرول بار لمنع تشتيت المستخدم */
+.tab-content, .reader-container {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+}
+
+
+div#universal-date-display>.date-wrapper>span.day-highlight {
+    font-size:3.4rem!important;
+}
+
+
+div#universal-date-display>.date-wrapper>.date-details {
+      font-size:3.4rem!important;
+}
+
+
+.date-wrapper>span.day-highlight {
+    font-size:1.8rem!important;
+    color:white;
+}
+
+
+.date-wrapper>.date-details {
+      font-size:1.3rem!important;
+    color:white;
+}
+
+
+.gmnoprint.gm-bundled-control.gm-bundled-control-on-bottom {
+    bottom: 16rem!important;
+}
+
+
+span#carplay-weather-temp-big {
+    background: #ffffffb0;
+    -webkit-background-clip: text;
+    position: fixed;
+}
+
+/* تحرير الحاوية الرئيسية للمقترحات */
+.suggestions-main-wrapper {
+    overflow: visible !important; /* السماح بالبروز فوق أزرار الإغلاق وغيرها */
+    width: 100%;
+}
+
+
+/* حاوية العرض التي تسمح بالسكرول */
+.scroll-viewport {
+    width: 200vw !important; /* جعل العرض بكامل شاشة النافذة */
+    margin-left: calc(-68vw + -100%); /* تقنية لتوسيط الحاوية وتوسيعها */
+    overflow-x: auto !important;
+    overflow-y: visible !important; /* أهم سطر للسماح للكروت بالخروج للأعلى والأسفل */
+    padding: 40px 0 !important; /* مساحة كافية للتكبير (Hover) */
+    scrollbar-width: none; /* إخفاء السكرول في فيرفوكس */
+}
+
+
+.scroll-viewport::-webkit-scrollbar {
+    display: none; /* إخفاء السكرول في كروم */
+}
+
+    .scroll-viewport::-webkit-scrollbar {
+    display: none; /* إخفاء في Chrome و Safari */
+}
+
+.scroll-viewport {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+
+/* 🛑 تطبيق قواعد الإخفاء على العناصر الداخلية */
+h6.mb-0.text-truncate,
+.video-details.flex-grow-1,
+.flex.flex-col.flex-grow.min-w-0.h-full.justify-between.ml-2 {
+    display: none !important;
+}
+
+}
+
+
+/* لسطرين إذا كان النص قصيراً */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    white-space: normal !important;
+}
+
+
+.flex.flex-col.flex-grow.min-w-0.h-full.justify-between.ml-2 {
+    display: none;
+}
+
+
+img.w-full.h-full.object-contain.p-1 {
+    width: 65px!important;
+}
+
+
+#bottom-left-controls {
+    /* تم تعيين الأنماط inline في HTML لتكون أكثر وضوحاً، ولكن هذه هي القواعد الأساسية: */
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding: 10px;
+}
+
+
+h4.font-semibold.text-sm.truncate.text-white {
+    font-weight: bold;
+    font-size: 0.9rem;
+    margin-bottom: 0.1rem;
+    z-index: 1000;
+}
+
+
+span.text-xs.text-white\/50.flex-shrink-0 {
+    position: absolute;
+    bottom: 2px;
+}
+
+
+#universal-date-display {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 0;
+    margin-top: auto; /* يدفعه لأسفل الحاوية */
+    clear: both;
+}
+
+
+.day-highlight {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 4px;
+}
+
+
+.separator {
+    color: #a855f7;
+    font-weight: bold;
+}
+
+
+.hijri-text {
+    color: #c084fc; /* لون الهجري المميز */
+}
+
+    .separator {
+        display: none;
+    }
+
+}
+
+/* 🚀 تنسيق الزر النشط (Active Rate Style) - CRITICAL */
+
+
+div#channel-search-results {
+    width: 100%;
+}
+
+
+img#dash-nasa-moon {
+    HEIGHT: 9REM;
+    WIDTH: 9REM;
+}
+
+
+/* 🛑 ألوان حالة الازدحام (تم تعريفها في JavaScript) */
+.traffic-green { background-color: #10B981; color: white; }
+
+.traffic-yellow { background-color: #FBBF24; color: black; }
+
+.traffic-red { background-color: #EF4444; color: white; }
+
+.traffic-unknown { background-color: #6B7280; color: white; }
+
+
+/* 4. إخفاء الفاصل المركزي */
+#direction-controls-3d .center-spacer {
+    display: none;
+}
+
+/* CRITICAL: The class that forces the section to cover the viewport 
+*/
+  .reader-container {
+    direction: rtl!important;
+}
+
+
+section#screen-Reciters {
+    HEIGHT: 100% ! IMPORTANT;
+    PADDING: 1px;
+    MARGIN: 0px;
+}
+
+ .tabs-container.flex.p-1.rounded-full.bg-black\/20.self-center {
+    bottom: 51px!important;
+    left: 99px!important;
+    position: fixed!important;
+     z-index: 1000!important;
+}
+
+.flex.gap-2.mt-2.homebtn {
+    display: none;
+}
+
+.video-meta>div>div>img {
+    width: 37px!important;
+    height: 37px!important;
+    border-radius: 70px!important;
+}
+
+.video-meta>div {justify-content: right;font-size:1.3rem;}
+
+.video-meta>span {justify-content: right;font-size:1.2rem;}
+
+
+h3.video-title {
+    text-align-last: right;
+    font-size:1.3rem;
+}
+
+section#screen-Map {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Hides scrollbar for Chrome, Safari, and Opera */
+.last-watched-slides-container::-webkit-scrollbar {
+    display: none;
+}
+
+div#youtube-suggestions {
+    overflow: clip;
+}
+
+
+/* Ensure text doesn't wrap and overflow awkwardly */
+.last-watched-slide h3, .last-watched-slide p {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.favorites-menu.show {
+    display: block;
+}
+
+/* --- END: Bookmark Styles --- */
+
+div#tv{display:none;}
+
+div#geolocation-error-overlay {
+    display: none !important;
+}
+
+
+.search-results-nav {
+    width: 50%;
+    justify-self: center;
+}
+
+
+
+
+ .flex.flex-wrap.justify-center.gap-2.w-full {zoom: 0.85;}
+
+        
+div#hourly-forecast-container {
+    min-height: 93px;
+}
+
+
+.flex.items-center.justify-between.w-full.gap-2 {
+    direction: rtl;
+}
+
+.bg-black2 {
+    background-image: linear-gradient(45deg, #000000, #6f6f6f39)!important;
+}
+
+        /* Ensure RTL direction for specific elements if needed */
+        div#youtube-video-list-view, div#youtube-search-results-view {
+            direction: rtl;
+        }
+
+        div#youtube-readers-section {
+            direction: rtl;
+        }
+
+       
+        div#quran-quick-access {
+            display: none !important;
+        }
+
+
+        .h-full {
+            height: 97% !important;
+        }
+
+
+        div#youtube-search-results-view {
+    overflow: scroll;
+}
+
+        div#geares {
+    height: 114px;
+}
+
+        }
+
+        }
+
+
+
+section#screen-Map>.w-full.h-full.bg-black2.rounded-3xl.flex.items-center.justify-center.p-1.overflow\:hidden {
+   
+ /* 2. إعدادات الحد الأساسية */
+    border: 3px solid transparent; /* 🛑 هام: يجب تحديد عرض الحد */
+    border-radius: 1.5rem; /* يجب أن يتطابق مع تصميمك */
+    
+    /* 3. تطبيق الحد المتدرج (Gradient Border) */
+    border-image: linear-gradient(45deg, #00ffff05,#00ffff99 15%, #8a2be200, #ff00ffd9,#00ffff99 , #000000) 1;
+    /* الشرح:
+      linear-gradient(45deg, #00FFFF, #8A2BE2, #FF00FF, #000000): يحدد الألوان.
+      1: يحدد عرض شريحة الحد (slice width).
+    */
+    
+    /* 4. التأكد من أن الخلفية لا تمتد عبر الحد */
+    background-clip: padding-box;
+}
+
+
+
+
+
+.w-full.h-full.bg-black2.rounded-3xl.flex.items-center.justify-center.p-1.overflow\:hidden {}
+
+  50% {
+    background-position: 65.0118% 50%;
+  }
+
+    0% {
+    background-position: 29.0118% 50%;
+  }
+
+        }
+
+        .app-screen.active {
+            display: flex; /* Display when active */
+        }
+
+        }
+
+        
+        /* Styling for iframes to fit their containers */
+        .full-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 1.5rem;
+        }
+
+
+        .homebtn{display:none}
+
+
+        /* Shrink content when in pseudo-fullscreen mode for better fit */
+        #carplay-main-interface.carplay-pseudo-fullscreen #digital-time {
+            font-size: 2.2rem !important;
+        }
+
+        #carplay-main-interface.carplay-pseudo-fullscreen #weather-temp-main {
+            font-size: 4rem !important;
+        }
+
+
+        /* Scrollbar styling for better aesthetics */
+        ::-webkit-scrollbar { width: 5px; }
+
+        ::-webkit-scrollbar-track { background: transparent; }
+
+        .watched-progress-bar {
+            height: 100%;
+            background-color: #ef4444; /* Red color */
+            border-radius: 0 2px 2px 0;
+        }
+
+        .video-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: white;
+            line-height: 1.3;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .video-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 4px; /* Gap between channel line and stats line */
+            font-size: 0.8rem;
+            color: #a7f3d0; /* A minty color, less harsh than cyan */
+            font-weight: 500;
+        }
+
+
+        /* NEW: Explicit scrollbar for search results */
+        #search-results-container::-webkit-scrollbar {
+            width: 8px;
+            display: block; /* Ensure it's always displayed */
+        }
+
+        /* UPDATED: Reader container is now a grid */
+        .reader-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); /* MODIFIED: Responsive columns */
+            overflow-y: auto;
+            padding-bottom: 1rem;
+            gap: 1.25rem; /* MODIFIED: Increased gap */
+            direction: ltr;
+            max-height: 45vh; /* MODIFIED: Increased height */
+            width: 100%; /* MODIFIED: Ensure full width */
+        }
+
+        .reader-container::-webkit-scrollbar { display: block; }
+
+        .reader-container { -ms-overflow-style: auto; scrollbar-width: thin; }
+
+        
+        /* NEW: Style for the Surah name text to handle long names */
+        .surah-name-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: right; /* Align text to the right for RTL */
+        }
+
+
+        /* YouTube Suggestion Category Tag */
+        .youtube-suggestion-category-tag {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 0.5rem;
+            align-self: flex-start;
+        }
+
+
+/* ملاحظة: قد تحتاج إلى التأكد من أن العنصر الأبوي:
+   #tabs-content-container-surah
+   يحتوي على height: 100% أو flex-grow ليعطي مساحة كافية. 
+*/
+#tabs-content-container-surah {
+    height: 100%; /* تأكيد أن الحاوية الأبوية تعطي الارتفاع الكامل */
+    display: flex;
+    flex-direction: column;
+}
+
+        .tab-content {
+            width: 100%;
+            height: 100%;
+        }
+
+        .tab-content.hidden {
+            display: none;
+        }
+
+
+
+        /* Dashboard Logo Effect */
+        .metallic-logo-effect {
+            width: 300px;
+            height: auto;
+            margin-bottom: 1rem;
+            filter: grayscale(100%) brightness(30%);
+        }
+
+
+        .speed-display {
+            font-size: 2.5rem;
+            line-height: 1;
+        }
+
+
+        .rpm-display {
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+
+
+        .gear-indicator {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #10b981;
+        }
+
+
+        div#youtube-suggestions {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+
+div#\33 d-screen-gear {
+    font-size: 2.7rem;
+}
+
+
+/* NEW: Style for direction indicator */
+div#\33 d-screen-dir {
+    font-size: 2.7rem;
+}
+
+
+
+div#youtube-readers-section {
+    height: 100%;
+}
+
+
+section#screen-Media {
+    height: 101%!important;
+    padding: 0px!important;
+    overflow-y: auto;
+    background: #000000b5;
+}
+
+        .car-cam-360-container img {
+            height: 160% !important;
+            width: 100%; 
+            object-fit: cover;
+        }
+
+        .car-cam-360-controls {
+            position: absolute;
+            bottom: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            z-index: 20;
+        }
+
+
+
+        /* Digital Clock Styles (Apple iOS 19 style) */
+        #digital-time {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: baseline;
+            gap: 0.2rem;
+            direction: ltr; /* FIX: Enforce LTR for correct HH:MM:SS order */
+        }
+
+        #digital-time .hours { opacity: 1; }
+
+        #digital-time .minutes { opacity: 0.8; }
+
+       #digital-time .seconds {
+    opacity: 0.6;
+    font-size: 2.2rem;
+}
+
+
+        /* Updated #digital-date styles based on user request */
+        #digital-date {
+            font-size: 1.2rem;
+            color: rgb(255 255 255 / 99%);
+            font-weight: bold;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        /* Countdown to Azan */
+        .countdown-azan {
+            color: cyan !important;
+        }
+
+        /* Countdown to Iqama */
+        .countdown-iqama {
+            color: orange !important;
+        }
+
+        /* Count-up after Iqama */
+        .countdown-up {
+            color: #98FB98 !important; /* PaleGreen, close to lightmint */
+        }
+
+        input[type="range"]:hover { opacity: 1; }
+
+        }
+
+        
+        /* NEW: Style for the Surah name text to handle long names */
+        .surah-name-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: right; /* Align text to the right for RTL */
+        }
+
+
+div#youtube-surah-section {
+    min-height: 547px;
+}
+
+
+span.surah-name-text {
+    font-size: 1rem;
+}
+
+        
+        /* NEW: Style for the Surah name text to handle long names */
+        .surah-name-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: right; /* Align text to the right for RTL */
+        }
+
+        }
+
+          #digital-time .hours { font-size: 2.2rem; }
+
+        #digital-time .minutes { font-size: 2.2rem; }
+
+       #digital-time .seconds { 
+    font-size: 1.8rem;
+}
+
+
+
+div#bottom-left-controls {
+    left: 90px!important;
+}
+
+        img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
+            position: fixed;
+        }
+
+        /* Prayer Times Specific Styles */
+        .prayer-times-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.75rem;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+
+        /* --- START: Islamic Daily Reminders Styles (MODIFIED) --- */
+
+.reminders-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 48%); /* عمودين بعرض 48% لكل منهما */
+    justify-content: center; /* توسيط العمودين في الحاوية */
+    gap: 1rem;
+    width: 100%;
+    height: 100%;
+    align-content: center; 
+    padding: 1rem; 
+}
+
+
+.reminder-item.active .icon {
+    color: #5eead4; 
+}
+
+
+.reminder-item.active .text {
+    color: #ffffff; 
+}
+
+.reminder-item.upcoming .icon {
+    color: #fdba74; /* Light orange icon */
+}
+
+.reminder-item.upcoming .text {
+    color: #ffffff; /* White text for contrast */
+}
+
+.reminder-item.completed .icon {
+    color: #4ade80; /* Green check icon */
+}
+
+.reminder-item.missed .icon {
+    color: #fca5a5; /* Light red icon */
+}
+
+.reminder-item.missed .text {
+    color: #ffffff; /* White text for contrast */
+}
+
+.reminder-status-dropdown.show {
+    display: block;
+}
+
+/* ▲▲▲ END: New Styles ▲▲▲ */
+
+
+/* --- END: Islamic Daily Reminders Styles (MODIFIED) --- */
+        /* OBD-II Specific Styles */
+        .obd-data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            width: 100%;
+        }
+
+
+div#youtube-surah-section {
+    min-height: 547px;
+}
+
+
+span.surah-name-text {
+    font-size: 1rem;
+}
+
+
+.w-full.h-full.bg-black2.rounded-3xl.flex.items-center.justify-center.p-1.overflow\:hidden {
+    background: linear-gradient(45deg, black, #00000024) ;
+}
+
+
+section#screen-Map>.w-full.h-full.bg-black2.rounded-3xl.flex.items-center.justify-center.p-1.overflow\:hidden {
+    background: linear-gradient(45deg, black, transparent);!important}
+
+
+  #digital-time .hours { font-size: 3.2rem; }
+
+        #digital-time .minutes { font-size: 3.2rem; }
+
+       #digital-time .seconds { 
+    font-size: 2.5rem;
+}
+
+           
+     .flex.gap-2.mt-2.homebtn {
+    display: none;
+}
+
+            #gregorian-date { font-size: 1.6rem; font-weight: 700; } /* Increased font size and made bold */
+
+            #hijri-date { font-size: 1.6rem; opacity: 0.9; font-weight: 700;padding:0px;margin:0px} /* Increased font size and made bold */
+
+
+            /* NEW: Larger clock on desktop */
+            #digital-time {
+                font-size: 3rem !important;
+            }
+
+                              /* إخفاء أيقونة خريطة الـ 3D من شريط التنقل */
+            #car-360-image {
+                visibility: hidden;
+            }
+
+            div#tv{display:block;background:#00000050}
+
+
+            .car-cam-360-container {
+                background-image: url('https://dmusera.netlify.app/tv-cont.png');
+                background-size: cover;
+                background-position: center center;
+                background-repeat: no-repeat;
+            }
+
+            /* إخفاء شعار لكزس على الشاشات الأوسع */
+            img[src*="Lexus-Logo.wine.svg"] {
+                display: none !important;
+            }
+
+        }
+
+            [data-app="Map"],                  /* إخفاء أيقونة خريطة الـ 3D من شريط التنقل */
+            #car-360-image {
+                display:none
+            }
+
+       .flex.gap-2.mt-2.homebtn {
+    display: block;
+}
+
+div#map{display:none}
+
+
+            div#tv{display:block;background:#00000050}
+
+        }

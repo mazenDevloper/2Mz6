@@ -1,0 +1,2800 @@
+/* ===== CSS Block 1 ===== */
+
+        /* إخفاء العناصر افتراضياً */
+#bottom-left-controls {
+    display: none !important;
+}
+/* تمييز الكارت المختار */
+.grid-item:focus, .navigable:focus {
+    transform: scale(1.08) !important;
+    border: 3px solid #0A84FF !important; /* أزرق CarPlay */
+    box-shadow: 0 0 20px rgba(10, 132, 255, 0.6) !important;
+    z-index: 100;
+}
+
+/* إخفاء السكرول بار لمنع تشتيت المستخدم */
+.tab-content, .reader-container {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+/* تنسيق الأرقام العملاقة داخل الكروت */
+.carousel-slide span[id*="-day-big"], 
+#carplay-weather-temp-big {
+    font-size: 5rem; /* حجم ضخم */
+    font-weight: 900;
+    line-height: 1;
+    display: block;
+    background: linear-gradient(to bottom, #ffffff, #a5a5a5);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+}
+
+/* Prevent focus ring clipping in scrolled containers */
+.favorites-dashboard-horizontal-scroll, 
+.scroll-viewport {
+    overflow-y: visible !important;
+    padding-top: 15px !important;
+    padding-bottom: 15px !important;
+}
+
+/* Clear visual indicator for Remote users */
+.navigable:focus {
+    transform: scale(1.1) translateY(-5px) !important;
+    outline: 4px solid #0A84FF !important;
+    z-index: 100 !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+}
+
+div#weather-widget-container {
+    padding: 1.2px!important;
+}
+
+.absolute.bg-black\/70.backdrop-blur-md.p-3.min-h-\[40\%\].flex.items-center.overflow-hidden {
+    width: 100%;
+    bottom: 0px;
+    height: 20%;
+}
+
+
+/* تنسيق أسماء الشهور تحت الأرقام */
+.carousel-slide span[id*="-month-text"] {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.8);
+    margin-top: -5px;
+}
+
+#carplay-carousel-container {
+    perspective: 1000px;
+}
+
+.grid.grid-cols-3.gap-1.w-full.mt-1 {
+    margin-top: 4.25rem!important;
+}
+
+span#greg-day-num {
+    transform: scale(2);
+    filter: none!important;
+    opacity: 70%;
+}
+
+
+
+div#weather-widget-container {
+    width: 100% !important;
+    height:40%  !important;
+}
+
+.carousel-slide, .carousel-slide-dash {
+    position: absolute !important;
+    inset: 0;
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), 
+                transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.95) translateY(10px);
+}
+
+.carousel-slide.active, .carousel-slide-dash.active {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1) translateY(0);
+    z-index: 10;
+}
+
+
+.carousel-slide.hidden , .carousel-slide-dash.hidden {
+    display: none;
+}
+
+#carplay-mini-map, #video-popup-container {
+    transform: translateZ(0); /* هذا السطر السحري يعزل العنصر في طبقة GPU خاصة */
+    backface-visibility: hidden;
+    perspective: 1000;
+}
+#screen-DashboardCarPlay .glass-surface {
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+}
+#dashboard-google-map {
+    /* يمنع الوميض أثناء الدوران السريع */
+    backface-visibility: hidden;
+    transform: translate3d(0, 0, 0);
+    -webkit-perspective: 1000;
+}
+
+#screen-DashboardCarPlay .navigable:focus {
+    transform: scale(1.02);
+    border: 2px solid rgba(255, 255, 255, 0.5) !important;
+    box-shadow: 0 0 40px rgba(59, 130, 246, 0.4) !important;
+}
+
+@keyframes pulse-slow {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.02); opacity: 0.9; }
+}
+
+.animate-pulse-slow {
+    animation: pulse-slow 4s infinite ease-in-out;
+}
+
+#carplay-prayer-mini-grid .prayer-item {
+    background: rgba(255,255,255,0.03);
+    border-radius: 1rem;
+    padding: 8px;
+    text-align: center;
+}
+
+/* 1. إظهار أزرار التحكم اليسرى (Pause, Zoom) فقط في شاشة الراديو */
+body.app-Radio-active #bottom-left-controls {
+    display: flex !important;
+}
+
+/* 2. إظهار أزرار KEY 1/2 (فحص المفاتيح) فقط في الداشبورد */
+body.app-Dashboard-active #manual-key-switcher {
+    display: flex !important;
+}
+
+/* 3. إظهار الكبسولة الصوتية في كل مكان ماعدا شاشة الميديا (إذا كانت كبيرة) */
+body.app-Media-active #floating-minimized-video-button {
+    opacity: 0.1; /* جعلها شفافة جداً في الميديا لكي لا تحجب التابات */
+    pointer-events: none;
+}
+
+div#universal-date-display>.date-wrapper>span.day-highlight {
+    font-size:3.4rem!important;
+}
+
+div#universal-date-display>.date-wrapper>.date-details {
+      font-size:3.4rem!important;
+}
+
+.date-wrapper>span.day-highlight {
+    font-size:1.8rem!important;
+    color:white;
+}
+
+.date-wrapper>.date-details {
+      font-size:1.3rem!important;
+    color:white;
+}
+
+.gmnoprint.gm-bundled-control.gm-bundled-control-on-bottom {
+    bottom: 16rem!important;
+}
+
+span#carplay-weather-temp-big {
+    background: #ffffffb0;
+    -webkit-background-clip: text;
+    position: fixed;
+}
+/* تحرير الحاوية الرئيسية للمقترحات */
+.suggestions-main-wrapper {
+    overflow: visible !important; /* السماح بالبروز فوق أزرار الإغلاق وغيرها */
+    width: 100%;
+}
+
+/* حاوية العرض التي تسمح بالسكرول */
+.scroll-viewport {
+    width: 200vw !important; /* جعل العرض بكامل شاشة النافذة */
+    margin-left: calc(-68vw + -100%); /* تقنية لتوسيط الحاوية وتوسيعها */
+    overflow-x: auto !important;
+    overflow-y: visible !important; /* أهم سطر للسماح للكروت بالخروج للأعلى والأسفل */
+    padding: 40px 0 !important; /* مساحة كافية للتكبير (Hover) */
+    scrollbar-width: none; /* إخفاء السكرول في فيرفوكس */
+}
+
+.scroll-viewport::-webkit-scrollbar {
+    display: none; /* إخفاء السكرول في كروم */
+}
+
+/* ضمان أن الحاوية الداخلية لا تقص المحتوى */
+#favorites-popup-grid {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 25px !important;
+    padding: 0 100px !important; /* مساحة بداية ونهاية السكرول */
+    overflow: visible !important; 
+    width: max-content !important;
+}
+
+/* تأثير التكبير عند الوقوف بالريموت أو الماوس */
+.simple-suggestion-card {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    z-index: 1;
+}
+
+.simple-suggestion-card:focus, .simple-suggestion-card:hover {
+    transform: scale(1.15) translateY(-10px) !important; /* الكرت سيخرج للأعلى ويكبر */
+    z-index: 100 !important;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+}
+    .scroll-viewport::-webkit-scrollbar {
+    display: none; /* إخفاء في Chrome و Safari */
+}
+.scroll-viewport {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+/* 1. The Container: Enable Horizontal Scrolling */
+#favorites-popup-grid {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important; /* Prevents cards from dropping to next line */
+    overflow-x: auto !important;  /* Enables horizontal scroll */
+    overflow-y: hidden !important;
+    gap: 16px !important;
+    width: 100% !important;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling for iOS */
+    scrollbar-width: none; /* Hides scrollbar in Firefox */
+    padding-bottom: 20px !important; /* Extra space for shadow/focus effects */
+}
+
+/* 2. Hide Scrollbar for Chrome, Safari and Edge */
+#favorites-popup-grid::-webkit-scrollbar {
+    display: none;
+}
+
+/* 3. The Cards: Fixed Width and No Shrinking */
+.simple-suggestion-card {
+    flex: 0 0 auto !important; /* CRITICAL: Prevents cards from shrinking to fit the screen */
+    width: 200px !important;   /* Set a fixed width for the cards */
+    transition: transform 0.2s ease;
+}
+
+/* Optional: Focus effect to match dashboard */
+.simple-suggestion-card:focus {
+    outline: 3px solid #9333ea;
+    transform: scale(1.05);
+}
+        /* 1. تعديل مسار الصورة: الانتقال من الابن المباشر إلى البحث داخل الـ div */
+/* 1. تكبير حاوية الصورة والزر داخل الكارت */
+.suggested-d-dashboard-card.navigable.grid-item.p-2 > div {
+    position: relative;
+    /* الحجم القديم كان 11.1rem × 6.1rem */
+    width: 14rem !important;   /* العرض الجديد */
+    height: 8rem !important;   /* الطول الجديد */
+    border-radius: 15px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+/* 2. تكبير الصورة نفسها لتملأ الحاوية الجديدة */
+.suggested-d-dashboard-card.navigable.grid-item.p-2 div > img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    border-radius: 15px !important;
+    display: block;
+}
+
+/* 3. تنسيق زر الـ Bookmark العائم */
+.dashboard-only-bookmark {
+    position: absolute !important;
+      width: 42px !important;
+    height: 42px !important;
+    top: 8px !important;
+    right: 8px !important;
+    z-index: 10; /* فوق الصورة */
+    background: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 50% !important;
+    width: 28px !important;
+    height: 28px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: white !important;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* 4. تأثير التركيز (Focus) للريموت كنترول */
+.dashboard-only-bookmark:focus, 
+.dashboard-only-bookmark.tv-focus {
+    background: #9333ea !important; /* بنفسجي */
+    transform: scale(1.1);
+    border-color: white !important;
+    box-shadow: 0 0 10px rgba(147, 51, 234, 0.8);
+    outline: none;
+}
+
+/* تصغير أيقونة البوكمارك */
+.dashboard-only-bookmark svg {
+    width: 14px !important;
+    height: 14px !important;
+}
+
+/* 5. الاستمرار في إخفاء النصوص القديمة */
+.suggested-d-dashboard-card.navigable.grid-item.p-2 .video-details,
+.suggested-d-dashboard-card.navigable.grid-item.p-2 h6,
+.suggested-d-dashboard-card.navigable.grid-item.p-2 p {
+    display: none !important;
+}
+
+        /* Import Amiri Quran font for Adhkar text */
+        @import url('https://fonts.googleapis.com/css2?family=Amiri+Quran:wght@400;700&display=swap');
+        /* NEW: Import Amiri font for Thuluth-like style */
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+.simple-suggestion-card.flex.flex-col.gap-2.p-3.rounded-xl.bg-white\/10.cursor-pointer.navigable.grid-item.flex-shrink-0 {
+    background: black;
+    width: 265px;
+    height: 214px;
+    border:solid;
+}
+
+#suggested-d-dashboard-parent {
+    position: relative !important;
+    width: 100% !important;
+    margin-top: 10px !important;
+}
+
+div#manual-key-switcher>button {
+    width: 5rem;
+    height: 3rem;
+}
+
+div#manual-key-switcher {
+    bottom: 6rem!important;
+    transform: scale(0.7) !important;
+}
+/* تنسيق الزر ليكون في أسفل يسار الحاوية */
+.playlist-shuffle-btn {
+    position: absolute !important;
+    bottom: 47px !important;
+    left: 77px !important;
+    z-index: 50 !important; /* لضمان ظهوره فوق الكروت */
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    background: linear-gradient(135deg, #9333ea 0%, #2563eb 100%) !important;
+    color: white !important;
+    padding: 8px 16px !important;
+    border-radius: 12px !important;
+    font-size: 0.9rem !important;
+    font-weight: bold !important;
+    border: 1px solid rgba(255,255,255,0.2) !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5) !important;
+    cursor: pointer !important;
+}
+
+.playlist-shuffle-btn:hover {
+    transform: scale(1.05) !important;
+    filter: brightness(1.1) !important;
+}
+
+.simple-suggestion-card:hover, .simple-suggestion-card:focus {
+    transform: scale(1.05) !important;
+    background: #1b8a53 !important;
+    z-index: 101 !important;
+}
+
+.video-popup-player-container {
+    position: relative !important;
+    overflow: visible !important;
+    display: block !important;
+    flex-direction: row !important;
+    gap: 10px !important;
+}
+#video-popup-player-container {
+  
+    height: 155% 1important;
+   
+}
+
+.simple-suggestion-card.flex.items-center.gap-3.p-2.rounded-lg.bg-white\/10.cursor-pointer.navigable.grid-item {
+    display: flex !important;
+    flex-direction: row !important; /* الصورة فوق النص */
+    flex-shrink: 0 !important; /* هـام جداً: يمنع انكماش المربع ليبقى بارزاً للخارج */
+    width: 240px !important; /* عرض المربع الأخضر */
+    height: 140px !important;
+    background: #156d41 !important; /* اللون الأخضر */
+    border-radius: 12px !important;
+    padding: 8px !important;
+    transition: transform 0.2s ease !important;
+    border: none !important;
+}
+.favorites-popup-grid {
+    display: flex !important; /* تحويل الشبكة إلى صف أفقي */
+    flex-direction: row !important;
+    flex-wrap: nowrap !important; /* منع العناصر من النزول لسطر جديد */
+    gap: 15px !important;
+    padding: 10px 5px !important;
+    
+    /* ميزات التمرير والبروز خارج الحاوية */
+    overflow-x: auto !important; /* تفعيل التمرير الأفقي */
+    overflow-y: visible !important; /* السماح ببروز العناصر عمودياً إن لزم الأمر */
+    scrollbar-width: none !important; /* إخفاء شريط التمرير في فيرفوكس */
+    
+    /* لضمان بدء العناصر من داخل الحاوية وبروزها للخارج */
+    width: auto !important;
+    min-width: 100% !important;
+}
+
+div#favorites-popup-grid {
+    display: flex !important;
+    overflow: visible !important;
+}
+
+div#video-popup-container {
+    overflow: visible !important;
+}
+        
+.suggested-d-dashboard-card.navigable.grid-item.p-2>img {
+    height: 9rem !important;
+    min-width: 16rem !important;
+}
+
+        #suggested-d-dashboard-container {
+    display: flex!important;
+    flex-direction: row!important;
+    justify-content: flex-start!important; 
+    
+    /* 🛑 1. التعديل الحاسم: منع الالتفاف، مما يجبر العناصر على البقاء في صف واحد */
+    flex-wrap: nowrap!important; 
+    
+    /* 🛑 2. السماح بالتمرير الأفقي لظهور الشريط الأفقي عند الضرورة */
+    overflow-x: auto!important; 
+    
+    /* 🛑 3. إخفاء شريط التمرير العمودي إذا كان فارغًا */
+    overflow-y: hidden!important;
+    
+    gap: 16px!important; /* المسافة بين البطاقات */
+}
+#suggested-d-dashboard-container {
+    display: flex;
+    flex-direction: row; /* لعرض العناصر في صف */
+    justify-content: flex-start; /* البدء من اليسار/اليمين */
+    flex-wrap: wrap; /* السماح للعناصر بالانتقال لصف جديد */
+    /* التعديلات التي طلبتها */
+    justify-content: space-evenly !important; 
+}
+
+/* الحد الأدنى للعرض لضمان مساحة كافية للعناصر */
+div#suggested-d-dashboard-row {
+    min-width: 99%;
+}
+
+section#screen-Dashboard>div {
+    width: 98%;
+}
+
+/* تنسيق الصور (تم توسيع المُحدد ليشمل العناصر داخل الحاوية الجديدة) */
+/* يفترض أن عناصر المقترحات تستخدم كلاس 'suggested-video-card' */
+.suggested-video-card > img,
+.suggested-d-dashboard-card.navigable.grid-item > img,
+.fav-d-dashboard-card.navigable.grid-item > img {
+    width: 11.1rem !important;
+    height: 6.1rem !important;
+}
+
+/* 🛑 تطبيق قواعد الإخفاء على العناصر الداخلية */
+h6.mb-0.text-truncate,
+.video-details.flex-grow-1,
+.flex.flex-col.flex-grow.min-w-0.h-full.justify-between.ml-2 {
+    display: none !important;
+}
+
+@keyframes marquee {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+}
+
+.animate-marquee {
+    display: inline-block;
+    animation: marquee 8s linear infinite;
+    padding-left: 10%;
+}
+
+/* لسطرين إذا كان النص قصيراً */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    white-space: normal !important;
+}
+
+#fav-d-dashboard-container{justify-content:space-evenly!important;}
+
+div#fav-d-dashboard-container {
+    display: flex;
+}
+.fav-d-dashboard-card.navigable.grid-item>img {width: 11.1rem!important;height: 6.1rem!important;}
+
+.flex.flex-col.flex-grow.min-w-0.h-full.justify-between.ml-2 {
+    display: none;
+}
+
+button#floating-mic-button {
+    bottom: 32px !important;
+    position: relative;
+}
+
+.dashboard-main-grid.grid.grid-cols-1.md\:grid-cols-3.grid-rows-\[80\%_20\%\].gap-4.md\:gap-6.h-full.w-full.grid-container {
+    overflow: scroll;
+}
+section#screen-Dashboard {
+    padding: 20px;
+    border: 0px;
+    margin: 0px;
+    height: 110% !important;
+}
+ #floating-media-button {
+        padding: 0px!important;
+    }
+
+img.w-full.h-full.object-contain.p-1 {
+    width: 65px!important;
+}
+
+#bottom-left-controls {
+    /* تم تعيين الأنماط inline في HTML لتكون أكثر وضوحاً، ولكن هذه هي القواعد الأساسية: */
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding: 10px;
+}
+
+/* تنسيق عام لأزرار التحكم */
+#bottom-left-controls button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* ... (بقية التنسيقات المذكورة في HTML) ... */
+}
+
+button#add-video-by-url-btn {
+    position: fixed;
+    bottom: 76px;
+    right: 30px;
+}
+/* --- START: Last Watched & History Styles --- */
+/* --- START: Fullscreen Toggle Button Styles --- */
+img#dashboard-weather-icon {
+    border-radius: 50px;
+}
+
+.simple-suggestion-card.flex.items-center.gap-3.p-2.rounded-lg.bg-white\/10.cursor-pointer.navigable.grid-item {
+    width: 50%;
+}
+
+/* 2. حاوية الصورة (لضبط نسبة الأبعاد) */
+.favorites-popup-card .thumbnail-container,.simple-suggestion-card {
+    width: 100%;
+    /* استخدام نسبة أبعاد قياسية (16:9) */
+    aspect-ratio: 16 / 9;
+    position: relative;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+}
+
+/* 3. الصورة (تغطية الحاوية) */
+.simple-suggestion-card>img {
+    width: 101%;
+    height: 100%;
+    object-fit: cover;
+}
+
+h4.font-semibold.text-sm.truncate.text-white {
+    font-weight: bold;
+    font-size: 0.9rem;
+    margin-bottom: 0.1rem;
+    z-index: 1000;
+}
+.favorites-popup-card .title-overlay p {
+    font-size: 0.8rem; 
+}
+
+.simple-suggestion-card>.min-w-0.flex-grow{
+    position: absolute;
+    bottom: 2px;
+    background: linear-gradient(45deg, black, #2a1f1f91);
+}
+
+
+div#favorites-popup-grid {
+ display: ruby;
+}
+
+span.text-xs.text-white\/50.flex-shrink-0 {
+    position: absolute;
+    bottom: 2px;
+}
+
+#floating-minimized-video-button {
+    width: 320px; /* زيادة العرض لاستيعاب 3 أزرار */
+    height: auto;
+    padding: 0.4rem;
+    gap: 0.4rem;
+    display: flex;
+    align-items: center;
+    border-radius: 9999px; /* شكل كبسولة */
+    /* ... (بقية تنسيق الكبسولة) ... */
+}
+#video-popup-container {
+    right: 4rem !important;
+}
+
+#universal-date-display {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 0;
+    margin-top: auto; /* يدفعه لأسفل الحاوية */
+    clear: both;
+}
+
+.date-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 10px 30px;
+    border-radius: 50px;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.day-highlight {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 4px;
+}
+
+.date-details {
+    display: flex;
+    gap: 10px;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.6);
+    white-space: nowrap;
+}
+
+.separator {
+    color: #a855f7;
+    font-weight: bold;
+}
+
+.hijri-text {
+    color: #c084fc; /* لون الهجري المميز */
+}
+
+/* تحسين للمقاسات الصغيرة جداً */
+@media (max-width: 600px) {
+    .date-details {
+        flex-direction: column;
+        gap: 2px;
+    }
+    .separator {
+        display: none;
+    }
+}
+#floating-minimized-video-button .rate-btn {
+    /* تنسيق مربع صغير ومدمج */
+    width: 40px !important;
+    height: 40px !important;
+    padding: 0;
+    font-size: 0.65rem; 
+    font-weight: bold;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.4); /* خلفية خاملة */
+    border: none;
+    border-radius: 6px;
+    opacity: 0.7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+/* 🚀 تنسيق الزر النشط (Active Rate Style) - يجعل الزر يبرز */
+#floating-minimized-video-button .rate-btn.active-rate {
+    background-color: #FACC15 !important; /* لون أصفر ساطع */
+    color: black !important;
+    opacity: 1;
+    box-shadow: 0 0 8px rgba(250, 204, 21, 0.8); /* توهج بارز */
+}
+/* 🚀 تنسيق الزر النشط (Active Rate Style) - CRITICAL */
+
+
+div#channel-search-results {
+    width: 100%;
+}
+
+.fullscreen-toggle-button {
+    /* Positioning the button inside the section, usually top right */
+    position: absolute; 
+    bottom: 1rem;
+    left: 1rem;
+    z-index: 99;
+     /* Ensure it's above content but below floating buttons (like popup video) */
+    
+    /* Aesthetic styling (can be adjusted to match your glass-surface style) */
+    background-color: rgba(255, 255, 255, 0.1); 
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+}
+
+img#dash-nasa-moon {
+    HEIGHT: 9REM;
+    WIDTH: 9REM;
+}
+
+
+/* --- CSS Required for Traffic Buttons --- */
+
+.home-traffic-btn {
+    width: 100%;
+    padding: 1rem 0;
+    font-size: 0.8rem;
+    font-weight: bold;
+    border-radius: 12px;
+    transition: background-color 0.3s ease;
+}
+
+/* 🛑 ألوان حالة الازدحام (تم تعريفها في JavaScript) */
+.traffic-green { background-color: #10B981; color: white; }
+.traffic-yellow { background-color: #FBBF24; color: black; }
+.traffic-red { background-color: #EF4444; color: white; }
+.traffic-unknown { background-color: #6B7280; color: white; }
+/* --- CSS لتنسيق زر سرعة التشغيل التفاعلي --- */
+
+/* 💡 تنسيق الزر الدائري للسرعة */
+
+
+div#add-reciter-prompt-content {
+    max-width: 98%;
+}
+
+.fullscreen-toggle-button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+
+/* --- CSS لإنشاء شكل البوصلة الدائري الخارجي المتناظر --- */
+#direction-controls-3d button.active-direction {
+    /* 1. التوهج والحد: إضاءة زرقاء قوية */
+    outline: 3px solid #0A84FF !important; 
+    box-shadow: 0 0 18px rgba(10, 132, 255, 0.8), /* توهج خارجي قوي */
+                inset 0 0 8px rgba(255, 255, 255, 0.3); /* إضاءة داخلية */
+                
+    /* 2. اللون والخلفية: خلفية شفافة زرقاء */
+    background-color: rgba(10, 132, 255, 0.4) !important; 
+    color: white !important;
+    
+    /* 3. الحركة: تكبير خفيف */
+    transform: scale(1.08); /* تكبير ملحوظ */
+}
+
+/* 💡 الحفاظ على التفاعل عند مرور الفأرة (Hover) */
+#direction-controls-3d button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.4); 
+    cursor: pointer;
+}
+
+/* 1. إعدادات الحاوية Grid */
+#direction-controls-3d {
+    transform:scale(0.8);
+    /* 🛑 يجب أن تكون الأبعاد متناظرة (مثلاً: 50px لكل زر و 10px مسافة) */
+    grid-template-columns: repeat(3, 50px) !important; 
+    width: 170px !important; /* 3*50px + 2*10px gap = 170px */
+    height: 170px !important; 
+    gap: 10px !important; 
+  /* تثبيت الموقع في اليمين */
+    /* الترتيب الافتراضي للعناصر هنا (1, 2, 3, 4, 5, 6, 7, 8, 9) */
+}
+
+/* 2. ضمان الشكل الدائري والحجم الثابت لكل زر */
+#direction-controls-3d button {
+    width: 50px !important; 
+    height: 50px !important; 
+    border-radius: 50% !important; 
+    margin: 0 !important; /* إلغاء الهوامش السلبية السابقة */
+    padding: 0; 
+}
+
+/* 🚀 3. تطبيق الإزاحة (Transform) لإنشاء محيط دائري وهمي */
+/* المسافة المراد إزاحتها هي (عرض الزر + المسافة) / 2 = (50px + 10px) / 2 = 30px */
+/*
+   الترتيب (RTL Grid Index):
+   [1] NE | [2] N | [3] NW
+   [4] E  | [5] X | [6] W
+   [7] SE | [8] S | [9] SW
+*/
+
+/* N (الترتيب 2): إزاحة للأسفل فقط */
+#direction-controls-3d button:nth-child(2) { transform: translate(-50px,-20px); }
+
+/* S (الترتيب 8): إزاحة للأعلى فقط */
+#direction-controls-3d button:nth-child(8) { transform: translate(-112px,20px); }
+
+/* E (الترتيب 4): إزاحة لليسار فقط (نحو المركز) */
+#direction-controls-3d button:nth-child(4) { transform: translate(-20px, 0px); }
+
+/* W (الترتيب 6): إزاحة لليمين فقط (نحو المركز) */
+#direction-controls-3d button:nth-child(6) { transform: translate(-140px, -0px); }
+
+
+/* العناصر القطرية (تتطلب إزاحة على كلا المحورين X و Y) */
+/* NE (الترتيب 1): للأسفل (Y+) ولليسار (X-) */
+#direction-controls-3d button:nth-child(1) { transform: translate(-50px, 3px); }
+
+/* NW (الترتيب 3): للأسفل (Y+) ولليمين (X+) */
+#direction-controls-3d button:nth-child(3) { transform: translate(-50px, 1px); }
+
+/* SE (الترتيب 7): للأعلى (Y-) ولليسار (X-) */
+#direction-controls-3d button:nth-child(7) { transform:  translate(70px, 60px); }
+
+/* SW (الترتيب 9): للأعلى (Y-) ولليمين (X+) */
+#direction-controls-3d button:nth-child(9) { transform: translate(-110px, -5px); }
+
+/* 4. إخفاء الفاصل المركزي */
+#direction-controls-3d .center-spacer {
+    display: none;
+}
+
+#quran-go-button, #fullscreen-reciters-iframe-btn, #fullscreen-radio-iframe-btn {
+    z-index: 999;
+    left: 102px;
+    bottom: 130px;
+}
+/* CRITICAL: The class that forces the section to cover the viewport 
+*/
+  .reader-container {
+    direction: rtl!important;
+}
+        
+.is-fullscreen {
+    /* Overrides parent containers and positions relative to the viewport */
+    position: fixed !important; 
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    z-index: 100 !important; /* Must be high to cover everything else */
+    border-radius: 0 !important; /* Removes rounded corners for a true fullscreen feel */
+    overflow-y: auto !important; /* Ensure content remains scrollable if needed */
+    transition: all 0.5s ease-in-out; /* Smooth transition for the effect */
+}
+
+/* Optional: Hide the navigation bar when a screen is fullscreen */
+body.fullscreen-mode nav {
+    display: none !important; 
+}
+
+section#screen-Reciters {
+    HEIGHT: 100% ! IMPORTANT;
+    PADDING: 1px;
+    MARGIN: 0px;
+}
+/* --- START: Last Watched Carousel (2.5 items) Styles --- */
+#last-watched-container {
+    width: 100%;
+    max-width: 600px; /* Optional: constrain max width for larger screens */
+  
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+ .tabs-container.flex.p-1.rounded-full.bg-black\/20.self-center {
+    bottom: 51px!important;
+    left: 99px!important;
+    position: fixed!important;
+     z-index: 1000!important;
+}
+.iframe-src-button.active {
+  background-color: #a855f7; /* Brighter purple for active */
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.7);
+}
+.flex.gap-2.mt-2.homebtn {
+    display: none;
+}
+button#video-popup-bookmark-button {
+    position: fixed;
+    left: 2px;
+}
+div#add-channel-prompt-content {
+    max-width: 100%;
+}
+.video-meta>div>div>img {
+    width: 37px!important;
+    height: 37px!important;
+    border-radius: 70px!important;
+}
+.video-meta>div {justify-content: right;font-size:1.3rem;}
+.video-meta>span {justify-content: right;font-size:1.2rem;}
+
+h3.video-title {
+    text-align-last: right;
+    font-size:1.3rem;
+}
+.last-watched-carousel-wrapper {
+    position: relative;
+    width: 237%;
+}
+.last-watched-carousel-wrapper {
+    direction: ltr;
+}
+/* NEW: Carousel Navigation Buttons */
+        section#screen-Dashboard,section#screen-Media {
+        height: 105% !important;
+}
+
+
+
+.carousel-nav-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: none; /* Hidden by default */
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+.carousel-nav-button:hover {
+    background-color: rgba(0, 0, 0, 0.6);
+    transform: translateY(-50%) scale(1.1);
+}
+section#screen-Map {
+    width: 100% !important;
+    height: 100% !important;
+}
+.carousel-nav-button.prev {
+    right: 10px;
+     width: 70px;
+     height: 70px;
+    
+}
+.carousel-nav-button.next {
+     right: 73px;
+     width: 70px;
+     height: 70px;
+}
+/* This is the scrollable viewport */
+.last-watched-slides-container {
+    display: flex;
+    gap: 1rem; /* The space between cards */
+    overflow-x: auto; /* This enables horizontal scrolling */
+    scroll-snap-type: x mandatory; /* This enables snapping behavior */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    padding: 0.5rem 1rem; /* Adds some vertical and horizontal padding */
+    clip-path: inset(-5px -10px -5px -10px); /* Prevents padding from clipping box-shadow */
+    scrollbar-width: none; /* Hides scrollbar for Firefox */
+}
+/* Hides scrollbar for Chrome, Safari, and Opera */
+.last-watched-slides-container::-webkit-scrollbar {
+    display: none;
+}
+div#youtube-suggestions {
+    overflow: clip;
+}
+.last-watched-slide {
+    flex: 0 0 45%; /* Each slide is ~45% of the container. 2 slides = 90% + gap, leaving the 3rd one partially visible. */
+    scroll-snap-align: start; /* Each card will snap to the start of the container when scrolling stops */
+    scroll-snap-stop: always; /* Ensures it stops precisely on each snap point */
+}
+
+.last-watched-slide .glass-surface {
+    width: 100%;
+}
+
+/* Ensure text doesn't wrap and overflow awkwardly */
+.last-watched-slide h3, .last-watched-slide p {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+button.delete-channel-btn.absolute.bottom-2.right-2.p-1\.5.bg-red-600\/80.hover\:bg-red-500.rounded-full.transition-colors.z-10.navigable.grid-item {
+    z-index: 0;
+}
+/* --- END: Last Watched Carousel Styles --- */
+.resume-play-button {
+    background-color: rgba(99, 102, 241, 0.8); /* Indigo color */
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border: none;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.resume-play-button:hover {
+    background-color: rgba(79, 70, 229, 1);
+}
+
+.youtube-video-card.is-watched .video-title {
+    color: #a5b4fc; /* Lighter, muted color for watched videos */
+}
+
+/* --- END: Last Watched & History Styles --- */
+
+/* --- START: Bookmark Styles --- */
+.bookmark-button {
+    position: absolute;
+    top: 8px;
+    left: 8px; /* For RTL layout */
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 5;
+}
+.bookmark-button:hover {
+    background-color: rgba(99, 102, 241, 1); /* Indigo */
+}
+.bookmark-button.saved-d {
+    color: #60a5fa; /* Blue 400 */
+}
+.bookmark-button.saved-m {
+    color: #f472b6; /* Pink 400 */
+}
+.bookmark-button.saved-both {
+    background: linear-gradient(45deg, #60a5fa, #f472b6);
+    color: white;
+}
+
+.favorites-menu {
+    position: fixed; /* Use fixed to break out of scrolling containers */
+    background-color: rgba(30, 41, 59, 0.9);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0.75rem;
+    padding: 0.5rem;
+    z-index: 150; /* High z-index */
+    display: none;
+    min-width: 150px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+.favorites-menu.show {
+    display: block;
+}
+.favorites-menu button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    text-align: right;
+    font-size: 0.9rem;
+    color: white;
+    background-color: transparent;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.favorites-menu button:hover {
+    background-color: rgba(71, 85, 105, 0.7);
+}
+
+.remove-favorite-button {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background-color: rgba(220, 38, 38, 0.7); /* Red */
+    color: white;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 5;
+}
+.remove-favorite-button:hover {
+    background-color: rgba(185, 28, 28, 1);
+}
+/* --- END: Bookmark Styles --- */
+
+div#tv{display:none;}
+div#geolocation-error-overlay {
+    display: none !important;
+}
+button#back-to-search-floating-button {
+    Z-INDEX: 99999;
+}
+
+.search-results-nav {
+    width: 50%;
+    justify-self: center;
+}
+
+.w-full.grid.grid-cols-3.items-center.p-2.sticky.bottom-0.bg-black\/40.backdrop-blur-sm.flex-shrink-0 {
+    WIDTH: 50%;
+    JUSTIFY-SELF: CENTER;
+}
+
+
+
+ .flex.flex-wrap.justify-center.gap-2.w-full {zoom: 0.85;}
+
+/* --- Try removing !important from these rules --- */
+.tabs-container {
+  display: flex; /* Remove !important */
+  gap: 0.5rem; /* Remove !important */
+  padding: 0.25rem; /* Remove !important */
+  border-radius: 9999px; /* Remove !important */
+  background-color: rgba(0, 0, 0, 0.8)!important; /* Remove !important */
+  align-self: center; /* Remove !important */
+  margin-bottom: 1rem; /* Remove !important */
+}
+
+button#back-to-playlists-bottom-button-search {
+    position: sticky;
+    justify-self: anchor-center;
+}
+        /* Import Inter font for a modern, clean look */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Default background gradient - UPDATED: black parts are wider, animation is 3x slower */
+            background: linear-gradient(-45deg, #000000 0%, #000000 30%, #00FFFF 35%, #000000 60%, #4B0082 65%, #8A2BE2 70%, #FF00FF 75%, #000000 100%);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite; /* Animation duration decreased to 15s */
+            transition: background-image 0.5s ease; /* Smooth transition for background changes */
+            min-height: 100vh; /* Ensure body takes full viewport height */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden; /* Prevent body scroll */
+        }
+        
+div#hourly-forecast-container {
+    min-height: 93px;
+}
+button#tab-tarteel {
+    display: none;
+}
+
+.flex.items-center.justify-between.w-full.gap-2 {
+    direction: rtl;
+}
+        body.animation-paused {
+            animation-play-state: paused !important;
+        }
+        body.video-playing {
+            animation-duration: 75s !important; /* 80% slower animation */
+        }
+.bg-black2 {
+    background-image: linear-gradient(45deg, #000000, #6f6f6f39)!important;
+}
+        img.max-w-full.max-h-full.object-contain { max-width: 50%;
+    mix-blend-mode: hard-light;
+}
+        /* Ensure RTL direction for specific elements if needed */
+        div#youtube-video-list-view, div#youtube-search-results-view {
+            direction: rtl;
+        }
+        div#youtube-readers-section {
+            direction: rtl;
+        }
+        /* Define different background themes for customization */
+        body.theme-gradient-1 {
+            background: linear-gradient(-45deg, #000000 0%, #000000 30%, #00FFFF 35%, #000000 60%, #4B0082 65%, #8A2BE2 70%, #FF00FF 75%, #000000 100%);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+       
+        div#quran-quick-access {
+            display: none !important;
+        }
+
+        .h-full {
+            height: 97% !important;
+        }
+
+        /* NEW GLASS SURFACE CSS - Enhanced for liquid 3D effect and "drop glass" */
+        .glass-surface {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition: opacity 0.26s ease-out;
+            border-radius: 1.5rem; /* Ensure rounded corners */
+        }
+        .glass-surface__filter {
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            z-index: -1;
+        }
+
+        div#youtube-search-results-view {
+    overflow: scroll;
+}
+
+/* --- NEW CSS for LARGE Moon Widget --- */
+
+/* زيادة حجم صورة القمر داخل الـ widget */
+.moon-icon-large {
+    width: 80px;  /* 👈 حجم أكبر للصورة */
+    height: 80px; 
+    border-radius: 50%; /* 👈 ضمان دائريتها */
+    object-fit: cover;
+    /* إضافة حدود بسيطة لتعزيز المظهر الجمالي */
+    border: 2px solid rgba(255, 255, 255, 0.2); 
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+    transition: all 0.3s;
+}
+
+/* زيادة الـ Border Radius لويدجت القمر لجعله أكثر نعومة */
+#3d-screen-moon-widget {
+    /* 👈 زيادة الـ padding للحاوية */
+    padding: 1.5rem !important; 
+    
+    /* 👈 زيادة الـ Border Radius للعنصر نفسه */
+    border-radius: 2.5rem !important; 
+}
+
+/* 💡 تعديل هام: ضمان أن ويدجت الحرارة صغير الحجم */
+#3d-screen-weather-widget {
+    width: 140px; 
+    height: auto; 
+    justify-content: flex-start;
+}
+#3d-screen-weather-widget span {
+    font-size: 1.5rem !important; /* تصغير خط الحرارة */
+}
+#3d-screen-weather-widget svg {
+    margin-right: 5px;
+}
+
+.glass-surface.glass-surface--svg.youtube-video-card.navigable.grid-item {
+    direction: ltr!important;
+}
+
+
+        .glass-surface__content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            border-radius: inherit;
+            position: relative;
+            z-index: 1;
+        }
+        div#geares {
+    height: 114px;
+}
+
+div#\33 d-screen-weather-widget {
+    height: 85px;
+    width: 116px;
+}
+        .glass-surface--svg {
+            /* Adjusted background for a more pronounced "drop" effect */
+            background: light-dark(hsl(0 0% 100% / var(--glass-frost, 0.1)), /* Slightly more opaque background */
+                hsl(0 0% 0% / var(--glass-frost, 0.2))); /* Darker opaque background for dark mode */
+            
+            /* Enhanced backdrop-filter for stronger blur and saturation */
+            backdrop-filter: var(--filter-id, url(#glass-filter)) blur(8px) saturate(1.8) brightness(1.1); /* e.g., 8px instead of 10px */
+     -webkit-backdrop-filter: blur(8px) saturate(1.8) brightness(1.1);/* Webkit prefix */
+
+            /* More pronounced box-shadow for a "dropped" effect */
+            box-shadow:
+                0 0 5px 2px rgba(255, 255, 255, 0.1) inset, /* Inner light glow */
+                0 0 15px 6px rgba(0, 255, 255, 0.15) inset, /* Inner cyan glow */
+                0px 8px 30px rgba(17, 17, 26, 0.1), /* Stronger outer shadow */
+                0px 16px 60px rgba(17, 17, 26, 0.15), /* Even stronger outer shadow */
+                0px 24px 80px rgba(17, 17, 26, 0.2), /* Deepest outer shadow */
+                inset 0 0 20px 8px rgba(0,0,0,0.3), /* Deeper inner shadow for depth */
+                inset 0 0 25px 10px rgba(0,0,0,0.2), /* Even deeper inner shadow */
+                0 0 20px rgba(255, 255, 255, 0.15); /* Added subtle outer white glow for "shine" */
+            border: 1px solid rgba(255, 255, 255, 0.3); /* Added a subtle white border */
+        }
+        
+        /* Fallback for browsers not supporting backdrop-filter - also enhanced */
+        .glass-surface--fallback {
+            background: rgba(255, 255, 255, 0.35); /* More opaque fallback */
+            backdrop-filter: blur(15px) saturate(2.0) brightness(1.2); /* Stronger fallback blur/saturate */
+            -webkit-backdrop-filter: blur(15px) saturate(2.0) brightness(1.2);
+            border: 1px solid rgba(255, 255, 255, 0.4); /* Stronger border */
+            box-shadow:
+                0 10px 40px 0 rgba(31, 38, 135, 0.3), /* Stronger fallback shadow */
+                0 4px 20px 0 rgba(31, 38, 135, 0.2),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.5),
+                inset 0 -1px 0 0 rgba(255, 255, 255, 0.3);
+        }
+        @media (prefers-color-scheme: dark) {
+            .glass-surface--fallback {
+                background: rgba(255, 255, 255, 0.15); /* Dark mode fallback */
+                backdrop-filter: blur(15px) saturate(2.0) brightness(1.3);
+                -webkit-backdrop-filter: blur(15px) saturate(2.0) brightness(1.3);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                box-shadow:
+                    inset 0 1px 0 0 rgba(255, 255, 255, 0.3),
+                    inset 0 -1px 0 0 rgba(255, 255, 255, 0.2);
+            }
+        }
+        @supports not (backdrop-filter: blur(10px)) {
+            .glass-surface--fallback {
+                background: rgba(255, 255, 255, 0.5); /* Strongest fallback for no backdrop-filter */
+                box-shadow:
+                    inset 0 1px 0 0 rgba(255, 255, 255, 0.6),
+                    inset 0 -1px 0 0 rgba(255, 255, 255, 0.4);
+            }
+            .glass-surface--fallback::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: rgba(255, 255, 255, 0.2); /* More opaque overlay */
+                border-radius: inherit;
+                z-index: -1;
+            }
+        }
+        
+        /* TV Remote Focus Style */
+        .navigable:focus, .navigable.tv-focus {
+            outline: 3px solid #0A84FF !important; /* Use !important to override other outlines */
+            box-shadow: 0 0 20px rgba(10, 132, 255, 0.7) !important; /* Use !important */
+            transform: scale(1.03);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+
+section#screen-Map>.w-full.h-full.bg-black2.rounded-3xl.flex.items-center.justify-center.p-1.overflow\:hidden {
+   
+ /* 2. إعدادات الحد الأساسية */
+    border: 3px solid transparent; /* 🛑 هام: يجب تحديد عرض الحد */
+    border-radius: 1.5rem; /* يجب أن يتطابق مع تصميمك */
+    
+    /* 3. تطبيق الحد المتدرج (Gradient Border) */
+    border-image: linear-gradient(45deg, #00ffff05,#00ffff99 15%, #8a2be200, #ff00ffd9,#00ffff99 , #000000) 1;
+    /* الشرح:
+      linear-gradient(45deg, #00FFFF, #8A2BE2, #FF00FF, #000000): يحدد الألوان.
+      1: يحدد عرض شريحة الحد (slice width).
+    */
+    
+    /* 4. التأكد من أن الخلفية لا تمتد عبر الحد */
+    background-clip: padding-box;
+}
+
+
+
+
+.w-full.h-full.bg-black2.rounded-3xl.flex.items-center.justify-center.p-1.overflow\:hidden {}
+
+
+        /* Keyframe animation for the background gradient */
+        @keyframes gradient {
+              
+          0% {
+    background-position: 29.0118% 50%;
+  }
+  50% {
+    background-position: 65.0118% 50%;
+  }
+    0% {
+    background-position: 29.0118% 50%;
+  }
+        }
+
+        /* Styles for individual app screens */
+        .app-screen {
+            display: none; /* Hidden by default */
+            animation: fadeIn 0.1s ease-in-out; /* Fade-in transition */
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+            border-radius: 1.5rem; /* Ensure app screens have rounded corners */
+        }
+        .app-screen.active {
+            display: flex; /* Display when active */
+        }
+        
+        /* Fade-in animation for screen transitions */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        /* Styling for iframes to fit their containers */
+        .full-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 1.5rem;
+        }
+
+        .homebtn{display:none}
+
+        /* Floating Button Styles - Positioned and styled for glass effect */
+        #floating-media-button,
+        #back-to-playlists-bottom-button,
+        #back-to-playlists-bottom-button-search,
+        #floating-keyboard-button,
+        #start-trip-floating-button { 
+            position: fixed;
+            background-color: rgba(138, 8, 6, 0.5); /* Purple glass */
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 9999px; /* Pill shape */
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            z-index: 100; /* Above everything else */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        /* UPDATED: Clear Search Button style */
+        #clear-search-button {
+            background-color: rgba(220, 38, 38, 0.6); /* Red glass */
+            color: white;
+            padding: 0.75rem;
+            border-radius: 9999px; /* Pill shape */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        #floating-media-button:hover,
+        #back-to-playlists-bottom-button:hover,
+        #floating-keyboard-button:hover,
+        #clear-search-button:hover,
+        #start-trip-floating-button:hover {
+            transform: scale(1.05); /* Only scale, no translate */
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Specific positioning for floating buttons */
+        #floating-media-button { bottom: 1rem; right: 1rem; }
+        #floating-keyboard-button {
+            bottom: 4rem!important;
+            right: 5rem; /* Adjusted to be next to media button */
+        
+        }
+        #floating-keyboard-button.active-keyboard {
+            background-color: #90EE90; /* Chrome Green */
+            color: cyan; /* Black icon */
+        }
+        #floating-keyboard-button.inactive-keyboard {
+            background-color: #FF0000; /* Red */
+            color: white; /* White icon */
+        }
+
+        #back-to-playlists-bottom-button, #back-to-playlists-bottom-button-search {
+            bottom: 1rem;
+            left: 50%;
+        
+            display: none; /* Hidden by default */
+        }
+
+        #start-trip-floating-button {
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #10B981; /* Green color */
+            display: none; /* Hidden by default */
+        }
+
+        /* NEW: Style for the minimized video player button */
+       /* --- CSS لتحويل زر التصغير إلى كبسولة أفقية --- */
+
+#floating-minimized-video-button {
+    /* 🛑 يجب أن تظهر في الزاوية اليسرى السفلية */
+    position: fixed;
+    bottom: 7rem;
+    right: 5rem;
+    
+    /* تنسيق الكبسولة */
+    display: flex; /* 👈 ضروري لترتيب العناصر أفقياً */
+    align-items: center;
+    gap: 0.5rem;
+    width: 44%; /* عرض ثابت للكبسولة */
+    height: 60px; /* ارتفاع ثابت */
+    padding: 0.5rem;
+    
+    /* تنسيق Glassmorphism (يجب أن يكون موجوداً) */
+    border-radius: 9999px; /* شكل كبسولة (Pill Shape) */
+    z-index: 105;
+    
+    /* 💡 التوهج ليدل على أنها تعمل في الخلفية */
+    box-shadow: 0 0 15px rgba(255, 255, 0, 0.4); 
+    transition: all 0.3s ease;
+}
+
+/* 💡 ويدجت درجة الحرارة الذي تم نقله إلى اليمين يجب أن يكون مكانه آمناً */
+#right-side-info-widgets {
+    z-index: 100; /* يجب أن يكون أقل من الكبسولة */
+}
+        
+
+
+        /* Top bar positioning and transition */
+        .top-bar {
+            top: 1rem;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Main CarPlay interface container adjustments */
+        #carplay-main-interface {
+    position: fixed;
+    top: 0%;
+    left: 0%;
+    width: 100vw;
+    height: 100vh;
+    transition: all 0.5s ease-in-out;
+    border-radius: 2rem;
+}
+
+        /* Pseudo-fullscreen class for the CarPlay interface */
+        #carplay-main-interface.carplay-pseudo-fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            border-radius: 0;
+            z-index: 99; /* Ensure it's above other content but below the floating button */
+            max-width: 100vw; /* When fullscreen, it should take full width */
+        }
+
+        /* Shrink content when in pseudo-fullscreen mode for better fit */
+        #carplay-main-interface.carplay-pseudo-fullscreen #digital-time {
+            font-size: 2.2rem !important;
+        }
+        #carplay-main-interface.carplay-pseudo-fullscreen #weather-temp-main {
+            font-size: 4rem !important;
+        }
+
+        /* Scrollbar styling for better aesthetics */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+
+        /* Active app icon styling */
+        .app-icon.active {
+            background-color: #6b22ff; /* Purple */
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* Gemini-like Chat Styling */
+        .chat-message {
+            max-width: 70%;
+            padding: 0.75rem 1rem;
+            border-radius: 1.5rem; /* More rounded */
+            margin-bottom: 0.75rem;
+            word-wrap: break-word;
+            font-size: 0.9rem; /* Slightly smaller font for chat */
+        }
+
+        .chat-message.user {
+            background-color: #4f46e5; /* Blue */
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 0.5rem; /* Pointy bottom right */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .chat-message.ai {
+            background-color: #2d3748; /* Darker gray */
+            color: white;
+            margin-right: auto;
+            border-bottom-left-radius: 0.5rem; /* Pointy bottom left */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        #ai-input {
+            border-radius: 2rem; /* Fully rounded pill shape */
+            padding: 0.75rem 1.25rem;
+            background-color: rgba(255, 255, 255, 0.15); /* Lighter glass */
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+        }
+        #ai-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        #ai-input:focus {
+            background-color: rgba(255, 255, 255, 0.2);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.4), 0 0 0 2px rgba(147, 51, 234, 0.5);
+        }
+        
+        /* YouTube Video Card Styling (List View and Search Results) - UPDATED */
+        .youtube-video-card, .youtube-search-card {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start; /* CHANGED to align items to the top */
+            padding: 0.75rem;
+            border-radius: 1rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+            width: 100%;
+            box-sizing: border-box;
+            cursor: pointer;
+            gap: 1rem;
+        }
+        .youtube-video-card:hover, .youtube-search-card:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        .youtube-video-card .thumbnail-container {
+            position: relative;
+            width: 180px;  /* INCREASED */
+            height: 101.25px; /* INCREASED (16:9 ratio) */
+            flex-shrink: 0;
+            overflow: hidden; /* Important for progress bar */
+        }
+
+        .glass-surface.glass-surface--svg.p-4.rounded-3xl.text-center.flex.flex-col.items-center.justify-center.navigable.grid-item {
+    height: 169px;
+}
+        /* NEW: Styles for Watched Progress Bar */
+        .watched-progress-bar-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        .watched-progress-bar {
+            height: 100%;
+            background-color: #ef4444; /* Red color */
+            border-radius: 0 2px 2px 0;
+        }
+
+        /* NEW: Style for Watched Badge */
+        .watched-badge {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .youtube-video-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 0.5rem;
+        }
+        .video-duration {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            font-size: 0.75rem;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        .video-details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            overflow: hidden;
+            flex-grow: 1;
+            min-width: 0;
+        }
+        .video-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: white;
+            line-height: 1.3;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        .video-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 4px; /* Gap between channel line and stats line */
+            font-size: 0.8rem;
+            color: #a7f3d0; /* A minty color, less harsh than cyan */
+            font-weight: 500;
+        }
+
+        /* NEW: Explicit scrollbar for search results */
+        #search-results-container::-webkit-scrollbar {
+            width: 8px;
+            display: block; /* Ensure it's always displayed */
+        }
+        #search-results-container::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+        }
+        #search-results-container::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.5);
+            border-radius: 10px;
+        }
+        
+        /* YouTube Reader Card Styling (Suggestions) - UPDATED */
+        .youtube-reader-card {
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
+            border-radius: 1.25rem;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        .youtube-reader-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .youtube-reader-card img {
+            width: 100px; /* MODIFIED: Increased size */
+            height: 100px; /* MODIFIED: Increased size */
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        .youtube-reader-card h3 {
+            font-size: 1.1rem; /* MODIFIED: Increased font size */
+            font-weight: 600;
+            color: white;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 95%;
+            margin-bottom: 1rem; /* MODIFIED: Increased margin */
+        }
+        .youtube-reader-card.selected {
+            background-color: #9333ea !important;
+            box-shadow: 0 0 15px rgba(147, 51, 234, 0.8);
+            transform: translateY(-5px) scale(1.05);
+        }
+        /* UPDATED: Reader container is now a grid */
+        .reader-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); /* MODIFIED: Responsive columns */
+            overflow-y: auto;
+            padding-bottom: 1rem;
+            gap: 1.25rem; /* MODIFIED: Increased gap */
+            direction: ltr;
+            max-height: 45vh; /* MODIFIED: Increased height */
+            width: 100%; /* MODIFIED: Ensure full width */
+        }
+        .reader-container::-webkit-scrollbar { display: block; }
+        .reader-container { -ms-overflow-style: auto; scrollbar-width: thin; }
+
+
+        /* YouTube Suggestion Buttons (for Surahs) - UPDATED */
+        .youtube-suggestion-button {
+            color: white;
+            padding: 0.25rem 0.75rem; /* Zoomed out padding */
+            border-radius: 9999px;
+            font-size: 0.75rem; /* Zoomed out font */
+            font-weight: bold;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            /* NEW: Switched to inline-flex for variable width */
+            display: inline-flex;
+            width: auto;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden; /* Keep overflow hidden on the button itself */
+        }
+        .youtube-suggestion-button:hover {
+            transform: translateY(-1px) scale(1.02);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .youtube-suggestion-button:active {
+            transform: translateY(0);
+        }
+        
+        /* NEW: Style for the Surah name text to handle long names */
+        .surah-name-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: right; /* Align text to the right for RTL */
+        }
+
+        /* NEW: Badge for Juz number */
+        .youtube-suggestion-button .juz-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 9999px;
+            background-color: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+            flex-shrink: 0; /* Prevent badge from shrinking */
+            line-height: 1;
+            position: relative; /* Allow z-index */
+            z-index: 2; /* Ensure it's on top */
+        }
+
+        /* YouTube Suggestion Category Tag */
+        .youtube-suggestion-category-tag {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 0.5rem;
+            align-self: flex-start;
+        }
+        /* NEW: Surah Buttons Scrollable Container */
+        .surah-buttons-scrollable {
+    /* 🛑 التعديل الحاسم: إزالة max-height وتعيين height: 100% */
+    height: 100% !important; /* تأخذ كامل الارتفاع المتاح من الأب */
+    overflow-y: auto;
+    padding-right: 8px; 
+    padding-left: 8px; 
+    /* ... (بقية التنسيقات) */
+}
+
+/* ملاحظة: قد تحتاج إلى التأكد من أن العنصر الأبوي:
+   #tabs-content-container-surah
+   يحتوي على height: 100% أو flex-grow ليعطي مساحة كافية. 
+*/
+#tabs-content-container-surah {
+    height: 100%; /* تأكيد أن الحاوية الأبوية تعطي الارتفاع الكامل */
+    display: flex;
+    flex-direction: column;
+}
+        .surah-buttons-scrollable::-webkit-scrollbar { width: 6px; }
+        .surah-buttons-scrollable::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
+        .surah-buttons-scrollable::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.4); border-radius: 10px; }
+        
+        /* NEW: Styling for Tabs in Media Screen */
+        .tabs-container {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.25rem;
+            border-radius: 9999px; /* pill shape */
+            background-color: rgba(0, 0, 0, 0.8);
+            align-self: center; /* Center the tab bar */
+            margin-bottom: 1rem;
+        }
+        .tab-button {
+            padding: 0.5rem 1.25rem;
+            background-color: transparent;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 600;
+            font-size: 0.9rem;
+            border: none;
+            border-radius: 9999px; /* pill shape */
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .tab-button.active {
+            color: white;
+            background-color: rgba(147, 51, 234, 0.6); /* Purple */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .tab-content {
+            width: 100%;
+            height: 100%;
+        }
+        .tab-content.hidden {
+            display: none;
+        }
+
+
+        /* Dashboard Logo Effect */
+        .metallic-logo-effect {
+            width: 300px;
+            height: auto;
+            margin-bottom: 1rem;
+            filter: grayscale(100%) brightness(30%);
+        }
+
+        /* Car Dashboard Specific Styles */
+        .car-dashboard-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .gauge-container.absolute-pos {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        .gauge-label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 0.25rem;
+        }
+
+        .speed-display {
+            font-size: 2.5rem;
+            line-height: 1;
+        }
+
+        .rpm-display {
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+
+        .gear-indicator {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #10b981;
+        }
+
+        div#youtube-suggestions {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+.glass-surface.glass-surface--svg.p-3.rounded-2x1.text-center.flex.items-center.gap-3.navigable.grid-item {
+    height: 122px;
+}.glass-surface.glass-surface--svg.p-3.rounded-2x1.text-center.flex.items-center.gap-3.navigable.grid-item {}
+
+div#\33 d-screen-gear {
+    font-size: 2.7rem;
+}
+
+/* NEW: Style for direction indicator */
+div#\33 d-screen-dir {
+    font-size: 2.7rem;
+}
+
+
+div#youtube-readers-section {
+    height: 100%;
+}
+
+.reader-container {
+    max-width: 100% !important;
+    max-height: 100% !important;
+} 
+
+section#screen-Media {
+    height: 101%!important;
+    padding: 0px!important;
+    overflow-y: auto;
+    background: #000000b5;
+}
+
+        
+div#youtube-readers-section {
+    height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.7);
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.7);
+            overflow: hidden;
+            position: relative;
+        }
+        .car-cam-360-container img {
+            height: 160% !important;
+            width: 100%; 
+            object-fit: cover;
+        }
+        .car-cam-360-controls {
+            position: absolute;
+            bottom: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            z-index: 20;
+        }
+        .car-cam-360-controls button {
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .car-cam-360-controls button:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+
+        /* Digital Clock Styles (Apple iOS 19 style) */
+        #digital-time {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: baseline;
+            gap: 0.2rem;
+            direction: ltr; /* FIX: Enforce LTR for correct HH:MM:SS order */
+        }
+        #digital-time span {
+            transition: opacity 0.3s ease;
+        }
+        #digital-time .hours { opacity: 1; }
+        #digital-time .minutes { opacity: 0.8; }
+       #digital-time .seconds {
+    opacity: 0.6;
+    font-size: 2.2rem;
+}
+
+        /* Updated #digital-date styles based on user request */
+        #digital-date {
+            font-size: 1.2rem;
+            color: rgb(255 255 255 / 99%);
+            font-weight: bold;
+            text-align: center;
+            line-height: 1.4;
+        }
+        /* Countdown to Azan */
+        .countdown-azan {
+            color: cyan !important;
+        }
+        /* Countdown to Iqama */
+        .countdown-iqama {
+            color: orange !important;
+        }
+        /* Count-up after Iqama */
+        .countdown-up {
+            color: #98FB98 !important; /* PaleGreen, close to lightmint */
+        }
+
+
+        /* Settings Range Input Styling */
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+        input[type="range"]:hover { opacity: 1; }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #9333ea;
+            cursor: pointer;
+            box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.5);
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #9333ea;
+            cursor: pointer;
+            box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.5);
+        }
+
+        /* Animated Weather Icon Styles */
+        @keyframes pulse-float {
+            0% { transform: scale(1) translateY(0px); opacity: 1; }
+            50% { transform: scale(1.05) translateY(-2px); opacity: 0.9; }
+            100% { transform: scale(1) translateY(0px); opacity: 1; }
+        }
+        #dashboard-weather-icon, #weather-icon {
+            animation: pulse-float 3s ease-in-out infinite alternate;
+            transition: transform 0.3s ease-in-out;
+        }
+
+@media (max-width: 768px) {
+    /* ... (بقية الأكواد الخاصة بالهواتف المحمولة) ... */
+
+/* الأنماط الأساسية لتطبيق تأثير الزجاج الضبابي */
+.glass-surface {
+    /* 🛑 1. خاصية الضبابية (CRITICAL for Glass Effect) */
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%); /* دعم متصفحات الويب كيت */
+
+    /* 2. الخلفية الشفافة المائلة للثلج */
+    background-color: rgba(255, 255, 255, 0.15); /* لون أبيض خفيف */
+    
+    /* 3. حدود شفافة خفيفة (لإحساس العمق) */
+    border: 1px solid rgba(255, 255, 255, 0.1); 
+    
+    /* 4. إعدادات ظل خفيف وعائم */
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    
+    /* 5. تجعل الحواف أكثر نعومة */
+    border-radius: 16px;
+    
+    /* 6. منع تجاوز المحتوى للمنظور الزجاجي */
+    overflow: hidden; 
+    
+    /* 7. استخدام 3D Transform لتثبيت التأثير في Safari */
+    transform: translateZ(0); 
+}
+
+/* 🛑 إضافة طبقة لمعان خفيفة (اختياري) */
+.glass-surface::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* تدرج لوني يعطي إحساس باللمعان من الأعلى لليسار */
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.1),
+        rgba(255, 255, 255, 0)
+    );
+    pointer-events: none; /* لا يعيق النقر */
+}
+
+button.youtube-suggestion-button {
+    font-size: 1rem;
+}
+
+.youtube-suggestion-button {
+            color: white;
+            padding: 0.25rem 0.75rem; /* Zoomed out padding */
+            border-radius: 9999px;
+            font-size: 0.75rem; /* Zoomed out font */
+            font-weight: bold;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            /* NEW: Switched to inline-flex for variable width */
+            display: inline-flex;
+            width: auto;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden; /* Keep overflow hidden on the button itself */
+        }
+        .youtube-suggestion-button:hover {
+            transform: translateY(-1px) scale(1.02);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .youtube-suggestion-button:active {
+            transform: translateY(0);
+        }
+        
+        /* NEW: Style for the Surah name text to handle long names */
+        .surah-name-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: right; /* Align text to the right for RTL */
+        }
+
+        /* NEW: Badge for Juz number */
+        .youtube-suggestion-button .juz-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 9999px;
+            background-color: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+            flex-shrink: 0; /* Prevent badge from shrinking */
+            line-height: 1;
+            position: relative; /* Allow z-index */
+            z-index: 2; /* Ensure it's on top */
+        }
+
+button.youtube-suggestion-button.navigable.grid-item {
+    font-size: 1rem;
+}
+
+div#youtube-surah-section {
+    min-height: 547px;
+}
+
+button.youtube-suggestion-button.navigable.grid-item {
+    height: 50px;
+}
+
+span.surah-name-text {
+    font-size: 1rem;
+}
+
+    /* 🛑 إخفاء أيقونات التطبيقات غير الضرورية في وضع الموبايل */
+    button[data-app="Map"] {
+        display: none !important; /* إخفاء أيقونة Map/3D Car (تمت إعادة تسميتها) */
+    }
+    button[data-app="Radio"] {
+        display: none !important; /* إخفاء أيقونة Radio */
+    }
+    
+    /* 🛑 إخفاء زر الوسائط العائم (مكرر مع شريط التنقل) */
+   
+
+    /* ملاحظة: يتم بالفعل إخفاء floating-media-button عندما تكون شاشة Media نشطة في handleMediaViewSwitch */
+    
+    /* ... (بقية الأكواد) ... */
+}
+
+        /* NEW: Responsive padding toggle */
+        @media (min-width: 768px) {
+
+.glass-surface {
+    /* 🛑 1. خاصية الضبابية (CRITICAL for Glass Effect) */
+    backdrop-filter: blur(12px) saturate(180%)!important;
+    -webkit-backdrop-filter: blur(12px) saturate(180%)!important; /* دعم متصفحات الويب كيت */
+
+    /* 2. الخلفية الشفافة المائلة للثلج */
+    background-color: rgba(255, 255, 255, 0.15)!important; /* لون أبيض خفيف */
+    
+ 
+    /* 4. إعدادات ظل خفيف وعائم */
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3)!important;
+}
+            button.youtube-suggestion-button {
+    font-size: 1rem;
+}
+
+.youtube-suggestion-button {
+            color: white;
+            padding: 0.25rem 0.75rem; /* Zoomed out padding */
+            border-radius: 9999px;
+            font-size: 0.75rem; /* Zoomed out font */
+            font-weight: bold;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            /* NEW: Switched to inline-flex for variable width */
+            display: inline-flex;
+            width: auto;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden; /* Keep overflow hidden on the button itself */
+        }
+        .youtube-suggestion-button:hover {
+            transform: translateY(-1px) scale(1.02);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .youtube-suggestion-button:active {
+            transform: translateY(0);
+        }
+        
+        /* NEW: Style for the Surah name text to handle long names */
+        .surah-name-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: right; /* Align text to the right for RTL */
+        }
+
+        /* NEW: Badge for Juz number */
+        .youtube-suggestion-button .juz-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 9999px;
+            background-color: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+            flex-shrink: 0; /* Prevent badge from shrinking */
+            line-height: 1;
+            position: relative; /* Allow z-index */
+            z-index: 2; /* Ensure it's on top */
+        }
+
+            body.small-padding .md\:p-6 {
+                padding: 1.5rem !important;
+            }
+        }
+          #digital-time .hours { font-size: 2.2rem; }
+        #digital-time .minutes { font-size: 2.2rem; }
+       #digital-time .seconds { 
+    font-size: 1.8rem;
+}
+
+
+div#bottom-left-controls {
+    left: 90px!important;
+}
+        img.w-full.h-full.object-cover.rounded-lg.opacity-80 {
+            position: fixed;
+        }
+        /* Prayer Times Specific Styles */
+        .prayer-times-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.75rem;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        .prayer-time-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            min-width: 80px;
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+        /* UPDATED: Current prayer is green */
+        .prayer-time-item.current-prayer {
+            background-color: rgba(16, 185, 129, 0.4); /* Greenish */
+            font-weight: bold;
+            border: 1px solid #10B981;
+        }
+        /* UPDATED: Next prayer is orange */
+        .prayer-time-item.next-prayer {
+            background-color: rgba(251, 146, 60, 0.3); /* Orangey */
+            border: 1px solid #fb923c;
+        }
+        .prayer-name {
+           color: rgba(255, 255, 255);
+    font-size: 1rem;
+    font-family: sans-serif;
+    font-weight: bold;
+    margin-bottom: 0.2rem;
+        }
+        .prayer-time {
+           color: rgba(255, 255, 255,0.85);
+            font-size: 1.4rem;
+            font-weight: bold;
+   
+        }
+       span.prayer-iqama{
+             font-size: 1rem;
+             color: rgb(255 179 20 / 85%);
+             font-family: sans-serif;
+             font-weight: bold;
+            margin-bottom: 0.2rem;
+            font-size: 1rem;
+            
+        }
+
+        /* --- START: Islamic Daily Reminders Styles (MODIFIED) --- */
+
+.reminders-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 48%); /* عمودين بعرض 48% لكل منهما */
+    justify-content: center; /* توسيط العمودين في الحاوية */
+    gap: 1rem;
+    width: 100%;
+    height: 100%;
+    align-content: center; 
+    padding: 1rem; 
+}
+
+.reminder-item {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1.25rem;
+    padding: 0.8rem 1rem; /* تعديل الحشو */
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.75rem; /* تقليل المسافة */
+    transition: all 0.3s ease;
+    cursor: pointer;
+    height:80%;
+}
+
+.reminder-item .icon {
+    color: rgba(255, 255, 255, 0.5); 
+    flex-shrink: 0; /* لمنع الأيقونة من الانكماش */
+    /* تصغير حجم الأيقونة لتتناسق مع النص */
+    width: 1.6rem !important;
+    height: 1.6rem !important;
+}
+
+.reminder-item .text {
+    font-size: 1.2rem; /* تصغير حجم الخط */
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
+    text-align: right; /* لضمان محاذاة النص لليمين */
+}
+
+/* كود الحالة النشطة يبقى كما هو لأنه ممتاز */
+.reminder-item.active {
+    background-color: rgba(20, 184, 166, 0.3); 
+    border-color: rgba(45, 212, 191, 0.7);
+    box-shadow: 0 0 20px rgba(20, 184, 166, 0.5);
+}
+
+.reminder-item.active .icon {
+    color: #5eead4; 
+}
+
+.reminder-item.active .text {
+    color: #ffffff; 
+}
+
+/* NEW: Upcoming reminder glow */
+.reminder-item.upcoming {
+    background-color: rgba(249, 115, 22, 0.2); /* Orange transparent bg */
+    border-color: rgba(251, 146, 60, 0.6);   /* Orange border */
+    box-shadow: 0 0 20px rgba(249, 115, 22, 0.4); /* Orange glow */
+}
+.reminder-item.upcoming .icon {
+    color: #fdba74; /* Light orange icon */
+}
+.reminder-item.upcoming .text {
+    color: #ffffff; /* White text for contrast */
+}
+
+/* ▼▼▼ NEW: Completed reminder style ▼▼▼ */
+.reminder-item.completed {
+    background-color: rgba(107, 114, 128, 0.15); /* Grayish transparent bg */
+    border-color: rgba(107, 114, 128, 0.3);
+    opacity: 0.7; /* Make it more faded */
+}
+.reminder-item.completed .icon {
+    color: #4ade80; /* Green check icon */
+}
+.reminder-item.completed .text {
+    color: rgba(255, 255, 255, 0.5); /* Faded text */
+}
+
+
+/* ▼▼▼ NEW: Missed and Dropdown Styles ▼▼▼ */
+.reminder-item.missed {
+    background-color: rgba(239, 68, 68, 0.2); /* Red transparent bg */
+    border-color: rgba(248, 113, 113, 0.6);   /* Red border */
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.4); /* Red glow */
+}
+.reminder-item.missed .icon {
+    color: #fca5a5; /* Light red icon */
+}
+.reminder-item.missed .text {
+    color: #ffffff; /* White text for contrast */
+}
+
+/* Dropdown menu for reminders */
+.reminder-status-dropdown {
+    position: absolute;
+    top: 90%; /* Position slightly overlapping the icon */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(30, 41, 59, 0.9); /* slate-800 with transparency */
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0.75rem;
+    padding: 0.5rem;
+    z-index: 50;
+    display: none; /* Hidden by default */
+    min-width: 120px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+.reminder-status-dropdown.show {
+    display: block;
+}
+.reminder-status-dropdown button {
+    display: block; width: 100%; padding: 0.5rem 0.75rem; text-align: right; font-size: 0.9rem; color: white; background-color: transparent; border: none; border-radius: 0.5rem; cursor: pointer; transition: background-color 0.2s;
+}
+.reminder-status-dropdown button:hover {
+    background-color: rgba(71, 85, 105, 0.7); /* slate-600 with transparency */
+}
+/* ▲▲▲ END: New Styles ▲▲▲ */
+
+
+/* --- END: Islamic Daily Reminders Styles (MODIFIED) --- */
+        /* OBD-II Specific Styles */
+        .obd-data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            width: 100%;
+        }
+        .obd-data-card {
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 1rem;
+            text-align: center;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+        }
+        .obd-data-card .value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #10b981;
+            margin-bottom: 0.25rem;
+        }
+        .obd-data-card .label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* التغييرات المطلوبة للشاشات الأوسع */
+        @media (min-width: 992px) {
+.glass-surface {
+    /* 🛑 1. خاصية الضبابية (CRITICAL for Glass Effect) */
+    backdrop-filter: blur(12px) saturate(180%)!important;
+    -webkit-backdrop-filter: blur(12px) saturate(180%)!important; /* دعم متصفحات الويب كيت */
+
+    /* 2. الخلفية الشفافة المائلة للثلج */
+    background-color: rgba(255, 255, 255, 0.15)!important; /* لون أبيض خفيف */
+    
+ 
+    /* 4. إعدادات ظل خفيف وعائم */
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3)!important;
+}
+
+/* 🛑 إضافة طبقة لمعان خفيفة (اختياري) */
+.glass-surface::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* تدرج لوني يعطي إحساس باللمعان من الأعلى لليسار */
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.1),
+        rgba(255, 255, 255, 0)
+    );
+    pointer-events: none; /* لا يعيق النقر */
+}
+/* Cleaned base body styles - animation and gradient moved to screens */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000000; /* Simple black fallback */
+            background-size: auto; /* Reset size */
+            animation: none; /* Remove body animation */
+            transition: background-image 0.5s ease;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+button.youtube-suggestion-button.navigable.grid-item {
+    font-size: 1rem;
+}
+
+div#youtube-surah-section {
+    min-height: 547px;
+}
+
+button.youtube-suggestion-button.navigable.grid-item {
+    height: 50px;
+}
+
+span.surah-name-text {
+    font-size: 1rem;
+}
+
+.w-full.h-full.bg-black2.rounded-3xl.flex.items-center.justify-center.p-1.overflow\:hidden {
+    background: linear-gradient(45deg, black, #00000024) ;
+}
+
+section#screen-Map>.w-full.h-full.bg-black2.rounded-3xl.flex.items-center.justify-center.p-1.overflow\:hidden {
+    background: linear-gradient(45deg, black, transparent);!important}
+
+            .carousel-nav-button.prev {
+                display: flex;
+            }
+
+            div#video-popup-container {
+    height: 17rem;
+    width: 29rem;
+    bottom:8rem;
+    right:4rem;
+}
+
+  #digital-time .hours { font-size: 3.2rem; }
+        #digital-time .minutes { font-size: 3.2rem; }
+       #digital-time .seconds { 
+    font-size: 2.5rem;
+}
+           
+     .flex.gap-2.mt-2.homebtn {
+    display: none;
+}
+section#screen-Dashboard{
+  background: #00000084;   
+}
+            body{
+                      background: url(https://dmusera.netlify.app/tvbgc1.webp) !important;
+        background-size: contain !important;
+        background-color: black !important;
+        background-repeat: no-repeat !important;
+        background-position: center !important;
+            }
+
+            /* NEW: Date widget styles */
+            #full-date-widget-container {
+                display: flex !important; /* Make it visible */
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+                padding: 0.2rem; /* Increased padding */
+                background-color: rgba(0,0,0,0.2);
+                border-radius: 1rem;
+                backdrop-filter: blur(5px);
+                -webkit-backdrop-filter: blur(5px);
+                margin-bottom: 0.4rem; /* Add some space below it */
+                font-family: 'Amiri', serif; /* Apply Thuluth-like font */
+            }
+            #full-date-widget-container p { margin: 0; }
+            #gregorian-date { font-size: 1.6rem; font-weight: 700; } /* Increased font size and made bold */
+            #hijri-date { font-size: 1.6rem; opacity: 0.9; font-weight: 700;padding:0px;margin:0px} /* Increased font size and made bold */
+
+            /* NEW: Larger clock on desktop */
+            #digital-time {
+                font-size: 3rem !important;
+            }
+
+
+            /* --- START: Hide Elements in TV UI --- */
+
+/* إخفاء العناصر المطلوبة في واجهة التلفاز */
+
+            .glass-surface.glass-surface--svg.p-2.flex.flex-col.items-center.justify-center.text-center.car-cam-360-container.col-span-1.row-start-1.navigable.grid-item {
+    display: none;
+}
+                              /* إخفاء أيقونة خريطة الـ 3D من شريط التنقل */
+            #car-360-image {
+                visibility: hidden;
+            }
+            div#tv{display:block;background:#00000050}
+            
+
+
+        .car-cam-360-controls.grid-container>button {
+    display: none;
+}
+
+            .car-cam-360-container {
+                background-image: url('https://dmusera.netlify.app/tv-cont.png');
+                background-size: cover;
+                background-position: center center;
+                background-repeat: no-repeat;
+            }
+            /* إخفاء شعار لكزس على الشاشات الأوسع */
+            img[src*="Lexus-Logo.wine.svg"] {
+                display: none !important;
+            }
+        }
+        
+        /* NEW: Show next button on even wider screens */
+        @media (min-width: 1080px) {
+            section#screen-Map {
+    background: linear-gradient(45deg, black 66%, transparent);
+}
+            [data-app="Map"],                  /* إخفاء أيقونة خريطة الـ 3D من شريط التنقل */
+            #car-360-image {
+                display:none
+            }
+            .glass-surface.glass-surface--svg.p-2.flex.flex-col.items-center.justify-center.text-center.car-cam-360-container.col-span-1.row-start-1.navigable.grid-item {
+    display: block;
+}
+       .flex.gap-2.mt-2.homebtn {
+    display: block;
+}
+div#map{display:none}
+
+            div#tv{display:block;background:#00000050}
+            .carousel-nav-button.next {
+                display: flex;
+            }
+        }
+    
+

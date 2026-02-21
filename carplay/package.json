@@ -1,0 +1,34 @@
+{
+  "name": "carplay-web-app",
+  "version": "1.0.0",
+  "description": "تطبيق ويب متطور يحاكي واجهة CarPlay مع دعم كامل للتحكم بالريموت",
+  "main": "index.html",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "serve": "python3 -m http.server 8000",
+    "dev": "python3 -m http.server 8000",
+    "extract": "cd scripts && python3 extract_code.py",
+    "split-js": "cd scripts && python3 split_js.py",
+    "split-css": "cd scripts && python3 split_css.py",
+    "update": "cd scripts && python3 update_index.py"
+  },
+  "keywords": [
+    "carplay",
+    "web-app",
+    "google-maps",
+    "youtube-player",
+    "weather",
+    "prayer-times",
+    "tv-remote",
+    "rtl",
+    "arabic"
+  ],
+  "author": "CarPlay Team",
+  "license": "MIT",
+  "devDependencies": {},
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": ""
+  }
+}

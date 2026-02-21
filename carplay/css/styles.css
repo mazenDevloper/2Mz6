@@ -1,0 +1,23 @@
+/* ملف CSS الرئيسي - يستورد جميع الملفات الفرعية */
+
+/* 1. الأساسيات */
+@import url('base.css');
+
+/* 2. التأثيرات */
+@import url('glass-effects.css');
+@import url('animations.css');
+
+/* 3. التنقل */
+@import url('navigation.css');
+
+/* 4. المكونات */
+@import url('components.css');
+@import url('dashboard.css');
+
+/* 5. الأدوات المساعدة */
+@import url('utilities.css');
+
+/* 6. التجاوب */
+@import url('responsive.css');
+
+

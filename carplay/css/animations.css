@@ -1,0 +1,913 @@
+/* الحركات والتأثيرات البصرية */
+
+/* تمييز الكارت المختار */
+.grid-item:focus, .navigable:focus {
+    transform: scale(1.08) !important;
+    border: 3px solid #0A84FF !important; /* أزرق CarPlay */
+    box-shadow: 0 0 20px rgba(10, 132, 255, 0.6) !important;
+    z-index: 100;
+}
+
+
+/* Clear visual indicator for Remote users */
+.navigable:focus {
+    transform: scale(1.1) translateY(-5px) !important;
+    outline: 4px solid #0A84FF !important;
+    z-index: 100 !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+}
+
+
+span#greg-day-num {
+    transform: scale(2);
+    filter: none!important;
+    opacity: 70%;
+}
+
+
+.carousel-slide, .carousel-slide-dash {
+    position: absolute !important;
+    inset: 0;
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), 
+                transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.95) translateY(10px);
+}
+
+
+.carousel-slide.active, .carousel-slide-dash.active {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1) translateY(0);
+    z-index: 10;
+}
+
+
+#carplay-mini-map, #video-popup-container {
+    transform: translateZ(0); /* هذا السطر السحري يعزل العنصر في طبقة GPU خاصة */
+    backface-visibility: hidden;
+    perspective: 1000;
+}
+
+#screen-DashboardCarPlay .glass-surface {
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+}
+
+#dashboard-google-map {
+    /* يمنع الوميض أثناء الدوران السريع */
+    backface-visibility: hidden;
+    transform: translate3d(0, 0, 0);
+    -webkit-perspective: 1000;
+}
+
+
+#screen-DashboardCarPlay .navigable:focus {
+    transform: scale(1.02);
+    border: 2px solid rgba(255, 255, 255, 0.5) !important;
+    box-shadow: 0 0 40px rgba(59, 130, 246, 0.4) !important;
+}
+
+
+@keyframes pulse-slow {
+    0%, 100% { transform: scale(1); opacity: 1; }
+
+    50% { transform: scale(1.02); opacity: 0.9; }
+
+
+.animate-pulse-slow {
+    animation: pulse-slow 4s infinite ease-in-out;
+}
+
+
+/* تأثير التكبير عند الوقوف بالريموت أو الماوس */
+.simple-suggestion-card {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    z-index: 1;
+}
+
+
+.simple-suggestion-card:focus, .simple-suggestion-card:hover {
+    transform: scale(1.15) translateY(-10px) !important; /* الكرت سيخرج للأعلى ويكبر */
+    z-index: 100 !important;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+}
+
+
+/* 3. The Cards: Fixed Width and No Shrinking */
+.simple-suggestion-card {
+    flex: 0 0 auto !important; /* CRITICAL: Prevents cards from shrinking to fit the screen */
+    width: 200px !important;   /* Set a fixed width for the cards */
+    transition: transform 0.2s ease;
+}
+
+
+/* Optional: Focus effect to match dashboard */
+.simple-suggestion-card:focus {
+    outline: 3px solid #9333ea;
+    transform: scale(1.05);
+}
+
+        /* 1. تعديل مسار الصورة: الانتقال من الابن المباشر إلى البحث داخل الـ div */
+/* 1. تكبير حاوية الصورة والزر داخل الكارت */
+.suggested-d-dashboard-card.navigable.grid-item.p-2 > div {
+    position: relative;
+    /* الحجم القديم كان 11.1rem × 6.1rem */
+    width: 14rem !important;   /* العرض الجديد */
+    height: 8rem !important;   /* الطول الجديد */
+    border-radius: 15px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+
+/* 3. تنسيق زر الـ Bookmark العائم */
+.dashboard-only-bookmark {
+    position: absolute !important;
+      width: 42px !important;
+    height: 42px !important;
+    top: 8px !important;
+    right: 8px !important;
+    z-index: 10; /* فوق الصورة */
+    background: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 50% !important;
+    width: 28px !important;
+    height: 28px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: white !important;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+
+/* 4. تأثير التركيز (Focus) للريموت كنترول */
+.dashboard-only-bookmark:focus, 
+.dashboard-only-bookmark.tv-focus {
+    background: #9333ea !important; /* بنفسجي */
+    transform: scale(1.1);
+    border-color: white !important;
+    box-shadow: 0 0 10px rgba(147, 51, 234, 0.8);
+    outline: none;
+}
+
+
+div#manual-key-switcher {
+    bottom: 6rem!important;
+    transform: scale(0.7) !important;
+}
+
+
+.playlist-shuffle-btn:hover {
+    transform: scale(1.05) !important;
+    filter: brightness(1.1) !important;
+}
+
+
+.simple-suggestion-card:hover, .simple-suggestion-card:focus {
+    transform: scale(1.05) !important;
+    background: #1b8a53 !important;
+    z-index: 101 !important;
+}
+
+
+.simple-suggestion-card.flex.items-center.gap-3.p-2.rounded-lg.bg-white\/10.cursor-pointer.navigable.grid-item {
+    display: flex !important;
+    flex-direction: row !important; /* الصورة فوق النص */
+    flex-shrink: 0 !important; /* هـام جداً: يمنع انكماش المربع ليبقى بارزاً للخارج */
+    width: 240px !important; /* عرض المربع الأخضر */
+    height: 140px !important;
+    background: #156d41 !important; /* اللون الأخضر */
+    border-radius: 12px !important;
+    padding: 8px !important;
+    transition: transform 0.2s ease !important;
+    border: none !important;
+}
+
+
+@keyframes marquee {
+    0% { transform: translateX(100%); }
+
+    100% { transform: translateX(-100%); }
+
+
+.animate-marquee {
+    display: inline-block;
+    animation: marquee 8s linear infinite;
+    padding-left: 10%;
+}
+
+#floating-minimized-video-button .rate-btn {
+    /* تنسيق مربع صغير ومدمج */
+    width: 40px !important;
+    height: 40px !important;
+    padding: 0;
+    font-size: 0.65rem; 
+    font-weight: bold;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.4); /* خلفية خاملة */
+    border: none;
+    border-radius: 6px;
+    opacity: 0.7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+
+.fullscreen-toggle-button {
+    /* Positioning the button inside the section, usually top right */
+    position: absolute; 
+    bottom: 1rem;
+    left: 1rem;
+    z-index: 99;
+     /* Ensure it's above content but below floating buttons (like popup video) */
+    
+    /* Aesthetic styling (can be adjusted to match your glass-surface style) */
+    background-color: rgba(255, 255, 255, 0.1); 
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+}
+
+
+
+/* --- CSS Required for Traffic Buttons --- */
+
+.home-traffic-btn {
+    width: 100%;
+    padding: 1rem 0;
+    font-size: 0.8rem;
+    font-weight: bold;
+    border-radius: 12px;
+    transition: background-color 0.3s ease;
+}
+
+
+.fullscreen-toggle-button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+
+
+/* --- CSS لإنشاء شكل البوصلة الدائري الخارجي المتناظر --- */
+#direction-controls-3d button.active-direction {
+    /* 1. التوهج والحد: إضاءة زرقاء قوية */
+    outline: 3px solid #0A84FF !important; 
+    box-shadow: 0 0 18px rgba(10, 132, 255, 0.8), /* توهج خارجي قوي */
+                inset 0 0 8px rgba(255, 255, 255, 0.3); /* إضاءة داخلية */
+                
+    /* 2. اللون والخلفية: خلفية شفافة زرقاء */
+    background-color: rgba(10, 132, 255, 0.4) !important; 
+    color: white !important;
+    
+    /* 3. الحركة: تكبير خفيف */
+    transform: scale(1.08); /* تكبير ملحوظ */
+}
+
+
+/* 💡 الحفاظ على التفاعل عند مرور الفأرة (Hover) */
+#direction-controls-3d button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.4); 
+    cursor: pointer;
+}
+
+
+/* 1. إعدادات الحاوية Grid */
+#direction-controls-3d {
+    transform:scale(0.8);
+    /* 🛑 يجب أن تكون الأبعاد متناظرة (مثلاً: 50px لكل زر و 10px مسافة) */
+    grid-template-columns: repeat(3, 50px) !important; 
+    width: 170px !important; /* 3*50px + 2*10px gap = 170px */
+    height: 170px !important; 
+    gap: 10px !important; 
+  /* تثبيت الموقع في اليمين */
+    /* الترتيب الافتراضي للعناصر هنا (1, 2, 3, 4, 5, 6, 7, 8, 9) */
+}
+
+
+/* 🚀 3. تطبيق الإزاحة (Transform) لإنشاء محيط دائري وهمي */
+/* المسافة المراد إزاحتها هي (عرض الزر + المسافة) / 2 = (50px + 10px) / 2 = 30px */
+/*
+   الترتيب (RTL Grid Index):
+   [1] NE | [2] N | [3] NW
+   [4] E  | [5] X | [6] W
+   [7] SE | [8] S | [9] SW
+*/
+
+/* N (الترتيب 2): إزاحة للأسفل فقط */
+#direction-controls-3d button:nth-child(2) { transform: translate(-50px,-20px); }
+
+
+/* S (الترتيب 8): إزاحة للأعلى فقط */
+#direction-controls-3d button:nth-child(8) { transform: translate(-112px,20px); }
+
+
+/* E (الترتيب 4): إزاحة لليسار فقط (نحو المركز) */
+#direction-controls-3d button:nth-child(4) { transform: translate(-20px, 0px); }
+
+
+/* W (الترتيب 6): إزاحة لليمين فقط (نحو المركز) */
+#direction-controls-3d button:nth-child(6) { transform: translate(-140px, -0px); }
+
+
+
+/* العناصر القطرية (تتطلب إزاحة على كلا المحورين X و Y) */
+/* NE (الترتيب 1): للأسفل (Y+) ولليسار (X-) */
+#direction-controls-3d button:nth-child(1) { transform: translate(-50px, 3px); }
+
+
+/* NW (الترتيب 3): للأسفل (Y+) ولليمين (X+) */
+#direction-controls-3d button:nth-child(3) { transform: translate(-50px, 1px); }
+
+
+/* SE (الترتيب 7): للأعلى (Y-) ولليسار (X-) */
+#direction-controls-3d button:nth-child(7) { transform:  translate(70px, 60px); }
+
+
+/* SW (الترتيب 9): للأعلى (Y-) ولليمين (X+) */
+#direction-controls-3d button:nth-child(9) { transform: translate(-110px, -5px); }
+
+        
+.is-fullscreen {
+    /* Overrides parent containers and positions relative to the viewport */
+    position: fixed !important; 
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    z-index: 100 !important; /* Must be high to cover everything else */
+    border-radius: 0 !important; /* Removes rounded corners for a true fullscreen feel */
+    overflow-y: auto !important; /* Ensure content remains scrollable if needed */
+    transition: all 0.5s ease-in-out; /* Smooth transition for the effect */
+}
+
+
+
+
+.carousel-nav-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: none; /* Hidden by default */
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.carousel-nav-button:hover {
+    background-color: rgba(0, 0, 0, 0.6);
+    transform: translateY(-50%) scale(1.1);
+}
+
+button.delete-channel-btn.absolute.bottom-2.right-2.p-1\.5.bg-red-600\/80.hover\:bg-red-500.rounded-full.transition-colors.z-10.navigable.grid-item {
+    z-index: 0;
+}
+
+/* --- END: Last Watched Carousel Styles --- */
+.resume-play-button {
+    background-color: rgba(99, 102, 241, 0.8); /* Indigo color */
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border: none;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+
+/* --- END: Last Watched & History Styles --- */
+
+/* --- START: Bookmark Styles --- */
+.bookmark-button {
+    position: absolute;
+    top: 8px;
+    left: 8px; /* For RTL layout */
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 5;
+}
+
+.favorites-menu button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    text-align: right;
+    font-size: 0.9rem;
+    color: white;
+    background-color: transparent;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+
+.remove-favorite-button {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background-color: rgba(220, 38, 38, 0.7); /* Red */
+    color: white;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 5;
+}
+
+
+        /* NEW GLASS SURFACE CSS - Enhanced for liquid 3D effect and "drop glass" */
+        .glass-surface {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition: opacity 0.26s ease-out;
+            border-radius: 1.5rem; /* Ensure rounded corners */
+        }
+
+
+/* --- NEW CSS for LARGE Moon Widget --- */
+
+/* زيادة حجم صورة القمر داخل الـ widget */
+.moon-icon-large {
+    width: 80px;  /* 👈 حجم أكبر للصورة */
+    height: 80px; 
+    border-radius: 50%; /* 👈 ضمان دائريتها */
+    object-fit: cover;
+    /* إضافة حدود بسيطة لتعزيز المظهر الجمالي */
+    border: 2px solid rgba(255, 255, 255, 0.2); 
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+    transition: all 0.3s;
+}
+
+        
+        /* TV Remote Focus Style */
+        .navigable:focus, .navigable.tv-focus {
+            outline: 3px solid #0A84FF !important; /* Use !important to override other outlines */
+            box-shadow: 0 0 20px rgba(10, 132, 255, 0.7) !important; /* Use !important */
+            transform: scale(1.03);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+
+
+        /* Keyframe animation for the background gradient */
+        @keyframes gradient {
+              
+          0% {
+    background-position: 29.0118% 50%;
+  }
+
+
+        /* Styles for individual app screens */
+        .app-screen {
+            display: none; /* Hidden by default */
+            animation: fadeIn 0.1s ease-in-out; /* Fade-in transition */
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+            border-radius: 1.5rem; /* Ensure app screens have rounded corners */
+        }
+
+        
+        /* Fade-in animation for screen transitions */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+
+            to { opacity: 1; transform: scale(1); }
+
+
+        /* Floating Button Styles - Positioned and styled for glass effect */
+        #floating-media-button,
+        #back-to-playlists-bottom-button,
+        #back-to-playlists-bottom-button-search,
+        #floating-keyboard-button,
+        #start-trip-floating-button { 
+            position: fixed;
+            background-color: rgba(138, 8, 6, 0.5); /* Purple glass */
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 9999px; /* Pill shape */
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            z-index: 100; /* Above everything else */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* UPDATED: Clear Search Button style */
+        #clear-search-button {
+            background-color: rgba(220, 38, 38, 0.6); /* Red glass */
+            color: white;
+            padding: 0.75rem;
+            border-radius: 9999px; /* Pill shape */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        #floating-media-button:hover,
+        #back-to-playlists-bottom-button:hover,
+        #floating-keyboard-button:hover,
+        #clear-search-button:hover,
+        #start-trip-floating-button:hover {
+            transform: scale(1.05); /* Only scale, no translate */
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+
+
+        #start-trip-floating-button {
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #10B981; /* Green color */
+            display: none; /* Hidden by default */
+        }
+
+
+        /* NEW: Style for the minimized video player button */
+       /* --- CSS لتحويل زر التصغير إلى كبسولة أفقية --- */
+
+#floating-minimized-video-button {
+    /* 🛑 يجب أن تظهر في الزاوية اليسرى السفلية */
+    position: fixed;
+    bottom: 7rem;
+    right: 5rem;
+    
+    /* تنسيق الكبسولة */
+    display: flex; /* 👈 ضروري لترتيب العناصر أفقياً */
+    align-items: center;
+    gap: 0.5rem;
+    width: 44%; /* عرض ثابت للكبسولة */
+    height: 60px; /* ارتفاع ثابت */
+    padding: 0.5rem;
+    
+    /* تنسيق Glassmorphism (يجب أن يكون موجوداً) */
+    border-radius: 9999px; /* شكل كبسولة (Pill Shape) */
+    z-index: 105;
+    
+    /* 💡 التوهج ليدل على أنها تعمل في الخلفية */
+    box-shadow: 0 0 15px rgba(255, 255, 0, 0.4); 
+    transition: all 0.3s ease;
+}
+
+        
+
+
+        /* Top bar positioning and transition */
+        .top-bar {
+            top: 1rem;
+            transition: opacity 0.3s ease;
+        }
+
+
+        /* Main CarPlay interface container adjustments */
+        #carplay-main-interface {
+    position: fixed;
+    top: 0%;
+    left: 0%;
+    width: 100vw;
+    height: 100vh;
+    transition: all 0.5s ease-in-out;
+    border-radius: 2rem;
+}
+
+
+        /* Active app icon styling */
+        .app-icon.active {
+            background-color: #6b22ff; /* Purple */
+            color: white;
+            transform: scale(1.1);
+        }
+
+        
+        /* YouTube Video Card Styling (List View and Search Results) - UPDATED */
+        .youtube-video-card, .youtube-search-card {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start; /* CHANGED to align items to the top */
+            padding: 0.75rem;
+            border-radius: 1rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+            width: 100%;
+            box-sizing: border-box;
+            cursor: pointer;
+            gap: 1rem;
+        }
+
+        .youtube-video-card:hover, .youtube-search-card:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        
+        /* YouTube Reader Card Styling (Suggestions) - UPDATED */
+        .youtube-reader-card {
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
+            border-radius: 1.25rem;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .youtube-reader-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .youtube-reader-card.selected {
+            background-color: #9333ea !important;
+            box-shadow: 0 0 15px rgba(147, 51, 234, 0.8);
+            transform: translateY(-5px) scale(1.05);
+        }
+
+
+
+        /* YouTube Suggestion Buttons (for Surahs) - UPDATED */
+        .youtube-suggestion-button {
+            color: white;
+            padding: 0.25rem 0.75rem; /* Zoomed out padding */
+            border-radius: 9999px;
+            font-size: 0.75rem; /* Zoomed out font */
+            font-weight: bold;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            /* NEW: Switched to inline-flex for variable width */
+            display: inline-flex;
+            width: auto;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden; /* Keep overflow hidden on the button itself */
+        }
+
+        .youtube-suggestion-button:hover {
+            transform: translateY(-1px) scale(1.02);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .youtube-suggestion-button:active {
+            transform: translateY(0);
+        }
+
+        .tab-button {
+            padding: 0.5rem 1.25rem;
+            background-color: transparent;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 600;
+            font-size: 0.9rem;
+            border: none;
+            border-radius: 9999px; /* pill shape */
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .car-cam-360-controls button {
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        #digital-time span {
+            transition: opacity 0.3s ease;
+        }
+
+
+
+        /* Settings Range Input Styling */
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+
+
+        /* Animated Weather Icon Styles */
+        @keyframes pulse-float {
+            0% { transform: scale(1) translateY(0px); opacity: 1; }
+
+            50% { transform: scale(1.05) translateY(-2px); opacity: 0.9; }
+
+            100% { transform: scale(1) translateY(0px); opacity: 1; }
+
+        #dashboard-weather-icon, #weather-icon {
+            animation: pulse-float 3s ease-in-out infinite alternate;
+            transition: transform 0.3s ease-in-out;
+        }
+
+
+@media (max-width: 768px) {
+    /* ... (بقية الأكواد الخاصة بالهواتف المحمولة) ... */
+
+/* الأنماط الأساسية لتطبيق تأثير الزجاج الضبابي */
+.glass-surface {
+    /* 🛑 1. خاصية الضبابية (CRITICAL for Glass Effect) */
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%); /* دعم متصفحات الويب كيت */
+
+    /* 2. الخلفية الشفافة المائلة للثلج */
+    background-color: rgba(255, 255, 255, 0.15); /* لون أبيض خفيف */
+    
+    /* 3. حدود شفافة خفيفة (لإحساس العمق) */
+    border: 1px solid rgba(255, 255, 255, 0.1); 
+    
+    /* 4. إعدادات ظل خفيف وعائم */
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    
+    /* 5. تجعل الحواف أكثر نعومة */
+    border-radius: 16px;
+    
+    /* 6. منع تجاوز المحتوى للمنظور الزجاجي */
+    overflow: hidden; 
+    
+    /* 7. استخدام 3D Transform لتثبيت التأثير في Safari */
+    transform: translateZ(0); 
+}
+
+
+.youtube-suggestion-button {
+            color: white;
+            padding: 0.25rem 0.75rem; /* Zoomed out padding */
+            border-radius: 9999px;
+            font-size: 0.75rem; /* Zoomed out font */
+            font-weight: bold;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            /* NEW: Switched to inline-flex for variable width */
+            display: inline-flex;
+            width: auto;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden; /* Keep overflow hidden on the button itself */
+        }
+
+        .youtube-suggestion-button:hover {
+            transform: translateY(-1px) scale(1.02);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .youtube-suggestion-button:active {
+            transform: translateY(0);
+        }
+
+
+.youtube-suggestion-button {
+            color: white;
+            padding: 0.25rem 0.75rem; /* Zoomed out padding */
+            border-radius: 9999px;
+            font-size: 0.75rem; /* Zoomed out font */
+            font-weight: bold;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            /* NEW: Switched to inline-flex for variable width */
+            display: inline-flex;
+            width: auto;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden; /* Keep overflow hidden on the button itself */
+        }
+
+        .youtube-suggestion-button:hover {
+            transform: translateY(-1px) scale(1.02);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .youtube-suggestion-button:active {
+            transform: translateY(0);
+        }
+
+        .prayer-time-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            min-width: 80px;
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+
+
+.reminder-item {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1.25rem;
+    padding: 0.8rem 1rem; /* تعديل الحشو */
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.75rem; /* تقليل المسافة */
+    transition: all 0.3s ease;
+    cursor: pointer;
+    height:80%;
+}
+
+
+/* Dropdown menu for reminders */
+.reminder-status-dropdown {
+    position: absolute;
+    top: 90%; /* Position slightly overlapping the icon */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(30, 41, 59, 0.9); /* slate-800 with transparency */
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0.75rem;
+    padding: 0.5rem;
+    z-index: 50;
+    display: none; /* Hidden by default */
+    min-width: 120px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+.reminder-status-dropdown button {
+    display: block; width: 100%; padding: 0.5rem 0.75rem; text-align: right; font-size: 0.9rem; color: white; background-color: transparent; border: none; border-radius: 0.5rem; cursor: pointer; transition: background-color 0.2s;
+}

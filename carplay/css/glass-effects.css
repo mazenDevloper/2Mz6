@@ -1,0 +1,676 @@
+/* تأثيرات الزجاج والشفافية */
+
+/* تنسيق الأرقام العملاقة داخل الكروت */
+.carousel-slide span[id*="-day-big"], 
+#carplay-weather-temp-big {
+    font-size: 5rem; /* حجم ضخم */
+    font-weight: 900;
+    line-height: 1;
+    display: block;
+    background: linear-gradient(to bottom, #ffffff, #a5a5a5);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+}
+
+
+.absolute.bg-black\/70.backdrop-blur-md.p-3.min-h-\[40\%\].flex.items-center.overflow-hidden {
+    width: 100%;
+    bottom: 0px;
+    height: 20%;
+}
+
+
+
+/* تنسيق أسماء الشهور تحت الأرقام */
+.carousel-slide span[id*="-month-text"] {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.8);
+    margin-top: -5px;
+}
+
+
+#carplay-prayer-mini-grid .prayer-item {
+    background: rgba(255,255,255,0.03);
+    border-radius: 1rem;
+    padding: 8px;
+    text-align: center;
+}
+
+/* تنسيق الزر ليكون في أسفل يسار الحاوية */
+.playlist-shuffle-btn {
+    position: absolute !important;
+    bottom: 47px !important;
+    left: 77px !important;
+    z-index: 50 !important; /* لضمان ظهوره فوق الكروت */
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    background: linear-gradient(135deg, #9333ea 0%, #2563eb 100%) !important;
+    color: white !important;
+    padding: 8px 16px !important;
+    border-radius: 12px !important;
+    font-size: 0.9rem !important;
+    font-weight: bold !important;
+    border: 1px solid rgba(255,255,255,0.2) !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5) !important;
+    cursor: pointer !important;
+}
+
+
+/* 2. حاوية الصورة (لضبط نسبة الأبعاد) */
+.favorites-popup-card .thumbnail-container,.simple-suggestion-card {
+    width: 100%;
+    /* استخدام نسبة أبعاد قياسية (16:9) */
+    aspect-ratio: 16 / 9;
+    position: relative;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+}
+
+
+.date-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 10px 30px;
+    border-radius: 50px;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+
+.date-details {
+    display: flex;
+    gap: 10px;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.6);
+    white-space: nowrap;
+}
+
+
+/* 🚀 تنسيق الزر النشط (Active Rate Style) - يجعل الزر يبرز */
+#floating-minimized-video-button .rate-btn.active-rate {
+    background-color: #FACC15 !important; /* لون أصفر ساطع */
+    color: black !important;
+    opacity: 1;
+    box-shadow: 0 0 8px rgba(250, 204, 21, 0.8); /* توهج بارز */
+}
+
+.iframe-src-button.active {
+  background-color: #a855f7; /* Brighter purple for active */
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.7);
+}
+
+
+.last-watched-slide .glass-surface {
+    width: 100%;
+}
+
+
+.resume-play-button:hover {
+    background-color: rgba(79, 70, 229, 1);
+}
+
+.bookmark-button:hover {
+    background-color: rgba(99, 102, 241, 1); /* Indigo */
+}
+
+
+.favorites-menu {
+    position: fixed; /* Use fixed to break out of scrolling containers */
+    background-color: rgba(30, 41, 59, 0.9);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0.75rem;
+    padding: 0.5rem;
+    z-index: 150; /* High z-index */
+    display: none;
+    min-width: 150px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+.favorites-menu button:hover {
+    background-color: rgba(71, 85, 105, 0.7);
+}
+
+.remove-favorite-button:hover {
+    background-color: rgba(185, 28, 28, 1);
+}
+
+
+.w-full.grid.grid-cols-3.items-center.p-2.sticky.bottom-0.bg-black\/40.backdrop-blur-sm.flex-shrink-0 {
+    WIDTH: 50%;
+    JUSTIFY-SELF: CENTER;
+}
+
+
+/* --- Try removing !important from these rules --- */
+.tabs-container {
+  display: flex; /* Remove !important */
+  gap: 0.5rem; /* Remove !important */
+  padding: 0.25rem; /* Remove !important */
+  border-radius: 9999px; /* Remove !important */
+  background-color: rgba(0, 0, 0, 0.8)!important; /* Remove !important */
+  align-self: center; /* Remove !important */
+  margin-bottom: 1rem; /* Remove !important */
+}
+
+        .glass-surface__filter {
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            z-index: -1;
+        }
+
+
+.glass-surface.glass-surface--svg.youtube-video-card.navigable.grid-item {
+    direction: ltr!important;
+}
+
+
+
+        .glass-surface__content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            border-radius: inherit;
+            position: relative;
+            z-index: 1;
+        }
+
+        .glass-surface--svg {
+            /* Adjusted background for a more pronounced "drop" effect */
+            background: light-dark(hsl(0 0% 100% / var(--glass-frost, 0.1)), /* Slightly more opaque background */
+                hsl(0 0% 0% / var(--glass-frost, 0.2))); /* Darker opaque background for dark mode */
+            
+            /* Enhanced backdrop-filter for stronger blur and saturation */
+            backdrop-filter: var(--filter-id, url(#glass-filter)) blur(8px) saturate(1.8) brightness(1.1); /* e.g., 8px instead of 10px */
+     -webkit-backdrop-filter: blur(8px) saturate(1.8) brightness(1.1);/* Webkit prefix */
+
+            /* More pronounced box-shadow for a "dropped" effect */
+            box-shadow:
+                0 0 5px 2px rgba(255, 255, 255, 0.1) inset, /* Inner light glow */
+                0 0 15px 6px rgba(0, 255, 255, 0.15) inset, /* Inner cyan glow */
+                0px 8px 30px rgba(17, 17, 26, 0.1), /* Stronger outer shadow */
+                0px 16px 60px rgba(17, 17, 26, 0.15), /* Even stronger outer shadow */
+                0px 24px 80px rgba(17, 17, 26, 0.2), /* Deepest outer shadow */
+                inset 0 0 20px 8px rgba(0,0,0,0.3), /* Deeper inner shadow for depth */
+                inset 0 0 25px 10px rgba(0,0,0,0.2), /* Even deeper inner shadow */
+                0 0 20px rgba(255, 255, 255, 0.15); /* Added subtle outer white glow for "shine" */
+            border: 1px solid rgba(255, 255, 255, 0.3); /* Added a subtle white border */
+        }
+
+        
+        /* Fallback for browsers not supporting backdrop-filter - also enhanced */
+        .glass-surface--fallback {
+            background: rgba(255, 255, 255, 0.35); /* More opaque fallback */
+            backdrop-filter: blur(15px) saturate(2.0) brightness(1.2); /* Stronger fallback blur/saturate */
+            -webkit-backdrop-filter: blur(15px) saturate(2.0) brightness(1.2);
+            border: 1px solid rgba(255, 255, 255, 0.4); /* Stronger border */
+            box-shadow:
+                0 10px 40px 0 rgba(31, 38, 135, 0.3), /* Stronger fallback shadow */
+                0 4px 20px 0 rgba(31, 38, 135, 0.2),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.5),
+                inset 0 -1px 0 0 rgba(255, 255, 255, 0.3);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .glass-surface--fallback {
+                background: rgba(255, 255, 255, 0.15); /* Dark mode fallback */
+                backdrop-filter: blur(15px) saturate(2.0) brightness(1.3);
+                -webkit-backdrop-filter: blur(15px) saturate(2.0) brightness(1.3);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                box-shadow:
+                    inset 0 1px 0 0 rgba(255, 255, 255, 0.3),
+                    inset 0 -1px 0 0 rgba(255, 255, 255, 0.2);
+            }
+
+        @supports not (backdrop-filter: blur(10px)) {
+            .glass-surface--fallback {
+                background: rgba(255, 255, 255, 0.5); /* Strongest fallback for no backdrop-filter */
+                box-shadow:
+                    inset 0 1px 0 0 rgba(255, 255, 255, 0.6),
+                    inset 0 -1px 0 0 rgba(255, 255, 255, 0.4);
+            }
+
+            .glass-surface--fallback::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: rgba(255, 255, 255, 0.2); /* More opaque overlay */
+                border-radius: inherit;
+                z-index: -1;
+            }
+
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+
+
+        .chat-message.user {
+            background-color: #4f46e5; /* Blue */
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 0.5rem; /* Pointy bottom right */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+
+        .chat-message.ai {
+            background-color: #2d3748; /* Darker gray */
+            color: white;
+            margin-right: auto;
+            border-bottom-left-radius: 0.5rem; /* Pointy bottom left */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+
+        #ai-input {
+            border-radius: 2rem; /* Fully rounded pill shape */
+            padding: 0.75rem 1.25rem;
+            background-color: rgba(255, 255, 255, 0.15); /* Lighter glass */
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        #ai-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        #ai-input:focus {
+            background-color: rgba(255, 255, 255, 0.2);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.4), 0 0 0 2px rgba(147, 51, 234, 0.5);
+        }
+
+
+        .glass-surface.glass-surface--svg.p-4.rounded-3xl.text-center.flex.flex-col.items-center.justify-center.navigable.grid-item {
+    height: 169px;
+}
+
+        /* NEW: Styles for Watched Progress Bar */
+        .watched-progress-bar-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+
+        /* NEW: Style for Watched Badge */
+        .watched-badge {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .video-duration {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            font-size: 0.75rem;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
+        #search-results-container::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+        }
+
+        #search-results-container::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.5);
+            border-radius: 10px;
+        }
+
+        .youtube-reader-card img {
+            width: 100px; /* MODIFIED: Increased size */
+            height: 100px; /* MODIFIED: Increased size */
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+
+        /* NEW: Badge for Juz number */
+        .youtube-suggestion-button .juz-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 9999px;
+            background-color: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+            flex-shrink: 0; /* Prevent badge from shrinking */
+            line-height: 1;
+            position: relative; /* Allow z-index */
+            z-index: 2; /* Ensure it's on top */
+        }
+
+        .surah-buttons-scrollable::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
+
+        .surah-buttons-scrollable::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.4); border-radius: 10px; }
+
+        
+        /* NEW: Styling for Tabs in Media Screen */
+        .tabs-container {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.25rem;
+            border-radius: 9999px; /* pill shape */
+            background-color: rgba(0, 0, 0, 0.8);
+            align-self: center; /* Center the tab bar */
+            margin-bottom: 1rem;
+        }
+
+        .tab-button.active {
+            color: white;
+            background-color: rgba(147, 51, 234, 0.6); /* Purple */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+
+        .gauge-container.absolute-pos {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+
+        .gauge-label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 0.25rem;
+        }
+
+
+.glass-surface.glass-surface--svg.p-3.rounded-2x1.text-center.flex.items-center.gap-3.navigable.grid-item {
+    height: 122px;
+}.glass-surface.glass-surface--svg.p-3.rounded-2x1.text-center.flex.items-center.gap-3.navigable.grid-item {}
+
+
+        
+div#youtube-readers-section {
+    height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.7);
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.7);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .car-cam-360-controls button:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #9333ea;
+            cursor: pointer;
+            box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.5);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #9333ea;
+            cursor: pointer;
+            box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.5);
+        }
+
+
+/* 🛑 إضافة طبقة لمعان خفيفة (اختياري) */
+.glass-surface::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* تدرج لوني يعطي إحساس باللمعان من الأعلى لليسار */
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.1),
+        rgba(255, 255, 255, 0)
+    );
+    pointer-events: none; /* لا يعيق النقر */
+}
+
+
+        /* NEW: Badge for Juz number */
+        .youtube-suggestion-button .juz-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 9999px;
+            background-color: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+            flex-shrink: 0; /* Prevent badge from shrinking */
+            line-height: 1;
+            position: relative; /* Allow z-index */
+            z-index: 2; /* Ensure it's on top */
+        }
+
+
+        /* NEW: Responsive padding toggle */
+        @media (min-width: 768px) {
+
+.glass-surface {
+    /* 🛑 1. خاصية الضبابية (CRITICAL for Glass Effect) */
+    backdrop-filter: blur(12px) saturate(180%)!important;
+    -webkit-backdrop-filter: blur(12px) saturate(180%)!important; /* دعم متصفحات الويب كيت */
+
+    /* 2. الخلفية الشفافة المائلة للثلج */
+    background-color: rgba(255, 255, 255, 0.15)!important; /* لون أبيض خفيف */
+    
+ 
+    /* 4. إعدادات ظل خفيف وعائم */
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3)!important;
+}
+
+
+        /* NEW: Badge for Juz number */
+        .youtube-suggestion-button .juz-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 9999px;
+            background-color: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+            flex-shrink: 0; /* Prevent badge from shrinking */
+            line-height: 1;
+            position: relative; /* Allow z-index */
+            z-index: 2; /* Ensure it's on top */
+        }
+
+        /* UPDATED: Current prayer is green */
+        .prayer-time-item.current-prayer {
+            background-color: rgba(16, 185, 129, 0.4); /* Greenish */
+            font-weight: bold;
+            border: 1px solid #10B981;
+        }
+
+        /* UPDATED: Next prayer is orange */
+        .prayer-time-item.next-prayer {
+            background-color: rgba(251, 146, 60, 0.3); /* Orangey */
+            border: 1px solid #fb923c;
+        }
+
+        .prayer-time {
+           color: rgba(255, 255, 255,0.85);
+            font-size: 1.4rem;
+            font-weight: bold;
+   
+        }
+
+
+.reminder-item .icon {
+    color: rgba(255, 255, 255, 0.5); 
+    flex-shrink: 0; /* لمنع الأيقونة من الانكماش */
+    /* تصغير حجم الأيقونة لتتناسق مع النص */
+    width: 1.6rem !important;
+    height: 1.6rem !important;
+}
+
+
+.reminder-item .text {
+    font-size: 1.2rem; /* تصغير حجم الخط */
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
+    text-align: right; /* لضمان محاذاة النص لليمين */
+}
+
+
+/* كود الحالة النشطة يبقى كما هو لأنه ممتاز */
+.reminder-item.active {
+    background-color: rgba(20, 184, 166, 0.3); 
+    border-color: rgba(45, 212, 191, 0.7);
+    box-shadow: 0 0 20px rgba(20, 184, 166, 0.5);
+}
+
+
+/* NEW: Upcoming reminder glow */
+.reminder-item.upcoming {
+    background-color: rgba(249, 115, 22, 0.2); /* Orange transparent bg */
+    border-color: rgba(251, 146, 60, 0.6);   /* Orange border */
+    box-shadow: 0 0 20px rgba(249, 115, 22, 0.4); /* Orange glow */
+}
+
+
+/* ▼▼▼ NEW: Completed reminder style ▼▼▼ */
+.reminder-item.completed {
+    background-color: rgba(107, 114, 128, 0.15); /* Grayish transparent bg */
+    border-color: rgba(107, 114, 128, 0.3);
+    opacity: 0.7; /* Make it more faded */
+}
+
+.reminder-item.completed .text {
+    color: rgba(255, 255, 255, 0.5); /* Faded text */
+}
+
+
+
+/* ▼▼▼ NEW: Missed and Dropdown Styles ▼▼▼ */
+.reminder-item.missed {
+    background-color: rgba(239, 68, 68, 0.2); /* Red transparent bg */
+    border-color: rgba(248, 113, 113, 0.6);   /* Red border */
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.4); /* Red glow */
+}
+
+.reminder-status-dropdown button:hover {
+    background-color: rgba(71, 85, 105, 0.7); /* slate-600 with transparency */
+}
+
+        .obd-data-card {
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 1rem;
+            text-align: center;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+        }
+
+        .obd-data-card .label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+
+        /* التغييرات المطلوبة للشاشات الأوسع */
+        @media (min-width: 992px) {
+.glass-surface {
+    /* 🛑 1. خاصية الضبابية (CRITICAL for Glass Effect) */
+    backdrop-filter: blur(12px) saturate(180%)!important;
+    -webkit-backdrop-filter: blur(12px) saturate(180%)!important; /* دعم متصفحات الويب كيت */
+
+    /* 2. الخلفية الشفافة المائلة للثلج */
+    background-color: rgba(255, 255, 255, 0.15)!important; /* لون أبيض خفيف */
+    
+ 
+    /* 4. إعدادات ظل خفيف وعائم */
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3)!important;
+}
+
+
+/* 🛑 إضافة طبقة لمعان خفيفة (اختياري) */
+.glass-surface::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* تدرج لوني يعطي إحساس باللمعان من الأعلى لليسار */
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.1),
+        rgba(255, 255, 255, 0)
+    );
+    pointer-events: none; /* لا يعيق النقر */
+}
+
+
+
+            /* --- START: Hide Elements in TV UI --- */
+
+/* إخفاء العناصر المطلوبة في واجهة التلفاز */
+
+            .glass-surface.glass-surface--svg.p-2.flex.flex-col.items-center.justify-center.text-center.car-cam-360-container.col-span-1.row-start-1.navigable.grid-item {
+    display: none;
+}
+
+            .glass-surface.glass-surface--svg.p-2.flex.flex-col.items-center.justify-center.text-center.car-cam-360-container.col-span-1.row-start-1.navigable.grid-item {
+    display: block;
+}

@@ -1,0 +1,62 @@
+/* تنسيقات التنقل بالريموت */
+
+
+/* 2. تكبير الصورة نفسها لتملأ الحاوية الجديدة */
+.suggested-d-dashboard-card.navigable.grid-item.p-2 div > img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    border-radius: 15px !important;
+    display: block;
+}
+
+
+/* 5. الاستمرار في إخفاء النصوص القديمة */
+.suggested-d-dashboard-card.navigable.grid-item.p-2 .video-details,
+.suggested-d-dashboard-card.navigable.grid-item.p-2 h6,
+.suggested-d-dashboard-card.navigable.grid-item.p-2 p {
+    display: none !important;
+}
+
+        
+.suggested-d-dashboard-card.navigable.grid-item.p-2>img {
+    height: 9rem !important;
+    min-width: 16rem !important;
+}
+
+
+/* تنسيق الصور (تم توسيع المُحدد ليشمل العناصر داخل الحاوية الجديدة) */
+/* يفترض أن عناصر المقترحات تستخدم كلاس 'suggested-video-card' */
+.suggested-video-card > img,
+.suggested-d-dashboard-card.navigable.grid-item > img,
+.fav-d-dashboard-card.navigable.grid-item > img {
+    width: 11.1rem !important;
+    height: 6.1rem !important;
+}
+
+.fav-d-dashboard-card.navigable.grid-item>img {width: 11.1rem!important;height: 6.1rem!important;}
+
+
+.simple-suggestion-card.flex.items-center.gap-3.p-2.rounded-lg.bg-white\/10.cursor-pointer.navigable.grid-item {
+    width: 50%;
+}
+
+
+button.youtube-suggestion-button.navigable.grid-item {
+    font-size: 1rem;
+}
+
+
+button.youtube-suggestion-button.navigable.grid-item {
+    height: 50px;
+}
+
+
+button.youtube-suggestion-button.navigable.grid-item {
+    font-size: 1rem;
+}
+
+
+button.youtube-suggestion-button.navigable.grid-item {
+    height: 50px;
+}

@@ -1,0 +1,110 @@
+📦 carplay-project/
+│
+├── 📄 index.html                    (الصفحة الرئيسية - 8,815 سطر)
+├── 📄 index_original.html           (النسخة الأصلية الموحدة - مرجعية)
+│
+├── 📘 README.md                     (دليل المشروع الشامل)
+├── 📘 SETUP.md                      (دليل الإعداد السريع)
+├── 📘 .gitignore                    (استبعاد ملفات من Git)
+│
+├── 📋 manifest.json                 (بيانات Progressive Web App)
+├── 📋 package.json                  (معلومات المشروع والأوامر)
+│
+├── 🎨 css/                          (204 KB - 2,800 سطر)
+│   ├── styles.css                  ⭐ نقطة الدخول الرئيسية (يستورد كل الملفات)
+│   ├── base.css                    (التنسيقات الأساسية والخطوط)
+│   ├── animations.css              (الحركات والتأثيرات - @keyframes)
+│   ├── glass-effects.css           (تأثيرات الزجاج والشفافية - Glass Morphism)
+│   ├── navigation.css              (تنسيقات التنقل بالريموت - :focus states)
+│   ├── components.css              (الكروت، الأزرار، القوائم)
+│   ├── dashboard.css               (تنسيقات لوحة القيادة الرئيسية)
+│   ├── utilities.css               (أدوات مساعدة وتنسيقات متفرقة)
+│   ├── responsive.css              (التنسيقات المتجاوبة - @media queries)
+│   └── main.css                    (النسخة الموحدة - احتياطية)
+│
+├── 💻 js/                           (468 KB - 8,815 سطر)
+│   ├── app-loader.js               ⭐ محمل الوحدات (يحدد ترتيب التحميل)
+│   ├── config.js                   (الإعدادات: API Keys, متغيرات عامة)
+│   ├── navigation.js               (نظام التنقل: Keyboard + Remote Control)
+│   ├── maps.js                     (Google Maps + 3D Car Model)
+│   ├── youtube.js                  (YouTube Player + API Key Rotation)
+│   ├── weather.js                  (OpenWeatherMap + NASA Moon Image)
+│   ├── prayer.js                   (أوقات الصلاة + العد التنازلي)
+│   ├── storage.js                  (LocalStorage + JSONBin Sync)
+│   └── app.js                      (النسخة الموحدة - احتياطية)
+│
+├── 🖼️ assets/                      (الموارد الثابتة)
+│   ├── models/                     (ملفات 3D)
+│   │   └── ES350E.gltf            (موديل سيارة لكزس ES 350)
+│   │
+│   └── img/                        (الصور والأيقونات)
+│       ├── lexus-logo.png         (شعار لكزس)
+│       ├── icon-192.png           (أيقونة PWA - صغيرة)
+│       └── icon-512.png           (أيقونة PWA - كبيرة)
+│
+├── 📊 data/                         (البيانات الثابتة)
+│   └── prayer-times.json          (جدول أوقات الصلاة - فبراير 2026)
+│
+└── 🛠️ scripts/                     (سكربتات التطوير)
+    ├── extract_code.py            (استخراج CSS و JS من HTML الأصلي)
+    ├── split_js.py                (تقسيم JavaScript إلى وحدات)
+    ├── split_css.py               (تقسيم CSS إلى ملفات منطقية)
+    └── update_index.py            (تحديث index.html بالروابط الصحيحة)
+
+
+═══════════════════════════════════════════════════════════════════
+
+📊 إحصائيات المشروع:
+
+✅ إجمالي الأسطر: 15,530 سطر
+✅ CSS: 2,800 سطر (204 KB) - مقسمة على 9 ملفات
+✅ JavaScript: 8,815 سطر (468 KB) - مقسمة على 8 ملفات
+✅ HTML: ~3,900 سطر (نظيف بدون CSS/JS مضمن)
+
+═══════════════════════════════════════════════════════════════════
+
+🔗 الروابط الخارجية (CDN):
+
+📦 CSS Frameworks:
+   - Tailwind CSS
+   - Font Awesome Icons
+
+📦 JavaScript Libraries:
+   - Lucide Icons
+   - Chart.js
+   - Three.js (للموديلات 3D)
+   - YouTube IFrame API
+
+📦 Fonts:
+   - Google Fonts: Amiri (للقرآن)
+   - Google Fonts: Inter (للنصوص)
+
+═══════════════════════════════════════════════════════════════════
+
+🎯 الملفات المهمة:
+
+⭐ css/styles.css     → نقطة الدخول لجميع التنسيقات
+⭐ js/app-loader.js   → نقطة الدخول لجميع الوحدات
+⭐ js/config.js       → مكان وضع مفاتيح API
+⭐ index.html         → الصفحة الرئيسية النظيفة
+
+═══════════════════════════════════════════════════════════════════
+
+📝 ملاحظات:
+
+1. الملفات الأصلية الموحدة (index_original.html) محفوظة كمرجع
+2. جميع الملفات مرتبطة بشكل صحيح ومنظمة
+3. يمكن تعديل أي ملف بشكل مستقل دون التأثير على الباقي
+4. البنية قابلة للتوسع والصيانة بسهولة
+5. جميع المسارات نسبية (Relative Paths)
+
+═══════════════════════════════════════════════════════════════════
+
+🚀 البدء السريع:
+
+1. افتح js/config.js وضع مفاتيح API
+2. شغّل: python3 -m http.server 8000
+3. افتح: http://localhost:8000
+4. استخدم الأسهم + Enter للتنقل
+
+═══════════════════════════════════════════════════════════════════

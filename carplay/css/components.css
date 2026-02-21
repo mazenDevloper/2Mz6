@@ -1,0 +1,455 @@
+/* تنسيقات المكونات (الكروت، الأزرار، الخ) */
+
+
+div#weather-widget-container {
+    padding: 1.2px!important;
+}
+
+
+#carplay-carousel-container {
+    perspective: 1000px;
+}
+
+
+
+
+div#weather-widget-container {
+    width: 100% !important;
+    height:40%  !important;
+}
+
+
+
+.carousel-slide.hidden , .carousel-slide-dash.hidden {
+    display: none;
+}
+
+
+/* ضمان أن الحاوية الداخلية لا تقص المحتوى */
+#favorites-popup-grid {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 25px !important;
+    padding: 0 100px !important; /* مساحة بداية ونهاية السكرول */
+    overflow: visible !important; 
+    width: max-content !important;
+}
+
+/* 1. The Container: Enable Horizontal Scrolling */
+#favorites-popup-grid {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important; /* Prevents cards from dropping to next line */
+    overflow-x: auto !important;  /* Enables horizontal scroll */
+    overflow-y: hidden !important;
+    gap: 16px !important;
+    width: 100% !important;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling for iOS */
+    scrollbar-width: none; /* Hides scrollbar in Firefox */
+    padding-bottom: 20px !important; /* Extra space for shadow/focus effects */
+}
+
+
+/* 2. Hide Scrollbar for Chrome, Safari and Edge */
+#favorites-popup-grid::-webkit-scrollbar {
+    display: none;
+}
+
+
+div#manual-key-switcher>button {
+    width: 5rem;
+    height: 3rem;
+}
+
+
+.video-popup-player-container {
+    position: relative !important;
+    overflow: visible !important;
+    display: block !important;
+    flex-direction: row !important;
+    gap: 10px !important;
+}
+
+#video-popup-player-container {
+  
+    height: 155% 1important;
+   
+}
+
+.favorites-popup-grid {
+    display: flex !important; /* تحويل الشبكة إلى صف أفقي */
+    flex-direction: row !important;
+    flex-wrap: nowrap !important; /* منع العناصر من النزول لسطر جديد */
+    gap: 15px !important;
+    padding: 10px 5px !important;
+    
+    /* ميزات التمرير والبروز خارج الحاوية */
+    overflow-x: auto !important; /* تفعيل التمرير الأفقي */
+    overflow-y: visible !important; /* السماح ببروز العناصر عمودياً إن لزم الأمر */
+    scrollbar-width: none !important; /* إخفاء شريط التمرير في فيرفوكس */
+    
+    /* لضمان بدء العناصر من داخل الحاوية وبروزها للخارج */
+    width: auto !important;
+    min-width: 100% !important;
+}
+
+
+div#favorites-popup-grid {
+    display: flex !important;
+    overflow: visible !important;
+}
+
+
+div#video-popup-container {
+    overflow: visible !important;
+}
+
+
+button#floating-mic-button {
+    bottom: 32px !important;
+    position: relative;
+}
+
+ #floating-media-button {
+        padding: 0px!important;
+    }
+
+
+/* تنسيق عام لأزرار التحكم */
+#bottom-left-controls button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* ... (بقية التنسيقات المذكورة في HTML) ... */
+}
+
+
+button#add-video-by-url-btn {
+    position: fixed;
+    bottom: 76px;
+    right: 30px;
+}
+
+
+/* 3. الصورة (تغطية الحاوية) */
+.simple-suggestion-card>img {
+    width: 101%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.favorites-popup-card .title-overlay p {
+    font-size: 0.8rem; 
+}
+
+
+.simple-suggestion-card>.min-w-0.flex-grow{
+    position: absolute;
+    bottom: 2px;
+    background: linear-gradient(45deg, black, #2a1f1f91);
+}
+
+
+
+div#favorites-popup-grid {
+ display: ruby;
+}
+
+
+#floating-minimized-video-button {
+    width: 320px; /* زيادة العرض لاستيعاب 3 أزرار */
+    height: auto;
+    padding: 0.4rem;
+    gap: 0.4rem;
+    display: flex;
+    align-items: center;
+    border-radius: 9999px; /* شكل كبسولة */
+    /* ... (بقية تنسيق الكبسولة) ... */
+}
+
+#video-popup-container {
+    right: 4rem !important;
+}
+
+
+/* 2. ضمان الشكل الدائري والحجم الثابت لكل زر */
+#direction-controls-3d button {
+    width: 50px !important; 
+    height: 50px !important; 
+    border-radius: 50% !important; 
+    margin: 0 !important; /* إلغاء الهوامش السلبية السابقة */
+    padding: 0; 
+}
+
+
+#quran-go-button, #fullscreen-reciters-iframe-btn, #fullscreen-radio-iframe-btn {
+    z-index: 999;
+    left: 102px;
+    bottom: 130px;
+}
+
+button#video-popup-bookmark-button {
+    position: fixed;
+    left: 2px;
+}
+
+.last-watched-carousel-wrapper {
+    position: relative;
+    width: 237%;
+}
+
+.last-watched-carousel-wrapper {
+    direction: ltr;
+}
+
+.carousel-nav-button.prev {
+    right: 10px;
+     width: 70px;
+     height: 70px;
+    
+}
+
+.carousel-nav-button.next {
+     right: 73px;
+     width: 70px;
+     height: 70px;
+}
+
+/* This is the scrollable viewport */
+.last-watched-slides-container {
+    display: flex;
+    gap: 1rem; /* The space between cards */
+    overflow-x: auto; /* This enables horizontal scrolling */
+    scroll-snap-type: x mandatory; /* This enables snapping behavior */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    padding: 0.5rem 1rem; /* Adds some vertical and horizontal padding */
+    clip-path: inset(-5px -10px -5px -10px); /* Prevents padding from clipping box-shadow */
+    scrollbar-width: none; /* Hides scrollbar for Firefox */
+}
+
+.last-watched-slide {
+    flex: 0 0 45%; /* Each slide is ~45% of the container. 2 slides = 90% + gap, leaving the 3rd one partially visible. */
+    scroll-snap-align: start; /* Each card will snap to the start of the container when scrolling stops */
+    scroll-snap-stop: always; /* Ensures it stops precisely on each snap point */
+}
+
+
+.youtube-video-card.is-watched .video-title {
+    color: #a5b4fc; /* Lighter, muted color for watched videos */
+}
+
+.bookmark-button.saved-d {
+    color: #60a5fa; /* Blue 400 */
+}
+
+.bookmark-button.saved-m {
+    color: #f472b6; /* Pink 400 */
+}
+
+.bookmark-button.saved-both {
+    background: linear-gradient(45deg, #60a5fa, #f472b6);
+    color: white;
+}
+
+button#back-to-search-floating-button {
+    Z-INDEX: 99999;
+}
+
+
+button#back-to-playlists-bottom-button-search {
+    position: sticky;
+    justify-self: anchor-center;
+}
+
+button#tab-tarteel {
+    display: none;
+}
+
+
+/* زيادة الـ Border Radius لويدجت القمر لجعله أكثر نعومة */
+#3d-screen-moon-widget {
+    /* 👈 زيادة الـ padding للحاوية */
+    padding: 1.5rem !important; 
+    
+    /* 👈 زيادة الـ Border Radius للعنصر نفسه */
+    border-radius: 2.5rem !important; 
+}
+
+
+/* 💡 تعديل هام: ضمان أن ويدجت الحرارة صغير الحجم */
+#3d-screen-weather-widget {
+    width: 140px; 
+    height: auto; 
+    justify-content: flex-start;
+}
+
+#3d-screen-weather-widget span {
+    font-size: 1.5rem !important; /* تصغير خط الحرارة */
+}
+
+#3d-screen-weather-widget svg {
+    margin-right: 5px;
+}
+
+
+div#\33 d-screen-weather-widget {
+    height: 85px;
+    width: 116px;
+}
+
+
+        /* Specific positioning for floating buttons */
+        #floating-media-button { bottom: 1rem; right: 1rem; }
+
+        #floating-keyboard-button {
+            bottom: 4rem!important;
+            right: 5rem; /* Adjusted to be next to media button */
+        
+        }
+
+        #floating-keyboard-button.active-keyboard {
+            background-color: #90EE90; /* Chrome Green */
+            color: cyan; /* Black icon */
+        }
+
+        #floating-keyboard-button.inactive-keyboard {
+            background-color: #FF0000; /* Red */
+            color: white; /* White icon */
+        }
+
+
+        #back-to-playlists-bottom-button, #back-to-playlists-bottom-button-search {
+            bottom: 1rem;
+            left: 50%;
+        
+            display: none; /* Hidden by default */
+        }
+
+
+/* 💡 ويدجت درجة الحرارة الذي تم نقله إلى اليمين يجب أن يكون مكانه آمناً */
+#right-side-info-widgets {
+    z-index: 100; /* يجب أن يكون أقل من الكبسولة */
+}
+
+
+        /* Pseudo-fullscreen class for the CarPlay interface */
+        #carplay-main-interface.carplay-pseudo-fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            border-radius: 0;
+            z-index: 99; /* Ensure it's above other content but below the floating button */
+            max-width: 100vw; /* When fullscreen, it should take full width */
+        }
+
+        .youtube-video-card .thumbnail-container {
+            position: relative;
+            width: 180px;  /* INCREASED */
+            height: 101.25px; /* INCREASED (16:9 ratio) */
+            flex-shrink: 0;
+            overflow: hidden; /* Important for progress bar */
+        }
+
+
+        .youtube-video-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 0.5rem;
+        }
+
+        .youtube-reader-card h3 {
+            font-size: 1.1rem; /* MODIFIED: Increased font size */
+            font-weight: 600;
+            color: white;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 95%;
+            margin-bottom: 1rem; /* MODIFIED: Increased margin */
+        }
+
+        /* NEW: Surah Buttons Scrollable Container */
+        .surah-buttons-scrollable {
+    /* 🛑 التعديل الحاسم: إزالة max-height وتعيين height: 100% */
+    height: 100% !important; /* تأخذ كامل الارتفاع المتاح من الأب */
+    overflow-y: auto;
+    padding-right: 8px; 
+    padding-left: 8px; 
+    /* ... (بقية التنسيقات) */
+}
+
+        .surah-buttons-scrollable::-webkit-scrollbar { width: 6px; }
+
+
+button.youtube-suggestion-button {
+    font-size: 1rem;
+}
+
+
+    /* 🛑 إخفاء أيقونات التطبيقات غير الضرورية في وضع الموبايل */
+    button[data-app="Map"] {
+        display: none !important; /* إخفاء أيقونة Map/3D Car (تمت إعادة تسميتها) */
+    }
+
+    button[data-app="Radio"] {
+        display: none !important; /* إخفاء أيقونة Radio */
+    }
+
+    
+    /* 🛑 إخفاء زر الوسائط العائم (مكرر مع شريط التنقل) */
+   
+
+    /* ملاحظة: يتم بالفعل إخفاء floating-media-button عندما تكون شاشة Media نشطة في handleMediaViewSwitch */
+    
+    /* ... (بقية الأكواد) ... */
+}
+
+            button.youtube-suggestion-button {
+    font-size: 1rem;
+}
+
+        .obd-data-card .value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #10b981;
+            margin-bottom: 0.25rem;
+        }
+
+
+            .carousel-nav-button.prev {
+                display: flex;
+            }
+
+
+            div#video-popup-container {
+    height: 17rem;
+    width: 29rem;
+    bottom:8rem;
+    right:4rem;
+}
+
+            #full-date-widget-container p { margin: 0; }
+
+            
+
+
+        .car-cam-360-controls.grid-container>button {
+    display: none;
+}
+
+        
+        /* NEW: Show next button on even wider screens */
+        @media (min-width: 1080px) {
+            section#screen-Map {
+    background: linear-gradient(45deg, black 66%, transparent);
+}
+
+            .carousel-nav-button.next {
+                display: flex;
+            }

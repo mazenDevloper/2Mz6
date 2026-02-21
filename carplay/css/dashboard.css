@@ -1,0 +1,116 @@
+/* تنسيقات لوحة القيادة */
+
+
+/* Prevent focus ring clipping in scrolled containers */
+.favorites-dashboard-horizontal-scroll, 
+.scroll-viewport {
+    overflow-y: visible !important;
+    padding-top: 15px !important;
+    padding-bottom: 15px !important;
+}
+
+
+.grid.grid-cols-3.gap-1.w-full.mt-1 {
+    margin-top: 4.25rem!important;
+}
+
+
+/* تصغير أيقونة البوكمارك */
+.dashboard-only-bookmark svg {
+    width: 14px !important;
+    height: 14px !important;
+}
+
+
+#suggested-d-dashboard-parent {
+    position: relative !important;
+    width: 100% !important;
+    margin-top: 10px !important;
+}
+
+
+        #suggested-d-dashboard-container {
+    display: flex!important;
+    flex-direction: row!important;
+    justify-content: flex-start!important; 
+    
+    /* 🛑 1. التعديل الحاسم: منع الالتفاف، مما يجبر العناصر على البقاء في صف واحد */
+    flex-wrap: nowrap!important; 
+    
+    /* 🛑 2. السماح بالتمرير الأفقي لظهور الشريط الأفقي عند الضرورة */
+    overflow-x: auto!important; 
+    
+    /* 🛑 3. إخفاء شريط التمرير العمودي إذا كان فارغًا */
+    overflow-y: hidden!important;
+    
+    gap: 16px!important; /* المسافة بين البطاقات */
+}
+
+#suggested-d-dashboard-container {
+    display: flex;
+    flex-direction: row; /* لعرض العناصر في صف */
+    justify-content: flex-start; /* البدء من اليسار/اليمين */
+    flex-wrap: wrap; /* السماح للعناصر بالانتقال لصف جديد */
+    /* التعديلات التي طلبتها */
+    justify-content: space-evenly !important; 
+}
+
+
+/* الحد الأدنى للعرض لضمان مساحة كافية للعناصر */
+div#suggested-d-dashboard-row {
+    min-width: 99%;
+}
+
+
+section#screen-Dashboard>div {
+    width: 98%;
+}
+
+
+#fav-d-dashboard-container{justify-content:space-evenly!important;}
+
+
+div#fav-d-dashboard-container {
+    display: flex;
+}
+
+
+.dashboard-main-grid.grid.grid-cols-1.md\:grid-cols-3.grid-rows-\[80\%_20\%\].gap-4.md\:gap-6.h-full.w-full.grid-container {
+    overflow: scroll;
+}
+
+section#screen-Dashboard {
+    padding: 20px;
+    border: 0px;
+    margin: 0px;
+    height: 110% !important;
+}
+
+/* --- START: Last Watched & History Styles --- */
+/* --- START: Fullscreen Toggle Button Styles --- */
+img#dashboard-weather-icon {
+    border-radius: 50px;
+}
+
+/* NEW: Carousel Navigation Buttons */
+        section#screen-Dashboard,section#screen-Media {
+        height: 105% !important;
+}
+
+
+        /* Car Dashboard Specific Styles */
+        .car-dashboard-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+section#screen-Dashboard{
+  background: #00000084;   
+}

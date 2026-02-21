@@ -1,0 +1,61 @@
+/* التنسيقات المتجاوبة */
+
+
+/* تحسين للمقاسات الصغيرة جداً */
+@media (max-width: 600px) {
+    .date-details {
+        flex-direction: column;
+        gap: 2px;
+    }
+
+/* --- CSS لتنسيق زر سرعة التشغيل التفاعلي --- */
+
+/* 💡 تنسيق الزر الدائري للسرعة */
+
+
+div#add-reciter-prompt-content {
+    max-width: 98%;
+}
+
+/* --- START: Last Watched Carousel (2.5 items) Styles --- */
+#last-watched-container {
+    width: 100%;
+    max-width: 600px; /* Optional: constrain max width for larger screens */
+  
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+
+div#add-channel-prompt-content {
+    max-width: 100%;
+}
+
+        img.max-w-full.max-h-full.object-contain { max-width: 50%;
+    mix-blend-mode: hard-light;
+}
+
+
+        /* Gemini-like Chat Styling */
+        .chat-message {
+            max-width: 70%;
+            padding: 0.75rem 1rem;
+            border-radius: 1.5rem; /* More rounded */
+            margin-bottom: 0.75rem;
+            word-wrap: break-word;
+            font-size: 0.9rem; /* Slightly smaller font for chat */
+        }
+
+        .video-details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            overflow: hidden;
+            flex-grow: 1;
+            min-width: 0;
+        }
+
+
+.reader-container {
+    max-width: 100% !important;
+    max-height: 100% !important;
+} 

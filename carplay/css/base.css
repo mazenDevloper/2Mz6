@@ -1,0 +1,134 @@
+/* التنسيقات الأساسية والخطوط */
+
+
+/* 1. إظهار أزرار التحكم اليسرى (Pause, Zoom) فقط في شاشة الراديو */
+body.app-Radio-active #bottom-left-controls {
+    display: flex !important;
+}
+
+
+/* 2. إظهار أزرار KEY 1/2 (فحص المفاتيح) فقط في الداشبورد */
+body.app-Dashboard-active #manual-key-switcher {
+    display: flex !important;
+}
+
+
+/* 3. إظهار الكبسولة الصوتية في كل مكان ماعدا شاشة الميديا (إذا كانت كبيرة) */
+body.app-Media-active #floating-minimized-video-button {
+    opacity: 0.1; /* جعلها شفافة جداً في الميديا لكي لا تحجب التابات */
+    pointer-events: none;
+}
+
+
+        /* Import Amiri Quran font for Adhkar text */
+        @import url('https://fonts.googleapis.com/css2?family=Amiri+Quran:wght@400;700&display=swap');
+        /* NEW: Import Amiri font for Thuluth-like style */
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+.simple-suggestion-card.flex.flex-col.gap-2.p-3.rounded-xl.bg-white\/10.cursor-pointer.navigable.grid-item.flex-shrink-0 {
+    background: black;
+    width: 265px;
+    height: 214px;
+    border:solid;
+}
+
+
+/* Optional: Hide the navigation bar when a screen is fullscreen */
+body.fullscreen-mode nav {
+    display: none !important; 
+}
+
+        /* Import Inter font for a modern, clean look */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Default background gradient - UPDATED: black parts are wider, animation is 3x slower */
+            background: linear-gradient(-45deg, #000000 0%, #000000 30%, #00FFFF 35%, #000000 60%, #4B0082 65%, #8A2BE2 70%, #FF00FF 75%, #000000 100%);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite; /* Animation duration decreased to 15s */
+            transition: background-image 0.5s ease; /* Smooth transition for background changes */
+            min-height: 100vh; /* Ensure body takes full viewport height */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden; /* Prevent body scroll */
+        }
+
+        body.animation-paused {
+            animation-play-state: paused !important;
+        }
+
+        body.video-playing {
+            animation-duration: 75s !important; /* 80% slower animation */
+        }
+
+        /* Define different background themes for customization */
+        body.theme-gradient-1 {
+            background: linear-gradient(-45deg, #000000 0%, #000000 30%, #00FFFF 35%, #000000 60%, #4B0082 65%, #8A2BE2 70%, #FF00FF 75%, #000000 100%);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+
+
+            body.small-padding .md\:p-6 {
+                padding: 1.5rem !important;
+            }
+
+        .prayer-name {
+           color: rgba(255, 255, 255);
+    font-size: 1rem;
+    font-family: sans-serif;
+    font-weight: bold;
+    margin-bottom: 0.2rem;
+        }
+
+       span.prayer-iqama{
+             font-size: 1rem;
+             color: rgb(255 179 20 / 85%);
+             font-family: sans-serif;
+             font-weight: bold;
+            margin-bottom: 0.2rem;
+            font-size: 1rem;
+            
+        }
+
+/* Cleaned base body styles - animation and gradient moved to screens */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000000; /* Simple black fallback */
+            background-size: auto; /* Reset size */
+            animation: none; /* Remove body animation */
+            transition: background-image 0.5s ease;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+            body{
+                      background: url(https://dmusera.netlify.app/tvbgc1.webp) !important;
+        background-size: contain !important;
+        background-color: black !important;
+        background-repeat: no-repeat !important;
+        background-position: center !important;
+            }
+
+
+            /* NEW: Date widget styles */
+            #full-date-widget-container {
+                display: flex !important; /* Make it visible */
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+                padding: 0.2rem; /* Increased padding */
+                background-color: rgba(0,0,0,0.2);
+                border-radius: 1rem;
+                backdrop-filter: blur(5px);
+                -webkit-backdrop-filter: blur(5px);
+                margin-bottom: 0.4rem; /* Add some space below it */
+                font-family: 'Amiri', serif; /* Apply Thuluth-like font */
+            }
