@@ -234,13 +234,37 @@
             border-radius: 0.75rem;
             padding: 1rem;
             min-width: 280px;
-            max-height: calc(100vh - 2rem);
+            /* Stop before the Size/Tilt buttons at the bottom */
+            max-height: calc(100vh - 12rem);
             height: auto;
             max-width: 400px;
-            overflow-y: scroll;
+            overflow-y: auto;
             overflow-x: hidden;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
+
+        .control-panel { top: 4rem; }
+        .control-panel.collapsed { display: none; }
+
+        /* Show/hide button for the control panel */
+        #panel-toggle {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            z-index: 102;
+            background: rgba(0, 0, 0, 0.85);
+            color: #FDB813;
+            border: 1px solid rgba(253, 184, 19, 0.5);
+            border-radius: 0.75rem;
+            padding: 0.5rem 0.9rem;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Keep the Size/Tilt buttons above the panel */
+        #map-tuner-controls { z-index: 101 !important; }
 
         /* Scrollbar styling */
         .control-panel::-webkit-scrollbar {
@@ -427,9 +451,11 @@
         /* Mobile responsiveness */
         @media (max-width: 768px) {
             .control-panel {
-                top: 0.5rem;
+                top: 3.5rem;
                 left: 0.5rem;
                 min-width: 250px;
+                max-width: calc(100vw - 1rem);
+                max-height: calc(100vh - 11rem);
                 padding: 0.75rem;
             }
 
@@ -441,6 +467,11 @@
             .map-button {
                 width: 2rem;
                 height: 2rem;
+            }
+
+            #panel-toggle {
+                top: 0.5rem;
+                left: 0.5rem;
             }
 
             #map-tuner-controls {
@@ -489,7 +520,10 @@
         </div>
 
         <!-- Material & Lighting Control Panel -->
-        <div class="control-panel">
+        <!-- Show/hide button for the control panel -->
+        <button id="panel-toggle" onclick="toggleControlPanel()">⚙️ إخفاء التحكم</button>
+
+        <div class="control-panel" id="control-panel">
             <div class="control-panel-title">
                 <span>⚙️ التحكم بالإضاءة واللون</span>
             </div>
@@ -511,12 +545,12 @@
             <div class="control-group">
                 <div class="control-label">
                     <span>المعدنية (Metalness)</span>
-                    <span class="control-value" id="metalnessValue">0.88</span>
+                    <span class="control-value" id="metalnessValue">0.70</span>
                 </div>
                 <div class="slider-container">
-                    <input type="range" id="metalnessSlider" min="0" max="1" step="0.05" value="0.88"
+                    <input type="range" id="metalnessSlider" min="0" max="1" step="0.01" value="0.70"
                            oninput="updateMetalness(this.value)">
-                    <span class="slider-value" id="metalnessDisplay">0.88</span>
+                    <span class="slider-value" id="metalnessDisplay">0.70</span>
                 </div>
             </div>
 
@@ -524,12 +558,12 @@
             <div class="control-group">
                 <div class="control-label">
                     <span>الخشونة (Roughness)</span>
-                    <span class="control-value" id="roughnessValue">0.20</span>
+                    <span class="control-value" id="roughnessValue">0.31</span>
                 </div>
                 <div class="slider-container">
-                    <input type="range" id="roughnessSlider" min="0" max="1" step="0.05" value="0.20"
+                    <input type="range" id="roughnessSlider" min="0" max="1" step="0.01" value="0.31"
                            oninput="updateRoughness(this.value)">
-                    <span class="slider-value" id="roughnessDisplay">0.20</span>
+                    <span class="slider-value" id="roughnessDisplay">0.31</span>
                 </div>
             </div>
 
@@ -552,9 +586,9 @@
                     <span>لون الطلاء</span>
                 </div>
                 <div class="color-picker-container">
-                    <input type="color" id="colorPicker" value="#D4B896"
+                    <input type="color" id="colorPicker" value="#FFEFBB"
                            oninput="updateCarColor(this.value)">
-                    <input type="text" class="color-code" id="colorCode" value="#D4B896" readonly>
+                    <input type="text" class="color-code" id="colorCode" value="#FFEFBB" readonly>
                 </div>
             </div>
 
@@ -583,15 +617,15 @@
                     </div>
                     <div class="preview-item">
                         <div>المعدنية</div>
-                        <div class="preview-item-value" id="currentMetalnessDisplay">0.88</div>
+                        <div class="preview-item-value" id="currentMetalnessDisplay">0.70</div>
                     </div>
                     <div class="preview-item">
                         <div>الخشونة</div>
-                        <div class="preview-item-value" id="currentRoughnessDisplay">0.20</div>
+                        <div class="preview-item-value" id="currentRoughnessDisplay">0.31</div>
                     </div>
                     <div class="preview-item">
                         <div>اللون</div>
-                        <div class="preview-item-value" id="currentColorDisplay">#D4B896</div>
+                        <div class="preview-item-value" id="currentColorDisplay">#FFEFBB</div>
                     </div>
                 </div>
             </div>
@@ -839,15 +873,29 @@
                 window.light2.position.set(-30, 10, 20);
                 overlay.scene.add(window.light2);
 
-                // Load car model from external GLTF
-                loader.load('https://dmusera.netlify.app/ES350E.gltf', (gltf) => {
-                    window.carModel = gltf.scene;
-                    window.carModel.rotation.x = Math.PI / 2;
-                    overlay.scene.add(window.carModel);
-                    console.log("✅ Car model loaded successfully from GLTF");
-                }, undefined, (error) => {
-                    console.error("❌ Error loading GLTF model:", error);
-                });
+                // Load car model: Netlify first, then the same folder as AMAP.html
+                // (ES350E.gltf + buffer.bin + baseColor_*.jpg + emissive_*.jpg)
+                const MODEL_URLS = [
+                    'https://dmusera.netlify.app/ES350E.gltf',
+                    'ES350E.gltf'
+                ];
+                const loadModel = (i = 0) => {
+                    if (i >= MODEL_URLS.length) {
+                        console.error("❌ Could not load ES350E.gltf from any source");
+                        return;
+                    }
+                    loader.load(MODEL_URLS[i], (gltf) => {
+                        window.carModel = gltf.scene;
+                        window.carModel.rotation.x = Math.PI / 2;
+                        prepareCarMaterials(window.carModel);
+                        overlay.scene.add(window.carModel);
+                        console.log("✅ Car model loaded from", MODEL_URLS[i]);
+                    }, undefined, (error) => {
+                        console.warn("⚠️ Model failed from", MODEL_URLS[i], error);
+                        loadModel(i + 1);
+                    });
+                };
+                loadModel();
             };
 
             overlay.onContextRestored = ({ gl }) => {
@@ -1040,13 +1088,56 @@
 
         // ============= Material Control Functions =============
 
+        // Default values = the model's own paint (Meshpart1Mtl in ES350E.gltf)
         window.materialSettings = {
             ambientLight: 0.90,
-            metalness: 0.88,
-            roughness: 0.20,
-            envMapIntensity: 1.30,
-            carColor: 0xD4B896
+            metalness: 0.70,
+            roughness: 0.31,
+            envMapIntensity: 1.00,
+            carColor: 0xFFEFBB
         };
+        window.originalPaint = null;   // filled from the GLTF file on load
+        window.paintMaterials = [];
+
+        // ES350E.gltf: Meshpart1Mtl = champagne body paint.
+        // Under it sits a black inner shell (Part1Mtl) almost in the same place.
+        // Google Maps has low depth precision, so the two fight (z-fighting) and the
+        // car shows black with patches. Fix: push every non-paint layer slightly back
+        // in depth (glass excluded so windows stay visible). Colors are NOT changed.
+        const PAINT_MATERIAL = 'Meshpart1Mtl';
+        function prepareCarMaterials(model) {
+            const seen = new Set();
+            model.traverse(node => {
+                if (!node.isMesh) return;
+                (Array.isArray(node.material) ? node.material : [node.material]).forEach(m => {
+                    if (!m || seen.has(m)) return;
+                    seen.add(m);
+                    if (m.name === PAINT_MATERIAL) {
+                        window.paintMaterials.push(m);
+                    } else if (!/glass|window/i.test(m.name)) {
+                        m.polygonOffset = true;
+                        m.polygonOffsetFactor = 4;
+                        m.polygonOffsetUnits = 16;
+                        m.needsUpdate = true;
+                    }
+                });
+            });
+
+            const paint = window.paintMaterials[0];
+            if (!paint) {
+                console.warn('⚠️ Paint material not found:', PAINT_MATERIAL);
+                return;
+            }
+            window.originalPaint = {
+                ambientLight: 0.90,
+                metalness: +paint.metalness.toFixed(2),
+                roughness: +paint.roughness.toFixed(2),
+                envMapIntensity: +(paint.envMapIntensity ?? 1).toFixed(2),
+                carColor: parseInt(paint.color.getHexString(), 16)
+            };
+            console.log('🎨 Original paint from GLTF:', window.originalPaint);
+            applyPreset('reset');   // sync the sliders with the file's values
+        }
 
         function updateAmbientLight(value) {
             const floatValue = parseFloat(value);
@@ -1110,15 +1201,14 @@
         function updateCarMaterial() {
             if (!window.carModel) return;
 
-            window.carModel.traverse(node => {
-                if (node.isMesh && node.material && node.userData.isCarBody) {
-                    node.material.color.setHex(window.materialSettings.carColor);
-                    node.material.metalness = window.materialSettings.metalness;
-                    node.material.roughness = window.materialSettings.roughness;
-                    node.material.envMapIntensity = window.materialSettings.envMapIntensity;
-                    node.material.needsUpdate = true;
-                }
+            window.paintMaterials.forEach(m => {
+                m.color.setHex(window.materialSettings.carColor);
+                m.metalness = window.materialSettings.metalness;
+                m.roughness = window.materialSettings.roughness;
+                m.envMapIntensity = window.materialSettings.envMapIntensity;
+                m.needsUpdate = true;
             });
+            if (window.carOverlay) window.carOverlay.requestRedraw();
         }
 
         function applyPreset(preset) {
@@ -1153,13 +1243,14 @@
                     };
                     break;
                 case 'reset':
-                    settings = {
+                    // Back to the original values from ES350E.gltf
+                    settings = { ...(window.originalPaint || {
                         ambientLight: 0.90,
-                        metalness: 0.88,
-                        roughness: 0.20,
-                        envMapIntensity: 1.30,
-                        carColor: 0xD4B896
-                    };
+                        metalness: 0.70,
+                        roughness: 0.31,
+                        envMapIntensity: 1.00,
+                        carColor: 0xFFEFBB
+                    }) };
                     break;
             }
 
@@ -1208,6 +1299,14 @@ Light 2: x=${window.light2?.position.x.toFixed(1)}, y=${window.light2?.position.
             }).catch(() => {
                 alert('Error copying to clipboard');
             });
+        }
+
+        // ============= Panel Toggle =============
+        function toggleControlPanel() {
+            const panel = document.getElementById('control-panel');
+            const btn = document.getElementById('panel-toggle');
+            const collapsed = panel.classList.toggle('collapsed');
+            btn.textContent = collapsed ? '⚙️ إظهار التحكم' : '⚙️ إخفاء التحكم';
         }
 
         // ============= Light Control Functions =============
