@@ -848,6 +848,35 @@
             }
         }
 
+        // ============= Camera eye fix =============
+        // Google Maps gives one combined matrix (projection x view), so Three.js
+        // assumes the camera sits at the car's center. That breaks lighting on
+        // metallic paint: up-facing panels (roof, hood, trunk) render black.
+        // Here we recover the real eye position from the matrix and split it into
+        // view + projection. The final image position is unchanged.
+        function fixCameraEye(camera) {
+            const m = camera.projectionMatrix.elements;
+            const row = i => [m[i], m[4 + i], m[8 + i], m[12 + i]];
+            const A = [row(0), row(1), row(3)];
+            const det = (a, b, c) =>
+                a[0] * (b[1] * c[2] - b[2] * c[1]) -
+                a[1] * (b[0] * c[2] - b[2] * c[0]) +
+                a[2] * (b[0] * c[1] - b[1] * c[0]);
+            const D = det(A[0], A[1], A[2]);
+            if (Math.abs(D) < 1e-12) return;
+            const rhs = A.map(a => -a[3]);
+            const eye = [0, 1, 2].map(k => {
+                const c = A.map((a, i) => { const t = a.slice(0, 3); t[k] = rhs[i]; return t; });
+                return det(c[0], c[1], c[2]) / D;
+            });
+            camera.position.set(eye[0], eye[1], eye[2]);
+            camera.quaternion.identity();
+            camera.scale.set(1, 1, 1);
+            camera.updateMatrixWorld(true);
+            camera.projectionMatrix.multiply(new THREE.Matrix4().makeTranslation(eye[0], eye[1], eye[2]));
+            camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();
+        }
+
         // ============= 3D Car System Setup =============
         async function setup3DCarSystem(map) {
             if (!map || window.carOverlay) return;
@@ -925,6 +954,7 @@
 
                 const matrix = transformer.fromLatLngAltitude({ ...pos, altitude: 3.5 });
                 camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
+                fixCameraEye(camera);   // correct lighting on roof/hood/trunk
 
                 const baseScale = window.tuner?.scale || 0.85;
                 const finalScale = baseScale * Math.pow(2, 20 - zoom);
