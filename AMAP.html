@@ -806,7 +806,7 @@
                 // 1. ضوء محيطي قوي - Stronger Ambient Light
                 overlay.scene.add(new THREE.AmbientLight(0xffffff, 0.90));
 
-                // 2. كشافات رئيسية عالية الشدة - Main Key Lights
+                // 2. كشافات رئيسية عالية الشدة - Main Key Lights (Light 1 & Light 2 Only)
                 const light1 = new THREE.DirectionalLight(0xffffff, 1.1);
                 light1.position.set(30, 15, 20);
                 light1.castShadow = false;
@@ -815,41 +815,6 @@
                 const light2 = new THREE.DirectionalLight(0xffffff, 1.0);
                 light2.position.set(-30, 10, 20);
                 overlay.scene.add(light2);
-
-                // 3. كشاف إضاءة علوي للعكسات - Top Rim Light (للمعادن)
-                const rimLight = new THREE.DirectionalLight(0xffffff, 0.7);
-                rimLight.position.set(0, 25, 10);
-                overlay.scene.add(rimLight);
-
-                // 4. إضاءة إضافية من الأمام - Front Fill Light
-                const frontLight = new THREE.DirectionalLight(0xe8d5b7, 0.5);
-                frontLight.position.set(0, 5, 30);
-                overlay.scene.add(frontLight);
-
-                // 5. إضاءة خلفية قوية لإضاءة جسم السيارة من الخلف - Strong Back Light
-                const backLight = new THREE.DirectionalLight(0xffffff, 0.95);
-                backLight.position.set(0, 10, -35);
-                overlay.scene.add(backLight);
-
-                // 6. إضاءة خلفية يسار - Back Left Light
-                const backLeftLight = new THREE.DirectionalLight(0xffffff, 0.85);
-                backLeftLight.position.set(-25, 12, -30);
-                overlay.scene.add(backLeftLight);
-
-                // 7. إضاءة خلفية يمين - Back Right Light
-                const backRightLight = new THREE.DirectionalLight(0xffffff, 0.85);
-                backRightLight.position.set(25, 12, -30);
-                overlay.scene.add(backRightLight);
-
-                // 8. إضاءة من أعلى الخلف - Top Back Light
-                const topBackLight = new THREE.DirectionalLight(0xffffff, 0.7);
-                topBackLight.position.set(0, 30, -25);
-                overlay.scene.add(topBackLight);
-
-                // 9. إضاءة جانبية يسار - Left Side Light
-                const leftSideLight = new THREE.DirectionalLight(0xffffff, 0.75);
-                leftSideLight.position.set(-40, 15, 0);
-                overlay.scene.add(leftSideLight);
 
                 loader.load('https://dmusera.netlify.app/ES350E.gltf', (gltf) => {
                     window.carModel = gltf.scene;
