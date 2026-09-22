@@ -223,8 +223,183 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* Control Panel - لوحة التحكم */
+        .control-panel {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            min-width: 280px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .control-panel-title {
+            color: #FDB813;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-align: right;
+        }
+
+        .control-group {
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .control-group:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .control-label {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .control-value {
+            color: #FDB813;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .slider-container {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .slider-container input[type="range"] {
+            flex: 1;
+            height: 5px;
+            border-radius: 5px;
+            background: linear-gradient(to right, #FDB813, #FFD700);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider-container input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .slider-container input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .slider-value {
+            color: #FDB813;
+            font-weight: bold;
+            min-width: 45px;
+            text-align: right;
+            font-size: 0.8rem;
+        }
+
+        .color-picker-container {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+
+        .color-picker-container input[type="color"] {
+            width: 50px;
+            height: 40px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 0.375rem;
+            cursor: pointer;
+            padding: 2px;
+        }
+
+        .color-code {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #FDB813;
+            padding: 0.4rem;
+            border-radius: 0.375rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            text-align: center;
+            cursor: pointer;
+            user-select: all;
+        }
+
+        .copy-button {
+            background: rgba(253, 184, 19, 0.2);
+            color: #FDB813;
+            border: 1px solid rgba(253, 184, 19, 0.5);
+            padding: 0.3rem 0.6rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.2s ease;
+        }
+
+        .copy-button:hover {
+            background: rgba(253, 184, 19, 0.3);
+            border-color: rgba(253, 184, 19, 0.8);
+        }
+
+        .preview-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .preview-item {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.4rem;
+            border-radius: 0.375rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .preview-item-value {
+            color: #FDB813;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
         /* Mobile responsiveness */
         @media (max-width: 768px) {
+            .control-panel {
+                top: 0.5rem;
+                left: 0.5rem;
+                min-width: 250px;
+                padding: 0.75rem;
+            }
+
             .map-controls {
                 bottom: 0.5rem;
                 right: 0.5rem;
@@ -278,6 +453,120 @@
                 <span class="scale-label">Tilt</span>
                 <button class="scale-button" onclick="adjustTilt(-5)">↓</button>
             </div>
+        </div>
+
+        <!-- Material & Lighting Control Panel -->
+        <div class="control-panel">
+            <div class="control-panel-title">
+                <span>⚙️ التحكم بالإضاءة واللون</span>
+            </div>
+
+            <!-- Ambient Light Control -->
+            <div class="control-group">
+                <div class="control-label">
+                    <span>الإضاءة المحيطة</span>
+                    <span class="control-value" id="ambientLightValue">0.90</span>
+                </div>
+                <div class="slider-container">
+                    <input type="range" id="ambientLightSlider" min="0" max="1" step="0.05" value="0.90"
+                           oninput="updateAmbientLight(this.value)">
+                    <span class="slider-value" id="ambientLightDisplay">0.90</span>
+                </div>
+            </div>
+
+            <!-- Metalness Control -->
+            <div class="control-group">
+                <div class="control-label">
+                    <span>المعدنية (Metalness)</span>
+                    <span class="control-value" id="metalnessValue">0.88</span>
+                </div>
+                <div class="slider-container">
+                    <input type="range" id="metalnessSlider" min="0" max="1" step="0.05" value="0.88"
+                           oninput="updateMetalness(this.value)">
+                    <span class="slider-value" id="metalnessDisplay">0.88</span>
+                </div>
+            </div>
+
+            <!-- Roughness Control -->
+            <div class="control-group">
+                <div class="control-label">
+                    <span>الخشونة (Roughness)</span>
+                    <span class="control-value" id="roughnessValue">0.20</span>
+                </div>
+                <div class="slider-container">
+                    <input type="range" id="roughnessSlider" min="0" max="1" step="0.05" value="0.20"
+                           oninput="updateRoughness(this.value)">
+                    <span class="slider-value" id="roughnessDisplay">0.20</span>
+                </div>
+            </div>
+
+            <!-- EnvMap Intensity Control -->
+            <div class="control-group">
+                <div class="control-label">
+                    <span>انعكاس البيئة</span>
+                    <span class="control-value" id="envMapIntensityValue">1.30</span>
+                </div>
+                <div class="slider-container">
+                    <input type="range" id="envMapIntensitySlider" min="0" max="2" step="0.1" value="1.30"
+                           oninput="updateEnvMapIntensity(this.value)">
+                    <span class="slider-value" id="envMapIntensityDisplay">1.30</span>
+                </div>
+            </div>
+
+            <!-- Color Picker -->
+            <div class="control-group">
+                <div class="control-label">
+                    <span>لون الطلاء</span>
+                </div>
+                <div class="color-picker-container">
+                    <input type="color" id="colorPicker" value="#D4B896"
+                           oninput="updateCarColor(this.value)">
+                    <input type="text" class="color-code" id="colorCode" value="#D4B896" readonly>
+                </div>
+            </div>
+
+            <!-- Quick Presets -->
+            <div class="control-group">
+                <div class="control-label">
+                    <span>إعدادات سريعة</span>
+                </div>
+                <div class="preview-box">
+                    <button class="copy-button" onclick="applyPreset('light')">فاتح ✨</button>
+                    <button class="copy-button" onclick="applyPreset('dark')">داكن 🌙</button>
+                    <button class="copy-button" onclick="applyPreset('metallic')">معدني 💎</button>
+                    <button class="copy-button" onclick="applyPreset('reset')">إعادة تعيين</button>
+                </div>
+            </div>
+
+            <!-- Current Settings Display -->
+            <div class="control-group">
+                <div class="control-label">
+                    <span>الإعدادات الحالية</span>
+                </div>
+                <div class="preview-box">
+                    <div class="preview-item">
+                        <div>الإضاءة</div>
+                        <div class="preview-item-value" id="currentAmbientDisplay">0.90</div>
+                    </div>
+                    <div class="preview-item">
+                        <div>المعدنية</div>
+                        <div class="preview-item-value" id="currentMetalnessDisplay">0.88</div>
+                    </div>
+                    <div class="preview-item">
+                        <div>الخشونة</div>
+                        <div class="preview-item-value" id="currentRoughnessDisplay">0.20</div>
+                    </div>
+                    <div class="preview-item">
+                        <div>اللون</div>
+                        <div class="preview-item-value" id="currentColorDisplay">#D4B896</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Copy Code Button -->
+            <button class="copy-button" style="width: 100%; margin-top: 0.5rem;" onclick="copyCurrentSettings()">
+                📋 نسخ الإعدادات
+            </button>
         </div>
     </div>
 
@@ -396,29 +685,34 @@
                 
                 // ⭐ نظام إضاءة محسّن للمواد المعدنية الواقعية
                 // Enhanced Lighting System for Realistic Metallic Materials
-                
+
                 // 1. ضوء محيطي قوي - Stronger Ambient Light
-                overlay.scene.add(new THREE.AmbientLight(0xffffff, 0.75));
-                
+                overlay.scene.add(new THREE.AmbientLight(0xffffff, 0.90));
+
                 // 2. كشافات رئيسية عالية الشدة - Main Key Lights
-                const light1 = new THREE.DirectionalLight(0xffffff, 1.0);
+                const light1 = new THREE.DirectionalLight(0xffffff, 1.1);
                 light1.position.set(30, 15, 20);
                 light1.castShadow = false;
                 overlay.scene.add(light1);
 
-                const light2 = new THREE.DirectionalLight(0xffffff, 0.9);
+                const light2 = new THREE.DirectionalLight(0xffffff, 1.0);
                 light2.position.set(-30, 10, 20);
                 overlay.scene.add(light2);
-                
+
                 // 3. كشاف إضاءة علوي للعكسات - Top Rim Light (للمعادن)
-                const rimLight = new THREE.DirectionalLight(0xffffff, 0.6);
+                const rimLight = new THREE.DirectionalLight(0xffffff, 0.7);
                 rimLight.position.set(0, 25, 10);
                 overlay.scene.add(rimLight);
-                
+
                 // 4. إضاءة إضافية من الأمام - Front Fill Light
-                const frontLight = new THREE.DirectionalLight(0xe8d5b7, 0.4);
+                const frontLight = new THREE.DirectionalLight(0xe8d5b7, 0.5);
                 frontLight.position.set(0, 5, 30);
                 overlay.scene.add(frontLight);
+
+                // 5. إضاءة خلفية قوية لإضاءة جسم السيارة من الخلف - Strong Back Light
+                const backLight = new THREE.DirectionalLight(0xffffff, 0.95);
+                backLight.position.set(0, 10, -35);
+                overlay.scene.add(backLight);
 
                 loader.load('https://dmusera.netlify.app/ES350E.gltf', (gltf) => {
                     window.carModel = gltf.scene;
@@ -441,15 +735,15 @@
                                     opacity: node.material.opacity
                                 });
                             } else {
-                                // مادة جسم السيارة - Lexus 4U7 Luxury Gold Metallic
-                                // 4U7 = ذهبي فاخر معدني (Champagne Gold)
+                                // مادة جسم السيارة - Lexus 4U7 Satin Cashmere Metallic
+                                // 4U7 = ذهبي فاتح معدني فاخر (Light Champagne Silver)
                                 node.material = new THREE.MeshStandardMaterial({
-                                    color: 0xC4A960,           // لون 4U7 الذهبي الفاخر
-                                    metalness: 0.85,           // قيمة معدنية عالية جداً
-                                    roughness: 0.25,           // خشونة منخفضة لمظهر لامع
+                                    color: 0xD4B896,           // لون 4U7 الذهبي الفاتح الفضي
+                                    metalness: 0.88,           // قيمة معدنية عالية جداً
+                                    roughness: 0.20,           // خشونة منخفضة جداً لمظهر لامع أكثر
                                     side: THREE.DoubleSide,
                                     flatShading: false,
-                                    envMapIntensity: 1.2       // عكس البيئة أقوى
+                                    envMapIntensity: 1.3       // عكس البيئة أقوى
                                 });
                             }
                             node.material.needsUpdate = true;
@@ -653,6 +947,192 @@
                 }
             }, 1000);
         });
+
+        // ============= Material Control Functions =============
+
+        // Store current material properties
+        window.materialSettings = {
+            ambientLight: 0.90,
+            metalness: 0.88,
+            roughness: 0.20,
+            envMapIntensity: 1.30,
+            carColor: 0xD4B896
+        };
+
+        function updateAmbientLight(value) {
+            const floatValue = parseFloat(value);
+            window.materialSettings.ambientLight = floatValue;
+
+            // Update display
+            document.getElementById('ambientLightValue').textContent = floatValue.toFixed(2);
+            document.getElementById('ambientLightDisplay').textContent = floatValue.toFixed(2);
+            document.getElementById('currentAmbientDisplay').textContent = floatValue.toFixed(2);
+
+            // Update scene lighting
+            if (window.carOverlay && window.carOverlay.scene) {
+                const ambientLight = window.carOverlay.scene.children.find(c => c.isLight && c.type === 'AmbientLight');
+                if (ambientLight) {
+                    ambientLight.intensity = floatValue;
+                }
+            }
+        }
+
+        function updateMetalness(value) {
+            const floatValue = parseFloat(value);
+            window.materialSettings.metalness = floatValue;
+
+            // Update display
+            document.getElementById('metalnessValue').textContent = floatValue.toFixed(2);
+            document.getElementById('metalnessDisplay').textContent = floatValue.toFixed(2);
+            document.getElementById('currentMetalnessDisplay').textContent = floatValue.toFixed(2);
+
+            // Update material
+            updateCarMaterial();
+        }
+
+        function updateRoughness(value) {
+            const floatValue = parseFloat(value);
+            window.materialSettings.roughness = floatValue;
+
+            // Update display
+            document.getElementById('roughnessValue').textContent = floatValue.toFixed(2);
+            document.getElementById('roughnessDisplay').textContent = floatValue.toFixed(2);
+            document.getElementById('currentRoughnessDisplay').textContent = floatValue.toFixed(2);
+
+            // Update material
+            updateCarMaterial();
+        }
+
+        function updateEnvMapIntensity(value) {
+            const floatValue = parseFloat(value);
+            window.materialSettings.envMapIntensity = floatValue;
+
+            // Update display
+            document.getElementById('envMapIntensityValue').textContent = floatValue.toFixed(2);
+            document.getElementById('envMapIntensityDisplay').textContent = floatValue.toFixed(2);
+
+            // Update material
+            updateCarMaterial();
+        }
+
+        function updateCarColor(colorHex) {
+            const colorInt = parseInt(colorHex.replace('#', ''), 16);
+            window.materialSettings.carColor = colorInt;
+
+            // Update displays
+            document.getElementById('colorCode').value = colorHex.toUpperCase();
+            document.getElementById('colorPicker').value = colorHex;
+            document.getElementById('currentColorDisplay').textContent = colorHex.toUpperCase();
+
+            // Update material
+            updateCarMaterial();
+        }
+
+        function updateCarMaterial() {
+            if (!window.carModel) return;
+
+            window.carModel.traverse(node => {
+                if (node.isMesh && node.material) {
+                    const originalColor = node.material.color ? node.material.color.clone() : new THREE.Color();
+                    const isTransparent = node.material.transparent || (node.material.opacity && node.material.opacity < 0.9);
+                    const isNeutral = (originalColor.r === originalColor.g && originalColor.g === originalColor.b) ||
+                                     (originalColor.r < 0.5 && originalColor.g < 0.5 && originalColor.b < 0.5);
+
+                    if (!isTransparent && !isNeutral) {
+                        // Update car body material
+                        node.material.color.setHex(window.materialSettings.carColor);
+                        node.material.metalness = window.materialSettings.metalness;
+                        node.material.roughness = window.materialSettings.roughness;
+                        node.material.envMapIntensity = window.materialSettings.envMapIntensity;
+                        node.material.needsUpdate = true;
+                    }
+                }
+            });
+        }
+
+        function applyPreset(preset) {
+            let settings = {};
+
+            switch(preset) {
+                case 'light':
+                    settings = {
+                        ambientLight: 1.0,
+                        metalness: 0.90,
+                        roughness: 0.15,
+                        envMapIntensity: 1.5,
+                        carColor: 0xE8D0B0
+                    };
+                    break;
+                case 'dark':
+                    settings = {
+                        ambientLight: 0.70,
+                        metalness: 0.85,
+                        roughness: 0.30,
+                        envMapIntensity: 1.0,
+                        carColor: 0xB8956F
+                    };
+                    break;
+                case 'metallic':
+                    settings = {
+                        ambientLight: 0.95,
+                        metalness: 0.95,
+                        roughness: 0.10,
+                        envMapIntensity: 1.6,
+                        carColor: 0xD4B896
+                    };
+                    break;
+                case 'reset':
+                    settings = {
+                        ambientLight: 0.90,
+                        metalness: 0.88,
+                        roughness: 0.20,
+                        envMapIntensity: 1.30,
+                        carColor: 0xD4B896
+                    };
+                    break;
+            }
+
+            // Apply all settings
+            if (settings.ambientLight !== undefined) {
+                document.getElementById('ambientLightSlider').value = settings.ambientLight;
+                updateAmbientLight(settings.ambientLight);
+            }
+            if (settings.metalness !== undefined) {
+                document.getElementById('metalnessSlider').value = settings.metalness;
+                updateMetalness(settings.metalness);
+            }
+            if (settings.roughness !== undefined) {
+                document.getElementById('roughnessSlider').value = settings.roughness;
+                updateRoughness(settings.roughness);
+            }
+            if (settings.envMapIntensity !== undefined) {
+                document.getElementById('envMapIntensitySlider').value = settings.envMapIntensity;
+                updateEnvMapIntensity(settings.envMapIntensity);
+            }
+            if (settings.carColor !== undefined) {
+                const colorHex = '#' + settings.carColor.toString(16).padStart(6, '0').toUpperCase();
+                document.getElementById('colorPicker').value = colorHex;
+                updateCarColor(colorHex);
+            }
+        }
+
+        function copyCurrentSettings() {
+            const settings = `
+// Material Configuration
+color: 0x${window.materialSettings.carColor.toString(16).toUpperCase()},
+metalness: ${window.materialSettings.metalness},
+roughness: ${window.materialSettings.roughness},
+envMapIntensity: ${window.materialSettings.envMapIntensity}
+
+// Lighting Configuration
+AmbientLight: 0xffffff, ${window.materialSettings.ambientLight}`;
+
+            navigator.clipboard.writeText(settings).then(() => {
+                alert('✅ تم نسخ الإعدادات!\n\n' + settings);
+            }).catch(() => {
+                alert('Error copying to clipboard');
+            });
+        }
     </script>
 </body>
 </html>
