@@ -813,13 +813,14 @@
             } catch (e) { return null; }
         }
 
-        // Tuner parameters (defaults)
-        window.tuner = {
-            zoom: 19.5,
-            tilt: 65,
-            scale: 1.02,
+        // Tuner parameters — chosen (ideal) defaults
+        window.TUNER_DEFAULTS = {
+            zoom: 21.055910323703504,
+            tilt: 67.5,
+            scale: 1.92,
             offset: 45
         };
+        window.tuner = { ...window.TUNER_DEFAULTS };
 
         // Restore the saved zoom / size / tilt
         (function loadTuner() {
@@ -1088,6 +1089,9 @@
                     },
                     (err) => {
                         console.error("🚨 Tracking failed:", err.message);
+                        if (err.code === 1) {
+                            showGeolocationErrorOnMap('تم رفض إذن الموقع.');
+                        }
                     },
                     {
                         enableHighAccuracy: true,
@@ -1114,11 +1118,18 @@
             window.saveTuner();
         };
 
+        window.isEmbedded = window.self !== window.top;
+
         function showGeolocationErrorOnMap(message) {
             const overlay = document.getElementById('geolocation-error-overlay');
             if (overlay) {
                 overlay.classList.remove('hidden');
-                overlay.querySelector('p').textContent = message;
+                // Inside an iframe the location is blocked unless the parent page
+                // adds allow="geolocation" to the iframe tag
+                const hint = window.isEmbedded
+                    ? ' — الصفحة داخل iframe: أضف allow="geolocation" إلى وسم الـ iframe في الصفحة الأم.'
+                    : '';
+                overlay.querySelector('p').textContent = message + hint;
             }
         }
 
@@ -1426,6 +1437,32 @@ Light 2: x=${window.light2?.position.x.toFixed(1)}, y=${window.light2?.position.
                 alert('Error copying to clipboard');
             });
         }
+
+        // ============= Console test command =============
+        // Type in the browser console:  tunerInfo()
+        window.tunerInfo = function() {
+            const map = window.dashboardGoogleMap;
+            const live = {
+                zoom:  map ? map.getZoom()  : null,
+                tilt:  map ? map.getTilt()  : null,
+                size:  window.tuner.scale,
+                offset: window.tuner.offset
+            };
+            const saved = (() => {
+                const raw = getCookie(TUNER_COOKIE);
+                if (!raw) return null;
+                try { return JSON.parse(raw); } catch (e) { return 'bad cookie'; }
+            })();
+
+            console.log('%c📊 Zoom / Size / Tilt', 'color:#FDB813;font-weight:bold');
+            console.table({
+                'live (map now)': { zoom: live.zoom, tilt: live.tilt, size: live.size },
+                'in memory':      { zoom: window.tuner.zoom, tilt: window.tuner.tilt, size: window.tuner.scale },
+                'saved (cookie)': saved ? { zoom: saved.zoom, tilt: saved.tilt, size: saved.scale } : { zoom: '—', tilt: '—', size: '—' }
+            });
+            console.log('inside iframe:', window.self !== window.top, '| cookie:', saved ? 'yes' : 'none');
+            return { live, memory: { ...window.tuner }, saved };
+        };
 
         // ============= Save button (Zoom / Size / Tilt) =============
         // Reads the live values off the map and writes them to the cookie now
