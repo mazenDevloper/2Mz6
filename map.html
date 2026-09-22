@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" style="zoom:99%;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#000000">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Dashboard Map - الخريطة الرئيسية</title>
+   
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Three.js with proper importmap -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.152.0/build/three.module.js",
+            "three/examples/jsm/loaders/GLTFLoader": "https://unpkg.com/three@0.152.0/examples/jsm/loaders/GLTFLoader.js"
+        }
+    }
+    </script>
+    
+    <script type="module">
+        import * as THREE from 'three';
+        import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+        
+        window.THREE = THREE;
+        window.GLTFLoader = GLTFLoader;
+        console.log("✅ Three.js & GLTFLoader are now Global");
+    </script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+        }
+
+        #map-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #dashboard-google-map {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            inset: 0;
+        }
+
+        /* Hide Google Maps controls in fullscreen mode */
+        body.fullscreen-mode .gm-control-active,
+        body.fullscreen-mode [aria-label="Map camera controls"],
+        body.fullscreen-mode .gm-control,
+        body.fullscreen-mode [role="button"][aria-label*="Map"],
+        body.fullscreen-mode [aria-label*="Fullscreen"],
+        body.fullscreen-mode [aria-label*="Street View"],
+        body.fullscreen-mode [aria-label*="Zoom"] {
+            display: none !important;
+        }
+
+        /* Geolocation Error Overlay */
+        #geolocation-error-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            z-index: 10;
+            border-radius: 1.5rem;
+            color: white;
+            gap: 1rem;
+        }
+
+        #geolocation-error-overlay.hidden {
+            display: none;
+        }
+
+        #geolocation-error-overlay h3 {
+            font-weight: bold;
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+        }
+
+        #geolocation-error-overlay p {
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Map Controls */
+        .map-controls {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .map-button {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .map-button:hover {
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            transform: scale(1.1);
+        }
+
+        .map-button:active {
+            transform: scale(0.95);
+        }
+
+        #get-my-location-button-dashboard {
+            background: rgb(37, 99, 235);
+            color: white;
+        }
+
+        #get-my-location-button-dashboard:hover {
+            background: rgb(29, 78, 216);
+        }
+
+        /* Scale Controls */
+        #map-tuner-controls {
+            position: absolute;
+            bottom: 1rem;
+            left: 1rem;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .scale-control {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 0.5rem;
+            border-radius: 0.75rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .scale-button {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.25rem;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+        }
+
+        .scale-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .scale-label {
+            color: white;
+            font-size: 0.75rem;
+            align-self: center;
+            min-width: 2rem;
+            text-align: center;
+        }
+
+        /* Loading spinner */
+        .loading-spinner {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 50;
+        }
+
+        .loading-spinner.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #fff;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .map-controls {
+                bottom: 0.5rem;
+                right: 0.5rem;
+            }
+
+            .map-button {
+                width: 2rem;
+                height: 2rem;
+            }
+
+            #map-tuner-controls {
+                bottom: 0.5rem;
+                left: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Map Container -->
+    <div id="map-container">
+        <div id="dashboard-google-map"></div>
+        
+        <!-- Geolocation Error Overlay -->
+        <div id="geolocation-error-overlay" class="hidden">
+            <i data-lucide="map-pin-off" class="w-12 h-12 text-red-500"></i>
+            <h3>خدمة تحديد المواقع معطلة</h3>
+            <p>يرجى تمكين أذونات الموقع في إعدادات المتصفح لهذا الموقع للاستفادة من ميزات الخريطة.</p>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div class="loading-spinner active">
+            <div class="spinner"></div>
+        </div>
+
+        <!-- Map Controls -->
+        <div class="map-controls">
+            <button id="get-my-location-button-dashboard" class="map-button" title="تحديث الموقع الحالي">
+                <i data-lucide="map-pin" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- Scale Controls -->
+        <div id="map-tuner-controls">
+            <div class="scale-control">
+                <button class="scale-button" onclick="adjustScale(0.05)">+</button>
+                <span class="scale-label">Size</span>
+                <button class="scale-button" onclick="adjustScale(-0.05)">-</button>
+            </div>
+            <div class="scale-control">
+                <button class="scale-button" onclick="adjustTilt(5)">↑</button>
+                <span class="scale-label">Tilt</span>
+                <button class="scale-button" onclick="adjustTilt(-5)">↓</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============= Global Variables =============
+        const GOOGLE_MAPS_API_KEY = 'AIzaSyBRqAHJ2elbE_Z7NXXYC50XZpqi6HbG6Rk';
+        let googleMapsPromise = null;
+        let mapsInitialized = false;
+        let locationWatchId = null;
+        let isUserInteracting = false;
+
+        // App State
+        window.appState = {
+            currentLocation: { lat: 17.021, lng: 54.110 }, // Default location (Salalah, Oman)
+            car: { heading: 0 }
+        };
+
+        // Tuner parameters
+        window.tuner = {
+            zoom: 19.5,
+            tilt: 65,
+            scale: 1.02,
+            offset: 45
+        };
+
+        // ============= Google Maps API Loader =============
+        function loadGoogleMaps() {
+            if (googleMapsPromise) return googleMapsPromise;
+
+            googleMapsPromise = new Promise((resolve, reject) => {
+                if (typeof google !== 'undefined' && google.maps) {
+                    resolve();
+                    return;
+                }
+
+                const script = document.createElement('script');
+                script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=geometry,places`;
+                script.async = true;
+                script.defer = true;
+                script.onload = () => resolve();
+                script.onerror = () => reject('Failed to load Google Maps script.');
+                document.head.appendChild(script);
+            });
+
+            return googleMapsPromise;
+        }
+
+        // ============= Map Initialization =============
+        async function initMaps() {
+            window.appState = window.appState || {
+                currentLocation: { lat: 17.021, lng: 54.110 },
+                car: { heading: 0 }
+            };
+
+            if (mapsInitialized) return;
+            
+            try {
+                const mainMapElement = document.getElementById('dashboard-google-map');
+                if (!mainMapElement) {
+                    console.error("❌ Map element not found");
+                    return;
+                }
+
+                const commonConfigs = {
+                    center: window.appState.currentLocation,
+                    mapTypeId: 'roadmap',
+                    disableDefaultUI: true,
+                    renderingType: google.maps.RenderingType.VECTOR,
+                    headingInteractionEnabled: true,
+                    tiltInteractionEnabled: true,
+                    gestureHandling: 'greedy'
+                };
+         
+                // Create Dashboard Map (3D)
+                window.dashboardGoogleMap = new google.maps.Map(mainMapElement, {
+                    ...commonConfigs,
+                    mapId: '6c6951a9289b612a97923702',
+                    zoom: 17.5,
+                    tilt: 65,
+                    heading: 0,
+                    disableDefaultUI: false
+                });
+
+                // Setup 3D Car System
+                setup3DCarSystem(window.dashboardGoogleMap);
+
+                // Add Traffic Layer
+                new google.maps.TrafficLayer().setMap(window.dashboardGoogleMap);
+
+                mapsInitialized = true;
+                console.log("✅ Maps initialized successfully");
+                
+                // Start continuous location tracking
+                startLiveTracking();
+
+                // Hide loading spinner
+                document.querySelector('.loading-spinner').classList.remove('active');
+
+            } catch (error) {
+                console.error("❌ Map Init Error:", error);
+                showGeolocationErrorOnMap("Failed to initialize map. Please reload the page.");
+            }
+        }
+
+        // ============= 3D Car System Setup =============
+        async function setup3DCarSystem(map) {
+            if (!map || window.carOverlay) return;
+
+            const overlay = new google.maps.WebGLOverlayView();
+            window.carOverlay = overlay;
+
+            overlay.onAdd = () => {
+                const loader = new window.GLTFLoader();
+                overlay.scene = new THREE.Scene();
+                overlay.camera = new THREE.PerspectiveCamera();
+                
+                // Studio lighting system
+                overlay.scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+                
+                const light1 = new THREE.DirectionalLight(0xffffff, 0.68);
+                light1.position.set(25, 8, 15);
+                overlay.scene.add(light1);
+
+                const light2 = new THREE.DirectionalLight(0xffffff, 0.75);
+                light2.position.set(-25, 5, 15);
+                overlay.scene.add(light2);
+
+                loader.load('https://dmusera.netlify.app/ES350E.gltf', (gltf) => {
+                    window.carModel = gltf.scene;
+                    
+                    window.carModel.traverse(node => {
+                        if (node.isMesh) {
+                            const originalColor = node.material.color.clone();
+                            const isTransparent = node.material.transparent || node.material.opacity < 0.9;
+                            const isNeutral = (originalColor.r === originalColor.g && originalColor.g === originalColor.b) || 
+                                             (originalColor.r < 0.5 && originalColor.g < 0.5 && originalColor.b < 0.5);
+
+                            if (isTransparent || isNeutral) {
+                                node.material = new THREE.MeshPhongMaterial({
+                                    color: isTransparent ? originalColor : 0x050505,
+                                    specular: 0x444444,
+                                    shininess: 100,
+                                    side: THREE.DoubleSide,
+                                    transparent: isTransparent,
+                                    opacity: node.material.opacity
+                                });
+                            } else {
+                                node.material = new THREE.MeshPhongMaterial({
+                                    color: 0xcccaac,
+                                    specular: 0x888888,
+                                    shininess: 2000,
+                                    emissive: 0x221100,
+                                    emissiveIntensity: 0.2,
+                                    side: THREE.DoubleSide,
+                                    flatShading: false
+                                });
+                            }
+                            node.material.needsUpdate = true;
+                        }
+                    });
+
+                    window.carModel.rotation.x = Math.PI / 2;
+                    overlay.scene.add(window.carModel);
+                });
+            };
+
+            overlay.onContextRestored = ({ gl }) => {
+                overlay.renderer = new THREE.WebGLRenderer({
+                    canvas: gl.canvas, context: gl, antialias: true, alpha: true
+                });
+                overlay.renderer.autoClear = false;
+            };
+
+            overlay.onDraw = ({ transformer }) => {
+                const { renderer, scene, camera } = overlay;
+                if (!renderer || !window.carModel || !window.appState?.currentLocation) return;
+
+                renderer.resetState();
+
+                const pos = window.appState.currentLocation;
+                const heading = window.appState.car.heading || 0;
+                const zoom = window.dashboardGoogleMap.getZoom();
+
+                const matrix = transformer.fromLatLngAltitude({ ...pos, altitude: 3.5 });
+                camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
+
+                const baseScale = window.tuner?.scale || 0.85;
+                const finalScale = baseScale * Math.pow(2, 20 - zoom);
+                
+                window.carModel.scale.set(finalScale, finalScale, finalScale);
+                window.carModel.rotation.y = -(heading * Math.PI) / 180 + Math.PI;
+
+                renderer.render(scene, camera);
+                overlay.requestRedraw();
+            };
+
+            overlay.setMap(map);
+        }
+
+        // ============= Location Tracking =============
+        window.updateGoogleMapLocation = function(pos) {
+            if (!pos || !pos.coords || !window.dashboardGoogleMap) return;
+
+            const { latitude: lat, longitude: lng, heading } = pos.coords;
+            const currentHeading = heading || 0;
+
+            window.appState.currentLocation = { lat, lng };
+            window.appState.car.heading = currentHeading;
+
+            const cameraOptions = {
+                center: { lat, lng },
+                heading: currentHeading,
+                tilt: window.tuner.tilt
+            };
+
+            if (!isUserInteracting) {
+                cameraOptions.zoom = window.tuner.zoom;
+                window.dashboardGoogleMap.moveCamera(cameraOptions);
+                window.dashboardGoogleMap.panBy(window.tuner.offset, 0);
+            }
+
+            if (window.carOverlay) window.carOverlay.requestRedraw();
+        };
+
+        window.startLiveTracking = function() {
+            if (navigator.geolocation) {
+                if (window.locationWatchId) {
+                    navigator.geolocation.clearWatch(window.locationWatchId);
+                }
+
+                window.locationWatchId = navigator.geolocation.watchPosition(
+                    (pos) => {
+                        if (typeof window.updateGoogleMapLocation === 'function') {
+                            window.updateGoogleMapLocation(pos);
+                        }
+                    },
+                    (err) => {
+                        console.error("🚨 Tracking failed:", err.message);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        maximumAge: 0,
+                        timeout: 10000
+                    }
+                );
+                console.log("📡 Continuous tracking active...");
+            }
+        };
+
+        // ============= Map Control Functions =============
+        window.adjustScale = function(amount) {
+            window.tuner.scale = Math.max(0.1, (window.tuner.scale || 0.75) + amount);
+            if (window.carOverlay) window.carOverlay.requestRedraw();
+        };
+
+        window.adjustTilt = function(amount) {
+            if (!window.dashboardGoogleMap) return;
+            let newTilt = Math.min(Math.max(window.dashboardGoogleMap.getTilt() + amount, 0), 75);
+            window.dashboardGoogleMap.setTilt(newTilt);
+            window.tuner.tilt = newTilt;
+        };
+
+        function showGeolocationErrorOnMap(message) {
+            const overlay = document.getElementById('geolocation-error-overlay');
+            if (overlay) {
+                overlay.classList.remove('hidden');
+                overlay.querySelector('p').textContent = message;
+            }
+        }
+
+        // Center map on user location
+        async function centerMapOnUserLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        window.updateGoogleMapLocation(pos);
+                        console.log("✅ Location updated");
+                    },
+                    (err) => {
+                        let msg = 'Unable to get your location. Please check permissions.';
+                        
+                        if (err.code === 1) {
+                            msg = 'Location permission denied. Using default location.';
+                        } else if (err.code === 2) {
+                            msg = 'Unable to determine location. Using default location.';
+                        }
+
+                        const FALLBACK_COORDS = { lat: 17.067330, lng: 54.160190 };
+                        window.appState.currentLocation = FALLBACK_COORDS;
+                        
+                        const fallbackPos = {
+                            coords: {
+                                latitude: FALLBACK_COORDS.lat,
+                                longitude: FALLBACK_COORDS.lng,
+                                heading: 0
+                            }
+                        };
+                        window.updateGoogleMapLocation(fallbackPos);
+                        
+                        showGeolocationErrorOnMap(msg);
+                        console.error("Geolocation Error Code:", err.code);
+                    },
+                    { enableHighAccuracy: true }
+                );
+            } else {
+                showGeolocationErrorOnMap('Geolocation is not supported in this browser.');
+            }
+        }
+
+        // ============= Event Listeners =============
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize map
+            window.initMap = function() { initMaps(); };
+            loadGoogleMaps().then(initMap);
+
+            // Get user location button
+            const getLocationBtn = document.getElementById('get-my-location-button-dashboard');
+            if (getLocationBtn) {
+                getLocationBtn.addEventListener('click', centerMapOnUserLocation);
+            }
+
+            // Initialize Lucide icons
+            lucide.createIcons();
+        });
+
+        // Map interaction detection
+        window.addEventListener('load', () => {
+            if (window.dashboardGoogleMap) {
+                const map = window.dashboardGoogleMap;
+                map.addListener('dragstart', () => { isUserInteracting = true; });
+                map.addListener('dragend', () => { isUserInteracting = false; });
+                map.addListener('zoom_changed', () => {
+                    if (isUserInteracting) {
+                        window.tuner.zoom = map.getZoom();
+                    }
+                });
+            }
+        });
+
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                if (!mapsInitialized) {
+                    loadGoogleMaps().then(() => {
+                        initMaps();
+                        centerMapOnUserLocation();
+                    }).catch(err => console.error("Failed to load maps:", err));
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
