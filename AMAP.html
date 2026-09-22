@@ -263,6 +263,40 @@
             backdrop-filter: blur(10px);
         }
 
+        #save-tuner-button {
+            background: rgba(0, 0, 0, 0.6);
+            color: #FDB813;
+            border: 1px solid rgba(253, 184, 19, 0.5);
+            width: 2.5rem;
+            height: 2.5rem;
+            font-size: 1rem;
+            line-height: 1;
+        }
+
+        #save-tuner-button:hover {
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        #save-tuner-button.saved {
+            background: rgba(34, 197, 94, 0.9);
+            border-color: rgba(34, 197, 94, 1);
+            color: #fff;
+        }
+
+        #clear-cache-button {
+            background: rgba(0, 0, 0, 0.6);
+            color: #FDB813;
+            border: 1px solid rgba(253, 184, 19, 0.5);
+            width: 2rem;
+            height: 2rem;
+            font-size: 0.9rem;
+            line-height: 1;
+        }
+
+        #clear-cache-button:hover {
+            background: rgba(0, 0, 0, 0.8);
+        }
+
         /* Keep the Size/Tilt buttons above the panel */
         #map-tuner-controls { z-index: 101 !important; }
 
@@ -503,6 +537,8 @@
             <button id="get-my-location-button-dashboard" class="map-button" title="تحديث الموقع الحالي">
                 <i data-lucide="map-pin" class="w-5 h-5"></i>
             </button>
+            <button id="save-tuner-button" class="map-button" title="حفظ Zoom / Size / Tilt" onclick="saveTunerNow()">💾</button>
+            <button id="clear-cache-button" class="map-button" title="مسح ذاكرة المتصفح" onclick="clearBrowserCache()">🧹</button>
         </div>
 
         <!-- Scale Controls -->
@@ -521,9 +557,9 @@
 
         <!-- Material & Lighting Control Panel -->
         <!-- Show/hide button for the control panel -->
-        <button id="panel-toggle" onclick="toggleControlPanel()">⚙️ إخفاء التحكم</button>
+        <button id="panel-toggle" onclick="toggleControlPanel()">⚙️ إظهار التحكم</button>
 
-        <div class="control-panel" id="control-panel">
+        <div class="control-panel collapsed" id="control-panel">
             <div class="control-panel-title">
                 <span>⚙️ التحكم بالإضاءة واللون</span>
             </div>
@@ -545,12 +581,12 @@
             <div class="control-group">
                 <div class="control-label">
                     <span>المعدنية (Metalness)</span>
-                    <span class="control-value" id="metalnessValue">0.70</span>
+                    <span class="control-value" id="metalnessValue">0.89</span>
                 </div>
                 <div class="slider-container">
-                    <input type="range" id="metalnessSlider" min="0" max="1" step="0.01" value="0.70"
+                    <input type="range" id="metalnessSlider" min="0" max="1" step="0.01" value="0.89"
                            oninput="updateMetalness(this.value)">
-                    <span class="slider-value" id="metalnessDisplay">0.70</span>
+                    <span class="slider-value" id="metalnessDisplay">0.89</span>
                 </div>
             </div>
 
@@ -558,12 +594,12 @@
             <div class="control-group">
                 <div class="control-label">
                     <span>الخشونة (Roughness)</span>
-                    <span class="control-value" id="roughnessValue">0.31</span>
+                    <span class="control-value" id="roughnessValue">0.25</span>
                 </div>
                 <div class="slider-container">
-                    <input type="range" id="roughnessSlider" min="0" max="1" step="0.01" value="0.31"
+                    <input type="range" id="roughnessSlider" min="0" max="1" step="0.01" value="0.25"
                            oninput="updateRoughness(this.value)">
-                    <span class="slider-value" id="roughnessDisplay">0.31</span>
+                    <span class="slider-value" id="roughnessDisplay">0.25</span>
                 </div>
             </div>
 
@@ -571,12 +607,12 @@
             <div class="control-group">
                 <div class="control-label">
                     <span>انعكاس البيئة</span>
-                    <span class="control-value" id="envMapIntensityValue">1.30</span>
+                    <span class="control-value" id="envMapIntensityValue">1.00</span>
                 </div>
                 <div class="slider-container">
-                    <input type="range" id="envMapIntensitySlider" min="0" max="2" step="0.1" value="1.30"
+                    <input type="range" id="envMapIntensitySlider" min="0" max="2" step="0.1" value="1.00"
                            oninput="updateEnvMapIntensity(this.value)">
-                    <span class="slider-value" id="envMapIntensityDisplay">1.30</span>
+                    <span class="slider-value" id="envMapIntensityDisplay">1.00</span>
                 </div>
             </div>
 
@@ -586,9 +622,9 @@
                     <span>لون الطلاء</span>
                 </div>
                 <div class="color-picker-container">
-                    <input type="color" id="colorPicker" value="#FFEFBB"
+                    <input type="color" id="colorPicker" value="#FFF5D6"
                            oninput="updateCarColor(this.value)">
-                    <input type="text" class="color-code" id="colorCode" value="#FFEFBB" readonly>
+                    <input type="text" class="color-code" id="colorCode" value="#FFF5D6" readonly>
                 </div>
             </div>
 
@@ -617,15 +653,15 @@
                     </div>
                     <div class="preview-item">
                         <div>المعدنية</div>
-                        <div class="preview-item-value" id="currentMetalnessDisplay">0.70</div>
+                        <div class="preview-item-value" id="currentMetalnessDisplay">0.89</div>
                     </div>
                     <div class="preview-item">
                         <div>الخشونة</div>
-                        <div class="preview-item-value" id="currentRoughnessDisplay">0.31</div>
+                        <div class="preview-item-value" id="currentRoughnessDisplay">0.25</div>
                     </div>
                     <div class="preview-item">
                         <div>اللون</div>
-                        <div class="preview-item-value" id="currentColorDisplay">#FFEFBB</div>
+                        <div class="preview-item-value" id="currentColorDisplay">#FFF5D6</div>
                     </div>
                 </div>
             </div>
@@ -646,45 +682,45 @@
                 <!-- Light 1 X Position -->
                 <div class="control-label">
                     <span>X</span>
-                    <span class="control-value" id="light1XValue">-30</span>
+                    <span class="control-value" id="light1XValue">0</span>
                 </div>
                 <div class="slider-container">
-                    <input type="range" id="light1XSlider" min="-50" max="50" step="1" value="-30"
+                    <input type="range" id="light1XSlider" min="-50" max="50" step="1" value="0"
                            oninput="updateLight1Position('x', this.value)">
-                    <span class="slider-value" id="light1XDisplay">-30</span>
+                    <span class="slider-value" id="light1XDisplay">0</span>
                 </div>
 
                 <!-- Light 1 Y Position -->
                 <div class="control-label">
                     <span>Y</span>
-                    <span class="control-value" id="light1YValue">15</span>
+                    <span class="control-value" id="light1YValue">0</span>
                 </div>
                 <div class="slider-container">
-                    <input type="range" id="light1YSlider" min="0" max="50" step="1" value="15"
+                    <input type="range" id="light1YSlider" min="0" max="50" step="1" value="0"
                            oninput="updateLight1Position('y', this.value)">
-                    <span class="slider-value" id="light1YDisplay">15</span>
+                    <span class="slider-value" id="light1YDisplay">0</span>
                 </div>
 
                 <!-- Light 1 Z Position -->
                 <div class="control-label">
                     <span>Z</span>
-                    <span class="control-value" id="light1ZValue">-20</span>
+                    <span class="control-value" id="light1ZValue">4</span>
                 </div>
                 <div class="slider-container">
-                    <input type="range" id="light1ZSlider" min="-50" max="50" step="1" value="-20"
+                    <input type="range" id="light1ZSlider" min="-50" max="50" step="1" value="4"
                            oninput="updateLight1Position('z', this.value)">
-                    <span class="slider-value" id="light1ZDisplay">-20</span>
+                    <span class="slider-value" id="light1ZDisplay">4</span>
                 </div>
 
                 <!-- Light 1 Intensity -->
                 <div class="control-label">
                     <span>Intensity</span>
-                    <span class="control-value" id="light1IntensityValue">1.1</span>
+                    <span class="control-value" id="light1IntensityValue">1.4</span>
                 </div>
                 <div class="slider-container">
-                    <input type="range" id="light1IntensitySlider" min="0" max="2" step="0.1" value="1.1"
+                    <input type="range" id="light1IntensitySlider" min="0" max="2" step="0.1" value="1.4"
                            oninput="updateLight1Intensity(this.value)">
-                    <span class="slider-value" id="light1IntensityDisplay">1.1</span>
+                    <span class="slider-value" id="light1IntensityDisplay">1.4</span>
                 </div>
             </div>
 
@@ -760,12 +796,55 @@
             car: { heading: 0 }
         };
 
-        // Tuner parameters
+        // ============= Cookies (zoom / size / tilt) =============
+        const TUNER_COOKIE = 'amap_tuner';
+
+        function setCookie(name, value, days = 365) {
+            try {
+                const exp = new Date(Date.now() + days * 864e5).toUTCString();
+                document.cookie = `${name}=${encodeURIComponent(value)};expires=${exp};path=/;SameSite=Lax`;
+            } catch (e) { console.warn('Cookie write failed:', e); }
+        }
+
+        function getCookie(name) {
+            try {
+                const hit = document.cookie.split('; ').find(c => c.startsWith(name + '='));
+                return hit ? decodeURIComponent(hit.split('=').slice(1).join('=')) : null;
+            } catch (e) { return null; }
+        }
+
+        // Tuner parameters (defaults)
         window.tuner = {
             zoom: 19.5,
             tilt: 65,
             scale: 1.02,
             offset: 45
+        };
+
+        // Restore the saved zoom / size / tilt
+        (function loadTuner() {
+            const raw = getCookie(TUNER_COOKIE);
+            if (!raw) return;
+            try {
+                const saved = JSON.parse(raw);
+                ['zoom', 'tilt', 'scale', 'offset'].forEach(k => {
+                    if (typeof saved[k] === 'number' && isFinite(saved[k])) window.tuner[k] = saved[k];
+                });
+                console.log('💾 Tuner restored from cookie:', window.tuner);
+            } catch (e) { console.warn('Bad tuner cookie:', e); }
+        })();
+
+        let saveTunerTimer = null;
+        window.saveTuner = function() {
+            clearTimeout(saveTunerTimer);
+            saveTunerTimer = setTimeout(() => {
+                setCookie(TUNER_COOKIE, JSON.stringify({
+                    zoom: window.tuner.zoom,
+                    tilt: window.tuner.tilt,
+                    scale: window.tuner.scale,
+                    offset: window.tuner.offset
+                }));
+            }, 300);
         };
 
         // ============= Google Maps API Loader =============
@@ -821,14 +900,15 @@
                 window.dashboardGoogleMap = new google.maps.Map(mainMapElement, {
                     ...commonConfigs,
                     mapId: '6c6951a9289b612a97923702',
-                    zoom: 17.5,
-                    tilt: 65,
+                    zoom: window.tuner.zoom,
+                    tilt: window.tuner.tilt,
                     heading: 0,
                     disableDefaultUI: false
                 });
 
                 // Setup 3D Car System
                 setup3DCarSystem(window.dashboardGoogleMap);
+                attachMapListeners(window.dashboardGoogleMap);
 
                 // Add Traffic Layer
                 new google.maps.TrafficLayer().setMap(window.dashboardGoogleMap);
@@ -893,8 +973,8 @@
                 overlay.scene.add(new THREE.AmbientLight(0xffffff, 0.90));
 
                 // Light 1 - تخزين في window للتحكم عن بعد
-                window.light1 = new THREE.DirectionalLight(0xffffff, 1.1);
-                window.light1.position.set(-30, 15, -20);  // Rotated -180°
+                window.light1 = new THREE.DirectionalLight(0xffffff, 1.4);
+                window.light1.position.set(0, 0, 4);
                 overlay.scene.add(window.light1);
 
                 // Light 2 - تخزين في window للتحكم عن بعد
@@ -1022,6 +1102,7 @@
         // ============= Map Control Functions =============
         window.adjustScale = function(amount) {
             window.tuner.scale = Math.max(0.1, (window.tuner.scale || 0.75) + amount);
+            window.saveTuner();
             if (window.carOverlay) window.carOverlay.requestRedraw();
         };
 
@@ -1030,6 +1111,7 @@
             let newTilt = Math.min(Math.max(window.dashboardGoogleMap.getTilt() + amount, 0), 75);
             window.dashboardGoogleMap.setTilt(newTilt);
             window.tuner.tilt = newTilt;
+            window.saveTuner();
         };
 
         function showGeolocationErrorOnMap(message) {
@@ -1092,17 +1174,36 @@
             lucide.createIcons();
         });
 
+        // Saves zoom and tilt whenever the user changes them
+        window.mapListenersAttached = false;
+        function attachMapListeners(map) {
+            if (!map || window.mapListenersAttached) return;
+            window.mapListenersAttached = true;
+
+            map.addListener('dragstart', () => { isUserInteracting = true; });
+            map.addListener('dragend', () => { isUserInteracting = false; });
+
+            map.addListener('zoom_changed', () => {
+                const z = map.getZoom();
+                if (typeof z === 'number' && z !== window.tuner.zoom) {
+                    window.tuner.zoom = z;
+                    window.saveTuner();
+                }
+            });
+
+            map.addListener('tilt_changed', () => {
+                const t = map.getTilt();
+                if (typeof t === 'number' && t !== window.tuner.tilt) {
+                    window.tuner.tilt = t;
+                    window.saveTuner();
+                }
+            });
+
+            console.log('💾 Zoom/tilt are now saved to cookies');
+        }
+
         window.addEventListener('load', () => {
-            if (window.dashboardGoogleMap) {
-                const map = window.dashboardGoogleMap;
-                map.addListener('dragstart', () => { isUserInteracting = true; });
-                map.addListener('dragend', () => { isUserInteracting = false; });
-                map.addListener('zoom_changed', () => {
-                    if (isUserInteracting) {
-                        window.tuner.zoom = map.getZoom();
-                    }
-                });
-            }
+            attachMapListeners(window.dashboardGoogleMap);
         });
 
         window.addEventListener('load', () => {
@@ -1118,14 +1219,15 @@
 
         // ============= Material Control Functions =============
 
-        // Default values = the model's own paint (Meshpart1Mtl in ES350E.gltf)
-        window.materialSettings = {
+        // Chosen (ideal) values — also what the reset button restores
+        window.IDEAL_PAINT = {
             ambientLight: 0.90,
-            metalness: 0.70,
-            roughness: 0.31,
+            metalness: 0.89,
+            roughness: 0.25,
             envMapIntensity: 1.00,
-            carColor: 0xFFEFBB
+            carColor: 0xFFF5D6
         };
+        window.materialSettings = { ...window.IDEAL_PAINT };
         window.originalPaint = null;   // filled from the GLTF file on load
         window.paintMaterials = [];
 
@@ -1165,8 +1267,8 @@
                 envMapIntensity: +(paint.envMapIntensity ?? 1).toFixed(2),
                 carColor: parseInt(paint.color.getHexString(), 16)
             };
-            console.log('🎨 Original paint from GLTF:', window.originalPaint);
-            applyPreset('reset');   // sync the sliders with the file's values
+            console.log('🎨 Original paint in GLTF:', window.originalPaint);
+            applyPreset('reset');   // apply the chosen (ideal) values
         }
 
         function updateAmbientLight(value) {
@@ -1273,14 +1375,8 @@
                     };
                     break;
                 case 'reset':
-                    // Back to the original values from ES350E.gltf
-                    settings = { ...(window.originalPaint || {
-                        ambientLight: 0.90,
-                        metalness: 0.70,
-                        roughness: 0.31,
-                        envMapIntensity: 1.00,
-                        carColor: 0xFFEFBB
-                    }) };
+                    // Back to the chosen (ideal) values
+                    settings = { ...window.IDEAL_PAINT };
                     break;
             }
 
@@ -1330,6 +1426,66 @@ Light 2: x=${window.light2?.position.x.toFixed(1)}, y=${window.light2?.position.
                 alert('Error copying to clipboard');
             });
         }
+
+        // ============= Save button (Zoom / Size / Tilt) =============
+        // Reads the live values off the map and writes them to the cookie now
+        window.saveTunerNow = function() {
+            const map = window.dashboardGoogleMap;
+            if (map) {
+                const z = map.getZoom(), t = map.getTilt();
+                if (typeof z === 'number') window.tuner.zoom = z;
+                if (typeof t === 'number') window.tuner.tilt = t;
+            }
+
+            setCookie(TUNER_COOKIE, JSON.stringify({
+                zoom: window.tuner.zoom,
+                tilt: window.tuner.tilt,
+                scale: window.tuner.scale,
+                offset: window.tuner.offset
+            }));
+
+            const btn = document.getElementById('save-tuner-button');
+            if (btn) {
+                btn.textContent = '✅';
+                btn.classList.add('saved');
+                setTimeout(() => { btn.textContent = '💾'; btn.classList.remove('saved'); }, 1200);
+            }
+            console.log('💾 Saved:', window.tuner);
+        };
+
+        // ============= Clear browser cache =============
+        // Clears this site's cookies, storage and cached files, then reloads.
+        window.clearBrowserCache = async function() {
+            if (!confirm('مسح ذاكرة المتصفح لهذا الموقع؟\n\nسيتم حذف الإعدادات المحفوظة (Zoom / Size / Tilt) وإعادة تحميل الصفحة.')) return;
+
+            try {
+                document.cookie.split(';').forEach(c => {
+                    const name = c.split('=')[0].trim();
+                    if (!name) return;
+                    document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+                    document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=${location.hostname}`;
+                });
+            } catch (e) { console.warn('Cookies not cleared:', e); }
+
+            try { localStorage.clear(); sessionStorage.clear(); } catch (e) { console.warn('Storage not cleared:', e); }
+
+            try {
+                if (window.caches) {
+                    const keys = await caches.keys();
+                    await Promise.all(keys.map(k => caches.delete(k)));
+                }
+            } catch (e) { console.warn('Cache Storage not cleared:', e); }
+
+            try {
+                if (navigator.serviceWorker) {
+                    const regs = await navigator.serviceWorker.getRegistrations();
+                    await Promise.all(regs.map(r => r.unregister()));
+                }
+            } catch (e) { console.warn('Service workers not removed:', e); }
+
+            console.log('🧹 Browser cache cleared');
+            location.reload(true);
+        };
 
         // ============= Panel Toggle =============
         function toggleControlPanel() {
