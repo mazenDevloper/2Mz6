@@ -714,6 +714,26 @@
                 backLight.position.set(0, 10, -35);
                 overlay.scene.add(backLight);
 
+                // 6. إضاءة خلفية يسار - Back Left Light
+                const backLeftLight = new THREE.DirectionalLight(0xffffff, 0.85);
+                backLeftLight.position.set(-25, 12, -30);
+                overlay.scene.add(backLeftLight);
+
+                // 7. إضاءة خلفية يمين - Back Right Light
+                const backRightLight = new THREE.DirectionalLight(0xffffff, 0.85);
+                backRightLight.position.set(25, 12, -30);
+                overlay.scene.add(backRightLight);
+
+                // 8. إضاءة من أعلى الخلف - Top Back Light
+                const topBackLight = new THREE.DirectionalLight(0xffffff, 0.7);
+                topBackLight.position.set(0, 30, -25);
+                overlay.scene.add(topBackLight);
+
+                // 9. إضاءة جانبية يسار - Left Side Light
+                const leftSideLight = new THREE.DirectionalLight(0xffffff, 0.75);
+                leftSideLight.position.set(-40, 15, 0);
+                overlay.scene.add(leftSideLight);
+
                 loader.load('https://dmusera.netlify.app/ES350E.gltf', (gltf) => {
                     window.carModel = gltf.scene;
                     
