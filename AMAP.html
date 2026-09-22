@@ -368,6 +368,111 @@
             border-color: rgba(253, 184, 19, 0.8);
         }
 
+        .light-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(253, 184, 19, 0.3);
+            border-radius: 0.375rem;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            cursor: grab;
+        }
+
+        .light-item:active {
+            cursor: grabbing;
+        }
+
+        .light-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.3rem;
+            border-bottom: 1px solid rgba(253, 184, 19, 0.2);
+        }
+
+        .light-item-title {
+            color: #FDB813;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .light-item-buttons {
+            display: flex;
+            gap: 0.3rem;
+        }
+
+        .light-item-btn {
+            background: rgba(253, 184, 19, 0.15);
+            color: #FDB813;
+            border: 1px solid rgba(253, 184, 19, 0.4);
+            padding: 2px 6px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            transition: all 0.2s ease;
+        }
+
+        .light-item-btn:hover {
+            background: rgba(253, 184, 19, 0.25);
+        }
+
+        .light-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.3rem;
+            font-size: 0.75rem;
+        }
+
+        .light-control-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.3rem;
+            border-radius: 3px;
+        }
+
+        .light-control-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.65rem;
+            margin-bottom: 2px;
+        }
+
+        .light-control-value {
+            color: #FDB813;
+            font-weight: bold;
+            font-size: 0.7rem;
+            text-align: center;
+        }
+
+        .light-mini-slider {
+            width: 100%;
+            height: 3px;
+            border-radius: 2px;
+            background: linear-gradient(to right, #FDB813, #FFD700);
+            outline: none;
+            -webkit-appearance: none;
+            margin-top: 2px;
+        }
+
+        .light-mini-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .light-mini-slider::-moz-range-thumb {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+        }
+
         .preview-box {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -459,6 +564,18 @@
         <div class="control-panel">
             <div class="control-panel-title">
                 <span>⚙️ التحكم بالإضاءة واللون</span>
+                <button onclick="toggleAdvancedLights()" style="background: rgba(253,184,19,0.2); border: 1px solid rgba(253,184,19,0.5); color: #FDB813; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-size: 0.75rem; margin-right: 0.5rem;">💡 متقدم</button>
+            </div>
+
+            <!-- Advanced Lights Control (Collapsed by default) -->
+            <div id="advancedLightsPanel" style="display: none;">
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>⚡ التحكم المتقدم بالإضاءات</span>
+                    </div>
+                    <button onclick="addNewLight()" class="copy-button" style="width: 100%; margin-bottom: 0.5rem;">➕ إضافة إضاءة جديدة</button>
+                    <div id="lightsContainer" style="max-height: 400px; overflow-y: auto;"></div>
+                </div>
             </div>
 
             <!-- Ambient Light Control -->
@@ -1134,6 +1251,163 @@
                 document.getElementById('colorPicker').value = colorHex;
                 updateCarColor(colorHex);
             }
+        }
+
+        // ============= Advanced Lighting Control Functions =============
+
+        // Store list of custom lights
+        window.customLights = [];
+        let draggedLightIndex = null;
+
+        function toggleAdvancedLights() {
+            const panel = document.getElementById('advancedLightsPanel');
+            if (panel) {
+                panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+        function addNewLight() {
+            if (!window.carOverlay || !window.carOverlay.scene) {
+                alert('⚠️ الرجاء انتظار تحميل المشهد أولاً');
+                return;
+            }
+
+            const newLight = {
+                id: Date.now(),
+                x: 20,
+                y: 10,
+                z: 20,
+                intensity: 0.8,
+                color: 0xffffff,
+                type: 'directional'
+            };
+
+            window.customLights.push(newLight);
+
+            // Create Three.js light
+            const light = new THREE.DirectionalLight(newLight.color, newLight.intensity);
+            light.position.set(newLight.x, newLight.y, newLight.z);
+            light.userData.customLightId = newLight.id;
+            window.carOverlay.scene.add(light);
+
+            renderLightsList();
+        }
+
+        function renderLightsList() {
+            const container = document.getElementById('lightsContainer');
+            if (!container) return;
+
+            container.innerHTML = '';
+
+            window.customLights.forEach((light, index) => {
+                const lightElement = document.createElement('div');
+                lightElement.className = 'light-item';
+                lightElement.id = `light-${light.id}`;
+                lightElement.draggable = true;
+                lightElement.innerHTML = `
+                    <div class="light-item-header">
+                        <span class="light-item-title">💡 إضاءة ${index + 1}</span>
+                        <div class="light-item-buttons">
+                            <button onclick="deleteLight(${light.id})" style="background: rgba(255,70,70,0.2); color: #ff4646; border: 1px solid rgba(255,70,70,0.5); padding: 2px 6px; border-radius: 3px; cursor: pointer; font-size: 0.7rem; margin-right: 0.3rem;">🗑️ حذف</button>
+                        </div>
+                    </div>
+                    <div class="light-controls" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.75rem;">
+                        <div>
+                            <div class="control-label" style="margin-bottom: 0.3rem;">الميل (Tilt)</div>
+                            <input type="range" min="-90" max="90" step="5" value="${light.x}"
+                                   onchange="updateLightProperty(${light.id}, 'x', this.value)"
+                                   class="light-mini-slider" style="width: 100%;">
+                            <div class="slider-value" style="font-size: 0.7rem; text-align: center;">${light.x}°</div>
+                        </div>
+                        <div>
+                            <div class="control-label" style="margin-bottom: 0.3rem;">الكثافة</div>
+                            <input type="range" min="0" max="2" step="0.1" value="${light.intensity}"
+                                   onchange="updateLightProperty(${light.id}, 'intensity', this.value)"
+                                   class="light-mini-slider" style="width: 100%;">
+                            <div class="slider-value" style="font-size: 0.7rem; text-align: center;">${light.intensity.toFixed(1)}</div>
+                        </div>
+                        <div>
+                            <div class="control-label" style="margin-bottom: 0.3rem;">الدوران (Rotate)</div>
+                            <input type="range" min="-180" max="180" step="5" value="${light.y}"
+                                   onchange="updateLightProperty(${light.id}, 'y', this.value)"
+                                   class="light-mini-slider" style="width: 100%;">
+                            <div class="slider-value" style="font-size: 0.7rem; text-align: center;">${light.y}°</div>
+                        </div>
+                        <div>
+                            <div class="control-label" style="margin-bottom: 0.3rem;">العمق (Z)</div>
+                            <input type="range" min="-50" max="50" step="5" value="${light.z}"
+                                   onchange="updateLightProperty(${light.id}, 'z', this.value)"
+                                   class="light-mini-slider" style="width: 100%;">
+                            <div class="slider-value" style="font-size: 0.7rem; text-align: center;">${light.z}</div>
+                        </div>
+                    </div>
+                `;
+
+                // Add drag and drop listeners
+                lightElement.addEventListener('dragstart', (e) => {
+                    draggedLightIndex = index;
+                    lightElement.style.opacity = '0.6';
+                });
+
+                lightElement.addEventListener('dragend', () => {
+                    lightElement.style.opacity = '1';
+                    draggedLightIndex = null;
+                });
+
+                container.appendChild(lightElement);
+            });
+        }
+
+        function updateLightProperty(lightId, property, value) {
+            const lightIndex = window.customLights.findIndex(l => l.id === lightId);
+            if (lightIndex === -1) return;
+
+            const light = window.customLights[lightIndex];
+            const floatValue = parseFloat(value);
+
+            // Update light data
+            if (property === 'x' || property === 'y' || property === 'z') {
+                light[property] = floatValue;
+            } else if (property === 'intensity') {
+                light.intensity = floatValue;
+            }
+
+            // Update Three.js light
+            if (window.carOverlay && window.carOverlay.scene) {
+                const threeLight = window.carOverlay.scene.children.find(c =>
+                    c.userData.customLightId === lightId
+                );
+
+                if (threeLight) {
+                    if (property === 'x' || property === 'y' || property === 'z') {
+                        threeLight.position[property] = floatValue;
+                    } else if (property === 'intensity') {
+                        threeLight.intensity = floatValue;
+                    }
+                }
+            }
+
+            // Re-render to show updated values
+            renderLightsList();
+        }
+
+        function deleteLight(lightId) {
+            const lightIndex = window.customLights.findIndex(l => l.id === lightId);
+            if (lightIndex === -1) return;
+
+            window.customLights.splice(lightIndex, 1);
+
+            // Remove from Three.js scene
+            if (window.carOverlay && window.carOverlay.scene) {
+                const threeLight = window.carOverlay.scene.children.find(c =>
+                    c.userData.customLightId === lightId
+                );
+                if (threeLight) {
+                    window.carOverlay.scene.remove(threeLight);
+                }
+            }
+
+            renderLightsList();
         }
 
         function copyCurrentSettings() {
