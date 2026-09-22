@@ -4,32 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#000000">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>Dashboard Map - الخريطة الرئيسية</title>
-   
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Three.js with proper importmap -->
-    <script type="importmap">
-    {
-        "imports": {
-            "three": "https://unpkg.com/three@0.152.0/build/three.module.js",
-            "three/examples/jsm/loaders/GLTFLoader": "https://unpkg.com/three@0.152.0/examples/jsm/loaders/GLTFLoader.js"
-        }
-    }
-    </script>
-    
-    <script type="module">
-        import * as THREE from 'three';
-        import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-        
-        window.THREE = THREE;
-        window.GLTFLoader = GLTFLoader;
-        console.log("✅ Three.js & GLTFLoader are now Global");
-    </script>
-    
+    <!-- Three.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
+
     <style>
         * {
             margin: 0;
@@ -235,9 +218,31 @@
             border-radius: 0.75rem;
             padding: 1rem;
             min-width: 280px;
-            max-height: 80vh;
-            overflow-y: auto;
+            max-height: calc(100vh - 2rem);
+            height: auto;
+            max-width: 400px;
+            overflow-y: scroll;
+            overflow-x: hidden;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Scrollbar styling */
+        .control-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .control-panel::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        .control-panel::-webkit-scrollbar-thumb {
+            background: rgba(253, 184, 19, 0.4);
+            border-radius: 3px;
+        }
+
+        .control-panel::-webkit-scrollbar-thumb:hover {
+            background: rgba(253, 184, 19, 0.6);
         }
 
         .control-panel-title {
@@ -368,111 +373,6 @@
             border-color: rgba(253, 184, 19, 0.8);
         }
 
-        .light-item {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(253, 184, 19, 0.3);
-            border-radius: 0.375rem;
-            padding: 0.5rem;
-            margin-bottom: 0.5rem;
-            cursor: grab;
-        }
-
-        .light-item:active {
-            cursor: grabbing;
-        }
-
-        .light-item-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-            padding-bottom: 0.3rem;
-            border-bottom: 1px solid rgba(253, 184, 19, 0.2);
-        }
-
-        .light-item-title {
-            color: #FDB813;
-            font-weight: bold;
-            font-size: 0.8rem;
-        }
-
-        .light-item-buttons {
-            display: flex;
-            gap: 0.3rem;
-        }
-
-        .light-item-btn {
-            background: rgba(253, 184, 19, 0.15);
-            color: #FDB813;
-            border: 1px solid rgba(253, 184, 19, 0.4);
-            padding: 2px 6px;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 0.7rem;
-            transition: all 0.2s ease;
-        }
-
-        .light-item-btn:hover {
-            background: rgba(253, 184, 19, 0.25);
-        }
-
-        .light-controls {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.3rem;
-            font-size: 0.75rem;
-        }
-
-        .light-control-item {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 0.3rem;
-            border-radius: 3px;
-        }
-
-        .light-control-label {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.65rem;
-            margin-bottom: 2px;
-        }
-
-        .light-control-value {
-            color: #FDB813;
-            font-weight: bold;
-            font-size: 0.7rem;
-            text-align: center;
-        }
-
-        .light-mini-slider {
-            width: 100%;
-            height: 3px;
-            border-radius: 2px;
-            background: linear-gradient(to right, #FDB813, #FFD700);
-            outline: none;
-            -webkit-appearance: none;
-            margin-top: 2px;
-        }
-
-        .light-mini-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: white;
-            cursor: pointer;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .light-mini-slider::-moz-range-thumb {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: white;
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
-        }
-
         .preview-box {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -494,6 +394,18 @@
             color: #FDB813;
             font-weight: bold;
             font-size: 0.85rem;
+        }
+
+        /* Light Control Section Styling */
+        .light-section-header {
+            background: rgba(253, 184, 19, 0.15);
+            border-left: 3px solid #FDB813;
+            padding: 0.6rem;
+            border-radius: 0.375rem;
+            margin-bottom: 0.8rem;
+            font-weight: bold;
+            color: #FDB813;
+            font-size: 0.9rem;
         }
 
         /* Mobile responsiveness */
@@ -526,7 +438,7 @@
     <!-- Main Map Container -->
     <div id="map-container">
         <div id="dashboard-google-map"></div>
-        
+
         <!-- Geolocation Error Overlay -->
         <div id="geolocation-error-overlay" class="hidden">
             <i data-lucide="map-pin-off" class="w-12 h-12 text-red-500"></i>
@@ -564,18 +476,6 @@
         <div class="control-panel">
             <div class="control-panel-title">
                 <span>⚙️ التحكم بالإضاءة واللون</span>
-                <button onclick="toggleAdvancedLights()" style="background: rgba(253,184,19,0.2); border: 1px solid rgba(253,184,19,0.5); color: #FDB813; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-size: 0.75rem; margin-right: 0.5rem;">💡 متقدم</button>
-            </div>
-
-            <!-- Advanced Lights Control (Collapsed by default) -->
-            <div id="advancedLightsPanel" style="display: none;">
-                <div class="control-group">
-                    <div class="control-label">
-                        <span>⚡ التحكم المتقدم بالإضاءات</span>
-                    </div>
-                    <button onclick="addNewLight()" class="copy-button" style="width: 100%; margin-bottom: 0.5rem;">➕ إضافة إضاءة جديدة</button>
-                    <div id="lightsContainer" style="max-height: 400px; overflow-y: auto;"></div>
-                </div>
             </div>
 
             <!-- Ambient Light Control -->
@@ -680,6 +580,115 @@
                 </div>
             </div>
 
+            <!-- Advanced Lights Control -->
+            <div class="control-group" style="border-top: 2px solid rgba(253, 184, 19, 0.3); padding-top: 1rem;">
+                <div class="control-label" style="color: #FDB813; font-weight: bold; font-size: 1rem; margin-bottom: 1rem;">
+                    <span>🔦 التحكم المتقدم بالإضاءات</span>
+                </div>
+            </div>
+
+            <!-- Light 1 Control -->
+            <div class="control-group">
+                <div class="light-section-header">
+                    💡 Light 1 - من اليسار الخلف
+                </div>
+
+                <!-- Light 1 X Position -->
+                <div class="control-label">
+                    <span>X</span>
+                    <span class="control-value" id="light1XValue">-30</span>
+                </div>
+                <div class="slider-container">
+                    <input type="range" id="light1XSlider" min="-50" max="50" step="1" value="-30"
+                           oninput="updateLight1Position('x', this.value)">
+                    <span class="slider-value" id="light1XDisplay">-30</span>
+                </div>
+
+                <!-- Light 1 Y Position -->
+                <div class="control-label">
+                    <span>Y</span>
+                    <span class="control-value" id="light1YValue">15</span>
+                </div>
+                <div class="slider-container">
+                    <input type="range" id="light1YSlider" min="0" max="50" step="1" value="15"
+                           oninput="updateLight1Position('y', this.value)">
+                    <span class="slider-value" id="light1YDisplay">15</span>
+                </div>
+
+                <!-- Light 1 Z Position -->
+                <div class="control-label">
+                    <span>Z</span>
+                    <span class="control-value" id="light1ZValue">-20</span>
+                </div>
+                <div class="slider-container">
+                    <input type="range" id="light1ZSlider" min="-50" max="50" step="1" value="-20"
+                           oninput="updateLight1Position('z', this.value)">
+                    <span class="slider-value" id="light1ZDisplay">-20</span>
+                </div>
+
+                <!-- Light 1 Intensity -->
+                <div class="control-label">
+                    <span>Intensity</span>
+                    <span class="control-value" id="light1IntensityValue">1.1</span>
+                </div>
+                <div class="slider-container">
+                    <input type="range" id="light1IntensitySlider" min="0" max="2" step="0.1" value="1.1"
+                           oninput="updateLight1Intensity(this.value)">
+                    <span class="slider-value" id="light1IntensityDisplay">1.1</span>
+                </div>
+            </div>
+
+            <!-- Light 2 Control -->
+            <div class="control-group">
+                <div class="light-section-header" style="border-left-color: #87CEEB; background: rgba(135, 206, 235, 0.15); color: #87CEEB;">
+                    💡 Light 2 - من اليسار الأمام
+                </div>
+
+                <!-- Light 2 X Position -->
+                <div class="control-label">
+                    <span>X</span>
+                    <span class="control-value" id="light2XValue">-30</span>
+                </div>
+                <div class="slider-container">
+                    <input type="range" id="light2XSlider" min="-50" max="50" step="1" value="-30"
+                           oninput="updateLight2Position('x', this.value)">
+                    <span class="slider-value" id="light2XDisplay">-30</span>
+                </div>
+
+                <!-- Light 2 Y Position -->
+                <div class="control-label">
+                    <span>Y</span>
+                    <span class="control-value" id="light2YValue">10</span>
+                </div>
+                <div class="slider-container">
+                    <input type="range" id="light2YSlider" min="0" max="50" step="1" value="10"
+                           oninput="updateLight2Position('y', this.value)">
+                    <span class="slider-value" id="light2YDisplay">10</span>
+                </div>
+
+                <!-- Light 2 Z Position -->
+                <div class="control-label">
+                    <span>Z</span>
+                    <span class="control-value" id="light2ZValue">20</span>
+                </div>
+                <div class="slider-container">
+                    <input type="range" id="light2ZSlider" min="-50" max="50" step="1" value="20"
+                           oninput="updateLight2Position('z', this.value)">
+                    <span class="slider-value" id="light2ZDisplay">20</span>
+                </div>
+
+                <!-- Light 2 Intensity -->
+                <div class="control-label">
+                    <span>Intensity</span>
+                    <span class="control-value" id="light2IntensityValue">1.0</span>
+                </div>
+                <div class="slider-container">
+                    <input type="range" id="light2IntensitySlider" min="0" max="2" step="0.1" value="1.0"
+                           oninput="updateLight2Intensity(this.value)">
+                    <span class="slider-value" id="light2IntensityDisplay">1.0</span>
+                </div>
+            </div>
+
             <!-- Copy Code Button -->
             <button class="copy-button" style="width: 100%; margin-top: 0.5rem;" onclick="copyCurrentSettings()">
                 📋 نسخ الإعدادات
@@ -697,7 +706,7 @@
 
         // App State
         window.appState = {
-            currentLocation: { lat: 17.021, lng: 54.110 }, // Default location (Salalah, Oman)
+            currentLocation: { lat: 17.021, lng: 54.110 },
             car: { heading: 0 }
         };
 
@@ -731,6 +740,74 @@
             return googleMapsPromise;
         }
 
+        // ============= Create Simple Car Model =============
+        function createSimpleCarModel() {
+            const car = new THREE.Group();
+
+            // Car body (main box)
+            const bodyGeometry = new THREE.BoxGeometry(1.6, 0.8, 4);
+            const bodyMaterial = new THREE.MeshStandardMaterial({
+                color: 0xD4B896,
+                metalness: 0.88,
+                roughness: 0.20,
+                envMapIntensity: 1.3
+            });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 0.4;
+            body.userData.isCarBody = true;
+            car.add(body);
+
+            // Car roof
+            const roofGeometry = new THREE.BoxGeometry(1.4, 0.6, 1.8);
+            const roof = new THREE.Mesh(roofGeometry, bodyMaterial);
+            roof.position.set(0, 1.2, -0.2);
+            car.add(roof);
+
+            // Wheels (4x)
+            const wheelGeometry = new THREE.CylinderGeometry(0.35, 0.35, 0.3, 32);
+            const wheelMaterial = new THREE.MeshStandardMaterial({
+                color: 0x1a1a1a,
+                metalness: 0.3,
+                roughness: 0.8
+            });
+
+            const wheelPositions = [
+                [-0.7, 0.35, 0.8],
+                [0.7, 0.35, 0.8],
+                [-0.7, 0.35, -1.2],
+                [0.7, 0.35, -1.2]
+            ];
+
+            wheelPositions.forEach(pos => {
+                const wheel = new THREE.Mesh(wheelGeometry, wheelMaterial);
+                wheel.rotation.z = Math.PI / 2;
+                wheel.position.set(...pos);
+                car.add(wheel);
+            });
+
+            // Windows (glass)
+            const windowGeometry = new THREE.BoxGeometry(1.2, 0.5, 0.8);
+            const windowMaterial = new THREE.MeshStandardMaterial({
+                color: 0x87CEEB,
+                metalness: 0,
+                roughness: 0.2,
+                transparent: true,
+                opacity: 0.5
+            });
+
+            const frontWindow = new THREE.Mesh(windowGeometry, windowMaterial);
+            frontWindow.position.set(0, 1.1, 1.2);
+            frontWindow.rotation.z = 0.2;
+            car.add(frontWindow);
+
+            const backWindow = new THREE.Mesh(windowGeometry, windowMaterial);
+            backWindow.position.set(0, 1.1, -0.8);
+            backWindow.rotation.z = -0.2;
+            car.add(backWindow);
+
+            return car;
+        }
+
         // ============= Map Initialization =============
         async function initMaps() {
             window.appState = window.appState || {
@@ -739,7 +816,7 @@
             };
 
             if (mapsInitialized) return;
-            
+
             try {
                 const mainMapElement = document.getElementById('dashboard-google-map');
                 if (!mainMapElement) {
@@ -756,7 +833,7 @@
                     tiltInteractionEnabled: true,
                     gestureHandling: 'greedy'
                 };
-         
+
                 // Create Dashboard Map (3D)
                 window.dashboardGoogleMap = new google.maps.Map(mainMapElement, {
                     ...commonConfigs,
@@ -775,7 +852,7 @@
 
                 mapsInitialized = true;
                 console.log("✅ Maps initialized successfully");
-                
+
                 // Start continuous location tracking
                 startLiveTracking();
 
@@ -796,80 +873,43 @@
             window.carOverlay = overlay;
 
             overlay.onAdd = () => {
-                const loader = new window.GLTFLoader();
                 overlay.scene = new THREE.Scene();
                 overlay.camera = new THREE.PerspectiveCamera();
-                
-                // ⭐ نظام إضاءة محسّن للمواد المعدنية الواقعية
-                // Enhanced Lighting System for Realistic Metallic Materials
 
-                // 1. ضوء محيطي قوي - Stronger Ambient Light
+                // Lighting System
                 overlay.scene.add(new THREE.AmbientLight(0xffffff, 0.90));
 
-                // 2. كشافات رئيسية عالية الشدة - Main Key Lights (Light 1 & Light 2 Only)
-                const light1 = new THREE.DirectionalLight(0xffffff, 1.1);
-                light1.position.set(30, 15, 20);
-                light1.castShadow = false;
-                overlay.scene.add(light1);
+                // Light 1 - تخزين في window للتحكم عن بعد
+                window.light1 = new THREE.DirectionalLight(0xffffff, 1.1);
+                window.light1.position.set(-30, 15, -20);  // Rotated -180°
+                overlay.scene.add(window.light1);
 
-                const light2 = new THREE.DirectionalLight(0xffffff, 1.0);
-                light2.position.set(-30, 10, 20);
-                overlay.scene.add(light2);
+                // Light 2 - تخزين في window للتحكم عن بعد
+                window.light2 = new THREE.DirectionalLight(0xffffff, 1.0);
+                window.light2.position.set(-30, 10, 20);
+                overlay.scene.add(window.light2);
 
-                loader.load('https://dmusera.netlify.app/ES350E.gltf', (gltf) => {
-                    window.carModel = gltf.scene;
-                    
-                    window.carModel.traverse(node => {
-                        if (node.isMesh) {
-                            const originalColor = node.material.color.clone();
-                            const isTransparent = node.material.transparent || node.material.opacity < 0.9;
-                            const isNeutral = (originalColor.r === originalColor.g && originalColor.g === originalColor.b) || 
-                                             (originalColor.r < 0.5 && originalColor.g < 0.5 && originalColor.b < 0.5);
+                // Create car model (no external GLTF needed)
+                window.carModel = createSimpleCarModel();
+                window.carModel.rotation.x = Math.PI / 2;
+                overlay.scene.add(window.carModel);
 
-                            if (isTransparent || isNeutral) {
-                                // مادة العجلات والزجاج - Wheels & Glass Material
-                                node.material = new THREE.MeshStandardMaterial({
-                                    color: isTransparent ? originalColor : 0x1a1a1a,
-                                    metalness: 0.3,
-                                    roughness: 0.6,
-                                    side: THREE.DoubleSide,
-                                    transparent: isTransparent,
-                                    opacity: node.material.opacity
-                                });
-                            } else {
-                                // مادة جسم السيارة - Lexus 4U7 Satin Cashmere Metallic
-                                // 4U7 = ذهبي فاتح معدني فاخر (Light Champagne Silver)
-                                node.material = new THREE.MeshStandardMaterial({
-                                    color: 0xD4B896,           // لون 4U7 الذهبي الفاتح الفضي
-                                    metalness: 0.88,           // قيمة معدنية عالية جداً
-                                    roughness: 0.20,           // خشونة منخفضة جداً لمظهر لامع أكثر
-                                    side: THREE.DoubleSide,
-                                    flatShading: false,
-                                    envMapIntensity: 1.3       // عكس البيئة أقوى
-                                });
-                            }
-                            node.material.needsUpdate = true;
-                        }
-                    });
-
-                    window.carModel.rotation.x = Math.PI / 2;
-                    overlay.scene.add(window.carModel);
-                });
+                console.log("✅ Car model created successfully (without GLTF file)");
             };
 
             overlay.onContextRestored = ({ gl }) => {
                 overlay.renderer = new THREE.WebGLRenderer({
-                    canvas: gl.canvas, 
-                    context: gl, 
-                    antialias: true, 
+                    canvas: gl.canvas,
+                    context: gl,
+                    antialias: true,
                     alpha: true,
-                    precision: 'highp'  // دقة عالية للمواد المعدنية
+                    precision: 'highp'
                 });
                 overlay.renderer.autoClear = false;
-                overlay.renderer.shadowMap.enabled = true;  // تفعيل خريطة الظلال
+                overlay.renderer.shadowMap.enabled = true;
                 overlay.renderer.shadowMap.type = THREE.PCFShadowShadowMap;
-                overlay.renderer.toneMappingExposure = 1.2;  // زيادة الإضاءة قليلاً
-                overlay.renderer.outputColorSpace = THREE.SRGBColorSpace;  // Color space للألوان الواقعية
+                overlay.renderer.toneMappingExposure = 1.2;
+                overlay.renderer.outputColorSpace = THREE.SRGBColorSpace;
             };
 
             overlay.onDraw = ({ transformer }) => {
@@ -887,7 +927,7 @@
 
                 const baseScale = window.tuner?.scale || 0.85;
                 const finalScale = baseScale * Math.pow(2, 20 - zoom);
-                
+
                 window.carModel.scale.set(finalScale, finalScale, finalScale);
                 window.carModel.rotation.y = -(heading * Math.PI) / 180 + Math.PI;
 
@@ -979,7 +1019,7 @@
                     },
                     (err) => {
                         let msg = 'Unable to get your location. Please check permissions.';
-                        
+
                         if (err.code === 1) {
                             msg = 'Location permission denied. Using default location.';
                         } else if (err.code === 2) {
@@ -988,7 +1028,7 @@
 
                         const FALLBACK_COORDS = { lat: 17.067330, lng: 54.160190 };
                         window.appState.currentLocation = FALLBACK_COORDS;
-                        
+
                         const fallbackPos = {
                             coords: {
                                 latitude: FALLBACK_COORDS.lat,
@@ -997,7 +1037,7 @@
                             }
                         };
                         window.updateGoogleMapLocation(fallbackPos);
-                        
+
                         showGeolocationErrorOnMap(msg);
                         console.error("Geolocation Error Code:", err.code);
                     },
@@ -1010,21 +1050,17 @@
 
         // ============= Event Listeners =============
         document.addEventListener('DOMContentLoaded', () => {
-            // Initialize map
             window.initMap = function() { initMaps(); };
             loadGoogleMaps().then(initMap);
 
-            // Get user location button
             const getLocationBtn = document.getElementById('get-my-location-button-dashboard');
             if (getLocationBtn) {
                 getLocationBtn.addEventListener('click', centerMapOnUserLocation);
             }
 
-            // Initialize Lucide icons
             lucide.createIcons();
         });
 
-        // Map interaction detection
         window.addEventListener('load', () => {
             if (window.dashboardGoogleMap) {
                 const map = window.dashboardGoogleMap;
@@ -1038,7 +1074,6 @@
             }
         });
 
-        // Initialize on page load
         window.addEventListener('load', () => {
             setTimeout(() => {
                 if (!mapsInitialized) {
@@ -1052,7 +1087,6 @@
 
         // ============= Material Control Functions =============
 
-        // Store current material properties
         window.materialSettings = {
             ambientLight: 0.90,
             metalness: 0.88,
@@ -1065,12 +1099,10 @@
             const floatValue = parseFloat(value);
             window.materialSettings.ambientLight = floatValue;
 
-            // Update display
             document.getElementById('ambientLightValue').textContent = floatValue.toFixed(2);
             document.getElementById('ambientLightDisplay').textContent = floatValue.toFixed(2);
             document.getElementById('currentAmbientDisplay').textContent = floatValue.toFixed(2);
 
-            // Update scene lighting
             if (window.carOverlay && window.carOverlay.scene) {
                 const ambientLight = window.carOverlay.scene.children.find(c => c.isLight && c.type === 'AmbientLight');
                 if (ambientLight) {
@@ -1083,12 +1115,10 @@
             const floatValue = parseFloat(value);
             window.materialSettings.metalness = floatValue;
 
-            // Update display
             document.getElementById('metalnessValue').textContent = floatValue.toFixed(2);
             document.getElementById('metalnessDisplay').textContent = floatValue.toFixed(2);
             document.getElementById('currentMetalnessDisplay').textContent = floatValue.toFixed(2);
 
-            // Update material
             updateCarMaterial();
         }
 
@@ -1096,12 +1126,10 @@
             const floatValue = parseFloat(value);
             window.materialSettings.roughness = floatValue;
 
-            // Update display
             document.getElementById('roughnessValue').textContent = floatValue.toFixed(2);
             document.getElementById('roughnessDisplay').textContent = floatValue.toFixed(2);
             document.getElementById('currentRoughnessDisplay').textContent = floatValue.toFixed(2);
 
-            // Update material
             updateCarMaterial();
         }
 
@@ -1109,11 +1137,9 @@
             const floatValue = parseFloat(value);
             window.materialSettings.envMapIntensity = floatValue;
 
-            // Update display
             document.getElementById('envMapIntensityValue').textContent = floatValue.toFixed(2);
             document.getElementById('envMapIntensityDisplay').textContent = floatValue.toFixed(2);
 
-            // Update material
             updateCarMaterial();
         }
 
@@ -1121,12 +1147,10 @@
             const colorInt = parseInt(colorHex.replace('#', ''), 16);
             window.materialSettings.carColor = colorInt;
 
-            // Update displays
             document.getElementById('colorCode').value = colorHex.toUpperCase();
             document.getElementById('colorPicker').value = colorHex;
             document.getElementById('currentColorDisplay').textContent = colorHex.toUpperCase();
 
-            // Update material
             updateCarMaterial();
         }
 
@@ -1134,20 +1158,12 @@
             if (!window.carModel) return;
 
             window.carModel.traverse(node => {
-                if (node.isMesh && node.material) {
-                    const originalColor = node.material.color ? node.material.color.clone() : new THREE.Color();
-                    const isTransparent = node.material.transparent || (node.material.opacity && node.material.opacity < 0.9);
-                    const isNeutral = (originalColor.r === originalColor.g && originalColor.g === originalColor.b) ||
-                                     (originalColor.r < 0.5 && originalColor.g < 0.5 && originalColor.b < 0.5);
-
-                    if (!isTransparent && !isNeutral) {
-                        // Update car body material
-                        node.material.color.setHex(window.materialSettings.carColor);
-                        node.material.metalness = window.materialSettings.metalness;
-                        node.material.roughness = window.materialSettings.roughness;
-                        node.material.envMapIntensity = window.materialSettings.envMapIntensity;
-                        node.material.needsUpdate = true;
-                    }
+                if (node.isMesh && node.material && node.userData.isCarBody) {
+                    node.material.color.setHex(window.materialSettings.carColor);
+                    node.material.metalness = window.materialSettings.metalness;
+                    node.material.roughness = window.materialSettings.roughness;
+                    node.material.envMapIntensity = window.materialSettings.envMapIntensity;
+                    node.material.needsUpdate = true;
                 }
             });
         }
@@ -1194,7 +1210,6 @@
                     break;
             }
 
-            // Apply all settings
             if (settings.ambientLight !== undefined) {
                 document.getElementById('ambientLightSlider').value = settings.ambientLight;
                 updateAmbientLight(settings.ambientLight);
@@ -1218,163 +1233,6 @@
             }
         }
 
-        // ============= Advanced Lighting Control Functions =============
-
-        // Store list of custom lights
-        window.customLights = [];
-        let draggedLightIndex = null;
-
-        function toggleAdvancedLights() {
-            const panel = document.getElementById('advancedLightsPanel');
-            if (panel) {
-                panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-            }
-        }
-
-        function addNewLight() {
-            if (!window.carOverlay || !window.carOverlay.scene) {
-                alert('⚠️ الرجاء انتظار تحميل المشهد أولاً');
-                return;
-            }
-
-            const newLight = {
-                id: Date.now(),
-                x: 20,
-                y: 10,
-                z: 20,
-                intensity: 0.8,
-                color: 0xffffff,
-                type: 'directional'
-            };
-
-            window.customLights.push(newLight);
-
-            // Create Three.js light
-            const light = new THREE.DirectionalLight(newLight.color, newLight.intensity);
-            light.position.set(newLight.x, newLight.y, newLight.z);
-            light.userData.customLightId = newLight.id;
-            window.carOverlay.scene.add(light);
-
-            renderLightsList();
-        }
-
-        function renderLightsList() {
-            const container = document.getElementById('lightsContainer');
-            if (!container) return;
-
-            container.innerHTML = '';
-
-            window.customLights.forEach((light, index) => {
-                const lightElement = document.createElement('div');
-                lightElement.className = 'light-item';
-                lightElement.id = `light-${light.id}`;
-                lightElement.draggable = true;
-                lightElement.innerHTML = `
-                    <div class="light-item-header">
-                        <span class="light-item-title">💡 إضاءة ${index + 1}</span>
-                        <div class="light-item-buttons">
-                            <button onclick="deleteLight(${light.id})" style="background: rgba(255,70,70,0.2); color: #ff4646; border: 1px solid rgba(255,70,70,0.5); padding: 2px 6px; border-radius: 3px; cursor: pointer; font-size: 0.7rem; margin-right: 0.3rem;">🗑️ حذف</button>
-                        </div>
-                    </div>
-                    <div class="light-controls" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.75rem;">
-                        <div>
-                            <div class="control-label" style="margin-bottom: 0.3rem;">الميل (Tilt)</div>
-                            <input type="range" min="-90" max="90" step="5" value="${light.x}"
-                                   onchange="updateLightProperty(${light.id}, 'x', this.value)"
-                                   class="light-mini-slider" style="width: 100%;">
-                            <div class="slider-value" style="font-size: 0.7rem; text-align: center;">${light.x}°</div>
-                        </div>
-                        <div>
-                            <div class="control-label" style="margin-bottom: 0.3rem;">الكثافة</div>
-                            <input type="range" min="0" max="2" step="0.1" value="${light.intensity}"
-                                   onchange="updateLightProperty(${light.id}, 'intensity', this.value)"
-                                   class="light-mini-slider" style="width: 100%;">
-                            <div class="slider-value" style="font-size: 0.7rem; text-align: center;">${light.intensity.toFixed(1)}</div>
-                        </div>
-                        <div>
-                            <div class="control-label" style="margin-bottom: 0.3rem;">الدوران (Rotate)</div>
-                            <input type="range" min="-180" max="180" step="5" value="${light.y}"
-                                   onchange="updateLightProperty(${light.id}, 'y', this.value)"
-                                   class="light-mini-slider" style="width: 100%;">
-                            <div class="slider-value" style="font-size: 0.7rem; text-align: center;">${light.y}°</div>
-                        </div>
-                        <div>
-                            <div class="control-label" style="margin-bottom: 0.3rem;">العمق (Z)</div>
-                            <input type="range" min="-50" max="50" step="5" value="${light.z}"
-                                   onchange="updateLightProperty(${light.id}, 'z', this.value)"
-                                   class="light-mini-slider" style="width: 100%;">
-                            <div class="slider-value" style="font-size: 0.7rem; text-align: center;">${light.z}</div>
-                        </div>
-                    </div>
-                `;
-
-                // Add drag and drop listeners
-                lightElement.addEventListener('dragstart', (e) => {
-                    draggedLightIndex = index;
-                    lightElement.style.opacity = '0.6';
-                });
-
-                lightElement.addEventListener('dragend', () => {
-                    lightElement.style.opacity = '1';
-                    draggedLightIndex = null;
-                });
-
-                container.appendChild(lightElement);
-            });
-        }
-
-        function updateLightProperty(lightId, property, value) {
-            const lightIndex = window.customLights.findIndex(l => l.id === lightId);
-            if (lightIndex === -1) return;
-
-            const light = window.customLights[lightIndex];
-            const floatValue = parseFloat(value);
-
-            // Update light data
-            if (property === 'x' || property === 'y' || property === 'z') {
-                light[property] = floatValue;
-            } else if (property === 'intensity') {
-                light.intensity = floatValue;
-            }
-
-            // Update Three.js light
-            if (window.carOverlay && window.carOverlay.scene) {
-                const threeLight = window.carOverlay.scene.children.find(c =>
-                    c.userData.customLightId === lightId
-                );
-
-                if (threeLight) {
-                    if (property === 'x' || property === 'y' || property === 'z') {
-                        threeLight.position[property] = floatValue;
-                    } else if (property === 'intensity') {
-                        threeLight.intensity = floatValue;
-                    }
-                }
-            }
-
-            // Re-render to show updated values
-            renderLightsList();
-        }
-
-        function deleteLight(lightId) {
-            const lightIndex = window.customLights.findIndex(l => l.id === lightId);
-            if (lightIndex === -1) return;
-
-            window.customLights.splice(lightIndex, 1);
-
-            // Remove from Three.js scene
-            if (window.carOverlay && window.carOverlay.scene) {
-                const threeLight = window.carOverlay.scene.children.find(c =>
-                    c.userData.customLightId === lightId
-                );
-                if (threeLight) {
-                    window.carOverlay.scene.remove(threeLight);
-                }
-            }
-
-            renderLightsList();
-        }
-
         function copyCurrentSettings() {
             const settings = `
 // Material Configuration
@@ -1384,13 +1242,89 @@ roughness: ${window.materialSettings.roughness},
 envMapIntensity: ${window.materialSettings.envMapIntensity}
 
 // Lighting Configuration
-AmbientLight: 0xffffff, ${window.materialSettings.ambientLight}`;
+AmbientLight: 0xffffff, ${window.materialSettings.ambientLight}
+
+// Light 1 Position
+Light 1: x=${window.light1?.position.x.toFixed(1)}, y=${window.light1?.position.y.toFixed(1)}, z=${window.light1?.position.z.toFixed(1)}, intensity=${window.light1?.intensity.toFixed(2)}
+
+// Light 2 Position
+Light 2: x=${window.light2?.position.x.toFixed(1)}, y=${window.light2?.position.y.toFixed(1)}, z=${window.light2?.position.z.toFixed(1)}, intensity=${window.light2?.intensity.toFixed(2)}`;
 
             navigator.clipboard.writeText(settings).then(() => {
                 alert('✅ تم نسخ الإعدادات!\n\n' + settings);
             }).catch(() => {
                 alert('Error copying to clipboard');
             });
+        }
+
+        // ============= Light Control Functions =============
+
+        function updateLight1Position(axis, value) {
+            if (!window.light1) return;
+
+            const floatValue = parseFloat(value);
+
+            if (axis === 'x') {
+                window.light1.position.x = floatValue;
+                document.getElementById('light1XValue').textContent = floatValue.toFixed(1);
+                document.getElementById('light1XDisplay').textContent = floatValue.toFixed(1);
+            } else if (axis === 'y') {
+                window.light1.position.y = floatValue;
+                document.getElementById('light1YValue').textContent = floatValue.toFixed(1);
+                document.getElementById('light1YDisplay').textContent = floatValue.toFixed(1);
+            } else if (axis === 'z') {
+                window.light1.position.z = floatValue;
+                document.getElementById('light1ZValue').textContent = floatValue.toFixed(1);
+                document.getElementById('light1ZDisplay').textContent = floatValue.toFixed(1);
+            }
+
+            if (window.carOverlay) window.carOverlay.requestRedraw();
+        }
+
+        function updateLight1Intensity(value) {
+            if (!window.light1) return;
+
+            const floatValue = parseFloat(value);
+            window.light1.intensity = floatValue;
+
+            document.getElementById('light1IntensityValue').textContent = floatValue.toFixed(2);
+            document.getElementById('light1IntensityDisplay').textContent = floatValue.toFixed(2);
+
+            if (window.carOverlay) window.carOverlay.requestRedraw();
+        }
+
+        function updateLight2Position(axis, value) {
+            if (!window.light2) return;
+
+            const floatValue = parseFloat(value);
+
+            if (axis === 'x') {
+                window.light2.position.x = floatValue;
+                document.getElementById('light2XValue').textContent = floatValue.toFixed(1);
+                document.getElementById('light2XDisplay').textContent = floatValue.toFixed(1);
+            } else if (axis === 'y') {
+                window.light2.position.y = floatValue;
+                document.getElementById('light2YValue').textContent = floatValue.toFixed(1);
+                document.getElementById('light2YDisplay').textContent = floatValue.toFixed(1);
+            } else if (axis === 'z') {
+                window.light2.position.z = floatValue;
+                document.getElementById('light2ZValue').textContent = floatValue.toFixed(1);
+                document.getElementById('light2ZDisplay').textContent = floatValue.toFixed(1);
+            }
+
+            if (window.carOverlay) window.carOverlay.requestRedraw();
+        }
+
+        function updateLight2Intensity(value) {
+            if (!window.light2) return;
+
+            const floatValue = parseFloat(value);
+            window.light2.intensity = floatValue;
+
+            document.getElementById('light2IntensityValue').textContent = floatValue.toFixed(2);
+            document.getElementById('light2IntensityDisplay').textContent = floatValue.toFixed(2);
+
+            if (window.carOverlay) window.carOverlay.requestRedraw();
         }
     </script>
 </body>
