@@ -263,6 +263,61 @@
             backdrop-filter: blur(10px);
         }
 
+        /* Map type switcher */
+        #map-type-controls {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 101;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 0.4rem;
+            border-radius: 0.75rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .map-type-button {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.85);
+            border: 1px solid transparent;
+            border-radius: 0.5rem;
+            padding: 0.35rem 0.6rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .map-type-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .map-type-button.active {
+            background: rgba(253, 184, 19, 0.25);
+            border-color: #FDB813;
+            color: #FDB813;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            #map-type-controls {
+                top: 0.5rem;
+                right: 0.5rem;
+                padding: 0.3rem;
+            }
+
+            .map-type-button {
+                font-size: 0.7rem;
+                padding: 0.3rem 0.45rem;
+            }
+        }
+
         #save-tuner-button {
             background: rgba(0, 0, 0, 0.6);
             color: #FDB813;
@@ -533,6 +588,14 @@
         </div>
 
         <!-- Map Controls -->
+        <!-- Map type switcher -->
+        <div id="map-type-controls">
+            <button class="map-type-button" id="btn-map-3d" onclick="setMapType('3d')">🏙️ خريطة 3D</button>
+            <button class="map-type-button" id="btn-map-2d" onclick="setMapType('2d')">🗺️ خريطة 2D</button>
+            <button class="map-type-button" id="btn-map-satellite" onclick="setMapType('satellite')">🛰️ قمر صناعي</button>
+            <button class="map-type-button" id="btn-map-streetview" onclick="setMapType('streetview')">👁️ ستريت فيو</button>
+        </div>
+
         <div class="map-controls">
             <button id="get-my-location-button-dashboard" class="map-button" title="تحديث الموقع الحالي">
                 <i data-lucide="map-pin" class="w-5 h-5"></i>
@@ -813,39 +876,125 @@
             } catch (e) { return null; }
         }
 
-        // Tuner parameters — chosen (ideal) defaults
+        // ============= Per-map-type settings =============
+        // Every map type keeps its own zoom / size / tilt.
+        // Street View keeps its own view angle (POV) and zoom.
         window.TUNER_DEFAULTS = {
-            zoom: 21.055910323703504,
-            tilt: 67.5,
-            scale: 1.92,
-            offset: 45
+            current: '3d',
+            types: {
+                '3d':        { zoom: 21.055910323703504, tilt: 67.5, scale: 1.92, offset: 45 },
+                'satellite': { zoom: 21.055910323703504, tilt: 67.5, scale: 1.92, offset: 45 },
+                '2d':        { zoom: 21.055910323703504, tilt: 0,    scale: 1.92, offset: 45 }
+            },
+            streetview: { heading: 0, pitch: 0, zoom: 1, open: false }
         };
-        window.tuner = { ...window.TUNER_DEFAULTS };
+        const MAP_TYPES = ['3d', '2d', 'satellite'];
+        const TUNER_KEYS = ['zoom', 'tilt', 'scale', 'offset'];
 
-        // Restore the saved zoom / size / tilt
+        window.tunerStore = JSON.parse(JSON.stringify(window.TUNER_DEFAULTS));
+        // Live values of the current type (the rest of the code uses window.tuner)
+        window.tuner = { ...window.tunerStore.types['3d'], mapType: '3d' };
+
         (function loadTuner() {
             const raw = getCookie(TUNER_COOKIE);
             if (!raw) return;
             try {
                 const saved = JSON.parse(raw);
-                ['zoom', 'tilt', 'scale', 'offset'].forEach(k => {
-                    if (typeof saved[k] === 'number' && isFinite(saved[k])) window.tuner[k] = saved[k];
-                });
-                console.log('💾 Tuner restored from cookie:', window.tuner);
+
+                if (saved.types) {
+                    MAP_TYPES.forEach(t => {
+                        if (!saved.types[t]) return;
+                        TUNER_KEYS.forEach(k => {
+                            const v = saved.types[t][k];
+                            if (typeof v === 'number' && isFinite(v)) window.tunerStore.types[t][k] = v;
+                        });
+                    });
+                    if (saved.streetview) {
+                        ['heading', 'pitch', 'zoom'].forEach(k => {
+                            const v = saved.streetview[k];
+                            if (typeof v === 'number' && isFinite(v)) window.tunerStore.streetview[k] = v;
+                        });
+                        window.tunerStore.streetview.open = !!saved.streetview.open;
+                    }
+                    if (MAP_TYPES.includes(saved.current)) window.tunerStore.current = saved.current;
+                } else {
+                    // Old cookie (one set of values) — copy it to every type
+                    MAP_TYPES.forEach(t => TUNER_KEYS.forEach(k => {
+                        const v = saved[k];
+                        if (typeof v === 'number' && isFinite(v)) window.tunerStore.types[t][k] = v;
+                    }));
+                    window.tunerStore.types['2d'].tilt = 0;
+                    if (MAP_TYPES.includes(saved.mapType)) window.tunerStore.current = saved.mapType;
+                }
+
+                const cur = window.tunerStore.current;
+                window.tuner = { ...window.tunerStore.types[cur], mapType: cur };
+                console.log('💾 Restored from cookie:', window.tunerStore);
             } catch (e) { console.warn('Bad tuner cookie:', e); }
         })();
+
+        // True once a type's saved values have been applied to the map.
+        // Before that we must not read values off the map, or we would
+        // overwrite the saved ones with whatever the map starts with.
+        window.tunerApplied = false;
+
+        // Copies the live values into the current type's slot
+        window.captureTuner = function() {
+            if (!window.tunerApplied) return;
+            const map = window.dashboardGoogleMap;
+            const type = window.tuner.mapType;
+
+            if (map) {
+                const z = map.getZoom(), t = map.getTilt();
+                if (typeof z === 'number' && isFinite(z)) window.tuner.zoom = z;
+                if (typeof t === 'number' && isFinite(t)) window.tuner.tilt = t;
+            }
+
+            if (window.tunerStore.types[type]) {
+                TUNER_KEYS.forEach(k => {
+                    if (typeof window.tuner[k] === 'number' && isFinite(window.tuner[k])) {
+                        window.tunerStore.types[type][k] = window.tuner[k];
+                    }
+                });
+                window.tunerStore.current = type;
+            }
+
+            const pano = map && map.getStreetView && map.getStreetView();
+            if (pano && pano.getVisible && pano.getVisible()) {
+                const pov = pano.getPov && pano.getPov();
+                if (pov) {
+                    if (typeof pov.heading === 'number') window.tunerStore.streetview.heading = pov.heading;
+                    if (typeof pov.pitch === 'number') window.tunerStore.streetview.pitch = pov.pitch;
+                }
+                const pz = pano.getZoom && pano.getZoom();
+                if (typeof pz === 'number' && isFinite(pz)) window.tunerStore.streetview.zoom = pz;
+                window.tunerStore.streetview.open = true;
+            }
+        };
+
+        window.writeTunerCookie = function() {
+            window.captureTuner();
+            setCookie(TUNER_COOKIE, JSON.stringify(window.tunerStore));
+        };
 
         let saveTunerTimer = null;
         window.saveTuner = function() {
             clearTimeout(saveTunerTimer);
-            saveTunerTimer = setTimeout(() => {
-                setCookie(TUNER_COOKIE, JSON.stringify({
-                    zoom: window.tuner.zoom,
-                    tilt: window.tuner.tilt,
-                    scale: window.tuner.scale,
-                    offset: window.tuner.offset
-                }));
-            }, 300);
+            saveTunerTimer = setTimeout(window.writeTunerCookie, 300);
+        };
+
+        // Applies a type's saved values to the map
+        window.applyTunerToMap = function(type) {
+            const map = window.dashboardGoogleMap;
+            const cfg = window.tunerStore.types[type];
+            if (!map || !cfg) return;
+
+            window.tuner = { ...cfg, mapType: type };
+            window.tunerApplied = true;
+            map.setMapTypeId(type === 'satellite' ? 'satellite' : 'roadmap');
+            if (typeof cfg.zoom === 'number') map.setZoom(cfg.zoom);
+            map.setTilt(type === '2d' ? 0 : cfg.tilt);
+            if (window.carOverlay) window.carOverlay.requestRedraw();
         };
 
         // ============= Google Maps API Loader =============
@@ -910,6 +1059,23 @@
                 // Setup 3D Car System
                 setup3DCarSystem(window.dashboardGoogleMap);
                 attachMapListeners(window.dashboardGoogleMap);
+
+                // Apply the saved map type and its own zoom / size / tilt
+                setMapType(window.tunerStore.current || '3d');
+                if (window.tunerStore.streetview.open) setMapType('streetview');
+
+                // Back to the map when Street View is closed
+                const pano = window.dashboardGoogleMap.getStreetView();
+                pano.addListener('visible_changed', () => {
+                    if (!pano.getVisible()) {
+                        window.tunerStore.streetview.open = false;
+                        window.saveTuner();
+                        markActiveMapType(window.tuner.mapType || '3d');
+                    }
+                });
+                // Street View remembers its own angle and zoom
+                pano.addListener('pov_changed', () => { if (pano.getVisible()) window.saveTuner(); });
+                pano.addListener('zoom_changed', () => { if (pano.getVisible()) window.saveTuner(); });
 
                 // Add Traffic Layer
                 new google.maps.TrafficLayer().setMap(window.dashboardGoogleMap);
@@ -1438,48 +1604,83 @@ Light 2: x=${window.light2?.position.x.toFixed(1)}, y=${window.light2?.position.
             });
         }
 
+        // ============= Map type: 3D / 2D / Satellite / Street View =============
+        window.setMapType = function(type) {
+            const map = window.dashboardGoogleMap;
+            if (!map) return;
+
+            const panorama = map.getStreetView();
+            window.captureTuner();   // keep the current type's values before switching
+
+            if (type === 'streetview') {
+                const pos = window.appState.currentLocation;
+                new google.maps.StreetViewService().getPanorama(
+                    { location: pos, radius: 80 },
+                    (data, status) => {
+                        if (status === 'OK') {
+                            const sv = window.tunerStore.streetview;
+                            panorama.setPosition(data.location.latLng);
+                            panorama.setPov({ heading: sv.heading, pitch: sv.pitch });
+                            if (typeof sv.zoom === 'number') panorama.setZoom(sv.zoom);
+                            panorama.setVisible(true);
+                            sv.open = true;
+                            window.saveTuner();
+                            markActiveMapType('streetview');
+                            console.log('👁️ Street View opened');
+                        } else {
+                            alert('لا تتوفر صور ستريت فيو في هذا الموقع.');
+                            markActiveMapType(window.tuner.mapType);
+                        }
+                    }
+                );
+                return;
+            }
+
+            if (panorama.getVisible()) panorama.setVisible(false);
+            window.tunerStore.streetview.open = false;
+
+            if (!MAP_TYPES.includes(type)) type = '3d';
+            window.applyTunerToMap(type);
+            window.saveTuner();
+            markActiveMapType(type);
+            console.log('🗺️ Map type:', type, window.tunerStore.types[type]);
+        };
+
+        function markActiveMapType(type) {
+            document.querySelectorAll('.map-type-button').forEach(b => b.classList.remove('active'));
+            const btn = document.getElementById('btn-map-' + type);
+            if (btn) btn.classList.add('active');
+        }
+
         // ============= Console test command =============
         // Type in the browser console:  tunerInfo()
         window.tunerInfo = function() {
             const map = window.dashboardGoogleMap;
-            const live = {
-                zoom:  map ? map.getZoom()  : null,
-                tilt:  map ? map.getTilt()  : null,
-                size:  window.tuner.scale,
-                offset: window.tuner.offset
-            };
-            const saved = (() => {
-                const raw = getCookie(TUNER_COOKIE);
-                if (!raw) return null;
-                try { return JSON.parse(raw); } catch (e) { return 'bad cookie'; }
-            })();
+            const pano = map && map.getStreetView && map.getStreetView();
+            window.captureTuner();
 
-            console.log('%c📊 Zoom / Size / Tilt', 'color:#FDB813;font-weight:bold');
-            console.table({
-                'live (map now)': { zoom: live.zoom, tilt: live.tilt, size: live.size },
-                'in memory':      { zoom: window.tuner.zoom, tilt: window.tuner.tilt, size: window.tuner.scale },
-                'saved (cookie)': saved ? { zoom: saved.zoom, tilt: saved.tilt, size: saved.scale } : { zoom: '—', tilt: '—', size: '—' }
+            const rows = {};
+            MAP_TYPES.forEach(t => {
+                const c = window.tunerStore.types[t];
+                rows[t + (t === window.tuner.mapType ? ' ← current' : '')] =
+                    { zoom: c.zoom, tilt: c.tilt, size: c.scale };
             });
-            console.log('inside iframe:', window.self !== window.top, '| cookie:', saved ? 'yes' : 'none');
-            return { live, memory: { ...window.tuner }, saved };
+            const sv = window.tunerStore.streetview;
+            rows['streetview'] = { zoom: sv.zoom, tilt: '(pitch) ' + sv.pitch, size: '(heading) ' + sv.heading };
+
+            console.log('%c📊 Saved per map type', 'color:#FDB813;font-weight:bold');
+            console.table(rows);
+            console.log('live map:', map ? { zoom: map.getZoom(), tilt: map.getTilt() } : 'map not ready',
+                        '| street view open:', pano && pano.getVisible ? pano.getVisible() : false,
+                        '| inside iframe:', window.self !== window.top,
+                        '| cookie:', getCookie(TUNER_COOKIE) ? 'yes' : 'none');
+            return JSON.parse(JSON.stringify(window.tunerStore));
         };
 
         // ============= Save button (Zoom / Size / Tilt) =============
         // Reads the live values off the map and writes them to the cookie now
         window.saveTunerNow = function() {
-            const map = window.dashboardGoogleMap;
-            if (map) {
-                const z = map.getZoom(), t = map.getTilt();
-                if (typeof z === 'number') window.tuner.zoom = z;
-                if (typeof t === 'number') window.tuner.tilt = t;
-            }
-
-            setCookie(TUNER_COOKIE, JSON.stringify({
-                zoom: window.tuner.zoom,
-                tilt: window.tuner.tilt,
-                scale: window.tuner.scale,
-                offset: window.tuner.offset
-            }));
+            window.writeTunerCookie();   // saves the current type + Street View angle
 
             const btn = document.getElementById('save-tuner-button');
             if (btn) {
@@ -1487,7 +1688,7 @@ Light 2: x=${window.light2?.position.x.toFixed(1)}, y=${window.light2?.position.
                 btn.classList.add('saved');
                 setTimeout(() => { btn.textContent = '💾'; btn.classList.remove('saved'); }, 1200);
             }
-            console.log('💾 Saved:', window.tuner);
+            console.log('💾 Saved:', window.tunerStore);
         };
 
         // ============= Clear browser cache =============
